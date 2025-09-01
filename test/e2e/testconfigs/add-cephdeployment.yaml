@@ -1,0 +1,10 @@
+testSettings:
+  namespace: ${TEST_NAMESPACE}
+  skipStoreState: true
+  caseSettings:
+  - name: TestDeployCephDeploymentMKE
+    config:
+      clusterNet: "13.2.0.0/24"
+      publicNet: "13.1.0.0/24"
+testCases:
+- TestDeployCephDeploymentMKE

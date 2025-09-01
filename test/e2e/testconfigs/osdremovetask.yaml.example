@@ -1,0 +1,56 @@
+# This file contains example of configuration for running
+# e2e tests for checking CephOsdRemoveTask feature.
+#
+# Spec update params:
+# * updateNodes - fully update node or add new node definition;
+# * extendNodes - changes present in spec node with specified devices,
+#                 adds new devices, all other changes are ignored;
+# * reduceNodes - changes present in spec node with specified devices,
+#                 remove specified devices, all other changes are ignored;
+# * dropNodes - fully removes node from spec;
+#
+# CephDeployment health readiness:
+# * waitReadiness - do not wait for cephdeployment/cephdeploymenthealth readiness,
+#                   usefull if some devices dropping from spec, but not removed yet,
+#                   to avoid health error about not described error and unlock further actions.
+#                   values: no, yes
+#
+# All nodes/devices names must be adjusted for particular env
+#
+testSettings:
+  namespace: ceph-lcm
+  caseSettings:
+  - name: TestUpdateStorageNodes
+    config:
+      waitReadiness: no
+      updateNodes: |-
+        de-mke-pelagia-mke-storage-node-2:
+          selection:
+            devices:
+            - config:
+                deviceClass: hdd
+              name: vdc
+      dropNodes: |-
+        de-mke-pelagia-mke-storage-node-3: {}
+      extendNodes: |-
+        de-mke-pelagia-mke-storage-node-4:
+          selection:
+            devices:
+            - config:
+                deviceClass: hdd
+              name: vde
+  - name: TestCephOsdRemoveTask
+    config:
+      tasks: |-
+        - approve: true
+          nodes:
+            de-mke-pelagia-mke-storage-node-2:
+              cleanupbydevice:
+              - device: vde
+        - approve: true
+          nodes:
+            de-mke-pelagia-mke-storage-node-3:
+              completecleanup: true
+testCases:
+- TestUpdateStorageNodes
+- TestCephOsdRemoveTask

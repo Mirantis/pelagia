@@ -1,0 +1,273 @@
+{{ if .Values.rookConfig.configureRook }}
+---
+# The role for the operator to manage resources in its own namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: rook-ceph-system
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - configmaps
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - apps
+      - extensions
+    resources:
+      - daemonsets
+      - statefulsets
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+      - deletecollection
+  - apiGroups:
+      - batch
+    resources:
+      - cronjobs
+    verbs:
+      - delete
+  - apiGroups:
+      - cert-manager.io
+    resources:
+      - certificates
+      - issuers
+    verbs:
+      - get
+      - create
+      - delete
+  - apiGroups:
+      - multicluster.x-k8s.io
+    resources:
+      - serviceexports
+    verbs:
+      - get
+      - create
+# OLM: BEGIN CSI RBD ROLE
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  name: rbd-csi-nodeplugin
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get"]
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  name: cephfs-csi-nodeplugin
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["get", "list"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get"]
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  name: rbd-external-provisioner-cfg
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "watch", "list", "delete", "update", "create"]
+# OLM: END CSI RBD ROLE
+# OLM: BEGIN CLUSTER ROLE
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rook-ceph-osd
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  # this is needed for rook's "key-management" CLI to fetch the vault token from the secret when
+  # validating the connection details and for key rotation operations.
+  #- apiGroups: [""]
+  #  resources: ["secrets"]
+  #  verbs: ["get", "update"]
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "delete"]
+  - apiGroups: ["ceph.rook.io"]
+    resources: ["cephclusters", "cephclusters/finalizers"]
+    verbs: ["get", "list", "create", "update", "delete"]
+---
+# Aspects of ceph osd purge job that require access to the cluster namespace
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rook-ceph-purge-osd
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "delete"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "delete"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "update", "delete", "list"]
+---
+# Aspects of ceph-mgr that operate within the cluster's namespace
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rook-ceph-mgr
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - services
+      - pods/log
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - batch
+    resources:
+      - jobs
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+  - apiGroups:
+      - ceph.rook.io
+    resources:
+      - cephclients
+      - cephclusters
+      - cephblockpools
+      - cephfilesystems
+      - cephnfses
+      - cephobjectstores
+      - cephobjectstoreusers
+      - cephobjectrealms
+      - cephobjectzonegroups
+      - cephobjectzones
+      - cephbuckettopics
+      - cephbucketnotifications
+      - cephrbdmirrors
+      - cephfilesystemmirrors
+      - cephfilesystemsubvolumegroups
+      - cephblockpoolradosnamespaces
+      - cephcosidrivers
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+      - patch
+  - apiGroups:
+      - apps
+    resources:
+      - deployments/scale
+      - deployments
+    verbs:
+      - patch
+      - delete
+  - apiGroups:
+      - ''
+    resources:
+      - persistentvolumeclaims
+    verbs:
+      - delete
+# OLM: BEGIN CMD REPORTER ROLE
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rook-ceph-cmd-reporter
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+# OLM: END CMD REPORTER ROLE
+# OLM: BEGIN CSI CEPHFS ROLE
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  name: cephfs-external-provisioner-cfg
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "watch", "list", "delete", "update", "create"]
+
+# OLM: END CSI CEPHFS ROLE
+{{- end }}

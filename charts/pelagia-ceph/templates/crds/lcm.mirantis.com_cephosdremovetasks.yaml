@@ -1,0 +1,502 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.1
+  name: cephosdremovetasks.lcm.mirantis.com
+spec:
+  group: lcm.mirantis.com
+  names:
+    kind: CephOsdRemoveTask
+    listKind: CephOsdRemoveTaskList
+    plural: cephosdremovetasks
+    shortNames:
+    - osdlcm
+    singular: cephosdremovetask
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - description: Phase
+      jsonPath: .status.phase
+      name: Phase
+      type: string
+    - description: Extra phase Info
+      jsonPath: .status.phaseInfo
+      name: Additinal info
+      type: string
+    - description: Approve
+      jsonPath: .spec.approve
+      name: Approve
+      type: boolean
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: CephOsdRemoveTask stands for handling tasks for removing osds
+          from cluster
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: CephOsdRemoveTaskSpec contains main remove task options
+            properties:
+              approve:
+                description: |-
+                  Approve is a ceph team emergency break to ask operator to
+                  think twice before removing OSD. Could be only manually be
+                  enabled by user.
+                type: boolean
+              nodes:
+                additionalProperties:
+                  description: |-
+                    NodeCleanUpSpec describes how should be OSD cleaned up on particular node
+                    Can be set only one field at time.
+                  maxProperties: 1
+                  minProperties: 1
+                  properties:
+                    cleanupByDevice:
+                      description: CleanupByDevice describes devices or it pathes
+                        and osd on it to cleanup
+                      items:
+                        description: |-
+                          DeviceCleanupSpec is a spec describing dev names or pathes to cleanup
+                          and whether to cleanup it or not
+                        properties:
+                          device:
+                            description: |-
+                              Device represents either physical dev names on a node, used for osd, e.g. 'sdb', '/dev/nvme1e0'.
+                              Either full dev path (by-path or by-id) on a node, where osd lives, e.g. '/dev/disk/by-path/...' or '/dev/disk/by-id/...'
+                            pattern: ^((\/dev\/)?[\w]+$)|(\/dev\/disk\/by-(path|id)\/.+)
+                            type: string
+                          skipDeviceCleanup:
+                            description: |-
+                              SkipDeviceCleanup is a flag, whether to skip device/osd partitions cleanup
+                              related to all osd found on specified device, including partitions on other related devices.
+                            type: boolean
+                        required:
+                        - device
+                        type: object
+                      minItems: 1
+                      type: array
+                    cleanupByOsd:
+                      description: CleanupByOsdID is a list of osd's id, placed on
+                        node to cleanup
+                      items:
+                        properties:
+                          id:
+                            description: Osd id to remove from cluster
+                            type: integer
+                          skipDeviceCleanup:
+                            description: |-
+                              SkipDeviceCleanup is a flag, whether to skip device/osd partitions cleanup
+                              related to specified osd id
+                            type: boolean
+                        required:
+                        - id
+                        type: object
+                      minItems: 1
+                      type: array
+                    cleanupStrayPartitions:
+                      description: |-
+                        CleanupStrayPartitions is a flag for cleaning disks with osd lvm partitions
+                        which are not belong to current cluster, for example, when disk was not cleaned
+                        after previous setup
+                      type: boolean
+                    completeCleanup:
+                      description: |-
+                        CompleteCleanUp is a flag for total node cleanup and drop from crush map
+                        Node will be cleaned up with all its osd and devices if possible
+                      type: boolean
+                    dropFromCrush:
+                      description: |-
+                        DropFromCrush is the same to CompleteCleanup, but without devices cleanup on host
+                        May be useful when host is going to be reprovisioned and
+                        no need to spent time for devices clean up
+                      type: boolean
+                  type: object
+                description: |-
+                  Nodes is a map of nodes, which contains specification how osds
+                  should be removed: by devices or osd ids
+                type: object
+              resolved:
+                description: |-
+                  Resolved allows to keep task in history when it is failed and
+                  do not block any further operations.
+                type: boolean
+            type: object
+          status:
+            description: CephOsdRemoveTaskStatus contains remove info for task
+            properties:
+              conditions:
+                description: Conditions is a history list of changing task itself
+                items:
+                  description: CephOsdRemoveTaskCondition contains history of changes/updates
+                    for task
+                  properties:
+                    cephClusterVersion:
+                      description: |-
+                        CephClusterSpecVersion is a version of cephcluster used for that
+                        condition in format <generation>-<resourceVersion>
+                      properties:
+                        cephClusterGeneration:
+                          description: Generation is a CephCluster generation ID
+                          format: int64
+                          type: integer
+                        cephClusterResourceVersion:
+                          description: ResourceVersion is a CephCluster resource version
+                          nullable: true
+                          type: string
+                      required:
+                      - cephClusterResourceVersion
+                      type: object
+                    nodes:
+                      additionalProperties:
+                        description: |-
+                          NodeCleanUpSpec describes how should be OSD cleaned up on particular node
+                          Can be set only one field at time.
+                        maxProperties: 1
+                        minProperties: 1
+                        properties:
+                          cleanupByDevice:
+                            description: CleanupByDevice describes devices or it pathes
+                              and osd on it to cleanup
+                            items:
+                              description: |-
+                                DeviceCleanupSpec is a spec describing dev names or pathes to cleanup
+                                and whether to cleanup it or not
+                              properties:
+                                device:
+                                  description: |-
+                                    Device represents either physical dev names on a node, used for osd, e.g. 'sdb', '/dev/nvme1e0'.
+                                    Either full dev path (by-path or by-id) on a node, where osd lives, e.g. '/dev/disk/by-path/...' or '/dev/disk/by-id/...'
+                                  pattern: ^((\/dev\/)?[\w]+$)|(\/dev\/disk\/by-(path|id)\/.+)
+                                  type: string
+                                skipDeviceCleanup:
+                                  description: |-
+                                    SkipDeviceCleanup is a flag, whether to skip device/osd partitions cleanup
+                                    related to all osd found on specified device, including partitions on other related devices.
+                                  type: boolean
+                              required:
+                              - device
+                              type: object
+                            minItems: 1
+                            type: array
+                          cleanupByOsd:
+                            description: CleanupByOsdID is a list of osd's id, placed
+                              on node to cleanup
+                            items:
+                              properties:
+                                id:
+                                  description: Osd id to remove from cluster
+                                  type: integer
+                                skipDeviceCleanup:
+                                  description: |-
+                                    SkipDeviceCleanup is a flag, whether to skip device/osd partitions cleanup
+                                    related to specified osd id
+                                  type: boolean
+                              required:
+                              - id
+                              type: object
+                            minItems: 1
+                            type: array
+                          cleanupStrayPartitions:
+                            description: |-
+                              CleanupStrayPartitions is a flag for cleaning disks with osd lvm partitions
+                              which are not belong to current cluster, for example, when disk was not cleaned
+                              after previous setup
+                            type: boolean
+                          completeCleanup:
+                            description: |-
+                              CompleteCleanUp is a flag for total node cleanup and drop from crush map
+                              Node will be cleaned up with all its osd and devices if possible
+                            type: boolean
+                          dropFromCrush:
+                            description: |-
+                              DropFromCrush is the same to CompleteCleanup, but without devices cleanup on host
+                              May be useful when host is going to be reprovisioned and
+                              no need to spent time for devices clean up
+                            type: boolean
+                        type: object
+                      description: Nodes is a mapping of nodes within their Ceph OSDs
+                        / devices to clean up
+                      type: object
+                    phase:
+                      description: Phase is a current task handling phase
+                      type: string
+                    timestamp:
+                      description: Timestamp is a timestamp when this condition appeared
+                      type: string
+                  required:
+                  - phase
+                  - timestamp
+                  type: object
+                type: array
+              messages:
+                description: |-
+                  Messages is a list of info messages describing what's a reason
+                  of moving task to next phase
+                items:
+                  type: string
+                type: array
+              phase:
+                description: Phase is a current task phase
+                type: string
+              phaseInfo:
+                description: Additional state info
+                nullable: true
+                type: string
+              removeInfo:
+                description: |-
+                  RemoveInfo contains map, describing on what is going to be removed
+                  in next view: node -> osd ID -> associated devices info,
+                  issues found during validation/processing phases
+                  and warnings which user should pay attention to
+                properties:
+                  cleanupMap:
+                    additionalProperties:
+                      properties:
+                        completeCleanup:
+                          description: CompleteCleanUp is a flag whether make complete
+                            host cleanup from crush map
+                          type: boolean
+                        dropFromCrush:
+                          description: |-
+                            DropFromCrush is a flag whether make complete host cleanup from
+                            crush map, but do not cleanup used devices
+                          type: boolean
+                        hostRemoveStatus:
+                          description: HostRemoveStatus represents host remove status,
+                            if node marked for complete clean up
+                          properties:
+                            error:
+                              description: Error faced during handling
+                              nullable: true
+                              type: string
+                            finishedAt:
+                              description: Finish time for remove action
+                              nullable: true
+                              type: string
+                            name:
+                              description: Name is an object name for handling, optional
+                              nullable: true
+                              type: string
+                            startedAt:
+                              description: Start time for remove action
+                              nullable: true
+                              type: string
+                            status:
+                              description: Status is a current remove status
+                              type: string
+                          required:
+                          - status
+                          type: object
+                        nodeIsDown:
+                          description: NodeIsDown indicates host availability
+                          type: boolean
+                        osdMapping:
+                          additionalProperties:
+                            properties:
+                              clusterFSID:
+                                description: ceph cluster FSID
+                                nullable: true
+                                type: string
+                              deviceMapping:
+                                additionalProperties:
+                                  description: |-
+                                    DeviceInfo represents short device info which provide all
+                                    needed info for clean up procedure
+                                  properties:
+                                    deviceAlive:
+                                      description: Alive is a marker whether device
+                                        lost or alive
+                                      type: boolean
+                                    deviceCleanup:
+                                      description: ZapDevice is a flag whether to
+                                        cleanup disk at all or only partitions on
+                                        it
+                                      type: boolean
+                                    deviceID:
+                                      description: ID is a device id
+                                      nullable: true
+                                      type: string
+                                    devicePath:
+                                      description: Path is a full device path by-path
+                                        to remove
+                                      nullable: true
+                                      type: string
+                                    osdPartition:
+                                      description: Partition used for removing osd
+                                        on device
+                                      nullable: true
+                                      type: string
+                                    osdPartitionType:
+                                      description: Type is a osd partition type, e.g.
+                                        db or block
+                                      nullable: true
+                                      type: string
+                                    rotational:
+                                      description: Whether device is rotational (hdd
+                                        or ssd/nvme)
+                                      type: boolean
+                                  type: object
+                                description: |-
+                                  DeviceMapping is a mapping device -> device info, with short device info
+                                  such as path, class, partition, etc
+                                type: object
+                              hostDirectory:
+                                description: host directory rook path
+                                nullable: true
+                                type: string
+                              inCrushMap:
+                                description: marker that osd is present in crush map
+                                type: boolean
+                              removeStatus:
+                                description: |-
+                                  RemoveStatus describing current phase and errors if happened
+                                  for osd, deployment or device clean up
+                                properties:
+                                  deploymentRemoveStatus:
+                                    description: DeployRemoveStatus represents osd
+                                      related deployment remove status
+                                    properties:
+                                      error:
+                                        description: Error faced during handling
+                                        nullable: true
+                                        type: string
+                                      finishedAt:
+                                        description: Finish time for remove action
+                                        nullable: true
+                                        type: string
+                                      name:
+                                        description: Name is an object name for handling,
+                                          optional
+                                        nullable: true
+                                        type: string
+                                      startedAt:
+                                        description: Start time for remove action
+                                        nullable: true
+                                        type: string
+                                      status:
+                                        description: Status is a current remove status
+                                        type: string
+                                    required:
+                                    - status
+                                    type: object
+                                  deviceCleanUpJob:
+                                    description: DeviceCleanUpJob represents osd-device
+                                      related clean up job status
+                                    properties:
+                                      error:
+                                        description: Error faced during handling
+                                        nullable: true
+                                        type: string
+                                      finishedAt:
+                                        description: Finish time for remove action
+                                        nullable: true
+                                        type: string
+                                      name:
+                                        description: Name is an object name for handling,
+                                          optional
+                                        nullable: true
+                                        type: string
+                                      startedAt:
+                                        description: Start time for remove action
+                                        nullable: true
+                                        type: string
+                                      status:
+                                        description: Status is a current remove status
+                                        type: string
+                                    required:
+                                    - status
+                                    type: object
+                                  osdRemoveStatus:
+                                    description: OsdRemoveStatus represents Ceph OSD
+                                      remove status itself
+                                    properties:
+                                      error:
+                                        description: Error faced during handling
+                                        nullable: true
+                                        type: string
+                                      finishedAt:
+                                        description: Finish time for remove action
+                                        nullable: true
+                                        type: string
+                                      name:
+                                        description: Name is an object name for handling,
+                                          optional
+                                        nullable: true
+                                        type: string
+                                      startedAt:
+                                        description: Start time for remove action
+                                        nullable: true
+                                        type: string
+                                      status:
+                                        description: Status is a current remove status
+                                        type: string
+                                    required:
+                                    - status
+                                    type: object
+                                type: object
+                              skipDevicesCleanup:
+                                description: Whether to skip devices cleanup for current
+                                  osd
+                                type: boolean
+                              uuid:
+                                description: osd UUID in cluster
+                                nullable: true
+                                type: string
+                            type: object
+                          description: |-
+                            OsdMapping represents a mapping from osdID -> devices, also contains
+                            osd remove statuses such as osd remove itself, deployment remove,
+                            device clean up job
+                          type: object
+                        volumeInfoMissed:
+                          description: VolumesInfoMissed indicates volume info unavailability
+                            for host
+                          type: boolean
+                      type: object
+                    description: |-
+                      CleanupMap is a map of cleanup from host-osdId to device
+                      based on this map user will decide whether approve current task or not
+                      after that it will contain all remove statuses and errors during remove
+                    type: object
+                  issues:
+                    description: Issues found during validation/processing phases,
+                      describing occured problem
+                    items:
+                      type: string
+                    type: array
+                  warnings:
+                    description: Warnings found during validation/processing phases,
+                      user attention required
+                    items:
+                      type: string
+                    type: array
+                type: object
+            required:
+            - phase
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

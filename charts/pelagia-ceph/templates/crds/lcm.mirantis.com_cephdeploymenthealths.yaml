@@ -1,0 +1,1334 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.1
+  name: cephdeploymenthealths.lcm.mirantis.com
+spec:
+  group: lcm.mirantis.com
+  names:
+    kind: CephDeploymentHealth
+    listKind: CephDeploymentHealthList
+    plural: cephdeploymenthealths
+    shortNames:
+    - cdh
+    singular: cephdeploymenthealth
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - description: Cluster health state
+      jsonPath: .status.state
+      name: State
+      type: string
+    - description: Last state check
+      jsonPath: .status.lastHealthCheck
+      name: Last check
+      type: string
+    - description: Last state update
+      jsonPath: .status.lastHealthUpdate
+      name: Last update
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          status:
+            description: Status represents cluster health state
+            properties:
+              healthReport:
+                description: FullClusterStatus represents overall Ceph cluster status
+                  info
+                properties:
+                  cephDaemons:
+                    description: CephDaemons contains status of ceph daemons
+                    properties:
+                      cephCSIPluginDaemons:
+                        additionalProperties:
+                          properties:
+                            info:
+                              description: Messages contains human-readable additional
+                                information about current daemon state
+                              items:
+                                type: string
+                              type: array
+                            issues:
+                              description: Issues represents found Ceph daemon issues,
+                                otherwise it is empty
+                              items:
+                                type: string
+                              type: array
+                            status:
+                              description: Status contains short state of current
+                                daemon
+                              type: string
+                          type: object
+                        description: |-
+                          CephCSIPluginsStatus contains Ceph CSI plugins status
+                          Supported statuses for csi-cephfsplugin, csi-rbdplugin plugins.
+                        type: object
+                      cephDaemons:
+                        additionalProperties:
+                          properties:
+                            info:
+                              description: Messages contains human-readable additional
+                                information about current daemon state
+                              items:
+                                type: string
+                              type: array
+                            issues:
+                              description: Issues represents found Ceph daemon issues,
+                                otherwise it is empty
+                              items:
+                                type: string
+                              type: array
+                            status:
+                              description: Status contains short state of current
+                                daemon
+                              type: string
+                          type: object
+                        description: |-
+                          CephDaemonsStatus contains Ceph daemon's overall information.
+                          For now supported statuses for next Ceph daemons: mon, mgr, osd, rgw, mds.
+                        type: object
+                    type: object
+                  clusterDetails:
+                    description: ClusterDetails contains additional Ceph cluster information,
+                      such as disk usage, device class usage
+                    properties:
+                      cephEvents:
+                        description: |-
+                          CephEvents contains info about current ceph events happen in Ceph cluster
+                          if progress events module is enabled
+                        properties:
+                          PgAutoscalerDetails:
+                            description: PgAutoscalerDetails contains info about current
+                              pg autoscaler events happen in Ceph cluster
+                            properties:
+                              messages:
+                                items:
+                                  properties:
+                                    message:
+                                      type: string
+                                    progress:
+                                      type: string
+                                  type: object
+                                type: array
+                              progress:
+                                type: string
+                              state:
+                                type: string
+                            type: object
+                          rebalanceDetails:
+                            description: RebalanceDetails contains info about current
+                              rebalancing processes happen in Ceph cluster
+                            properties:
+                              messages:
+                                items:
+                                  properties:
+                                    message:
+                                      type: string
+                                    progress:
+                                      type: string
+                                  type: object
+                                type: array
+                              progress:
+                                type: string
+                              state:
+                                type: string
+                            type: object
+                        type: object
+                      rgwInfo:
+                        description: RgwInfo represents additional Ceph Multiste Object
+                          storage info
+                        properties:
+                          multisiteDetails:
+                            description: MultisiteDetails represents overall multisite
+                              state info
+                            properties:
+                              dataSyncState:
+                                description: Current Multisite data sync state
+                                type: string
+                              masterZone:
+                                description: MasterZone whether current zone is master
+                                type: boolean
+                              messages:
+                                description: Additional messages about current state
+                                items:
+                                  type: string
+                                type: array
+                              metadataSyncState:
+                                description: Current Multisite metadata sync state
+                                type: string
+                            required:
+                            - dataSyncState
+                            - metadataSyncState
+                            type: object
+                          publicEndpoint:
+                            description: PublicEndpoint represents external endpoint
+                              to access object storage
+                            nullable: true
+                            type: string
+                        type: object
+                      usageDetails:
+                        description: UsageDetails contains verbose info about usage/capacity
+                          cluster per class/pools
+                        properties:
+                          deviceClasses:
+                            additionalProperties:
+                              properties:
+                                availableBytes:
+                                  description: AvailableBytes available not used bytes
+                                    for device class
+                                  type: string
+                                totalBytes:
+                                  description: TotalBytes total capacity in bytes
+                                    for device class
+                                  type: string
+                                usedBytes:
+                                  description: UsedBytes overall used bytes for device
+                                    class
+                                  type: string
+                              type: object
+                            description: ClassesDetail represents info based on device
+                              classes usage
+                            type: object
+                          pools:
+                            additionalProperties:
+                              properties:
+                                availableBytes:
+                                  description: AvailableBytes available not used bytes
+                                    for pool
+                                  nullable: true
+                                  type: string
+                                totalBytes:
+                                  description: TotalBytes total capacity in bytes
+                                    for pool
+                                  nullable: true
+                                  type: string
+                                usedBytes:
+                                  description: UsedBytes overall used bytes in pool
+                                  nullable: true
+                                  type: string
+                                usedBytesPercentage:
+                                  description: UsedBytesPercentage percent of used
+                                    bytes in pool
+                                  nullable: true
+                                  type: string
+                              type: object
+                            description: PoolsDetail represents info based on pools
+                              usage
+                            type: object
+                        type: object
+                    type: object
+                  osdAnalysis:
+                    description: Osd spec analyse based on info from disk daemons
+                      for osd nodes
+                    properties:
+                      cephClusterSpecGeneration:
+                        description: CephClusterSpecGeneration is a last validated
+                          rook cephcluster spec
+                        format: int64
+                        type: integer
+                      diskDaemon:
+                        description: Disk-daemon status
+                        properties:
+                          info:
+                            description: Messages contains human-readable additional
+                              information about current daemon state
+                            items:
+                              type: string
+                            type: array
+                          issues:
+                            description: Issues represents found Ceph daemon issues,
+                              otherwise it is empty
+                            items:
+                              type: string
+                            type: array
+                          status:
+                            description: Status contains short state of current daemon
+                            type: string
+                        type: object
+                      specAnalysis:
+                        additionalProperties:
+                          properties:
+                            info:
+                              description: Messages contains human-readable additional
+                                information about current daemon state
+                              items:
+                                type: string
+                              type: array
+                            issues:
+                              description: Issues represents found Ceph daemon issues,
+                                otherwise it is empty
+                              items:
+                                type: string
+                              type: array
+                            status:
+                              description: Status contains short state of current
+                                daemon
+                              type: string
+                          type: object
+                        description: SpecAnalysis is a spec analysis status for nodes
+                          in cephcluster storage spec
+                        type: object
+                    required:
+                    - diskDaemon
+                    type: object
+                  rookCephObjects:
+                    description: Status of rook ceph cluster objects
+                    properties:
+                      blockStorage:
+                        description: BlockStorage contains status of block-storage
+                          related objects status information
+                        properties:
+                          cephBlockPools:
+                            additionalProperties:
+                              description: CephBlockPoolStatus represents the mirroring
+                                status of Ceph Storage Pool
+                              properties:
+                                conditions:
+                                  items:
+                                    description: Condition represents a status condition
+                                      on any Rook-Ceph Custom Resource.
+                                    properties:
+                                      lastHeartbeatTime:
+                                        format: date-time
+                                        type: string
+                                      lastTransitionTime:
+                                        format: date-time
+                                        type: string
+                                      message:
+                                        type: string
+                                      reason:
+                                        description: ConditionReason is a reason for
+                                          a condition
+                                        type: string
+                                      status:
+                                        type: string
+                                      type:
+                                        description: ConditionType represent a resource's
+                                          status
+                                        type: string
+                                    type: object
+                                  type: array
+                                info:
+                                  additionalProperties:
+                                    type: string
+                                  nullable: true
+                                  type: object
+                                mirroringInfo:
+                                  description: MirroringInfoSpec is the status of
+                                    the pool/radosnamespace mirroring
+                                  properties:
+                                    details:
+                                      type: string
+                                    lastChanged:
+                                      type: string
+                                    lastChecked:
+                                      type: string
+                                    mode:
+                                      description: Mode is the mirroring mode
+                                      type: string
+                                    peers:
+                                      description: Peers are the list of peer sites
+                                        connected to that cluster
+                                      items:
+                                        description: PeersSpec contains peer details
+                                        properties:
+                                          client_name:
+                                            description: ClientName is the CephX user
+                                              used to connect to the peer
+                                            type: string
+                                          direction:
+                                            description: Direction is the peer mirroring
+                                              direction
+                                            type: string
+                                          mirror_uuid:
+                                            description: MirrorUUID is the mirror
+                                              UUID
+                                            type: string
+                                          site_name:
+                                            description: SiteName is the current site
+                                              name
+                                            type: string
+                                          uuid:
+                                            description: UUID is the peer UUID
+                                            type: string
+                                        type: object
+                                      type: array
+                                    site_name:
+                                      description: SiteName is the current site name
+                                      type: string
+                                  type: object
+                                mirroringStatus:
+                                  description: MirroringStatusSpec is the status of
+                                    the pool/radosNamespace mirroring
+                                  properties:
+                                    details:
+                                      description: Details contains potential status
+                                        errors
+                                      type: string
+                                    lastChanged:
+                                      description: LastChanged is the last time time
+                                        the status last changed
+                                      type: string
+                                    lastChecked:
+                                      description: LastChecked is the last time time
+                                        the status was checked
+                                      type: string
+                                    summary:
+                                      description: Summary is the mirroring status
+                                        summary
+                                      properties:
+                                        daemon_health:
+                                          description: DaemonHealth is the health
+                                            of the mirroring daemon
+                                          type: string
+                                        group_health:
+                                          description: GroupHealth is the health of
+                                            the mirrored image group
+                                          nullable: true
+                                          type: string
+                                        group_states:
+                                          description: GroupStates is the various
+                                            state for all mirrored image groups
+                                          nullable: true
+                                          properties:
+                                            error:
+                                              description: Error is when the mirroring
+                                                state is errored
+                                              type: integer
+                                            replaying:
+                                              description: Replaying is when the replay
+                                                of the mirroring journal is on-going
+                                              type: integer
+                                            starting_replay:
+                                              description: StartingReplay is when
+                                                the replay of the mirroring journal
+                                                starts
+                                              type: integer
+                                            stopped:
+                                              description: Stopped is when the mirroring
+                                                state is stopped
+                                              type: integer
+                                            stopping_replay:
+                                              description: StopReplaying is when the
+                                                replay of the mirroring journal stops
+                                              type: integer
+                                            syncing:
+                                              description: Syncing is when the image
+                                                is syncing
+                                              type: integer
+                                            unknown:
+                                              description: Unknown is when the mirroring
+                                                state is unknown
+                                              type: integer
+                                          type: object
+                                        health:
+                                          description: Health is the mirroring health
+                                          type: string
+                                        image_health:
+                                          description: ImageHealth is the health of
+                                            the mirrored image
+                                          type: string
+                                        image_states:
+                                          description: ImageStates is the various
+                                            state for all mirrored images
+                                          nullable: true
+                                          properties:
+                                            error:
+                                              description: Error is when the mirroring
+                                                state is errored
+                                              type: integer
+                                            replaying:
+                                              description: Replaying is when the replay
+                                                of the mirroring journal is on-going
+                                              type: integer
+                                            starting_replay:
+                                              description: StartingReplay is when
+                                                the replay of the mirroring journal
+                                                starts
+                                              type: integer
+                                            stopped:
+                                              description: Stopped is when the mirroring
+                                                state is stopped
+                                              type: integer
+                                            stopping_replay:
+                                              description: StopReplaying is when the
+                                                replay of the mirroring journal stops
+                                              type: integer
+                                            syncing:
+                                              description: Syncing is when the image
+                                                is syncing
+                                              type: integer
+                                            unknown:
+                                              description: Unknown is when the mirroring
+                                                state is unknown
+                                              type: integer
+                                          type: object
+                                        states:
+                                          description: States is the various state
+                                            for all mirrored images
+                                          nullable: true
+                                          properties:
+                                            error:
+                                              description: Error is when the mirroring
+                                                state is errored
+                                              type: integer
+                                            replaying:
+                                              description: Replaying is when the replay
+                                                of the mirroring journal is on-going
+                                              type: integer
+                                            starting_replay:
+                                              description: StartingReplay is when
+                                                the replay of the mirroring journal
+                                                starts
+                                              type: integer
+                                            stopped:
+                                              description: Stopped is when the mirroring
+                                                state is stopped
+                                              type: integer
+                                            stopping_replay:
+                                              description: StopReplaying is when the
+                                                replay of the mirroring journal stops
+                                              type: integer
+                                            syncing:
+                                              description: Syncing is when the image
+                                                is syncing
+                                              type: integer
+                                            unknown:
+                                              description: Unknown is when the mirroring
+                                                state is unknown
+                                              type: integer
+                                          type: object
+                                      type: object
+                                  type: object
+                                observedGeneration:
+                                  description: ObservedGeneration is the latest generation
+                                    observed by the controller.
+                                  format: int64
+                                  type: integer
+                                phase:
+                                  description: ConditionType represent a resource's
+                                    status
+                                  type: string
+                                poolID:
+                                  description: optional
+                                  type: integer
+                                snapshotScheduleStatus:
+                                  description: SnapshotScheduleStatusSpec is the status
+                                    of the snapshot schedule
+                                  properties:
+                                    details:
+                                      description: Details contains potential status
+                                        errors
+                                      type: string
+                                    lastChanged:
+                                      description: LastChanged is the last time time
+                                        the status last changed
+                                      type: string
+                                    lastChecked:
+                                      description: LastChecked is the last time time
+                                        the status was checked
+                                      type: string
+                                    snapshotSchedules:
+                                      description: SnapshotSchedules is the list of
+                                        snapshots scheduled
+                                      items:
+                                        description: SnapshotSchedulesSpec is the
+                                          list of snapshot scheduled for images in
+                                          a pool
+                                        properties:
+                                          image:
+                                            description: Image is the mirrored image
+                                            type: string
+                                          items:
+                                            description: Items is the list schedules
+                                              times for a given snapshot
+                                            items:
+                                              description: SnapshotSchedule is a schedule
+                                              properties:
+                                                interval:
+                                                  description: Interval is the interval
+                                                    in which snapshots will be taken
+                                                  type: string
+                                                start_time:
+                                                  description: StartTime is the snapshot
+                                                    starting time
+                                                  type: string
+                                              type: object
+                                            type: array
+                                          namespace:
+                                            description: Namespace is the RADOS namespace
+                                              the image is part of
+                                            type: string
+                                          pool:
+                                            description: Pool is the pool name
+                                            type: string
+                                        type: object
+                                      nullable: true
+                                      type: array
+                                  type: object
+                              type: object
+                            description: CephBlockPools represents a key-value mapping
+                              of Ceph Pool's name and it's status
+                            type: object
+                        type: object
+                      cephClients:
+                        additionalProperties:
+                          description: CephClientStatus represents the Status of Ceph
+                            Client
+                          properties:
+                            info:
+                              additionalProperties:
+                                type: string
+                              nullable: true
+                              type: object
+                            observedGeneration:
+                              description: ObservedGeneration is the latest generation
+                                observed by the controller.
+                              format: int64
+                              type: integer
+                            phase:
+                              description: ConditionType represent a resource's status
+                              type: string
+                          type: object
+                        description: CephClients represents a key-value mapping of
+                          Ceph Client's name and it's status
+                        type: object
+                      cephCluster:
+                        description: CephCluster contains Ceph cluster status information
+                        properties:
+                          ceph:
+                            description: CephStatus is the details health of a Ceph
+                              Cluster
+                            properties:
+                              capacity:
+                                description: Capacity is the capacity information
+                                  of a Ceph Cluster
+                                properties:
+                                  bytesAvailable:
+                                    format: int64
+                                    type: integer
+                                  bytesTotal:
+                                    format: int64
+                                    type: integer
+                                  bytesUsed:
+                                    format: int64
+                                    type: integer
+                                  lastUpdated:
+                                    type: string
+                                type: object
+                              details:
+                                additionalProperties:
+                                  description: CephHealthMessage represents the health
+                                    message of a Ceph Cluster
+                                  properties:
+                                    message:
+                                      type: string
+                                    severity:
+                                      type: string
+                                  required:
+                                  - message
+                                  - severity
+                                  type: object
+                                type: object
+                              fsid:
+                                type: string
+                              health:
+                                type: string
+                              lastChanged:
+                                type: string
+                              lastChecked:
+                                type: string
+                              previousHealth:
+                                type: string
+                              versions:
+                                description: CephDaemonsVersions show the current
+                                  ceph version for different ceph daemons
+                                properties:
+                                  cephfs-mirror:
+                                    additionalProperties:
+                                      type: integer
+                                    description: CephFSMirror shows CephFSMirror Ceph
+                                      version
+                                    type: object
+                                  mds:
+                                    additionalProperties:
+                                      type: integer
+                                    description: Mds shows Mds Ceph version
+                                    type: object
+                                  mgr:
+                                    additionalProperties:
+                                      type: integer
+                                    description: Mgr shows Mgr Ceph version
+                                    type: object
+                                  mon:
+                                    additionalProperties:
+                                      type: integer
+                                    description: Mon shows Mon Ceph version
+                                    type: object
+                                  osd:
+                                    additionalProperties:
+                                      type: integer
+                                    description: Osd shows Osd Ceph version
+                                    type: object
+                                  overall:
+                                    additionalProperties:
+                                      type: integer
+                                    description: Overall shows overall Ceph version
+                                    type: object
+                                  rbd-mirror:
+                                    additionalProperties:
+                                      type: integer
+                                    description: RbdMirror shows RbdMirror Ceph version
+                                    type: object
+                                  rgw:
+                                    additionalProperties:
+                                      type: integer
+                                    description: Rgw shows Rgw Ceph version
+                                    type: object
+                                type: object
+                            type: object
+                          conditions:
+                            items:
+                              description: Condition represents a status condition
+                                on any Rook-Ceph Custom Resource.
+                              properties:
+                                lastHeartbeatTime:
+                                  format: date-time
+                                  type: string
+                                lastTransitionTime:
+                                  format: date-time
+                                  type: string
+                                message:
+                                  type: string
+                                reason:
+                                  description: ConditionReason is a reason for a condition
+                                  type: string
+                                status:
+                                  type: string
+                                type:
+                                  description: ConditionType represent a resource's
+                                    status
+                                  type: string
+                              type: object
+                            type: array
+                          message:
+                            type: string
+                          observedGeneration:
+                            description: ObservedGeneration is the latest generation
+                              observed by the controller.
+                            format: int64
+                            type: integer
+                          phase:
+                            description: ConditionType represent a resource's status
+                            type: string
+                          state:
+                            description: ClusterState represents the state of a Ceph
+                              Cluster
+                            type: string
+                          storage:
+                            description: CephStorage represents flavors of Ceph Cluster
+                              Storage
+                            properties:
+                              deprecatedOSDs:
+                                additionalProperties:
+                                  items:
+                                    type: integer
+                                  type: array
+                                type: object
+                              deviceClasses:
+                                items:
+                                  description: DeviceClasses represents device classes
+                                    of a Ceph Cluster
+                                  properties:
+                                    name:
+                                      type: string
+                                  type: object
+                                type: array
+                              osd:
+                                description: OSDStatus represents OSD status of the
+                                  ceph Cluster
+                                properties:
+                                  migrationStatus:
+                                    description: MigrationStatus status represents
+                                      the current status of any OSD migration.
+                                    properties:
+                                      pending:
+                                        type: integer
+                                    type: object
+                                  storeType:
+                                    additionalProperties:
+                                      type: integer
+                                    description: StoreType is a mapping between the
+                                      OSD backend stores and number of OSDs using
+                                      these stores
+                                    type: object
+                                type: object
+                            type: object
+                          version:
+                            description: ClusterVersion represents the version of
+                              a Ceph Cluster
+                            properties:
+                              image:
+                                type: string
+                              version:
+                                type: string
+                            type: object
+                        type: object
+                      objectStorage:
+                        description: ObjectStorage contains Ceph Object storage's
+                          related object status information
+                        properties:
+                          cephObjectRealms:
+                            additionalProperties:
+                              description: Status represents the status of an object
+                              properties:
+                                conditions:
+                                  items:
+                                    description: Condition represents a status condition
+                                      on any Rook-Ceph Custom Resource.
+                                    properties:
+                                      lastHeartbeatTime:
+                                        format: date-time
+                                        type: string
+                                      lastTransitionTime:
+                                        format: date-time
+                                        type: string
+                                      message:
+                                        type: string
+                                      reason:
+                                        description: ConditionReason is a reason for
+                                          a condition
+                                        type: string
+                                      status:
+                                        type: string
+                                      type:
+                                        description: ConditionType represent a resource's
+                                          status
+                                        type: string
+                                    type: object
+                                  type: array
+                                observedGeneration:
+                                  description: ObservedGeneration is the latest generation
+                                    observed by the controller.
+                                  format: int64
+                                  type: integer
+                                phase:
+                                  type: string
+                              type: object
+                            description: CephObjectRealm represents a key-value mapping
+                              of Ceph object storage gateway realm's name and it's
+                              status
+                            type: object
+                          cephObjectStore:
+                            additionalProperties:
+                              description: ObjectStoreStatus represents the status
+                                of a Ceph Object Store resource
+                              properties:
+                                conditions:
+                                  items:
+                                    description: Condition represents a status condition
+                                      on any Rook-Ceph Custom Resource.
+                                    properties:
+                                      lastHeartbeatTime:
+                                        format: date-time
+                                        type: string
+                                      lastTransitionTime:
+                                        format: date-time
+                                        type: string
+                                      message:
+                                        type: string
+                                      reason:
+                                        description: ConditionReason is a reason for
+                                          a condition
+                                        type: string
+                                      status:
+                                        type: string
+                                      type:
+                                        description: ConditionType represent a resource's
+                                          status
+                                        type: string
+                                    type: object
+                                  type: array
+                                endpoints:
+                                  properties:
+                                    insecure:
+                                      items:
+                                        type: string
+                                      nullable: true
+                                      type: array
+                                    secure:
+                                      items:
+                                        type: string
+                                      nullable: true
+                                      type: array
+                                  type: object
+                                info:
+                                  additionalProperties:
+                                    type: string
+                                  nullable: true
+                                  type: object
+                                message:
+                                  type: string
+                                observedGeneration:
+                                  description: ObservedGeneration is the latest generation
+                                    observed by the controller.
+                                  format: int64
+                                  type: integer
+                                phase:
+                                  description: ConditionType represent a resource's
+                                    status
+                                  type: string
+                              type: object
+                            description: ObjectStoreStatus represents a key-value
+                              mapping of Ceph Object Store's name and it's status
+                            type: object
+                          cephObjectStoreUsers:
+                            additionalProperties:
+                              description: ObjectStoreUserStatus represents the status
+                                Ceph Object Store Gateway User
+                              properties:
+                                info:
+                                  additionalProperties:
+                                    type: string
+                                  nullable: true
+                                  type: object
+                                keys:
+                                  items:
+                                    properties:
+                                      name:
+                                        description: name is unique within a namespace
+                                          to reference a secret resource.
+                                        type: string
+                                      namespace:
+                                        description: namespace defines the space within
+                                          which the secret name must be unique.
+                                        type: string
+                                      resourceVersion:
+                                        type: string
+                                      uid:
+                                        description: |-
+                                          UID is a type that holds unique ID values, including UUIDs.  Because we
+                                          don't ONLY use UUIDs, this is an alias to string.  Being a type captures
+                                          intent and helps make sure that UIDs and names do not get conflated.
+                                        type: string
+                                    type: object
+                                    x-kubernetes-map-type: atomic
+                                  nullable: true
+                                  type: array
+                                observedGeneration:
+                                  description: ObservedGeneration is the latest generation
+                                    observed by the controller.
+                                  format: int64
+                                  type: integer
+                                phase:
+                                  type: string
+                              type: object
+                            description: CephObjectStoreUsers represents a key-value
+                              mapping of Ceph object storage user's name and it's
+                              status
+                            type: object
+                          cephObjectZoneGroups:
+                            additionalProperties:
+                              description: Status represents the status of an object
+                              properties:
+                                conditions:
+                                  items:
+                                    description: Condition represents a status condition
+                                      on any Rook-Ceph Custom Resource.
+                                    properties:
+                                      lastHeartbeatTime:
+                                        format: date-time
+                                        type: string
+                                      lastTransitionTime:
+                                        format: date-time
+                                        type: string
+                                      message:
+                                        type: string
+                                      reason:
+                                        description: ConditionReason is a reason for
+                                          a condition
+                                        type: string
+                                      status:
+                                        type: string
+                                      type:
+                                        description: ConditionType represent a resource's
+                                          status
+                                        type: string
+                                    type: object
+                                  type: array
+                                observedGeneration:
+                                  description: ObservedGeneration is the latest generation
+                                    observed by the controller.
+                                  format: int64
+                                  type: integer
+                                phase:
+                                  type: string
+                              type: object
+                            description: CephObjectZoneGroups represents a key-value
+                              mapping of Ceph object storage gateway zone group's
+                              name and it's status
+                            type: object
+                          cephObjectZones:
+                            additionalProperties:
+                              description: Status represents the status of an object
+                              properties:
+                                conditions:
+                                  items:
+                                    description: Condition represents a status condition
+                                      on any Rook-Ceph Custom Resource.
+                                    properties:
+                                      lastHeartbeatTime:
+                                        format: date-time
+                                        type: string
+                                      lastTransitionTime:
+                                        format: date-time
+                                        type: string
+                                      message:
+                                        type: string
+                                      reason:
+                                        description: ConditionReason is a reason for
+                                          a condition
+                                        type: string
+                                      status:
+                                        type: string
+                                      type:
+                                        description: ConditionType represent a resource's
+                                          status
+                                        type: string
+                                    type: object
+                                  type: array
+                                observedGeneration:
+                                  description: ObservedGeneration is the latest generation
+                                    observed by the controller.
+                                  format: int64
+                                  type: integer
+                                phase:
+                                  type: string
+                              type: object
+                            description: CephObjectZones represents a key-value mapping
+                              of Ceph object storage gateway zone's name and it's
+                              status
+                            type: object
+                          objectBucketClaims:
+                            additionalProperties:
+                              description: ObjectBucketClaimStatus defines the observed
+                                state of ObjectBucketClaim
+                              properties:
+                                phase:
+                                  description: ObjectBucketClaimStatusPhase is set
+                                    by the controller to save the state of the provisioning
+                                    process.
+                                  type: string
+                              type: object
+                            description: ObjectBucketClaims represents a key-value
+                              mapping of Ceph object storage bucket's name and it's
+                              status
+                            type: object
+                        type: object
+                      sharedFilesystem:
+                        description: SharedFilesystem contains Ceph Filesystem's related
+                          objects status information
+                        properties:
+                          cephFilesystems:
+                            additionalProperties:
+                              description: CephFilesystemStatus represents the status
+                                of a Ceph Filesystem
+                              properties:
+                                conditions:
+                                  items:
+                                    description: Condition represents a status condition
+                                      on any Rook-Ceph Custom Resource.
+                                    properties:
+                                      lastHeartbeatTime:
+                                        format: date-time
+                                        type: string
+                                      lastTransitionTime:
+                                        format: date-time
+                                        type: string
+                                      message:
+                                        type: string
+                                      reason:
+                                        description: ConditionReason is a reason for
+                                          a condition
+                                        type: string
+                                      status:
+                                        type: string
+                                      type:
+                                        description: ConditionType represent a resource's
+                                          status
+                                        type: string
+                                    type: object
+                                  type: array
+                                info:
+                                  additionalProperties:
+                                    type: string
+                                  description: Use only info and put mirroringStatus
+                                    in it?
+                                  nullable: true
+                                  type: object
+                                mirroringStatus:
+                                  description: MirroringStatus is the filesystem mirroring
+                                    status
+                                  properties:
+                                    daemonsStatus:
+                                      description: PoolMirroringStatus is the mirroring
+                                        status of a filesystem
+                                      items:
+                                        description: FilesystemMirrorInfoSpec is the
+                                          filesystem mirror status of a given filesystem
+                                        properties:
+                                          daemon_id:
+                                            description: DaemonID is the cephfs-mirror
+                                              name
+                                            type: integer
+                                          filesystems:
+                                            description: Filesystems is the list of
+                                              filesystems managed by a given cephfs-mirror
+                                              daemon
+                                            items:
+                                              description: FilesystemsSpec is spec
+                                                for the mirrored filesystem
+                                              properties:
+                                                directory_count:
+                                                  description: DirectoryCount is the
+                                                    number of directories in the filesystem
+                                                  type: integer
+                                                filesystem_id:
+                                                  description: FilesystemID is the
+                                                    filesystem identifier
+                                                  type: integer
+                                                name:
+                                                  description: Name is name of the
+                                                    filesystem
+                                                  type: string
+                                                peers:
+                                                  description: Peers represents the
+                                                    mirroring peers
+                                                  items:
+                                                    description: FilesystemMirrorInfoPeerSpec
+                                                      is the specification of a filesystem
+                                                      peer mirror
+                                                    properties:
+                                                      remote:
+                                                        description: Remote are the
+                                                          remote cluster information
+                                                        properties:
+                                                          client_name:
+                                                            description: ClientName
+                                                              is cephx name
+                                                            type: string
+                                                          cluster_name:
+                                                            description: ClusterName
+                                                              is the name of the cluster
+                                                            type: string
+                                                          fs_name:
+                                                            description: FsName is
+                                                              the filesystem name
+                                                            type: string
+                                                        type: object
+                                                      stats:
+                                                        description: Stats are the
+                                                          stat a peer mirror
+                                                        properties:
+                                                          failure_count:
+                                                            description: FailureCount
+                                                              is the number of mirroring
+                                                              failure
+                                                            type: integer
+                                                          recovery_count:
+                                                            description: RecoveryCount
+                                                              is the number of recovery
+                                                              attempted after failures
+                                                            type: integer
+                                                        type: object
+                                                      uuid:
+                                                        description: UUID is the peer
+                                                          unique identifier
+                                                        type: string
+                                                    type: object
+                                                  type: array
+                                              type: object
+                                            type: array
+                                        type: object
+                                      nullable: true
+                                      type: array
+                                    details:
+                                      description: Details contains potential status
+                                        errors
+                                      type: string
+                                    lastChanged:
+                                      description: LastChanged is the last time time
+                                        the status last changed
+                                      type: string
+                                    lastChecked:
+                                      description: LastChecked is the last time time
+                                        the status was checked
+                                      type: string
+                                  type: object
+                                observedGeneration:
+                                  description: ObservedGeneration is the latest generation
+                                    observed by the controller.
+                                  format: int64
+                                  type: integer
+                                phase:
+                                  description: ConditionType represent a resource's
+                                    status
+                                  type: string
+                                snapshotScheduleStatus:
+                                  description: FilesystemSnapshotScheduleStatusSpec
+                                    is the status of the snapshot schedule
+                                  properties:
+                                    details:
+                                      description: Details contains potential status
+                                        errors
+                                      type: string
+                                    lastChanged:
+                                      description: LastChanged is the last time time
+                                        the status last changed
+                                      type: string
+                                    lastChecked:
+                                      description: LastChecked is the last time time
+                                        the status was checked
+                                      type: string
+                                    snapshotSchedules:
+                                      description: SnapshotSchedules is the list of
+                                        snapshots scheduled
+                                      items:
+                                        description: FilesystemSnapshotSchedulesSpec
+                                          is the list of snapshot scheduled for images
+                                          in a pool
+                                        properties:
+                                          fs:
+                                            description: Fs is the name of the Ceph
+                                              Filesystem
+                                            type: string
+                                          path:
+                                            description: Path is the path on the filesystem
+                                            type: string
+                                          rel_path:
+                                            type: string
+                                          retention:
+                                            description: FilesystemSnapshotScheduleStatusRetention
+                                              is the retention specification for a
+                                              filesystem snapshot schedule
+                                            properties:
+                                              active:
+                                                description: Active is whether the
+                                                  scheduled is active or not
+                                                type: boolean
+                                              created:
+                                                description: Created is when the snapshot
+                                                  schedule was created
+                                                type: string
+                                              created_count:
+                                                description: CreatedCount is total
+                                                  amount of snapshots
+                                                type: integer
+                                              first:
+                                                description: First is when the first
+                                                  snapshot schedule was taken
+                                                type: string
+                                              last:
+                                                description: Last is when the last
+                                                  snapshot schedule was taken
+                                                type: string
+                                              last_pruned:
+                                                description: LastPruned is when the
+                                                  last snapshot schedule was pruned
+                                                type: string
+                                              pruned_count:
+                                                description: PrunedCount is total
+                                                  amount of pruned snapshots
+                                                type: integer
+                                              start:
+                                                description: Start is when the snapshot
+                                                  schedule starts
+                                                type: string
+                                            type: object
+                                          schedule:
+                                            type: string
+                                          subvol:
+                                            description: Subvol is the name of the
+                                              sub volume
+                                            type: string
+                                        type: object
+                                      nullable: true
+                                      type: array
+                                  type: object
+                              type: object
+                            description: CephFilesystems represents a key-value mapping
+                              of CephFilesystem's name and it's status
+                            type: object
+                        type: object
+                    type: object
+                  rookOperator:
+                    description: RookOperator contains Rook operator status
+                    properties:
+                      info:
+                        description: Messages contains human-readable additional information
+                          about current daemon state
+                        items:
+                          type: string
+                        type: array
+                      issues:
+                        description: Issues represents found Ceph daemon issues, otherwise
+                          it is empty
+                        items:
+                          type: string
+                        type: array
+                      status:
+                        description: Status contains short state of current daemon
+                        type: string
+                    type: object
+                required:
+                - rookOperator
+                type: object
+              issues:
+                description: Messages is a list with any possible error/warning messages
+                items:
+                  type: string
+                type: array
+              lastHealthCheck:
+                description: LastCheck is a last time when cluster was verified
+                nullable: true
+                type: string
+              lastHealthUpdate:
+                description: LastUpdate is a last time when CephDeploymentHealthStatus
+                  was updated
+                nullable: true
+                type: string
+              state:
+                description: State represents the state for overall status
+                type: string
+            required:
+            - state
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

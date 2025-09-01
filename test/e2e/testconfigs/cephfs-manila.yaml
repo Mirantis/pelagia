@@ -1,0 +1,13 @@
+testSettings:
+  namespace: ${TEST_NAMESPACE}
+  caseSettings:
+    - name: TestCephFSManila
+      config:
+        stackTemplatePath: templates/cephfs-manila-heat-template.yaml
+        stackDefaultsPath: templates/cephfs-manila-heat-defaults.env
+        stackTemplateRaw:
+        stackDefaultsRaw:
+        serverPrivateKey: |
+          put id_rsa_ucp here
+testCases:
+- TestCephFSManila

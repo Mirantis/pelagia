@@ -1,0 +1,141 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: {{ template "release.namespace" . }}
+  name: {{ .Values.controllers.lcm.account.name }}
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Values.controllers.lcm.account.clusterRole }}
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: [nodes]
+    verbs: [list, get]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Values.controllers.lcm.account.name }}-clusterrolebinding
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Values.controllers.lcm.account.clusterRole }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.controllers.lcm.account.name }}
+    namespace: {{ template "release.namespace" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{ template "release.namespace" . }}
+  name: {{ .Values.controllers.lcm.account.role }}
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  - apiGroups: [""]
+    resources: [events]
+    verbs: [create]
+  # control leases
+  - apiGroups: ["coordination.k8s.io"]
+    resources: [leases]
+    verbs: [list, get, create, update, delete]
+  # control lcm-config
+  - apiGroups: [""]
+    resources: [configmaps]
+    verbs: [get, list, watch]
+  # control main lcm crds
+  - apiGroups: [lcm.mirantis.com]
+    resources: [cephdeploymenthealths, cephdeploymenthealths/status, cephosdremovetasks, cephosdremovetasks/status, cephdeploymentmaintenances, cephdeploymentmaintenances/status]
+    verbs: [list, get, watch, update, delete]
+  # control batch cleanup jobs
+  - apiGroups: [batch]
+    resources: [jobs]
+    verbs: [list, get, create, delete]
+  # control pod listing and getting for lcm
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [list, get]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create", "get"]
+  # control apps creation
+  - apiGroups: [apps]
+    resources: [daemonsets]
+    verbs: [list, get, create, update, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: {{ template "release.namespace" . }}
+  name: {{ .Values.controllers.lcm.account.name }}-rolebinding
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Values.controllers.lcm.account.role }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.controllers.lcm.account.name }}
+    namespace: {{ template "release.namespace" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  name: {{ .Values.controllers.lcm.account.role }}
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  - apiGroups: [ceph.rook.io]
+    resources: ['*']
+    verbs: [list, get]
+  - apiGroups: [""]
+    resources: [configmaps, services]
+    verbs: [list, get]
+  - apiGroups: [""]
+    resources: [secrets]
+    verbs: [get]
+  - apiGroups: [apps]
+    resources: [deployments]
+    verbs: [list, get, create, update, delete]
+  - apiGroups: [apps]
+    resources: [deployments, daemonsets]
+    verbs: [get]
+  - apiGroups: [objectbucket.io]
+    resources: [objectbucketclaims]
+    verbs: [list, get]
+  - apiGroups: [networking.k8s.io]
+    resources: [ingresses]
+    verbs: [list, get]
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [list, get]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create", "get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  name: {{ .Values.controllers.lcm.account.name }}-rolebinding
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Values.controllers.lcm.account.role }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.controllers.lcm.account.name }}
+    namespace: {{ template "release.namespace" . }}

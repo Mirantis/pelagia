@@ -1,0 +1,16 @@
+testSettings:
+  namespace: ${TEST_NAMESPACE}
+  caseSettings:
+    - name: TestAddCustomDeviceClass
+      config:
+        deviceClass: custom-class
+    - name: TestVerifyCustomDeviceClass
+      config:
+        deviceClass: custom-class
+    - name: TestRemoveCustomDeviceClass
+      config:
+        deviceClass: custom-class
+testCases:
+  - TestAddCustomDeviceClass
+  - TestVerifyCustomDeviceClass
+  - TestRemoveCustomDeviceClass

@@ -1,0 +1,34 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pelagia-lcmconfig
+  namespace: {{ template "release.namespace" . }}
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+data:
+  ROOK_NAMESPACE: {{ .Values.rookConfig.rookNamespace }}
+  DISK_DAEMON_PLACEMENT_NODES_SELECTOR: {{ .Values.lcmConfig.diskDaemonNodeSelector | quote }}
+  DISK_DAEMON_API_PORT: {{ .Values.lcmConfig.diskDaemonPortParameter | quote }}
+  RGW_PUBLIC_ACCESS_SERVICE_SELECTOR: {{ .Values.lcmConfig.rgwPublicAccessServiceSelector | quote }}
+{{- if (.Values.cephDeployment.enabled) }}
+  DEPLOYMENT_CEPH_RELEASE: {{ .Values.cephRelease }}
+  DEPLOYMENT_CEPH_IMAGE: {{ template "ceph.image" . }}
+  DEPLOYMENT_ROOK_IMAGE: {{ template "rook.image" . }}
+  DEPLOYMENT_NETPOL_ENABLED: {{ .Values.cephDeployment.netpolEnabled | quote }}
+  {{- if .Values.cephDeployment.installSharedNamespace }}
+  DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE: {{ .Values.cephDeployment.openstackSharedNamespace }}
+  {{- end }}
+  {{- if (.Values.rookConfig.caBundleRef)}}
+  DEPLOYMENT_MULTISITE_CABUNDLE_SECRET: {{ .Values.rookConfig.caBundleRef }}
+  {{- end }}
+{{- end }}
+{{- if .Values.global.namespace }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.global.namespace }}
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{- end }}

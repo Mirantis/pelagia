@@ -1,0 +1,227 @@
+global:
+  dockerBaseUrl: registry.mirantis.com
+  clusterRelease: ""
+  namespace: ""
+
+productSetup: "mke"
+# TODO: remove later
+mkeClusterAdminRole: true
+cephDeployment:
+  enabled: true
+  netpolEnabled: true
+  installSharedNamespace: true
+  openstackSharedNamespace: openstack-ceph-shared
+lcmConfig:
+  rgwPublicAccessServiceSelector: "external_access=rgw"
+  diskDaemonPortParameter: 9999
+  diskDaemonNodeSelector: "ceph_role_osd=true"
+
+controllers:
+  securityContext:
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+  securityContextControllers:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+  livenessProbe:
+    exec:
+      command:
+        - /bin/sh
+        - -c
+        - pidof pelagia-ceph
+    failureThreshold: 3
+    periodSeconds: 10
+    initialDelaySeconds: 5
+  readinessProbe:
+    exec:
+      command:
+        - /bin/sh
+        - -c
+        - pidof pelagia-ceph
+    failureThreshold: 3
+    periodSeconds: 10
+  cephdeployment:
+    appName: pelagia-deployment-controller
+    account:
+      name: pelagia-deployment-account
+      clusterRole: pelagia-deployment-role-cluster
+      role: pelagia-deployment-role
+    controllers:
+      deployment:
+        name: pelagia-deployment-controller
+        leaderElectionID: pelagia-deployment-controller-leader-election
+      secret:
+        name: pelagia-secret-controller
+        leaderElectionID: pelagia-secret-controller-leader-election
+    replicas: 3
+  lcm:
+    appName: pelagia-lcm-controller
+    account:
+      name: pelagia-lcm-account
+      clusterRole: pelagia-lcm-role-cluster
+      role: pelagia-lcm-role
+    controllers:
+      health:
+        name: pelagia-health-controller
+        leaderElectionID: pelagia-health-controller-leader-election
+      infra:
+        name: pelagia-infra-controller
+        leaderElectionID: pelagia-infra-controller-leader-election
+      osdremove:
+        name: pelagia-osdremove-task-controller
+        leaderElectionID: pelagia-osdremove-task-controller-leader-election
+    replicas: 3
+
+# cephRelease is ceph version name, i.e. reef, squid etc. Empty means latest supported.
+cephRelease: ""
+images:
+  pelagia:
+    # TODO: fix later
+    repository: pelagia/pelagia
+    tag: v1.0.0
+    # fullName is mostly used for test purposes
+    fullName: ""
+    pullPolicy: Always
+  rook:
+    operator:
+      repository: pelagia/rook
+      tag:
+        reef: v1.17.4-20
+        squid: &latestImageRook v1.17.4-20
+        latest: *latestImageRook
+  ceph:
+    repository: pelagia/ceph
+    tag:
+      reef: v18.2.7-4.cve
+      squid: &latestImageCeph v19.2.3-4.cve
+      latest: *latestImageCeph
+  csi:
+    ceph:
+      repository: pelagia/cephcsi
+      tag:
+        reef: v3.14.0-4.cve
+        squid: &latestImageCephCSI v3.14.0-4.cve
+        latest: *latestImageCephCSI
+    registrar:
+      repository: pelagia/cephcsi-registrar
+      tag:
+        reef: v2.13.0-2.cve
+        squid: &latestImageRegistar v2.13.0-2.cve
+        latest: *latestImageRegistar
+    provisioner:
+      repository: pelagia/cephcsi-provisioner
+      tag:
+        reef: v5.2.0-2.cve
+        squid: &latestImageProvisioner v5.2.0-2.cve
+        latest: *latestImageProvisioner
+    snapshotter:
+      repository: pelagia/cephcsi-snapshotter
+      tag:
+        reef: v8.2.0-2.cve
+        squid: &latestImageSnapshotter v8.2.0-2.cve
+        latest: *latestImageSnapshotter
+    attacher:
+      repository: pelagia/cephcsi-attacher
+      tag:
+        reef: v4.8.0-2.cve
+        squid: &latestImageAttacher v4.8.0-2.cve
+        latest: *latestImageAttacher
+    resizer:
+      repository: pelagia/cephcsi-resizer
+      tag:
+        reef: v1.13.2-2.cve
+        squid: &latestImageResizer v1.13.2-2.cve
+        latest: *latestImageResizer
+  snapshotController:
+    repository: pelagia/snapshot-controller
+    tag:
+      reef: v8.2.0-2.cve
+      squid: &latestImageSnapshotcontroller v8.2.0-2.cve
+      latest: *latestImageSnapshotcontroller
+
+rookConfig:
+  configureRook: true
+  rookNamespace: rook-ceph
+  rookOperatorReplicas: 1
+  rookOperatorPlacement:
+    affinity:
+    # affinity is a group of affinity scheduling for rook-pelagia-deploy Deployment
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: "ceph_role_mon"
+              operator: In
+              values:
+              - "true"
+    nodeSelector: {}
+    # constraint rook-pelagia-deploy Deployment to nodes with specific labels
+    # Example:
+    #   nodeSelector:
+    #     disktype: ssd
+    tolerations: []
+    # tolerations for the rook-pelagia-deploy to allow it to run on nodes with particular taints
+    # Example:
+    #   tolerations:
+    #   - effect: NoSchedule
+    #     key: node-role.kubernetes.io/controlplane
+    #     operator: Exists
+  csiPlacement:
+    nodeAffinity:
+      # k8s node affinity rules for Ceph Provisioner
+      # csiprovisioner: "role=storage-node; storage=rook, ceph"
+      csiprovisioner:
+      # k8s node affinity rules for Ceph CSI plugins
+      # csiplugin: "role=storage-node; csiplugin=true"
+      csiplugin: "ceph-daemonset-available-node=true"
+    tolerations:
+      # k8s toleration rules for Ceph CSI plugin daemon-sets
+      # csiplugin: |
+      # - effect: NoSchedule
+      #   key: node-role.kubernetes.io/controlplane
+      #   operator: Exists
+      csiplugin:
+      # k8s toleration rules for Ceph CSI provisioner deployment
+      # csiprovisioner: |
+      # - effect: NoSchedule
+      #   key: node-role.kubernetes.io/controlplane
+      #   operator: Exists
+      csiprovisioner:
+  rookDiscoverPlacement:
+    # k8s node affinity rules for Rook discover daemon
+    # nodeAffinity: "role=storage-node; discover=true"
+    nodeAffinity: "ceph-daemonset-available-node=true;ceph_role_osd=true"
+    # k8s toleration rules for rook discover daemon
+    # tolerations: |
+    # - effect: NoSchedule
+    #   key: node-role.kubernetes.io/controlplane
+    #   operator: Exists
+    tolerations:
+  csiKubeletPath: "/var/lib/kubelet"
+  csiCephFsGPCMetricsPort: "9092"
+  csiCephFsLivenessMetricsPort: "9082"
+  csiCephFsEnabled: true
+  # extra cabundle targeted to use with multisite, when pull endpoint is https endpoint
+  caBundleRef: ""
+  livenessProbe:
+    exec:
+      command:
+        - /bin/sh
+        - -c
+        - pidof rook
+    failureThreshold: 3
+    periodSeconds: 10
+    initialDelaySeconds: 5
+  readinessProbe:
+    exec:
+      command:
+        - /bin/sh
+        - -c
+        - pidof rook
+    failureThreshold: 3
+    periodSeconds: 10
+  volumeSnapshotsEnabled: false

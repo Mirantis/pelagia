@@ -1,0 +1,21 @@
+###################################################################################################################
+# Create the common resources that are necessary to start the operator and the ceph cluster.
+# These resources *must* be created before the operator.yaml and cluster.yaml or their variants.
+# The samples all assume that a single operator will manage a single cluster crd in the same "rook-ceph" namespace.
+#
+# If the operator needs to manage multiple clusters (in different namespaces), see the section below
+# for "cluster-specific resources". The resources below that section will need to be created for each namespace
+# where the operator needs to manage the cluster. The resources above that section do not be created again.
+#
+# Most of the sections are prefixed with a 'OLM' keyword which is used to build our CSV for an OLM (Operator Life Cycle manager)
+###################################################################################################################
+
+# Namespace where the operator and other rook resources are created
+{{ if .Values.rookConfig.configureRook }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.rookConfig.rookNamespace }}
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{ end }}

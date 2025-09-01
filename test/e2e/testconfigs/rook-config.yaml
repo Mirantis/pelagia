@@ -1,0 +1,65 @@
+rookConfigOpts: &rookConfigForTest
+  rookConfig: |-
+    bluestore_cache_autotune: "0"
+    bluestore_cache_kv_ratio: "0.2"
+    bluestore_cache_meta_ratio: "0.8"
+    bluestore_cache_size_ssd: "8G"
+    bluestore_rocksdb_options: "compression=kNoCompression,max_write_buffer_number=32,min_write_buffer_number_to_merge=2,recycle_log_file_num=32,compaction_style=kCompactionStyleLevel,write_buffer_size=67108864,target_file_size_base=67108864,max_background_compactions=31,level0_file_num_compaction_trigger=8,level0_slowdown_writes_trigger=32,level0_stop_writes_trigger=64,max_bytes_for_level_base=536870912,compaction_threads=32,max_bytes_for_level_multiplier=8,flusher_threads=8,compaction_readahead_size=2MB"
+    debug_auth: "0/0"
+    debug_buffer: "0/0"
+    debug_client: "0/0"
+    debug_context: "0/0"
+    debug_crush: "0/0"
+    debug_filer: "0/0"
+    debug_filestore: "0/0"
+    debug_finisher: "0/0"
+    debug_heartbeatmap: "0/0"
+    debug_journal: "0/0"
+    debug_journaler: "0/0"
+    debug_lockdep: "0/0"
+    debug_mds: "0/0"
+    debug_mds_balancer: "0/0"
+    debug_mds_locker: "0/0"
+    debug_mds_log: "0/0"
+    debug_mds_log expire: "0/0"
+    debug_mds_migrator: "0/0"
+    debug_mon: "0/0"
+    debug_monc: "0/0"
+    debug_ms: "0/0"
+    debug_objclass: "0/0"
+    debug_objectcacher: "0/0"
+    debug_objecter: "0/0"
+    debug_optracker: "0/0"
+    debug_osd: "0/0"
+    debug_paxos: "0/0"
+    debug_perfcounter: "0/0"
+    debug_rados: "0/0"
+    debug_rbd: "0/0"
+    debug_rgw: "0/0"
+    debug_throttle: "0/0"
+    debug_timer: "0/0"
+    debug_tp: "0/0"
+    debugr_asok: "0/0"
+    mon_max_pg_per_osd: "320"
+    mon_target_pg_per_osd: "100"
+    osd_max_pg_log_entries: "10"
+    osd_memory_target: "4294967296"
+    osd_min_pg_log_entries: "10"
+    osd_pg_log_dups_tracked: "10"
+    osd_pg_log_trim_min: "10"
+    rbd cache: "true"
+    rbd cache max dirty: "25165824"
+    rbd cache max dirty age: "1"
+    rbd cache size: "33554432"
+    rbd cache writethrough until flush: "true"
+
+testSettings:
+  namespace: ${TEST_NAMESPACE}
+  caseSettings:
+    - name: TestAddRookConfigOptions
+      config: *rookConfigForTest
+    - name: TestRemoveRookConfigOptions
+      config: *rookConfigForTest
+testCases:
+  - TestAddRookConfigOptions
+  - TestRemoveRookConfigOptions

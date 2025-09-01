@@ -1,0 +1,56 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.controllers.lcm.appName }}
+  namespace: {{ template "release.namespace" . }}
+  labels:
+    app: {{ .Values.controllers.lcm.appName }}
+{{ include "chart.labels" . | indent 4 }}
+spec:
+  replicas: {{ .Values.controllers.lcm.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.controllers.lcm.appName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.controllers.lcm.appName }}
+    spec:
+      serviceAccountName: {{ .Values.controllers.lcm.account.name }}
+      {{- with .Values.controllers.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      {{- range .Values.controllers.lcm.controllers }}
+      - name: {{ .name | trimSuffix "-controller" }}
+        image: {{ template "controller.image" $ }}
+        imagePullPolicy: {{ $.Values.images.pelagia.pullPolicy }}
+        {{- with $.Values.controllers.securityContextControllers }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        command:
+        - /usr/local/bin/pelagia-ceph
+        args:
+        - --controller-name
+        - {{ .name }}
+        - --leader-election-id
+        - {{ .leaderElectionID }}
+        env:
+        - name: WATCH_NAMESPACES
+          value: {{ template "release.namespace" $ }}
+        {{- if eq .name $.Values.controllers.lcm.controllers.infra.name }}
+        - name: CONTROLLER_IMAGE
+          value: {{ template "controller.image" $ }}
+        {{- end }}
+        {{- with $.Values.controllers.livenessProbe }}
+        livenessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with $.Values.controllers.readinessProbe }}
+        readinessProbe:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- end }}

@@ -1,0 +1,4 @@
+testSettings:
+  namespace: ${TEST_NAMESPACE}
+testCases:
+  - TestCreateCephClient

@@ -1,0 +1,45 @@
+testSettings:
+  namespace: ${TEST_NAMESPACE}
+  caseSettings:
+  - name: TestCephFS
+    config:
+      cephFsConfig: |-
+        {
+          "cephFS": [
+            {
+              "name": "cephfs-store",
+              "dataPools": [{
+                "name": "cephfs-pool",
+                "failureDomain": "host",
+                "deviceClass": "hdd",
+                "replicated": {"size": 2 }
+              }],
+              "metadataPool": {
+                "failureDomain": "host",
+                "deviceClass": "hdd",
+                "replicated": {"size": 2 }
+              },
+              "metadataServer": {
+                "activeCount": 1,
+                "activeStandby": true
+              }
+            },
+            {
+              "name": "test-fs-2",
+              "dataPools": [{
+                "name": "test-datapool",
+                "failureDomain": "host",
+                "deviceClass": "hdd",
+                "replicated": {"size": 2 }
+              }],
+              "metadataPool": {
+                "failureDomain": "host",
+                "deviceClass": "hdd",
+                "replicated": {"size": 2 }
+              },
+              "metadataServer": {"activeCount": 1 }
+            }
+          ]
+        }
+testCases:
+- TestCephFS

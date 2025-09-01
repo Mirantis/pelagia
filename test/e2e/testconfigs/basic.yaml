@@ -1,0 +1,13 @@
+testSettings:
+  namespace: ${TEST_NAMESPACE}
+  caseSettings:
+  - name: TestE2eConfig
+    config:
+      fake: test
+testCases:
+- TestE2eConfig
+- TestGetCluster
+- TestPrometheusMetrics
+- TestPGAutoscaler
+- TestValidationFailure
+- TestAllOsdRestarted

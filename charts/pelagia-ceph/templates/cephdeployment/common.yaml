@@ -1,0 +1,9 @@
+{{- if and .Values.cephDeployment.enabled .Values.cephDeployment.installSharedNamespace }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.cephDeployment.openstackSharedNamespace }}
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{- end }}

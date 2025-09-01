@@ -1,0 +1,20 @@
+testSettings:
+  namespace: ${TEST_NAMESPACE}
+  caseSettings:
+  - name: TestUpdateOsds
+    config:
+      nodeName: <set-node-name>
+      deviceName: <set-device-name>
+      deviceClass: <set-device-class> # hdd by default
+  - name: TestE2eConfig
+    config:
+      fake: test
+  controllerTag: master
+testCases:
+- TestAddRemoveDefaultPool
+- TestAddInvalidPool
+- TestAddDefinedPool
+- TestGetCluster
+- TestE2eConfig
+- TestObjectStorageRgwCreateRemove
+- TestObjectStorageRgwAccessibility

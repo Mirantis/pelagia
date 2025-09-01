@@ -1,0 +1,3230 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.1
+  name: cephdeployments.lcm.mirantis.com
+spec:
+  group: lcm.mirantis.com
+  names:
+    kind: CephDeployment
+    listKind: CephDeploymentList
+    plural: cephdeployments
+    shortNames:
+    - cephdpl
+    singular: cephdeployment
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - description: Validation status
+      jsonPath: .status.validation.result
+      name: Validation
+      type: string
+    - description: Deployment phase
+      jsonPath: .status.phase
+      name: Phase
+      type: string
+    - description: Last reconcile run
+      jsonPath: .status.lastRun
+      name: Last run
+      type: string
+    - description: Current Ceph cluster version
+      jsonPath: .status.clusterVersion
+      name: Cluster version
+      type: string
+    - description: Cluster status message
+      jsonPath: .status.message
+      name: Message
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: |-
+          CephDeployment is the Schema for the cephdeployments API which contains
+          a valid Ceph configuration which is handled by Pelagia controller and
+          produce all related objects and daemons in Rook (K8S based Ceph)
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: |-
+              Spec defines the desired configuration of resulting Ceph Cluster
+              and all corresponding resources
+            properties:
+              clients:
+                description: |-
+                  Clients is a list of Ceph Clients used for Ceph Cluster connection by
+                  consumer services
+                items:
+                  properties:
+                    caps:
+                      additionalProperties:
+                        type: string
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    name:
+                      type: string
+                    removeSecret:
+                      description: |-
+                        RemoveSecret indicates whether the current secret for this ceph client should be removed or not.
+                        If true, the K8s secret will be deleted, but the cephx keyring will remain until the CR is deleted.
+                      type: boolean
+                    secretName:
+                      description: |-
+                        SecretName is the name of the secret created for this ceph client.
+                        If not specified, the default name is "rook-ceph-client-" as a prefix to the CR name.
+                      type: string
+                  required:
+                  - caps
+                  type: object
+                type: array
+              dashboard:
+                type: boolean
+              dataDirHostPath:
+                description: |-
+                  DataDirHostPath is a default hostPath directory where Rook stores all
+                  valuable info. Equals to '/var/lib/rook' by default
+                nullable: true
+                type: string
+              external:
+                description: |-
+                  External enables usage of external Ceph Cluster connected to pkg
+                  Container Cloud cluster instead of local Ceph Cluster
+                type: boolean
+              extraOpts:
+                description: ExtraOpts contains some extra options for managing Ceph
+                  cluster, like devices labels
+                properties:
+                  customDeviceClasses:
+                    description: Custom devices classes different from default classes
+                      (ssd, hdd, nvme)
+                    items:
+                      type: string
+                    type: array
+                  deviceLabels:
+                    additionalProperties:
+                      additionalProperties:
+                        type: string
+                      type: object
+                    description: Mark some device by-id, by-path or name with label
+                    type: object
+                  disableOsSharedKeys:
+                    description: |-
+                      DisableOsKeys disables automatic generating of openstack-ceph-keys secret.
+                      Valuable only for MOS managed clusters
+                    type: boolean
+                  enableProgressEvents:
+                    description: Enable progress events module. Disabled by default
+                      to due to CPU overhead
+                    type: boolean
+                  osdRestartReason:
+                    description: |-
+                      OsdRestartReason option is used for restarting ALL osds on config changes,
+                      which are requires daemon restart.
+                      Should contain description why it is required.
+                    nullable: true
+                    type: string
+                  preventClusterDestroy:
+                    description: |-
+                      PreventClusterDestroy option is used to avoid occasional cluster remove.
+                      Option should be dropped in case of real cluster remove.
+                    type: boolean
+                type: object
+              healthCheck:
+                description: |-
+                  HealthCheck provides an ability to configure pkg daemon healthchecks
+                  and liveness probe settings for mon,mgr,osd daemons
+                properties:
+                  daemonHealth:
+                    description: DaemonHealth contains health check settings for ceph
+                      daemons
+                    properties:
+                      mon:
+                        description: Monitor represents the health check settings
+                          for the Ceph monitor
+                        nullable: true
+                        properties:
+                          disabled:
+                            type: boolean
+                          interval:
+                            description: Interval is the internal in second or minute
+                              for the health check to run like 60s for 60 seconds
+                            type: string
+                          timeout:
+                            type: string
+                        type: object
+                      osd:
+                        description: ObjectStorageDaemon represents the health check
+                          settings for the Ceph OSDs
+                        nullable: true
+                        properties:
+                          disabled:
+                            type: boolean
+                          interval:
+                            description: Interval is the internal in second or minute
+                              for the health check to run like 60s for 60 seconds
+                            type: string
+                          timeout:
+                            type: string
+                        type: object
+                      status:
+                        description: Status represents the health check settings for
+                          the Ceph health
+                        nullable: true
+                        properties:
+                          disabled:
+                            type: boolean
+                          interval:
+                            description: Interval is the internal in second or minute
+                              for the health check to run like 60s for 60 seconds
+                            type: string
+                          timeout:
+                            type: string
+                        type: object
+                    type: object
+                  livenessProbe:
+                    additionalProperties:
+                      description: ProbeSpec is a wrapper around Probe so it can be
+                        enabled or disabled for a Ceph daemon
+                      properties:
+                        disabled:
+                          description: Disabled determines whether probe is disable
+                            or not
+                          type: boolean
+                        probe:
+                          description: |-
+                            Probe describes a health check to be performed against a container to determine whether it is
+                            alive or ready to receive traffic.
+                          properties:
+                            exec:
+                              description: Exec specifies the action to take.
+                              properties:
+                                command:
+                                  description: |-
+                                    Command is the command line to execute inside the container, the working directory for the
+                                    command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+                                    not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+                                    a shell, you need to explicitly call out to that shell.
+                                    Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+                                  items:
+                                    type: string
+                                  type: array
+                                  x-kubernetes-list-type: atomic
+                              type: object
+                            failureThreshold:
+                              description: |-
+                                Minimum consecutive failures for the probe to be considered failed after having succeeded.
+                                Defaults to 3. Minimum value is 1.
+                              format: int32
+                              type: integer
+                            grpc:
+                              description: GRPC specifies an action involving a GRPC
+                                port.
+                              properties:
+                                port:
+                                  description: Port number of the gRPC service. Number
+                                    must be in the range 1 to 65535.
+                                  format: int32
+                                  type: integer
+                                service:
+                                  default: ""
+                                  description: |-
+                                    Service is the name of the service to place in the gRPC HealthCheckRequest
+                                    (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+                                    If this is not specified, the default behavior is defined by gRPC.
+                                  type: string
+                              required:
+                              - port
+                              type: object
+                            httpGet:
+                              description: HTTPGet specifies the http request to perform.
+                              properties:
+                                host:
+                                  description: |-
+                                    Host name to connect to, defaults to the pod IP. You probably want to set
+                                    "Host" in httpHeaders instead.
+                                  type: string
+                                httpHeaders:
+                                  description: Custom headers to set in the request.
+                                    HTTP allows repeated headers.
+                                  items:
+                                    description: HTTPHeader describes a custom header
+                                      to be used in HTTP probes
+                                    properties:
+                                      name:
+                                        description: |-
+                                          The header field name.
+                                          This will be canonicalized upon output, so case-variant names will be understood as the same header.
+                                        type: string
+                                      value:
+                                        description: The header field value
+                                        type: string
+                                    required:
+                                    - name
+                                    - value
+                                    type: object
+                                  type: array
+                                  x-kubernetes-list-type: atomic
+                                path:
+                                  description: Path to access on the HTTP server.
+                                  type: string
+                                port:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: |-
+                                    Name or number of the port to access on the container.
+                                    Number must be in the range 1 to 65535.
+                                    Name must be an IANA_SVC_NAME.
+                                  x-kubernetes-int-or-string: true
+                                scheme:
+                                  description: |-
+                                    Scheme to use for connecting to the host.
+                                    Defaults to HTTP.
+                                  type: string
+                              required:
+                              - port
+                              type: object
+                            initialDelaySeconds:
+                              description: |-
+                                Number of seconds after the container has started before liveness probes are initiated.
+                                More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+                              format: int32
+                              type: integer
+                            periodSeconds:
+                              description: |-
+                                How often (in seconds) to perform the probe.
+                                Default to 10 seconds. Minimum value is 1.
+                              format: int32
+                              type: integer
+                            successThreshold:
+                              description: |-
+                                Minimum consecutive successes for the probe to be considered successful after having failed.
+                                Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+                              format: int32
+                              type: integer
+                            tcpSocket:
+                              description: TCPSocket specifies an action involving
+                                a TCP port.
+                              properties:
+                                host:
+                                  description: 'Optional: Host name to connect to,
+                                    defaults to the pod IP.'
+                                  type: string
+                                port:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: |-
+                                    Number or name of the port to access on the container.
+                                    Number must be in the range 1 to 65535.
+                                    Name must be an IANA_SVC_NAME.
+                                  x-kubernetes-int-or-string: true
+                              required:
+                              - port
+                              type: object
+                            terminationGracePeriodSeconds:
+                              description: |-
+                                Optional duration in seconds the pod needs to terminate gracefully upon probe failure.
+                                The grace period is the duration in seconds after the processes running in the pod are sent
+                                a termination signal and the time when the processes are forcibly halted with a kill signal.
+                                Set this value longer than the expected cleanup time for your process.
+                                If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this
+                                value overrides the value provided by the pod spec.
+                                Value must be non-negative integer. The value zero indicates stop immediately via
+                                the kill signal (no opportunity to shut down).
+                                This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate.
+                                Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+                              format: int64
+                              type: integer
+                            timeoutSeconds:
+                              description: |-
+                                Number of seconds after which the probe times out.
+                                Defaults to 1 second. Minimum value is 1.
+                                More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+                              format: int32
+                              type: integer
+                          type: object
+                      type: object
+                    description: LivenessProbe allows changing the livenessProbe configuration
+                      for ceph daemons
+                    type: object
+                  startupProbe:
+                    additionalProperties:
+                      description: ProbeSpec is a wrapper around Probe so it can be
+                        enabled or disabled for a Ceph daemon
+                      properties:
+                        disabled:
+                          description: Disabled determines whether probe is disable
+                            or not
+                          type: boolean
+                        probe:
+                          description: |-
+                            Probe describes a health check to be performed against a container to determine whether it is
+                            alive or ready to receive traffic.
+                          properties:
+                            exec:
+                              description: Exec specifies the action to take.
+                              properties:
+                                command:
+                                  description: |-
+                                    Command is the command line to execute inside the container, the working directory for the
+                                    command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+                                    not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+                                    a shell, you need to explicitly call out to that shell.
+                                    Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+                                  items:
+                                    type: string
+                                  type: array
+                                  x-kubernetes-list-type: atomic
+                              type: object
+                            failureThreshold:
+                              description: |-
+                                Minimum consecutive failures for the probe to be considered failed after having succeeded.
+                                Defaults to 3. Minimum value is 1.
+                              format: int32
+                              type: integer
+                            grpc:
+                              description: GRPC specifies an action involving a GRPC
+                                port.
+                              properties:
+                                port:
+                                  description: Port number of the gRPC service. Number
+                                    must be in the range 1 to 65535.
+                                  format: int32
+                                  type: integer
+                                service:
+                                  default: ""
+                                  description: |-
+                                    Service is the name of the service to place in the gRPC HealthCheckRequest
+                                    (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+                                    If this is not specified, the default behavior is defined by gRPC.
+                                  type: string
+                              required:
+                              - port
+                              type: object
+                            httpGet:
+                              description: HTTPGet specifies the http request to perform.
+                              properties:
+                                host:
+                                  description: |-
+                                    Host name to connect to, defaults to the pod IP. You probably want to set
+                                    "Host" in httpHeaders instead.
+                                  type: string
+                                httpHeaders:
+                                  description: Custom headers to set in the request.
+                                    HTTP allows repeated headers.
+                                  items:
+                                    description: HTTPHeader describes a custom header
+                                      to be used in HTTP probes
+                                    properties:
+                                      name:
+                                        description: |-
+                                          The header field name.
+                                          This will be canonicalized upon output, so case-variant names will be understood as the same header.
+                                        type: string
+                                      value:
+                                        description: The header field value
+                                        type: string
+                                    required:
+                                    - name
+                                    - value
+                                    type: object
+                                  type: array
+                                  x-kubernetes-list-type: atomic
+                                path:
+                                  description: Path to access on the HTTP server.
+                                  type: string
+                                port:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: |-
+                                    Name or number of the port to access on the container.
+                                    Number must be in the range 1 to 65535.
+                                    Name must be an IANA_SVC_NAME.
+                                  x-kubernetes-int-or-string: true
+                                scheme:
+                                  description: |-
+                                    Scheme to use for connecting to the host.
+                                    Defaults to HTTP.
+                                  type: string
+                              required:
+                              - port
+                              type: object
+                            initialDelaySeconds:
+                              description: |-
+                                Number of seconds after the container has started before liveness probes are initiated.
+                                More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+                              format: int32
+                              type: integer
+                            periodSeconds:
+                              description: |-
+                                How often (in seconds) to perform the probe.
+                                Default to 10 seconds. Minimum value is 1.
+                              format: int32
+                              type: integer
+                            successThreshold:
+                              description: |-
+                                Minimum consecutive successes for the probe to be considered successful after having failed.
+                                Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+                              format: int32
+                              type: integer
+                            tcpSocket:
+                              description: TCPSocket specifies an action involving
+                                a TCP port.
+                              properties:
+                                host:
+                                  description: 'Optional: Host name to connect to,
+                                    defaults to the pod IP.'
+                                  type: string
+                                port:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: |-
+                                    Number or name of the port to access on the container.
+                                    Number must be in the range 1 to 65535.
+                                    Name must be an IANA_SVC_NAME.
+                                  x-kubernetes-int-or-string: true
+                              required:
+                              - port
+                              type: object
+                            terminationGracePeriodSeconds:
+                              description: |-
+                                Optional duration in seconds the pod needs to terminate gracefully upon probe failure.
+                                The grace period is the duration in seconds after the processes running in the pod are sent
+                                a termination signal and the time when the processes are forcibly halted with a kill signal.
+                                Set this value longer than the expected cleanup time for your process.
+                                If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this
+                                value overrides the value provided by the pod spec.
+                                Value must be non-negative integer. The value zero indicates stop immediately via
+                                the kill signal (no opportunity to shut down).
+                                This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate.
+                                Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+                              format: int64
+                              type: integer
+                            timeoutSeconds:
+                              description: |-
+                                Number of seconds after which the probe times out.
+                                Defaults to 1 second. Minimum value is 1.
+                                More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+                              format: int32
+                              type: integer
+                          type: object
+                      type: object
+                    description: StartupProbe allows changing the startupProbe configuration
+                      for ceph daemons
+                    type: object
+                type: object
+              hyperconverge:
+                description: |-
+                  HyperConverge provides an ability to configure resources requests and limitations
+                  for Ceph Daemons. Also provides an ability to spawn those Ceph Daemons on a tainted
+                  nodes
+                properties:
+                  resources:
+                    additionalProperties:
+                      description: ResourceRequirements describes the compute resource
+                        requirements.
+                      properties:
+                        claims:
+                          description: |-
+                            Claims lists the names of resources, defined in spec.resourceClaims,
+                            that are used by this container.
+
+                            This is an alpha field and requires enabling the
+                            DynamicResourceAllocation feature gate.
+
+                            This field is immutable. It can only be set for containers.
+                          items:
+                            description: ResourceClaim references one entry in PodSpec.ResourceClaims.
+                            properties:
+                              name:
+                                description: |-
+                                  Name must match the name of one entry in pod.spec.resourceClaims of
+                                  the Pod where this field is used. It makes that resource available
+                                  inside a container.
+                                type: string
+                              request:
+                                description: |-
+                                  Request is the name chosen for a request in the referenced claim.
+                                  If empty, everything from the claim is made available, otherwise
+                                  only the result of this request.
+                                type: string
+                            required:
+                            - name
+                            type: object
+                          type: array
+                          x-kubernetes-list-map-keys:
+                          - name
+                          x-kubernetes-list-type: map
+                        limits:
+                          additionalProperties:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
+                          description: |-
+                            Limits describes the maximum amount of compute resources allowed.
+                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                          type: object
+                        requests:
+                          additionalProperties:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
+                          description: |-
+                            Requests describes the minimum amount of compute resources required.
+                            If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                            otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                          type: object
+                      type: object
+                    description: 'Resources requirements for ceph daemons, such as:
+                      mon, mgr, mds, rgw, osd, osd-hdd, osd-ssd, osd-nvme, prepareosd'
+                    type: object
+                  tolerations:
+                    additionalProperties:
+                      description: CephDeploymentToleration represents kubernetes
+                        toleration rules
+                      properties:
+                        rules:
+                          description: |-
+                            Rules is a list of kubernetes tolerations defined for some
+                            Ceph daemon
+                          items:
+                            description: |-
+                              The pod this Toleration is attached to tolerates any taint that matches
+                              the triple <key,value,effect> using the matching operator <operator>.
+                            properties:
+                              effect:
+                                description: |-
+                                  Effect indicates the taint effect to match. Empty means match all taint effects.
+                                  When specified, allowed values are NoSchedule, PreferNoSchedule and NoExecute.
+                                type: string
+                              key:
+                                description: |-
+                                  Key is the taint key that the toleration applies to. Empty means match all taint keys.
+                                  If the key is empty, operator must be Exists; this combination means to match all values and all keys.
+                                type: string
+                              operator:
+                                description: |-
+                                  Operator represents a key's relationship to the value.
+                                  Valid operators are Exists and Equal. Defaults to Equal.
+                                  Exists is equivalent to wildcard for value, so that a pod can
+                                  tolerate all taints of a particular category.
+                                type: string
+                              tolerationSeconds:
+                                description: |-
+                                  TolerationSeconds represents the period of time the toleration (which must be
+                                  of effect NoExecute, otherwise this field is ignored) tolerates the taint. By default,
+                                  it is not set, which means tolerate the taint forever (do not evict). Zero and
+                                  negative values will be treated as 0 (evict immediately) by the system.
+                                format: int64
+                                type: integer
+                              value:
+                                description: |-
+                                  Value is the taint value the toleration matches to.
+                                  If the operator is Exists, the value should be empty, otherwise just a regular string.
+                                type: string
+                            type: object
+                          type: array
+                      required:
+                      - rules
+                      type: object
+                    description: 'Tolerations rules for ceph daemons: osd, mon, mgr.'
+                    type: object
+                type: object
+              ingressConfig:
+                description: |-
+                  IngressConfig provides ability to configure custom ingress rule for an external
+                  access to Ceph Cluster resources, for example, public endpoint
+                  for Ceph Object Store access.
+                properties:
+                  annotations:
+                    additionalProperties:
+                      type: string
+                    description: Annotations is an extra annotations set to proxy
+                    type: object
+                  controllerClassName:
+                    description: |-
+                      ClassName is a name of Ingress Controller class. Rockoon default
+                      is 'openstack-ingress-nginx'
+                    nullable: true
+                    type: string
+                  tlsConfig:
+                    description: 'TLSConfig represents tls configuration: certs, public
+                      domain'
+                    properties:
+                      certs:
+                        description: TLSCerts contains TLS certs for ingress
+                        properties:
+                          cacert:
+                            description: Cacert represents CA certificate
+                            type: string
+                          tlsCert:
+                            description: TLSCert represents SSL certificate based
+                              on the defined Cacert and TLSKey
+                            type: string
+                          tlsKey:
+                            description: TLSKey represents SSL secret key used for
+                              TLSCert generate
+                            type: string
+                        required:
+                        - cacert
+                        - tlsCert
+                        - tlsKey
+                        type: object
+                      hostname:
+                        description: Ingress hostname different from RGW Objectstore
+                          name
+                        type: string
+                      publicDomain:
+                        description: Domain is a public domain used for ingress public
+                          endpoint
+                        type: string
+                      tlsSecretRefName:
+                        description: TLSSecretRefName is a name of secret, where tls
+                          certs for ingress is stored
+                        type: string
+                    required:
+                    - publicDomain
+                    type: object
+                type: object
+              mgr:
+                description: Mgr contains a list of Ceph Manager modules to enable
+                  in Ceph Cluster
+                properties:
+                  mgrModules:
+                    description: MgrModules is a list of Ceph Manager modules names
+                      to enable in Ceph
+                    items:
+                      description: CephMgrModule represents mgr modules that the user
+                        wants to enable or disable
+                      properties:
+                        enabled:
+                          description: Enabled determines whether a module should
+                            be enabled or not
+                          type: boolean
+                        name:
+                          description: Name is the name of the ceph manager module
+                          nullable: true
+                          type: string
+                        settings:
+                          description: Settings reflects mgr module settings if required
+                          properties:
+                            balancerMode:
+                              description: BalancerMode sets the `balancer` module
+                                with different modes like `upmap`, `crush-compact`
+                                etc
+                              type: string
+                          type: object
+                      type: object
+                    type: array
+                type: object
+              network:
+                description: |-
+                  Network is a section which defines the specific network range(s)
+                  for Ceph daemons to communicate with each other and the an external
+                  connections
+                properties:
+                  clusterNet:
+                    description: ClusterNet defines pkg network for Ceph Daemons intra-communication
+                    type: string
+                  hostNetwork:
+                    description: HostNetwork is deprecated field, always true to have
+                      persistan mons ips
+                    type: boolean
+                  monOnPublicNet:
+                    description: MonOnPublicNet defines monitors on public network
+                      instead of LCM network
+                    type: boolean
+                  provider:
+                    description: Provider specifies the network provider that will
+                      be used to connect the network interface
+                    nullable: true
+                    type: string
+                  publicNet:
+                    description: ClusterNet defines public network for an external
+                      access to Ceph Cluster
+                    type: string
+                  selector:
+                    additionalProperties:
+                      type: string
+                    description: Selector is used for multus provider only. Select
+                      NetworkAttachmentDefinitions to use for Ceph networks
+                    type: object
+                required:
+                - clusterNet
+                - publicNet
+                type: object
+              nodes:
+                description: Nodes contains full cluster nodes configuration to use
+                  as Ceph Nodes
+                items:
+                  description: CephDeploymentNode contains specific node configuration
+                    to use it in Ceph Cluster
+                  properties:
+                    config:
+                      additionalProperties:
+                        type: string
+                      nullable: true
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    crush:
+                      additionalProperties:
+                        type: string
+                      description: |-
+                        Crush represents ceph crush topology rules to apply on
+                        the defined node
+                      type: object
+                    deviceFilter:
+                      description: A regular expression to allow more fine-grained
+                        selection of devices on nodes across the cluster
+                      type: string
+                    devicePathFilter:
+                      description: A regular expression to allow more fine-grained
+                        selection of devices with path names
+                      type: string
+                    devices:
+                      description: List of devices to use as storage devices
+                      items:
+                        description: Device represents a disk to use in the cluster
+                        properties:
+                          config:
+                            additionalProperties:
+                              type: string
+                            nullable: true
+                            type: object
+                            x-kubernetes-preserve-unknown-fields: true
+                          fullpath:
+                            type: string
+                          name:
+                            type: string
+                        type: object
+                      nullable: true
+                      type: array
+                      x-kubernetes-preserve-unknown-fields: true
+                    monitorIP:
+                      description: |-
+                        MonitorIP represents custom static endpoint for monitor daemon on a node.
+                        Updates have no effect on that parameter, could be used only on monitor create
+                      nullable: true
+                      type: string
+                    name:
+                      type: string
+                    nodeGroup:
+                      description: |-
+                        NodeGroup is a list of kubernetes node names
+                        which allows to specify defined spec to a group of nodes
+                        instead of one node defined with Name parameter. Name should be
+                        interpreted as a node group name instead of node name if specified
+                      items:
+                        type: string
+                      type: array
+                    nodesByLabel:
+                      description: |-
+                        NodesByLabel is a valid kubernetes label selector expression
+                        which allows to specify defined spec to a group of selected nodes
+                        instead of one node defined with Name parameter. Name should be
+                        interpreted as a node group name instead of node name if specified
+                      nullable: true
+                      type: string
+                    resources:
+                      description: ResourceRequirements describes the compute resource
+                        requirements.
+                      nullable: true
+                      properties:
+                        claims:
+                          description: |-
+                            Claims lists the names of resources, defined in spec.resourceClaims,
+                            that are used by this container.
+
+                            This is an alpha field and requires enabling the
+                            DynamicResourceAllocation feature gate.
+
+                            This field is immutable. It can only be set for containers.
+                          items:
+                            description: ResourceClaim references one entry in PodSpec.ResourceClaims.
+                            properties:
+                              name:
+                                description: |-
+                                  Name must match the name of one entry in pod.spec.resourceClaims of
+                                  the Pod where this field is used. It makes that resource available
+                                  inside a container.
+                                type: string
+                              request:
+                                description: |-
+                                  Request is the name chosen for a request in the referenced claim.
+                                  If empty, everything from the claim is made available, otherwise
+                                  only the result of this request.
+                                type: string
+                            required:
+                            - name
+                            type: object
+                          type: array
+                          x-kubernetes-list-map-keys:
+                          - name
+                          x-kubernetes-list-type: map
+                        limits:
+                          additionalProperties:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
+                          description: |-
+                            Limits describes the maximum amount of compute resources allowed.
+                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                          type: object
+                        requests:
+                          additionalProperties:
+                            anyOf:
+                            - type: integer
+                            - type: string
+                            pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                            x-kubernetes-int-or-string: true
+                          description: |-
+                            Requests describes the minimum amount of compute resources required.
+                            If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                            otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                            More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                          type: object
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    roles:
+                      description: |-
+                        Roles is a list of control daemons to spawn on the defined node: Ceph Monitor,
+                        Ceph Manager and/or Ceph RadosGW daemons. Possible values are: mon, mgr, rgw
+                      items:
+                        type: string
+                      type: array
+                    useAllDevices:
+                      description: Whether to consume all the storage devices found
+                        on a machine
+                      type: boolean
+                    volumeClaimTemplates:
+                      description: PersistentVolumeClaims to use as storage
+                      items:
+                        description: VolumeClaimTemplate is a simplified version of
+                          K8s corev1's PVC. It has no type meta or status.
+                        properties:
+                          metadata:
+                            description: |-
+                              Standard object's metadata.
+                              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
+                            type: object
+                          spec:
+                            description: |-
+                              spec defines the desired characteristics of a volume requested by a pod author.
+                              More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#persistentvolumeclaims
+                            properties:
+                              accessModes:
+                                description: |-
+                                  accessModes contains the desired access modes the volume should have.
+                                  More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#access-modes-1
+                                items:
+                                  type: string
+                                type: array
+                                x-kubernetes-list-type: atomic
+                              dataSource:
+                                description: |-
+                                  dataSource field can be used to specify either:
+                                  * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot)
+                                  * An existing PVC (PersistentVolumeClaim)
+                                  If the provisioner or an external controller can support the specified data source,
+                                  it will create a new volume based on the contents of the specified data source.
+                                  When the AnyVolumeDataSource feature gate is enabled, dataSource contents will be copied to dataSourceRef,
+                                  and dataSourceRef contents will be copied to dataSource when dataSourceRef.namespace is not specified.
+                                  If the namespace is specified, then dataSourceRef will not be copied to dataSource.
+                                properties:
+                                  apiGroup:
+                                    description: |-
+                                      APIGroup is the group for the resource being referenced.
+                                      If APIGroup is not specified, the specified Kind must be in the core API group.
+                                      For any other third-party types, APIGroup is required.
+                                    type: string
+                                  kind:
+                                    description: Kind is the type of resource being
+                                      referenced
+                                    type: string
+                                  name:
+                                    description: Name is the name of resource being
+                                      referenced
+                                    type: string
+                                required:
+                                - kind
+                                - name
+                                type: object
+                                x-kubernetes-map-type: atomic
+                              dataSourceRef:
+                                description: |-
+                                  dataSourceRef specifies the object from which to populate the volume with data, if a non-empty
+                                  volume is desired. This may be any object from a non-empty API group (non
+                                  core object) or a PersistentVolumeClaim object.
+                                  When this field is specified, volume binding will only succeed if the type of
+                                  the specified object matches some installed volume populator or dynamic
+                                  provisioner.
+                                  This field will replace the functionality of the dataSource field and as such
+                                  if both fields are non-empty, they must have the same value. For backwards
+                                  compatibility, when namespace isn't specified in dataSourceRef,
+                                  both fields (dataSource and dataSourceRef) will be set to the same
+                                  value automatically if one of them is empty and the other is non-empty.
+                                  When namespace is specified in dataSourceRef,
+                                  dataSource isn't set to the same value and must be empty.
+                                  There are three important differences between dataSource and dataSourceRef:
+                                  * While dataSource only allows two specific types of objects, dataSourceRef
+                                    allows any non-core object, as well as PersistentVolumeClaim objects.
+                                  * While dataSource ignores disallowed values (dropping them), dataSourceRef
+                                    preserves all values, and generates an error if a disallowed value is
+                                    specified.
+                                  * While dataSource only allows local objects, dataSourceRef allows objects
+                                    in any namespaces.
+                                  (Beta) Using this field requires the AnyVolumeDataSource feature gate to be enabled.
+                                  (Alpha) Using the namespace field of dataSourceRef requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+                                properties:
+                                  apiGroup:
+                                    description: |-
+                                      APIGroup is the group for the resource being referenced.
+                                      If APIGroup is not specified, the specified Kind must be in the core API group.
+                                      For any other third-party types, APIGroup is required.
+                                    type: string
+                                  kind:
+                                    description: Kind is the type of resource being
+                                      referenced
+                                    type: string
+                                  name:
+                                    description: Name is the name of resource being
+                                      referenced
+                                    type: string
+                                  namespace:
+                                    description: |-
+                                      Namespace is the namespace of resource being referenced
+                                      Note that when a namespace is specified, a gateway.networking.k8s.io/ReferenceGrant object is required in the referent namespace to allow that namespace's owner to accept the reference. See the ReferenceGrant documentation for details.
+                                      (Alpha) This field requires the CrossNamespaceVolumeDataSource feature gate to be enabled.
+                                    type: string
+                                required:
+                                - kind
+                                - name
+                                type: object
+                              resources:
+                                description: |-
+                                  resources represents the minimum resources the volume should have.
+                                  If RecoverVolumeExpansionFailure feature is enabled users are allowed to specify resource requirements
+                                  that are lower than previous value but must still be higher than capacity recorded in the
+                                  status field of the claim.
+                                  More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#resources
+                                properties:
+                                  limits:
+                                    additionalProperties:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    description: |-
+                                      Limits describes the maximum amount of compute resources allowed.
+                                      More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                                    type: object
+                                  requests:
+                                    additionalProperties:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    description: |-
+                                      Requests describes the minimum amount of compute resources required.
+                                      If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                                      otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                                      More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                                    type: object
+                                type: object
+                              selector:
+                                description: selector is a label query over volumes
+                                  to consider for binding.
+                                properties:
+                                  matchExpressions:
+                                    description: matchExpressions is a list of label
+                                      selector requirements. The requirements are
+                                      ANDed.
+                                    items:
+                                      description: |-
+                                        A label selector requirement is a selector that contains values, a key, and an operator that
+                                        relates the key and values.
+                                      properties:
+                                        key:
+                                          description: key is the label key that the
+                                            selector applies to.
+                                          type: string
+                                        operator:
+                                          description: |-
+                                            operator represents a key's relationship to a set of values.
+                                            Valid operators are In, NotIn, Exists and DoesNotExist.
+                                          type: string
+                                        values:
+                                          description: |-
+                                            values is an array of string values. If the operator is In or NotIn,
+                                            the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                            the values array must be empty. This array is replaced during a strategic
+                                            merge patch.
+                                          items:
+                                            type: string
+                                          type: array
+                                          x-kubernetes-list-type: atomic
+                                      required:
+                                      - key
+                                      - operator
+                                      type: object
+                                    type: array
+                                    x-kubernetes-list-type: atomic
+                                  matchLabels:
+                                    additionalProperties:
+                                      type: string
+                                    description: |-
+                                      matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+                                      map is equivalent to an element of matchExpressions, whose key field is "key", the
+                                      operator is "In", and the values array contains only "value". The requirements are ANDed.
+                                    type: object
+                                type: object
+                                x-kubernetes-map-type: atomic
+                              storageClassName:
+                                description: |-
+                                  storageClassName is the name of the StorageClass required by the claim.
+                                  More info: https://kubernetes.io/docs/concepts/storage/persistent-volumes#class-1
+                                type: string
+                              volumeAttributesClassName:
+                                description: |-
+                                  volumeAttributesClassName may be used to set the VolumeAttributesClass used by this claim.
+                                  If specified, the CSI driver will create or update the volume with the attributes defined
+                                  in the corresponding VolumeAttributesClass. This has a different purpose than storageClassName,
+                                  it can be changed after the claim is created. An empty string value means that no VolumeAttributesClass
+                                  will be applied to the claim but it's not allowed to reset this field to empty string once it is set.
+                                  If unspecified and the PersistentVolumeClaim is unbound, the default VolumeAttributesClass
+                                  will be set by the persistentvolume controller if it exists.
+                                  If the resource referred to by volumeAttributesClass does not exist, this PersistentVolumeClaim will be
+                                  set to a Pending state, as reflected by the modifyVolumeStatus field, until such as a resource
+                                  exists.
+                                  More info: https://kubernetes.io/docs/concepts/storage/volume-attributes-classes/
+                                  (Beta) Using this field requires the VolumeAttributesClass feature gate to be enabled (off by default).
+                                type: string
+                              volumeMode:
+                                description: |-
+                                  volumeMode defines what type of volume is required by the claim.
+                                  Value of Filesystem is implied when not included in claim spec.
+                                type: string
+                              volumeName:
+                                description: volumeName is the binding reference to
+                                  the PersistentVolume backing this claim.
+                                type: string
+                            type: object
+                        type: object
+                      type: array
+                  required:
+                  - roles
+                  type: object
+                type: array
+              objectStorage:
+                description: |-
+                  ObjectStorage contains full RadosGW Object Storage configurations: RGW itself
+                  and RGW multisite feature
+                properties:
+                  multiSite:
+                    description: MultiSite represents Ceph RadosGW multisite/multizone
+                      feature settings
+                    properties:
+                      realms:
+                        description: Realms is a list of Ceph Object storage multisite
+                          realms
+                        items:
+                          description: CephRGWRealm represents RGW multisite realm
+                            namespace
+                          properties:
+                            defaultRealm:
+                              description: Set this realm as the default in Ceph.
+                                Only one realm should be default.
+                              type: boolean
+                            name:
+                              description: Name represents realm's name
+                              type: string
+                            pullEndpoint:
+                              description: |-
+                                Pull stands for the Endpoint, the access key and the system key
+                                of the system user from the realm being pulled from
+                              properties:
+                                accessKey:
+                                  description: AccessKey is an access key of the system
+                                    user from the realm being pulled from
+                                  type: string
+                                endpoint:
+                                  description: Endpoint represents an endpoint from
+                                    the master zone in the master zone group
+                                  type: string
+                                secretKey:
+                                  description: SecretKey is a system key of the system
+                                    user from the realm being pulled from
+                                  type: string
+                              required:
+                              - accessKey
+                              - endpoint
+                              - secretKey
+                              type: object
+                          required:
+                          - name
+                          type: object
+                        type: array
+                      zoneGroups:
+                        description: ZoneGroups is a list of Ceph Object storage multisite
+                          zonegroups
+                        items:
+                          description: CephRGWZoneGroup represents multisite zone
+                            group
+                          properties:
+                            name:
+                              description: Name represents zone group's name
+                              type: string
+                            realmName:
+                              description: Realm is a name of the realm for which
+                                zone group belongs to
+                              type: string
+                          required:
+                          - name
+                          - realmName
+                          type: object
+                        type: array
+                      zones:
+                        description: Zones is a list of Ceph Object storage multisite
+                          zones
+                        items:
+                          description: CephRGWZone represents multisite zone
+                          properties:
+                            dataPool:
+                              description: |-
+                                DataPool represents Ceph Pool's setting which contains
+                                RGW zone data
+                              properties:
+                                crushRoot:
+                                  description: CrushRoot is the root of the crush
+                                    hierarchy utilized by the pool
+                                  nullable: true
+                                  type: string
+                                deviceClass:
+                                  description: 'DeviceClass is the device class the
+                                    OSD should set to (options are: hdd, ssd, or nvme)'
+                                  type: string
+                                enableCrushUpdates:
+                                  description: |-
+                                    EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
+                                    Can cause data remapping if crush rule changes, Defaults to false.
+                                  type: boolean
+                                erasureCoded:
+                                  description: ErasureCoded represents Ceph Pool's
+                                    erasure coding settings
+                                  properties:
+                                    algorithm:
+                                      description: Algorithm represents the algorithm
+                                        for erasure coding
+                                      nullable: true
+                                      type: string
+                                    codingChunks:
+                                      description: |-
+                                        CodingChunks is a number of coding chunks per object
+                                        in an erasure coded storage pool (required for erasure-coded pool type)
+                                      type: integer
+                                    dataChunks:
+                                      description: |-
+                                        DataChunks is a number of data chunks per object
+                                        in an erasure coded storage pool (required for erasure-coded pool type)
+                                      type: integer
+                                  required:
+                                  - codingChunks
+                                  - dataChunks
+                                  type: object
+                                failureDomain:
+                                  description: |-
+                                    FailureDomain represents level of cluster fault-tolerance.
+                                    Possible values are: osd, host, region or zone if available;
+                                    technically also any type in the crush map
+                                  nullable: true
+                                  type: string
+                                mirroring:
+                                  description: 'Mirroring allows to enable RBD mirroring
+                                    feature in modes: pool, image'
+                                  properties:
+                                    mode:
+                                      description: Mode - mirroring mode to run
+                                      type: string
+                                  required:
+                                  - mode
+                                  type: object
+                                parameters:
+                                  additionalProperties:
+                                    type: string
+                                  description: |-
+                                    Parameters is a key-value mapping of all supported ceph pool parameters such
+                                    as pg_num, compression_mode etc.
+                                  type: object
+                                replicated:
+                                  description: Replicated represents Ceph Pool's replica
+                                    settings
+                                  properties:
+                                    size:
+                                      description: Size - Number of copies per object
+                                        in a replicated storage pool, including the
+                                        object itself (required for replicated pool
+                                        type)
+                                      type: integer
+                                    targetSizeRatio:
+                                      description: TargetSizeRatio gives a hint (%)
+                                        to Ceph in terms of expected consumption of
+                                        the total cluster capacity
+                                      type: number
+                                  required:
+                                  - size
+                                  type: object
+                              required:
+                              - deviceClass
+                              type: object
+                            endpointsForZone:
+                              description: Custom endpoints for zone, which should
+                                be used in zone config
+                              items:
+                                type: string
+                              type: array
+                            metadataPool:
+                              description: |-
+                                MetadataPool represents Ceph Pool's setting which contains
+                                RGW zone metadata
+                              properties:
+                                crushRoot:
+                                  description: CrushRoot is the root of the crush
+                                    hierarchy utilized by the pool
+                                  nullable: true
+                                  type: string
+                                deviceClass:
+                                  description: 'DeviceClass is the device class the
+                                    OSD should set to (options are: hdd, ssd, or nvme)'
+                                  type: string
+                                enableCrushUpdates:
+                                  description: |-
+                                    EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
+                                    Can cause data remapping if crush rule changes, Defaults to false.
+                                  type: boolean
+                                erasureCoded:
+                                  description: ErasureCoded represents Ceph Pool's
+                                    erasure coding settings
+                                  properties:
+                                    algorithm:
+                                      description: Algorithm represents the algorithm
+                                        for erasure coding
+                                      nullable: true
+                                      type: string
+                                    codingChunks:
+                                      description: |-
+                                        CodingChunks is a number of coding chunks per object
+                                        in an erasure coded storage pool (required for erasure-coded pool type)
+                                      type: integer
+                                    dataChunks:
+                                      description: |-
+                                        DataChunks is a number of data chunks per object
+                                        in an erasure coded storage pool (required for erasure-coded pool type)
+                                      type: integer
+                                  required:
+                                  - codingChunks
+                                  - dataChunks
+                                  type: object
+                                failureDomain:
+                                  description: |-
+                                    FailureDomain represents level of cluster fault-tolerance.
+                                    Possible values are: osd, host, region or zone if available;
+                                    technically also any type in the crush map
+                                  nullable: true
+                                  type: string
+                                mirroring:
+                                  description: 'Mirroring allows to enable RBD mirroring
+                                    feature in modes: pool, image'
+                                  properties:
+                                    mode:
+                                      description: Mode - mirroring mode to run
+                                      type: string
+                                  required:
+                                  - mode
+                                  type: object
+                                parameters:
+                                  additionalProperties:
+                                    type: string
+                                  description: |-
+                                    Parameters is a key-value mapping of all supported ceph pool parameters such
+                                    as pg_num, compression_mode etc.
+                                  type: object
+                                replicated:
+                                  description: Replicated represents Ceph Pool's replica
+                                    settings
+                                  properties:
+                                    size:
+                                      description: Size - Number of copies per object
+                                        in a replicated storage pool, including the
+                                        object itself (required for replicated pool
+                                        type)
+                                      type: integer
+                                    targetSizeRatio:
+                                      description: TargetSizeRatio gives a hint (%)
+                                        to Ceph in terms of expected consumption of
+                                        the total cluster capacity
+                                      type: number
+                                  required:
+                                  - size
+                                  type: object
+                              required:
+                              - deviceClass
+                              type: object
+                            name:
+                              description: Name represents zone's name
+                              type: string
+                            zoneGroupName:
+                              description: ZoneGroup is a name of the zone group for
+                                which zone belongs to
+                              type: string
+                          required:
+                          - dataPool
+                          - metadataPool
+                          - name
+                          - zoneGroupName
+                          type: object
+                        type: array
+                    required:
+                    - realms
+                    - zoneGroups
+                    - zones
+                    type: object
+                  rgw:
+                    description: Rgw represents Ceph RadosGW settings
+                    properties:
+                      SSLCert:
+                        description: SSLCert used for access to RGW Gateway endpoint,
+                          if not specified will be generated self-signed
+                        properties:
+                          cacert:
+                            description: Cacert represents CA certificate
+                            type: string
+                          tlsCert:
+                            description: TLSCert represents SSL certificate based
+                              on the defined Cacert and TLSKey
+                            type: string
+                          tlsKey:
+                            description: TLSKey represents SSL secret key used for
+                              TLSCert generate
+                            type: string
+                        required:
+                        - cacert
+                        - tlsCert
+                        - tlsKey
+                        type: object
+                      SSLCertInRef:
+                        description: |-
+                          SSLCertInRef is a flag, whether RGW SSL certs are provided internally,
+                          without exposing in spec in base default 'rgw-ssl-certificate' secret.
+                        type: boolean
+                      buckets:
+                        description: |-
+                          Buckets is a list of initial buckets to create in object storage
+                          with radosgw-admin
+                        items:
+                          type: string
+                        type: array
+                      dataPool:
+                        description: |-
+                          DataPool represents Ceph Pool's settings which stores RGW data.
+                          Mutually exclusive with Zone
+                        properties:
+                          crushRoot:
+                            description: CrushRoot is the root of the crush hierarchy
+                              utilized by the pool
+                            nullable: true
+                            type: string
+                          deviceClass:
+                            description: 'DeviceClass is the device class the OSD
+                              should set to (options are: hdd, ssd, or nvme)'
+                            type: string
+                          enableCrushUpdates:
+                            description: |-
+                              EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
+                              Can cause data remapping if crush rule changes, Defaults to false.
+                            type: boolean
+                          erasureCoded:
+                            description: ErasureCoded represents Ceph Pool's erasure
+                              coding settings
+                            properties:
+                              algorithm:
+                                description: Algorithm represents the algorithm for
+                                  erasure coding
+                                nullable: true
+                                type: string
+                              codingChunks:
+                                description: |-
+                                  CodingChunks is a number of coding chunks per object
+                                  in an erasure coded storage pool (required for erasure-coded pool type)
+                                type: integer
+                              dataChunks:
+                                description: |-
+                                  DataChunks is a number of data chunks per object
+                                  in an erasure coded storage pool (required for erasure-coded pool type)
+                                type: integer
+                            required:
+                            - codingChunks
+                            - dataChunks
+                            type: object
+                          failureDomain:
+                            description: |-
+                              FailureDomain represents level of cluster fault-tolerance.
+                              Possible values are: osd, host, region or zone if available;
+                              technically also any type in the crush map
+                            nullable: true
+                            type: string
+                          mirroring:
+                            description: 'Mirroring allows to enable RBD mirroring
+                              feature in modes: pool, image'
+                            properties:
+                              mode:
+                                description: Mode - mirroring mode to run
+                                type: string
+                            required:
+                            - mode
+                            type: object
+                          parameters:
+                            additionalProperties:
+                              type: string
+                            description: |-
+                              Parameters is a key-value mapping of all supported ceph pool parameters such
+                              as pg_num, compression_mode etc.
+                            type: object
+                          replicated:
+                            description: Replicated represents Ceph Pool's replica
+                              settings
+                            properties:
+                              size:
+                                description: Size - Number of copies per object in
+                                  a replicated storage pool, including the object
+                                  itself (required for replicated pool type)
+                                type: integer
+                              targetSizeRatio:
+                                description: TargetSizeRatio gives a hint (%) to Ceph
+                                  in terms of expected consumption of the total cluster
+                                  capacity
+                                type: number
+                            required:
+                            - size
+                            type: object
+                        required:
+                        - deviceClass
+                        type: object
+                      gateway:
+                        description: Gateway represents Ceph RGW daemons settings
+                        properties:
+                          allNodes:
+                            description: |-
+                              AllNodes is a flag whether the rgw pods should be
+                              started as a daemonset on all nodes
+                            type: boolean
+                          externalRgwEndpoint:
+                            description: |-
+                              ExternalRgwEndpoint represents external RGW Endpoint to use, when external Ceph cluster is used.
+                              Has effect only for external cluster setup.
+                            properties:
+                              hostname:
+                                description: The DNS-addressable Hostname of this
+                                  endpoint. This field will be preferred over IP if
+                                  both are given.
+                                type: string
+                              ip:
+                                description: The IP of this endpoint. As a legacy
+                                  behavior, this supports being given a DNS-addressable
+                                  hostname as well.
+                                type: string
+                            type: object
+                            x-kubernetes-map-type: atomic
+                          instances:
+                            description: |-
+                              Instances is the number of pods in the rgw replicaset.
+                              If AllNodes is specified, a daemonset will be created.
+                            format: int32
+                            type: integer
+                          port:
+                            description: Port the rgw service will be listening on
+                              (http)
+                            format: int32
+                            type: integer
+                          resources:
+                            description: Resources requirements for RGW instances
+                            properties:
+                              claims:
+                                description: |-
+                                  Claims lists the names of resources, defined in spec.resourceClaims,
+                                  that are used by this container.
+
+                                  This is an alpha field and requires enabling the
+                                  DynamicResourceAllocation feature gate.
+
+                                  This field is immutable. It can only be set for containers.
+                                items:
+                                  description: ResourceClaim references one entry
+                                    in PodSpec.ResourceClaims.
+                                  properties:
+                                    name:
+                                      description: |-
+                                        Name must match the name of one entry in pod.spec.resourceClaims of
+                                        the Pod where this field is used. It makes that resource available
+                                        inside a container.
+                                      type: string
+                                    request:
+                                      description: |-
+                                        Request is the name chosen for a request in the referenced claim.
+                                        If empty, everything from the claim is made available, otherwise
+                                        only the result of this request.
+                                      type: string
+                                  required:
+                                  - name
+                                  type: object
+                                type: array
+                                x-kubernetes-list-map-keys:
+                                - name
+                                x-kubernetes-list-type: map
+                              limits:
+                                additionalProperties:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                description: |-
+                                  Limits describes the maximum amount of compute resources allowed.
+                                  More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                                type: object
+                              requests:
+                                additionalProperties:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                description: |-
+                                  Requests describes the minimum amount of compute resources required.
+                                  If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                                  otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                                  More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                                type: object
+                            type: object
+                          rgwSyncPort:
+                            description: |-
+                              Port the rgw multisite traffic service will be listening on (http). Optional.
+                              Has effect only for multisite configuration.
+                            format: int32
+                            type: integer
+                          securePort:
+                            description: SecurePort the rgw service will be listening
+                              on (https)
+                            format: int32
+                            type: integer
+                          splitDaemonForMultisiteTrafficSync:
+                            description: |-
+                              SplitDaemonForMultisiteTrafficSync is a flag for multisite, which allows
+                              to split daemon responsible for sync between zones and daemon for serving clients requests
+                            type: boolean
+                        required:
+                        - allNodes
+                        - instances
+                        - port
+                        - securePort
+                        type: object
+                      healthCheck:
+                        description: HealthCheck represents Ceph RGW daemons healthchecks
+                        properties:
+                          readinessProbe:
+                            description: ProbeSpec is a wrapper around Probe so it
+                              can be enabled or disabled for a Ceph daemon
+                            properties:
+                              disabled:
+                                description: Disabled determines whether probe is
+                                  disable or not
+                                type: boolean
+                              probe:
+                                description: |-
+                                  Probe describes a health check to be performed against a container to determine whether it is
+                                  alive or ready to receive traffic.
+                                properties:
+                                  exec:
+                                    description: Exec specifies the action to take.
+                                    properties:
+                                      command:
+                                        description: |-
+                                          Command is the command line to execute inside the container, the working directory for the
+                                          command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+                                          not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+                                          a shell, you need to explicitly call out to that shell.
+                                          Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+                                        items:
+                                          type: string
+                                        type: array
+                                        x-kubernetes-list-type: atomic
+                                    type: object
+                                  failureThreshold:
+                                    description: |-
+                                      Minimum consecutive failures for the probe to be considered failed after having succeeded.
+                                      Defaults to 3. Minimum value is 1.
+                                    format: int32
+                                    type: integer
+                                  grpc:
+                                    description: GRPC specifies an action involving
+                                      a GRPC port.
+                                    properties:
+                                      port:
+                                        description: Port number of the gRPC service.
+                                          Number must be in the range 1 to 65535.
+                                        format: int32
+                                        type: integer
+                                      service:
+                                        default: ""
+                                        description: |-
+                                          Service is the name of the service to place in the gRPC HealthCheckRequest
+                                          (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+                                          If this is not specified, the default behavior is defined by gRPC.
+                                        type: string
+                                    required:
+                                    - port
+                                    type: object
+                                  httpGet:
+                                    description: HTTPGet specifies the http request
+                                      to perform.
+                                    properties:
+                                      host:
+                                        description: |-
+                                          Host name to connect to, defaults to the pod IP. You probably want to set
+                                          "Host" in httpHeaders instead.
+                                        type: string
+                                      httpHeaders:
+                                        description: Custom headers to set in the
+                                          request. HTTP allows repeated headers.
+                                        items:
+                                          description: HTTPHeader describes a custom
+                                            header to be used in HTTP probes
+                                          properties:
+                                            name:
+                                              description: |-
+                                                The header field name.
+                                                This will be canonicalized upon output, so case-variant names will be understood as the same header.
+                                              type: string
+                                            value:
+                                              description: The header field value
+                                              type: string
+                                          required:
+                                          - name
+                                          - value
+                                          type: object
+                                        type: array
+                                        x-kubernetes-list-type: atomic
+                                      path:
+                                        description: Path to access on the HTTP server.
+                                        type: string
+                                      port:
+                                        anyOf:
+                                        - type: integer
+                                        - type: string
+                                        description: |-
+                                          Name or number of the port to access on the container.
+                                          Number must be in the range 1 to 65535.
+                                          Name must be an IANA_SVC_NAME.
+                                        x-kubernetes-int-or-string: true
+                                      scheme:
+                                        description: |-
+                                          Scheme to use for connecting to the host.
+                                          Defaults to HTTP.
+                                        type: string
+                                    required:
+                                    - port
+                                    type: object
+                                  initialDelaySeconds:
+                                    description: |-
+                                      Number of seconds after the container has started before liveness probes are initiated.
+                                      More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+                                    format: int32
+                                    type: integer
+                                  periodSeconds:
+                                    description: |-
+                                      How often (in seconds) to perform the probe.
+                                      Default to 10 seconds. Minimum value is 1.
+                                    format: int32
+                                    type: integer
+                                  successThreshold:
+                                    description: |-
+                                      Minimum consecutive successes for the probe to be considered successful after having failed.
+                                      Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+                                    format: int32
+                                    type: integer
+                                  tcpSocket:
+                                    description: TCPSocket specifies an action involving
+                                      a TCP port.
+                                    properties:
+                                      host:
+                                        description: 'Optional: Host name to connect
+                                          to, defaults to the pod IP.'
+                                        type: string
+                                      port:
+                                        anyOf:
+                                        - type: integer
+                                        - type: string
+                                        description: |-
+                                          Number or name of the port to access on the container.
+                                          Number must be in the range 1 to 65535.
+                                          Name must be an IANA_SVC_NAME.
+                                        x-kubernetes-int-or-string: true
+                                    required:
+                                    - port
+                                    type: object
+                                  terminationGracePeriodSeconds:
+                                    description: |-
+                                      Optional duration in seconds the pod needs to terminate gracefully upon probe failure.
+                                      The grace period is the duration in seconds after the processes running in the pod are sent
+                                      a termination signal and the time when the processes are forcibly halted with a kill signal.
+                                      Set this value longer than the expected cleanup time for your process.
+                                      If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this
+                                      value overrides the value provided by the pod spec.
+                                      Value must be non-negative integer. The value zero indicates stop immediately via
+                                      the kill signal (no opportunity to shut down).
+                                      This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate.
+                                      Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+                                    format: int64
+                                    type: integer
+                                  timeoutSeconds:
+                                    description: |-
+                                      Number of seconds after which the probe times out.
+                                      Defaults to 1 second. Minimum value is 1.
+                                      More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+                                    format: int32
+                                    type: integer
+                                type: object
+                            type: object
+                            x-kubernetes-preserve-unknown-fields: true
+                          startupProbe:
+                            description: ProbeSpec is a wrapper around Probe so it
+                              can be enabled or disabled for a Ceph daemon
+                            properties:
+                              disabled:
+                                description: Disabled determines whether probe is
+                                  disable or not
+                                type: boolean
+                              probe:
+                                description: |-
+                                  Probe describes a health check to be performed against a container to determine whether it is
+                                  alive or ready to receive traffic.
+                                properties:
+                                  exec:
+                                    description: Exec specifies the action to take.
+                                    properties:
+                                      command:
+                                        description: |-
+                                          Command is the command line to execute inside the container, the working directory for the
+                                          command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+                                          not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+                                          a shell, you need to explicitly call out to that shell.
+                                          Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+                                        items:
+                                          type: string
+                                        type: array
+                                        x-kubernetes-list-type: atomic
+                                    type: object
+                                  failureThreshold:
+                                    description: |-
+                                      Minimum consecutive failures for the probe to be considered failed after having succeeded.
+                                      Defaults to 3. Minimum value is 1.
+                                    format: int32
+                                    type: integer
+                                  grpc:
+                                    description: GRPC specifies an action involving
+                                      a GRPC port.
+                                    properties:
+                                      port:
+                                        description: Port number of the gRPC service.
+                                          Number must be in the range 1 to 65535.
+                                        format: int32
+                                        type: integer
+                                      service:
+                                        default: ""
+                                        description: |-
+                                          Service is the name of the service to place in the gRPC HealthCheckRequest
+                                          (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+                                          If this is not specified, the default behavior is defined by gRPC.
+                                        type: string
+                                    required:
+                                    - port
+                                    type: object
+                                  httpGet:
+                                    description: HTTPGet specifies the http request
+                                      to perform.
+                                    properties:
+                                      host:
+                                        description: |-
+                                          Host name to connect to, defaults to the pod IP. You probably want to set
+                                          "Host" in httpHeaders instead.
+                                        type: string
+                                      httpHeaders:
+                                        description: Custom headers to set in the
+                                          request. HTTP allows repeated headers.
+                                        items:
+                                          description: HTTPHeader describes a custom
+                                            header to be used in HTTP probes
+                                          properties:
+                                            name:
+                                              description: |-
+                                                The header field name.
+                                                This will be canonicalized upon output, so case-variant names will be understood as the same header.
+                                              type: string
+                                            value:
+                                              description: The header field value
+                                              type: string
+                                          required:
+                                          - name
+                                          - value
+                                          type: object
+                                        type: array
+                                        x-kubernetes-list-type: atomic
+                                      path:
+                                        description: Path to access on the HTTP server.
+                                        type: string
+                                      port:
+                                        anyOf:
+                                        - type: integer
+                                        - type: string
+                                        description: |-
+                                          Name or number of the port to access on the container.
+                                          Number must be in the range 1 to 65535.
+                                          Name must be an IANA_SVC_NAME.
+                                        x-kubernetes-int-or-string: true
+                                      scheme:
+                                        description: |-
+                                          Scheme to use for connecting to the host.
+                                          Defaults to HTTP.
+                                        type: string
+                                    required:
+                                    - port
+                                    type: object
+                                  initialDelaySeconds:
+                                    description: |-
+                                      Number of seconds after the container has started before liveness probes are initiated.
+                                      More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+                                    format: int32
+                                    type: integer
+                                  periodSeconds:
+                                    description: |-
+                                      How often (in seconds) to perform the probe.
+                                      Default to 10 seconds. Minimum value is 1.
+                                    format: int32
+                                    type: integer
+                                  successThreshold:
+                                    description: |-
+                                      Minimum consecutive successes for the probe to be considered successful after having failed.
+                                      Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+                                    format: int32
+                                    type: integer
+                                  tcpSocket:
+                                    description: TCPSocket specifies an action involving
+                                      a TCP port.
+                                    properties:
+                                      host:
+                                        description: 'Optional: Host name to connect
+                                          to, defaults to the pod IP.'
+                                        type: string
+                                      port:
+                                        anyOf:
+                                        - type: integer
+                                        - type: string
+                                        description: |-
+                                          Number or name of the port to access on the container.
+                                          Number must be in the range 1 to 65535.
+                                          Name must be an IANA_SVC_NAME.
+                                        x-kubernetes-int-or-string: true
+                                    required:
+                                    - port
+                                    type: object
+                                  terminationGracePeriodSeconds:
+                                    description: |-
+                                      Optional duration in seconds the pod needs to terminate gracefully upon probe failure.
+                                      The grace period is the duration in seconds after the processes running in the pod are sent
+                                      a termination signal and the time when the processes are forcibly halted with a kill signal.
+                                      Set this value longer than the expected cleanup time for your process.
+                                      If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this
+                                      value overrides the value provided by the pod spec.
+                                      Value must be non-negative integer. The value zero indicates stop immediately via
+                                      the kill signal (no opportunity to shut down).
+                                      This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate.
+                                      Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+                                    format: int64
+                                    type: integer
+                                  timeoutSeconds:
+                                    description: |-
+                                      Number of seconds after which the probe times out.
+                                      Defaults to 1 second. Minimum value is 1.
+                                      More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+                                    format: int32
+                                    type: integer
+                                type: object
+                            type: object
+                        type: object
+                      metadataPool:
+                        description: |-
+                          MetadataPool represents Ceph Pool's settings which stores RGW metadata.
+                          Mutually exclusive with Zone
+                        properties:
+                          crushRoot:
+                            description: CrushRoot is the root of the crush hierarchy
+                              utilized by the pool
+                            nullable: true
+                            type: string
+                          deviceClass:
+                            description: 'DeviceClass is the device class the OSD
+                              should set to (options are: hdd, ssd, or nvme)'
+                            type: string
+                          enableCrushUpdates:
+                            description: |-
+                              EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
+                              Can cause data remapping if crush rule changes, Defaults to false.
+                            type: boolean
+                          erasureCoded:
+                            description: ErasureCoded represents Ceph Pool's erasure
+                              coding settings
+                            properties:
+                              algorithm:
+                                description: Algorithm represents the algorithm for
+                                  erasure coding
+                                nullable: true
+                                type: string
+                              codingChunks:
+                                description: |-
+                                  CodingChunks is a number of coding chunks per object
+                                  in an erasure coded storage pool (required for erasure-coded pool type)
+                                type: integer
+                              dataChunks:
+                                description: |-
+                                  DataChunks is a number of data chunks per object
+                                  in an erasure coded storage pool (required for erasure-coded pool type)
+                                type: integer
+                            required:
+                            - codingChunks
+                            - dataChunks
+                            type: object
+                          failureDomain:
+                            description: |-
+                              FailureDomain represents level of cluster fault-tolerance.
+                              Possible values are: osd, host, region or zone if available;
+                              technically also any type in the crush map
+                            nullable: true
+                            type: string
+                          mirroring:
+                            description: 'Mirroring allows to enable RBD mirroring
+                              feature in modes: pool, image'
+                            properties:
+                              mode:
+                                description: Mode - mirroring mode to run
+                                type: string
+                            required:
+                            - mode
+                            type: object
+                          parameters:
+                            additionalProperties:
+                              type: string
+                            description: |-
+                              Parameters is a key-value mapping of all supported ceph pool parameters such
+                              as pg_num, compression_mode etc.
+                            type: object
+                          replicated:
+                            description: Replicated represents Ceph Pool's replica
+                              settings
+                            properties:
+                              size:
+                                description: Size - Number of copies per object in
+                                  a replicated storage pool, including the object
+                                  itself (required for replicated pool type)
+                                type: integer
+                              targetSizeRatio:
+                                description: TargetSizeRatio gives a hint (%) to Ceph
+                                  in terms of expected consumption of the total cluster
+                                  capacity
+                                type: number
+                            required:
+                            - size
+                            type: object
+                        required:
+                        - deviceClass
+                        type: object
+                      name:
+                        description: Name represents the name of specified object
+                          storage
+                        maxLength: 25
+                        type: string
+                      objectUsers:
+                        description: |-
+                          Users is a list of user names to create for object storage
+                          with radosgw-admin
+                        items:
+                          description: CephRGWUser represents Ceph RadosGW user
+                          properties:
+                            capabilities:
+                              description: User capabilities
+                              properties:
+                                amz-cache:
+                                  description: Add capabilities for user to send request
+                                    to RGW Cache API header. Documented in https://docs.ceph.com/en/latest/radosgw/rgw-cache/#cache-api
+                                  enum:
+                                  - '*'
+                                  - read
+                                  - write
+                                  - read, write
+                                  type: string
+                                bilog:
+                                  description: Add capabilities for user to change
+                                    bucket index logging. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+                                  enum:
+                                  - '*'
+                                  - read
+                                  - write
+                                  - read, write
+                                  type: string
+                                bucket:
+                                  description: Admin capabilities to read/write Ceph
+                                    object store buckets. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+                                  enum:
+                                  - '*'
+                                  - read
+                                  - write
+                                  - read, write
+                                  type: string
+                                buckets:
+                                  description: Admin capabilities to read/write Ceph
+                                    object store buckets. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+                                  enum:
+                                  - '*'
+                                  - read
+                                  - write
+                                  - read, write
+                                  type: string
+                                datalog:
+                                  description: Add capabilities for user to change
+                                    data logging. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+                                  enum:
+                                  - '*'
+                                  - read
+                                  - write
+                                  - read, write
+                                  type: string
+                                info:
+                                  description: Admin capabilities to read/write information
+                                    about the user. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+                                  enum:
+                                  - '*'
+                                  - read
+                                  - write
+                                  - read, write
+                                  type: string
+                                mdlog:
+                                  description: Add capabilities for user to change
+                                    metadata logging. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+                                  enum:
+                                  - '*'
+                                  - read
+                                  - write
+                                  - read, write
+                                  type: string
+                                metadata:
+                                  description: Admin capabilities to read/write Ceph
+                                    object store metadata. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+                                  enum:
+                                  - '*'
+                                  - read
+                                  - write
+                                  - read, write
+                                  type: string
+                                oidc-provider:
+                                  description: Add capabilities for user to change
+                                    oidc provider. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+                                  enum:
+                                  - '*'
+                                  - read
+                                  - write
+                                  - read, write
+                                  type: string
+                                ratelimit:
+                                  description: Add capabilities for user to set rate
+                                    limiter for user and bucket. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+                                  enum:
+                                  - '*'
+                                  - read
+                                  - write
+                                  - read, write
+                                  type: string
+                                roles:
+                                  description: Admin capabilities to read/write roles
+                                    for user. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+                                  enum:
+                                  - '*'
+                                  - read
+                                  - write
+                                  - read, write
+                                  type: string
+                                usage:
+                                  description: Admin capabilities to read/write Ceph
+                                    object store usage. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+                                  enum:
+                                  - '*'
+                                  - read
+                                  - write
+                                  - read, write
+                                  type: string
+                                user:
+                                  description: Admin capabilities to read/write Ceph
+                                    object store users. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+                                  enum:
+                                  - '*'
+                                  - read
+                                  - write
+                                  - read, write
+                                  type: string
+                                user-policy:
+                                  description: Add capabilities for user to change
+                                    user policies. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+                                  enum:
+                                  - '*'
+                                  - read
+                                  - write
+                                  - read, write
+                                  type: string
+                                users:
+                                  description: Admin capabilities to read/write Ceph
+                                    object store users. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+                                  enum:
+                                  - '*'
+                                  - read
+                                  - write
+                                  - read, write
+                                  type: string
+                                zone:
+                                  description: Admin capabilities to read/write Ceph
+                                    object store zones. Documented in https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities
+                                  enum:
+                                  - '*'
+                                  - read
+                                  - write
+                                  - read, write
+                                  type: string
+                              type: object
+                            displayName:
+                              description: The display name for the user
+                              nullable: true
+                              type: string
+                            name:
+                              description: Represent a user name
+                              type: string
+                            quotas:
+                              description: User quotas
+                              properties:
+                                maxBuckets:
+                                  description: Maximum bucket limit for the ceph user
+                                  nullable: true
+                                  type: integer
+                                maxObjects:
+                                  description: Maximum number of objects across all
+                                    the user's buckets
+                                  format: int64
+                                  nullable: true
+                                  type: integer
+                                maxSize:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: |-
+                                    Maximum size limit of all objects across all the user's buckets
+                                    See https://pkg.go.dev/k8s.io/apimachinery/pkg/api/resource#Quantity for more info.
+                                  nullable: true
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                              type: object
+                          required:
+                          - name
+                          type: object
+                        type: array
+                      preservePoolsOnDelete:
+                        description: |-
+                          PreservePoolsOnDelete is a flag whether keep RGW metadata/data pools
+                          on RGW delete or not
+                        type: boolean
+                      replicas:
+                        description: |-
+                          Replicas is a number of replicas for each Ceph RadosGW instance.
+                          Not used in a product currently
+                        type: integer
+                      rgwUseHostNetwork:
+                        description: |-
+                          Whether host networking is enabled for the rgw daemon.
+                          If not set, the network settings from the cluster CR will be applied.
+                        type: boolean
+                      skipAutoZoneGroupHostnameUpdate:
+                        description: |-
+                          Disable auto update allowed hostnames for zone group
+                          By default is enabled, but ignored for multisite.
+                        type: boolean
+                      zone:
+                        description: Zone represents RGW zone if multisite feature
+                          enabled
+                        properties:
+                          name:
+                            description: CephObjectStoreZone name this CephObjectStore
+                              is part of
+                            type: string
+                        required:
+                        - name
+                        type: object
+                    required:
+                    - gateway
+                    - name
+                    type: object
+                required:
+                - rgw
+                type: object
+              pools:
+                description: Pools is a list of Ceph RBD Pools configurations
+                items:
+                  description: CephPool stands for specified Ceph RBD Pool configuration
+                  properties:
+                    crushRoot:
+                      description: CrushRoot is the root of the crush hierarchy utilized
+                        by the pool
+                      nullable: true
+                      type: string
+                    deviceClass:
+                      description: 'DeviceClass is the device class the OSD should
+                        set to (options are: hdd, ssd, or nvme)'
+                      type: string
+                    enableCrushUpdates:
+                      description: |-
+                        EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
+                        Can cause data remapping if crush rule changes, Defaults to false.
+                      type: boolean
+                    erasureCoded:
+                      description: ErasureCoded represents Ceph Pool's erasure coding
+                        settings
+                      properties:
+                        algorithm:
+                          description: Algorithm represents the algorithm for erasure
+                            coding
+                          nullable: true
+                          type: string
+                        codingChunks:
+                          description: |-
+                            CodingChunks is a number of coding chunks per object
+                            in an erasure coded storage pool (required for erasure-coded pool type)
+                          type: integer
+                        dataChunks:
+                          description: |-
+                            DataChunks is a number of data chunks per object
+                            in an erasure coded storage pool (required for erasure-coded pool type)
+                          type: integer
+                      required:
+                      - codingChunks
+                      - dataChunks
+                      type: object
+                    failureDomain:
+                      description: |-
+                        FailureDomain represents level of cluster fault-tolerance.
+                        Possible values are: osd, host, region or zone if available;
+                        technically also any type in the crush map
+                      nullable: true
+                      type: string
+                    mirroring:
+                      description: 'Mirroring allows to enable RBD mirroring feature
+                        in modes: pool, image'
+                      properties:
+                        mode:
+                          description: Mode - mirroring mode to run
+                          type: string
+                      required:
+                      - mode
+                      type: object
+                    name:
+                      description: Name represents Ceph RBD pool name
+                      type: string
+                    parameters:
+                      additionalProperties:
+                        type: string
+                      description: |-
+                        Parameters is a key-value mapping of all supported ceph pool parameters such
+                        as pg_num, compression_mode etc.
+                      type: object
+                    preserveOnDelete:
+                      description: PreserveOnDelete prevents related CephBlockPool
+                        object removal
+                      type: boolean
+                    replicated:
+                      description: Replicated represents Ceph Pool's replica settings
+                      properties:
+                        size:
+                          description: Size - Number of copies per object in a replicated
+                            storage pool, including the object itself (required for
+                            replicated pool type)
+                          type: integer
+                        targetSizeRatio:
+                          description: TargetSizeRatio gives a hint (%) to Ceph in
+                            terms of expected consumption of the total cluster capacity
+                          type: number
+                      required:
+                      - size
+                      type: object
+                    role:
+                      description: |-
+                        Role represents pool role. The following values are reserved for
+                        MOS managed clusters: vms, images, backup, volumes
+                      nullable: true
+                      type: string
+                    storageClassOpts:
+                      description: StorageClassOpts represents options to set on related
+                        storage class
+                      properties:
+                        allowVolumeExpansion:
+                          description: AllowVolumeExpansion allows to extend volumes
+                            sizes in pool
+                          type: boolean
+                        default:
+                          description: Default represents whether Ceph Pool's StorageClass
+                            would be default or not
+                          type: boolean
+                        imageFeatures:
+                          description: |-
+                            ImageFeatures is a comma-separated list of RBD image features,
+                            see: https://docs.ceph.com/en/latest/man/8/rbd/#cmdoption-rbd-image-feature
+                            Default is layering.
+                          nullable: true
+                          type: string
+                        mapOptions:
+                          description: MapOptions is a comma-separated list of kernel
+                            RBD map options
+                          nullable: true
+                          type: string
+                        reclaimPolicy:
+                          description: |-
+                            ReclaimPolicy stands for underlying StorageClass reclaimPolicy parameter.
+                            Default is 'Delete' if not set.
+                          nullable: true
+                          type: string
+                        unmapOptions:
+                          description: UnmapOptions is a comma-separated list of kernel
+                            RBD unmap options
+                          nullable: true
+                          type: string
+                      type: object
+                    useAsFullName:
+                      description: UseAsFullName uses Name as a resulting pool name
+                        instead of "<Name>-<DeviceClass>"
+                      type: boolean
+                  required:
+                  - deviceClass
+                  - name
+                  type: object
+                type: array
+              rbdMirror:
+                description: RBDMirror allows to configure RBD mirroring between two
+                  Ceph Clusters
+                properties:
+                  daemonsCount:
+                    description: Count of rbd-mirror daemons to spawn
+                    type: integer
+                  peers:
+                    description: |-
+                      Peers is a list of secret's names defined in kubernetes.
+                      Currently, (Ceph Octopus release) only a single peer is supported
+                    items:
+                      properties:
+                        pools:
+                          description: Pools is a list of Ceph Pools names to mirror
+                          items:
+                            type: string
+                          type: array
+                        site:
+                          description: Site is a name of remote site associated with
+                            the token
+                          type: string
+                        token:
+                          description: |-
+                            Token represents base64 encoded information about
+                            remote cluster; contains fsid,client_id,key,mon_host
+                          type: string
+                      required:
+                      - site
+                      - token
+                      type: object
+                    type: array
+                required:
+                - daemonsCount
+                type: object
+              rookConfig:
+                additionalProperties:
+                  type: string
+                description: RookConfig is a key-value mapping which contains ceph
+                  config keys with a specified values
+                type: object
+              sharedFilesystem:
+                description: SharedFilesystem enables such system as CephFS
+                properties:
+                  cephFS:
+                    description: CephFS to create. Multiple CephFS available to deploy
+                      for clusters with Ceph Reef or above
+                    items:
+                      properties:
+                        dataPools:
+                          description: The settings to create the filesystem data
+                            pools. Must use replication.
+                          items:
+                            description: CephFSPool stands for specified CephFS Pool
+                              configuration
+                            properties:
+                              crushRoot:
+                                description: CrushRoot is the root of the crush hierarchy
+                                  utilized by the pool
+                                nullable: true
+                                type: string
+                              deviceClass:
+                                description: 'DeviceClass is the device class the
+                                  OSD should set to (options are: hdd, ssd, or nvme)'
+                                type: string
+                              enableCrushUpdates:
+                                description: |-
+                                  EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
+                                  Can cause data remapping if crush rule changes, Defaults to false.
+                                type: boolean
+                              erasureCoded:
+                                description: ErasureCoded represents Ceph Pool's erasure
+                                  coding settings
+                                properties:
+                                  algorithm:
+                                    description: Algorithm represents the algorithm
+                                      for erasure coding
+                                    nullable: true
+                                    type: string
+                                  codingChunks:
+                                    description: |-
+                                      CodingChunks is a number of coding chunks per object
+                                      in an erasure coded storage pool (required for erasure-coded pool type)
+                                    type: integer
+                                  dataChunks:
+                                    description: |-
+                                      DataChunks is a number of data chunks per object
+                                      in an erasure coded storage pool (required for erasure-coded pool type)
+                                    type: integer
+                                required:
+                                - codingChunks
+                                - dataChunks
+                                type: object
+                              failureDomain:
+                                description: |-
+                                  FailureDomain represents level of cluster fault-tolerance.
+                                  Possible values are: osd, host, region or zone if available;
+                                  technically also any type in the crush map
+                                nullable: true
+                                type: string
+                              mirroring:
+                                description: 'Mirroring allows to enable RBD mirroring
+                                  feature in modes: pool, image'
+                                properties:
+                                  mode:
+                                    description: Mode - mirroring mode to run
+                                    type: string
+                                required:
+                                - mode
+                                type: object
+                              name:
+                                description: Name represents CephFS pool name
+                                type: string
+                              parameters:
+                                additionalProperties:
+                                  type: string
+                                description: |-
+                                  Parameters is a key-value mapping of all supported ceph pool parameters such
+                                  as pg_num, compression_mode etc.
+                                type: object
+                              replicated:
+                                description: Replicated represents Ceph Pool's replica
+                                  settings
+                                properties:
+                                  size:
+                                    description: Size - Number of copies per object
+                                      in a replicated storage pool, including the
+                                      object itself (required for replicated pool
+                                      type)
+                                    type: integer
+                                  targetSizeRatio:
+                                    description: TargetSizeRatio gives a hint (%)
+                                      to Ceph in terms of expected consumption of
+                                      the total cluster capacity
+                                    type: number
+                                required:
+                                - size
+                                type: object
+                            required:
+                            - deviceClass
+                            - name
+                            type: object
+                          type: array
+                        metadataPool:
+                          description: The settings used to create the filesystem
+                            metadata pool. Must use replication.
+                          properties:
+                            crushRoot:
+                              description: CrushRoot is the root of the crush hierarchy
+                                utilized by the pool
+                              nullable: true
+                              type: string
+                            deviceClass:
+                              description: 'DeviceClass is the device class the OSD
+                                should set to (options are: hdd, ssd, or nvme)'
+                              type: string
+                            enableCrushUpdates:
+                              description: |-
+                                EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
+                                Can cause data remapping if crush rule changes, Defaults to false.
+                              type: boolean
+                            erasureCoded:
+                              description: ErasureCoded represents Ceph Pool's erasure
+                                coding settings
+                              properties:
+                                algorithm:
+                                  description: Algorithm represents the algorithm
+                                    for erasure coding
+                                  nullable: true
+                                  type: string
+                                codingChunks:
+                                  description: |-
+                                    CodingChunks is a number of coding chunks per object
+                                    in an erasure coded storage pool (required for erasure-coded pool type)
+                                  type: integer
+                                dataChunks:
+                                  description: |-
+                                    DataChunks is a number of data chunks per object
+                                    in an erasure coded storage pool (required for erasure-coded pool type)
+                                  type: integer
+                              required:
+                              - codingChunks
+                              - dataChunks
+                              type: object
+                            failureDomain:
+                              description: |-
+                                FailureDomain represents level of cluster fault-tolerance.
+                                Possible values are: osd, host, region or zone if available;
+                                technically also any type in the crush map
+                              nullable: true
+                              type: string
+                            mirroring:
+                              description: 'Mirroring allows to enable RBD mirroring
+                                feature in modes: pool, image'
+                              properties:
+                                mode:
+                                  description: Mode - mirroring mode to run
+                                  type: string
+                              required:
+                              - mode
+                              type: object
+                            parameters:
+                              additionalProperties:
+                                type: string
+                              description: |-
+                                Parameters is a key-value mapping of all supported ceph pool parameters such
+                                as pg_num, compression_mode etc.
+                              type: object
+                            replicated:
+                              description: Replicated represents Ceph Pool's replica
+                                settings
+                              properties:
+                                size:
+                                  description: Size - Number of copies per object
+                                    in a replicated storage pool, including the object
+                                    itself (required for replicated pool type)
+                                  type: integer
+                                targetSizeRatio:
+                                  description: TargetSizeRatio gives a hint (%) to
+                                    Ceph in terms of expected consumption of the total
+                                    cluster capacity
+                                  type: number
+                              required:
+                              - size
+                              type: object
+                          required:
+                          - deviceClass
+                          type: object
+                        metadataServer:
+                          description: Metadata server settings correspond to the
+                            MDS daemon settings
+                          properties:
+                            activeCount:
+                              description: |-
+                                The number of active MDS instances. As load increases, CephFS will automatically
+                                partition the filesystem across the MDS instances. Rook will create double the
+                                number of MDS instances as requested by the active count. The extra instances will
+                                be in standby mode for failover
+                              format: int32
+                              type: integer
+                            activeStandby:
+                              description: |-
+                                If true, the extra MDS instances will be in active standby mode and will keep
+                                a warm cache of the filesystem metadata for faster failover. The instances will
+                                be assigned by CephFS in failover pairs. If false, the extra MDS instances will
+                                all be on passive standby mode and will not maintain a warm cache of the metadata.
+                              type: boolean
+                            healthCheck:
+                              description: HealthCheck provides an ability to configure
+                                mds daemon healthchecks
+                              properties:
+                                livenessProbe:
+                                  description: LivenessProbe allows changing the livenessProbe
+                                    configuration for ceph mds daemon
+                                  properties:
+                                    disabled:
+                                      description: Disabled determines whether probe
+                                        is disable or not
+                                      type: boolean
+                                    probe:
+                                      description: |-
+                                        Probe describes a health check to be performed against a container to determine whether it is
+                                        alive or ready to receive traffic.
+                                      properties:
+                                        exec:
+                                          description: Exec specifies the action to
+                                            take.
+                                          properties:
+                                            command:
+                                              description: |-
+                                                Command is the command line to execute inside the container, the working directory for the
+                                                command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+                                                not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+                                                a shell, you need to explicitly call out to that shell.
+                                                Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+                                              items:
+                                                type: string
+                                              type: array
+                                              x-kubernetes-list-type: atomic
+                                          type: object
+                                        failureThreshold:
+                                          description: |-
+                                            Minimum consecutive failures for the probe to be considered failed after having succeeded.
+                                            Defaults to 3. Minimum value is 1.
+                                          format: int32
+                                          type: integer
+                                        grpc:
+                                          description: GRPC specifies an action involving
+                                            a GRPC port.
+                                          properties:
+                                            port:
+                                              description: Port number of the gRPC
+                                                service. Number must be in the range
+                                                1 to 65535.
+                                              format: int32
+                                              type: integer
+                                            service:
+                                              default: ""
+                                              description: |-
+                                                Service is the name of the service to place in the gRPC HealthCheckRequest
+                                                (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+                                                If this is not specified, the default behavior is defined by gRPC.
+                                              type: string
+                                          required:
+                                          - port
+                                          type: object
+                                        httpGet:
+                                          description: HTTPGet specifies the http
+                                            request to perform.
+                                          properties:
+                                            host:
+                                              description: |-
+                                                Host name to connect to, defaults to the pod IP. You probably want to set
+                                                "Host" in httpHeaders instead.
+                                              type: string
+                                            httpHeaders:
+                                              description: Custom headers to set in
+                                                the request. HTTP allows repeated
+                                                headers.
+                                              items:
+                                                description: HTTPHeader describes
+                                                  a custom header to be used in HTTP
+                                                  probes
+                                                properties:
+                                                  name:
+                                                    description: |-
+                                                      The header field name.
+                                                      This will be canonicalized upon output, so case-variant names will be understood as the same header.
+                                                    type: string
+                                                  value:
+                                                    description: The header field
+                                                      value
+                                                    type: string
+                                                required:
+                                                - name
+                                                - value
+                                                type: object
+                                              type: array
+                                              x-kubernetes-list-type: atomic
+                                            path:
+                                              description: Path to access on the HTTP
+                                                server.
+                                              type: string
+                                            port:
+                                              anyOf:
+                                              - type: integer
+                                              - type: string
+                                              description: |-
+                                                Name or number of the port to access on the container.
+                                                Number must be in the range 1 to 65535.
+                                                Name must be an IANA_SVC_NAME.
+                                              x-kubernetes-int-or-string: true
+                                            scheme:
+                                              description: |-
+                                                Scheme to use for connecting to the host.
+                                                Defaults to HTTP.
+                                              type: string
+                                          required:
+                                          - port
+                                          type: object
+                                        initialDelaySeconds:
+                                          description: |-
+                                            Number of seconds after the container has started before liveness probes are initiated.
+                                            More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+                                          format: int32
+                                          type: integer
+                                        periodSeconds:
+                                          description: |-
+                                            How often (in seconds) to perform the probe.
+                                            Default to 10 seconds. Minimum value is 1.
+                                          format: int32
+                                          type: integer
+                                        successThreshold:
+                                          description: |-
+                                            Minimum consecutive successes for the probe to be considered successful after having failed.
+                                            Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+                                          format: int32
+                                          type: integer
+                                        tcpSocket:
+                                          description: TCPSocket specifies an action
+                                            involving a TCP port.
+                                          properties:
+                                            host:
+                                              description: 'Optional: Host name to
+                                                connect to, defaults to the pod IP.'
+                                              type: string
+                                            port:
+                                              anyOf:
+                                              - type: integer
+                                              - type: string
+                                              description: |-
+                                                Number or name of the port to access on the container.
+                                                Number must be in the range 1 to 65535.
+                                                Name must be an IANA_SVC_NAME.
+                                              x-kubernetes-int-or-string: true
+                                          required:
+                                          - port
+                                          type: object
+                                        terminationGracePeriodSeconds:
+                                          description: |-
+                                            Optional duration in seconds the pod needs to terminate gracefully upon probe failure.
+                                            The grace period is the duration in seconds after the processes running in the pod are sent
+                                            a termination signal and the time when the processes are forcibly halted with a kill signal.
+                                            Set this value longer than the expected cleanup time for your process.
+                                            If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this
+                                            value overrides the value provided by the pod spec.
+                                            Value must be non-negative integer. The value zero indicates stop immediately via
+                                            the kill signal (no opportunity to shut down).
+                                            This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate.
+                                            Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+                                          format: int64
+                                          type: integer
+                                        timeoutSeconds:
+                                          description: |-
+                                            Number of seconds after which the probe times out.
+                                            Defaults to 1 second. Minimum value is 1.
+                                            More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+                                          format: int32
+                                          type: integer
+                                      type: object
+                                  type: object
+                                startupProbe:
+                                  description: StartupProbe allows changing the startupProbe
+                                    configuration for ceph mds daemon
+                                  properties:
+                                    disabled:
+                                      description: Disabled determines whether probe
+                                        is disable or not
+                                      type: boolean
+                                    probe:
+                                      description: |-
+                                        Probe describes a health check to be performed against a container to determine whether it is
+                                        alive or ready to receive traffic.
+                                      properties:
+                                        exec:
+                                          description: Exec specifies the action to
+                                            take.
+                                          properties:
+                                            command:
+                                              description: |-
+                                                Command is the command line to execute inside the container, the working directory for the
+                                                command  is root ('/') in the container's filesystem. The command is simply exec'd, it is
+                                                not run inside a shell, so traditional shell instructions ('|', etc) won't work. To use
+                                                a shell, you need to explicitly call out to that shell.
+                                                Exit status of 0 is treated as live/healthy and non-zero is unhealthy.
+                                              items:
+                                                type: string
+                                              type: array
+                                              x-kubernetes-list-type: atomic
+                                          type: object
+                                        failureThreshold:
+                                          description: |-
+                                            Minimum consecutive failures for the probe to be considered failed after having succeeded.
+                                            Defaults to 3. Minimum value is 1.
+                                          format: int32
+                                          type: integer
+                                        grpc:
+                                          description: GRPC specifies an action involving
+                                            a GRPC port.
+                                          properties:
+                                            port:
+                                              description: Port number of the gRPC
+                                                service. Number must be in the range
+                                                1 to 65535.
+                                              format: int32
+                                              type: integer
+                                            service:
+                                              default: ""
+                                              description: |-
+                                                Service is the name of the service to place in the gRPC HealthCheckRequest
+                                                (see https://github.com/grpc/grpc/blob/master/doc/health-checking.md).
+
+                                                If this is not specified, the default behavior is defined by gRPC.
+                                              type: string
+                                          required:
+                                          - port
+                                          type: object
+                                        httpGet:
+                                          description: HTTPGet specifies the http
+                                            request to perform.
+                                          properties:
+                                            host:
+                                              description: |-
+                                                Host name to connect to, defaults to the pod IP. You probably want to set
+                                                "Host" in httpHeaders instead.
+                                              type: string
+                                            httpHeaders:
+                                              description: Custom headers to set in
+                                                the request. HTTP allows repeated
+                                                headers.
+                                              items:
+                                                description: HTTPHeader describes
+                                                  a custom header to be used in HTTP
+                                                  probes
+                                                properties:
+                                                  name:
+                                                    description: |-
+                                                      The header field name.
+                                                      This will be canonicalized upon output, so case-variant names will be understood as the same header.
+                                                    type: string
+                                                  value:
+                                                    description: The header field
+                                                      value
+                                                    type: string
+                                                required:
+                                                - name
+                                                - value
+                                                type: object
+                                              type: array
+                                              x-kubernetes-list-type: atomic
+                                            path:
+                                              description: Path to access on the HTTP
+                                                server.
+                                              type: string
+                                            port:
+                                              anyOf:
+                                              - type: integer
+                                              - type: string
+                                              description: |-
+                                                Name or number of the port to access on the container.
+                                                Number must be in the range 1 to 65535.
+                                                Name must be an IANA_SVC_NAME.
+                                              x-kubernetes-int-or-string: true
+                                            scheme:
+                                              description: |-
+                                                Scheme to use for connecting to the host.
+                                                Defaults to HTTP.
+                                              type: string
+                                          required:
+                                          - port
+                                          type: object
+                                        initialDelaySeconds:
+                                          description: |-
+                                            Number of seconds after the container has started before liveness probes are initiated.
+                                            More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+                                          format: int32
+                                          type: integer
+                                        periodSeconds:
+                                          description: |-
+                                            How often (in seconds) to perform the probe.
+                                            Default to 10 seconds. Minimum value is 1.
+                                          format: int32
+                                          type: integer
+                                        successThreshold:
+                                          description: |-
+                                            Minimum consecutive successes for the probe to be considered successful after having failed.
+                                            Defaults to 1. Must be 1 for liveness and startup. Minimum value is 1.
+                                          format: int32
+                                          type: integer
+                                        tcpSocket:
+                                          description: TCPSocket specifies an action
+                                            involving a TCP port.
+                                          properties:
+                                            host:
+                                              description: 'Optional: Host name to
+                                                connect to, defaults to the pod IP.'
+                                              type: string
+                                            port:
+                                              anyOf:
+                                              - type: integer
+                                              - type: string
+                                              description: |-
+                                                Number or name of the port to access on the container.
+                                                Number must be in the range 1 to 65535.
+                                                Name must be an IANA_SVC_NAME.
+                                              x-kubernetes-int-or-string: true
+                                          required:
+                                          - port
+                                          type: object
+                                        terminationGracePeriodSeconds:
+                                          description: |-
+                                            Optional duration in seconds the pod needs to terminate gracefully upon probe failure.
+                                            The grace period is the duration in seconds after the processes running in the pod are sent
+                                            a termination signal and the time when the processes are forcibly halted with a kill signal.
+                                            Set this value longer than the expected cleanup time for your process.
+                                            If this value is nil, the pod's terminationGracePeriodSeconds will be used. Otherwise, this
+                                            value overrides the value provided by the pod spec.
+                                            Value must be non-negative integer. The value zero indicates stop immediately via
+                                            the kill signal (no opportunity to shut down).
+                                            This is a beta field and requires enabling ProbeTerminationGracePeriod feature gate.
+                                            Minimum value is 1. spec.terminationGracePeriodSeconds is used if unset.
+                                          format: int64
+                                          type: integer
+                                        timeoutSeconds:
+                                          description: |-
+                                            Number of seconds after which the probe times out.
+                                            Defaults to 1 second. Minimum value is 1.
+                                            More info: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle#container-probes
+                                          format: int32
+                                          type: integer
+                                      type: object
+                                  type: object
+                              type: object
+                            resources:
+                              description: Resources represents kubernetes resource
+                                requirements for mds instances
+                              properties:
+                                claims:
+                                  description: |-
+                                    Claims lists the names of resources, defined in spec.resourceClaims,
+                                    that are used by this container.
+
+                                    This is an alpha field and requires enabling the
+                                    DynamicResourceAllocation feature gate.
+
+                                    This field is immutable. It can only be set for containers.
+                                  items:
+                                    description: ResourceClaim references one entry
+                                      in PodSpec.ResourceClaims.
+                                    properties:
+                                      name:
+                                        description: |-
+                                          Name must match the name of one entry in pod.spec.resourceClaims of
+                                          the Pod where this field is used. It makes that resource available
+                                          inside a container.
+                                        type: string
+                                      request:
+                                        description: |-
+                                          Request is the name chosen for a request in the referenced claim.
+                                          If empty, everything from the claim is made available, otherwise
+                                          only the result of this request.
+                                        type: string
+                                    required:
+                                    - name
+                                    type: object
+                                  type: array
+                                  x-kubernetes-list-map-keys:
+                                  - name
+                                  x-kubernetes-list-type: map
+                                limits:
+                                  additionalProperties:
+                                    anyOf:
+                                    - type: integer
+                                    - type: string
+                                    pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                    x-kubernetes-int-or-string: true
+                                  description: |-
+                                    Limits describes the maximum amount of compute resources allowed.
+                                    More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                                  type: object
+                                requests:
+                                  additionalProperties:
+                                    anyOf:
+                                    - type: integer
+                                    - type: string
+                                    pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                    x-kubernetes-int-or-string: true
+                                  description: |-
+                                    Requests describes the minimum amount of compute resources required.
+                                    If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                                    otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                                    More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                                  type: object
+                              type: object
+                          required:
+                          - activeCount
+                          type: object
+                        name:
+                          description: CephFS name
+                          type: string
+                        preserveFilesystemOnDelete:
+                          description: |-
+                            When set to ‘true’ the filesystem will remain when the CephFilesystem resource is deleted
+                            This is a security measure to avoid loss of data if the CephFilesystem resource is deleted accidentally.
+                          type: boolean
+                      required:
+                      - metadataPool
+                      - metadataServer
+                      - name
+                      type: object
+                    type: array
+                type: object
+            required:
+            - dashboard
+            - network
+            - nodes
+            type: object
+          status:
+            description: Status represents current status of handling Ceph Cluster
+              configuration
+            properties:
+              clusterVersion:
+                description: Current Ceph cluster version(s)
+                nullable: true
+                type: string
+              lastRun:
+                description: Last MiraCeph reconcile run time
+                nullable: true
+                type: string
+              message:
+                description: Message is a description of a current phase if exists
+                nullable: true
+                type: string
+              objRefs:
+                description: objects refs
+                items:
+                  description: ObjectReference contains enough information to let
+                    you inspect or modify the referred object.
+                  properties:
+                    apiVersion:
+                      description: API version of the referent.
+                      type: string
+                    fieldPath:
+                      description: |-
+                        If referring to a piece of an object instead of an entire object, this string
+                        should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2].
+                        For example, if the object reference is to a container within a pod, this would take on a value like:
+                        "spec.containers{name}" (where "name" refers to the name of the container that triggered
+                        the event) or if no container name is specified "spec.containers[2]" (container with
+                        index 2 in this pod). This syntax is chosen only to have some well-defined way of
+                        referencing a part of an object.
+                      type: string
+                    kind:
+                      description: |-
+                        Kind of the referent.
+                        More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+                      type: string
+                    name:
+                      description: |-
+                        Name of the referent.
+                        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      type: string
+                    namespace:
+                      description: |-
+                        Namespace of the referent.
+                        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+                      type: string
+                    resourceVersion:
+                      description: |-
+                        Specific resourceVersion to which this reference is made, if any.
+                        More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+                      type: string
+                    uid:
+                      description: |-
+                        UID of the referent.
+                        More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
+                      type: string
+                  type: object
+                  x-kubernetes-map-type: atomic
+                type: array
+              phase:
+                default: Creating
+                description: Phase is a current MiraCeph handling phase
+                type: string
+              validation:
+                description: Validation reflects validation result for spec
+                properties:
+                  lastValidatedGeneration:
+                    description: Last validated miraCeph generation version
+                    format: int64
+                    type: integer
+                  messages:
+                    description: |-
+                      Messages represents a list of possible issues or validation messages
+                      found during spec validating
+                    items:
+                      type: string
+                    type: array
+                  result:
+                    description: Result is a spec validation result, which could be
+                      Succeed or Failed
+                    type: string
+                type: object
+            required:
+            - phase
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
