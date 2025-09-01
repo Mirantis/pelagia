@@ -1,0 +1,2871 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="Mirantis">
+      
+      
+      
+        <link rel="prev" href="../cephdeploymentsecret/">
+      
+      
+        <link rel="next" href="../../../quick-start/installation/">
+      
+      
+      <link rel="icon" href="../../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
+    
+    
+      
+        <title>CephOsdRemoveTask - Pelagia Controller for Rook Ceph management</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Overpass:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Overpass";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cephosdremovetask-custom-resource" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Pelagia Controller for Rook Ceph management" class="md-header__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
+      
+  <img src="../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pelagia Controller for Rook Ceph management
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CephOsdRemoveTask
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/mirantis/pelagia" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Pelagia Controller for Rook Ceph management" class="md-nav__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
+      
+  <img src="../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
+
+    </a>
+    Pelagia Controller for Rook Ceph management
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/mirantis/pelagia" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pelagia Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../limitations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pelagia Limitations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../addressing-ceph-devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Addressing Ceph Devices
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rockoon-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Rockoon integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_5" id="__nav_2_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Custom Resources
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_5">
+            <span class="md-nav__icon md-icon"></span>
+            Custom Resources
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cephdeployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CephDeployment
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cephdeploymenthealth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CephDeploymentHealth
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cephdeploymentsecret/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CephDeploymentSecret
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    CephOsdRemoveTask
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    CephOsdRemoveTask
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#spec-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Spec parameters
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Spec parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nodes-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nodes parameters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#status-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      Status fields
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Status fields">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#remove-info-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remove info fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remove-info-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remove info examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Quick Start
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../quick-start/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install Pelagia
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../quick-start/lcm-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install LCM-only Pelagia
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../quick-start/upgrade/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Upgrade Pelagia
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../developer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Developer Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Operations Guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Operations Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/default-ceph-conf/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph Default Config Options
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/rook-daemon-place/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Rook Daemons Placement
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/multinetworking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph Multinetwork
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/rbd-mirror/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph RBD mirroring
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/cephfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph Filesystem
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/move-failure-domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Change Ceph Pools Failure Domain
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/move-mon-daemon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Change Ceph Monitor node
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/move-mon-node-replace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed Ceph Monitor node
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_9" id="__nav_5_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Rockoon Integration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_9">
+            <span class="md-nav__icon md-icon"></span>
+            Rockoon Integration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/rockoon/rockoon-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Integrate Pelagia with Rockoon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/rockoon/cinder-multi-backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure Ceph pools for Cinder multi-backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/rockoon/calc-target-ratio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Calculate target ratios for Rockoon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_10" id="__nav_5_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Ceph Object Storage
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_10">
+            <span class="md-nav__icon md-icon"></span>
+            Ceph Object Storage
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/rgw/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph RGW Object Storage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/rgw-tls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure Ceph Object Gateway TLS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/rgw-multisite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Multisite for Ceph Object Storage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/rgw-sse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure Ceph Object Storage SSE
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_10_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_10_5" id="__nav_5_10_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    RADOS Gateway Bucket Policy
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_10_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_10_5">
+            <span class="md-nav__icon md-icon"></span>
+            RADOS Gateway Bucket Policy
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/s3-bucket-policy/s3-create-user/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Create Ceph Object Storage User
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/s3-bucket-policy/bucket-policy-s3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Bucket Policy for Ceph Object User
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/s3-bucket-policy/bucket-policy-rockoon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Bucket Policy for Rockoon OpenStack User
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_11" id="__nav_5_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Ceph User Credentials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_11">
+            <span class="md-nav__icon md-icon"></span>
+            Ceph User Credentials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/ceph-user-creds/ceph-client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph RBD/CephFS Client
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph Object Storage User
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_12" id="__nav_5_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Ceph resources Management
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_12">
+            <span class="md-nav__icon md-icon"></span>
+            Ceph resources Management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph resources Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/deployment/ceph-resource-mgmt/verify-resource-mgmt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Verify Ceph resources Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_13" id="__nav_5_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Ceph Cluster Lifecycle Management
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_13">
+            <span class="md-nav__icon md-icon"></span>
+            Ceph Cluster Lifecycle Management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_13_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_13_1" id="__nav_5_13_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Automated Lifecycle Management
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_13_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_13_1">
+            <span class="md-nav__icon md-icon"></span>
+            Automated Lifecycle Management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/lcm/create-task-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Create Ceph OSD remove Task
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/lcm/add-rm-ceph-osd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph OSD Lifecycle Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/lcm/add-rm-ceph-osd-with-meta/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph OSD with metadata Lifecycle Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/lcm/add-rm-ceph-node/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph Node Lifecycle Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/lcm/replace-ceph-osd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed Ceph OSD
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/lcm/replace-osd-meta-lvm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed Ceph OSD with metadata LVM
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/lcm/replace-osd-meta-device/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed Ceph OSD with metadata device
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/lcm/replace-ceph-node/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed Ceph Node
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/lcm/replace-meta/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed metadata device
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/lcm/increase-storage-size/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Increase Ceph Cluster storage size
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/lcm/manual-osd-remove/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Remove Ceph OSD manually
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_14" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_14" id="__nav_5_14_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Verify Ceph Cluster
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_14">
+            <span class="md-nav__icon md-icon"></span>
+            Verify Ceph Cluster
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/verify-ceph/verify-cephdeploymenthealth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Verify CephDeployment Health
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/verify-ceph/verify-ceph-core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Verify Ceph Cluster services
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/verify-ceph/verify-pelagia-and-rook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Verify Pelagia and Rook
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../ops-guide/verify-ceph/verify-rook-discover/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Verify Rook Discover
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Troubleshoot
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Troubleshoot
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/cephosdremovetask-timeout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CephOsdRemoveTask rebalance timeout
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/ceph-osd-auth-failed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph OSD auth failed
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/ceph-exporter-crash/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Rook Ceph exporter crash
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/ceph-mon-store-size-grow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph Monitor size rapidly grows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/ceph-mon-recover/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph Monitor disaster recovery
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/ceph-disaster-recover/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph Cluster disaster recovery
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#spec-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Spec parameters
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Spec parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nodes-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Nodes parameters
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#status-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      Status fields
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Status fields">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#remove-info-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remove info fields
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#remove-info-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remove info examples
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cephosdremovetask-custom-resource">CephOsdRemoveTask custom resource<a class="headerlink" href="#cephosdremovetask-custom-resource" title="Permanent link">#</a></h1>
+<p>This section describes the <code>CephOsdRemoveTask</code> custom resource specification.
+For the procedure workflow, see <a href="https://mirantis.github.io/pelagia/ops-guide/lcm/create-task-workflow">Creating a Ceph OSD removal task</a>.</p>
+<p>The following sections describe the <code>CephOsdRemoveTask</code> custom resource specification:</p>
+<ul>
+<li>
+<p><a href="#spec">Spec parameters</a></p>
+<ul>
+<li><a href="#nodes">Nodes parameters</a></li>
+</ul>
+</li>
+<li>
+<p><a href="#status">Status fields</a></p>
+<ul>
+<li><a href="#remove-info">Remove info fields</a></li>
+<li><a href="#remove-info-examples">Remove info examples</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="spec-parameters">Spec parameters <a name="spec"></a><a class="headerlink" href="#spec-parameters" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th><div style="width:150px">Parameter</div></th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>nodes</code></td>
+<td>Map of Kubernetes nodes that specifies how to remove Ceph OSDs: by host-devices or OSD IDs. For details, see <a href="#nodes">Nodes parameters</a>.</td>
+</tr>
+<tr>
+<td><code>approve</code></td>
+<td>Flag that indicates whether a request is ready to execute removal. Can only be manually enabled by the Operator. Defaults to <code>false</code>.</td>
+</tr>
+<tr>
+<td><code>resolved</code></td>
+<td>Optional. Flag that marks a finished request, even if it failed, to keep it in historydo not block any further operations.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="nodes-parameters">Nodes parameters <a name="nodes"></a><a class="headerlink" href="#nodes-parameters" title="Permanent link">#</a></h3>
+<ul>
+<li><code>completeCleanUp</code> - Flag used to clean up an entire node and drop it from the CRUSH map.
+  Mutually exclusive with <code>cleanupByDevice</code> and <code>cleanupByOsd</code>.</li>
+<li><code>dropFromCrush</code> - Flag which is the same to CompleteCleanup, but without device cleanup on node
+  May be useful when node is going to be reprovisioned and no need to spend time for device cleanup.</li>
+<li>
+<p><code>cleanupByDevice</code> - List that describes devices to clean up by name or device symlink as they
+  were specified in Rook <code>CephCluster</code> (or Pelagia <code>CephDeployment</code>). Mutually exclusive with
+  <code>completeCleanUp</code> and <code>cleanupByOsd</code>. Includes the following parameters:</p>
+<ul>
+<li><code>device</code> - Physical device name, e.g. <code>sdb</code>, <code>/dev/nvme1e0</code>, or
+  device symlink (<code>by-path</code> or <code>by-id</code>), e.g. <code>/dev/disk/by-path/pci-0000:00:1c.5</code>
+  or <code>/dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS</code>.</li>
+<li><code>skipDeviceCleanup</code> - Optional. Flag that indicates whether to skip the device cleanup.
+  Defaults to <code>false</code>. If set to <code>true</code>, the device will not be cleaned up, but
+  OSDs running on this device will be removed from the CRUSH map and deleted.</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>We do not recommend using device name or device <code>by-path</code> symlink in the <code>cleanupByDevice</code> field
+as these identifiers are not persistent and can change at node boot. Remove
+Ceph OSDs with device <code>by-id</code> symlinks or use <code>cleanupByOsd</code> instead.</p>
+</div>
+</li>
+<li>
+<p><code>cleanupByOsd</code> - List of Ceph OSD IDs to remove. Mutually exclusive with
+  <code>completeCleanUp</code> and <code>cleanupByDevice</code>. Includes the following parameters:</p>
+<ul>
+<li><code>id</code> - Ceph OSD ID to remove.</li>
+<li><code>skipDeviceCleanup</code> - Optional. Flag that indicates whether to skip the device cleanup.
+  Defaults to <code>false</code>. If set to <code>true</code>, the device will not be cleaned up, but
+  OSDs running on this device will be removed from the CRUSH map and deleted.</li>
+</ul>
+</li>
+<li>
+<p><code>cleanupStrayPartitions</code> - Flag used to for cleaning disks with osd lvm partitions
+  which not belong to current cluster, for example, when disk was not cleaned up previously.</p>
+</li>
+</ul>
+<p>Example of <code>CephOsdRemoveTask</code> with <code>spec.nodes</code>:</p>
+<details>
+<summary>Example CephOsdRemoveTask nodes specification</summary>
+<div>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CephOsdRemoveTask</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">remove-osd-task</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
+<span class="w">    </span><span class="s">&quot;node-a&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">      </span><span class="nt">completeCleanUp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="s">&quot;node-b&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">      </span><span class="nt">cleanupByOsd</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25</span>
+<span class="w">    </span><span class="s">&quot;node-c&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">      </span><span class="nt">cleanupByDevice</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sdb&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:1c.5&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS&quot;</span>
+<span class="w">    </span><span class="s">&quot;node-d&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">      </span><span class="nt">dropFromCrush</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+</div>
+</details>
+
+<p>The example above includes the following actions:</p>
+<ul>
+<li>For <code>node-a</code>, full cleanup, including all OSDs on the node, node drop from
+  the CRUSH map, and cleanup of all disks used for Ceph OSDs on this node.</li>
+<li>For <code>node-b</code>, cleanup of Ceph OSDs with IDs <code>1</code>, <code>15</code>, and <code>25</code>
+  along with the related disk information.</li>
+<li>For <code>node-c</code>, cleanup of the device with name <code>sdb</code>, the device with
+  path ID <code>/dev/disk/by-path/pci-0000:00:1c.5</code>, and the device with <code>by-id</code>
+  <code>/dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS</code>,
+  dropping of OSDs running on these devices.</li>
+<li>For <code>node-d</code>, cleanup, including all OSDs on the node, node drop from
+  the CRUSH map but skip cleanup of all disks used for Ceph OSDs on this node.</li>
+</ul>
+<h2 id="status-fields">Status fields <a name="status"></a><a class="headerlink" href="#status-fields" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th><div style="width:150px">Field</div></th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>phase</code></td>
+<td>Describes the current task phase.</td>
+</tr>
+<tr>
+<td><code>phaseInfo</code></td>
+<td>Additional human-readable message describing task phase.</td>
+</tr>
+<tr>
+<td><code>removeInfo</code></td>
+<td>The overall information about the Ceph OSDs to remove: final removal map, issues, and warnings. Once the <code>Processing</code> phase succeeds, <code>removeInfo</code> will be extended with the removal status for each node and Ceph OSD. In case of an entire node removal, the status will contain the status itself and an error message, if any.</td>
+</tr>
+<tr>
+<td><code>messages</code></td>
+<td>Informational messages describing the reason for the request transition to the next phase.</td>
+</tr>
+<tr>
+<td><code>conditions</code></td>
+<td>History of spec updates for the request.</td>
+</tr>
+</tbody>
+</table>
+<p><code>CephOsdRemoveTask</code> phases are moving in the following order:</p>
+<p><img src="/assets/remove-task-phase-flow.svg" alt="drawing"/></p>
+<p>Here are the following <strong>final</strong> phases:</p>
+<ul>
+<li><code>ValidationFailed</code> - The task is not valid and cannot be processed.</li>
+<li><code>Aborted</code> - The task detected inappropriate Rook <code>CephCluster</code> spec changes after receiving approval.</li>
+<li><code>Completed</code> - The task is successfully completed.</li>
+<li><code>CompletedWithWarnings</code> - The task is completed but some steps are skipped.</li>
+<li><code>Failed</code> - The task is failed on one of the steps.</li>
+</ul>
+<h3 id="remove-info-fields">Remove info fields <a name="remove-info"></a><a class="headerlink" href="#remove-info-fields" title="Permanent link">#</a></h3>
+<table>
+<thead>
+<tr>
+<th><div style="width:150px">Field</div></th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cleanupMap</code></td>
+<td>Map of desired nodes and devices to clean up. Based on this map, the cloud operator decides whether to approve the current task or not. After approve, it will contain all statuses and errors happened during cleanup.</td>
+</tr>
+<tr>
+<td><code>issues</code></td>
+<td>List of error messages found during validation or processing phases</td>
+</tr>
+<tr>
+<td><code>warnings</code></td>
+<td>List of non-blocking warning messages found during validation or processing phases</td>
+</tr>
+</tbody>
+</table>
+<p><code>cleanupMap</code> is a map of nodes to devices contains the following fields:</p>
+<ul>
+<li><code>completeCleanup</code> - Flag that indicates whether to perform a full cleanup of the node.</li>
+<li><code>dropFromCrush</code> - Flag that indicates whether to drop the node from the CRUSH map without node cleanup.</li>
+<li>
+<p><code>osdMapping</code> - Map of Ceph OSD IDs to the device names or symlink used for the Ceph OSD. It includes device info and
+  statuses of Ceph OSD remove itself, Rook Ceph OSD deployment remove, Ceph OSD device cleanup job.</p>
+<p><details>
+<summary>CephOsdRemoveTask <em>osdMapping</em> example output</summary>
+<div>
+<div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
+<span class="w">      </span><span class="s">&quot;node-a&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">        </span><span class="nt">completeCleanUp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">osdMapping</span><span class="p">:</span>
+<span class="w">          </span><span class="s">&quot;2&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">              </span><span class="s">&quot;sdb&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:0a.0&quot;</span>
+<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb&quot;</span>
+<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
+<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="s">&quot;6&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">              </span><span class="s">&quot;sdc&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:0c.0&quot;</span>
+<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-a-vg_sdc/osd-block-b-lv_sdc-1&quot;</span>
+<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
+<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="s">&quot;11&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">              </span><span class="s">&quot;sdc&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:0c.0&quot;</span>
+<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-a-vg_sdc/osd-block-b-lv_sdc-2&quot;</span>
+<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
+<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+</div>
+</details></p>
+</li>
+<li>
+<p><code>nodeIsDown</code> - Flag that indicates whether the node is down.</p>
+</li>
+<li><code>volumeInfoMissed</code> - Flag that indicates whether <code>disk-daemon</code> collected device info or not.</li>
+<li><code>hostRemoveStatus</code> - Node removal status if node is marked for complete cleanup.</li>
+</ul>
+<h3 id="remove-info-examples">Remove info examples <a name="remove-info-examples"></a><a class="headerlink" href="#remove-info-examples" title="Permanent link">#</a></h3>
+<p>Example of <code>status.removeInfo</code> after successful <code>Validation</code>:</p>
+<details>
+<summary>Example output</summary>
+<div>
+<div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
+<span class="w">      </span><span class="s">&quot;node-a&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">        </span><span class="nt">completeCleanUp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">osdMapping</span><span class="p">:</span>
+<span class="w">          </span><span class="s">&quot;2&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">              </span><span class="s">&quot;sdb&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:0a.0&quot;</span>
+<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb&quot;</span>
+<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
+<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="s">&quot;6&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">              </span><span class="s">&quot;sdc&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:0c.0&quot;</span>
+<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-a-vg_sdc/osd-block-b-lv_sdc-1&quot;</span>
+<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
+<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="s">&quot;11&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">              </span><span class="s">&quot;sdc&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:0c.0&quot;</span>
+<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-a-vg_sdc/osd-block-b-lv_sdc-2&quot;</span>
+<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
+<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="s">&quot;node-b&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">        </span><span class="nt">osdMapping</span><span class="p">:</span>
+<span class="w">          </span><span class="s">&quot;1&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">              </span><span class="s">&quot;sdb&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:0a.0&quot;</span>
+<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb&quot;</span>
+<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ssd&quot;</span>
+<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="s">&quot;15&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">              </span><span class="s">&quot;sdc&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:0b.1&quot;</span>
+<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-b-vg_sdc/osd-block-b-lv_sdc&quot;</span>
+<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ssd&quot;</span>
+<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="s">&quot;25&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">              </span><span class="s">&quot;sdd&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:0c.2&quot;</span>
+<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-b-vg_sdd/osd-block-b-lv_sdd&quot;</span>
+<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ssd&quot;</span>
+<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="s">&quot;node-c&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">        </span><span class="nt">osdMapping</span><span class="p">:</span>
+<span class="w">          </span><span class="s">&quot;0&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">              </span><span class="s">&quot;sdb&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:1t.9&quot;</span>
+<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-c-vg_sdb/osd-block-c-lv_sdb&quot;</span>
+<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
+<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="s">&quot;8&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">              </span><span class="s">&quot;sde&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:1c.5&quot;</span>
+<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-c-vg_sde/osd-block-c-lv_sde&quot;</span>
+<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
+<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">              </span><span class="s">&quot;sdf&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:5a.5&quot;</span><span class="err">,</span>
+<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-c-vg_sdf/osd-db-c-lv_sdf-1&quot;</span><span class="err">,</span>
+<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;db&quot;</span><span class="err">,</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ssd&quot;</span>
+</code></pre></div>
+</div>
+</details>
+
+<p>During the <code>Validation</code> phase, the provided information was validated and
+reflects the final map of the Ceph OSDs to remove:</p>
+<ul>
+<li>For <code>node-a</code>, Ceph OSDs with IDs <code>2</code>, <code>6</code>, and <code>11</code> will be removed
+  with the related disk and its information: all block devices, names, paths,
+  and disk class.</li>
+<li>For <code>node-b</code>, the Ceph OSDs with IDs <code>1</code>, <code>15</code>, and  <code>25</code> will be
+  removed with the related disk information.</li>
+<li>For <code>node-c</code>, the Ceph OSD with ID <code>8</code> will be removed, which is placed
+  on the specified <code>sdb</code> device. The related partition on the <code>sdf</code> disk,
+  which is used as the BlueStore metadata device, will be cleaned up keeping
+  the disk itself untouched. Other partitions on that device will not be
+  touched.</li>
+</ul>
+<p>Example of <code>removeInfo</code> with <code>removeStatus</code> succeeded:</p>
+<details>
+<summary>Example output</summary>
+<div>
+<div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
+<span class="w">      </span><span class="s">&quot;node-a&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">        </span><span class="nt">completeCleanUp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">hostRemoveStatus</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Removed</span>
+<span class="w">        </span><span class="nt">osdMapping</span><span class="p">:</span>
+<span class="w">          </span><span class="s">&quot;2&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">removeStatus</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">osdRemoveStatus</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Removed</span>
+<span class="w">              </span><span class="nt">deploymentRemoveStatus</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Removed</span>
+<span class="w">                </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;rook-ceph-osd-2&quot;</span>
+<span class="w">              </span><span class="nt">deviceCleanUpJob</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Finished</span>
+<span class="w">                </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;job-name-for-osd-2&quot;</span>
+<span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">              </span><span class="s">&quot;sdb&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:0a.0&quot;</span>
+<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb&quot;</span>
+<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
+<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+</div>
+</details>
+
+<p>Example of <code>removeInfo</code> with <code>removeStatus</code> failed:</p>
+<details>
+<summary>Example output</summary>
+<div>
+<div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
+<span class="w">      </span><span class="s">&quot;node-a&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">        </span><span class="nt">completeCleanUp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">osdMapping</span><span class="p">:</span>
+<span class="w">          </span><span class="s">&quot;2&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">removeStatus</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">osdRemoveStatus</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">error</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;retries</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">cmd</span><span class="nv"> </span><span class="s">‘ceph</span><span class="nv"> </span><span class="s">osd</span><span class="nv"> </span><span class="s">ok-to-stop</span><span class="nv"> </span><span class="s">2’</span><span class="nv"> </span><span class="s">exceeded&quot;</span>
+<span class="w">                </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Failed</span>
+<span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">              </span><span class="s">&quot;sdb&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:0a.0&quot;</span>
+<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb&quot;</span>
+<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
+<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+</div>
+</details>
+
+<p>Example of <code>removeInfo</code> with <code>removeStatus</code> failed by timeout:</p>
+<details>
+<summary>Example output</summary>
+<div>
+<div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
+<span class="w">      </span><span class="s">&quot;node-a&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">        </span><span class="nt">completeCleanUp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">osdMapping</span><span class="p">:</span>
+<span class="w">          </span><span class="s">&quot;2&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">removeStatus</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">osdRemoveStatus</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">error</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Timeout (30m0s) reached for waiting pg rebalance for osd 2</span>
+<span class="w">                </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Failed</span>
+<span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">              </span><span class="s">&quot;sdb&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:0a.0&quot;</span>
+<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb&quot;</span>
+<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
+<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+</div>
+</details>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In case of failures similar to the examples above, review the
+<code>pelagia-lcm-controller</code> logs and both statuses of Rook <code>CephCluster</code> and Pelagia <code>CephDeploymentHealth</code>.
+Such failures may simply indicate timeout and retry issues. If no other issues were found,
+re-create the request with a new name and skip adding successfully removed
+Ceph OSDS or Ceph nodes.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../cephdeploymentsecret/" class="md-footer__link md-footer__link--prev" aria-label="Previous: CephDeploymentSecret">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                CephDeploymentSecret
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../../../quick-start/installation/" class="md-footer__link md-footer__link--next" aria-label="Next: Install Pelagia">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Install Pelagia
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      © 2005 - 2025 Mirantis, Inc. All rights reserved.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>

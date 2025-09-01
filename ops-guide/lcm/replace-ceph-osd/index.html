@@ -1,0 +1,2752 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="Mirantis">
+      
+      
+      
+        <link rel="prev" href="../add-rm-ceph-node/">
+      
+      
+        <link rel="next" href="../replace-osd-meta-lvm/">
+      
+      
+      <link rel="icon" href="../../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
+    
+    
+      
+        <title>Replace failed Ceph OSD - Pelagia Controller for Rook Ceph management</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Overpass:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Overpass";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#replace-a-failed-ceph-osd" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Pelagia Controller for Rook Ceph management" class="md-header__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
+      
+  <img src="../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pelagia Controller for Rook Ceph management
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Replace failed Ceph OSD
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/mirantis/pelagia" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Pelagia Controller for Rook Ceph management" class="md-nav__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
+      
+  <img src="../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
+
+    </a>
+    Pelagia Controller for Rook Ceph management
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/mirantis/pelagia" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pelagia Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/limitations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pelagia Limitations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/addressing-ceph-devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Addressing Ceph Devices
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/rockoon-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Rockoon integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_5" id="__nav_2_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Custom Resources
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_5">
+            <span class="md-nav__icon md-icon"></span>
+            Custom Resources
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/custom-resources/cephdeployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CephDeployment
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/custom-resources/cephdeploymenthealth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CephDeploymentHealth
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/custom-resources/cephdeploymentsecret/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CephDeploymentSecret
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/custom-resources/cephosdremovetask/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CephOsdRemoveTask
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Quick Start
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../quick-start/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install Pelagia
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../quick-start/lcm-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install LCM-only Pelagia
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../quick-start/upgrade/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Upgrade Pelagia
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../developer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Developer Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Operations Guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Operations Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/default-ceph-conf/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph Default Config Options
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/rook-daemon-place/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Rook Daemons Placement
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/multinetworking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph Multinetwork
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/rbd-mirror/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph RBD mirroring
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/cephfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph Filesystem
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/move-failure-domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Change Ceph Pools Failure Domain
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/move-mon-daemon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Change Ceph Monitor node
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/move-mon-node-replace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed Ceph Monitor node
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_9" id="__nav_5_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Rockoon Integration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_9">
+            <span class="md-nav__icon md-icon"></span>
+            Rockoon Integration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rockoon/rockoon-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Integrate Pelagia with Rockoon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rockoon/cinder-multi-backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure Ceph pools for Cinder multi-backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rockoon/calc-target-ratio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Calculate target ratios for Rockoon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_10" id="__nav_5_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Ceph Object Storage
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_10">
+            <span class="md-nav__icon md-icon"></span>
+            Ceph Object Storage
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/rgw/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph RGW Object Storage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/rgw-tls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure Ceph Object Gateway TLS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/rgw-multisite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Multisite for Ceph Object Storage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/rgw-sse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure Ceph Object Storage SSE
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_10_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_10_5" id="__nav_5_10_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    RADOS Gateway Bucket Policy
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_10_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_10_5">
+            <span class="md-nav__icon md-icon"></span>
+            RADOS Gateway Bucket Policy
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/s3-bucket-policy/s3-create-user/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Create Ceph Object Storage User
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/s3-bucket-policy/bucket-policy-s3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Bucket Policy for Ceph Object User
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/s3-bucket-policy/bucket-policy-rockoon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Bucket Policy for Rockoon OpenStack User
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_11" id="__nav_5_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Ceph User Credentials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_11">
+            <span class="md-nav__icon md-icon"></span>
+            Ceph User Credentials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/ceph-user-creds/ceph-client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph RBD/CephFS Client
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph Object Storage User
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_12" id="__nav_5_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Ceph resources Management
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_12">
+            <span class="md-nav__icon md-icon"></span>
+            Ceph resources Management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/ceph-resource-mgmt/enable-resource-mgmt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph resources Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/ceph-resource-mgmt/verify-resource-mgmt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Verify Ceph resources Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_13" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5_13" id="__nav_5_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Ceph Cluster Lifecycle Management
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_13_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_13">
+            <span class="md-nav__icon md-icon"></span>
+            Ceph Cluster Lifecycle Management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_13_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5_13_1" id="__nav_5_13_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Automated Lifecycle Management
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_13_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_13_1">
+            <span class="md-nav__icon md-icon"></span>
+            Automated Lifecycle Management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../create-task-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Create Ceph OSD remove Task
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../add-rm-ceph-osd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph OSD Lifecycle Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../add-rm-ceph-osd-with-meta/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph OSD with metadata Lifecycle Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../add-rm-ceph-node/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph Node Lifecycle Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Replace failed Ceph OSD
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed Ceph OSD
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#remove-a-failed-ceph-osd-by-device-name-path-or-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remove a failed Ceph OSD by device name, path, or ID
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remove-a-failed-ceph-osd-by-ceph-osd-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remove a failed Ceph OSD by Ceph OSD ID
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-a-new-device-after-removal-of-a-failed-one" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploy a new device after removal of a failed one
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../replace-osd-meta-lvm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed Ceph OSD with metadata LVM
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../replace-osd-meta-device/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed Ceph OSD with metadata device
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../replace-ceph-node/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed Ceph Node
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../replace-meta/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed metadata device
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../increase-storage-size/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Increase Ceph Cluster storage size
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../manual-osd-remove/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Remove Ceph OSD manually
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_14" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_14" id="__nav_5_14_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Verify Ceph Cluster
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_14">
+            <span class="md-nav__icon md-icon"></span>
+            Verify Ceph Cluster
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../verify-ceph/verify-cephdeploymenthealth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Verify CephDeployment Health
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../verify-ceph/verify-ceph-core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Verify Ceph Cluster services
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../verify-ceph/verify-pelagia-and-rook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Verify Pelagia and Rook
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../verify-ceph/verify-rook-discover/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Verify Rook Discover
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Troubleshoot
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Troubleshoot
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/cephosdremovetask-timeout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CephOsdRemoveTask rebalance timeout
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/ceph-osd-auth-failed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph OSD auth failed
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/ceph-exporter-crash/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Rook Ceph exporter crash
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/ceph-mon-store-size-grow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph Monitor size rapidly grows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/ceph-mon-recover/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph Monitor disaster recovery
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/ceph-disaster-recover/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph Cluster disaster recovery
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#remove-a-failed-ceph-osd-by-device-name-path-or-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remove a failed Ceph OSD by device name, path, or ID
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remove-a-failed-ceph-osd-by-ceph-osd-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      Remove a failed Ceph OSD by Ceph OSD ID
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-a-new-device-after-removal-of-a-failed-one" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deploy a new device after removal of a failed one
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<p><a id="replace-osd"></a></p>
+<h1 id="replace-a-failed-ceph-osd">Replace a failed Ceph OSD<a class="headerlink" href="#replace-a-failed-ceph-osd" title="Permanent link">#</a></h1>
+<p>After a physical disk replacement, you can use Pelagia Lifecycle Management (LCM) API to redeploy
+a failed Ceph OSD. The common flow of replacing a failed Ceph OSD is as
+follows:</p>
+<ol>
+<li>Remove the obsolete Ceph OSD from the Ceph cluster by device symlink, by device name, or by Ceph
+   OSD ID.</li>
+<li>Add a new Ceph OSD on the new disk to the Ceph cluster.</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Ceph OSD removal presupposes usage of a <code>CephOsdRemoveTask</code> CR. For workflow overview, see
+<a href="https://mirantis.github.io/pelagia/ops-guide/lcm/create-task-workflow">High-level workflow of Ceph OSD or node removal</a>.</p>
+</div>
+<h2 id="remove-a-failed-ceph-osd-by-device-name-path-or-id">Remove a failed Ceph OSD by device name, path, or ID <a name="replace-by-device"></a><a class="headerlink" href="#remove-a-failed-ceph-osd-by-device-name-path-or-id" title="Permanent link">#</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The procedure below presupposes that the cloud operator knows the exact
+device name, <code>by-path</code>, or <code>by-id</code> of the replaced device, as well as on
+which node the replacement occurred.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>A Ceph OSD removal using <code>by-path</code>, <code>by-id</code>, or device name is
+not supported if a device was physically removed from a node. Therefore, use
+<code>cleanupByOsdId</code> instead. For details, see
+<a href="#replace-by-osd-id">Remove a failed Ceph OSD by Ceph OSD ID</a>.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>We do not recommend setting device name or device <code>by-path</code> symlink in the <code>cleanupByDevice</code> field
+ as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with <code>by-id</code>
+ symlinks or use <code>cleanupByOsdId</code> instead. For details, see
+ <a href="https://mirantis.github.io/pelagia/architecture/addressing-ceph-devices">Architecture: Addressing Ceph devices</a>.</p>
+</div>
+<ol>
+<li>
+<p>Open the <code>CephDeployment</code> CR for editing:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephdpl
+</code></pre></div></p>
+</li>
+<li>
+<p>In the <code>nodes</code> section, remove the required device from <code>devices</code>. When
+   using device filters, update the <code>deviceFilter</code> or <code>devicePathFilter</code>
+   regexp accordingly.</p>
+<p>For example:
+ <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;nodeName&gt;</span>
+<span class="w">    </span><span class="nt">devices</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceName&gt;</span><span class="w">  </span><span class="c1"># remove the entire item from devices list</span>
+<span class="w">      </span><span class="c1"># fullPath: &lt;deviceByPath&gt; if device is specified with symlink instead of name</span>
+<span class="w">      </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
+</code></pre></div></p>
+<p>Substitute <code>&lt;nodeName&gt;</code> with the node name where the device
+ <code>&lt;deviceName&gt;</code> or <code>&lt;deviceByPath&gt;</code> is going to be replaced.</p>
+</li>
+<li>
+<p>Save <code>CephDeployment</code> changes and close the editor.</p>
+</li>
+<li>
+<p>Create a <code>CephOsdRemoveTask</code> CR template and save it as <code>replace-failed-osd-&lt;nodeName&gt;-&lt;deviceName&gt;-task.yaml</code>:
+   <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CephOsdRemoveTask</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">replace-failed-osd-&lt;nodeName&gt;-&lt;deviceName&gt;</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">&lt;nodeName&gt;</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cleanupByDevice</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceName&gt;</span>
+<span class="w">        </span><span class="c1"># If a device is specified with by-path or by-id instead of</span>
+<span class="w">        </span><span class="c1"># name, path: &lt;deviceByPath&gt; or &lt;deviceById&gt;.</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Apply the template to the cluster:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>replace-failed-osd-&lt;nodeName&gt;-&lt;deviceName&gt;-task.yaml
+</code></pre></div></p>
+</li>
+<li>
+<p>Verify that the corresponding request has been created:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephosdremovetask
+</code></pre></div></p>
+</li>
+<li>
+<p>Verify that the <code>removeInfo</code> section appeared in the <code>CephOsdRemoveTask</code> CR <code>status</code>:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephosdremovetask<span class="w"> </span>replace-failed-osd-&lt;nodeName&gt;-&lt;deviceName&gt;<span class="w"> </span>-o<span class="w"> </span>yaml
+</code></pre></div></p>
+<p>Example of system response:
+ <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">osdRemoveStatus</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">removeInfo</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cleanupMap</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">&lt;nodeName&gt;</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">osdMapping</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">&lt;osdId&gt;</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">&lt;dataDevice&gt;</span><span class="p">:</span>
+<span class="w">                  </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
+<span class="w">                  </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;dataDeviceByPath&gt;</span>
+<span class="w">                  </span><span class="nt">devicePurpose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">block</span>
+<span class="w">                  </span><span class="nt">usedPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/ceph-d2d3a759-2c22-4304-b890-a2d87e056bd4/osd-block-ef516477-d2da-492f-8169-a3ebfc3417e2</span>
+<span class="w">                  </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div></p>
+<p>Definition of values in angle brackets:</p>
+<ul>
+<li><code>&lt;nodeName&gt;</code> - underlying node name of the machine, for example,
+   <code>storage-worker-52</code>;</li>
+<li><code>&lt;osdId&gt;</code> - Ceph OSD ID for the device being replaced, for example,
+   <code>1</code>;</li>
+<li><code>&lt;dataDeviceByPath&gt;</code> - <code>by-path</code> of the device placed on the node,
+   for example, <code>/dev/disk/by-path/pci-0000:00:1t.9</code>;</li>
+<li><code>&lt;dataDevice&gt;</code> - name of the device placed on the node, for example,
+   <code>/dev/sdb</code>.</li>
+</ul>
+</li>
+<li>
+<p>Verify that the <code>cleanupMap</code> section matches the required removal and wait
+   for the <code>ApproveWaiting</code> phase to appear in <code>status</code>:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephosdremovetask<span class="w"> </span>replace-failed-osd-&lt;nodeName&gt;-&lt;deviceName&gt;<span class="w"> </span>-o<span class="w"> </span>yaml
+</code></pre></div></p>
+<p>Example of system response:
+ <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">phase</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ApproveWaiting</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Edit the <code>CephOsdRemoveTask</code> CR and set the <code>approve</code> flag to <code>true</code>:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephosdremovetask<span class="w"> </span>replace-failed-osd-&lt;nodeName&gt;-&lt;deviceName&gt;
+</code></pre></div></p>
+<p>For example:
+ <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">approve</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Review the following <code>status</code> fields of the Ceph LCM CR processing:</p>
+<ul>
+<li><code>status.phase</code> - current state of request processing;</li>
+<li><code>status.messages</code> - description of the current phase;</li>
+<li><code>status.conditions</code> - full history of request processing before the
+  current phase;</li>
+<li><code>status.removeInfo.issues</code> and <code>status.removeInfo.warnings</code> - error
+  and warning messages occurred during request processing, if any.</li>
+</ul>
+</li>
+<li>
+<p>Verify that the <code>CephOsdRemoveTask</code> has been completed. For example:
+    <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">phase</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Completed</span><span class="w"> </span><span class="c1"># or CompletedWithWarnings if there are non-critical issues</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Remove the device cleanup jobs:
+    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>delete<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>pelagia-lcm-cleanup-disks
+</code></pre></div></p>
+</li>
+</ol>
+<h2 id="remove-a-failed-ceph-osd-by-ceph-osd-id">Remove a failed Ceph OSD by Ceph OSD ID <a name="replace-by-osd-id"></a><a class="headerlink" href="#remove-a-failed-ceph-osd-by-ceph-osd-id" title="Permanent link">#</a></h2>
+<ol>
+<li>
+<p>Identify the node and device names used by the affected Ceph OSD. Using the
+   Ceph CLI in the <code>pelagia-ceph-toolbox</code> Pod, run:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>osd<span class="w"> </span>metadata<span class="w"> </span>&lt;osdId&gt;
+</code></pre></div></p>
+<p>Substitute <code>&lt;osdId&gt;</code> with the affected OSD ID.</p>
+<p>Example output:
+ <div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="w">  </span><span class="nt">&quot;bluefs_db_devices&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vdc&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="w">  </span><span class="nt">&quot;bluestore_bdev_devices&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vde&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="w">  </span><span class="nt">&quot;devices&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vdc,vde&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="w">  </span><span class="nt">&quot;hostname&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;kaas-node-6c5e76f9-c2d2-4b1a-b047-3c299913a4bf&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">},</span>
+</code></pre></div></p>
+<p>In the example above, <code>hostname</code> is the node name and <code>devices</code> are
+ all devices used by the affected Ceph OSD.</p>
+</li>
+<li>
+<p>Open the <code>CephDeployment</code> CR for editing:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephdpl
+</code></pre></div></p>
+</li>
+<li>
+<p>In the <code>nodes</code> section, remove the required device:
+   <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;nodeName&gt;</span>
+<span class="w">    </span><span class="nt">devices</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceName&gt;</span><span class="w">  </span><span class="c1"># remove the entire item from devices list</span>
+<span class="w">      </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
+</code></pre></div></p>
+<p>Substitute <code>&lt;nodeName&gt;</code> with the node name where the device <code>&lt;deviceName&gt;</code> is going to be replaced.</p>
+</li>
+<li>
+<p>Save <code>CephDeployment</code> changes and close the editor.</p>
+</li>
+<li>
+<p>Create a <code>CephOsdRemoveTask</code> CR template and save it as <code>replace-failed-&lt;nodeName&gt;-osd-&lt;osdId&gt;-task.yaml</code>:
+   <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CephOsdRemoveTask</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">replace-failed-&lt;nodeName&gt;-osd-&lt;osdId&gt;</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">&lt;nodeName&gt;</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cleanupByOsdId</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;osdId&gt;</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Apply the template to the cluster:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>replace-failed-&lt;nodeName&gt;-osd-&lt;osdId&gt;-task.yaml
+</code></pre></div></p>
+</li>
+<li>
+<p>Verify that the corresponding request has been created:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephosdremovetask
+</code></pre></div></p>
+</li>
+<li>
+<p>Verify that the <code>removeInfo</code> section appeared in the <code>CephOsdRemoveTask</code> CR <code>status</code>:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephosdremovetask<span class="w"> </span>replace-failed-&lt;nodeName&gt;-osd-&lt;osdId&gt;-task<span class="w"> </span>-o<span class="w"> </span>yaml
+</code></pre></div></p>
+<p>Example of system response
+ <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">osdRemoveStatus</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">removeInfo</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cleanupMap</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">&lt;nodeName&gt;</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">osdMapping</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">&lt;osdId&gt;</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">&lt;dataDevice&gt;</span><span class="p">:</span>
+<span class="w">                  </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
+<span class="w">                  </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;dataDeviceByPath&gt;</span>
+<span class="w">                  </span><span class="nt">devicePurpose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">block</span>
+<span class="w">                  </span><span class="nt">usedPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/ceph-d2d3a759-2c22-4304-b890-a2d87e056bd4/osd-block-ef516477-d2da-492f-8169-a3ebfc3417e2</span>
+<span class="w">                  </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div></p>
+<p>Definition of values in angle brackets:</p>
+<ul>
+<li><code>&lt;nodeName&gt;</code> - underlying node name of the machine, for example,
+   <code>storage-worker-52</code>;</li>
+<li><code>&lt;osdId&gt;</code> - Ceph OSD ID for the device being replaced, for example,
+   <code>1</code>;</li>
+<li><code>&lt;dataDeviceByPath&gt;</code> - <code>by-path</code> of the device placed on the node,
+   for example, <code>/dev/disk/by-path/pci-0000:00:1t.9</code>;</li>
+<li><code>&lt;dataDevice&gt;</code> - name of the device placed on the node, for example,
+   <code>/dev/sdb</code>.</li>
+</ul>
+</li>
+<li>
+<p>Verify that the <code>cleanupMap</code> section matches the required removal and wait
+   for the <code>ApproveWaiting</code> phase to appear in <code>status</code>:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephosdremovetask<span class="w"> </span>replace-failed-&lt;nodeName&gt;-osd-&lt;osdId&gt;-task<span class="w"> </span>-o<span class="w"> </span>yaml
+</code></pre></div></p>
+<p>Example of system response:
+ <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">phase</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ApproveWaiting</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Edit the <code>CephOsdRemoveTask</code> CR and set the <code>approve</code> flag to <code>true</code>:
+    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephosdremovetask<span class="w"> </span>replace-failed-&lt;nodeName&gt;-osd-&lt;osdId&gt;-request
+</code></pre></div></p>
+<p>For example:
+  <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">approve</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Review the following <code>status</code> fields of the Ceph LCM CR processing:</p>
+<ul>
+<li><code>status.phase</code> - current state of request processing;</li>
+<li><code>status.messages</code> - description of the current phase;</li>
+<li><code>status.conditions</code> - full history of request processing before the
+  current phase;</li>
+<li><code>status.removeInfo.issues</code> and <code>status.removeInfo.warnings</code> - error
+  and warning messages occurred during request processing, if any.</li>
+</ul>
+</li>
+<li>
+<p>Verify that the <code>CephOsdRemoveTask</code> has been completed. For example:
+    <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">phase</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Completed</span><span class="w"> </span><span class="c1"># or CompletedWithWarnings if there are non-critical issues</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Remove the device cleanup jobs:
+    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>delete<span class="w"> </span><span class="nb">jobs</span><span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>pelagia-lcm-cleanup-disks
+</code></pre></div></p>
+</li>
+</ol>
+<h2 id="deploy-a-new-device-after-removal-of-a-failed-one">Deploy a new device after removal of a failed one <a name="add-new"></a><a class="headerlink" href="#deploy-a-new-device-after-removal-of-a-failed-one" title="Permanent link">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can spawn Ceph OSD on a raw device, but it must be clean and
+without any data or partitions. If you want to add a device that was in use,
+also ensure it is raw and clean. To clean up all data and partitions from a
+device, refer to official
+<a href="https://github.com/rook/rook/blob/master/Documentation/Storage-Configuration/ceph-teardown.md#zapping-devices">Rook documentation</a>.</p>
+</div>
+<ol>
+<li>
+<p>Manually prepare the replacement device on the existing node.</p>
+</li>
+<li>
+<p>Optional. If you want to add a Ceph OSD on top of a <strong>raw</strong> device that already exists
+   on a node or is <strong>hot-plugged</strong>, add the required device using the following
+   guidelines:</p>
+<ul>
+<li>You can add a raw device to a node during node deployment.</li>
+<li>If a node supports adding devices without a node reboot, you can hot plug
+  a raw device to a node.</li>
+<li>If a node does not support adding devices without a node reboot, you can
+  hot plug a raw device during node shutdown.</li>
+</ul>
+</li>
+<li>
+<p>Open the <code>CephDeployment</code> CR for editing:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephdpl
+</code></pre></div></p>
+</li>
+<li>
+<p>In the <code>nodes</code> section, add a new device:
+   <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;nodeName&gt;</span>
+<span class="w">    </span><span class="nt">devices</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">fullPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceByID&gt;</span><span class="w"> </span><span class="c1"># Recommended. Non-wwn by-id symlink.</span>
+<span class="w">      </span><span class="c1"># name: &lt;deviceByID&gt; # Not recommended. If a device is supposed to be added with by-id.</span>
+<span class="w">      </span><span class="c1"># fullPath: &lt;deviceByPath&gt; # Not recommended. If a device is supposed to be added with by-path.</span>
+<span class="w">      </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
+</code></pre></div></p>
+<p>Substitute <code>&lt;nodeName&gt;</code> with the node name where device <code>&lt;deviceName&gt;</code>
+ or <code>&lt;deviceByPath&gt;</code> is going to be added as a Ceph OSD.</p>
+</li>
+<li>
+<p>Verify that the Ceph OSD on the specified node is successfully deployed. The
+   <code>CephDeploymentHealth</code> CR <code>status.healthReport.cephDaemons.cephDaemons</code> section should not contain any issues.
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephdeploymenthealth<span class="w"> </span>-o<span class="w"> </span>yaml
+</code></pre></div></p>
+<p>For example:
+ <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">healthReport</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cephDaemons</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cephDaemons</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">osd</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">info</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3 osds, 3 up, 3 in</span>
+<span class="w">          </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Verify the desired Ceph OSD pod is <code>Running</code>:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>rook-ceph-osd<span class="w"> </span>-o<span class="w"> </span>wide<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>&lt;nodeName&gt;
+</code></pre></div></p>
+</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../add-rm-ceph-node/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Ceph Node Lifecycle Management">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Ceph Node Lifecycle Management
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../replace-osd-meta-lvm/" class="md-footer__link md-footer__link--next" aria-label="Next: Replace failed Ceph OSD with metadata LVM">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Replace failed Ceph OSD with metadata LVM
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      © 2005 - 2025 Mirantis, Inc. All rights reserved.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>

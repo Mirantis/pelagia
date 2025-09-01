@@ -1,0 +1,2705 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="Mirantis">
+      
+      
+      
+        <link rel="prev" href="../rgw/">
+      
+      
+        <link rel="next" href="../rgw-multisite/">
+      
+      
+      <link rel="icon" href="../../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
+    
+    
+      
+        <title>Configure Ceph Object Gateway TLS - Pelagia Controller for Rook Ceph management</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Overpass:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Overpass";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#configure-ceph-object-gateway-tls" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Pelagia Controller for Rook Ceph management" class="md-header__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
+      
+  <img src="../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pelagia Controller for Rook Ceph management
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Configure Ceph Object Gateway TLS
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/mirantis/pelagia" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Pelagia Controller for Rook Ceph management" class="md-nav__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
+      
+  <img src="../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
+
+    </a>
+    Pelagia Controller for Rook Ceph management
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/mirantis/pelagia" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Architecture
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pelagia Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/limitations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Pelagia Limitations
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/addressing-ceph-devices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Addressing Ceph Devices
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/rockoon-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Rockoon integration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_5" id="__nav_2_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Custom Resources
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_5">
+            <span class="md-nav__icon md-icon"></span>
+            Custom Resources
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/custom-resources/cephdeployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CephDeployment
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/custom-resources/cephdeploymenthealth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CephDeploymentHealth
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/custom-resources/cephdeploymentsecret/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CephDeploymentSecret
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/custom-resources/cephosdremovetask/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CephOsdRemoveTask
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Quick Start
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Quick Start
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../quick-start/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install Pelagia
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../quick-start/lcm-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Install LCM-only Pelagia
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../quick-start/upgrade/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Upgrade Pelagia
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../developer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Developer Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Operations Guide
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Operations Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../default-ceph-conf/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph Default Config Options
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rook-daemon-place/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Rook Daemons Placement
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../multinetworking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph Multinetwork
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rbd-mirror/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph RBD mirroring
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cephfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph Filesystem
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../move-failure-domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Change Ceph Pools Failure Domain
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../move-mon-daemon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Change Ceph Monitor node
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../move-mon-node-replace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed Ceph Monitor node
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_9" id="__nav_5_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Rockoon Integration
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_9">
+            <span class="md-nav__icon md-icon"></span>
+            Rockoon Integration
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rockoon/rockoon-integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Integrate Pelagia with Rockoon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rockoon/cinder-multi-backend/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure Ceph pools for Cinder multi-backend
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rockoon/calc-target-ratio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Calculate target ratios for Rockoon
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5_10" id="__nav_5_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Ceph Object Storage
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_10">
+            <span class="md-nav__icon md-icon"></span>
+            Ceph Object Storage
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rgw/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph RGW Object Storage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Configure Ceph Object Gateway TLS
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure Ceph Object Gateway TLS
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ingress-config-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ingress config parameters
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ingress config parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tlsconfig-section-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      tlsConfig section parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#controllerclassname-parameter" class="md-nav__link">
+    <span class="md-ellipsis">
+      controllerClassName parameter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#annotations-parameter" class="md-nav__link">
+    <span class="md-ellipsis">
+      annotations parameter
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#to-configure-ceph-object-gateway-tls" class="md-nav__link">
+    <span class="md-ellipsis">
+      To configure Ceph Object Gateway TLS
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rgw-multisite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Multisite for Ceph Object Storage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rgw-sse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Configure Ceph Object Storage SSE
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_10_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_10_5" id="__nav_5_10_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    RADOS Gateway Bucket Policy
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_10_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_10_5">
+            <span class="md-nav__icon md-icon"></span>
+            RADOS Gateway Bucket Policy
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s3-bucket-policy/s3-create-user/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Create Ceph Object Storage User
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s3-bucket-policy/bucket-policy-s3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Bucket Policy for Ceph Object User
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s3-bucket-policy/bucket-policy-rockoon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Bucket Policy for Rockoon OpenStack User
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_11" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_11" id="__nav_5_11_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Ceph User Credentials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_11_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_11">
+            <span class="md-nav__icon md-icon"></span>
+            Ceph User Credentials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ceph-user-creds/ceph-client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph RBD/CephFS Client
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph Object Storage User
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_12" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_12" id="__nav_5_12_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Ceph resources Management
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_12_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_12">
+            <span class="md-nav__icon md-icon"></span>
+            Ceph resources Management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ceph-resource-mgmt/enable-resource-mgmt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Enable Ceph resources Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ceph-resource-mgmt/verify-resource-mgmt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Verify Ceph resources Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_13" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_13" id="__nav_5_13_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Ceph Cluster Lifecycle Management
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_13_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_13">
+            <span class="md-nav__icon md-icon"></span>
+            Ceph Cluster Lifecycle Management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_13_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_13_1" id="__nav_5_13_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Automated Lifecycle Management
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_13_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_13_1">
+            <span class="md-nav__icon md-icon"></span>
+            Automated Lifecycle Management
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lcm/create-task-workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Create Ceph OSD remove Task
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lcm/add-rm-ceph-osd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph OSD Lifecycle Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lcm/add-rm-ceph-osd-with-meta/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph OSD with metadata Lifecycle Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lcm/add-rm-ceph-node/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph Node Lifecycle Management
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lcm/replace-ceph-osd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed Ceph OSD
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lcm/replace-osd-meta-lvm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed Ceph OSD with metadata LVM
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lcm/replace-osd-meta-device/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed Ceph OSD with metadata device
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lcm/replace-ceph-node/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed Ceph Node
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lcm/replace-meta/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Replace failed metadata device
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lcm/increase-storage-size/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Increase Ceph Cluster storage size
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lcm/manual-osd-remove/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Remove Ceph OSD manually
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_14" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_14" id="__nav_5_14_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Verify Ceph Cluster
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_14_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_14">
+            <span class="md-nav__icon md-icon"></span>
+            Verify Ceph Cluster
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../verify-ceph/verify-cephdeploymenthealth/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Verify CephDeployment Health
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../verify-ceph/verify-ceph-core/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Verify Ceph Cluster services
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../verify-ceph/verify-pelagia-and-rook/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Verify Pelagia and Rook
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../verify-ceph/verify-rook-discover/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Verify Rook Discover
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Troubleshoot
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Troubleshoot
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/cephosdremovetask-timeout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    CephOsdRemoveTask rebalance timeout
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/ceph-osd-auth-failed/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph OSD auth failed
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/ceph-exporter-crash/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Rook Ceph exporter crash
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/ceph-mon-store-size-grow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph Monitor size rapidly grows
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/ceph-mon-recover/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph Monitor disaster recovery
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/ceph-disaster-recover/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Ceph Cluster disaster recovery
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#ingress-config-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ingress config parameters
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Ingress config parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tlsconfig-section-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      tlsConfig section parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#controllerclassname-parameter" class="md-nav__link">
+    <span class="md-ellipsis">
+      controllerClassName parameter
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#annotations-parameter" class="md-nav__link">
+    <span class="md-ellipsis">
+      annotations parameter
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#to-configure-ceph-object-gateway-tls" class="md-nav__link">
+    <span class="md-ellipsis">
+      To configure Ceph Object Gateway TLS
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<p><a id="rgw-tls"></a></p>
+<h1 id="configure-ceph-object-gateway-tls">Configure Ceph Object Gateway TLS<a class="headerlink" href="#configure-ceph-object-gateway-tls" title="Permanent link">#</a></h1>
+<p>Once you enable Ceph Object Gateway (<code>radosgw</code>) as described in
+<a href="https://mirantis.github.io/pelagia/ceph-ops/deployment/rgw">Enable Ceph RGW Object Storage</a>, you can configure
+the Transport Layer Security (TLS) protocol for a Ceph Object Gateway public endpoint using custom <code>ingressConfig</code>
+specified in the <code>CephDeployment</code> custom resource (CR). In this case, Ceph Object Gateway public endpoint will use
+the public domain specified using the <code>ingressConfig</code> parameters.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For clusters integrated with <a href="https://github.com/Mirantis/rockoon">Rockoon</a>, Pelagia has an ability to use domain
+and certificates, defined in Rockoon configuration. Pelagia prioritize <code>ingressConfig</code> data over Rockoon ingress
+data but if <code>ingressConfig</code> section is not configured, Pelagia will use Rockoon domain and certificates. Mirantis
+recommends not defining <code>ingressConfig</code> section, if Rockoon has <code>tls-proxy</code> enabled. In that case, common
+certificates are applied to all ingresses from the <code>OpenStackDeployment</code> object. This implies that Pelagia will use
+the public domain and the common certificate from the <code>OpenStackDeployment</code> object.</p>
+</div>
+<p>This section describes how to specify a custom public endpoint for the Ceph Object Storage.</p>
+<h2 id="ingress-config-parameters">Ingress config parameters <a name="ingress"></a><a class="headerlink" href="#ingress-config-parameters" title="Permanent link">#</a></h2>
+<table>
+<thead>
+<tr>
+<th><div style="width:150px">Parameter</div></th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tlsConfig</code></td>
+<td>Defines TLS configuration for the Ceph Object Gateway public endpoint.</td>
+</tr>
+<tr>
+<td><code>controllerClassName</code></td>
+<td>Name of Ingress Controller class. The default value for Pelagia integrated Rockoon is <code>openstack-ingress-nginx</code></td>
+</tr>
+<tr>
+<td><code>annotations</code></td>
+<td>Extra annotations for the ingress proxy.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="tlsconfig-section-parameters"><code>tlsConfig</code> section parameters<a class="headerlink" href="#tlsconfig-section-parameters" title="Permanent link">#</a></h3>
+<ul>
+<li>
+<p><code>tlsSecretRefName</code> - Secret name with TLS certs in Rook Ceph namespace, for example, <code>rook-ceph</code>.
+  Allows avoiding exposure of certs directly in <code>spec</code>. Must contain the following format:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ca.cert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64encodedCaCertificate&gt;</span>
+<span class="w">  </span><span class="nt">tls.crt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64encodedTlsCert&gt;</span>
+<span class="w">  </span><span class="nt">tls.key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64encodedTlsKey&gt;</span>
+</code></pre></div>
+<div class="admonition danger">
+<p class="admonition-title">Caution</p>
+<p>When using <code>tlsSecretRefName</code>, remove <code>certs</code> section.</p>
+</div>
+</li>
+<li>
+<p><code>certs</code> - TLS configuration for ingress including certificates.
+  Contains the following parameters:</p>
+<div class="admonition danger">
+<p class="admonition-title">Caution</p>
+<p><code>certs</code> parameters section is insecure because it stores
+TLS certificates in plain text. Consider using the
+<code>tlsSecretRefName</code> parameter instead to avoid exposing
+TLS certificates in the <code>CephDeployment</code> CR.</p>
+</div>
+<ul>
+<li><code>cacert</code> - The Certificate Authority (CA) certificate, used for the
+  ingress rule TLS support.</li>
+<li><code>tlsCert</code> - The TLS certificate, used for the ingress rule TLS support.</li>
+<li><code>tlsKey</code> - The TLS private key, used for the ingress rule TLS support.</li>
+</ul>
+</li>
+<li>
+<p><code>publicDomain</code> -  Mandatory. The domain name to use for public endpoints.</p>
+<div class="admonition danger">
+<p class="admonition-title">Caution</p>
+<p>For Pelagia integrated with Rockoon, the default ingress controller does not support <code>publicDomain</code> values
+different from the OpenStack ingress public domain. Therefore, if you intend to use the default OpenStack
+Ingress Controller for your Ceph Object Storage public endpoint, plan to use the same
+public domain as your OpenStack endpoints.</p>
+</div>
+</li>
+<li>
+<p><code>hostname</code> - Custom name to override the Ceph Object Storage name for public access. Public RGW endpoint has the
+  <code>https://&lt;hostname&gt;.&lt;publicDomain&gt;</code> format.</p>
+</li>
+</ul>
+<h3 id="controllerclassname-parameter"><code>controllerClassName</code> parameter<a class="headerlink" href="#controllerclassname-parameter" title="Permanent link">#</a></h3>
+<p><code>controllClassName</code> defines the name of the custom Ingress Controller. Pelagia does not support deploying Ingress
+Controllers, so you must deploy the Ingress Controller before configuring the <code>ingressConfig</code> section in the
+<code>CephDeployment</code> CR.</p>
+<p>For Pelagia integrated with Rockoon, the default Ingress Controller has <code>openstack-ingress-nginx</code> class name and Ceph
+uses the Rockoon OpenStack Ingress Controller based on NGINX.</p>
+<h3 id="annotations-parameter"><code>annotations</code> parameter<a class="headerlink" href="#annotations-parameter" title="Permanent link">#</a></h3>
+<p><code>annotations</code> parameter defines extra annotations for the ingress proxy that are a key-value mapping of strings
+to add or override ingress rule annotations. For details, see
+<a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/">NGINX Ingress Controller: Annotations</a>.</p>
+<p>By default, the following annotations are set:</p>
+<ul>
+<li><code>nginx.ingress.kubernetes.io/rewrite-target</code> is set to <code>/</code>.</li>
+<li><code>nginx.ingress.kubernetes.io/upstream-vhost</code> is set to <code>&lt;spec.objectStorage.rgw.name&gt;.rook-ceph.svc</code>.</li>
+</ul>
+<p>Optional annotations:</p>
+<ul>
+<li><code>nginx.ingress.kubernetes.io/proxy-request-buffering: "off"</code> that disables buffering for <code>ingress</code> to prevent the
+  <em>413 (Request Entity Too Large)</em> error when uploading large files using <code>radosgw</code>.</li>
+<li><code>nginx.ingress.kubernetes.io/proxy-body-size: &lt;size&gt;</code> that increases the default uploading size limit to prevent the
+  <em>413 (Request Entity Too Large)</em> error when uploading large files using <code>radosgw</code>. Set the value in MB (<code>m</code>) or KB
+  (<code>k</code>). For example, <code>100m</code>.</li>
+</ul>
+<p>By default, an ingress rule is created with an internal Ceph Object Gateway service endpoint as a backend.
+Also, <code>rgw dns name</code> is specified by Pelagia Deployment Controller and is set to
+<code>&lt;spec.objectStorage.rgw.name&gt;.rook-ceph.svc</code> by default.</p>
+<p>You can override <code>rgw dns name</code> using the <code>rookConfig</code> key-value parameter. In this case, also change the corresponding
+ingress annotation.</p>
+<details>
+<summary>Configuration example with the rgw_dns_name override</summary>
+<div>
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="nt">ingressConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">tlsConfig</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">publicDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">public.domain.name</span>
+<span class="w">      </span><span class="nt">tlsSecretRefName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia-ingress-tls-secret</span>
+<span class="w">    </span><span class="nt">controllerClassName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-ingress-nginx</span>
+<span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">nginx.ingress.kubernetes.io/rewrite-target</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/</span>
+<span class="w">      </span><span class="nt">nginx.ingress.kubernetes.io/upstream-vhost</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store.public.domain.name</span>
+<span class="w">      </span><span class="nt">nginx.ingress.kubernetes.io/proxy-body-size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100m</span>
+<span class="w">  </span><span class="nt">rookConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="s">&quot;rgw</span><span class="nv"> </span><span class="s">dns</span><span class="nv"> </span><span class="s">name&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store.public.domain.name</span>
+</code></pre></div>
+</div>
+</details>
+
+<p>For clouds with the <code>publicDomain</code> parameter specified, align the <code>upstream-vhost</code> ingress annotation with the
+name of the Ceph Object Storage and the specified public domain.</p>
+<p>Pelagia Ceph Object Storage requires the <code>upstream-vhost</code> and <code>rgw dns name</code> parameters to be equal. Therefore,
+override the default <code>rgw dns name</code> with the corresponding ingress annotation value.</p>
+<h2 id="to-configure-ceph-object-gateway-tls">To configure Ceph Object Gateway TLS<a class="headerlink" href="#to-configure-ceph-object-gateway-tls" title="Permanent link">#</a></h2>
+<ol>
+<li>To generate an SSL certificate for internal usage, verify that the
+   RADOS Gateway <code>spec.objectStorage.rgw.gateway.securePort</code> parameter is specified in the <code>CephDeployment</code> CR.
+   For details, see <a href="https://mirantis.github.io/pelagia/ceph-ops/deployment/rgw">Enable Ceph RGW Object Storage</a>.</li>
+<li>
+<p>Configure TLS for Ceph Object Gateway using a custom <code>ingressConfig</code>:</p>
+<ol>
+<li>Open the <code>CephDeployment</code> CR for editing:
+    <div class="highlight"><pre><span></span><code>kubectl -n pelagia edit cephdpl &lt;name&gt;
+</code></pre></div>
+    Substitute <code>&lt;name&gt;</code> with the name of your <code>CephDeployment</code>.</li>
+<li>Specify the <code>ingressConfig</code> parameters according <a href="#ingress">Ingress config parameters</a>.</li>
+<li>Save the changes and close the editor.</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For Pelagia with Rockoon, you can omit TLS configuration for the default settings provided by Rockoon to be
+ applied. Just obtain the Rockoon OpenStack CA certificate for a trusted connection:
+ <div class="highlight"><pre><span></span><code>kubectl -n openstack-ceph-shared get secret openstack-rgw-creds -o jsonpath=&quot;{.data.ca_cert}&quot; | base64 -d
+</code></pre></div></p>
+</div>
+</li>
+<li>
+<p>If you use the HTTP scheme instead of HTTPS for internal or public Ceph Object Gateway endpoints,
+   add custom annotations to the <code>ingressConfig.annotations</code> section of the <code>CephDeployment</code> CR:
+   <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ingressConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">      </span><span class="s">&quot;nginx.ingress.kubernetes.io/force-ssl-redirect&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span>
+<span class="w">      </span><span class="s">&quot;nginx.ingress.kubernetes.io/ssl-redirect&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span>
+</code></pre></div></p>
+<p>If both HTTP and HTTPS must be used, apply the following configuration in the <code>CephDeployment</code> object:
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">ingressConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">tlsConfig</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">publicDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">public.domain.name</span>
+<span class="w">      </span><span class="nt">tlsSecretRefName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia-ingress-tls-secret</span>
+<span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
+<span class="w">      </span><span class="s">&quot;nginx.ingress.kubernetes.io/force-ssl-redirect&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span>
+<span class="w">      </span><span class="s">&quot;nginx.ingress.kubernetes.io/ssl-redirect&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Access internal and public Ceph Object Gateway endpoints by selecting one of the following options:</p>
+<ul>
+<li>
+<p>For a public endpoint:</p>
+<ol>
+<li>Obtain the Ceph Object Gateway public endpoint:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>ingress
+</code></pre></div></li>
+<li>Obtain the public endpoint TLS CA certificate:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>ingress<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.items[0].spec.tls[0].secretName}{&quot;\n&quot;}&#39;</span><span class="k">)</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.data.ca\.crt}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="p">;</span><span class="w"> </span><span class="nb">echo</span>
+</code></pre></div></li>
+</ol>
+</li>
+<li>
+<p>For an internal endpoint:</p>
+<ol>
+<li>
+<p>Obtain the internal endpoint name for Ceph Object Gateway:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>svc<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>rook-ceph-rgw
+</code></pre></div></p>
+<p>The internal endpoint for Ceph Object Gateway has the following format:
+<div class="highlight"><pre><span></span><code>https://&lt;internal-svc-name&gt;.rook-ceph.svc:&lt;rgw-secure-port&gt;/
+</code></pre></div>
+where <code>&lt;rgw-secure-port&gt;</code> is <code>spec.objectStorage.rgw.gateway.securePort</code> specified
+in the <code>CephDeployment</code> CR.</p>
+</li>
+<li>
+<p>Obtain the internal endpoint TLS CA certificate:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>rgw-ssl-certificate<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s2">&quot;{.data.cacert}&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d
+</code></pre></div></p>
+</li>
+</ol>
+</li>
+</ul>
+</li>
+<li>
+<p>Skip this step if one of the following requirements is met:</p>
+<ul>
+<li>The public hostname matches the public domain name set by the <code>spec.ingressConfig.tlsConfig.publicDomain</code> field;</li>
+<li>The OpenStack configuration has been applied.</li>
+</ul>
+<p>Otherwise, update the zonegroup <code>hostnames</code> of Ceph Object Gateway:</p>
+<ol>
+<li>Enter the <code>pelagia-ceph-toolbox</code> pod:
+     <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deployment/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>bash
+</code></pre></div></li>
+<li>
+<p>Obtain Ceph Object Gateway default zonegroup configuration:
+     <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>zonegroup<span class="w"> </span>get<span class="w"> </span>--rgw-zonegroup<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>--rgw-zone<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>tee<span class="w"> </span>zonegroup.json
+</code></pre></div></p>
+<p>Substitute <code>&lt;objectStorageName&gt;</code> with the Ceph Object Storage name from
+  <code>spec.objectStorage.rgw.name</code>.</p>
+</li>
+<li>
+<p>Inspect <code>zonegroup.json</code> and verify that the <code>hostnames</code> key is a
+     list that contains two endpoints: an internal endpoint and a custom
+     public endpoint:
+     <div class="highlight"><pre><span></span><code><span class="s2">&quot;hostnames&quot;</span>:<span class="w"> </span><span class="o">[</span><span class="s2">&quot;rook-ceph-rgw-&lt;objectStorageName&gt;.rook-ceph.svc&quot;</span>,<span class="w"> </span>&lt;customPublicEndpoint&gt;<span class="o">]</span>
+</code></pre></div></p>
+<p>Substitute <code>&lt;objectStorageName&gt;</code> with the Ceph Object Storage name and
+ <code>&lt;customPublicEndpoint&gt;</code> with the public endpoint with a custom public
+ domain.</p>
+</li>
+<li>
+<p>If one or both endpoints are omitted in the list, add the missing
+     endpoints to the <code>hostnames</code> list in the <code>zonegroup.json</code> file and
+     update Ceph Object Gateway zonegroup configuration:
+     <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>zonegroup<span class="w"> </span><span class="nb">set</span><span class="w"> </span>--rgw-zonegroup<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>--rgw-zone<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>--infile<span class="w"> </span>zonegroup.json
+radosgw-admin<span class="w"> </span>period<span class="w"> </span>update<span class="w"> </span>--commit
+</code></pre></div></p>
+</li>
+<li>
+<p>Verify that the <code>hostnames</code> list contains both the internal and custom public endpoint:
+     <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>--rgw-zonegroup<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>--rgw-zone<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>zonegroup<span class="w"> </span>get<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;.hostnames&quot;</span>
+</code></pre></div></p>
+<p>Example of system response:
+   <div class="highlight"><pre><span></span><code><span class="p">[</span>
+<span class="w">  </span><span class="s2">&quot;rook-ceph-rgw-obj-store.rook-ceph.svc&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">&quot;obj-store.mcc1.cluster1.example.com&quot;</span>
+<span class="p">]</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Exit the <code>pelagia-ceph-toolbox</code> pod:
+     <div class="highlight"><pre><span></span><code><span class="nb">exit</span>
+</code></pre></div></p>
+</li>
+</ol>
+</li>
+</ol>
+<p>Once done, Ceph Object Gateway becomes available by the custom public endpoint
+with an S3 API client, OpenStack Swift CLI, and OpenStack Horizon Containers
+plugin.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../rgw/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Enable Ceph RGW Object Storage">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Enable Ceph RGW Object Storage
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../rgw-multisite/" class="md-footer__link md-footer__link--next" aria-label="Next: Enable Multisite for Ceph Object Storage">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Enable Multisite for Ceph Object Storage
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      © 2005 - 2025 Mirantis, Inc. All rights reserved.
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>
