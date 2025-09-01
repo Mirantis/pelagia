@@ -5,7 +5,7 @@ is implemented through the shared Kubernetes `openstack-ceph-shared` namespace. 
 controllers have access to this namespace to read and write the Kubernetes
 `kind: Secret` objects.
 
-<img src="/assets/pelagia-rockoon-integration.svg" alt="drawing"/>
+<img src="./assets/pelagia-rockoon-integration.svg" alt="drawing"/>
 
 To integrate Pelagia with Rockoon, all necessary Ceph pools must be specified
 in the configuration of the `CephDeployment` custom resource as part of the deployment.
