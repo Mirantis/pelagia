@@ -1,0 +1,3 @@
+#!/bin/sh -e
+
+exec /usr/local/bin/${CONTROLLER_NAME} $@

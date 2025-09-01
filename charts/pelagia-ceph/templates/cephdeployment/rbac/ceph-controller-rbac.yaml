@@ -1,0 +1,207 @@
+{{- if .Values.cephDeployment.enabled }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  namespace: {{ template "release.namespace" . }}
+  name: {{ .Values.controllers.cephdeployment.account.name }}
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Values.controllers.cephdeployment.account.clusterRole }}
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  # Framework: knowing which other operators are running (i.e. peering).
+  - apiGroups: [""]
+    resources: [nodes]
+    verbs: [list, get, patch, update]
+  - apiGroups: [apiextensions.k8s.io]
+    resources: [customresourcedefinitions]
+    verbs: [list, get]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: [list, get, create, patch, update, delete]
+  - apiGroups: [""]
+    resources: [persistentvolumes, persistentvolumeclaims]
+    verbs: [list, get, watch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{ template "release.namespace" . }}
+  name: {{ .Values.controllers.cephdeployment.account.role }}
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  # Framework: posting the events about the handlers progress/errors.
+  - apiGroups: [""]
+    resources: [events]
+    verbs: [create]
+  # Application: manage os access data(secrets)
+  - apiGroups: [""]
+    resources: [secrets]
+    verbs: [list, get, create, update, patch]
+  # Application: manage os access data(secrets)
+  - apiGroups: [""]
+    resources: [configmaps]
+    verbs: [get, list, watch]
+  - apiGroups: [lcm.mirantis.com]
+    resources: [cephdeployments]
+    verbs: [list, get, watch, patch, update]
+  - apiGroups: [lcm.mirantis.com]
+    resources: [cephdeploymenthealths, cephdeploymentsecrets, cephdeploymentmaintenances]
+    verbs: [list, get, create, update]
+  - apiGroups: [lcm.mirantis.com]
+    resources: [cephosdremovetasks]
+    verbs: [list, get]
+  - apiGroups: [lcm.mirantis.com]
+    resources: [cephdeployments/status, cephdeploymentsecrets/status, cephdeploymentmaintenances/status]
+    verbs: [update]
+  - apiGroups: [batch]
+    resources: [jobs]
+    verbs: [list, get, create, delete]
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [list, get, patch, update, delete]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: [get]
+{{- if .Values.cephDeployment.installSharedNamespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{ .Values.cephDeployment.openstackSharedNamespace }}
+  name: {{ .Values.controllers.cephdeployment.account.role }}
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  # Application: read/write creds to/from shared namespace.
+  - apiGroups: [""]
+    resources: [secrets]
+    verbs: [list, get, create, patch]
+  {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  name: {{ .Values.controllers.cephdeployment.account.role }}
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  # Application: read ceph access data from shared namespace.
+  - apiGroups: [ceph.rook.io, objectbucket.io]
+    resources:
+    - cephclusters
+    - cephobjectstores
+    - cephblockpools
+    - cephfilesystems
+    - cephclients
+    - cephfilesystemsubvolumegroups
+    - cephobjectrealms
+    - cephobjectstores
+    - cephobjectstoreusers
+    - cephobjectzonegroups
+    - cephobjectzones
+    - cephrbdmirrors
+    - objectbucketclaims
+    - objectbuckets
+    verbs: [list, get, watch, patch, create, update, delete]
+  - apiGroups: [""]
+    resources: [configmaps]
+    verbs: [list, get, patch, update, create]
+  - apiGroups: [""]
+    resources: [secrets,services]
+    verbs: [list, get, create, patch, update, delete, deletecollection]
+  - apiGroups: [""]
+    resources: [pods]
+    verbs: [list, get, patch, update]
+  - apiGroups: [batch]
+    resources: [jobs]
+    verbs: [list, get, create, delete]
+  - apiGroups: [apps]
+    resources: [deployments,daemonsets]
+    verbs: [list, get, create, delete]
+  - apiGroups: [""]
+    resources: [services]
+    verbs: [list, get]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: [get]
+  - apiGroups: [""]
+    resources: ["pods/exec"]
+    verbs: ["create", "get"]
+  - apiGroups: [networking.k8s.io]
+    resources: [networkpolicies, ingresses]
+    verbs: [list, get, create, update, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Values.controllers.cephdeployment.account.name }}-clusterrolebinding
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Values.controllers.cephdeployment.account.clusterRole }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.controllers.cephdeployment.account.name }}
+    namespace: {{ template "release.namespace" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: {{ template "release.namespace" . }}
+  name: {{ .Values.controllers.cephdeployment.account.name }}-rolebinding
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Values.controllers.cephdeployment.account.role }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.controllers.cephdeployment.account.name }}
+    namespace: {{ template "release.namespace" . }}
+{{- if .Values.cephDeployment.installSharedNamespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: {{ .Values.cephDeployment.openstackSharedNamespace }}
+  name: {{ .Values.controllers.cephdeployment.account.name }}-rolebinding
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Values.controllers.cephdeployment.account.role }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.controllers.cephdeployment.account.name }}
+    namespace: {{ template "release.namespace" . }}
+  {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  name: {{ .Values.controllers.cephdeployment.account.name }}-rolebinding
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Values.controllers.cephdeployment.account.role }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.controllers.cephdeployment.account.name }}
+    namespace: {{ template "release.namespace" . }}
+{{- end -}}

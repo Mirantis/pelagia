@@ -1,0 +1,5 @@
+testSettings:
+  namespace: ${TEST_NAMESPACE}
+testCases:
+- TestRBDVolumeSnapshot
+- TestCephFsVolumeSnapshot

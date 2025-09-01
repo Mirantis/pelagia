@@ -1,0 +1,6 @@
+testSettings:
+  namespace: ${TEST_NAMESPACE}
+testCases:
+- TestObjectStorageRgwAccessibility
+- TestRgwAccessPublicDomainCustomMKE
+- TestRgwUserCreateAccess

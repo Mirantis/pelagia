@@ -1,0 +1,148 @@
+site_name: Pelagia Controller for Rook Ceph management
+site_author: Mirantis
+docs_dir: ./docs
+repo_name: GitHub
+repo_url: https://github.com/mirantis/pelagia
+copyright:
+  '© 2005 - 2025 Mirantis, Inc. All rights reserved.'
+theme:
+  name: "material"
+  font:
+    text: Overpass
+    code: Roboto Mono
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: custom
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: custom
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+
+  icon: assets/mirantis-logo-inverted-horizontal-one-color.svg
+  logo: assets/mirantis-logo-inverted-horizontal-one-color.svg
+  favicon: assets/favicon.ico
+
+  search: true
+  search_index_only: true
+  features:
+    - toc.autohide
+    - search.suggest
+    - search.highlight
+    # - navigation.sections
+    # - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.footer
+    - navigation.path
+    - content.code.copy
+
+extra_css:
+  - stylesheets/extra.css
+
+plugins:
+  - search
+  - mermaid2
+  - callouts
+  - table-reader
+  - exclude:
+      glob:
+        - snippets/*
+  - snippets
+
+markdown_extensions:
+  - admonition
+  - tables
+  - markdown_grid_tables
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - toc:
+      permalink: "#"
+      toc_depth: 3
+
+nav:
+  - Home: index.md
+  - Architecture:
+      - Pelagia Overview: architecture/overview.md
+      - Pelagia Limitations: architecture/limitations.md
+      - Addressing Ceph Devices: architecture/addressing-ceph-devices.md
+      - Rockoon integration: architecture/rockoon-integration.md
+      - Custom Resources:
+          - CephDeployment: architecture/custom-resources/cephdeployment.md
+          - CephDeploymentHealth: architecture/custom-resources/cephdeploymenthealth.md
+          - CephDeploymentSecret: architecture/custom-resources/cephdeploymentsecret.md
+          - CephOsdRemoveTask: architecture/custom-resources/cephosdremovetask.md
+  - Quick Start:
+      - Install Pelagia: quick-start/installation.md
+      - Install LCM-only Pelagia: quick-start/lcm-installation.md
+      - Upgrade Pelagia: quick-start/upgrade.md
+  - Developer Guide: developer.md
+  - Operations Guide:
+      - Ceph Default Config Options: ops-guide/deployment/default-ceph-conf.md
+      - Rook Daemons Placement: ops-guide/deployment/rook-daemon-place.md
+      - Enable Ceph Multinetwork: ops-guide/deployment/multinetworking.md
+      - Enable Ceph RBD mirroring: ops-guide/deployment/rbd-mirror.md
+      - Enable Ceph Filesystem: ops-guide/deployment/cephfs.md
+      - Change Ceph Pools Failure Domain: ops-guide/deployment/move-failure-domain.md
+      - Change Ceph Monitor node: ops-guide/deployment/move-mon-daemon.md
+      - Replace failed Ceph Monitor node: ops-guide/deployment/move-mon-node-replace.md
+      - Rockoon Integration:
+        - Integrate Pelagia with Rockoon: ops-guide/rockoon/rockoon-integration.md
+        - Configure Ceph pools for Cinder multi-backend: ops-guide/rockoon/cinder-multi-backend.md
+        - Calculate target ratios for Rockoon: ops-guide/rockoon/calc-target-ratio.md
+      - Ceph Object Storage:
+        - Enable Ceph RGW Object Storage: ops-guide/deployment/rgw.md
+        - Configure Ceph Object Gateway TLS: ops-guide/deployment/rgw-tls.md
+        - Enable Multisite for Ceph Object Storage: ops-guide/deployment/rgw-multisite.md
+        - Configure Ceph Object Storage SSE: ops-guide/deployment/rgw-sse.md
+        - RADOS Gateway Bucket Policy:
+          - Create Ceph Object Storage User: ops-guide/deployment/s3-bucket-policy/s3-create-user.md
+          - Bucket Policy for Ceph Object User: ops-guide/deployment/s3-bucket-policy/bucket-policy-s3.md
+          - Bucket Policy for Rockoon OpenStack User: ops-guide/deployment/s3-bucket-policy/bucket-policy-rockoon.md
+      - Ceph User Credentials:
+        - Enable Ceph RBD/CephFS Client: ops-guide/deployment/ceph-user-creds/ceph-client.md
+        - Enable Ceph Object Storage User: ops-guide/deployment/ceph-user-creds/ceph-rgw-user.md
+      - Ceph resources Management:
+        - Enable Ceph resources Management: ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md
+        - Verify Ceph resources Management: ops-guide/deployment/ceph-resource-mgmt/verify-resource-mgmt.md
+      - Ceph Cluster Lifecycle Management:
+        - Automated Lifecycle Management:
+          - Create Ceph OSD remove Task: ops-guide/lcm/create-task-workflow.md
+          - Ceph OSD Lifecycle Management: ops-guide/lcm/add-rm-ceph-osd.md
+          - Ceph OSD with metadata Lifecycle Management: ops-guide/lcm/add-rm-ceph-osd-with-meta.md
+          - Ceph Node Lifecycle Management: ops-guide/lcm/add-rm-ceph-node.md
+          - Replace failed Ceph OSD: ops-guide/lcm/replace-ceph-osd.md
+          - Replace failed Ceph OSD with metadata LVM: ops-guide/lcm/replace-osd-meta-lvm.md
+          - Replace failed Ceph OSD with metadata device: ops-guide/lcm/replace-osd-meta-device.md
+          - Replace failed Ceph Node: ops-guide/lcm/replace-ceph-node.md
+          - Replace failed metadata device: ops-guide/lcm/replace-meta.md
+        - Increase Ceph Cluster storage size: ops-guide/lcm/increase-storage-size.md
+        - Remove Ceph OSD manually: ops-guide/lcm/manual-osd-remove.md
+      - Verify Ceph Cluster:
+        - Verify CephDeployment Health: ops-guide/verify-ceph/verify-cephdeploymenthealth.md
+        - Verify Ceph Cluster services: ops-guide/verify-ceph/verify-ceph-core.md
+        - Verify Pelagia and Rook: ops-guide/verify-ceph/verify-pelagia-and-rook.md
+        - Verify Rook Discover: ops-guide/verify-ceph/verify-rook-discover.md
+  - Troubleshoot:
+    - CephOsdRemoveTask rebalance timeout: troubleshoot/cephosdremovetask-timeout.md
+    - Ceph OSD auth failed: troubleshoot/ceph-osd-auth-failed.md
+    - Rook Ceph exporter crash: troubleshoot/ceph-exporter-crash.md
+    - Ceph Monitor size rapidly grows: troubleshoot/ceph-mon-store-size-grow.md
+    - Ceph Monitor disaster recovery: troubleshoot/ceph-mon-recover.md
+    - Ceph Cluster disaster recovery: troubleshoot/ceph-disaster-recover.md
+#  - Operations Guide:
+#      - Upgrade OpenStack: ops/openstack/upgrade.md
+#      - Run tempest: ops/openstack/tempest.md
+#  - Troubleshoot: ops/openstack/troubleshoot.md

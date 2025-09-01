@@ -1,0 +1,9 @@
+apiVersion: v2
+appVersion: "v1.0.0"
+description: A Helm chart to deploy Ceph Pelagia resources
+name: pelagia-ceph
+version: 1.0.0
+dependencies:
+- name: snapshot-controller
+  version: 1.0.0
+  repository: oci://registry.mirantis.com/pelagia

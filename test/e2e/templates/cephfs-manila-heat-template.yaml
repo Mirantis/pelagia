@@ -1,0 +1,142 @@
+heat_template_version: queens
+parameters:
+  image:
+    type: string
+    description: SCOIMAGE Specify an image name for instance
+  availability_zone:
+    type: string
+    description: Name of compute host
+  flavor:
+    type: string
+    default: m1.medium
+  server_tags:
+    type: json
+    description: Tags for instances
+    default: ["openstack.lcm.mirantis.com:prober"]
+  cluster_public_key:
+    type: string
+    description: Public SSH Key use for instances
+resources:
+  keypair_name:
+    type: OS::Heat::RandomString
+    properties:
+      character_classes: [ { "class": "hexdigits", "min": 1 } ]
+      length: 8
+      salt: constant
+
+  heat_key:
+    type: OS::Nova::KeyPair
+    properties:
+      name: { list_join: [ '-', [ { get_param: "OS::stack_name" }, 'keypair', { get_attr: [ keypair_name, value ] } ] ] }
+      public_key: { get_param: cluster_public_key }
+      save_private_key: false
+
+  workloadlock_net:
+    type: OS::Neutron::Net
+  workloadlock_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: workloadlock_net }
+      cidr: "192.168.10.0/24"
+      ip_version: 4
+  workloadlock_router:
+    type: OS::Neutron::Router
+    properties:
+      external_gateway_info: { network: public }
+  workloadlock_interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: workloadlock_router }
+      subnet: { get_resource: workloadlock_subnet }
+
+  port1:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: workloadlock_net }
+      port_security_enabled: false
+  instance1:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      availability_zone: {get_param: availability_zone}
+      networks:
+        - port: { get_resource: port1 }
+      key_name: { get_resource: heat_key }
+      tags: { get_param: server_tags }
+      user_data_format: RAW
+      user_data: |
+        #!/bin/sh
+        echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+        echo "deb https://download.ceph.com/debian-pacific/ bionic main" > /etc/apt/sources.list.d/ceph.list
+        wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
+        apt update -y; apt install -y ceph-fuse
+  floating_ip1:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: public
+    depends_on: workloadlock_interface
+  floating_ip_association1:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: floating_ip1 }
+      port_id: { get_resource: port1 }
+
+  port2:
+    type: OS::Neutron::Port
+    properties:
+      network: { get_resource: workloadlock_net }
+      port_security_enabled: false
+  instance2:
+    type: OS::Nova::Server
+    properties:
+      image: { get_param: image }
+      flavor: { get_param: flavor }
+      availability_zone: {get_param: availability_zone}
+      networks:
+        - port: { get_resource: port2 }
+      key_name: { get_resource: heat_key }
+      tags: { get_param: server_tags }
+      user_data_format: RAW
+      user_data: |
+        #!/bin/sh
+        echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+        echo "deb https://download.ceph.com/debian-pacific/ bionic main" > /etc/apt/sources.list.d/ceph.list
+        wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
+        apt update -y; apt install -y ceph-fuse
+  floating_ip2:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: public
+    depends_on: workloadlock_interface
+  floating_ip_association2:
+    type: OS::Neutron::FloatingIPAssociation
+    properties:
+      floatingip_id: { get_resource: floating_ip2 }
+      port_id: { get_resource: port2 }
+
+outputs:
+  instance1_name:
+    description: instance1 name
+    value: { get_attr: [ instance1, name ] }
+  instance1_ip:
+    description: instance1 ip
+    value:
+      get_attr:
+        - instance1
+        - addresses
+        - { get_attr: [ workloadlock_net, name ] }
+        - 0
+        - addr
+  instance2_name:
+    description: instance2 name
+    value: { get_attr: [ instance2, name ] }
+  instance2_ip:
+    description: instance2 ip
+    value:
+      get_attr:
+        - instance2
+        - addresses
+        - { get_attr: [ workloadlock_net, name ] }
+        - 0
+        - addr

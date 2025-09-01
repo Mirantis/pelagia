@@ -1,0 +1,13 @@
+#!/bin/sh
+set -x
+
+USER_HOME=/home/${USER_NAME}
+
+groupadd -g ${USER_GID} ${USER_NAME}
+useradd -m -d ${USER_HOME} -g ${USER_GID} -u ${USER_UID} -s /sbin/nologin ${USER_NAME}
+
+chmod +x /usr/local/bin/${CONTROLLER_NAME}
+chown ${USER_UID}:${USER_GID} /usr/local/bin/${CONTROLLER_NAME}
+
+# no need for this script to remain in the image after running
+rm "$0"

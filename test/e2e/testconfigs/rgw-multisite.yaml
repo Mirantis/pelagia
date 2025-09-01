@@ -1,0 +1,10 @@
+testSettings:
+  namespace: ${TEST_NAMESPACE}
+  keepAfter: true
+  caseSettings:
+  - name: TestMultisiteRgw
+    config:
+      backupClusterKubeconfig: "/tmp/kube.yml"
+      backupClusterNamespace: ""
+testCases:
+- TestMultisiteRgw

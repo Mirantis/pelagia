@@ -1,0 +1,66 @@
+testSettings:
+  namespace: ${TEST_NAMESPACE}
+  caseSettings:
+    - name: TestCreateServerWithVolume
+      config:
+        serverName: test-server-e2e
+        volumeName: test-volume-e2e
+        keypairName: test-kp-e2e
+        flavor: m1.medium
+        image: Ubuntu-18.04
+        network: public
+        size: "1"
+        privKeySecretName: test-private-key
+    - name: TestDeleteServerWithVolume
+      config:
+        serverName: test-server-e2e
+        volumeName: test-volume-e2e
+        keypairName: test-kp-e2e
+        privKeySecretName: test-private-key
+    - name: TestCreateServerFromServerImage
+      config:
+        serverFrom: test-server-e2e
+        keypairFrom: test-kp-e2e
+        flavor: m1.medium
+        network: public
+    - name: TestRebootNovaServer
+      config:
+        serverName: test-server-e2e
+        rebootMode: ""
+    - name: TestSwiftCreateContainerUploadObject
+      config:
+        containerName: test-container-e2e
+        objectName: test-object-e2e
+        testString: "e2e test swift container object"
+    - name: TestSwiftDownloadObjectDeleteContainer
+      config:
+        containerName: test-container-e2e
+        objectName: test-object-e2e
+        testString: "e2e test swift container object"
+    - name: TestServerVolumeWriteOp
+      config:
+        serverName: test-server-e2e
+        privKeySecretName: test-private-key
+        testString: "test string for attached volume"
+    - name: TestServerVolumeReadOp
+      config:
+        serverName: test-server-e2e
+        privKeySecretName: test-private-key
+        testString: "test string for attached volume"
+    - name: TestMigrateServerConfirm
+      config:
+        serverName: test-server-e2e
+    - name: TestMigrateServerRevert
+      config:
+        serverName: test-server-e2e
+testCases:
+  - TestCreateServerWithVolume
+  - TestServerVolumeWriteOp
+  - TestServerVolumeReadOp
+  - TestCreateServerFromServerImage
+  - TestRebootNovaServer
+  - TestMigrateServerConfirm
+  - TestMigrateServerRevert
+  - TestDeleteServerWithVolume
+  - TestSwiftCreateContainerUploadObject
+  - TestSwiftDownloadObjectDeleteContainer
