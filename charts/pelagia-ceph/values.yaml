@@ -79,7 +79,6 @@ controllers:
 cephRelease: ""
 images:
   pelagia:
-    # TODO: fix later
     repository: pelagia/pelagia
     tag: v1.0.0
     # fullName is mostly used for test purposes
