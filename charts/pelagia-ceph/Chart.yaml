@@ -1,8 +1,8 @@
 apiVersion: v2
-appVersion: "v1.0.0"
+appVersion: "v1.0.11"
 description: A Helm chart to deploy Ceph Pelagia resources
 name: pelagia-ceph
-version: 1.0.0
+version: 1.0.1
 dependencies:
 - name: snapshot-controller
   version: 1.0.0
