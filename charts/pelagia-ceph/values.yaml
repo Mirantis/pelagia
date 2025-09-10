@@ -95,50 +95,50 @@ images:
     repository: pelagia/ceph
     tag:
       reef: v18.2.7-4.cve
-      squid: &latestImageCeph v19.2.3-4.cve
+      squid: &latestImageCeph v19.2.3-5.release
       latest: *latestImageCeph
   csi:
     ceph:
       repository: pelagia/cephcsi
       tag:
-        reef: v3.14.0-4.cve
-        squid: &latestImageCephCSI v3.14.0-4.cve
+        reef: v3.14.0-5.release
+        squid: &latestImageCephCSI v3.14.0-5.release
         latest: *latestImageCephCSI
     registrar:
       repository: pelagia/cephcsi-registrar
       tag:
-        reef: v2.13.0-2.cve
-        squid: &latestImageRegistar v2.13.0-2.cve
+        reef: v2.13.0-3.release
+        squid: &latestImageRegistar v2.13.0-3.release
         latest: *latestImageRegistar
     provisioner:
       repository: pelagia/cephcsi-provisioner
       tag:
-        reef: v5.2.0-2.cve
-        squid: &latestImageProvisioner v5.2.0-2.cve
+        reef: v5.2.0-3.release
+        squid: &latestImageProvisioner v5.2.0-3.release
         latest: *latestImageProvisioner
     snapshotter:
       repository: pelagia/cephcsi-snapshotter
       tag:
-        reef: v8.2.0-2.cve
-        squid: &latestImageSnapshotter v8.2.0-2.cve
+        reef: v8.2.0-3.release
+        squid: &latestImageSnapshotter v8.2.0-3.release
         latest: *latestImageSnapshotter
     attacher:
       repository: pelagia/cephcsi-attacher
       tag:
-        reef: v4.8.0-2.cve
-        squid: &latestImageAttacher v4.8.0-2.cve
+        reef: v4.8.0-3.release
+        squid: &latestImageAttacher v4.8.0-3.release
         latest: *latestImageAttacher
     resizer:
       repository: pelagia/cephcsi-resizer
       tag:
-        reef: v1.13.2-2.cve
-        squid: &latestImageResizer v1.13.2-2.cve
+        reef: v1.13.2-3.release
+        squid: &latestImageResizer v1.13.2-3.release
         latest: *latestImageResizer
   snapshotController:
     repository: pelagia/snapshot-controller
     tag:
-      reef: v8.2.0-2.cve
-      squid: &latestImageSnapshotcontroller v8.2.0-2.cve
+      reef: v8.2.0-3.release
+      squid: &latestImageSnapshotcontroller v8.2.0-3.release
       latest: *latestImageSnapshotcontroller
 
 rookConfig:
