@@ -26,7 +26,7 @@ import (
 )
 
 func (c *cephDeploymentConfig) ensureNodesAnnotation() (bool, error) {
-	c.log.Info().Msg("ensure nodes annotations with rook keys")
+	c.log.Debug().Msg("ensure nodes annotations with rook keys")
 	errCollector := 0
 	changedNodes := false
 
@@ -59,7 +59,7 @@ func (c *cephDeploymentConfig) ensureNodesAnnotation() (bool, error) {
 }
 
 func (c *cephDeploymentConfig) ensureLabelNodes() (bool, error) {
-	c.log.Info().Msg("ensure nodes labels (ceph roles) and topology")
+	c.log.Debug().Msg("ensure nodes labels (ceph roles) and topology")
 	nodes, err := c.api.Kubeclientset.CoreV1().Nodes().List(c.context, metav1.ListOptions{})
 	if err != nil {
 		return false, errors.Wrap(err, "failed to list nodes")

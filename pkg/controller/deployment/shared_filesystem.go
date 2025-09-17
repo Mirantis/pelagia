@@ -32,7 +32,7 @@ import (
 )
 
 func (c *cephDeploymentConfig) ensureSharedFilesystem() (bool, error) {
-	c.log.Info().Msg("ensure Ceph shared filesystems")
+	c.log.Debug().Msg("ensure Ceph shared filesystems")
 	facedErrors := make([]error, 0)
 	changed := false
 	if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil {
@@ -58,7 +58,7 @@ func (c *cephDeploymentConfig) ensureSharedFilesystem() (bool, error) {
 }
 
 func (c *cephDeploymentConfig) ensureCephFS() (bool, error) {
-	c.log.Info().Msg("ensure CephFS")
+	c.log.Debug().Msg("ensure CephFS")
 	cephFsList, err := c.api.Rookclientset.CephV1().CephFilesystems(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
 	if err != nil {
 		return false, errors.Wrap(err, "failed to get CephFS list")

@@ -86,7 +86,7 @@ func generatePool(pool cephlcmv1alpha1.CephPool, namespace string) (newpool *cep
 }
 
 func (c *cephDeploymentConfig) ensurePools() (bool, error) {
-	c.log.Info().Msg("ensure ceph block pools")
+	c.log.Debug().Msg("ensure ceph block pools")
 	// List CephBlockPools
 	pools, err := c.api.Rookclientset.CephV1().CephBlockPools(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
 	if err != nil {

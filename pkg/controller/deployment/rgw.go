@@ -37,7 +37,7 @@ import (
 )
 
 func (c *cephDeploymentConfig) ensureRgw() (bool, error) {
-	c.log.Info().Msg("ensure rgw")
+	c.log.Debug().Msg("ensure rgw")
 	// Ensure that we have rgw designed by spec
 	err := c.ensureRgwConsistence()
 	if err != nil {
@@ -45,14 +45,14 @@ func (c *cephDeploymentConfig) ensureRgw() (bool, error) {
 	}
 
 	// Skip rgw reconcile if rgw is not ready
-	c.log.Info().Msg("check rgw object store status")
+	c.log.Debug().Msg("check rgw object store status")
 	rgwStoreExists, err := c.statusRgw()
 	if err != nil {
 		return false, errors.Wrap(err, "failed to ensure rgw")
 	}
 
 	rgwConfigurationChanged := false
-	c.log.Info().Msg("ensure rgw ssl cert")
+	c.log.Debug().Msg("ensure rgw ssl cert")
 	changed, err := c.ensureRgwInternalSslCert()
 	if err != nil {
 		return false, errors.Wrap(err, "failed to ensure rgw ssl cert")
@@ -60,7 +60,7 @@ func (c *cephDeploymentConfig) ensureRgw() (bool, error) {
 	rgwConfigurationChanged = rgwConfigurationChanged || changed
 
 	// Ensure rgw object store
-	c.log.Info().Msg("ensure rgw object store")
+	c.log.Debug().Msg("ensure rgw object store")
 	changed, err = c.ensureRgwObject()
 	if err != nil {
 		return false, errors.Wrap(err, "failed to ensure rgw object store")
@@ -73,7 +73,7 @@ func (c *cephDeploymentConfig) ensureRgw() (bool, error) {
 		// - version below octopus, that means migration is in progress
 		// - multisite case and hostnames should be updated manually with script
 		if c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Zone == nil {
-			c.log.Info().Msg("ensure rgw zonegroup hostnames")
+			c.log.Debug().Msg("ensure rgw zonegroup hostnames")
 			changed, err = c.ensureDefaultZoneGroupHostnames()
 			if err != nil {
 				err = errors.Wrap(err, "failed to ensure rgw zonegroup hostnames")
@@ -85,7 +85,7 @@ func (c *cephDeploymentConfig) ensureRgw() (bool, error) {
 	}
 
 	// Create rgw storageClass if necessary
-	c.log.Info().Msg("ensure rgw storage class")
+	c.log.Debug().Msg("ensure rgw storage class")
 	changed, err = c.ensureRgwStorageClass()
 	if err != nil {
 		c.log.Error().Err(err).Msg("failed to ensure rgw storage class")
@@ -94,7 +94,7 @@ func (c *cephDeploymentConfig) ensureRgw() (bool, error) {
 	rgwConfigurationChanged = rgwConfigurationChanged || changed
 
 	// Create/delete rgw buckets
-	c.log.Info().Msg("ensure rgw buckets")
+	c.log.Debug().Msg("ensure rgw buckets")
 	changed, err = c.ensureRgwBuckets()
 	if err != nil {
 		c.log.Error().Err(err).Msg("failed to ensure rgw buckets")
@@ -119,7 +119,7 @@ func (c *cephDeploymentConfig) ensureRgw() (bool, error) {
 		c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.ObjectUsers = append(serviceUsers, c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.ObjectUsers...)
 	}
 	// Create/delete rgw users
-	c.log.Info().Msg("ensure rgw users")
+	c.log.Debug().Msg("ensure rgw users")
 	changed, err = c.ensureRgwUsers()
 	if err != nil {
 		c.log.Error().Err(err).Msg("failed to ensure rgw users")
@@ -129,7 +129,7 @@ func (c *cephDeploymentConfig) ensureRgw() (bool, error) {
 
 	if !c.cdConfig.cephDpl.Spec.External {
 		// Ensure rgw external service (for openstack keystone integration)
-		c.log.Info().Msg("ensure rgw external service")
+		c.log.Debug().Msg("ensure rgw external service")
 		changed, err = c.ensureExternalService()
 		if err != nil {
 			c.log.Error().Err(err).Msg("failed to ensure rgw external service")
@@ -322,7 +322,7 @@ func (c *cephDeploymentConfig) ensureRgwObject() (bool, error) {
 
 func (c *cephDeploymentConfig) ensureDefaultZoneGroupHostnames() (bool, error) {
 	if c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.SkipAutoZoneGroupHostnameUpdate {
-		c.log.Info().Msg("skipping zonegroup hostname auto configuration, since marked to skip in spec")
+		c.log.Debug().Msg("skipping zonegroup hostname auto configuration, since marked to skip in spec")
 		return false, nil
 	}
 	cmd := fmt.Sprintf("radosgw-admin zonegroup get --rgw-zonegroup=%s --format json", c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name)

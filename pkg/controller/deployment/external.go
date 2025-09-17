@@ -32,7 +32,7 @@ import (
 )
 
 func (c *cephDeploymentConfig) addExternalResources(ownerRefs []metav1.OwnerReference) (bool, error) {
-	c.log.Info().Msg("configuring requiring resources for external ceph configuration")
+	c.log.Debug().Msg("configuring requiring resources for external ceph configuration")
 	stringSecret, stringErr := c.api.Kubeclientset.CoreV1().Secrets(c.cdConfig.cephDpl.Namespace).Get(c.context, externalStringSecretName, metav1.GetOptions{})
 	if stringErr != nil {
 		return false, errors.Wrapf(stringErr, "failed to get secret '%s/%s' with external connection info", c.cdConfig.cephDpl.Namespace, externalStringSecretName)

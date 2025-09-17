@@ -117,7 +117,7 @@ func generateStorageClassCephFSBased(clusterID, cephFsName, dataPool, namespace 
 }
 
 func (c *cephDeploymentConfig) ensureStorageClasses() (bool, error) {
-	c.log.Info().Msg("ensure storage classes")
+	c.log.Debug().Msg("ensure storage classes")
 	storageClassesList, err := c.api.Kubeclientset.StorageV1().StorageClasses().List(c.context, metav1.ListOptions{})
 	if err != nil {
 		return false, errors.Wrap(err, "failed to get storage classes list")

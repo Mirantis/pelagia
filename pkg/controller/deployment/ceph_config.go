@@ -139,7 +139,7 @@ var passwordKeys = []string{"rgw_keystone_admin_password", "rgw_keystone_barbica
 var runtimeKeys = passwordKeys
 
 func (c *cephDeploymentConfig) ensureCephConfig(cephClusterPresent bool) (bool, error) {
-	c.log.Info().Msgf("ensure ceph config for cluster %s/%s", c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Name)
+	c.log.Debug().Msgf("ensure ceph config for cluster %s/%s", c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Name)
 	cephOverrideConfig, runtimeConfig, configHashes, err := c.buildCephConfig()
 	if err != nil {
 		c.log.Error().Err(err).Msg("failed to build ceph config")

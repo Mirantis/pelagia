@@ -35,7 +35,7 @@ const (
 // CephUpgradeAllowed stands for upgrade order if Ceph is integrated with OpenStack delivered with
 // Mirantis/rockoon project
 func (c *cephDeploymentConfig) cephUpgradeAllowed() (bool, error) {
-	c.log.Info().Msg("checking if Ceph version can be updated for CephCluster")
+	c.log.Debug().Msg("checking if Ceph version can be updated for CephCluster")
 	clusterRelease, err := lcmcommon.LookupEnvVar(controllerClusterReleaseVar)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to get current cluster release")

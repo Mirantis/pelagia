@@ -35,7 +35,7 @@ import (
 )
 
 func (c *cephDeploymentConfig) ensureCluster() (bool, error) {
-	c.log.Info().Msg("ensure ceph cluster")
+	c.log.Debug().Msg("ensure ceph cluster")
 	var err error
 	changed := false
 	// Get current cephCluster
@@ -121,8 +121,8 @@ func (c *cephDeploymentConfig) ensureCluster() (bool, error) {
 	}
 
 	if !reflect.DeepEqual(cephCluster.Spec, generatedClusterSpec) {
-		lcmcommon.ShowObjectDiff(*c.log, cephCluster.Spec, generatedClusterSpec)
 		c.log.Info().Msgf("updating cephcluster %s/%s", c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Name)
+		lcmcommon.ShowObjectDiff(*c.log, cephCluster.Spec, generatedClusterSpec)
 		cephCluster.Spec = generatedClusterSpec
 		_, err := c.api.Rookclientset.CephV1().CephClusters(c.lcmConfig.RookNamespace).Update(c.context, cephCluster, metav1.UpdateOptions{})
 		if err != nil {

@@ -175,7 +175,7 @@ func (c *cephDeploymentConfig) ensureCephClusterVersion() error {
 }
 
 func (c *cephDeploymentConfig) ensureRookImage() error {
-	c.log.Info().Msg("ensure rook image version is consistent with the current ceph version")
+	c.log.Debug().Msg("ensure rook image version is consistent with the current ceph version")
 	operator, err := c.api.Kubeclientset.AppsV1().Deployments(c.lcmConfig.RookNamespace).Get(c.context, lcmcommon.RookCephOperatorName, metav1.GetOptions{})
 	if err != nil {
 		return errors.Wrapf(err, "failed to get %s/%s deployment", c.lcmConfig.RookNamespace, lcmcommon.RookCephOperatorName)

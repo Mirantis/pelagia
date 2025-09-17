@@ -26,7 +26,7 @@ func (c *cephDeploymentConfig) ensureObjectStorage() (bool, error) {
 	errCollector := make([]error, 0)
 	// Delete all object storage stuff if there is no objectstore section
 	if c.cdConfig.cephDpl.Spec.ObjectStorage == nil {
-		c.log.Info().Msg("no objectStorage section, skip rgw/multisite ensure and cleanup all object storage stuff if present")
+		c.log.Debug().Msg("no objectStorage section, skip rgw/multisite ensure and cleanup all object storage stuff if present")
 		removed, err := c.deleteObjectStorage()
 		if err != nil {
 			c.log.Error().Err(err).Msg("error deleting object storage object")
@@ -34,11 +34,11 @@ func (c *cephDeploymentConfig) ensureObjectStorage() (bool, error) {
 		}
 		return !removed, nil
 	}
-	c.log.Info().Msg("ensure object storage")
+	c.log.Debug().Msg("ensure object storage")
 	objectStorageChanged := false
 	if !c.cdConfig.cephDpl.Spec.External {
 		if c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite == nil {
-			c.log.Info().Msg("no object storage multisite section, skip multisite ensure and cleanup all multisite stuff")
+			c.log.Debug().Msg("no object storage multisite section, skip multisite ensure and cleanup all multisite stuff")
 			removed, err := c.deleteMultiSite()
 			if err != nil {
 				msg := fmt.Sprintf("failed to cleanup object storage multisite: %v", err)

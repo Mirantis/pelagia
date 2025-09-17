@@ -33,14 +33,14 @@ import (
 func (c *cephDeploymentConfig) ensureRBDMirroring() (bool, error) {
 	// remove CephRBDMirror while it isn't defined in spec
 	if c.cdConfig.cephDpl.Spec.RBDMirror == nil {
-		c.log.Info().Msg("no Ceph RBD Mirroring section specified, ensure resource is not exist")
+		c.log.Debug().Msg("no Ceph RBD Mirroring section specified, ensure resource is not exist")
 		removed, err := c.deleteRBDMirroring()
 		if err != nil {
 			return false, errors.Wrap(err, "failed to cleanup CephRBDMirrors")
 		}
 		return !removed, nil
 	}
-	c.log.Info().Msg("ensure Ceph RBD Mirroring")
+	c.log.Debug().Msg("ensure Ceph RBD Mirroring")
 
 	// check if no additional CephRBDMirror exist
 	mirrors, err := c.api.Rookclientset.CephV1().CephRBDMirrors(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
@@ -119,7 +119,7 @@ func (c *cephDeploymentConfig) deleteRBDMirroring() (bool, error) {
 }
 
 func (c *cephDeploymentConfig) ensureRBDSecrets() (bool, error) {
-	c.log.Info().Msg("ensuring RBD secrets")
+	c.log.Debug().Msg("ensuring RBD secrets")
 
 	if len(c.cdConfig.cephDpl.Spec.RBDMirror.Peers) == 0 {
 		removed, err := c.deleteRBDSecrets()
