@@ -134,12 +134,6 @@ images:
         reef: v1.13.2-3.release
         squid: &latestImageResizer v1.13.2-3.release
         latest: *latestImageResizer
-  snapshotController:
-    repository: pelagia/snapshot-controller
-    tag:
-      reef: v8.2.0-3.release
-      squid: &latestImageSnapshotcontroller v8.2.0-3.release
-      latest: *latestImageSnapshotcontroller
 
 rookConfig:
   configureRook: true
