@@ -1,6 +1,6 @@
 FROM golang:1.23.6
 
-# rebuild=2
+# rebuild=0
 ARG E2E_PATH=/root/pelagia-e2e
 ARG TESTCONFIG_PATH=$E2E_PATH/testconfig
 

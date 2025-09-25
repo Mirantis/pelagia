@@ -1,6 +1,6 @@
 FROM alpine:3.20.1
 
-#rebuild=1
+#rebuild=0
 ENV USER_UID=1001 \
     USER_GID=1001 \
     USER_NAME=pelagia-ceph \
