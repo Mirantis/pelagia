@@ -4,8 +4,6 @@ global:
   namespace: ""
 
 productSetup: "mke"
-# TODO: remove later
-mkeClusterAdminRole: true
 cephDeployment:
   enabled: true
   netpolEnabled: true

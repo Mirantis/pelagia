@@ -23,6 +23,11 @@ function get_version_for {
     version=""
     cur_commit="$(_git rev-parse --short=8 HEAD | cut -b 1-8)"
     cur_branch="$(_git branch --show-current)"
+    # (degorenko): set branch if we are on gerrit merge event
+    # keep for backward compatibility for CI
+    if [[ "${GERRIT_BRANCH}" != "" && "${GERRIT_EVENT_TYPE}" == "change-merged" ]]; then
+        cur_branch=${GERRIT_BRANCH}
+    fi
     # if we are on release branch - release versions should be prepared
     if [[ "${cur_branch}" =~ ^release- ]]; then
         last_tag="$(_git describe --abbrev=0 --tags)"
@@ -44,9 +49,9 @@ function get_version_for {
             if [[ -f ${chart_file} ]]; then
                 current_semantic_version=$(grep -E "^version:" ${chart_file} | cut -d: -f2 | tr -d ' ')
                 if [[ "${cur_branch}" != "" ]]; then
-                    version="${current_semantic_version}-${cur_branch//\//-}+${cur_commit}"
+                    version="${current_semantic_version}-${cur_branch//\//-}-${cur_commit}"
                 else
-                    version="${current_semantic_version}-dev+${cur_commit}"
+                    version="${current_semantic_version}-dev-${cur_commit}"
                 fi
             else
                 echo "file '$(pwd)/${chart_file}' is not found"

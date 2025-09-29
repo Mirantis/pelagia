@@ -34,7 +34,6 @@ subjects:
     namespace: {{ template "release.namespace" . }}
   {{- end }}
 ---
-  {{- if .Values.mkeClusterAdminRole }}
 # required for MKE https://mirantis.jira.com/browse/MKE-7825
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -50,5 +49,4 @@ subjects:
 - kind: ServiceAccount
   name: generic-garbage-collector
   namespace: kube-system
-  {{- end }}
 {{- end }}
