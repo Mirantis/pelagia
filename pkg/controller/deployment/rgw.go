@@ -341,7 +341,7 @@ func (c *cephDeploymentConfig) ensureDefaultZoneGroupHostnames() (bool, error) {
 			publicHostnameToUse = ingressTLS.Hostname
 		}
 	} else {
-		if lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) {
+		if lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) && c.lcmConfig.DeployParams.OpenstackCephSharedNamespace != "" {
 			openstackSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
 			if err != nil {
 				if !apierrors.IsNotFound(err) {
@@ -898,7 +898,7 @@ func (c *cephDeploymentConfig) ensureRgwInternalSslCert() (bool, error) {
 			}
 		}
 	}
-	if publicCacert == "" && lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) {
+	if publicCacert == "" && lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) && c.lcmConfig.DeployParams.OpenstackCephSharedNamespace != "" {
 		openstackSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
 		if err != nil {
 			if !apierrors.IsNotFound(err) {

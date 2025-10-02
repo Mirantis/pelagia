@@ -748,7 +748,7 @@ func TestBuildRookConfig(t *testing.T) {
 		},
 		{
 			name:               "rook rgw openstack no barbican config - no override from spec",
-			cephDpl:            &unitinputs.CephDeployObjectStorageCeph,
+			cephDpl:            &unitinputs.CephDeployMoskWithoutIngress,
 			openstackSecret:    &unitinputs.OpenstackRgwCredsSecretNoBarbican,
 			expectedRookConfig: rookConfigRgwOpenstackNoBarbicanNoOverride,
 			expectedRuntimeConfig: map[string]string{
@@ -764,7 +764,7 @@ func TestBuildRookConfig(t *testing.T) {
 		},
 		{
 			name:               "rook rgw openstack no barbican config - overriden from spec",
-			cephDpl:            &unitinputs.CephDeployObjectStorageRookConfigNoBarbicanCeph,
+			cephDpl:            &unitinputs.CephDeployMoskWithoutIngressRookConfigOverride,
 			openstackSecret:    &unitinputs.OpenstackRgwCredsSecretNoBarbican,
 			expectedRookConfig: rookConfigRgwOpenstackNoBarbicanOverride,
 			expectedRuntimeConfig: map[string]string{
@@ -781,7 +781,7 @@ func TestBuildRookConfig(t *testing.T) {
 		{
 			name: "rook rgw openstack no barbican config - overriden rgw_pool_thread_size < 256",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployObjectStorageRookConfigNoBarbicanCeph.DeepCopy()
+				mc := unitinputs.CephDeployMoskWithoutIngressRookConfigOverride.DeepCopy()
 				mc.Spec.RookConfig["rgw_thread_pool_size"] = "100"
 				return mc
 			}(),
@@ -801,7 +801,7 @@ func TestBuildRookConfig(t *testing.T) {
 		{
 			name: "rook rgw openstack no barbican config - overriden rgw_pool_thread_size > 256",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployObjectStorageRookConfigNoBarbicanCeph.DeepCopy()
+				mc := unitinputs.CephDeployMoskWithoutIngressRookConfigOverride.DeepCopy()
 				mc.Spec.RookConfig["rgw_thread_pool_size"] = "512"
 				return mc
 			}(),
@@ -821,7 +821,7 @@ func TestBuildRookConfig(t *testing.T) {
 		{
 			name: "rook rgw openstack no barbican config - overriden rgw_pool_thread_size invalid format",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployObjectStorageRookConfigNoBarbicanCeph.DeepCopy()
+				mc := unitinputs.CephDeployMoskWithoutIngressRookConfigOverride.DeepCopy()
 				mc.Spec.RookConfig["rgw_thread_pool_size"] = "stub"
 				return mc
 			}(),
@@ -840,7 +840,7 @@ func TestBuildRookConfig(t *testing.T) {
 		},
 		{
 			name:    "rook rgw openstack barbican config - no override from spec",
-			cephDpl: &unitinputs.CephDeployObjectStorageCeph,
+			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
 			openstackSecret: func() *v1.Secret {
 				newSc := unitinputs.OpenstackRgwCredsSecret.DeepCopy()
 				newSc.Data["password"] = []byte("old-auth-password")
@@ -862,7 +862,7 @@ func TestBuildRookConfig(t *testing.T) {
 		{
 			name: "rook rgw ingress openstack barbican config - overriden from spec",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cephDpl := unitinputs.CephDeployObjectStorageRookConfigCeph.DeepCopy()
+				cephDpl := unitinputs.CephDeployMoskWithoutIngressRookConfigOverrideBarbican.DeepCopy()
 				cephDpl.Spec.IngressConfig = unitinputs.CephIngressConfig.DeepCopy()
 				cephDpl.Spec.RookConfig["osd_max_backfills"] = "64"
 				return cephDpl
@@ -1035,7 +1035,7 @@ func TestEnsureCephConfig(t *testing.T) {
 	}{
 		{
 			name:          "failed to build ceph and runtime config",
-			cephDpl:       &unitinputs.CephDeployObjectStorageCeph,
+			cephDpl:       &unitinputs.CephDeployMosk,
 			apiErrors:     map[string]error{"get-secrets-openstack-rgw-creds": errors.New("failed to get openstack rgw secret")},
 			expectedError: "failed to prepare ceph config map: failed to get openstack rgw secret",
 			expectedTimestamps: updateTimestamps{
@@ -1221,7 +1221,7 @@ func TestEnsureCephConfig(t *testing.T) {
 		},
 		{
 			name:    "config map and runtime updated - rgw params has been added",
-			cephDpl: &unitinputs.CephDeployObjectStorageCeph,
+			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
 			rookCm: func() *v1.ConfigMap {
 				newCM := unitinputs.BaseRookConfigOverride.DeepCopy()
 				newCM.Annotations[cephConfigMapUpdateTimestampLabel] = "time-8"
@@ -1267,7 +1267,7 @@ func TestEnsureCephConfig(t *testing.T) {
 		},
 		{
 			name:    "no timestamps var set and only passwords is updated",
-			cephDpl: &unitinputs.CephDeployObjectStorageCeph,
+			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
 			rookCm: func() *v1.ConfigMap {
 				newCM := unitinputs.BaseRookConfigOverride.DeepCopy()
 				newCM.Data["config"] = rookConfigRgwOpenstackNoBarbicanNoOverride

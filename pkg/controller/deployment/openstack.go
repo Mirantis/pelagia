@@ -43,6 +43,10 @@ type openstackSecretData struct {
 }
 
 func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
+	if c.lcmConfig.DeployParams.OpenstackCephSharedNamespace == "" {
+		c.log.Debug().Msg("shared openstack-ceph namespace is not specified, skipping Openstack secret ensure")
+		return false, nil
+	}
 	if c.cdConfig.cephDpl.Spec.ExtraOpts != nil && c.cdConfig.cephDpl.Spec.ExtraOpts.DisableOsKeys {
 		c.log.Debug().Msg("openstack secret ensure disabled, skipping it")
 		return false, nil

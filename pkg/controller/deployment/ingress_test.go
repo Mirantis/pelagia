@@ -1049,6 +1049,15 @@ func TestEnsureIngressProxy(t *testing.T) {
 			},
 			stateChanged: true,
 		},
+		{
+			name:    "ensure ingress - no ingress found, default settings not set, skipped",
+			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
+			inputResources: map[string]runtime.Object{
+				"ingresses": &networkingv1.IngressList{},
+				"secrets":   &v1.SecretList{},
+			},
+			lcmConfigParams: map[string]string{"DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE": ""},
+		},
 	}
 	oldFunc := lcmcommon.GetCurrentUnixTimeString
 	for idx, test := range tests {
