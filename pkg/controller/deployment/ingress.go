@@ -92,6 +92,7 @@ func (c *cephDeploymentConfig) ensureIngressProxy() (bool, error) {
 	if ingressConfig.TLSConfig == nil || (ingressConfig.TLSConfig.TLSCerts == nil && ingressConfig.TLSConfig.TLSSecretRefName == "") {
 		if c.lcmConfig.DeployParams.OpenstackCephSharedNamespace == "" {
 			c.log.Error().Msgf("ingress certs are not set, openstack-ceph shared namespace with openstack certs is not set, skipping ingress deploy ")
+			return false, nil
 		}
 		osSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
 		if err != nil {
