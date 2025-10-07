@@ -145,7 +145,7 @@ func TestRgwAccessPublicDomainRockoon(t *testing.T) {
 	t.Log("Test successfully passed")
 }
 
-func TestRgwAccessPublicDomainCustomMKE(t *testing.T) {
+func TestRgwAccessPublicDomainCustom(t *testing.T) {
 	t.Log("e2e test: verify ingress rgw endpoint with custom public domain")
 	defer f.SetupTeardown(t)()
 
@@ -156,6 +156,21 @@ func TestRgwAccessPublicDomainCustomMKE(t *testing.T) {
 		t.Skip("There is no CephObjectStore created in current Ceph Cluster, skip test")
 	} else if len(rgws) > 1 {
 		t.Fatal("There are several CephObjectStore created in current Ceph Cluster, which is invalid")
+	}
+
+	f.Step(t, "Verify there is required ingress class present")
+	testConfig := f.GetConfigForTestCase(t)
+	ingressClassName, namePresent := testConfig["ingressClass"]
+	if namePresent {
+		ingressClass, err := f.TF.ManagedCluster.GetIngressClass(ingressClassName)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if ingressClass == nil {
+			t.Fatalf("IngressClass '%s' is not found for test", ingressClassName)
+		}
+	} else {
+		t.Skip("IngressClass is not specified for test ('ingressClass' test option), skip test")
 	}
 
 	f.Step(t, "Create public domain and generate certificates for it")
@@ -178,7 +193,7 @@ func TestRgwAccessPublicDomainCustomMKE(t *testing.T) {
 			"nginx.ingress.kubernetes.io/rewrite-target":  "/",
 			"nginx.ingress.kubernetes.io/upstream-vhost":  fqdn,
 		},
-		ControllerClassName: "nginx-default",
+		ControllerClassName: ingressClassName,
 		TLSConfig: &cephlcmv1alpha1.CephDeploymentIngressTLSConfig{
 			TLSCerts: &cephlcmv1alpha1.CephDeploymentCert{
 				Cacert:  caCert,
