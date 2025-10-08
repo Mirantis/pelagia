@@ -123,6 +123,9 @@ rules:
   - apiGroups: [""]
     resources: ["pods/exec"]
     verbs: ["create", "get"]
+  - apiGroups: [apps]
+    resources: [deployments/scale] # required for rook-operator scaling on maintenance and task processing
+    verbs: [update]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
