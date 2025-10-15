@@ -606,6 +606,7 @@ NewPortLoop:
 		externalSvc.Spec.Ports = append(externalSvc.Spec.Ports, newPort)
 		updateRequired = true
 	}
+	updateRequired = updateRequired || !reflect.DeepEqual(externalSvc.Labels, externalSvcResource.Labels)
 	if updateRequired {
 		lcmcommon.ShowObjectDiff(*c.log, externalSvcCur, externalSvc)
 		c.log.Info().Msgf("update rgw external service %s", externalSvcName)
