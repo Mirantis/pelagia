@@ -428,7 +428,7 @@ func TestVerifyCephVersions(t *testing.T) {
 			}
 
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephclusters"}, test.inputResources, nil)
-			faketestclients.FakeReaction(c.api.Kubeclientset.AppsV1(), "list", []string{"deployments"}, test.inputResources, nil)
+			faketestclients.FakeReaction(c.api.Kubeclientset.AppsV1(), "get", []string{"deployments"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"configmaps"}, test.inputResources, nil)
 
 			cephVersion, cephImage, cephStatusVersion, err := c.verifyCephVersions()

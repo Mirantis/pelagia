@@ -25,6 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
 	faketestclients "github.com/Mirantis/pelagia/test/unit/clients"
 	unitinputs "github.com/Mirantis/pelagia/test/unit/inputs"
 )
@@ -61,7 +62,7 @@ func TestCephDeploymentNodesValidate(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "list", []string{"nodes"}, test.inputResources, nil)
 
 			if _, ok := test.inputResources["nodes"]; ok {
-				expanded, err := c.buildExpandedNodeList()
+				expanded, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
 				assert.Nil(t, err)
 				c.cdConfig.nodesListExpanded = expanded
 			}
@@ -184,7 +185,7 @@ func TestCephSharedFilesystemValidate(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
-			expanded, err := c.buildExpandedNodeList()
+			expanded, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
 			assert.Nil(t, err)
 
 			errors := cephSharedFilesystemValidate(test.cephDpl, "rook-ceph", expanded)
@@ -415,7 +416,7 @@ func TestValidateObjectStorage(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
-			expanded, err := c.buildExpandedNodeList()
+			expanded, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
 			assert.Nil(t, err)
 
 			err = validateObjectStorage(test.cephDpl, expanded)
@@ -749,7 +750,7 @@ func TestValidate(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "list", []string{"nodes"}, map[string]runtime.Object{"nodes": test.nodeList}, nil)
 
-			expanded, err := c.buildExpandedNodeList()
+			expanded, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
 			assert.Nil(t, err)
 			c.cdConfig.nodesListExpanded = expanded
 

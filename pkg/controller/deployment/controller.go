@@ -188,7 +188,7 @@ func (r *ReconcileCephDeployment) Reconcile(ctx context.Context, request reconci
 		return reconcile.Result{RequeueAfter: requeueAfterInterval}, nil
 	}
 
-	expandedNodes, err := cephDplConfig.buildExpandedNodeList()
+	expandedNodes, err := lcmcommon.GetExpandedCephDeploymentNodeList(ctx, r.Client, cephDpl.Spec)
 	if err != nil {
 		cephDpl.Status.Phase = cephlcmv1alpha1.PhaseFailed
 		cephDpl.Status.Message = fmt.Sprintf("failed to expand node list for CephDeployment %s/%s", cephDpl.Namespace, cephDpl.Name)

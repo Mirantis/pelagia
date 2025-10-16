@@ -100,7 +100,7 @@ func CheckExpectedCephVersion(expectedCephImage, expectedCephRelease string) (*C
 		expectedCephVersion = LatestRelease
 	} else {
 		for _, version := range AvailableCephVersions {
-			if expectedCephRelease == strings.ToLower(version.Name) {
+			if strings.EqualFold(expectedCephRelease, version.Name) {
 				expectedCephVersion = version
 				break
 			}

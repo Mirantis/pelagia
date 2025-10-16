@@ -56,7 +56,7 @@ func (c *cephDeploymentHealthConfig) getCephDaemonsStatus() (map[string]lcmv1alp
 		c.log.Debug().Msgf("skipping ceph daemons state check, set '%s' to skip through lcm config settings", cephDaemonsCheck)
 		return nil, nil
 	}
-	var cephStatus cephStatus
+	var cephStatus lcmcommon.CephStatus
 	cmd := "ceph status -f json"
 	err := lcmcommon.RunAndParseCephToolboxCLI(c.context, c.api.Kubeclientset, c.api.Config, c.lcmConfig.RookNamespace, cmd, &cephStatus)
 	if err != nil {

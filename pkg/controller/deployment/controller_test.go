@@ -1826,7 +1826,7 @@ func TestCheckLCMStuff(t *testing.T) {
 			faketestclients.FakeReaction(c.api.CephLcmclientset, "list", []string{"cephosdremovetasks"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.CephLcmclientset, "get", []string{"cephdeploymentmaintenances"}, test.inputResources, test.apiErrors)
 
-			nodesList, err := c.buildExpandedNodeList()
+			nodesList, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
 			assert.Nil(t, err)
 			c.cdConfig.nodesListExpanded = nodesList
 
@@ -2247,7 +2247,7 @@ func TestApplyConfiguration(t *testing.T) {
 				return "1675587456"
 			}
 
-			nodesList, err := c.buildExpandedNodeList()
+			nodesList, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
 			assert.Nil(t, err)
 			c.cdConfig.nodesListExpanded = nodesList
 

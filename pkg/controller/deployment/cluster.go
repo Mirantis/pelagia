@@ -348,7 +348,7 @@ func generateCephClusterSpec(cephDpl *cephlcmv1alpha1.CephDeployment, image stri
 						{
 							MatchExpressions: []v1.NodeSelectorRequirement{
 								{
-									Key:      cephNodeLabels["mon"],
+									Key:      lcmcommon.CephNodeLabels["mon"],
 									Operator: "In",
 									Values: []string{
 										"true",
@@ -363,7 +363,7 @@ func generateCephClusterSpec(cephDpl *cephlcmv1alpha1.CephDeployment, image stri
 			PodAntiAffinity: &v1.PodAntiAffinity{},
 			Tolerations: append([]v1.Toleration{
 				{
-					Key:      cephNodeLabels["mon"],
+					Key:      lcmcommon.CephNodeLabels["mon"],
 					Operator: "Exists",
 				},
 			},
@@ -376,7 +376,7 @@ func generateCephClusterSpec(cephDpl *cephlcmv1alpha1.CephDeployment, image stri
 						{
 							MatchExpressions: []v1.NodeSelectorRequirement{
 								{
-									Key:      cephNodeLabels["mgr"],
+									Key:      lcmcommon.CephNodeLabels["mgr"],
 									Operator: "In",
 									Values: []string{
 										"true",
@@ -391,7 +391,7 @@ func generateCephClusterSpec(cephDpl *cephlcmv1alpha1.CephDeployment, image stri
 			PodAntiAffinity: &v1.PodAntiAffinity{},
 			Tolerations: append([]v1.Toleration{
 				{
-					Key:      cephNodeLabels["mgr"],
+					Key:      lcmcommon.CephNodeLabels["mgr"],
 					Operator: "Exists",
 				},
 			},
@@ -436,7 +436,7 @@ func generateCephClusterSpec(cephDpl *cephlcmv1alpha1.CephDeployment, image stri
 	for _, daemon := range cephDaemons {
 		if _, ok := clusterSpec.HealthCheck.LivenessProbe[daemon]; !ok {
 			clusterSpec.HealthCheck.LivenessProbe[daemon] = &cephv1.ProbeSpec{
-				Probe: defaultCephProbe,
+				Probe: lcmcommon.DefaultCephProbe,
 			}
 		}
 	}
@@ -463,7 +463,7 @@ func buildStorageNodes(cephDplNodes []cephlcmv1alpha1.CephDeploymentNode) []ceph
 	nodeNames := make([]string, 0)
 	nodeMap := map[string]int{}
 	for idx, node := range cephDplNodes {
-		if isCephOsdNode(node.Node) {
+		if lcmcommon.IsCephOsdNode(node.Node) {
 			nodeNames = append(nodeNames, node.Name)
 			nodeMap[node.Name] = idx
 		}

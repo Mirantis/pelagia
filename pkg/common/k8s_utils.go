@@ -25,6 +25,7 @@ import (
 	"github.com/rs/zerolog"
 	appsv1 "k8s.io/api/apps/v1"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
+	batch "k8s.io/api/batch/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -84,6 +85,17 @@ func GetNode(ctx context.Context, kubeClient kubernetes.Interface, nodename stri
 		return nil, err
 	}
 	return node, nil
+}
+
+func JobConditionsFailed(jobStatus batch.JobStatus) bool {
+	if len(jobStatus.Conditions) > 0 {
+		for _, condition := range jobStatus.Conditions {
+			if condition.Type == batch.JobFailed {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func IsNodeAvailable(node corev1.Node) (bool, string) {

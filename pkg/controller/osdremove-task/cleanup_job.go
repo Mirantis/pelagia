@@ -34,7 +34,6 @@ import (
 )
 
 var (
-	diskCleanupTimeout = 3600
 	// script templates for cleanup jobs
 	cleanupScriptTmpl = `set -xe
 %s
@@ -207,7 +206,7 @@ func (c *cephOsdRemoveConfig) runCleanupJob(host, osdID, hostOsdDirectory string
 		osdIDToUse = strings.ReplaceAll(osdID, "__", "")
 	}
 	jobName := k8sutil.TruncateNodeName("device-cleanup-job-%s", fmt.Sprintf("%s-%s", host, osdIDToUse))
-	jobTimeout := int64(diskCleanupTimeout)
+	jobTimeout := int64(lcmcommon.DiskCleanupTimeout)
 	job := &batch.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      jobName,

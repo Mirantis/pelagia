@@ -14,9 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package deployment
+package lcmcommon
 
 import (
+	"context"
 	"testing"
 
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
@@ -28,7 +29,7 @@ import (
 	faketestclients "github.com/Mirantis/pelagia/test/unit/clients"
 )
 
-func TestBuildExpandedNodeList(t *testing.T) {
+func TestGetExpandedCephDeploymentNodeList(t *testing.T) {
 	node1 := v1.Node{ObjectMeta: metav1.ObjectMeta{Name: "node-1", Labels: map[string]string{"app-key": "value"}}}
 	node2 := v1.Node{ObjectMeta: metav1.ObjectMeta{Name: "node-2", Labels: map[string]string{"app-key": "value"}}}
 	node3 := v1.Node{ObjectMeta: metav1.ObjectMeta{Name: "node-3"}}
@@ -241,12 +242,12 @@ func TestBuildExpandedNodeList(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(nil, nil)
-			c.api.Client = client
-			c.cdConfig.cephDpl.Spec.Nodes = test.nodes
-			c.cdConfig.cephDpl.Spec.ExtraOpts = test.extraOpts
+			cephDeploySpec := cephlcmv1alpha1.CephDeploymentSpec{
+				Nodes:     test.nodes,
+				ExtraOpts: test.extraOpts,
+			}
 
-			resultNodes, err := c.buildExpandedNodeList()
+			resultNodes, err := GetExpandedCephDeploymentNodeList(context.TODO(), client, cephDeploySpec)
 			if test.expectedError == "" {
 				assert.Nil(t, err)
 				assert.Equal(t, test.expectedNodes, resultNodes)
@@ -257,7 +258,7 @@ func TestBuildExpandedNodeList(t *testing.T) {
 		})
 	}
 }
-func TestGetExpandedDevicesList(t *testing.T) {
+func TestGetExpandedCephNodeDevicesList(t *testing.T) {
 	tests := []struct {
 		name             string
 		nodeDevices      []cephv1.Device
@@ -345,7 +346,7 @@ func TestGetExpandedDevicesList(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			resultDevices := getExpandedDevicesList(test.nodeDevices, test.nodeDeviceLabels)
+			resultDevices := GetExpandedCephNodeDevicesList(test.nodeDevices, test.nodeDeviceLabels)
 			assert.Equal(t, test.expectedDevices, resultDevices)
 		})
 	}

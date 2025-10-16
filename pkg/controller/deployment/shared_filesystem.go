@@ -205,7 +205,7 @@ func (c *cephDeploymentConfig) deleteSharedFilesystems() (bool, error) {
 }
 
 func generateCephFS(cephDplCephFS cephlcmv1alpha1.CephFS, namespace string, hyperconverge *cephlcmv1alpha1.CephDeploymentHyperConverge) *cephv1.CephFilesystem {
-	label := cephNodeLabels["mds"]
+	label := lcmcommon.CephNodeLabels["mds"]
 	cephFS := &cephv1.CephFilesystem{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cephDplCephFS.Name,
@@ -287,7 +287,7 @@ func generateCephFS(cephDplCephFS cephlcmv1alpha1.CephFS, namespace string, hype
 		cephFS.Spec.MetadataServer.StartupProbe = cephDplCephFS.MetadataServer.HealthCheck.StartupProbe
 	}
 	if cephFS.Spec.MetadataServer.LivenessProbe == nil {
-		cephFS.Spec.MetadataServer.LivenessProbe = &cephv1.ProbeSpec{Probe: defaultCephProbe}
+		cephFS.Spec.MetadataServer.LivenessProbe = &cephv1.ProbeSpec{Probe: lcmcommon.DefaultCephProbe}
 	}
 	// if config is updated, need to restart mds daemons, since config may have some changes to cephfs
 	cephFS.Spec.MetadataServer.Annotations = map[string]string{

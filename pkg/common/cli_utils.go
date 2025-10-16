@@ -29,11 +29,11 @@ import (
 )
 
 func IsCephToolboxCLIAvailable(ctx context.Context, kubeClient kubernetes.Interface, namespace string) bool {
-	cephToolBoxes, err := kubeClient.AppsV1().Deployments(namespace).List(ctx, metav1.ListOptions{LabelSelector: fmt.Sprintf("app=%s", PelagiaToolBox)})
-	if err != nil || len(cephToolBoxes.Items) != 1 {
+	cephToolBox, err := kubeClient.AppsV1().Deployments(namespace).Get(ctx, PelagiaToolBox, metav1.GetOptions{})
+	if err != nil {
 		return false
 	}
-	return IsDeploymentReady(&cephToolBoxes.Items[0])
+	return IsDeploymentReady(cephToolBox)
 }
 
 func RunCephToolboxCLI(ctx context.Context, kubeClient kubernetes.Interface, config *rest.Config, namespace, command string) (string, error) {

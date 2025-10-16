@@ -97,7 +97,7 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 					}
 				}
 			}
-			if isCephOsdNode(node.Node) {
+			if lcmcommon.IsCephOsdNode(node.Node) {
 				if len(node.Devices) > 0 {
 					for _, device := range node.Devices {
 						deviceClass := ""

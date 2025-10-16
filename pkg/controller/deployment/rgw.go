@@ -760,9 +760,9 @@ func generateRgwUser(storename string, user cephlcmv1alpha1.CephRGWUser, namespa
 }
 
 func generateRgw(cephDplRGW cephlcmv1alpha1.CephRGW, namespace string, useDedicatedNodes, syncRgwDaemon, defaultRealm bool, hyperconverge *cephlcmv1alpha1.CephDeploymentHyperConverge) *cephv1.CephObjectStore {
-	label := cephNodeLabels["mon"]
+	label := lcmcommon.CephNodeLabels["mon"]
 	if useDedicatedNodes {
-		label = cephNodeLabels["rgw"]
+		label = lcmcommon.CephNodeLabels["rgw"]
 	}
 	storeName := cephDplRGW.Name
 	rgwSectionName := rgwConfigSectionName(cephDplRGW.Name)
