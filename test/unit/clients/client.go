@@ -77,12 +77,26 @@ var supportedKinds = map[string]bool{
 	"ingresses":              true,
 }
 
+func ExtendSupportedKinds(kinds map[string]bool) {
+	for kind, support := range kinds {
+		supportedKinds[kind] = support
+	}
+}
+
 func GetClientBuilder() *fakeclient.ClientBuilder {
 	return fakeclient.NewClientBuilder().WithScheme(fscheme.Scheme)
 }
 
+func GetClientBuilderWithScheme(scheme *runtime.Scheme) *fakeclient.ClientBuilder {
+	return fakeclient.NewClientBuilder().WithScheme(scheme)
+}
+
 func GetClientBuilderWithObjects(objects ...client.Object) *fakeclient.ClientBuilder {
 	return fakeclient.NewClientBuilder().WithScheme(fscheme.Scheme).WithStatusSubresource(objects...).WithObjects(objects...)
+}
+
+func GetClientBuilderWithSchemeWithObjects(scheme *runtime.Scheme, objects ...client.Object) *fakeclient.ClientBuilder {
+	return fakeclient.NewClientBuilder().WithScheme(scheme).WithStatusSubresource(objects...).WithObjects(objects...)
 }
 
 func GetClient(cl *fakeclient.ClientBuilder) client.WithWatch {
@@ -148,6 +162,9 @@ func GetFakeClientForInterface(clientInterface interface{}) *gotesting.Fake {
 		return clientInterfaceCasted.Fake
 	case *fakestorage.FakeStorageV1:
 		return clientInterfaceCasted.Fake
+	case *gotesting.Fake:
+		// support any fake clients, passed directly to helper
+		return clientInterfaceCasted
 	}
 	// if nothing match - return empty fake client
 	return &gotesting.Fake{}
