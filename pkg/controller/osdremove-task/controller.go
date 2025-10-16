@@ -346,7 +346,7 @@ func (r *ReconcileCephOsdRemoveTask) updateCephOsdRemoveTaskStatus(ctx context.C
 	if err != nil {
 		return errors.Wrapf(err, "failed to get CephOsdRemoveTask '%s' to update status", req.NamespacedName)
 	}
-	err = lcmv1alpha1.UpdateCephOsdRemoveTaskStatus(cephTask, status, r.Client)
+	err = lcmv1alpha1.UpdateCephOsdRemoveTaskStatus(ctx, cephTask, status, r.Client)
 	if err != nil {
 		return errors.Wrapf(err, "failed to update CephOsdRemoveTask '%s' status with '%v' phase", req.NamespacedName, status.Phase)
 	}

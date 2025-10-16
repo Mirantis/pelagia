@@ -218,7 +218,7 @@ func (r *ReconcileCephSecrets) updateCephDeploymentSecretStatus(ctx context.Cont
 		objlog.Debug().Msgf("updating status with new check timestamps")
 	}
 	status.LastSecretCheck = timeNow
-	err = cephlcmv1alpha1.UpdateCephDeploymentSecretStatus(cephDplSecret, status, r.Client)
+	err = cephlcmv1alpha1.UpdateCephDeploymentSecretStatus(ctx, cephDplSecret, status, r.Client)
 	if err != nil {
 		return errors.Wrapf(err, "failed to update CephDeploymentSecret %s/%s status", cephDplSecret.Namespace, cephDplSecret.Name)
 	}

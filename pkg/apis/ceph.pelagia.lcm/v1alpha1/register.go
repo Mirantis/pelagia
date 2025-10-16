@@ -26,45 +26,45 @@ func Resource(resource string) schema.GroupResource {
 	return SchemeGroupVersion.WithResource(resource).GroupResource()
 }
 
-func UpdateCephDeploymentStatus(cephDeploy *CephDeployment, status CephDeploymentStatus, client client.Client) error {
+func UpdateCephDeploymentStatus(ctx context.Context, cephDeploy *CephDeployment, status CephDeploymentStatus, client client.Client) error {
 	cephDeploy.Status = status
-	if err := client.Status().Update(context.TODO(), cephDeploy); err != nil {
+	if err := client.Status().Update(ctx, cephDeploy); err != nil {
 		return errors.Errorf("failed to update status for the CephDeployment %v/%v: %v",
 			cephDeploy.Namespace, cephDeploy.Name, err)
 	}
 	return nil
 }
 
-func UpdateCephDeploymentSecretStatus(cdSecret *CephDeploymentSecret, status *CephDeploymentSecretStatus, client client.Client) error {
+func UpdateCephDeploymentSecretStatus(ctx context.Context, cdSecret *CephDeploymentSecret, status *CephDeploymentSecretStatus, client client.Client) error {
 	cdSecret.Status = status
-	if err := client.Status().Update(context.TODO(), cdSecret); err != nil {
+	if err := client.Status().Update(ctx, cdSecret); err != nil {
 		return errors.Errorf("failed to update status for the CephDeploymentSecret %v/%v: %v",
 			cdSecret.Namespace, cdSecret.Name, err)
 	}
 	return nil
 }
 
-func UpdateCephDeploymentMaintenanceStatus(miraCephMaintenance *CephDeploymentMaintenance, status *CephDeploymentMaintenanceStatus, client client.Client) error {
+func UpdateCephDeploymentMaintenanceStatus(ctx context.Context, miraCephMaintenance *CephDeploymentMaintenance, status *CephDeploymentMaintenanceStatus, client client.Client) error {
 	miraCephMaintenance.Status = status
-	if err := client.Status().Update(context.TODO(), miraCephMaintenance); err != nil {
+	if err := client.Status().Update(ctx, miraCephMaintenance); err != nil {
 		return errors.Errorf("failed to update status for the miracephmaintenance %v/%v: %v",
 			miraCephMaintenance.Namespace, miraCephMaintenance.Name, err)
 	}
 	return nil
 }
 
-func UpdateCephHealthDeploymentStatus(cephdeploymenthealth *CephDeploymentHealth, status CephDeploymentHealthStatus, client client.Client) error {
+func UpdateCephHealthDeploymentStatus(ctx context.Context, cephdeploymenthealth *CephDeploymentHealth, status CephDeploymentHealthStatus, client client.Client) error {
 	cephdeploymenthealth.Status = status
-	if err := client.Status().Update(context.TODO(), cephdeploymenthealth); err != nil {
+	if err := client.Status().Update(ctx, cephdeploymenthealth); err != nil {
 		return errors.Errorf("failed to update status for the CephDeploymentHealth %v/%v: %v",
 			cephdeploymenthealth.Namespace, cephdeploymenthealth.Name, err)
 	}
 	return nil
 }
 
-func UpdateCephOsdRemoveTaskStatus(cephosdremovetask *CephOsdRemoveTask, status *CephOsdRemoveTaskStatus, client client.Client) error {
+func UpdateCephOsdRemoveTaskStatus(ctx context.Context, cephosdremovetask *CephOsdRemoveTask, status *CephOsdRemoveTaskStatus, client client.Client) error {
 	cephosdremovetask.Status = status
-	if err := client.Status().Update(context.TODO(), cephosdremovetask); err != nil {
+	if err := client.Status().Update(ctx, cephosdremovetask); err != nil {
 		return errors.Errorf("failed to update status for the CephOsdRemoveTask %v/%v: %v",
 			cephosdremovetask.Namespace, cephosdremovetask.Name, err)
 	}

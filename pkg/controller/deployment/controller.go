@@ -724,7 +724,7 @@ func (r *ReconcileCephDeployment) updateCephDeploymentStatus(ctx context.Context
 	}
 	status.LastRun = lcmcommon.GetCurrentTimeString()
 	log.Info().Msg(logMsg)
-	err = cephlcmv1alpha1.UpdateCephDeploymentStatus(cephDpl, status, r.Client)
+	err = cephlcmv1alpha1.UpdateCephDeploymentStatus(ctx, cephDpl, status, r.Client)
 	if err != nil {
 		return errors.Wrapf(err, "failed to update CephDeployment %s/%s status", cephDpl.Namespace, cephDpl.Name)
 	}

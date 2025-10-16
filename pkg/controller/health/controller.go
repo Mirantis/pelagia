@@ -213,7 +213,7 @@ func (r *ReconcileCephDeploymentHealth) updateCephDeploymentHealthStatus(ctx con
 			objlog.Debug().Msgf("updating health status with new check timestamps")
 		}
 		newStatus.LastHealthCheck = timeNow
-		err = lcmv1alpha1.UpdateCephHealthDeploymentStatus(deploymentHealth, newStatus, r.Client)
+		err = lcmv1alpha1.UpdateCephHealthDeploymentStatus(ctx, deploymentHealth, newStatus, r.Client)
 	}
 	if err != nil {
 		objlog.Error().Err(errors.Wrap(err, "failed to update status")).Msg("")
