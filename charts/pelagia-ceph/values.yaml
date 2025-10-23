@@ -87,50 +87,50 @@ images:
       repository: pelagia/rook
       tag:
         reef: v1.17.4-20
-        squid: &latestImageRook v1.17.4-20
+        squid: &latestImageRook v1.17.4-23
         latest: *latestImageRook
   ceph:
     repository: pelagia/ceph
     tag:
       reef: v18.2.7-4.cve
-      squid: &latestImageCeph v19.2.3-5.release
+      squid: &latestImageCeph v19.2.3-6.cve
       latest: *latestImageCeph
   csi:
     ceph:
       repository: pelagia/cephcsi
       tag:
         reef: v3.14.0-5.release
-        squid: &latestImageCephCSI v3.14.0-5.release
+        squid: &latestImageCephCSI v3.14.0-6.cve
         latest: *latestImageCephCSI
     registrar:
       repository: pelagia/cephcsi-registrar
       tag:
         reef: v2.13.0-3.release
-        squid: &latestImageRegistar v2.13.0-3.release
+        squid: &latestImageRegistar v2.13.0-4.cve
         latest: *latestImageRegistar
     provisioner:
       repository: pelagia/cephcsi-provisioner
       tag:
         reef: v5.2.0-3.release
-        squid: &latestImageProvisioner v5.2.0-3.release
+        squid: &latestImageProvisioner v5.2.0-4.cve
         latest: *latestImageProvisioner
     snapshotter:
       repository: pelagia/cephcsi-snapshotter
       tag:
         reef: v8.2.0-3.release
-        squid: &latestImageSnapshotter v8.2.0-3.release
+        squid: &latestImageSnapshotter v8.2.0-4.cve
         latest: *latestImageSnapshotter
     attacher:
       repository: pelagia/cephcsi-attacher
       tag:
         reef: v4.8.0-3.release
-        squid: &latestImageAttacher v4.8.0-3.release
+        squid: &latestImageAttacher v4.8.0-4.cve
         latest: *latestImageAttacher
     resizer:
       repository: pelagia/cephcsi-resizer
       tag:
         reef: v1.13.2-3.release
-        squid: &latestImageResizer v1.13.2-3.release
+        squid: &latestImageResizer v1.13.2-4.cve
         latest: *latestImageResizer
 
 rookConfig:
