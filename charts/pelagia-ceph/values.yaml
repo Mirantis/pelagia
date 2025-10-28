@@ -78,7 +78,7 @@ cephRelease: ""
 images:
   pelagia:
     repository: pelagia/pelagia
-    tag: master-4d8b357d
+    tag: master-eae240e0
     # fullName is mostly used for test purposes
     fullName: ""
     pullPolicy: Always
