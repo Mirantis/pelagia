@@ -18,6 +18,7 @@ package infra
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -260,14 +261,12 @@ func TestReconcile(t *testing.T) {
 			},
 		},
 	}
-	oldVar := lcmcommon.LookupEnv
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			lcmcommon.LookupEnv = func(_ string) (string, bool) {
-				if test.envVarMissed {
-					return "", false
-				}
-				return "some-registry/lcm-controller:v1", true
+			if test.envVarMissed {
+				os.Unsetenv("CONTROLLER_IMAGE")
+			} else {
+				t.Setenv("CONTROLLER_IMAGE", "some-registry/lcm-controller:v1")
 			}
 			test.expectedResources = faketestclients.PrepareExpectedResources(test.inputResources, test.expectedResources)
 
@@ -294,5 +293,4 @@ func TestReconcile(t *testing.T) {
 			faketestclients.CleanupFakeClientReactions(r.Rookclientset)
 		})
 	}
-	lcmcommon.LookupEnv = oldVar
 }

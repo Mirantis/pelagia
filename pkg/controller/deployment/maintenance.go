@@ -17,6 +17,8 @@ limitations under the License.
 package deployment
 
 import (
+	"os"
+
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -36,9 +38,9 @@ const (
 // Mirantis/rockoon project
 func (c *cephDeploymentConfig) cephUpgradeAllowed() (bool, error) {
 	c.log.Debug().Msg("checking if Ceph version can be updated for CephCluster")
-	clusterRelease, err := lcmcommon.LookupEnvVar(controllerClusterReleaseVar)
-	if err != nil {
-		return false, errors.Wrap(err, "failed to get current cluster release")
+	clusterRelease, found := os.LookupEnv(controllerClusterReleaseVar)
+	if !found {
+		return false, errors.Errorf("required env variable '%s' is not set", controllerClusterReleaseVar)
 	}
 
 	// verify osdplst state and release and rely allowing ceph upgrade on
@@ -54,7 +56,7 @@ func (c *cephDeploymentConfig) cephUpgradeAllowed() (bool, error) {
 	}
 
 	if osRelease != clusterRelease {
-		c.log.Info().Msgf("current Openstack deployment release version is '%v', but expected '%v', Ceph version upgrade is postponed", osRelease, clusterRelease)
+		c.log.Info().Msgf("current Openstack deployment release version is '%v', but Pelagia has '%v', Ceph version upgrade is postponed", osRelease, clusterRelease)
 		return false, nil
 	}
 	if osState != osDplReadyState {

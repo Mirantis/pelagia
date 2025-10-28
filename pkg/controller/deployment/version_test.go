@@ -17,6 +17,7 @@ limitations under the License.
 package deployment
 
 import (
+	"os"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -275,7 +276,7 @@ func TestVerifyCephVersions(t *testing.T) {
 					}(),
 				}},
 			},
-			expectedError: "failed to check is Ceph upgrade allowed: failed to get current cluster release: env variable 'CEPH_CONTROLLER_CLUSTER_RELEASE' is not set",
+			expectedError: "failed to check is Ceph upgrade allowed: required env variable 'CEPH_CONTROLLER_CLUSTER_RELEASE' is not set",
 		},
 		{
 			name: "cephdeployment cluster version is set, ceph image different from desired image, upgrade is not allowed",
@@ -399,7 +400,6 @@ func TestVerifyCephVersions(t *testing.T) {
 			expectedStatusVersion: "v18.2.7",
 		},
 	}
-	oldfunc := lcmcommon.LookupEnv
 	oldRunCmd := lcmcommon.RunPodCommandWithValidation
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -411,14 +411,10 @@ func TestVerifyCephVersions(t *testing.T) {
 				return "", "", errors.New("unexpected run ceph command call")
 			}
 
-			lcmcommon.LookupEnv = func(key string) (string, bool) {
-				if test.osdpl == nil {
-					return "", false
-				}
-				if key == "CEPH_CONTROLLER_CLUSTER_RELEASE" {
-					return "cur", true
-				}
-				return "", true
+			if test.osdpl == nil {
+				os.Unsetenv("CEPH_CONTROLLER_CLUSTER_RELEASE")
+			} else {
+				t.Setenv("CEPH_CONTROLLER_CLUSTER_RELEASE", "cur")
 			}
 
 			if test.osdpl != nil {
@@ -447,7 +443,6 @@ func TestVerifyCephVersions(t *testing.T) {
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
 		})
 	}
-	lcmcommon.LookupEnv = oldfunc
 	lcmcommon.RunPodCommandWithValidation = oldRunCmd
 }
 

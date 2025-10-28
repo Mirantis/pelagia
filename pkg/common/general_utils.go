@@ -19,7 +19,6 @@ package lcmcommon
 import (
 	"crypto/sha256"
 	"fmt"
-	"os"
 	"sort"
 	"time"
 
@@ -47,16 +46,6 @@ func getCurrentTimeString() string {
 
 func getCurrentUnixTimeString() string {
 	return fmt.Sprintf("%v", time.Now().Unix())
-}
-
-var LookupEnv = os.LookupEnv
-
-func LookupEnvVar(varName string) (string, error) {
-	value, found := LookupEnv(varName)
-	if !found {
-		return "", fmt.Errorf("env variable '%s' is not set", varName)
-	}
-	return value, nil
 }
 
 func RunFuncWithRetry(times int, interval time.Duration, funcToRun func() (interface{}, error)) (interface{}, error) {
