@@ -36,16 +36,16 @@ endif
 
 pelagia-ceph: snapshot-controller ## Build helm package.
 	@printf "\n=== PACKAGING PELAGIA-CEPH CHART ===\n"
+	cp charts/pelagia-ceph/Chart.yaml charts/pelagia-ceph/.Chart.yaml.bckp
 	@if [ -n $(SKIP_SNAPSHOT_CONTROLLER) ]; then \
 		printf "\n=== REMOVING SNAPSHOT-CONTROLLER DEPENDENCY ===\n"; \
-		cp charts/pelagia-ceph/Chart.yaml charts/pelagia-ceph/.Chart.yaml.bckp ; \
 		sed -i '/^dependencies:/,$$d' charts/pelagia-ceph/Chart.yaml ; \
+	else \
+		sed -i 's/^  version:.*$$/  version: $(CHART_VERSION)/' charts/pelagia-ceph/Chart.yaml ; \
 	fi
 	helm lint charts/pelagia-ceph
 	helm package charts/pelagia-ceph --version $(CHART_VERSION)
-	@if [ -n $(SKIP_SNAPSHOT_CONTROLLER) ]; then \
-		mv charts/pelagia-ceph/.Chart.yaml.bckp charts/pelagia-ceph/Chart.yaml ; \
-	fi
+	mv charts/pelagia-ceph/.Chart.yaml.bckp charts/pelagia-ceph/Chart.yaml
 
 snapshot-controller:
 	@if [ -z $(SKIP_SNAPSHOT_CONTROLLER) ]; then \

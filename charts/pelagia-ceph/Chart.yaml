@@ -5,4 +5,5 @@ name: pelagia-ceph
 version: 1.0.0
 dependencies:
 - name: snapshot-controller
-  repository: file://../snapshot-controller
+  repository: file://charts/snapshot-controller
+  version: 1.0.0
