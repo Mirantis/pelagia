@@ -1,4 +1,4 @@
-apiVersion: v1
+apiVersion: v2
 appVersion: "8.2.0"
 description: A Helm chart to deploy snapshot controller
 name: snapshot-controller

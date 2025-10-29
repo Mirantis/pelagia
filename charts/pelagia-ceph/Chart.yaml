@@ -4,6 +4,9 @@ description: A Helm chart to deploy Ceph Pelagia resources
 name: pelagia-ceph
 version: 1.0.0
 dependencies:
+- name: rook-crds
+  repository: file://charts/rook-crds
+  version: 1.0.0
 - name: snapshot-controller
   repository: file://charts/snapshot-controller
   version: 1.0.0

@@ -19,6 +19,7 @@ E2E_IMAGE_NAME ?= localdocker:5000/$(CEPH_E2E_NAME)
 IMAGE_TAG ?= latest
 GERRIT_USER_NAME ?= mcp-ci-gerrit
 SKIP_SNAPSHOT_CONTROLLER ?= ""
+SKIP_ROOK_CRDS ?= ""
 CHART_VERSION := $(shell build/scripts/get_version.sh chart)
 CODE_VERSION := $(shell build/scripts/get_version.sh app)
 LDFLAGS := "-X 'github.com/Mirantis/pelagia/version.Version=${CODE_VERSION}'"
@@ -34,18 +35,34 @@ ifdef VERSION
 	CHART_VERSION=$(VERSION)
 endif
 
-pelagia-ceph: snapshot-controller ## Build helm package.
+pelagia-ceph: snapshot-controller rook-crds ## Build helm package.
 	@printf "\n=== PACKAGING PELAGIA-CEPH CHART ===\n"
 	cp charts/pelagia-ceph/Chart.yaml charts/pelagia-ceph/.Chart.yaml.bckp
 	@if [ -n $(SKIP_SNAPSHOT_CONTROLLER) ]; then \
 		printf "\n=== REMOVING SNAPSHOT-CONTROLLER DEPENDENCY ===\n"; \
-		sed -i '/^dependencies:/,$$d' charts/pelagia-ceph/Chart.yaml ; \
+		sed -i '/- name: snapshot-controller/,+2d' charts/pelagia-ceph/Chart.yaml ; \
+	fi
+	@if [ -n $(SKIP_ROOK_CRDS) ]; then \
+		printf "\n=== REMOVING ROOK-CRDS DEPENDENCY ===\n"; \
+		sed -i '/- name: rook-crds/,+2d' charts/pelagia-ceph/Chart.yaml ; \
+	fi
+	@if [ -z $(SKIP_SNAPSHOT_CONTROLLER) -o -z $(SKIP_ROOK_CRDS) ]; then \
+		sed -i 's/^  version:.*$$/  version: $(CHART_VERSION)/g' charts/pelagia-ceph/Chart.yaml ; \
 	else \
-		sed -i 's/^  version:.*$$/  version: $(CHART_VERSION)/' charts/pelagia-ceph/Chart.yaml ; \
+		sed -i '/^dependencies:/,$$d' charts/pelagia-ceph/Chart.yaml ; \
 	fi
 	helm lint charts/pelagia-ceph
 	helm package charts/pelagia-ceph --version $(CHART_VERSION)
 	mv charts/pelagia-ceph/.Chart.yaml.bckp charts/pelagia-ceph/Chart.yaml
+
+rook-crds:
+	@if [ -z $(SKIP_ROOK_CRDS) ]; then \
+		printf "\n=== PACKAGING ROOK-CRDS CHART ===\n"; \
+		helm lint charts/rook-crds; \
+		helm package charts/rook-crds --version $(CHART_VERSION) -d charts/pelagia-ceph/charts; \
+	else \
+		printf "\n=== PACKAGING ROOK-CRDS CHART HAS BEEN SKIPPED ===\n"; \
+	fi
 
 snapshot-controller:
 	@if [ -z $(SKIP_SNAPSHOT_CONTROLLER) ]; then \
