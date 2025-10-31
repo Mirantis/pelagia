@@ -32,7 +32,7 @@ import (
 )
 
 func (c *cephDeploymentConfig) ensureSharedFilesystem() (bool, error) {
-	c.log.Info().Msg("ensure Ceph shared filesystems")
+	c.log.Debug().Msg("ensure Ceph shared filesystems")
 	facedErrors := make([]error, 0)
 	changed := false
 	if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil {
@@ -58,7 +58,7 @@ func (c *cephDeploymentConfig) ensureSharedFilesystem() (bool, error) {
 }
 
 func (c *cephDeploymentConfig) ensureCephFS() (bool, error) {
-	c.log.Info().Msg("ensure CephFS")
+	c.log.Debug().Msg("ensure CephFS")
 	cephFsList, err := c.api.Rookclientset.CephV1().CephFilesystems(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
 	if err != nil {
 		return false, errors.Wrap(err, "failed to get CephFS list")
@@ -205,7 +205,7 @@ func (c *cephDeploymentConfig) deleteSharedFilesystems() (bool, error) {
 }
 
 func generateCephFS(cephDplCephFS cephlcmv1alpha1.CephFS, namespace string, hyperconverge *cephlcmv1alpha1.CephDeploymentHyperConverge) *cephv1.CephFilesystem {
-	label := cephNodeLabels["mds"]
+	label := lcmcommon.CephNodeLabels["mds"]
 	cephFS := &cephv1.CephFilesystem{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cephDplCephFS.Name,
@@ -287,7 +287,7 @@ func generateCephFS(cephDplCephFS cephlcmv1alpha1.CephFS, namespace string, hype
 		cephFS.Spec.MetadataServer.StartupProbe = cephDplCephFS.MetadataServer.HealthCheck.StartupProbe
 	}
 	if cephFS.Spec.MetadataServer.LivenessProbe == nil {
-		cephFS.Spec.MetadataServer.LivenessProbe = &cephv1.ProbeSpec{Probe: defaultCephProbe}
+		cephFS.Spec.MetadataServer.LivenessProbe = &cephv1.ProbeSpec{Probe: lcmcommon.DefaultCephProbe}
 	}
 	// if config is updated, need to restart mds daemons, since config may have some changes to cephfs
 	cephFS.Spec.MetadataServer.Annotations = map[string]string{

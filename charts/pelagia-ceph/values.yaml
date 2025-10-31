@@ -4,8 +4,6 @@ global:
   namespace: ""
 
 productSetup: "mke"
-# TODO: remove later
-mkeClusterAdminRole: true
 cephDeployment:
   enabled: true
   netpolEnabled: true
@@ -79,9 +77,8 @@ controllers:
 cephRelease: ""
 images:
   pelagia:
-    # TODO: fix later
     repository: pelagia/pelagia
-    tag: v1.0.0
+    tag: master-eae240e0
     # fullName is mostly used for test purposes
     fullName: ""
     pullPolicy: Always
@@ -89,59 +86,52 @@ images:
     operator:
       repository: pelagia/rook
       tag:
-        reef: v1.17.4-20
-        squid: &latestImageRook v1.17.4-20
-        latest: *latestImageRook
+        latest: &latestImageRook v1.17.4-23
+        squid: *latestImageRook
+        reef: *latestImageRook
   ceph:
     repository: pelagia/ceph
     tag:
+      latest: &latestImageCeph v19.2.3-6.cve
+      squid: *latestImageCeph
       reef: v18.2.7-4.cve
-      squid: &latestImageCeph v19.2.3-4.cve
-      latest: *latestImageCeph
   csi:
     ceph:
       repository: pelagia/cephcsi
       tag:
-        reef: v3.14.0-4.cve
-        squid: &latestImageCephCSI v3.14.0-4.cve
-        latest: *latestImageCephCSI
+        latest: &latestImageCephCSI v3.14.0-6.cve
+        squid: *latestImageCephCSI
+        reef: *latestImageCephCSI
     registrar:
       repository: pelagia/cephcsi-registrar
       tag:
-        reef: v2.13.0-2.cve
-        squid: &latestImageRegistar v2.13.0-2.cve
-        latest: *latestImageRegistar
+        latest: &latestImageRegistar v2.13.0-4.cve
+        squid: *latestImageRegistar
+        reef: *latestImageRegistar
     provisioner:
       repository: pelagia/cephcsi-provisioner
       tag:
-        reef: v5.2.0-2.cve
-        squid: &latestImageProvisioner v5.2.0-2.cve
-        latest: *latestImageProvisioner
+        latest: &latestImageProvisioner v5.2.0-4.cve
+        squid: *latestImageProvisioner
+        reef: *latestImageProvisioner
     snapshotter:
       repository: pelagia/cephcsi-snapshotter
       tag:
-        reef: v8.2.0-2.cve
-        squid: &latestImageSnapshotter v8.2.0-2.cve
-        latest: *latestImageSnapshotter
+        latest: &latestImageSnapshotter v8.2.0-4.cve
+        squid: *latestImageSnapshotter
+        reef: *latestImageSnapshotter
     attacher:
       repository: pelagia/cephcsi-attacher
       tag:
-        reef: v4.8.0-2.cve
-        squid: &latestImageAttacher v4.8.0-2.cve
-        latest: *latestImageAttacher
+        latest: &latestImageAttacher v4.8.0-4.cve
+        squid: *latestImageAttacher
+        reef: *latestImageAttacher
     resizer:
       repository: pelagia/cephcsi-resizer
       tag:
-        reef: v1.13.2-2.cve
-        squid: &latestImageResizer v1.13.2-2.cve
-        latest: *latestImageResizer
-  snapshotController:
-    repository: pelagia/snapshot-controller
-    tag:
-      reef: v8.2.0-2.cve
-      squid: &latestImageSnapshotcontroller v8.2.0-2.cve
-      latest: *latestImageSnapshotcontroller
-
+        latest: &latestImageResizer v1.13.2-4.cve
+        squid: *latestImageResizer
+        reef: *latestImageResizer
 rookConfig:
   configureRook: true
   rookNamespace: rook-ceph

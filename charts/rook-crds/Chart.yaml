@@ -1,0 +1,5 @@
+apiVersion: v2
+appVersion: "v1.17.4"
+description: A Helm chart to deploy Rook related crds
+name: rook-crds
+version: 1.0.0

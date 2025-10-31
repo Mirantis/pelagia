@@ -378,7 +378,7 @@ func TestGenerateCephCluster(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
-			expandedNodes, err := c.buildExpandedNodeList()
+			expandedNodes, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
 			assert.Nil(t, err)
 			cephClusterSpec := generateCephClusterSpec(test.cephDpl, unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"], expandedNodes)
 			assert.Equal(t, test.expectedClusterSpec, cephClusterSpec)
@@ -772,7 +772,7 @@ func TestEnsureCluster(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
 			c.cdConfig.currentCephVersion = lcmcommon.LatestRelease
 			c.cdConfig.currentCephImage = unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"]
-			expandedNodes, err := c.buildExpandedNodeList()
+			expandedNodes, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
 			assert.Nil(t, err)
 			c.cdConfig.nodesListExpanded = expandedNodes
 

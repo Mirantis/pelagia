@@ -127,30 +127,6 @@ func isStateReadyToUpdate(state cephv1.ClusterState) bool {
 	return true
 }
 
-func isCephOsdNode(node cephv1.Node) bool {
-	return len(node.Devices) > 0 || node.DeviceFilter != "" || node.DevicePathFilter != ""
-}
-
-func buildCephNodeLabels(currentNodeLabels map[string]string, roles []string) (map[string]string, bool) {
-	newLabels := map[string]string{}
-	for k, v := range currentNodeLabels {
-		newLabels[k] = v
-	}
-	changed := false
-	for _, baseRole := range cephDaemonKeys {
-		if !lcmcommon.Contains(roles, baseRole) {
-			if _, ok := newLabels[cephNodeLabels[baseRole]]; ok {
-				delete(newLabels, cephNodeLabels[baseRole])
-				changed = true
-			}
-		} else if newLabels[cephNodeLabels[baseRole]] != "true" {
-			newLabels[cephNodeLabels[baseRole]] = "true"
-			changed = true
-		}
-	}
-	return newLabels, changed
-}
-
 func buildCephNodeAnnotations(current map[string]string, desired map[string]string) (map[string]string, bool) {
 	newAnnotations := map[string]string{}
 	for k, v := range current {
@@ -229,12 +205,8 @@ func (c *cephDeploymentConfig) getCephConfigDump() ([]cephConfigOptionDump, erro
 	return cephConfigDump, nil
 }
 
-type cephVersions struct {
-	Overall map[string]int `json:"overall"`
-}
-
-func (c *cephDeploymentConfig) getCephVersions() (*cephVersions, error) {
-	var cephVersions cephVersions
+func (c *cephDeploymentConfig) getCephVersions() (*lcmcommon.CephVersions, error) {
+	var cephVersions lcmcommon.CephVersions
 	err := lcmcommon.RunAndParseCephToolboxCLI(c.context, c.api.Kubeclientset, c.api.Config, c.lcmConfig.RookNamespace, "ceph versions --format json", &cephVersions)
 	if err != nil {
 		return nil, err

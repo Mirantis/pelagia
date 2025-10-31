@@ -17,10 +17,7 @@ limitations under the License.
 package deployment
 
 import (
-	"fmt"
 	"sort"
-
-	corev1 "k8s.io/api/core/v1"
 )
 
 const (
@@ -55,7 +52,6 @@ const (
 	cephDaemonsetDrainReady   = "kaas.mirantis.com/csi-drained"
 	cephVolumeAttachmentType  = "rook-ceph.rbd.csi.ceph.com"
 
-	cephNodeLabelTemplate         = "ceph_role_%s"
 	cephKubeTopologyLabelTemplate = "cephdpl-prev-%s"
 	nodeWithOSDSelectorTemplate   = "app=rook-ceph-osd,failure-domain=%s"
 
@@ -93,7 +89,6 @@ const (
 var (
 	// builtinCephPools contains a list of system ceph pools created by Rook and requiring special handling for pool naming
 	builtinCephPools       = []string{".mgr", ".rgw.root"}
-	cephDaemonKeys         = []string{"mds", "mgr", "mon", "osd", "rgw"}
 	cephNodeAnnotationKeys = []string{monIPAnnotation}
 	// cephIgnoredHealthWarnings contains a list of Ceph health warnings that should be ignored during cluster health checks
 	cephIgnoredHealthWarnings = []string{
@@ -120,19 +115,6 @@ var (
 	cephConfigSectionHashLabel = "cephdeployment.lcm.mirantis.com/config-%s-hash"
 	// template for keeping last update for parameters under specific section, max lentgh after / is 63 symbols
 	cephConfigParametersUpdateTimestampLabel = "cephdeployment.lcm.mirantis.com/config-%s-updated"
-
-	defaultCephProbe = &corev1.Probe{
-		TimeoutSeconds:   5,
-		FailureThreshold: 5,
-	}
-
-	cephNodeLabels = func() map[string]string {
-		labelsMap := map[string]string{}
-		for _, daemon := range cephDaemonKeys {
-			labelsMap[daemon] = fmt.Sprintf(cephNodeLabelTemplate, daemon)
-		}
-		return labelsMap
-	}()
 )
 
 func getCrushKeys() []string {

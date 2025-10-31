@@ -41,6 +41,10 @@ rules:
   - apiGroups: [""]
     resources: [events]
     verbs: [create]
+  # control leases
+  - apiGroups: ["coordination.k8s.io"]
+    resources: [leases]
+    verbs: [list, get, create, update, delete]
   # Application: manage os access data(secrets)
   - apiGroups: [""]
     resources: [secrets]

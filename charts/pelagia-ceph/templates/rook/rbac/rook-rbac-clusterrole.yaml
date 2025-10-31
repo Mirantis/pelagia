@@ -390,6 +390,19 @@ rules:
       - list
       - watch
   - apiGroups:
+      - "discovery.k8s.io"
+    resources:
+      - endpointslices
+      - endpointslices/restricted
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+      - create
+      - update
+      - delete
+  - apiGroups:
       - ""
     resources:
       # Rook creates events for its custom resources
@@ -400,8 +413,6 @@ rules:
       # Rook creates endpoints for mgr and object store access
       - endpoints
       - services
-      - endpointslices
-      - endpointslices/restricted
     verbs:
       - get
       - list

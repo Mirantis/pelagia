@@ -66,9 +66,9 @@ func main() {
 
 	// env var WATCH_NAMESPACES specifies the Namespace to watch.
 	// An empty value means the operator is running with cluster scope.
-	namespacesVar, err := lcmcommon.LookupEnvVar("WATCH_NAMESPACES")
-	if err != nil {
-		log.Fatal().Msgf("failed to get watch namespaces: %v", err)
+	namespacesVar, found := os.LookupEnv("WATCH_NAMESPACES")
+	if !found {
+		log.Fatal().Msg("required env variable 'WATCH_NAMESPACES' is not set")
 		os.Exit(1)
 	}
 	// cut unexpected spaces if any

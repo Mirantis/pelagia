@@ -180,6 +180,17 @@ func (c *ManagedConfig) GetIngress(name, namespace string) (*networkingv1.Ingres
 	return ingress, nil
 }
 
+func (c *ManagedConfig) GetIngressClass(name string) (*networkingv1.IngressClass, error) {
+	ingressClass, err := c.KubeClient.NetworkingV1().IngressClasses().Get(c.Context, name, metav1.GetOptions{})
+	if k8serrors.IsNotFound(err) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to get IngressClass %s", name)
+	}
+	return ingressClass, nil
+}
+
 func (c *ManagedConfig) GetStorageClass(name string) (*v1storage.StorageClass, error) {
 	sc, err := c.KubeClient.StorageV1().StorageClasses().Get(c.Context, name, metav1.GetOptions{})
 	if err != nil {

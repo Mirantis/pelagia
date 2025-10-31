@@ -19,6 +19,7 @@ package infra
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/pkg/errors"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
@@ -156,9 +157,9 @@ func (r *ReconcileLcmResources) Reconcile(ctx context.Context, request reconcile
 		sublog.Error().Err(err).Msg("")
 		return reconcile.Result{RequeueAfter: requeueAfterInterval}, nil
 	}
-	controllerImage, err := lcmcommon.LookupEnvVar(controllerImageVar)
-	if err != nil {
-		sublog.Error().Err(err).Msg("")
+	controllerImage, found := os.LookupEnv(controllerImageVar)
+	if !found || controllerImage == "" {
+		sublog.Error().Msgf("required env var '%s' is not set or empty", controllerImageVar)
 		return reconcile.Result{RequeueAfter: requeueAfterInterval}, nil
 	}
 

@@ -26,7 +26,7 @@ import (
 )
 
 func (c *cephDeploymentConfig) ensureNodesAnnotation() (bool, error) {
-	c.log.Info().Msg("ensure nodes annotations with rook keys")
+	c.log.Debug().Msg("ensure nodes annotations with rook keys")
 	errCollector := 0
 	changedNodes := false
 
@@ -59,7 +59,7 @@ func (c *cephDeploymentConfig) ensureNodesAnnotation() (bool, error) {
 }
 
 func (c *cephDeploymentConfig) ensureLabelNodes() (bool, error) {
-	c.log.Info().Msg("ensure nodes labels (ceph roles) and topology")
+	c.log.Debug().Msg("ensure nodes labels (ceph roles) and topology")
 	nodes, err := c.api.Kubeclientset.CoreV1().Nodes().List(c.context, metav1.ListOptions{})
 	if err != nil {
 		return false, errors.Wrap(err, "failed to list nodes")
@@ -71,7 +71,7 @@ func (c *cephDeploymentConfig) ensureLabelNodes() (bool, error) {
 	// this will help to determine keep or not keep osd role label if node is not specified
 	// in spec, but may continue running osd pods (even if they are in crashed)
 	for _, node := range nodes.Items {
-		if _, osdLabelPresent := node.Labels[fmt.Sprintf(cephNodeLabelTemplate, "osd")]; osdLabelPresent {
+		if _, osdLabelPresent := node.Labels[fmt.Sprintf(lcmcommon.CephNodeLabelTemplate, "osd")]; osdLabelPresent {
 			labelSelector := fmt.Sprintf(nodeWithOSDSelectorTemplate, node.Name)
 			osdDeployments, err := c.api.Kubeclientset.AppsV1().Deployments(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{LabelSelector: labelSelector})
 			if err != nil {
@@ -93,7 +93,7 @@ func (c *cephDeploymentConfig) ensureLabelNodes() (bool, error) {
 	for _, node := range c.cdConfig.nodesListExpanded {
 		roles := node.Roles
 		// if node has storage configuration - it may have crush topology as well
-		if isCephOsdNode(node.Node) {
+		if lcmcommon.IsCephOsdNode(node.Node) {
 			roles = append(roles, "osd")
 			changed, err := c.addTopology(node.Name, node.Crush)
 			if err != nil {
@@ -212,7 +212,7 @@ func (c *cephDeploymentConfig) labelNodes(roles []string, nodeName string) (bool
 	if err != nil {
 		return false, errors.Wrapf(err, "failed to get '%s' node", nodeName)
 	}
-	newLabels, updateLabels := buildCephNodeLabels(node.Labels, roles)
+	newLabels, updateLabels := lcmcommon.BuildCephNodeLabels(node.Labels, roles)
 	if updateLabels {
 		c.log.Info().Msgf("update node '%s' labels (ceph roles)", nodeName)
 		lcmcommon.ShowObjectDiff(*c.log, node.Labels, newLabels)

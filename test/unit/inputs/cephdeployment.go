@@ -120,29 +120,6 @@ var CephDeployObjectStorageCeph = func() cephlcmv1alpha1.CephDeployment {
 	return *cd
 }()
 
-var CephDeployObjectStorageRookConfigCeph = func() cephlcmv1alpha1.CephDeployment {
-	cd := CephDeployObjectStorageCeph.DeepCopy()
-	cd.Spec.RookConfig = map[string]string{
-		"mon_max_pg_per_osd":                  "400",
-		"rgw enforce swift acls":              "false",
-		"rgw_user_quota_bucket_sync_interval": "10",
-		"rgw_dns_name":                        "rgw-store.ms2.wxlsd.com",
-		"rgw keystone barbican user":          "override-user",
-	}
-	return *cd
-}()
-
-var CephDeployObjectStorageRookConfigNoBarbicanCeph = func() cephlcmv1alpha1.CephDeployment {
-	cd := CephDeployObjectStorageCeph.DeepCopy()
-	cd.Spec.RookConfig = map[string]string{
-		"cluster network":           "10.0.0.0/24",
-		"public network":            "172.16.0.0/24",
-		"rgw_trust_forwarded_https": "false",
-		"rgw keystone admin user":   "override-user",
-	}
-	return *cd
-}()
-
 var CephDeployEnsureRbdMirror = func() cephlcmv1alpha1.CephDeployment {
 	cd := BaseCephDeployment.DeepCopy()
 	cd.Finalizers = []string{"cephdeployment.lcm.mirantis.com/finalizer"}
@@ -312,6 +289,29 @@ var CephDeployMoskWithCephFS = func() cephlcmv1alpha1.CephDeployment {
 var CephDeployMoskWithoutIngress = func() cephlcmv1alpha1.CephDeployment {
 	cd := CephDeployMosk.DeepCopy()
 	cd.Spec.IngressConfig = nil
+	return *cd
+}()
+
+var CephDeployMoskWithoutIngressRookConfigOverride = func() cephlcmv1alpha1.CephDeployment {
+	cd := CephDeployMoskWithoutIngress.DeepCopy()
+	cd.Spec.RookConfig = map[string]string{
+		"cluster network":           "10.0.0.0/24",
+		"public network":            "172.16.0.0/24",
+		"rgw_trust_forwarded_https": "false",
+		"rgw keystone admin user":   "override-user",
+	}
+	return *cd
+}()
+
+var CephDeployMoskWithoutIngressRookConfigOverrideBarbican = func() cephlcmv1alpha1.CephDeployment {
+	cd := CephDeployMoskWithoutIngress.DeepCopy()
+	cd.Spec.RookConfig = map[string]string{
+		"mon_max_pg_per_osd":                  "400",
+		"rgw enforce swift acls":              "false",
+		"rgw_user_quota_bucket_sync_interval": "10",
+		"rgw_dns_name":                        "rgw-store.ms2.wxlsd.com",
+		"rgw keystone barbican user":          "override-user",
+	}
 	return *cd
 }()
 

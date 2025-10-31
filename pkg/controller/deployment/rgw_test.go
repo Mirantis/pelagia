@@ -2204,7 +2204,7 @@ func TestEnsureDefaultZoneGroupHostnames(t *testing.T) {
 			name: "no ingress, os secret, spec override - updated on spec fqdn",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cephDpl := unitinputs.CephDeployMoskWithoutIngress.DeepCopy()
-				cephDpl.Spec.RookConfig = unitinputs.CephDeployObjectStorageRookConfigCeph.Spec.RookConfig
+				cephDpl.Spec.RookConfig = unitinputs.CephDeployMoskWithoutIngressRookConfigOverrideBarbican.Spec.RookConfig
 				return cephDpl
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -2233,7 +2233,7 @@ func TestEnsureDefaultZoneGroupHostnames(t *testing.T) {
 			name: "ingress, spec override - updated on spec fqdn",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cephDpl := unitinputs.CephDeployMosk.DeepCopy()
-				cephDpl.Spec.RookConfig = unitinputs.CephDeployObjectStorageRookConfigCeph.Spec.RookConfig
+				cephDpl.Spec.RookConfig = unitinputs.CephDeployMoskWithoutIngressRookConfigOverrideBarbican.Spec.RookConfig
 				return cephDpl
 			}(),
 			zonegroupInfo:      unitinputs.CephZoneGroupInfoHostnamesFromIngress,
@@ -2246,15 +2246,23 @@ func TestEnsureDefaultZoneGroupHostnames(t *testing.T) {
 			zonegroupInfo: unitinputs.CephZoneGroupInfoHostnamesFromIngress,
 		},
 		{
-			name:               "no ingress, no os cert, spec override - updated on spec fqdn",
-			cephDpl:            &unitinputs.CephDeployObjectStorageRookConfigCeph,
+			name: "no ingress, no os cert, spec override - updated on spec fqdn",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cephDpl := unitinputs.CephDeployObjectStorageCeph.DeepCopy()
+				cephDpl.Spec.RookConfig = unitinputs.CephDeployMoskWithoutIngressRookConfigOverrideBarbican.Spec.RookConfig
+				return cephDpl
+			}(),
 			zonegroupInfo:      unitinputs.CephZoneGroupInfoEmptyHostnames,
 			zonegroupUpdate:    true,
 			zonegroupUpdateCmd: "/usr/local/bin/zonegroup_hostnames_update.sh --rgw-zonegroup rgw-store --hostnames rgw-store.ms2.wxlsd.com,rook-ceph-rgw-rgw-store.rook-ceph.svc",
 		},
 		{
-			name:          "no ingress, no os cert, spec override - no update",
-			cephDpl:       &unitinputs.CephDeployObjectStorageRookConfigCeph,
+			name: "no ingress, no os cert, spec override - no update",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cephDpl := unitinputs.CephDeployObjectStorageCeph.DeepCopy()
+				cephDpl.Spec.RookConfig = unitinputs.CephDeployMoskWithoutIngressRookConfigOverrideBarbican.Spec.RookConfig
+				return cephDpl
+			}(),
 			zonegroupInfo: unitinputs.CephZoneGroupInfoHostnamesFromConfig,
 		},
 		{

@@ -40,22 +40,22 @@ func buildHostName(rgwName, rgwOverrideName, domain string) string {
 func (c *cephDeploymentConfig) ensureIngressProxy() (bool, error) {
 	cleanupIngress := false
 	if c.cdConfig.cephDpl.Spec.ObjectStorage == nil {
-		c.log.Info().Msg("skipping ingress ensure since rgw is not specified")
+		c.log.Debug().Msg("skipping ingress ensure since rgw is not specified")
 		cleanupIngress = true
 	} else if !isSpecIngressProxyRequired(c.cdConfig.cephDpl.Spec) {
-		c.log.Info().Msg("skipping ingress ensure since no custom ingress provided and no required OpenStack configuration")
+		c.log.Debug().Msg("skipping ingress ensure since no custom ingress provided and no required OpenStack configuration")
 		cleanupIngress = true
 	}
 
 	if cleanupIngress {
-		c.log.Info().Msg("ensure ingress proxy stuff is cleaned up")
+		c.log.Debug().Msg("ensure ingress proxy stuff is cleaned up")
 		removed, err := c.deleteIngressProxy()
 		if err != nil {
 			return false, errors.Wrap(err, "deletion not complete for ingress proxy")
 		}
 		return !removed, nil
 	}
-	c.log.Info().Msg("ensure Ingress proxy")
+	c.log.Debug().Msg("ensure Ingress proxy")
 
 	ingressName := buildRGWName(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name, "ingress")
 	ingress, err := c.api.Kubeclientset.NetworkingV1().Ingresses(c.lcmConfig.RookNamespace).Get(c.context, ingressName, metav1.GetOptions{})
@@ -90,6 +90,10 @@ func (c *cephDeploymentConfig) ensureIngressProxy() (bool, error) {
 	}
 	// handle case when no certs in ingress spec and no secret by ref, try to get default openstack certs
 	if ingressConfig.TLSConfig == nil || (ingressConfig.TLSConfig.TLSCerts == nil && ingressConfig.TLSConfig.TLSSecretRefName == "") {
+		if c.lcmConfig.DeployParams.OpenstackCephSharedNamespace == "" {
+			c.log.Error().Msgf("ingress certs are not set, openstack-ceph shared namespace with openstack certs is not set, skipping ingress deploy ")
+			return false, nil
+		}
 		osSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
 		if err != nil {
 			if !apierrors.IsNotFound(err) {

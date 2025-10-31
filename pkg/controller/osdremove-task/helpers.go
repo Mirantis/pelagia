@@ -20,8 +20,6 @@ import (
 	"fmt"
 	"strings"
 
-	batch "k8s.io/api/batch/v1"
-
 	lcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
 )
@@ -168,15 +166,4 @@ func getReportWarningsInNodeFormat(hostMapping lcmv1alpha1.HostMapping, host str
 
 func isStrayOsdID(osdID string) bool {
 	return strings.HasSuffix(osdID, lcmcommon.StrayOsdNodeMarker)
-}
-
-func jobConditionsFailed(jobStatus batch.JobStatus) bool {
-	if len(jobStatus.Conditions) > 0 {
-		for _, condition := range jobStatus.Conditions {
-			if condition.Type == batch.JobFailed {
-				return true
-			}
-		}
-	}
-	return false
 }

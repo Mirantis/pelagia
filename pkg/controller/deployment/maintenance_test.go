@@ -17,12 +17,12 @@ limitations under the License.
 package deployment
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
 	faketestclients "github.com/Mirantis/pelagia/test/unit/clients"
 	unitinputs "github.com/Mirantis/pelagia/test/unit/inputs"
 )
@@ -38,7 +38,7 @@ func TestCephUpgradeAllowed(t *testing.T) {
 		{
 			name:          "get envvar failed - fail",
 			varError:      true,
-			expectedError: "failed to get current cluster release: env variable 'CEPH_CONTROLLER_CLUSTER_RELEASE' is not set",
+			expectedError: "required env variable 'CEPH_CONTROLLER_CLUSTER_RELEASE' is not set",
 		},
 		{
 			name:          "failed to get osdpl list",
@@ -63,7 +63,6 @@ func TestCephUpgradeAllowed(t *testing.T) {
 			upgradeAllowed: true,
 		},
 	}
-	oldLookup := lcmcommon.LookupEnv
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(nil, nil)
@@ -73,13 +72,10 @@ func TestCephUpgradeAllowed(t *testing.T) {
 				c.api.Client = faketestclients.GetClient(nil)
 			}
 
-			lcmcommon.LookupEnv = func(key string) (string, bool) {
-				if !test.varError {
-					if key == "CEPH_CONTROLLER_CLUSTER_RELEASE" {
-						return "cur", true
-					}
-				}
-				return "", false
+			if test.varError {
+				os.Unsetenv("CEPH_CONTROLLER_CLUSTER_RELEASE")
+			} else {
+				t.Setenv("CEPH_CONTROLLER_CLUSTER_RELEASE", "cur")
 			}
 
 			allowed, err := c.cephUpgradeAllowed()
@@ -92,5 +88,4 @@ func TestCephUpgradeAllowed(t *testing.T) {
 			assert.Equal(t, test.upgradeAllowed, allowed)
 		})
 	}
-	lcmcommon.LookupEnv = oldLookup
 }

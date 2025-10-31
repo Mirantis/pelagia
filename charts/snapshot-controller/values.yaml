@@ -1,35 +1,37 @@
 global:
   dockerBaseUrl: registry.mirantis.com
 
-nameOverride: ""
-namespace: "kube-system"
-
 images:
   snapshotController:
     repository: pelagia/snapshot-controller
-    tag: v8.2.0-2.cve
+    tag: v8.2.0-4.cve
     fullName: ""
 
-affinity:
-# affinity is a group of affinity scheduling for snapshot-controller Deployment
-#  nodeAffinity:
-#    preferredDuringSchedulingIgnoredDuringExecution:
-#    - weight: 100
-#      preference:
-#        matchExpressions:
-#        - key: "ceph_role_mon"
-#          operator: In
-#          values:
-#          - "true"
-nodeSelector: {}
-# constraint snapshot-controller Deployment to nodes with specific labels
-# Example:
-#   nodeSelector:
-#     disktype: ssd
-tolerations: []
-# tolerations for the rook-ceph-operator to allow it to run on nodes with particular taints
-# Example:
-#   tolerations:
-#   - effect: NoSchedule
-#     key: node-role.kubernetes.io/controlplane
-#     operator: Exists
+snapshotControllerConfig:
+  accountName: snapshot-controller
+  nameOverride: ""
+  namespace: "kube-system"
+  replicas: 1
+  affinity:
+  # affinity is a group of affinity scheduling for snapshot-controller Deployment
+  #  nodeAffinity:
+  #    preferredDuringSchedulingIgnoredDuringExecution:
+  #    - weight: 100
+  #      preference:
+  #        matchExpressions:
+  #        - key: "ceph_role_mon"
+  #          operator: In
+  #          values:
+  #          - "true"
+  nodeSelector: {}
+  # constraint snapshot-controller Deployment to nodes with specific labels
+  # Example:
+  #   nodeSelector:
+  #     disktype: ssd
+  tolerations: []
+  # tolerations for the rook-ceph-operator to allow it to run on nodes with particular taints
+  # Example:
+  #   tolerations:
+  #   - effect: NoSchedule
+  #     key: node-role.kubernetes.io/controlplane
+  #     operator: Exists

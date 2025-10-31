@@ -18,26 +18,60 @@ IMAGE_NAME ?= localdocker:5000/$(CONTROLLER_NAME)
 E2E_IMAGE_NAME ?= localdocker:5000/$(CEPH_E2E_NAME)
 IMAGE_TAG ?= latest
 GERRIT_USER_NAME ?= mcp-ci-gerrit
-CHART_VERSION := $(shell build/scripts/get_chart_version.sh charts/pelagia-ceph/Chart.yaml)
-CODE_VERSION := $(shell build/scripts/get_version.sh)
-LDFLAGS := "-X 'github.com/Mirantis/pelagia/version.Version=${CHART_VERSION}-${CODE_VERSION}'"
-# VERSION is a main release chart version
-VERSION ?= $(shell build/scripts/get_version.sh $(CHART_VERSION))
+SKIP_SNAPSHOT_CONTROLLER ?= ""
+SKIP_ROOK_CRDS ?= ""
+CHART_VERSION := $(shell build/scripts/get_version.sh chart)
+CODE_VERSION := $(shell build/scripts/get_version.sh app)
+LDFLAGS := "-X 'github.com/Mirantis/pelagia/version.Version=${CODE_VERSION}'"
 GITHUB_USERNAME ?= infra-ci-user
 E2E_TESTLIST_LOCAL ?= $(shell ls ./test/e2e/ | grep _test.go | grep -v entrypoint_test | xargs printf "./test/e2e/%s " $1)
 
 # TODO(prazumovsky): add envvar for different products: kubevirt, k0rdent, MOSK, upstream. It will allow us to build different
 # charts for different products. Then manage this envvar in helm build and other commands.
 
-pelagia-ceph: ## Build helm package.
+# (degorenko): VERSION is var for CI, used for backward compatibility
+ifdef VERSION
+	CODE_VERSION=$(VERSION)
+	CHART_VERSION=$(VERSION)
+endif
+
+pelagia-ceph: snapshot-controller rook-crds ## Build helm package.
+	@printf "\n=== PACKAGING PELAGIA-CEPH CHART ===\n"
+	cp charts/pelagia-ceph/Chart.yaml charts/pelagia-ceph/.Chart.yaml.bckp
+	@if [ -n $(SKIP_SNAPSHOT_CONTROLLER) ]; then \
+		printf "\n=== REMOVING SNAPSHOT-CONTROLLER DEPENDENCY ===\n"; \
+		sed -i '/- name: snapshot-controller/,+2d' charts/pelagia-ceph/Chart.yaml ; \
+	fi
+	@if [ -n $(SKIP_ROOK_CRDS) ]; then \
+		printf "\n=== REMOVING ROOK-CRDS DEPENDENCY ===\n"; \
+		sed -i '/- name: rook-crds/,+2d' charts/pelagia-ceph/Chart.yaml ; \
+	fi
+	@if [ -z $(SKIP_SNAPSHOT_CONTROLLER) -o -z $(SKIP_ROOK_CRDS) ]; then \
+		sed -i 's/^  version:.*$$/  version: $(CHART_VERSION)/g' charts/pelagia-ceph/Chart.yaml ; \
+	else \
+		sed -i '/^dependencies:/,$$d' charts/pelagia-ceph/Chart.yaml ; \
+	fi
 	helm lint charts/pelagia-ceph
-	helm dependency update charts/pelagia-ceph \
-			--registry-config ./registry/config.json --repository-cache ./repository --repository-config ./repositories.yaml; \
-	helm package charts/pelagia-ceph --version $(VERSION)
+	helm package charts/pelagia-ceph --version $(CHART_VERSION)
+	mv charts/pelagia-ceph/.Chart.yaml.bckp charts/pelagia-ceph/Chart.yaml
+
+rook-crds:
+	@if [ -z $(SKIP_ROOK_CRDS) ]; then \
+		printf "\n=== PACKAGING ROOK-CRDS CHART ===\n"; \
+		helm lint charts/rook-crds; \
+		helm package charts/rook-crds --version $(CHART_VERSION) -d charts/pelagia-ceph/charts; \
+	else \
+		printf "\n=== PACKAGING ROOK-CRDS CHART HAS BEEN SKIPPED ===\n"; \
+	fi
 
 snapshot-controller:
-	helm lint charts/snapshot-controller
-	helm package charts/snapshot-controller --version $(VERSION)
+	@if [ -z $(SKIP_SNAPSHOT_CONTROLLER) ]; then \
+		printf "\n=== PACKAGING SNAPSHOT-CONTROLLER CHART ===\n"; \
+		helm lint charts/snapshot-controller; \
+		helm package charts/snapshot-controller --version $(CHART_VERSION) -d charts/pelagia-ceph/charts; \
+	else \
+		printf "\n=== PACKAGING SNAPSHOT-CONTROLLER CHART HAS BEEN SKIPPED ===\n"; \
+	fi
 
 $(OUTPUT)/$(CONTROLLER_NAME): vendor ## Build controller binary
 	go build -o $@ -trimpath -ldflags $(LDFLAGS) -mod=vendor $(CONTROLLER_CMD)
@@ -56,8 +90,7 @@ $(OUTPUT)/$(CONNECTOR_NAME): vendor
 	docker image build --platform linux/$(GOARCH) -t $(E2E_IMAGE_NAME):$(IMAGE_TAG) -f e2e.Dockerfile .
 
 .PHONY: get-version get-code-version get-chart-version
-get-version:
-	@printf $(VERSION)
+get-version: get-chart-version
 get-code-version:
 	@printf $(CODE_VERSION)
 
@@ -85,7 +118,6 @@ clean: ## Clean built object and vendor libraries.
 	rm -f $(OUTPUT)/$(CEPH_E2E_NAME)
 	rm -rf vendor
 	rm -f pelagia-ceph-*.tgz
-	rm -f snapshot-controller-*.tgz
 	rm -fr repository
 	rm -f repositories.*
 	rm -rf charts/pelagia-ceph/charts/

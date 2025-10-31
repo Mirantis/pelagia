@@ -148,7 +148,7 @@ type ReconcileCephDeployment struct {
 func (r *ReconcileCephDeployment) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
 	lcmConfig := lcmconfig.GetConfiguration(request.Namespace)
 	sublog := log.With().Str(lcmcommon.LoggerObjectField, fmt.Sprintf("cephdeployment '%v'", request.NamespacedName)).Logger().Level(lcmConfig.DeployParams.LogLevel)
-	sublog.Info().Msg("reconcile started")
+	sublog.Debug().Msg("reconcile started")
 	cephDplList, err := r.CephLcmclientset.LcmV1alpha1().CephDeployments(request.Namespace).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		sublog.Error().Err(err).Msgf("failed to list CephDeployments %s namespace", request.Namespace)
@@ -188,7 +188,7 @@ func (r *ReconcileCephDeployment) Reconcile(ctx context.Context, request reconci
 		return reconcile.Result{RequeueAfter: requeueAfterInterval}, nil
 	}
 
-	expandedNodes, err := cephDplConfig.buildExpandedNodeList()
+	expandedNodes, err := lcmcommon.GetExpandedCephDeploymentNodeList(ctx, r.Client, cephDpl.Spec)
 	if err != nil {
 		cephDpl.Status.Phase = cephlcmv1alpha1.PhaseFailed
 		cephDpl.Status.Message = fmt.Sprintf("failed to expand node list for CephDeployment %s/%s", cephDpl.Namespace, cephDpl.Name)
@@ -244,7 +244,7 @@ func (r *ReconcileCephDeployment) Reconcile(ctx context.Context, request reconci
 	}
 
 	// run spec validation every time and requeue reconcile if updated
-	sublog.Info().Msgf("running validation of CephDeployment '%s/%s' spec", cephDpl.Namespace, cephDpl.Name)
+	sublog.Debug().Msgf("running validation of CephDeployment '%s/%s' spec", cephDpl.Namespace, cephDpl.Name)
 	validationResult := cephDplConfig.validate()
 	if !reflect.DeepEqual(cephDpl.Status.Validation, validationResult) {
 		cephDpl.Status.Validation = validationResult
@@ -374,7 +374,7 @@ func (r *ReconcileCephDeployment) Reconcile(ctx context.Context, request reconci
 	if err != nil {
 		sublog.Error().Err(err).Msg("failed to write CephDeployment status")
 	}
-	sublog.Info().Msgf("reconcile for CephDeployment %q is finished", request.String())
+	sublog.Debug().Msgf("reconcile for CephDeployment %q is finished", request.String())
 	return reconcile.Result{RequeueAfter: requeueAfterInterval}, nil
 }
 
@@ -495,7 +495,7 @@ func (c *cephDeploymentConfig) verifySetup() error {
 		return errors.Errorf("current Ceph version is not detected")
 	}
 
-	c.log.Info().Msgf("running Ceph cluster version %s %s.%s", c.cdConfig.currentCephVersion.Name, c.cdConfig.currentCephVersion.MajorVersion, c.cdConfig.currentCephVersion.MinorVersion)
+	c.log.Debug().Msgf("running Ceph cluster version %s %s.%s", c.cdConfig.currentCephVersion.Name, c.cdConfig.currentCephVersion.MajorVersion, c.cdConfig.currentCephVersion.MinorVersion)
 	// ensure rook image is actual in Rook apps
 	err := c.ensureRookImage()
 	if err != nil {
@@ -512,7 +512,7 @@ func (c *cephDeploymentConfig) verifySetup() error {
 
 func (c *cephDeploymentConfig) checkLcmState() (bool, cephlcmv1alpha1.CephDeploymentPhase, error) {
 	if !c.cdConfig.cephDpl.Spec.External {
-		c.log.Info().Msg("ensure CephOsdRemoveTasks")
+		c.log.Debug().Msg("ensure CephOsdRemoveTasks")
 		taskList, err := c.api.CephLcmclientset.LcmV1alpha1().CephOsdRemoveTasks(c.cdConfig.cephDpl.Namespace).List(c.context, metav1.ListOptions{})
 		if err != nil {
 			return false, cephlcmv1alpha1.PhaseFailed, errors.Wrapf(err, "failed to list CephOsdRemoveTasks in %s namespace", c.cdConfig.cephDpl.Namespace)
@@ -724,7 +724,7 @@ func (r *ReconcileCephDeployment) updateCephDeploymentStatus(ctx context.Context
 	}
 	status.LastRun = lcmcommon.GetCurrentTimeString()
 	log.Info().Msg(logMsg)
-	err = cephlcmv1alpha1.UpdateCephDeploymentStatus(cephDpl, status, r.Client)
+	err = cephlcmv1alpha1.UpdateCephDeploymentStatus(ctx, cephDpl, status, r.Client)
 	if err != nil {
 		return errors.Wrapf(err, "failed to update CephDeployment %s/%s status", cephDpl.Namespace, cephDpl.Name)
 	}

@@ -211,10 +211,23 @@ func TestCephFS(t *testing.T) {
 	if cd.Spec.SharedFilesystem != nil {
 		for _, newCephFS := range sharedFS.CephFS {
 			found := false
-			for _, cephFS := range cd.Spec.SharedFilesystem.CephFS {
+			for idx, cephFS := range cd.Spec.SharedFilesystem.CephFS {
 				if cephFS.Name == newCephFS.Name {
 					f.TF.Log.Warn().Msgf("found present CephFS with the same name as for e2e test: %s", cephFS.Name)
 					found = true
+					// check data pools required for tests present
+					for _, dataPool := range newCephFS.DataPools {
+						foundPool := false
+						for _, presentDataPool := range cephFS.DataPools {
+							if dataPool.Name == presentDataPool.Name {
+								foundPool = true
+							}
+						}
+						if !foundPool {
+							toUpdate = true
+							cd.Spec.SharedFilesystem.CephFS[idx].DataPools = append(cd.Spec.SharedFilesystem.CephFS[idx].DataPools, dataPool)
+						}
+					}
 					break
 				}
 			}
@@ -248,10 +261,6 @@ func TestCephFS(t *testing.T) {
 		f.Step(t, "Prepare test deployment and PVC for storage class '%s'", storageClass)
 		cephFsTestDeploymentName := fmt.Sprintf("cephfs-test-deployment-%v", time.Now().Unix())
 		cephFsPVCName := fmt.Sprintf("cephfs-pvc-%v", time.Now().Unix())
-		err = prepareTestDeployment(cephFsTestDeploymentName, cephFsPVCName, storageClass, testImage, f.TF.TestConfig.Settings.Namespace)
-		if err != nil {
-			t.Fatal(err)
-		}
 
 		defer func() {
 			if !f.TF.TestConfig.Settings.KeepAfter {
@@ -266,6 +275,11 @@ func TestCephFS(t *testing.T) {
 				}
 			}
 		}()
+
+		err = prepareTestDeployment(cephFsTestDeploymentName, cephFsPVCName, storageClass, testImage, f.TF.TestConfig.Settings.Namespace)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		f.Step(t, "Write test content for deployment '%s'", cephFsTestDeploymentName)
 		content, err := writeContent(cephFsTestDeploymentName, f.TF.TestConfig.Settings.Namespace)

@@ -584,7 +584,7 @@ func (c *cephOsdRemoveConfig) handleJobRun(osdID, host string, hostOsdMapping ma
 			c.log.Info().Msgf("device cleanup job '%s' is still running", curStatus.Name)
 			return curStatus
 		}
-		if job.Status.Failed > 0 || jobConditionsFailed(job.Status) {
+		if job.Status.Failed > 0 || lcmcommon.JobConditionsFailed(job.Status) {
 			c.log.Error().Msgf("device cleanup job '%s' has failed", curStatus.Name)
 			curStatus.Error = "job failed, check logs"
 			curStatus.Status = lcmv1alpha1.RemoveFailed

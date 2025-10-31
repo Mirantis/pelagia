@@ -1188,10 +1188,11 @@ func TestReconcile(t *testing.T) {
 	oldTriesLeft := failTriesLeft
 	oldTimeFunc := lcmcommon.GetCurrentTimeString
 	oldUnixTimeFunc := lcmcommon.GetCurrentUnixTimeString
-	oldLookupFunc := lcmcommon.LookupEnv
 	oldGenerateCrtFunc := lcmcommon.GenerateSelfSignedCert
 	oldCephCmdFunc := lcmcommon.RunPodCommandWithValidation
 	failTriesLeft = 0
+	t.Setenv("CEPH_CONTROLLER_CLUSTER_RELEASE", "1.1.1")
+	t.Setenv("WAIT_FOR_OPENSTACK_LOCK", "false")
 	for idx, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			r.Client = faketestclients.GetClient(test.testclient)
@@ -1216,15 +1217,6 @@ func TestReconcile(t *testing.T) {
 			}
 			lcmcommon.GetCurrentUnixTimeString = func() string {
 				return "1675587456"
-			}
-			lcmcommon.LookupEnv = func(key string) (string, bool) {
-				switch key {
-				case "CEPH_CONTROLLER_CLUSTER_RELEASE":
-					return "1.1.1", true
-				case "WAIT_FOR_OPENSTACK_LOCK":
-					return "false", true
-				}
-				return "", false
 			}
 			lcmcommon.GenerateSelfSignedCert = func(_, _ string, _ []string) (string, string, string, error) {
 				return "fake-key", "fake-crt", "fake-ca", nil
@@ -1315,7 +1307,6 @@ func TestReconcile(t *testing.T) {
 	failTriesLeft = oldTriesLeft
 	lcmcommon.GetCurrentTimeString = oldTimeFunc
 	lcmcommon.GetCurrentUnixTimeString = oldUnixTimeFunc
-	lcmcommon.LookupEnv = oldLookupFunc
 	lcmcommon.GenerateSelfSignedCert = oldGenerateCrtFunc
 	lcmcommon.RunPodCommandWithValidation = oldCephCmdFunc
 	unsetTimestampsVar()
@@ -1826,7 +1817,7 @@ func TestCheckLCMStuff(t *testing.T) {
 			faketestclients.FakeReaction(c.api.CephLcmclientset, "list", []string{"cephosdremovetasks"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.CephLcmclientset, "get", []string{"cephdeploymentmaintenances"}, test.inputResources, test.apiErrors)
 
-			nodesList, err := c.buildExpandedNodeList()
+			nodesList, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
 			assert.Nil(t, err)
 			c.cdConfig.nodesListExpanded = nodesList
 
@@ -2247,7 +2238,7 @@ func TestApplyConfiguration(t *testing.T) {
 				return "1675587456"
 			}
 
-			nodesList, err := c.buildExpandedNodeList()
+			nodesList, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
 			assert.Nil(t, err)
 			c.cdConfig.nodesListExpanded = nodesList
 

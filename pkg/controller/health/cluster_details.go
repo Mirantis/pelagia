@@ -116,7 +116,7 @@ func (c *cephDeploymentHealthConfig) getCephEvents() (*lcmv1alpha1.CephEvents, s
 		c.log.Debug().Msgf("skipping ceph cluster events check, set '%s' to skip through lcm config settings", cephEventsCheck)
 		return nil, ""
 	}
-	var cephStatus cephStatus
+	var cephStatus lcmcommon.CephStatus
 	cmd := "ceph status -f json"
 	err := lcmcommon.RunAndParseCephToolboxCLI(c.context, c.api.Kubeclientset, c.api.Config, c.lcmConfig.RookNamespace, cmd, &cephStatus)
 	if err != nil {
@@ -129,7 +129,7 @@ func (c *cephDeploymentHealthConfig) getCephEvents() (*lcmv1alpha1.CephEvents, s
 	}, ""
 }
 
-func getEventDetails(eventPrefix string, cephStatusEvents map[string]progressEvents) lcmv1alpha1.CephEventDetails {
+func getEventDetails(eventPrefix string, cephStatusEvents map[string]lcmcommon.ProgressEvents) lcmv1alpha1.CephEventDetails {
 	eventDetails := lcmv1alpha1.CephEventDetails{}
 	inAction := false
 

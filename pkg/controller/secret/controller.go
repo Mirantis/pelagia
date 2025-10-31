@@ -22,13 +22,9 @@ import (
 	"reflect"
 	"strings"
 
-	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
-	lcmconfig "github.com/Mirantis/pelagia/pkg/controller/config"
-
 	"github.com/pkg/errors"
+	rookclient "github.com/rook/rook/pkg/client/clientset/versioned"
 	"github.com/rs/zerolog"
-
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -43,9 +39,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
-	rookclient "github.com/rook/rook/pkg/client/clientset/versioned"
-
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	lcmclient "github.com/Mirantis/pelagia/pkg/client/clientset/versioned"
+	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
+	lcmconfig "github.com/Mirantis/pelagia/pkg/controller/config"
 )
 
 const (
@@ -122,7 +119,7 @@ type ReconcileCephSecrets struct {
 func (r *ReconcileCephSecrets) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
 	lcmConfig := lcmconfig.GetConfiguration(request.Namespace)
 	sublog := log.With().Str(lcmcommon.LoggerObjectField, fmt.Sprintf("cephdeploymentsecret '%v'", request.NamespacedName)).Logger().Level(lcmConfig.DeployParams.LogLevel)
-	sublog.Info().Msg("reconcile started")
+	sublog.Debug().Msg("reconcile started")
 
 	cdSecret, err := r.Cephdplclientset.LcmV1alpha1().CephDeploymentSecrets(request.Namespace).Get(ctx, request.Name, metav1.GetOptions{})
 	if err != nil {
@@ -174,7 +171,7 @@ func (r *ReconcileCephSecrets) Reconcile(ctx context.Context, request reconcile.
 		sublog.Error().Msgf("issues found during secrets processing: [%s]", strings.Join(issues, ", "))
 	}
 
-	err = r.updateCephDeploymentSecretStatus(ctx, request.Namespace, request.Name, buildCephDeploymentSecretStatus(newSecretsInfo, issues))
+	err = r.updateCephDeploymentSecretStatus(ctx, sublog, request.Namespace, request.Name, buildCephDeploymentSecretStatus(newSecretsInfo, issues))
 	if err != nil {
 		sublog.Error().Err(err).Msgf("failed to update CephDeploymentSecret '%s/%s' status", cdSecret.Namespace, cdSecret.Name)
 	}
@@ -183,7 +180,7 @@ func (r *ReconcileCephSecrets) Reconcile(ctx context.Context, request reconcile.
 
 func (r *ReconcileCephSecrets) setFailedState(ctx context.Context, log zerolog.Logger, namespace, name string, msg string) {
 	log.Error().Msg(msg)
-	statusErr := r.updateCephDeploymentSecretStatus(ctx, namespace, name, buildCephDeploymentSecretStatus(nil, []string{msg}))
+	statusErr := r.updateCephDeploymentSecretStatus(ctx, log, namespace, name, buildCephDeploymentSecretStatus(nil, []string{msg}))
 	if statusErr != nil {
 		log.Error().Err(statusErr).Msg("")
 	}
@@ -201,7 +198,7 @@ func buildCephDeploymentSecretStatus(secretsInfo *cephlcmv1alpha1.CephDeployment
 	return newStatus
 }
 
-func (r *ReconcileCephSecrets) updateCephDeploymentSecretStatus(ctx context.Context, namespace, name string, status *cephlcmv1alpha1.CephDeploymentSecretStatus) error {
+func (r *ReconcileCephSecrets) updateCephDeploymentSecretStatus(ctx context.Context, objlog zerolog.Logger, namespace, name string, status *cephlcmv1alpha1.CephDeploymentSecretStatus) error {
 	cephDplSecret := &cephlcmv1alpha1.CephDeploymentSecret{}
 	err := r.Client.Get(ctx, client.ObjectKey{Name: name, Namespace: namespace}, cephDplSecret)
 	if err != nil {
@@ -214,10 +211,14 @@ func (r *ReconcileCephSecrets) updateCephDeploymentSecretStatus(ctx context.Cont
 		status.LastSecretUpdate = cephDplSecret.Status.LastSecretUpdate
 	}
 	if !reflect.DeepEqual(cephDplSecret.Status, status) {
+		objlog.Debug().Msgf("updating status with new secrets info")
+		lcmcommon.ShowObjectDiff(objlog, cephDplSecret.Status, status)
 		status.LastSecretUpdate = timeNow
+	} else {
+		objlog.Debug().Msgf("updating status with new check timestamps")
 	}
 	status.LastSecretCheck = timeNow
-	err = cephlcmv1alpha1.UpdateCephDeploymentSecretStatus(cephDplSecret, status, r.Client)
+	err = cephlcmv1alpha1.UpdateCephDeploymentSecretStatus(ctx, cephDplSecret, status, r.Client)
 	if err != nil {
 		return errors.Wrapf(err, "failed to update CephDeploymentSecret %s/%s status", cephDplSecret.Namespace, cephDplSecret.Name)
 	}

@@ -2,7 +2,7 @@
 Expand the name of the chart.
 */}}
 {{- define "snapshot-controller.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- default .Chart.Name .Values.snapshotControllerConfig.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{- define "snapshot-controller.image" -}}
@@ -32,5 +32,3 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
-
-{{ define "snapshot-controller.namespace" }}{{ .Values.namespace }}{{end}}

@@ -151,7 +151,7 @@ type ReconcileCephDeploymentHealth struct {
 func (r *ReconcileCephDeploymentHealth) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
 	lcmConfig := lcmconfig.GetConfiguration(request.Namespace)
 	sublog := log.With().Str(lcmcommon.LoggerObjectField, fmt.Sprintf("cephdeploymenthealth '%v'", request.NamespacedName)).Logger().Level(lcmConfig.HealthParams.LogLevel)
-	sublog.Info().Msg("reconcile started")
+	sublog.Debug().Msg("reconcile started")
 	_, err := r.Lcmclientset.LcmV1alpha1().CephDeploymentHealths(request.Namespace).Get(ctx, request.Name, metav1.GetOptions{})
 	if err != nil {
 		sublog.Error().Err(err).Msg("")
@@ -184,7 +184,7 @@ func (r *ReconcileCephDeploymentHealth) Reconcile(ctx context.Context, request r
 	}
 
 	r.updateCephDeploymentHealthStatus(ctx, sublog, request, newHealthStatus, verificationIssues)
-	sublog.Info().Msg("reconcile finished")
+	sublog.Debug().Msg("reconcile finished")
 	return reconcile.Result{RequeueAfter: requeueAfterInterval}, nil
 }
 
@@ -205,13 +205,15 @@ func (r *ReconcileCephDeploymentHealth) updateCephDeploymentHealthStatus(ctx con
 			newStatus.Issues = reportIssues
 			newStatus.State = lcmv1alpha1.HealthStateFailed
 		}
-		objlog.Info().Msgf("updating status")
 		if !reflect.DeepEqual(deploymentHealth.Status, newStatus) {
+			objlog.Debug().Msgf("updating health status with new health info")
 			lcmcommon.ShowObjectDiff(objlog, deploymentHealth.Status, newStatus)
 			newStatus.LastHealthUpdate = timeNow
+		} else {
+			objlog.Debug().Msgf("updating health status with new check timestamps")
 		}
 		newStatus.LastHealthCheck = timeNow
-		err = lcmv1alpha1.UpdateCephHealthDeploymentStatus(deploymentHealth, newStatus, r.Client)
+		err = lcmv1alpha1.UpdateCephHealthDeploymentStatus(ctx, deploymentHealth, newStatus, r.Client)
 	}
 	if err != nil {
 		objlog.Error().Err(errors.Wrap(err, "failed to update status")).Msg("")

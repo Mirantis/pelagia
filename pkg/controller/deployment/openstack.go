@@ -43,16 +43,20 @@ type openstackSecretData struct {
 }
 
 func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
+	if c.lcmConfig.DeployParams.OpenstackCephSharedNamespace == "" {
+		c.log.Debug().Msg("shared openstack-ceph namespace is not specified, skipping Openstack secret ensure")
+		return false, nil
+	}
 	if c.cdConfig.cephDpl.Spec.ExtraOpts != nil && c.cdConfig.cephDpl.Spec.ExtraOpts.DisableOsKeys {
-		c.log.Info().Msg("openstack secret ensure disabled, skipping it")
+		c.log.Debug().Msg("openstack secret ensure disabled, skipping it")
 		return false, nil
 	}
 	// Skip OpenStack secret ensure if there is no OpenStack pools
 	if !lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) {
-		c.log.Info().Msg("required Openstack pools are not specified in spec, skipping Openstack secret ensure")
+		c.log.Debug().Msg("required Openstack pools are not specified in spec, skipping Openstack secret ensure")
 		return false, nil
 	}
-	c.log.Info().Msgf("ensure Openstack secret %s/%s", c.lcmConfig.DeployParams.OpenstackCephSharedNamespace, openstackSharedSecret)
+	c.log.Debug().Msgf("ensure Openstack secret %s/%s", c.lcmConfig.DeployParams.OpenstackCephSharedNamespace, openstackSharedSecret)
 	cephFSDeployed := c.cdConfig.cephDpl.Spec.SharedFilesystem != nil
 
 	notReadyOpenStackPools := []string{}

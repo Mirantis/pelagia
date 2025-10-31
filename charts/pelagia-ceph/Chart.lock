@@ -1,6 +1,0 @@
-dependencies:
-- name: snapshot-controller
-  repository: oci://registry.mirantis.com/pelagia
-  version: 1.0.0
-digest: sha256:c795b7760ce4569722f946f9a5585380524b3e3785771d765e2f0cbe6263438a
-generated: "2025-09-01T17:45:14.58469+04:00"

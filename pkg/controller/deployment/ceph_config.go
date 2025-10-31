@@ -139,7 +139,7 @@ var passwordKeys = []string{"rgw_keystone_admin_password", "rgw_keystone_barbica
 var runtimeKeys = passwordKeys
 
 func (c *cephDeploymentConfig) ensureCephConfig(cephClusterPresent bool) (bool, error) {
-	c.log.Info().Msgf("ensure ceph config for cluster %s/%s", c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Name)
+	c.log.Debug().Msgf("ensure ceph config for cluster %s/%s", c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Name)
 	cephOverrideConfig, runtimeConfig, configHashes, err := c.buildCephConfig()
 	if err != nil {
 		c.log.Error().Err(err).Msg("failed to build ceph config")
@@ -359,23 +359,25 @@ func (c *cephDeploymentConfig) buildCephConfig() (string, map[string]string, map
 		}
 		rgwSectionName := rgwConfigSectionName(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name)
 		mergeConfig(defaultRgwConfigOptions(rgwSectionName))
-		openstackSecrets, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
-		if err != nil {
-			if !apierrors.IsNotFound(err) {
-				return "", nil, nil, err
-			}
-		} else {
-			secretConfig := map[string]string{}
-			for key, val := range openstackSecrets.Data {
-				secretConfig[key] = string(val)
-			}
-			if domain, ok := secretConfig["public_domain"]; ok && ingressTLS == nil {
-				rgwDNSNameValue = fmt.Sprintf("%s.%s", c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name, domain)
-			}
-			mergeConfig(getDefaultRgwOpenStackConfig(rgwSectionName))
-			mergeConfig(getDefaultRgwKeystoneConfig(rgwSectionName, secretConfig))
-			if _, barbicanURLPresent := secretConfig["barbican_url"]; barbicanURLPresent {
-				mergeConfig(getDefaultRgwBarbicanConfig(rgwSectionName, secretConfig))
+		if lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) && c.lcmConfig.DeployParams.OpenstackCephSharedNamespace != "" {
+			openstackSecrets, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
+			if err != nil {
+				if !apierrors.IsNotFound(err) {
+					return "", nil, nil, err
+				}
+			} else {
+				secretConfig := map[string]string{}
+				for key, val := range openstackSecrets.Data {
+					secretConfig[key] = string(val)
+				}
+				if domain, ok := secretConfig["public_domain"]; ok && ingressTLS == nil {
+					rgwDNSNameValue = fmt.Sprintf("%s.%s", c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name, domain)
+				}
+				mergeConfig(getDefaultRgwOpenStackConfig(rgwSectionName))
+				mergeConfig(getDefaultRgwKeystoneConfig(rgwSectionName, secretConfig))
+				if _, barbicanURLPresent := secretConfig["barbican_url"]; barbicanURLPresent {
+					mergeConfig(getDefaultRgwBarbicanConfig(rgwSectionName, secretConfig))
+				}
 			}
 		}
 		mergeConfig([]configOption{{key: "rgw_dns_name", value: rgwDNSNameValue, section: rgwSectionName}})

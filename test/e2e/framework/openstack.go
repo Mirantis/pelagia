@@ -63,10 +63,12 @@ type NovaListItem struct {
 }
 
 type NovaShow struct {
-	ID        string              `json:"id,omitempty"`
-	Name      string              `json:"name,omitempty"`
-	Status    string              `json:"status,omitempty"`
-	Flavor    string              `json:"flavor,omitempty"`
+	ID     string `json:"id,omitempty"`
+	Name   string `json:"name,omitempty"`
+	Status string `json:"status,omitempty"`
+	Flavor struct {
+		Name string `json:"name"`
+	} `json:"flavor,omitempty"`
 	Image     string              `json:"image,omitempty"`
 	Power     int                 `json:"OS-EXT-STS:power_state,omitempty"`
 	Host      string              `json:"OS-EXT-SRV-ATTR:host"`
@@ -320,11 +322,12 @@ func (c *ManagedConfig) NovaServerDelete(name string, waiting bool) error {
 
 func (c *ManagedConfig) GlanceImageDelete(name string, waiting bool) error {
 	err := wait.PollUntilContextTimeout(c.Context, 15*time.Second, 5*time.Minute, true, func(_ context.Context) (done bool, err error) {
-		_, stderr, err := c.RunOpenstackCommand(fmt.Sprintf("openstack image delete %s", name))
+		// Use debug to w/a https://mirantis.jira.com/browse/PRODX-54581
+		_, stderr, err := c.RunOpenstackCommand(fmt.Sprintf("openstack --debug image delete %s", name))
 		if !waiting {
 			return true, nil
 		}
-		if err != nil && strings.Contains(stderr, fmt.Sprintf("Failed to delete image with name or ID '%s': No Image found for %s", name, name)) {
+		if err != nil && strings.Contains(stderr, fmt.Sprintf("No Image found for %s", name)) {
 			return true, nil
 		}
 		TF.Log.Info().Msgf("'openstack image delete %s' is not complete yet", name)
@@ -409,7 +412,7 @@ func (c *ManagedConfig) NovaServerCreate(name, flavor, keypair, image, network s
 			result.Status, result.Status == "ACTIVE", result.Power, result.Power == 1,
 			result.Keypair, keypair, result.Keypair == keypair,
 			result.Image, image, strings.Contains(result.Image, image),
-			result.Flavor, flavor, strings.Contains(result.Flavor, flavor),
+			result.Flavor.Name, flavor, result.Flavor.Name == flavor,
 		)
 		if !waiting {
 			return true, nil
@@ -418,7 +421,7 @@ func (c *ManagedConfig) NovaServerCreate(name, flavor, keypair, image, network s
 			result.Power == 1 &&
 			result.Keypair == keypair &&
 			strings.Contains(result.Image, image) &&
-			strings.Contains(result.Flavor, flavor), nil
+			result.Flavor.Name == flavor, nil
 	})
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to wait for 'openstack server create %s' completion", name)

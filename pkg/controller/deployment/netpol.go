@@ -33,7 +33,7 @@ import (
 
 func (c *cephDeploymentConfig) ensureNetworkPolicy() (bool, error) {
 	if c.lcmConfig.DeployParams.NetPolEnabled {
-		c.log.Info().Msg("ensure required network policies")
+		c.log.Debug().Msg("ensure required network policies")
 		portsMap := c.getPortsForPolicies()
 		// sort keys, to have strong order
 		keys := []string{}
@@ -64,7 +64,7 @@ func (c *cephDeploymentConfig) ensureNetworkPolicy() (bool, error) {
 		}
 		return updated, nil
 	}
-	c.log.Info().Msg("ensure network policies are not present")
+	c.log.Debug().Msg("ensure network policies are not present")
 	removed, err := c.cleanupNetworkPolicy()
 	if err != nil {
 		return false, errors.New("failed to clean up network policies")

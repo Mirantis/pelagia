@@ -67,7 +67,7 @@ func (c *cephDeploymentConfig) ensureClusterState() (bool, error) {
 
 // verifyPrometheusEnabled verifies prometheus enabled and enable if it is not
 func (c *cephDeploymentConfig) verifyPrometheusEnabled() (bool, error) {
-	c.log.Info().Msg("verify mgr module 'prometheus' is enabled")
+	c.log.Debug().Msg("verify mgr module 'prometheus' is enabled")
 	mgrModules := lcmcommon.MgrModuleLs{}
 	err := lcmcommon.RunAndParseCephToolboxCLI(c.context, c.api.Kubeclientset, c.api.Config, c.lcmConfig.RookNamespace, "ceph mgr module ls -f json", &mgrModules)
 	if err != nil {
@@ -91,7 +91,7 @@ func (c *cephDeploymentConfig) verifyPrometheusEnabled() (bool, error) {
 func (c *cephDeploymentConfig) verifyProgressEvents() (bool, error) {
 	enable := false
 	if c.cdConfig.cephDpl.Spec.ExtraOpts != nil && c.cdConfig.cephDpl.Spec.ExtraOpts.EnableProgressEvents {
-		c.log.Info().Msg("verify mgr progress events are enabled")
+		c.log.Debug().Msg("verify mgr progress events are enabled")
 		enable = true
 	}
 	stdout, err := lcmcommon.RunCephToolboxCLI(c.context, c.api.Kubeclientset, c.api.Config, c.lcmConfig.RookNamespace, "ceph config get mgr mgr/progress/allow_pg_recovery_event")
@@ -123,7 +123,7 @@ func (c *cephDeploymentConfig) verifyProgressEvents() (bool, error) {
 }
 
 func (c *cephDeploymentConfig) verifyBuiltinPools() (bool, error) {
-	c.log.Info().Msg("verify builtin Ceph pools")
+	c.log.Debug().Msg("verify builtin Ceph pools")
 	// Obtain builtin pools which are existing in Ceph cluster itself
 	var cephPools []string
 	err := lcmcommon.RunAndParseCephToolboxCLI(c.context, c.api.Kubeclientset, c.api.Config, c.lcmConfig.RookNamespace, "ceph osd pool ls -f json", &cephPools)

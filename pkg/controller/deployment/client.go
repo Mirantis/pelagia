@@ -31,7 +31,7 @@ import (
 )
 
 func (c *cephDeploymentConfig) ensureCephClients() (bool, error) {
-	c.log.Info().Msg("ensure ceph clients")
+	c.log.Debug().Msg("ensure ceph clients")
 	cephClients, err := c.api.Rookclientset.CephV1().CephClients(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
 	if err != nil {
 		return false, errors.Wrapf(err, "failed to list CephClients in %s namespace", c.lcmConfig.RookNamespace)

@@ -43,7 +43,7 @@ var (
 
 // TODO: labels are used from kaas maintenance - ?
 func (c *cephDeploymentConfig) ensureDaemonsetLabels() {
-	c.log.Info().Msg("run check daemonsets label ensure")
+	c.log.Debug().Msg("run check daemonsets label ensure")
 	nodes, err := c.api.Kubeclientset.CoreV1().Nodes().List(c.context, metav1.ListOptions{})
 	if err != nil {
 		c.log.Error().Err(err).Msg("ceph daemonsets label ensure failed: failed to list nodes")

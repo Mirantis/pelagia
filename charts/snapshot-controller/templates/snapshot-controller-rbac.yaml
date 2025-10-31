@@ -2,23 +2,17 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: snapshot-controller
-  namespace: kube-system
+  name: {{ .Values.snapshotControllerConfig.accountName }}
+  namespace: {{ .Values.snapshotControllerConfig.namespace }}
   labels:
-    app.kubernetes.io/name: {{ include "snapshot-controller.name" . }}
-    helm.sh/chart: {{ include "snapshot-controller.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{ include "snapshot-controller.labels" . | indent 4 }}
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: snapshot-controller-runner
+  name: {{ .Values.snapshotControllerConfig.accountName }}-runner
   labels:
-    app.kubernetes.io/name: {{ include "snapshot-controller.name" . }}
-    helm.sh/chart: {{ include "snapshot-controller.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{ include "snapshot-controller.labels" . | indent 4 }}
 rules:
   - apiGroups: [""]
     resources: ["persistentvolumes"]
@@ -69,52 +63,41 @@ rules:
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: snapshot-controller-role
+  name: {{ .Values.snapshotControllerConfig.accountName }}-role
   labels:
-    app.kubernetes.io/name: {{ include "snapshot-controller.name" . }}
-    helm.sh/chart: {{ include "snapshot-controller.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{ include "snapshot-controller.labels" . | indent 4 }}
 subjects:
   - kind: ServiceAccount
-    name: snapshot-controller
-    namespace: kube-system
+    name: {{ .Values.snapshotControllerConfig.accountName }}
+    namespace: {{ .Values.snapshotControllerConfig.namespace }}
 roleRef:
   kind: ClusterRole
-  name: snapshot-controller-runner
+  name: {{ .Values.snapshotControllerConfig.accountName }}-runner
   apiGroup: rbac.authorization.k8s.io
-
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: snapshot-controller-leaderelection
-  namespace: kube-system
+  name: {{ .Values.snapshotControllerConfig.accountName }}-leaderelection
+  namespace: {{ .Values.snapshotControllerConfig.namespace }}
   labels:
-    app.kubernetes.io/name: {{ include "snapshot-controller.name" . }}
-    helm.sh/chart: {{ include "snapshot-controller.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{ include "snapshot-controller.labels" . | indent 4 }}
 rules:
 - apiGroups: ["coordination.k8s.io"]
   resources: ["leases"]
   verbs: ["get", "watch", "list", "delete", "update", "create"]
-
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: snapshot-controller-leaderelection
-  namespace: kube-system
+  name: {{ .Values.snapshotControllerConfig.accountName }}-leaderelection
+  namespace: {{ .Values.snapshotControllerConfig.namespace }}
   labels:
-    app.kubernetes.io/name: {{ include "snapshot-controller.name" . }}
-    helm.sh/chart: {{ include "snapshot-controller.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{ include "snapshot-controller.labels" . | indent 4 }}
 subjects:
   - kind: ServiceAccount
-    name: snapshot-controller
+    name: {{ .Values.snapshotControllerConfig.accountName }}
 roleRef:
   kind: Role
-  name: snapshot-controller-leaderelection
+  name: {{ .Values.snapshotControllerConfig.accountName }}-leaderelection
   apiGroup: rbac.authorization.k8s.io
