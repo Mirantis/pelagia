@@ -174,15 +174,14 @@ job-coverage: github-config ## Run go coverage and export to html file
 .PHONY: lint golangci-lint-install
 lint: golangci-lint-install vendor ## Run go lint
 	@printf "\n=== <PROCESS GOLANGCI-LINT> ===\n"
-	golangci-lint run -v $(CURDIR)/...
+	$(GOPATH)/golangci-lint run -v $(CURDIR)/...
 
 golangci-lint-install:
-ifeq (,$(shell golangci-lint version 2>/dev/null))
+ifeq (,$(shell $(GOPATH)/golangci-lint version 2>/dev/null))
 	@printf "\n=== <INSTALL GO-LINT> ===\n"
 	@echo Missing golangci-lint. Going to install if for $(HOSTOS).
 ifeq ("Linux","$(HOSTOS)")
 	$(shell wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/v1.62.0/install.sh | bash -s -- -b $(GOPATH))
-	$(shell ln -s $(GOPATH)/golangci-lint /usr/bin/golangci-lint)
 endif
 ifeq ("Darwin","$(HOSTOS)")
 	brew install golangci/tap/golangci-lint
@@ -254,7 +253,7 @@ check-diff:
 
 fix: golangci-lint-install vendor ## Run go fix
 	@printf "\n=== <PROCESS GO FIX> ===\n"
-	golangci-lint run -v --fix ./...
+	$(GOPATH)/golangci-lint run -v --fix ./...
 
 .PHONY: docs-build
 docs-build:
