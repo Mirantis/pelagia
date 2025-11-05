@@ -21,7 +21,7 @@ function get_version {
         if [[ "${last_tag}" == "${main_version}" ]]; then
             commits_since_tag="$(_git rev-list --count "${last_tag}"..HEAD)"
             if [[ "${commits_since_tag}" != "0" ]]; then
-                version="${echo $last_tag | sed -E "s/[0-9]+$/${commits_since_tag}/"}"
+                version="$(echo $last_tag | sed -E "s/[0-9]+$/${commits_since_tag}/")"
             else
                 version="${last_tag}"
             fi

@@ -118,45 +118,31 @@ clean-docker: ## Clean built docker images.
 	@rm -f .docker
 clean-all: clean clean-docker ## Clean everything.
 
-vendor: github-config ## Update vendor libraries.
+vendor: ## Update vendor libraries.
 	@printf "\n=== <PROCESS GO MOD> ===\n"
 	@go mod tidy
 	@go mod vendor
 
-.PHONY: github-config
-github-config:
-	@printf "\n=== <PROCESS GITHUB CONFIG> ===\n"
-	@set -ex
-	@if [ -z $(shell git config --global credential."https://github.com".username) ]; then \
-		git config --global credential."https://github.com".username "${GITHUB_USERNAME}"; \
-	fi
-	@if [ -z "$(shell git config --global credential."https://github.com".helper)" ]; then \
-		git config --global credential."https://github.com".helper "! f() { echo \"password=$(shell head -1 ./github-password)\"; }; f"; \
-	fi
-	@if [ "$(shell git config --global safe.directory)" != "$(CURDIR)" ]; then \
-		git config --global --add safe.directory "$(CURDIR)"; \
-  	fi
-
 include e2e.mk
 .PHONY: e2e-code
-e2e-code: github-config ## Run e2e tests
+e2e-code: ## Run e2e tests
 	@printf "\n=== <PROCESS E2E TESTS> ===\n"
 	go clean -testcache
 	echo "Using ${E2E_TESTCONFIG} configset.."
 	go test -test.v -timeout 0 ${E2E_TESTLIST_LOCAL}
 
 .PHONY: unit coverage job-coverage
-unit: github-config ## Run go unit
+unit: ## Run go unit
 	@printf "\n=== <PROCESS GO UNIT> ===\n"
 	go test -test.v -timeout 0 "./pkg/..."
 
-coverage: github-config ## Run go coverage
+coverage: ## Run go coverage
 	@printf "\n=== <PROCESS GO COVERAGE> ===\n"
 	go test -coverprofile=coverage.out "./pkg/..."
 	go tool cover -html=coverage.out
 	rm coverage.out
 
-job-coverage: github-config ## Run go coverage and export to html file
+job-coverage: ## Run go coverage and export to html file
 	@printf "\n=== <PROCESS GO JOB COVERAGE> ===\n"
 	go test -coverprofile=coverage.out "./pkg/..."
 	go tool cover -html=coverage.out -o coverage.html
@@ -235,7 +221,7 @@ fmt: vendor ## Run go fmt
 	@printf "\n=== <PROCESS GO FMT> ===\n"
 	go fmt ./pkg/... ./cmd/... ./test/...
 
-check: github-config fmt generate lint ## Run git diff check
+check: fmt generate lint ## Run git diff check
 
 .PHONY: check-diff
 check-diff:
