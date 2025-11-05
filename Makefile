@@ -14,26 +14,21 @@ DISK_DAEMON_CMD := ./cmd/disk-daemon
 CONNECTOR_NAME := pelagia-connector
 CONNECTOR_CMD := ./cmd/connector
 CEPH_E2E_NAME := pelagia-e2e
-IMAGE_NAME ?= localdocker:5000/$(CONTROLLER_NAME)
-E2E_IMAGE_NAME ?= localdocker:5000/$(CEPH_E2E_NAME)
-IMAGE_TAG ?= latest
 GERRIT_USER_NAME ?= mcp-ci-gerrit
 SKIP_SNAPSHOT_CONTROLLER ?= ""
 SKIP_ROOK_CRDS ?= ""
-CHART_VERSION := $(shell build/scripts/get_version.sh chart)
-CODE_VERSION := $(shell build/scripts/get_version.sh app)
-LDFLAGS := "-X 'github.com/Mirantis/pelagia/version.Version=${CODE_VERSION}'"
+CURRENT_RELEASE_VERSION := "1.1.0"
+BUILD_MODE ?= "dev"
+VERSION := $(shell build/scripts/get_version.sh $(CURRENT_RELEASE_VERSION) $(BUILD_MODE))
 GITHUB_USERNAME ?= infra-ci-user
 E2E_TESTLIST_LOCAL ?= $(shell ls ./test/e2e/ | grep _test.go | grep -v entrypoint_test | xargs printf "./test/e2e/%s " $1)
+LDFLAGS := "-X 'github.com/Mirantis/pelagia/version.Version=${VERSION}'"
+IMAGE_NAME ?= localdocker:5000/$(CONTROLLER_NAME)
+E2E_IMAGE_NAME ?= localdocker:5000/$(CEPH_E2E_NAME)
+IMAGE_TAG ?= $(VERSION)
 
 # TODO(prazumovsky): add envvar for different products: kubevirt, k0rdent, MOSK, upstream. It will allow us to build different
 # charts for different products. Then manage this envvar in helm build and other commands.
-
-# (degorenko): VERSION is var for CI, used for backward compatibility
-ifdef VERSION
-	CODE_VERSION=$(VERSION)
-	CHART_VERSION=$(VERSION)
-endif
 
 pelagia-ceph: snapshot-controller rook-crds ## Build helm package.
 	@printf "\n=== PACKAGING PELAGIA-CEPH CHART ===\n"
@@ -47,19 +42,19 @@ pelagia-ceph: snapshot-controller rook-crds ## Build helm package.
 		sed -i '/- name: rook-crds/,+2d' charts/pelagia-ceph/Chart.yaml ; \
 	fi
 	@if [ -z $(SKIP_SNAPSHOT_CONTROLLER) -o -z $(SKIP_ROOK_CRDS) ]; then \
-		sed -i 's/^  version:.*$$/  version: $(CHART_VERSION)/g' charts/pelagia-ceph/Chart.yaml ; \
+		sed -i 's/^  version:.*$$/  version: $(VERSION)/g' charts/pelagia-ceph/Chart.yaml ; \
 	else \
 		sed -i '/^dependencies:/,$$d' charts/pelagia-ceph/Chart.yaml ; \
 	fi
 	helm lint charts/pelagia-ceph
-	helm package charts/pelagia-ceph --version $(CHART_VERSION)
+	helm package charts/pelagia-ceph --version $(VERSION)
 	mv charts/pelagia-ceph/.Chart.yaml.bckp charts/pelagia-ceph/Chart.yaml
 
 rook-crds:
 	@if [ -z $(SKIP_ROOK_CRDS) ]; then \
 		printf "\n=== PACKAGING ROOK-CRDS CHART ===\n"; \
 		helm lint charts/rook-crds; \
-		helm package charts/rook-crds --version $(CHART_VERSION) -d charts/pelagia-ceph/charts; \
+		helm package charts/rook-crds --version $(VERSION) -d charts/pelagia-ceph/charts; \
 	else \
 		printf "\n=== PACKAGING ROOK-CRDS CHART HAS BEEN SKIPPED ===\n"; \
 	fi
@@ -68,7 +63,7 @@ snapshot-controller:
 	@if [ -z $(SKIP_SNAPSHOT_CONTROLLER) ]; then \
 		printf "\n=== PACKAGING SNAPSHOT-CONTROLLER CHART ===\n"; \
 		helm lint charts/snapshot-controller; \
-		helm package charts/snapshot-controller --version $(CHART_VERSION) -d charts/pelagia-ceph/charts; \
+		helm package charts/snapshot-controller --version $(VERSION) -d charts/pelagia-ceph/charts; \
 	else \
 		printf "\n=== PACKAGING SNAPSHOT-CONTROLLER CHART HAS BEEN SKIPPED ===\n"; \
 	fi
@@ -89,13 +84,9 @@ $(OUTPUT)/$(CONNECTOR_NAME): vendor
 .docker-e2e: build-e2e
 	docker image build --platform linux/$(GOARCH) -t $(E2E_IMAGE_NAME):$(IMAGE_TAG) -f e2e.Dockerfile .
 
-.PHONY: get-version get-code-version get-chart-version
-get-version: get-chart-version
-get-code-version:
-	@printf $(CODE_VERSION)
-
-get-chart-version:
-	@printf $(CHART_VERSION)
+.PHONY: get-version
+get-version:
+	@printf $(VERSION)
 
 .PHONY: build build-e2e image publish image-e2e publish-e2e
 build: $(OUTPUT)/$(CONTROLLER_NAME) $(OUTPUT)/$(DISK_DAEMON_NAME) $(OUTPUT)/$(CONNECTOR_NAME) ## Build all binaries
@@ -177,7 +168,7 @@ lint: golangci-lint-install vendor ## Run go lint
 	$(GOPATH)/golangci-lint run -v $(CURDIR)/...
 
 golangci-lint-install:
-ifeq (,$(shell $(GOPATH)/golangci-lint version 2>/dev/null))
+ifeq (,$(shell golangci-lint version 2>/dev/null))
 	@printf "\n=== <INSTALL GO-LINT> ===\n"
 	@echo Missing golangci-lint. Going to install if for $(HOSTOS).
 ifeq ("Linux","$(HOSTOS)")
