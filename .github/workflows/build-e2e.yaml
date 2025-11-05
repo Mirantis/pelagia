@@ -1,0 +1,50 @@
+name: Build E2E CI
+
+on:
+  push:
+    branches: [ "main", "release-**" ]
+    paths:
+    - 'pkg/apis/**'
+    - 'test/e2e/**'
+    - 'go.mod'
+    - 'e2e.Dockerfile'
+    - 'e2e.mk'
+    - 'Makefile'
+  pull_request:
+    branches: [ "main", "release-**" ]
+    paths:
+    - 'pkg/apis/**'
+    - 'test/e2e/**'
+    - 'go.mod'
+    - 'e2e.Dockerfile'
+    - 'e2e.mk'
+    - 'Makefile'
+
+# abort in progress when PR is refreshed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  build-e2e:
+    runs-on: ubuntu-latest
+    env:
+      BUILD_MODE: ${{ github.event_name == 'push' && 'merge' || 'dev' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.6'
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: all
+      - name: Check lint
+        run: make lint
+      - name: Show current version
+        run: make get-version
+      - name: Run e2e image build
+        run: make image-e2e
+  # TODO (degorenko): add push docker image to registry later
