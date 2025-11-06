@@ -1434,6 +1434,26 @@ func TestEnsureExternalService(t *testing.T) {
 			changed: true,
 		},
 		{
+			name:          "ensure external service - update labels success",
+			cephDpl:       &unitinputs.CephDeployNonMosk,
+			labelSelector: "external_access=rgw",
+			inputResources: map[string]runtime.Object{
+				"services": &v1.ServiceList{
+					Items: []v1.Service{
+						func() v1.Service {
+							svc := unitinputs.RgwExternalServiceGenerated.DeepCopy()
+							delete(svc.Labels, "external_access")
+							return *svc
+						}(),
+					},
+				},
+			},
+			expectedResources: map[string]runtime.Object{
+				"services": &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
+			},
+			changed: true,
+		},
+		{
 			name:    "ensure external service - nothing todo",
 			cephDpl: &unitinputs.CephDeployNonMosk,
 			inputResources: map[string]runtime.Object{
