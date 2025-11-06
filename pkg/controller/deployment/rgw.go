@@ -608,6 +608,7 @@ NewPortLoop:
 	}
 	updateRequired = updateRequired || !reflect.DeepEqual(externalSvc.Labels, externalSvcResource.Labels)
 	if updateRequired {
+		externalSvc.Labels = externalSvcResource.Labels
 		lcmcommon.ShowObjectDiff(*c.log, externalSvcCur, externalSvc)
 		c.log.Info().Msgf("update rgw external service %s", externalSvcName)
 		_, err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).Update(c.context, externalSvc, metav1.UpdateOptions{})
