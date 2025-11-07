@@ -1352,21 +1352,13 @@ func TestEnsureExternalService(t *testing.T) {
 	tests := []struct {
 		name              string
 		cephDpl           *cephlcmv1alpha1.CephDeployment
-		labelSelector     string
+		lcmConfig         map[string]string
 		inputResources    map[string]runtime.Object
 		expectedResources map[string]runtime.Object
 		apiErrors         map[string]error
 		changed           bool
 		expectedError     string
 	}{
-		{
-			// case should not happen at all - because label parsed in config controller
-			// and used default in case of any problems
-			name:          "ensure external service - incorrect label in pelagia config",
-			cephDpl:       &unitinputs.CephDeployNonMosk,
-			labelSelector: "e!!!!!ss",
-			expectedError: "failed to parse provided rgw public access label 'e!!!!!ss': couldn't parse the selector string \"e!!!!!ss\": unable to parse requirement: found '!', expected: in, notin, =, ==, !=, gt, lt",
-		},
 		{
 			name:    "ensure external service - get failed",
 			cephDpl: &unitinputs.CephDeployNonMosk,
@@ -1434,9 +1426,9 @@ func TestEnsureExternalService(t *testing.T) {
 			changed: true,
 		},
 		{
-			name:          "ensure external service - update labels success",
-			cephDpl:       &unitinputs.CephDeployNonMosk,
-			labelSelector: "external_access=rgw",
+			name:      "ensure external service - update labels success",
+			cephDpl:   &unitinputs.CephDeployNonMosk,
+			lcmConfig: map[string]string{"RGW_PUBLIC_ACCESS_SERVICE_SELECTOR": "external_access=rgw"},
 			inputResources: map[string]runtime.Object{
 				"services": &v1.ServiceList{
 					Items: []v1.Service{
@@ -1459,6 +1451,48 @@ func TestEnsureExternalService(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"services": &v1.ServiceList{Items: []v1.Service{*unitinputs.RgwExternalServiceGenerated.DeepCopy()}},
 			},
+		},
+		{
+			name:      "ensure external service - public is not required",
+			cephDpl:   &unitinputs.CephDeployNonMosk,
+			lcmConfig: map[string]string{"RGW_PUBLIC_ACCESS_SERVICE_SELECTOR": ""},
+			inputResources: map[string]runtime.Object{
+				"services": &v1.ServiceList{Items: []v1.Service{*unitinputs.RgwExternalServiceGenerated.DeepCopy()}},
+			},
+			expectedResources: map[string]runtime.Object{
+				"services": &unitinputs.ServicesListEmpty,
+			},
+			changed: true,
+		},
+		{
+			name: "ensure external service - failed to check ingress",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cephDpl := unitinputs.CephDeployMosk.DeepCopy()
+				cephDpl.Spec.IngressConfig = nil
+				return cephDpl
+			}(),
+			inputResources: map[string]runtime.Object{
+				"services": unitinputs.ServicesListEmpty.DeepCopy(),
+				"secrets":  &unitinputs.SecretsListEmpty,
+			},
+			apiErrors:     map[string]error{"get-secrets": errors.New("failed to get secret")},
+			expectedError: "failed to check ingress proxy presence: failed to get openstack-rgw-creds secret to ensure ingress: failed to get secret",
+		},
+		{
+			name: "ensure external service - openstack pools specified, but no default openstack config",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cephDpl := unitinputs.CephDeployMosk.DeepCopy()
+				cephDpl.Spec.IngressConfig = nil
+				return cephDpl
+			}(),
+			inputResources: map[string]runtime.Object{
+				"services": unitinputs.ServicesListEmpty.DeepCopy(),
+				"secrets":  &unitinputs.SecretsListEmpty,
+			},
+			expectedResources: map[string]runtime.Object{
+				"services": &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
+			},
+			changed: true,
 		},
 		{
 			name:    "ensure external service - ingress required, delete not found success",
@@ -1490,11 +1524,8 @@ func TestEnsureExternalService(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
-			if test.labelSelector != "" {
-				c.lcmConfig.DeployParams.RgwPublicAccessLabel = test.labelSelector
-			}
-			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"services"}, test.inputResources, test.apiErrors)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.lcmConfig)
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"services", "secrets"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "create", []string{"services"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "update", []string{"services"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "delete", []string{"services"}, test.inputResources, test.apiErrors)

@@ -561,10 +561,18 @@ func (c *cephDeploymentConfig) ensureRgwBuckets() (bool, error) {
 
 func (c *cephDeploymentConfig) ensureExternalService() (bool, error) {
 	externalSvcName := buildRGWName(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name, "external")
-	if isSpecIngressProxyRequired(c.cdConfig.cephDpl.Spec) {
+	proxyToBeDeployed, skipReason, err := c.canDeployIngressProxy()
+	if err != nil {
+		return false, errors.Wrap(err, "failed to check ingress proxy presence")
+	}
+	if proxyToBeDeployed || c.lcmConfig.DeployParams.RgwPublicAccessLabel == "" {
 		err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).Delete(c.context, externalSvcName, metav1.DeleteOptions{})
 		if err == nil {
-			c.log.Info().Msgf("cleanup rgw external service %s in favor of using ingress proxy", externalSvcName)
+			if proxyToBeDeployed {
+				c.log.Info().Msgf("cleanup rgw external service %s in favor of using ingress proxy", externalSvcName)
+			} else {
+				c.log.Info().Msgf("cleanup rgw external service %s since %s", externalSvcName, skipReason)
+			}
 			return true, nil
 		} else if !apierrors.IsNotFound(err) {
 			return false, errors.Wrapf(err, "failed to cleanup rgw external service %s", externalSvcName)
@@ -573,6 +581,8 @@ func (c *cephDeploymentConfig) ensureExternalService() (bool, error) {
 	}
 	externalAccessLabel, err := metav1.ParseToLabelSelector(c.lcmConfig.DeployParams.RgwPublicAccessLabel)
 	if err != nil {
+		// extra fallback case should not happen at all - because label parsed in config controller
+		// and used default in case of any problems
 		return false, errors.Wrapf(err, "failed to parse provided rgw public access label '%s'", c.lcmConfig.DeployParams.RgwPublicAccessLabel)
 	}
 	externalSvc, err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).Get(c.context, externalSvcName, metav1.GetOptions{})
