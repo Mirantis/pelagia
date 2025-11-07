@@ -50,20 +50,6 @@ func isKubeCrush(key string) bool {
 	return key == "region" || key == "zone"
 }
 
-func isSpecIngressProxyRequired(cephSpec cephlcmv1alpha1.CephDeploymentSpec) bool {
-	// do not create ingress if no custom class name specified
-	// with default class (openstack-nginx-proxy), but without OpenStack we don't need an Ingress proxy
-	if cephSpec.IngressConfig != nil {
-		if cephSpec.IngressConfig.ControllerClassName != "" {
-			return true
-		}
-	}
-	if lcmcommon.IsOpenStackPoolsPresent(cephSpec.Pools) {
-		return true
-	}
-	return false
-}
-
 func isTypeReadyToUpdate(condition cephv1.ConditionType) bool {
 	notReadyTypes := []cephv1.ConditionType{
 		cephv1.ConditionConnecting,
