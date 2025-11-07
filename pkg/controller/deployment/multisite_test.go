@@ -727,6 +727,7 @@ func TestEnsureZones(t *testing.T) {
 		stateChanged   bool
 		inputResources map[string]runtime.Object
 		expectedZones  *cephv1.CephObjectZoneList
+		lcmConfig      map[string]string
 		apiErrors      map[string]error
 		expectedError  string
 	}{
@@ -744,6 +745,22 @@ func TestEnsureZones(t *testing.T) {
 			},
 			expectedZones: &cephv1.CephObjectZoneList{},
 			expectedError: "failed to check zones in use: failed to list cephobjectstores",
+		},
+		{
+			name: "failed to check ingress proxy setup",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
+				mc.Spec.Pools = unitinputs.CephDeployMosk.Spec.Pools
+				return mc
+			}(),
+			inputResources: map[string]runtime.Object{
+				"cephobjectzones":  &cephv1.CephObjectZoneList{},
+				"cephobjectstores": &cephv1.CephObjectStoreList{},
+				"secrets":          &corev1.SecretList{},
+			},
+			apiErrors:     map[string]error{"get-secrets": errors.New("failed to get secrets")},
+			expectedZones: &cephv1.CephObjectZoneList{},
+			expectedError: "failed to check ingress proxy setup: failed to get openstack-rgw-creds secret to ensure ingress: failed to get secrets",
 		},
 		{
 			name:    "nothing to do - zones are aligned",
@@ -884,12 +901,13 @@ func TestEnsureZones(t *testing.T) {
 			},
 		},
 		{
-			name: "nothing to do - no endpoints, but old ingress present",
+			name: "nothing to do - no endpoints, no public access",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
 				mc.Spec.IngressConfig = unitinputs.CephIngressConfig.DeepCopy()
 				return mc
 			}(),
+			lcmConfig: map[string]string{"RGW_PUBLIC_ACCESS_SERVICE_SELECTOR": ""},
 			inputResources: map[string]runtime.Object{
 				"cephobjectzones": &cephv1.CephObjectZoneList{
 					Items: []cephv1.CephObjectZone{*correctZone.DeepCopy()},
@@ -1007,12 +1025,12 @@ func TestEnsureZones(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.lcmConfig)
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", []string{"cephobjectstores", "cephobjectzones"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "create", []string{"cephobjectzones"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "update", []string{"cephobjectzones"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "delete", []string{"cephobjectzones"}, test.inputResources, test.apiErrors)
-			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"services"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"services", "secrets"}, test.inputResources, test.apiErrors)
 
 			stateChanged, err := c.ensureZones()
 			if test.expectedError != "" {

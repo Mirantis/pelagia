@@ -216,18 +216,7 @@ func TestEnsureIngressProxy(t *testing.T) {
 			expectedError: errors.New("deletion not complete for ingress proxy"),
 		},
 		{
-			name:    "ensure ingress - get ingress failed",
-			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
-			inputResources: map[string]runtime.Object{
-				"ingresses": &networkingv1.IngressList{},
-			},
-			apiErrors: map[string]error{
-				"get-ingresses": errors.New("get ingress failed"),
-			},
-			expectedError: errors.New("failed to get rook-ceph-rgw-rgw-store-ingress ingress"),
-		},
-		{
-			name:    "ensure ingress - no ingress found, default settings not found, skipped",
+			name:    "ensure ingress - no ingress required, default settings not found, skipped",
 			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
 			inputResources: map[string]runtime.Object{
 				"ingresses": &networkingv1.IngressList{},
@@ -235,7 +224,7 @@ func TestEnsureIngressProxy(t *testing.T) {
 			},
 		},
 		{
-			name:    "ensure ingress - no ingress found, default settings get failed, skipped",
+			name:    "ensure ingress - no ingress required, default settings get failed, skipped",
 			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
 			inputResources: map[string]runtime.Object{
 				"ingresses": &networkingv1.IngressList{},
@@ -245,6 +234,18 @@ func TestEnsureIngressProxy(t *testing.T) {
 				"get-secrets": errors.New("get secret failed"),
 			},
 			expectedError: errors.New("failed to get openstack-rgw-creds secret to ensure ingress"),
+		},
+		{
+			name:    "ensure ingress - get ingress failed",
+			cephDpl: &unitinputs.CephDeployMosk,
+			inputResources: map[string]runtime.Object{
+				"ingresses": &networkingv1.IngressList{},
+				"secrets":   &v1.SecretList{},
+			},
+			apiErrors: map[string]error{
+				"get-ingresses": errors.New("get ingress failed"),
+			},
+			expectedError: errors.New("failed to get rook-ceph-rgw-rgw-store-ingress ingress"),
 		},
 		{
 			name:    "ensure ingress - no ingress found, default settings, create success",
@@ -1050,13 +1051,25 @@ func TestEnsureIngressProxy(t *testing.T) {
 			stateChanged: true,
 		},
 		{
-			name:    "ensure ingress - no ingress found, default settings not set, skipped",
+			name:    "ensure ingress - no ingress required, default settings not set, skipped",
 			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
 			inputResources: map[string]runtime.Object{
 				"ingresses": &networkingv1.IngressList{},
 				"secrets":   &v1.SecretList{},
 			},
 			lcmConfigParams: map[string]string{"DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE": ""},
+		},
+		{
+			name: "ensure ingress - no ingress required, custom ingress class and no tls config, skipped",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cephDpl := unitinputs.CephDeployMosk.DeepCopy()
+				cephDpl.Spec.IngressConfig.TLSConfig.TLSCerts = nil
+				return cephDpl
+			}(),
+			inputResources: map[string]runtime.Object{
+				"ingresses": &networkingv1.IngressList{},
+				"secrets":   &v1.SecretList{},
+			},
 		},
 	}
 	oldFunc := lcmcommon.GetCurrentUnixTimeString
