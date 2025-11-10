@@ -519,26 +519,28 @@ func (c *cephDeploymentConfig) checkLcmState() (bool, cephlcmv1alpha1.CephDeploy
 		}
 		for _, taskItem := range taskList.Items {
 			if taskItem.Status != nil {
-				if taskItem.Status.Phase == cephlcmv1alpha1.TaskPhaseWaitingOperator {
-					c.log.Info().Msgf("found CephOsdRemoveTask '%s/%s' in waiting phase, preparing to it's processing", taskItem.Namespace, taskItem.Name)
-					// check spec is aligned only before switch to processing phase - any update after it will be ignored
+				if taskItem.Status.Phase == cephlcmv1alpha1.TaskPhaseValidating {
+					c.log.Info().Msgf("found CephOsdRemoveTask '%s/%s' in validation phase, holding reconcile for correct task completion", taskItem.Namespace, taskItem.Name)
+					// check spec before, to be sure, ceph cluster spec is updated with latest otherwise contine reconcile
 					if c.cdConfig.cephDpl.Status.Phase != cephlcmv1alpha1.PhaseOnHold {
 						aligned, err := c.checkStorageSpecIsAligned()
 						if err != nil {
 							return false, cephlcmv1alpha1.PhaseFailed, errors.Wrap(err, "failed to check Ceph cluster state")
 						}
 						if !aligned {
-							c.log.Info().Msgf("CephOsdRemoveTask '%s/%s' in waiting phase, but Ceph cluster storage spec is not aligned with current CephDeployment nodes, skipping request processing", taskItem.Namespace, taskItem.Name)
+							c.log.Info().Msgf("CephOsdRemoveTask '%s/%s' in validation phase, but Ceph cluster storage spec is not aligned with current CephDeployment nodes, continue reconcile",
+								taskItem.Namespace, taskItem.Name)
 							break
 						}
 					}
 					return true, cephlcmv1alpha1.PhaseOnHold, nil
-				}
-				if taskItem.Status.Phase == cephlcmv1alpha1.TaskPhaseProcessing {
+				} else if taskItem.Status.Phase == cephlcmv1alpha1.TaskPhaseWaitingOperator || taskItem.Status.Phase == cephlcmv1alpha1.TaskPhaseApproveWaiting {
+					c.log.Info().Msgf("found CephOsdRemoveTask '%s/%s' in waiting phase, holding reconcile for correct task completion", taskItem.Namespace, taskItem.Name)
+					return true, cephlcmv1alpha1.PhaseOnHold, nil
+				} else if taskItem.Status.Phase == cephlcmv1alpha1.TaskPhaseProcessing {
 					c.log.Info().Msgf("found CephOsdRemoveTask '%s/%s' in processing phase, waiting until it completed", taskItem.Namespace, taskItem.Name)
 					return true, cephlcmv1alpha1.PhaseOnHold, nil
-				}
-				if taskItem.Status.Phase == cephlcmv1alpha1.TaskPhaseFailed {
+				} else if taskItem.Status.Phase == cephlcmv1alpha1.TaskPhaseFailed {
 					lastCondition := len(taskItem.Status.Conditions) - 1
 					// check phase before current - if processing - then something not ok
 					if lastCondition > 0 && taskItem.Status.Conditions[lastCondition-1].Phase == cephlcmv1alpha1.TaskPhaseProcessing {
