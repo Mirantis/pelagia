@@ -45,5 +45,6 @@ type taskConfig struct {
 	task                  *lcmv1alpha1.CephOsdRemoveTask
 	cephCluster           *cephv1.CephCluster
 	cephHealthOsdAnalysis *lcmv1alpha1.OsdSpecAnalysisState
+	cephDeploymentPhase   *lcmv1alpha1.CephDeploymentPhase
 	requeueNow            bool
 }

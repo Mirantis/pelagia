@@ -1678,11 +1678,11 @@ func TestCheckLCMStuff(t *testing.T) {
 			expectedError: "failed to list CephOsdRemoveTasks in lcm-namespace namespace: failed to list cephosdremovetasks",
 		},
 		{
-			name:    "request processing is not started, failed to check cephcluster spec",
+			name:    "task on validation - no hold, failed to check cephcluster spec",
 			cephDpl: testCephDpl,
 			inputResources: map[string]runtime.Object{
 				"cephosdremovetasks": &cephlcmv1alpha1.CephOsdRemoveTaskList{Items: []cephlcmv1alpha1.CephOsdRemoveTask{
-					*unitinputs.CephOsdRemoveTaskOnApproved,
+					*unitinputs.CephOsdRemoveTaskOnValidation,
 				}},
 				"cephclusters": &cephv1.CephClusterList{},
 			},
@@ -1691,12 +1691,12 @@ func TestCheckLCMStuff(t *testing.T) {
 			expectedError: "failed to check Ceph cluster state: cephclusters \"cephcluster\" not found",
 		},
 		{
-			name:    "request processing is not started, ceph cluster is not updated yet and workloadlock failed to check",
+			name:    "task on validation - no hold, ceph cluster is not updated yet and workloadlock failed to check",
 			cephDpl: testCephDpl,
 			inputResources: map[string]runtime.Object{
 				"cephdeploymentmaintenances": unitinputs.CephDeploymentMaintenanceListIdle,
 				"cephosdremovetasks": &cephlcmv1alpha1.CephOsdRemoveTaskList{Items: []cephlcmv1alpha1.CephOsdRemoveTask{
-					*unitinputs.CephOsdRemoveTaskOnApproved,
+					*unitinputs.CephOsdRemoveTaskOnValidation,
 				}},
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.CephClusterGenerated.DeepCopy()}},
 			},
@@ -1708,7 +1708,7 @@ func TestCheckLCMStuff(t *testing.T) {
 			expectedError: "failed to check CephDeploymentMaintenance state: failed to get CephDeploymentMaintenance lcm-namespace/cephcluster: failed to get CephDeploymentMaintenance",
 		},
 		{
-			name: "request processing is not started due to storage changes in spec",
+			name: "task on validation - no hold, storage changes in spec",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployNonMosk.DeepCopy()
 				nodes := mc.Spec.Nodes
@@ -1717,7 +1717,7 @@ func TestCheckLCMStuff(t *testing.T) {
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
-				"cephosdremovetasks":         &cephlcmv1alpha1.CephOsdRemoveTaskList{Items: []cephlcmv1alpha1.CephOsdRemoveTask{*unitinputs.CephOsdRemoveTaskOnApproved}},
+				"cephosdremovetasks":         &cephlcmv1alpha1.CephOsdRemoveTaskList{Items: []cephlcmv1alpha1.CephOsdRemoveTask{*unitinputs.CephOsdRemoveTaskOnValidation}},
 				"cephdeploymentmaintenances": unitinputs.CephDeploymentMaintenanceListIdle,
 				"cephclusters":               &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.TestCephCluster}},
 			},
@@ -1725,7 +1725,7 @@ func TestCheckLCMStuff(t *testing.T) {
 			expectedPhase: cephlcmv1alpha1.PhaseReady,
 		},
 		{
-			name: "request processing is started, only mon role changes in spec",
+			name: "task on validation - hold, only mon role changes in spec",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployNonMosk.DeepCopy()
 				nodes := mc.Spec.Nodes
@@ -1738,6 +1738,32 @@ func TestCheckLCMStuff(t *testing.T) {
 			}(),
 			inputResources: map[string]runtime.Object{
 				"cephosdremovetasks": &cephlcmv1alpha1.CephOsdRemoveTaskList{Items: []cephlcmv1alpha1.CephOsdRemoveTask{
+					*unitinputs.CephOsdRemoveTaskOnValidation,
+				}},
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.TestCephCluster}},
+			},
+			ccsettingsMap:     unitinputs.PelagiaConfig.Data,
+			expectedPhase:     cephlcmv1alpha1.PhaseOnHold,
+			expectedLcmActive: true,
+		},
+		{
+			name:    "task waiting approve - hold reconcile",
+			cephDpl: testCephDpl,
+			inputResources: map[string]runtime.Object{
+				"cephosdremovetasks": &cephlcmv1alpha1.CephOsdRemoveTaskList{Items: []cephlcmv1alpha1.CephOsdRemoveTask{
+					*unitinputs.CephOsdRemoveTaskOnApproveWaiting,
+				}},
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.TestCephCluster}},
+			},
+			ccsettingsMap:     unitinputs.PelagiaConfig.Data,
+			expectedPhase:     cephlcmv1alpha1.PhaseOnHold,
+			expectedLcmActive: true,
+		},
+		{
+			name:    "task waiting ceph operator - hold reconcile",
+			cephDpl: testCephDpl,
+			inputResources: map[string]runtime.Object{
+				"cephosdremovetasks": &cephlcmv1alpha1.CephOsdRemoveTaskList{Items: []cephlcmv1alpha1.CephOsdRemoveTask{
 					*unitinputs.CephOsdRemoveTaskOnApproved,
 				}},
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.TestCephCluster}},
@@ -1747,7 +1773,7 @@ func TestCheckLCMStuff(t *testing.T) {
 			expectedLcmActive: true,
 		},
 		{
-			name:    "request processing is started",
+			name:    "task processing - hold reconcile",
 			cephDpl: testCephDpl,
 			inputResources: map[string]runtime.Object{
 				"cephosdremovetasks": &cephlcmv1alpha1.CephOsdRemoveTaskList{Items: []cephlcmv1alpha1.CephOsdRemoveTask{
@@ -1760,7 +1786,7 @@ func TestCheckLCMStuff(t *testing.T) {
 			expectedLcmActive: true,
 		},
 		{
-			name:    "request is failed, required user action",
+			name:    "task failed - required user action",
 			cephDpl: testCephDpl,
 			inputResources: map[string]runtime.Object{
 				"cephosdremovetasks": &cephlcmv1alpha1.CephOsdRemoveTaskList{Items: []cephlcmv1alpha1.CephOsdRemoveTask{
@@ -1772,7 +1798,7 @@ func TestCheckLCMStuff(t *testing.T) {
 			expectedLcmActive: true,
 		},
 		{
-			name:    "request is failed, but resolved and no required user action, no maintenance",
+			name:    "task failed - resolved and no required user action, no maintenance",
 			cephDpl: testCephDpl,
 			inputResources: map[string]runtime.Object{
 				"cephdeploymentmaintenances": unitinputs.CephDeploymentMaintenanceListIdle,
