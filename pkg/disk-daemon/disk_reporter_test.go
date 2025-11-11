@@ -224,7 +224,7 @@ var cephVolumeNode1 = map[string][]OsdVolumeInfo{
 			},
 		},
 		{
-			Devices: []string{"/dev/vdd"},
+			Devices: []string{"/dev/vdd1"},
 			LvPath:  "/dev/ceph-metadata/part-1",
 			Path:    "/dev/ceph-metadata/part-1",
 			Tags: OsdVolumeTags{
@@ -250,7 +250,7 @@ var cephVolumeNode1 = map[string][]OsdVolumeInfo{
 			Type: "block",
 		},
 		{
-			Devices: []string{"/dev/vdd"},
+			Devices: []string{"/dev/vdd1"},
 			LvPath:  "/dev/ceph-metadata/part-2",
 			Path:    "/dev/ceph-metadata/part-2",
 			Tags: OsdVolumeTags{

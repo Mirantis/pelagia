@@ -85,7 +85,9 @@ func (d *diskDaemon) diskToOsdMap() map[string][]string {
 		for _, volume := range volumes {
 			var devs []string
 			if len(volume.Devices) > 0 {
-				devs = volume.Devices
+				for _, volDevice := range volume.Devices {
+					devs = append(devs, findDisks(d.data.runtime.disksReport.Aliases[volDevice], d.data.runtime.disksReport.BlockInfo)...)
+				}
 			} else {
 				devs = findDisks(d.data.runtime.disksReport.Aliases[volume.Path], d.data.runtime.disksReport.BlockInfo)
 			}

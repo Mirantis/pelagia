@@ -84,6 +84,7 @@ type OsdDevice struct {
 	DeviceSymlinks   []string `json:"device_pathes,omitempty"`
 	Rotational       bool     `json:"rotational,omitempty"`
 	RelatedPartition string   `json:"partition,omitempty"`
+	PartedBy         string   `json:"parted_by,omitempty"`
 }
 
 type OsdPartition struct {
