@@ -337,6 +337,12 @@ spec:
                                       description: ID is a device id
                                       nullable: true
                                       type: string
+                                    devicePartedBy:
+                                      description: |-
+                                        PartedBy is used to highlight, that osd is placed
+                                        not on a device directly but on some partition
+                                      nullable: true
+                                      type: string
                                     devicePath:
                                       description: Path is a full device path by-path
                                         to remove

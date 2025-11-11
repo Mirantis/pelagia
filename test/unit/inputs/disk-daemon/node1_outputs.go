@@ -51,8 +51,12 @@ var LsblkReportFromNode1 = `{
       {"name": "/dev/vdc", "kname": "/dev/vdc", "maj:min": "8:32", "rota": true, "type": "disk", "pkname": null, "serial": null},
       {"name": "/dev/vdd", "kname": "/dev/vdd", "maj:min": "8:48", "rota": true, "type": "disk", "pkname": null, "serial": "e8d89e2f-ffc6-4988-9",
          "children": [
-            {"name": "/dev/mapper/ceph--metadata-part--1", "kname": "/dev/dm-2", "maj:min": "253:2", "rota": true, "type": "lvm", "pkname": "/dev/vdd", "fstype": "ceph_bluestore", "serial": null},
-            {"name": "/dev/mapper/ceph--metadata-part--2", "kname": "/dev/dm-3", "maj:min": "253:3", "rota": true, "type": "lvm", "pkname": "/dev/vdd", "fstype": "ceph_bluestore", "serial": null}
+            {"name": "/dev/vdd1", "kname": "/dev/vdd1", "maj:min": "8:49", "rota": true, "type": "part", "pkname": "/dev/vdd", "serial": null,
+         	   "children": [
+	               {"name": "/dev/mapper/ceph--metadata-part--1", "kname": "/dev/dm-2", "maj:min": "253:2", "rota": true, "type": "lvm", "pkname": "/dev/vdd1", "fstype": "ceph_bluestore", "serial": null},
+	               {"name": "/dev/mapper/ceph--metadata-part--2", "kname": "/dev/dm-3", "maj:min": "253:3", "rota": true, "type": "lvm", "pkname": "/dev/vdd1", "fstype": "ceph_bluestore", "serial": null}
+	            ]
+	         }
          ]
       },
       {"name": "/dev/vde", "kname": "/dev/vde", "maj:min": "8:112", "rota": true, "type": "disk", "pkname": null, "serial": "2926ff77-7491-4447-a",
@@ -97,7 +101,8 @@ var UdevadmReportFromNode1 = map[string]string{
 	"/dev/vda15": "/dev/disk/by-path/pci-0000:00:09.0-part15 /dev/disk/by-label/UEFI /dev/disk/by-uuid/A82C-5E66 /dev/disk/by-path/virtio-pci-0000:00:09.0-part15 /dev/disk/by-partuuid/ef825b91-d4cc-47b3-bf54-99c78546a9c4",
 	"/dev/vdb":   "/dev/disk/by-id/lvm-pv-uuid-yd92Oj-9hBf-2w2n-IEjf-nBJ1-2dMk-kBeMZI /dev/disk/by-path/pci-0000:00:0a.0 /dev/disk/by-path/virtio-pci-0000:00:0a.0 /dev/disk/by-id/virtio-996ea59f-7f47-4fac-b",
 	"/dev/vdc":   "/dev/disk/by-uuid/BA42-906E /dev/disk/by-path/pci-0000:00:0b.0 /dev/disk/by-path/virtio-pci-0000:00:0b.0 /dev/disk/by-label/config-2",
-	"/dev/vdd":   "/dev/disk/by-path/virtio-pci-0000:00:0e.0 /dev/disk/by-id/virtio-e8d89e2f-ffc6-4988-9 /dev/disk/by-path/pci-0000:00:0e.0 /dev/disk/by-id/lvm-pv-uuid-7nUuVo-Zpzv-Tqze-5rtG-Y8f0-HdvQ-m6WXIU",
+	"/dev/vdd":   "/dev/disk/by-path/virtio-pci-0000:00:0e.0 /dev/disk/by-id/virtio-e8d89e2f-ffc6-4988-9 /dev/disk/by-path/pci-0000:00:0e.0",
+	"/dev/vdd1":  "/dev/disk/by-path/virtio-pci-0000:00:0e.0-part1 /dev/disk/by-id/virtio-e8d89e2f-ffc6-4988-9-part1 /dev/disk/by-path/pci-0000:00:0e.0-part1 /dev/disk/by-id/lvm-pv-uuid-7nUuVo-Zpzv-Tqze-5rtG-Y8f0-HdvQ-m6WXIU",
 	"/dev/vde":   "/dev/disk/by-id/lvm-pv-uuid-nzJOk1-kLTM-ErxQ-0N4c-DpDU-0zhE-Q9hRJP /dev/disk/by-id/virtio-2926ff77-7491-4447-a /dev/disk/by-path/pci-0000:00:0f.0 /dev/disk/by-path/virtio-pci-0000:00:0f.0",
 	"/dev/vdf":   "/dev/disk/by-path/pci-0000:00:10.0 /dev/disk/by-id/lvm-pv-uuid-fZ7Efo-X0nc-lAR3-lzik-MjMT-0rml-lZNf7b /dev/disk/by-path/virtio-pci-0000:00:10.0 /dev/disk/by-id/virtio-b7ea1c8c-89b8-4354-8",
 	"/dev/vdh":   "/dev/disk/by-path/pci-0000:00:11.0 /dev/disk/by-id/lvm-pv-uuid-gN4hiQ-gqT4-V19I-kvfA-fHWf-YIsh-gPFLTB /dev/disk/by-id/virtio-cf77cbec-ca01-45d9-a /dev/disk/by-path/virtio-pci-0000:00:11.0",
@@ -131,7 +136,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			Childrens: []string{},
 		},
 		"/dev/mapper/ceph--metadata-part--1": {
-			Kname: "/dev/dm-2", Type: "lvm", Rotational: true, MajMin: "253:2", Parent: []string{"/dev/vdd"},
+			Kname: "/dev/dm-2", Type: "lvm", Rotational: true, MajMin: "253:2", Parent: []string{"/dev/vdd1"},
 			Symlinks: []string{
 				"/dev/disk/by-id/dm-name-ceph--metadata-part--1",
 				"/dev/disk/by-id/dm-uuid-LVM-4NjWWqNazXbV26cmzMqOasZgbTwEPpZaUW1YZSAnvx7CLqXUAIZ5UKlcZx8w8lWo",
@@ -139,7 +144,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			Childrens: []string{},
 		},
 		"/dev/mapper/ceph--metadata-part--2": {
-			Kname: "/dev/dm-3", Type: "lvm", Rotational: true, MajMin: "253:3", Parent: []string{"/dev/vdd"},
+			Kname: "/dev/dm-3", Type: "lvm", Rotational: true, MajMin: "253:3", Parent: []string{"/dev/vdd1"},
 			Symlinks: []string{
 				"/dev/disk/by-id/dm-name-ceph--metadata-part--2",
 				"/dev/disk/by-id/dm-uuid-LVM-4NjWWqNazXbV26cmzMqOasZgbTwEPpZaH1waxWke4fbXEDXucEbZNeB4ZDfBeUrW",
@@ -228,10 +233,19 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 		"/dev/vdd": {
 			Kname: "/dev/vdd", Type: "disk", Rotational: true, MajMin: "8:48", Parent: []string{""}, Serial: "e8d89e2f-ffc6-4988-9",
 			Symlinks: []string{
-				"/dev/disk/by-id/lvm-pv-uuid-7nUuVo-Zpzv-Tqze-5rtG-Y8f0-HdvQ-m6WXIU",
 				"/dev/disk/by-id/virtio-e8d89e2f-ffc6-4988-9",
 				"/dev/disk/by-path/pci-0000:00:0e.0",
 				"/dev/disk/by-path/virtio-pci-0000:00:0e.0",
+			},
+			Childrens: []string{"/dev/vdd1"},
+		},
+		"/dev/vdd1": {
+			Kname: "/dev/vdd1", Type: "part", Rotational: true, MajMin: "8:49", Parent: []string{"/dev/vdd"}, Serial: "",
+			Symlinks: []string{
+				"/dev/disk/by-id/lvm-pv-uuid-7nUuVo-Zpzv-Tqze-5rtG-Y8f0-HdvQ-m6WXIU",
+				"/dev/disk/by-id/virtio-e8d89e2f-ffc6-4988-9-part1",
+				"/dev/disk/by-path/pci-0000:00:0e.0-part1",
+				"/dev/disk/by-path/virtio-pci-0000:00:0e.0-part1",
 			},
 			Childrens: []string{"/dev/mapper/ceph--metadata-part--1", "/dev/mapper/ceph--metadata-part--2"},
 		},
@@ -299,7 +313,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 		"/dev/disk/by-id/dm-uuid-LVM-VjASpFzahZwHYS2XN4EblEfLAfVwAImtnWhRvxcC38bhRLCw9S8sCCR7JvTuSbco": "/dev/mapper/ceph--992bbd78--3d8e--4cc3--93dc--eae387309364-osd--block--f4edb5cd--fb1e--4620--9419--3f9a4fcecba5",
 		"/dev/disk/by-id/dm-uuid-LVM-hVhQGAaFSKQ12ENRZABVk0nXCAos3JGulscWc97Kr4AQJNmIG0CbWYNy7fSDiVCe": "/dev/mapper/vg_root-lv_root",
 		"/dev/disk/by-id/dm-uuid-LVM-oPXPcruZ1AK9dkZOsPR9ZW7PzVb9xtFrOnhN24VqDzKIOPBZLd60UQpS6PpCEzQs": "/dev/mapper/ceph--21312wds--sdfv--vs3f--scv3--sdfdsg23edaa-osd--block--vbsgs3a3--sdcv--casq--sd11--asd12dasczsf",
-		"/dev/disk/by-id/lvm-pv-uuid-7nUuVo-Zpzv-Tqze-5rtG-Y8f0-HdvQ-m6WXIU":                           "/dev/vdd",
+		"/dev/disk/by-id/lvm-pv-uuid-7nUuVo-Zpzv-Tqze-5rtG-Y8f0-HdvQ-m6WXIU":                           "/dev/vdd1",
 		"/dev/disk/by-id/lvm-pv-uuid-K7zgwt-1AY8-QxFu-ltxQ-lCnI-XMe0-91XwfL":                           "/dev/md127",
 		"/dev/disk/by-id/lvm-pv-uuid-fZ7Efo-X0nc-lAR3-lzik-MjMT-0rml-lZNf7b":                           "/dev/vdf",
 		"/dev/disk/by-id/lvm-pv-uuid-gN4hiQ-gqT4-V19I-kvfA-fHWf-YIsh-gPFLTB":                           "/dev/vdh",
@@ -313,6 +327,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 		"/dev/disk/by-id/virtio-b7ea1c8c-89b8-4354-8":                                                  "/dev/vdf",
 		"/dev/disk/by-id/virtio-cf77cbec-ca01-45d9-a":                                                  "/dev/vdh",
 		"/dev/disk/by-id/virtio-e8d89e2f-ffc6-4988-9":                                                  "/dev/vdd",
+		"/dev/disk/by-id/virtio-e8d89e2f-ffc6-4988-9-part1":                                            "/dev/vdd1",
 		// disk path by label
 		"/dev/disk/by-label/UEFI":            "/dev/vda15",
 		"/dev/disk/by-label/cloudimg-rootfs": "/dev/vda1",
@@ -330,6 +345,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 		"/dev/disk/by-path/pci-0000:00:0a.0":               "/dev/vdb",
 		"/dev/disk/by-path/pci-0000:00:0b.0":               "/dev/vdc",
 		"/dev/disk/by-path/pci-0000:00:0e.0":               "/dev/vdd",
+		"/dev/disk/by-path/pci-0000:00:0e.0-part1":         "/dev/vdd1",
 		"/dev/disk/by-path/pci-0000:00:0f.0":               "/dev/vde",
 		"/dev/disk/by-path/pci-0000:00:10.0":               "/dev/vdf",
 		"/dev/disk/by-path/pci-0000:00:11.0":               "/dev/vdh",
@@ -341,6 +357,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 		"/dev/disk/by-path/virtio-pci-0000:00:0a.0":        "/dev/vdb",
 		"/dev/disk/by-path/virtio-pci-0000:00:0b.0":        "/dev/vdc",
 		"/dev/disk/by-path/virtio-pci-0000:00:0e.0":        "/dev/vdd",
+		"/dev/disk/by-path/virtio-pci-0000:00:0e.0-part1":  "/dev/vdd1",
 		"/dev/disk/by-path/virtio-pci-0000:00:0f.0":        "/dev/vde",
 		"/dev/disk/by-path/virtio-pci-0000:00:10.0":        "/dev/vdf",
 		"/dev/disk/by-path/virtio-pci-0000:00:11.0":        "/dev/vdh",
@@ -375,6 +392,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 		"/dev/vdb":   "/dev/vdb",
 		"/dev/vdc":   "/dev/vdc",
 		"/dev/vdd":   "/dev/vdd",
+		"/dev/vdd1":  "/dev/vdd1",
 		"/dev/vde":   "/dev/vde",
 		"/dev/vdf":   "/dev/vdf",
 		"/dev/vdh":   "/dev/vdh",
@@ -671,7 +689,7 @@ var CephVolumeLvmReportFromNode1 = `{
         },
         {
             "devices": [
-                "/dev/vdd"
+                "/dev/vdd1"
             ],
             "lv_name": "part-1",
             "lv_path": "/dev/ceph-metadata/part-1",
@@ -733,7 +751,7 @@ var CephVolumeLvmReportFromNode1 = `{
         },
         {
             "devices": [
-                "/dev/vdd"
+                "/dev/vdd1"
             ],
             "lv_name": "part-2",
             "lv_path": "/dev/ceph-metadata/part-2",
@@ -821,8 +839,8 @@ var LvmLvsReportFromNode1 = `{
 var FoundLvmsFromNode1 = map[string][]string{
 	"/dev/mapper/vg_root-lv_root": {"/dev/md127"},
 	"/dev/mapper/ceph--992bbd78--3d8e--4cc3--93dc--eae387309364-osd--block--f4edb5cd--fb1e--4620--9419--3f9a4fcecba5": {"/dev/vdb"},
-	"/dev/mapper/ceph--metadata-part--1": {"/dev/vdd"},
-	"/dev/mapper/ceph--metadata-part--2": {"/dev/vdd"},
+	"/dev/mapper/ceph--metadata-part--1": {"/dev/vdd1"},
+	"/dev/mapper/ceph--metadata-part--2": {"/dev/vdd1"},
 	"/dev/mapper/ceph--21312wds--sdfv--vs3f--scv3--sdfdsg23edaa-osd--block--vbsgs3a3--sdcv--casq--sd11--asd12dasczsf": {"/dev/vde"},
 	"/dev/mapper/ceph--2efce189--afb7--452f--bd32--c73b5017a0da-osd--block--d49fd9bf--d2dd--4c3d--824d--87f3f17ea44a": {"/dev/vdf"},
 }

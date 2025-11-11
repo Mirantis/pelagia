@@ -185,7 +185,7 @@ func TestPrepareOsdReport(t *testing.T) {
 			name:               "regular osd report",
 			disksReport:        lcmdiskdaemoninput.DiskInfoReportCephVolumeFromNode1,
 			volumesReport:      cephVolumeNode1,
-			expectedOsdsReport: unitinputs.DiskDaemonReportOkNode1.OsdsReport,
+			expectedOsdsReport: unitinputs.DiskDaemonReportOkNode1WithParted.OsdsReport,
 			expectedIssues:     []string{},
 		},
 		{

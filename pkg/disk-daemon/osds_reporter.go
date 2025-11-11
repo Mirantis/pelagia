@@ -32,7 +32,7 @@ func (d *diskDaemon) checkOsds() []string {
 		osdInfo := []lcmcommon.OsdDaemonInfo{}
 		pathToIdxMap := map[string]int{}
 		for _, osdVolumeInfo := range osdsVolumesInfo {
-			var devName string
+			var osdDeviceName string
 			if len(osdVolumeInfo.Devices) > 1 {
 				issue := fmt.Sprintf("multidisk setup detected for osd '%s', partition '%s', which is not supported", osd, osdVolumeInfo.Path)
 				log.Error().Msg(issue)
@@ -46,16 +46,18 @@ func (d *diskDaemon) checkOsds() []string {
 					issues = append(issues, issue)
 					break
 				}
-				name, err := lcmcommon.FindDiskName(osdVolumeInfo.Path, d.data.runtime.disksReport)
-				if err != nil {
-					issue := fmt.Sprintf("for osd '%s', partition '%s' %s", osd, osdVolumeInfo.Path, err.Error())
-					log.Error().Msg(issue)
-					issues = append(issues, issue)
-					break
-				}
-				devName = name
+				osdDeviceName = osdVolumeInfo.Path
 			} else {
-				devName = osdVolumeInfo.Devices[0]
+				osdDeviceName = osdVolumeInfo.Devices[0]
+			}
+			// since cli `ceph osd metadata` and `ceph device ls` returning device names, w/o parts,
+			// put to output device name as well
+			devName, err := lcmcommon.FindDiskName(osdDeviceName, d.data.runtime.disksReport)
+			if err != nil {
+				issue := fmt.Sprintf("for osd '%s', partition '%s' %s", osd, osdVolumeInfo.Path, err.Error())
+				log.Error().Msg(issue)
+				issues = append(issues, issue)
+				break
 			}
 			devSymlinks := d.data.runtime.disksReport.BlockInfo[devName].Symlinks
 			sort.Strings(devSymlinks)
@@ -65,6 +67,14 @@ func (d *diskDaemon) checkOsds() []string {
 				DeviceSymlinks:   devSymlinks,
 				Rotational:       d.data.runtime.disksReport.BlockInfo[devName].Rotational,
 				RelatedPartition: osdVolumeInfo.Path,
+			}
+			// let know if osd partition is manually marked up not on a disk directly
+			// to avoid disk zapping and run only partition zap
+			if (devName != osdDeviceName) && len(osdVolumeInfo.Devices) == 1 {
+				osdDevice.PartedBy = osdDeviceName
+				warning := fmt.Sprintf("found osd %s partition '%s' for osd '%s' placed on top of partition '%s'", osdVolumeInfo.Type, osdVolumeInfo.Path, osd, osdDeviceName)
+				log.Warn().Msg(warning)
+				warnings = append(warnings, warning)
 			}
 			partitionSymlinks := []string{}
 			// get block name in case if partition specified not in block dev format
