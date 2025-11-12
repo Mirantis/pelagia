@@ -42,6 +42,19 @@ var DiskDaemonReportOkNode1 = lcmcommon.DiskDaemonReport{
 	},
 }
 
+var DiskDaemonReportOkNode1WithParted = lcmcommon.DiskDaemonReport{
+	State:       lcmcommon.DiskDaemonStateOk,
+	DisksReport: lcmdiskdaemoninput.DiskInfoReportCephVolumeFromNode1,
+	OsdsReport: &lcmcommon.DiskDaemonOsdsReport{
+		Warnings: []string{
+			"found osd db partition '/dev/ceph-metadata/part-1' for osd '20' placed on top of partition '/dev/vdd1'",
+			"found osd db partition '/dev/ceph-metadata/part-2' for osd '25' placed on top of partition '/dev/vdd1'",
+			"found physical osd db partition '/dev/vda14' for osd '30'",
+		},
+		Osds: lcmdiskdaemoninput.OsdDevicesInfoNode1WithParted,
+	},
+}
+
 var DiskDaemonReportOkNode1SomeDevLost = lcmcommon.DiskDaemonReport{
 	State:       lcmcommon.DiskDaemonStateOk,
 	DisksReport: lcmdiskdaemoninput.DiskInfoReportCephVolumeSomeOsdLostFromNode1,

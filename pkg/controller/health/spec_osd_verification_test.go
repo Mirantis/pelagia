@@ -1053,6 +1053,7 @@ func TestRunSpecAnalyse(t *testing.T) {
 				"device '/dev/vdd' filtered by '^/dev/disk/by-path/pci-0000:00:0[a-f].*' is specified as block device, but contains db partition '/dev/ceph-metadata/part-1'",
 				"device '/dev/vdd' filtered by '^/dev/disk/by-path/pci-0000:00:0[a-f].*' is specified as block device, but contains db partition '/dev/ceph-metadata/part-2'",
 				"device '/dev/vdd' filtered by '^/dev/disk/by-path/pci-0000:00:0[a-f].*' should have 1 osd(s), but actually found 0",
+				"device '/dev/vdd1' filtered by '^/dev/disk/by-path/pci-0000:00:0[a-f].*' should have 1 osd(s), but actually found 0",
 				"metadata device '/dev/vdd' is not found for osd '20' for device '/dev/vdd' filtered by '^/dev/disk/by-path/pci-0000:00:0[a-f].*'",
 				"metadata device '/dev/vdd' is not found for osd '25' for device '/dev/vdd' filtered by '^/dev/disk/by-path/pci-0000:00:0[a-f].*'",
 				"metadata device '/dev/vdd' is not found for osd '30' for device '/dev/vdb' filtered by '^/dev/disk/by-path/pci-0000:00:0[a-f].*'",

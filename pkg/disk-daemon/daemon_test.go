@@ -46,7 +46,7 @@ func TestPrepareReport(t *testing.T) {
 			udevadmOutput:    lcmdiskdaemoninput.UdevadmReportFromNode1,
 			cephVolumeOutput: lcmdiskdaemoninput.CephVolumeLvmReportFromNode1,
 			lvmLvsOutput:     lcmdiskdaemoninput.LvmLvsReportFromNode1,
-			expectedReport:   unitinputs.DiskDaemonReportOkNode1,
+			expectedReport:   unitinputs.DiskDaemonReportOkNode1WithParted,
 		},
 		{
 			name:        "daemon report failed to prepare disk report",
@@ -64,7 +64,7 @@ func TestPrepareReport(t *testing.T) {
 			udevadmOutput:    lcmdiskdaemoninput.UdevadmReportFromNode1,
 			cephVolumeOutput: lcmdiskdaemoninput.CephVolumeLvmReportFromNode1,
 			lvmLvsOutput:     lcmdiskdaemoninput.LvmLvsReportFromNode1,
-			expectedReport:   unitinputs.DiskDaemonReportOkNode1,
+			expectedReport:   unitinputs.DiskDaemonReportOkNode1WithParted,
 		},
 		{
 			name:          "daemon report failed for osd report",

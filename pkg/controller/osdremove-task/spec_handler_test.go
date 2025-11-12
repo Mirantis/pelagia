@@ -1006,6 +1006,33 @@ func TestGetOsdsForCleanup(t *testing.T) {
 			},
 		},
 		{
+			name:             "present nodes in request - remove by devices is ok, allow to remove manually created lvms, but they are placed on top of other partition",
+			hostsFromCluster: unitinputs.CephOsdTreeOutput,
+			osdsMetadata:     unitinputs.CephOsdMetadataOutputNoStray,
+			osdInfo:          unitinputs.CephOsdInfoOutputNoStray,
+			taskConfig:       getTaskConfig(unitinputs.RequestRemoveByDevice, &unitinputs.ReefCephClusterHasHealthIssues, nil),
+			nodeList:         nodesListLabeledAvailable,
+			nodeOsdReport: map[string]*lcmcommon.DiskDaemonReport{
+				"node-1": &unitinputs.DiskDaemonReportOkNode1WithParted,
+				"node-2": &unitinputs.DiskDaemonReportOkNode2,
+			},
+			removeAllLVMs: true,
+			expectedRemoveInfo: &lcmv1alpha1.TaskRemoveInfo{
+				CleanupMap: func() map[string]lcmv1alpha1.HostMapping {
+					newInfo := unitinputs.DevNotInSpecRemoveMap.DeepCopy().CleanupMap
+					info := newInfo["node-1"].OsdMapping["20"].DeviceMapping["/dev/vdd"]
+					info.PartedBy = "/dev/vdd1"
+					newInfo["node-1"].OsdMapping["20"].DeviceMapping["/dev/vdd"] = info
+					return newInfo
+				}(),
+				Issues: []string{},
+				Warnings: []string{
+					"[node 'node-1'] found osd db partition '/dev/ceph-metadata/part-1' for osd '20' placed on top of partition '/dev/vdd1'",
+					"[node 'node-1'] found osd db partition '/dev/ceph-metadata/part-1' for osd '20', which is placed on top of another partition '/dev/vdd1', skipping disk zap",
+				},
+			},
+		},
+		{
 			name:             "present nodes in request - remove by device when some dev unavailable",
 			hostsFromCluster: unitinputs.CephOsdTreeOutput,
 			osdsMetadata:     unitinputs.CephOsdMetadataOutputNoStray,
