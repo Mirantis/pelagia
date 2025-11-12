@@ -221,6 +221,10 @@ type DeviceInfo struct {
 	// Partition used for removing osd on device
 	// +nullable
 	Partition string `json:"osdPartition,omitempty"`
+	// PartedBy is used to highlight, that osd is placed
+	// not on a device directly but on some partition
+	// +nullable
+	PartedBy string `json:"devicePartedBy,omitempty"`
 	// Type is a osd partition type, e.g. db or block
 	// +nullable
 	Type string `json:"osdPartitionType,omitempty"`

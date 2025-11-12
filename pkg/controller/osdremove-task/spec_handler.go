@@ -916,6 +916,7 @@ func getDevsInfoFromDaemonInfo(osdDaemonInfo lcmcommon.OsdDaemonInfo) map[string
 			Partition:  dev.RelatedPartition,
 			Type:       usageType,
 			Alive:      true,
+			PartedBy:   dev.PartedBy,
 		}
 		newInfo[dev.Name] = deviceInfo
 	}
@@ -1034,15 +1035,21 @@ func checkDeviceZapping(host string, osdMapping map[string]lcmv1alpha1.OsdMappin
 			if !devMapping.Alive {
 				continue
 			}
-			allowLvmDrop := isLvmRookMade(devMapping.Partition) || allowToRemoveAllLvms
-			if !allowLvmDrop {
-				warn = append(warn, fmt.Sprintf("[node '%s'] found osd %s partition '%s' for osd '%s', which is created not by rook, skipping disk/partition zap",
-					host, devMapping.Type, devMapping.Partition, osd))
-			}
-			if lockedDevices[device] {
+			if devMapping.PartedBy != "" {
+				warn = append(warn, fmt.Sprintf("[node '%s'] found osd %s partition '%s' for osd '%s', which is placed on top of another partition '%s', skipping disk zap",
+					host, devMapping.Type, devMapping.Partition, osd, devMapping.PartedBy))
 				devMapping.Zap = false
 			} else {
-				devMapping.Zap = allowLvmDrop
+				allowLvmDrop := isLvmRookMade(devMapping.Partition) || allowToRemoveAllLvms
+				if !allowLvmDrop {
+					warn = append(warn, fmt.Sprintf("[node '%s'] found osd %s partition '%s' for osd '%s', which is created not by rook, skipping disk/partition zap",
+						host, devMapping.Type, devMapping.Partition, osd))
+				}
+				if lockedDevices[device] {
+					devMapping.Zap = false
+				} else {
+					devMapping.Zap = allowLvmDrop
+				}
 			}
 			osdMapping[osd].DeviceMapping[device] = devMapping
 		}

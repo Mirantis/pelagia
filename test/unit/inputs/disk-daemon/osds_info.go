@@ -43,7 +43,6 @@ var OsdDevicesInfoNode1 = map[string][]lcmcommon.OsdDaemonInfo{
 					DeviceID:   "e8d89e2f-ffc6-4988-9",
 					Rotational: true,
 					DeviceSymlinks: []string{
-						"/dev/disk/by-id/lvm-pv-uuid-7nUuVo-Zpzv-Tqze-5rtG-Y8f0-HdvQ-m6WXIU",
 						"/dev/disk/by-id/virtio-e8d89e2f-ffc6-4988-9",
 						"/dev/disk/by-path/pci-0000:00:0e.0",
 						"/dev/disk/by-path/virtio-pci-0000:00:0e.0",
@@ -101,7 +100,6 @@ var OsdDevicesInfoNode1 = map[string][]lcmcommon.OsdDaemonInfo{
 					DeviceID:   "e8d89e2f-ffc6-4988-9",
 					Rotational: true,
 					DeviceSymlinks: []string{
-						"/dev/disk/by-id/lvm-pv-uuid-7nUuVo-Zpzv-Tqze-5rtG-Y8f0-HdvQ-m6WXIU",
 						"/dev/disk/by-id/virtio-e8d89e2f-ffc6-4988-9",
 						"/dev/disk/by-path/pci-0000:00:0e.0",
 						"/dev/disk/by-path/virtio-pci-0000:00:0e.0",
@@ -194,6 +192,19 @@ var OsdDevicesInfoNode1 = map[string][]lcmcommon.OsdDaemonInfo{
 		},
 	},
 }
+
+var OsdDevicesInfoNode1WithParted = func() map[string][]lcmcommon.OsdDaemonInfo {
+	newMap := map[string][]lcmcommon.OsdDaemonInfo{}
+	for osd, info := range OsdDevicesInfoNode1 {
+		newMap[osd] = append([]lcmcommon.OsdDaemonInfo{}, info...)
+		if osd == "20" || osd == "25" {
+			newDevices := append([]lcmcommon.OsdDevice{}, info[0].Devices...)
+			newDevices[1].PartedBy = "/dev/vdd1"
+			newMap[osd][0].Devices = newDevices
+		}
+	}
+	return newMap
+}()
 
 var OsdDevicesSomeLostInfoNode1 = map[string][]lcmcommon.OsdDaemonInfo{
 	"20": {
