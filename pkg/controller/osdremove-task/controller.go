@@ -24,6 +24,7 @@ import (
 	"github.com/pkg/errors"
 	rookclient "github.com/rook/rook/pkg/client/clientset/versioned"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
@@ -319,6 +320,21 @@ func (r *ReconcileCephOsdRemoveTask) Reconcile(ctx context.Context, request reco
 			cephCluster:           cephCluster,
 			cephHealthOsdAnalysis: cephDeploymentHealth.Status.HealthReport.OsdAnalysis,
 		},
+	}
+
+	// check presence of ceph deployment, to check it is updated
+	cephDeploy, err := r.Lcmclientset.LcmV1alpha1().CephDeployments(request.Namespace).Get(ctx, cephDeploymentHealth.Name, metav1.GetOptions{})
+	if err != nil {
+		if meta.IsNoMatchError(err) || runtime.IsNotRegisteredError(err) || apierrors.IsNotFound(err) {
+			cephDeploy = nil
+			sublog.Info().Msgf("related CephDeployment '%s/%s' is not found, continue work with CephCluster '%s/%s' directly",
+				cephDeploymentHealth.Namespace, cephDeploymentHealth.Name, cephCluster.Namespace, cephCluster.Name)
+		} else {
+			sublog.Error().Err(err).Msg("")
+			return reconcile.Result{RequeueAfter: requeueAfterInterval}, nil
+		}
+	} else {
+		removeConfig.taskConfig.cephDeploymentPhase = &cephDeploy.Status.Phase
 	}
 
 	newStatus := removeConfig.handleTask()

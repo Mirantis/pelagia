@@ -37,18 +37,54 @@ func buildHostName(rgwName, rgwOverrideName, domain string) string {
 	return fmt.Sprintf("%s.%s", rgwName, domain)
 }
 
-func (c *cephDeploymentConfig) ensureIngressProxy() (bool, error) {
-	cleanupIngress := false
-	if c.cdConfig.cephDpl.Spec.ObjectStorage == nil {
-		c.log.Debug().Msg("skipping ingress ensure since rgw is not specified")
-		cleanupIngress = true
-	} else if !isSpecIngressProxyRequired(c.cdConfig.cephDpl.Spec) {
-		c.log.Debug().Msg("skipping ingress ensure since no custom ingress provided and no required OpenStack configuration")
-		cleanupIngress = true
-	}
+const defaultIngressClass = "openstack-ingress-nginx"
 
-	if cleanupIngress {
-		c.log.Debug().Msg("ensure ingress proxy stuff is cleaned up")
+func (c *cephDeploymentConfig) canDeployIngressProxy() (bool, string, error) {
+	if c.cdConfig.cephDpl.Spec.ObjectStorage == nil {
+		return false, "no rgw section specified", nil
+	}
+	if c.lcmConfig.DeployParams.RgwPublicAccessLabel == "" {
+		return false, "no RGW_PUBLIC_ACCESS_SERVICE_SELECTOR parameter has been provided in lcmconfig", nil
+	}
+	ingressTLSConfig := getIngressTLS(c.cdConfig.cephDpl)
+	if ingressTLSConfig != nil {
+		// if some ingress configuration present, check TLS is ok
+		if ingressTLSConfig.TLSCerts != nil || ingressTLSConfig.TLSSecretRefName != "" {
+			return true, "", nil
+		}
+		// if some custom ingress class specified - but no TLS config - no ingress
+		if c.cdConfig.cephDpl.Spec.IngressConfig.ControllerClassName != defaultIngressClass && c.cdConfig.cephDpl.Spec.IngressConfig.ControllerClassName != "" {
+			return false, "no required TLS configuration provided", nil
+		}
+	}
+	// if no TLS configuration for default class then probably need to get default one from openstack?
+	if lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) {
+		if c.lcmConfig.DeployParams.OpenstackCephSharedNamespace == "" {
+			return false, "no required TLS configuration provided, Openstack pools present, no Openstack Ceph shared namespace (with default Openstack TLS) set", nil
+		}
+		// check whether default Openstack TLS present
+		osSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
+		if err != nil {
+			if !apierrors.IsNotFound(err) {
+				return false, "", errors.Wrapf(err, "failed to get %s secret to ensure ingress", openstackRgwCredsName)
+			}
+			osSecret = nil
+		}
+		if osSecret == nil || osSecret.Data["ca_cert"] == nil || osSecret.Data["tls_crt"] == nil || osSecret.Data["tls_key"] == nil {
+			return false, "no required TLS configuration provided, Openstack pools present, no default Openstack TLS found", nil
+		}
+		return true, "", nil
+	}
+	return false, "no required ingress/TLS configuration provided", nil
+}
+
+func (c *cephDeploymentConfig) ensureIngressProxy() (bool, error) {
+	deployProxy, reasonToSkip, err := c.canDeployIngressProxy()
+	if err != nil {
+		return false, errors.Wrap(err, "failed to check possibility to deploy ingress proxy")
+	}
+	if !deployProxy {
+		c.log.Debug().Msgf("skip ingress deploy and clean up if present due to %s", reasonToSkip)
 		removed, err := c.deleteIngressProxy()
 		if err != nil {
 			return false, errors.Wrap(err, "deletion not complete for ingress proxy")
@@ -65,7 +101,6 @@ func (c *cephDeploymentConfig) ensureIngressProxy() (bool, error) {
 		}
 		ingress = nil
 	}
-	defaultIngressClass := "openstack-ingress-nginx"
 	ingressConfig := c.cdConfig.cephDpl.Spec.IngressConfig
 	if ingressConfig == nil {
 		ingressConfig = &cephlcmv1alpha1.CephDeploymentIngressConfig{}
@@ -88,37 +123,29 @@ func (c *cephDeploymentConfig) ensureIngressProxy() (bool, error) {
 	} else {
 		ingressConfig.Annotations = defaultAnnotations
 	}
-	// handle case when no certs in ingress spec and no secret by ref, try to get default openstack certs
-	if ingressConfig.TLSConfig == nil || (ingressConfig.TLSConfig.TLSCerts == nil && ingressConfig.TLSConfig.TLSSecretRefName == "") {
-		if c.lcmConfig.DeployParams.OpenstackCephSharedNamespace == "" {
-			c.log.Error().Msgf("ingress certs are not set, openstack-ceph shared namespace with openstack certs is not set, skipping ingress deploy ")
-			return false, nil
-		}
-		osSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
-		if err != nil {
-			if !apierrors.IsNotFound(err) {
+	// since we already checked possibility - just check do we need to take default TLS or not
+	if lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) {
+		// handle case when no certs in ingress spec and no secret by ref, try to get default openstack certs
+		if ingressConfig.TLSConfig == nil || (ingressConfig.TLSConfig.TLSCerts == nil && ingressConfig.TLSConfig.TLSSecretRefName == "") {
+			osSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
+			if err != nil {
 				return false, errors.Wrapf(err, "failed to get %s secret to ensure ingress", openstackRgwCredsName)
 			}
-			osSecret = nil
-		}
-		if osSecret == nil || osSecret.Data["ca_cert"] == nil || osSecret.Data["tls_crt"] == nil || osSecret.Data["tls_key"] == nil {
-			c.log.Error().Msg("ingress certs are not set, openstack certs are not found, skipping ingress deploy")
-			return false, nil
-		}
-		tlsCerts := &cephlcmv1alpha1.CephDeploymentCert{
-			Cacert:  string(osSecret.Data["ca_cert"]),
-			TLSCert: string(osSecret.Data["tls_crt"]),
-			TLSKey:  string(osSecret.Data["tls_key"]),
-		}
-		// since it is possible to specify publicDomain/hostname without certs - handle such case
-		// publicDomain is mandatory - so it can be passed within spec
-		if ingressConfig.TLSConfig == nil {
-			ingressConfig.TLSConfig = &cephlcmv1alpha1.CephDeploymentIngressTLSConfig{
-				Domain:   string(osSecret.Data["public_domain"]),
-				TLSCerts: tlsCerts,
+			tlsCerts := &cephlcmv1alpha1.CephDeploymentCert{
+				Cacert:  string(osSecret.Data["ca_cert"]),
+				TLSCert: string(osSecret.Data["tls_crt"]),
+				TLSKey:  string(osSecret.Data["tls_key"]),
 			}
-		} else {
-			ingressConfig.TLSConfig.TLSCerts = tlsCerts
+			// since it is possible to specify publicDomain/hostname without certs - handle such case
+			// publicDomain is mandatory - so it can be passed within spec
+			if ingressConfig.TLSConfig == nil {
+				ingressConfig.TLSConfig = &cephlcmv1alpha1.CephDeploymentIngressTLSConfig{
+					Domain:   string(osSecret.Data["public_domain"]),
+					TLSCerts: tlsCerts,
+				}
+			} else {
+				ingressConfig.TLSConfig.TLSCerts = tlsCerts
+			}
 		}
 	}
 	// always set upstream vhost annotation to actual public domain for ingress and do not allow to override it

@@ -429,6 +429,43 @@ func TestHandleTask(t *testing.T) {
 			expectedStatus: unitinputs.CephOsdRemoveTaskCompleted.Status,
 			requeueNow:     true,
 		},
+		{
+			name: "cephdeployment present, task validation postponed, waiting for cephdeployment hold",
+			taskConfig: taskConfig{
+				task:                  unitinputs.CephOsdRemoveTaskOnValidation.DeepCopy(),
+				cephCluster:           &unitinputs.ReefCephClusterReady,
+				cephHealthOsdAnalysis: &lcmv1alpha1.OsdSpecAnalysisState{CephClusterSpecGeneration: &[]int64{3}[0]},
+				cephDeploymentPhase:   &unitinputs.BaseCephDeployment.Status.Phase,
+			},
+			expectedStatus: unitinputs.CephOsdRemoveTaskOnValidation.Status,
+		},
+		{
+			name: "cephdeployment present, task validation ok",
+			taskConfig: taskConfig{
+				task:                  unitinputs.CephOsdRemoveTaskOnValidation.DeepCopy(),
+				cephCluster:           &unitinputs.ReefCephClusterReady,
+				cephHealthOsdAnalysis: unitinputs.OsdSpecAnalysisOk,
+				cephDeploymentPhase: func() *lcmv1alpha1.CephDeploymentPhase {
+					phase := lcmv1alpha1.PhaseOnHold
+					return &phase
+				}(),
+			},
+			cmdOutputs: map[string]string{
+				"ceph osd tree -f json":     unitinputs.CephOsdTreeOutput,
+				"ceph osd info -f json":     unitinputs.CephOsdInfoOutput,
+				"ceph osd metadata -f json": unitinputs.CephOsdMetadataOutput,
+			},
+			nodesList: &nodesListLabeledAvailable,
+			nodeOsdsReport: map[string]*lcmcommon.DiskDaemonReport{
+				"node-1": &unitinputs.DiskDaemonReportOkNode1,
+				"node-2": &unitinputs.DiskDaemonReportOkNode2,
+			},
+			expectedStatus: func() *lcmv1alpha1.CephOsdRemoveTaskStatus {
+				status := unitinputs.CephOsdRemoveTaskOnApproveWaiting.Status.DeepCopy()
+				status.Conditions[2].Timestamp = "time-19"
+				return status
+			}(),
+		},
 	}
 
 	oldTimeFunc := lcmcommon.GetCurrentTimeString

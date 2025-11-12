@@ -341,6 +341,10 @@ func (c *cephDeploymentConfig) ensureZones() (bool, error) {
 		c.log.Error().Err(err).Msg("failed to check zones in use")
 		return false, errors.Wrap(err, "failed to check zones in use")
 	}
+	proxyDeployed, _, err := c.canDeployIngressProxy()
+	if err != nil {
+		return false, errors.Wrap(err, "failed to check ingress proxy setup")
+	}
 	zonesToCreate := make([]cephv1.CephObjectZone, 0)
 	zonesToUpdate := make([]cephv1.CephObjectZone, 0)
 	zonesToDelete := map[string]bool{}
@@ -367,25 +371,30 @@ func (c *cephDeploymentConfig) ensureZones() (bool, error) {
 		if len(zoneResource.Spec.CustomEndpoints) == 0 && zonesInUse[zone.Name] != "" {
 			// if no endpoints specified - put default external lb ip and port as endpoint
 			// in case of using ingress - no default, user has to add endpoints manually
-			if isSpecIngressProxyRequired(c.cdConfig.cephDpl.Spec) {
-				c.log.Warn().Msgf("detected ingress proxy usage, but zone '%s' has no endpoints specified", zone.Name)
-			} else {
-				externalSvcName := buildRGWName(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name, "external")
-				externalSvc, err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).Get(c.context, externalSvcName, metav1.GetOptions{})
-				if err != nil {
-					if !apierrors.IsNotFound(err) {
-						c.log.Error().Err(err).Msgf("failed to get ip of external service %q", externalSvcName)
-						return false, errors.Wrap(err, "failed to get ip of external service")
-					}
-					c.log.Warn().Msgf("zone '%s' has no endpoints specified, service '%s' is not created yet, leaving empty", zone.Name, externalSvcName)
+			// in cose of no public access - nothing to do
+			if c.lcmConfig.DeployParams.RgwPublicAccessLabel != "" {
+				if proxyDeployed {
+					c.log.Warn().Msgf("detected ingress proxy usage, but zone '%s' has no endpoints specified", zone.Name)
 				} else {
-					c.log.Warn().Msgf("zone '%s' has no endpoints specified, using service '%s' external ip address and http port as endpoint if available", zone.Name, externalSvcName)
-					if len(externalSvc.Status.LoadBalancer.Ingress) > 0 {
-						ip := externalSvc.Status.LoadBalancer.Ingress[0].IP
-						port := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.Port
-						zoneResource.Spec.CustomEndpoints = []string{fmt.Sprintf("http://%s:%d", ip, port)}
+					externalSvcName := buildRGWName(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name, "external")
+					externalSvc, err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).Get(c.context, externalSvcName, metav1.GetOptions{})
+					if err != nil {
+						if !apierrors.IsNotFound(err) {
+							c.log.Error().Err(err).Msgf("failed to get ip of external service %q", externalSvcName)
+							return false, errors.Wrap(err, "failed to get ip of external service")
+						}
+						c.log.Warn().Msgf("zone '%s' has no endpoints specified, service '%s' is not created yet, leaving empty", zone.Name, externalSvcName)
+					} else {
+						c.log.Warn().Msgf("zone '%s' has no endpoints specified, using service '%s' external ip address and http port as endpoint if available", zone.Name, externalSvcName)
+						if len(externalSvc.Status.LoadBalancer.Ingress) > 0 {
+							ip := externalSvc.Status.LoadBalancer.Ingress[0].IP
+							port := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.Port
+							zoneResource.Spec.CustomEndpoints = []string{fmt.Sprintf("http://%s:%d", ip, port)}
+						}
 					}
 				}
+			} else {
+				c.log.Warn().Msgf("zone '%s' has no endpoints specified, no public access for rgw configured", zone.Name)
 			}
 		}
 		for _, existingZone := range zonesReal.Items {

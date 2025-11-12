@@ -54,7 +54,7 @@ rules:
     verbs: [get, list, watch]
   # control main lcm crds
   - apiGroups: [lcm.mirantis.com]
-    resources: [cephdeploymenthealths, cephdeploymenthealths/status, cephosdremovetasks, cephosdremovetasks/status, cephdeploymentmaintenances, cephdeploymentmaintenances/status]
+    resources: [cephdeployments, cephdeployments/status, cephdeploymenthealths, cephdeploymenthealths/status, cephosdremovetasks, cephosdremovetasks/status, cephdeploymentmaintenances, cephdeploymentmaintenances/status]
     verbs: [list, get, watch, update, delete]
   # control batch cleanup jobs
   - apiGroups: [batch]
