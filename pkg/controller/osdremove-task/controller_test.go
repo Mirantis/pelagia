@@ -341,6 +341,7 @@ func TestTaskReconcile(t *testing.T) {
 		{
 			name: "cephtask - start task handling, requeue without interval",
 			inputResources: map[string]runtime.Object{
+				"cephdeployments": &lcmv1alpha1.CephDeploymentList{},
 				"cephdeploymenthealths": &lcmv1alpha1.CephDeploymentHealthList{
 					Items: []lcmv1alpha1.CephDeploymentHealth{unitinputs.CephDeploymentHealthStatusOk},
 				},
@@ -362,6 +363,7 @@ func TestTaskReconcile(t *testing.T) {
 		{
 			name: "cephtask - start task handling, failed to update status",
 			inputResources: map[string]runtime.Object{
+				"cephdeployments": &lcmv1alpha1.CephDeploymentList{},
 				"cephdeploymenthealths": &lcmv1alpha1.CephDeploymentHealthList{
 					Items: []lcmv1alpha1.CephDeploymentHealth{unitinputs.CephDeploymentHealthStatusOk},
 				},
@@ -379,6 +381,7 @@ func TestTaskReconcile(t *testing.T) {
 		{
 			name: "cephtask - continue task handling, in progress, no status update",
 			inputResources: map[string]runtime.Object{
+				"cephdeployments": &lcmv1alpha1.CephDeploymentList{},
 				"cephdeploymenthealths": &lcmv1alpha1.CephDeploymentHealthList{
 					Items: []lcmv1alpha1.CephDeploymentHealth{unitinputs.CephDeploymentHealthStatusOk},
 				},
@@ -400,6 +403,7 @@ func TestTaskReconcile(t *testing.T) {
 		{
 			name: "cephtask - finished task handling",
 			inputResources: map[string]runtime.Object{
+				"cephdeployments": &lcmv1alpha1.CephDeploymentList{},
 				"cephdeploymenthealths": &lcmv1alpha1.CephDeploymentHealthList{
 					Items: []lcmv1alpha1.CephDeploymentHealth{unitinputs.CephDeploymentHealthStatusOk},
 				},
@@ -424,12 +428,80 @@ func TestTaskReconcile(t *testing.T) {
 			}(),
 			expectedResult: noRequeue,
 		},
+		{
+			name: "cephtask - task validation, cephdeployment failed to check",
+			inputResources: map[string]runtime.Object{
+				"cephdeployments": &lcmv1alpha1.CephDeploymentList{},
+				"cephdeploymenthealths": &lcmv1alpha1.CephDeploymentHealthList{
+					Items: []lcmv1alpha1.CephDeploymentHealth{unitinputs.CephDeploymentHealthStatusOk},
+				},
+				"cephosdremovetasks": &lcmv1alpha1.CephOsdRemoveTaskList{
+					Items: []lcmv1alpha1.CephOsdRemoveTask{
+						*unitinputs.CephOsdRemoveTaskOnValidation.DeepCopy(),
+					},
+				},
+				"cephclusters": &unitinputs.CephClusterListReady,
+			},
+			apiErrors:      map[string]error{"get-cephdeployments": errors.New("get failed")},
+			expectedTask:   unitinputs.CephOsdRemoveTaskOnValidation,
+			expectedResult: resInterval,
+		},
+		{
+			name: "cephtask - task validation, cephdeployment not on hold",
+			inputResources: map[string]runtime.Object{
+				"cephdeployments": &lcmv1alpha1.CephDeploymentList{
+					Items: []lcmv1alpha1.CephDeployment{unitinputs.BaseCephDeployment},
+				},
+				"cephdeploymenthealths": &lcmv1alpha1.CephDeploymentHealthList{
+					Items: []lcmv1alpha1.CephDeploymentHealth{unitinputs.CephDeploymentHealthStatusOk},
+				},
+				"cephosdremovetasks": &lcmv1alpha1.CephOsdRemoveTaskList{
+					Items: []lcmv1alpha1.CephOsdRemoveTask{
+						*unitinputs.CephOsdRemoveTaskOnValidation.DeepCopy(),
+					},
+				},
+				"cephclusters": &unitinputs.CephClusterListReady,
+			},
+			expectedTask:   unitinputs.CephOsdRemoveTaskOnValidation,
+			expectedResult: resInterval,
+		},
+		{
+			name: "cephtask - task validation, cephdeployment on hold, continue validation",
+			inputResources: map[string]runtime.Object{
+				"cephdeployments": &lcmv1alpha1.CephDeploymentList{
+					Items: []lcmv1alpha1.CephDeployment{
+						func() lcmv1alpha1.CephDeployment {
+							cephdpl := unitinputs.BaseCephDeployment.DeepCopy()
+							cephdpl.Status.Phase = lcmv1alpha1.PhaseOnHold
+							return *cephdpl
+						}(),
+					},
+				},
+				"cephdeploymenthealths": &lcmv1alpha1.CephDeploymentHealthList{
+					Items: []lcmv1alpha1.CephDeploymentHealth{
+						func() lcmv1alpha1.CephDeploymentHealth {
+							cdh := unitinputs.CephDeploymentHealthStatusOk.DeepCopy()
+							cdh.Status.HealthReport.OsdAnalysis.CephClusterSpecGeneration = &unitinputs.CephDeploymentHealthStatusOk.Generation
+							return *cdh
+						}(),
+					},
+				},
+				"cephosdremovetasks": &lcmv1alpha1.CephOsdRemoveTaskList{
+					Items: []lcmv1alpha1.CephOsdRemoveTask{
+						*unitinputs.CephOsdRemoveTaskOnValidation.DeepCopy(),
+					},
+				},
+				"cephclusters": &unitinputs.CephClusterListReady,
+			},
+			expectedTask:   unitinputs.CephOsdRemoveTaskOnValidation,
+			expectedResult: resInterval,
+		},
 	}
 	oldCurrentTime := lcmcommon.GetCurrentTimeString
 	for idx, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			faketestclients.FakeReaction(r.Lcmclientset, "list", []string{"cephdeploymenthealths", "cephosdremovetasks"}, test.inputResources, nil)
-			faketestclients.FakeReaction(r.Lcmclientset, "get", []string{"cephosdremovetasks"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(r.Lcmclientset, "get", []string{"cephosdremovetasks", "cephdeployments"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(r.Lcmclientset, "update", []string{"cephosdremovetasks"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(r.Lcmclientset, "delete", []string{"cephosdremovetasks"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(r.Rookclientset, "get", []string{"cephclusters"}, test.inputResources, nil)

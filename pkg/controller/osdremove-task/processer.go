@@ -58,6 +58,13 @@ func (c *cephOsdRemoveConfig) handleTask() *lcmv1alpha1.CephOsdRemoveTaskStatus 
 		c.log.Info().Msg("ready to validation")
 		return c.taskConfig.moveTaskPhase(lcmv1alpha1.TaskPhaseValidating, "validation", nil)
 	case lcmv1alpha1.TaskPhaseValidating:
+		if c.taskConfig.cephDeploymentPhase != nil {
+			if *c.taskConfig.cephDeploymentPhase != lcmv1alpha1.PhaseOnHold {
+				c.log.Info().Msgf("found related CephDeployment, which is not ready yet for task processing, current phase '%v' (expected '%v')",
+					*c.taskConfig.cephDeploymentPhase, lcmv1alpha1.PhaseOnHold)
+				break
+			}
+		}
 		if *c.taskConfig.cephHealthOsdAnalysis.CephClusterSpecGeneration != c.taskConfig.cephCluster.Generation {
 			c.log.Info().Msgf("related CephDeploymentHealth has not validated yet latest CephCluster spec (validated: %d, current: %d)",
 				*c.taskConfig.cephHealthOsdAnalysis.CephClusterSpecGeneration, c.taskConfig.cephCluster.Generation)
