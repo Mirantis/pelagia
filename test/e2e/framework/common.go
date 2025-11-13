@@ -421,8 +421,8 @@ func (c *ManagedConfig) CreateAWSCliDeployment(name string, label string, testIm
 									{
 										MatchExpressions: []corev1.NodeSelectorRequirement{
 											{
-												Key:      "node-role.kubernetes.io/master",
-												Operator: corev1.NodeSelectorOpDoesNotExist,
+												Key:      "ceph-daemonset-available-node",
+												Operator: corev1.NodeSelectorOpExists,
 											},
 										},
 									},
