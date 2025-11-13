@@ -37,10 +37,11 @@ import (
 	unitinputs "github.com/Mirantis/pelagia/test/unit/inputs"
 )
 
-func TestDetachCSIVolumes(t *testing.T) {
+func TestCheckCSIVolumes(t *testing.T) {
 	tests := []struct {
 		name                         string
 		nodeName                     string
+		keepVolumes                  bool
 		podList                      v1.PodList
 		volumeAttachmentList         storagev1.VolumeAttachmentList
 		mountCommandOutput           map[int]string
@@ -48,6 +49,7 @@ func TestDetachCSIVolumes(t *testing.T) {
 		isTimeout                    bool
 		expectedUmount               map[int]string
 		expectedVolumeAttachmentName string
+		expectedFound                bool
 		expectedError                error
 	}{
 		{
@@ -74,7 +76,7 @@ func TestDetachCSIVolumes(t *testing.T) {
 				"list pods": {1: "error"},
 			},
 			isTimeout:     true,
-			expectedError: errors.New("timeout to detach volumes from node 'node-1'"),
+			expectedError: errors.New("timeout to check volumes for node 'node-1'"),
 		},
 		{
 			name:                 "umount rbd volumes, success",
@@ -121,7 +123,7 @@ func TestDetachCSIVolumes(t *testing.T) {
 				"list pods": {1: "return"},
 				"mount":     {1: "error"},
 			},
-			expectedError: errors.New("timeout to detach volumes from node 'node-1'"),
+			expectedError: errors.New("timeout to check volumes for node 'node-1'"),
 		},
 		{
 			name:    "delete volumeattachments, success",
@@ -140,20 +142,19 @@ func TestDetachCSIVolumes(t *testing.T) {
 			actions: map[string]map[int]string{
 				"list pods": {
 					1: "return",
-					2: "return",
 				},
 				"mount": {
 					1: "return",
-					2: "return",
 				},
 				"delete volumeattachments": {
 					1: "error",
 					2: "return",
-					3: "not found",
 				},
 				"list volumeattachments": {
 					1: "error",
 					2: "return",
+					3: "return",
+					4: "return",
 				},
 			},
 			expectedVolumeAttachmentName: "ceph-volumeattachment",
@@ -179,7 +180,106 @@ func TestDetachCSIVolumes(t *testing.T) {
 				"delete volumeattachments": {1: "error"},
 			},
 			expectedVolumeAttachmentName: "ceph-volumeattachment",
-			expectedError:                errors.New("timeout to detach volumes from node 'node-1'"),
+			expectedError:                errors.New("timeout to check volumes for node 'node-1'"),
+		},
+		{
+			name:                 "found only umount rbd volumes, no umount",
+			podList:              v1.PodList{Items: []v1.Pod{unitinputs.CsiRbdPod}},
+			keepVolumes:          true,
+			volumeAttachmentList: storagev1.VolumeAttachmentList{Items: []storagev1.VolumeAttachment{}},
+			nodeName:             "node-1",
+			mountCommandOutput: map[int]string{
+				1: "/dev/rbd0 /dev/dm0\n/dev/rbd1 /dev/dm1",
+			},
+			actions: map[string]map[int]string{
+				"list pods": {1: "return"},
+				"mount": {
+					1: "return",
+				},
+				"list volumeattachments": {
+					1: "return",
+				},
+			},
+			expectedFound: true,
+		},
+		{
+			name:        "found only volumeattachments, no remove",
+			podList:     v1.PodList{Items: []v1.Pod{unitinputs.CsiRbdPod}},
+			keepVolumes: true,
+			volumeAttachmentList: storagev1.VolumeAttachmentList{
+				Items: []storagev1.VolumeAttachment{
+					unitinputs.CephVolumeAttachment,
+					unitinputs.NonCephVolumeAttachment,
+				},
+			},
+			nodeName: "node-1",
+			mountCommandOutput: map[int]string{
+				1: "",
+			},
+			actions: map[string]map[int]string{
+				"list pods": {
+					1: "return",
+				},
+				"mount": {
+					1: "return",
+				},
+				"list volumeattachments": {
+					1: "return",
+				},
+			},
+			expectedVolumeAttachmentName: "ceph-volumeattachment",
+			expectedFound:                true,
+		},
+		{
+			name:        "found umount volumes and volumeattachments, no remove",
+			podList:     v1.PodList{Items: []v1.Pod{unitinputs.CsiRbdPod}},
+			keepVolumes: true,
+			volumeAttachmentList: storagev1.VolumeAttachmentList{
+				Items: []storagev1.VolumeAttachment{
+					unitinputs.CephVolumeAttachment,
+					unitinputs.NonCephVolumeAttachment,
+				},
+			},
+			nodeName: "node-1",
+			mountCommandOutput: map[int]string{
+				1: "/dev/rbd0 /dev/dm0\n/dev/rbd1 /dev/dm1",
+			},
+			actions: map[string]map[int]string{
+				"list pods": {
+					1: "return",
+				},
+				"mount": {
+					1: "return",
+				},
+				"list volumeattachments": {
+					1: "return",
+				},
+			},
+			expectedVolumeAttachmentName: "ceph-volumeattachment",
+			expectedFound:                true,
+		},
+		{
+			name:        "no volumes and volumeattachments, no remove",
+			podList:     v1.PodList{Items: []v1.Pod{unitinputs.CsiRbdPod}},
+			keepVolumes: true,
+			volumeAttachmentList: storagev1.VolumeAttachmentList{
+				Items: []storagev1.VolumeAttachment{},
+			},
+			nodeName: "node-1",
+			mountCommandOutput: map[int]string{
+				1: "",
+			},
+			actions: map[string]map[int]string{
+				"list pods": {
+					1: "return",
+				},
+				"mount": {
+					1: "return",
+				},
+				"list volumeattachments": {
+					1: "return",
+				},
+			},
 		},
 	}
 	actionsCount := map[string]int{}
@@ -224,20 +324,24 @@ func TestDetachCSIVolumes(t *testing.T) {
 				actionsCount["list volumeattachments"]++
 				switch test.actions["list volumeattachments"][actionsCount["list volumeattachments"]] {
 				case "return":
-					return true, test.volumeAttachmentList.DeepCopy(), nil
+					return true, &test.volumeAttachmentList, nil
 				case "error":
 					return true, nil, errors.New("list volumeattachments failed")
 				}
 				return true, nil, errors.Errorf("unexpected list volumeattachments call, count = %v", actionsCount["list volumeattachments"])
 			})
 			c.api.Kubeclientset.StorageV1().(*fakestorage.FakeStorageV1).AddReactor("delete", "volumeattachments", func(action gotesting.Action) (handled bool, ret runtime.Object, err error) {
-				if test.expectedVolumeAttachmentName != "" {
-					actual := action.(gotesting.DeleteActionImpl).Name
-					assert.Equal(t, test.expectedVolumeAttachmentName, actual)
-				}
+				actual := action.(gotesting.DeleteActionImpl).Name
+				assert.Equal(t, test.expectedVolumeAttachmentName, actual)
 				actionsCount["delete volumeattachments"]++
 				switch test.actions["delete volumeattachments"][actionsCount["delete volumeattachments"]] {
 				case "return":
+					for idx, va := range test.volumeAttachmentList.Items {
+						if va.Name == actual {
+							test.volumeAttachmentList.Items = append(test.volumeAttachmentList.Items[:idx], test.volumeAttachmentList.Items[idx+1:]...)
+							break
+						}
+					}
 					return true, nil, nil
 				case "error":
 					return true, nil, errors.New("delete volumeattachments failed")
@@ -271,12 +375,14 @@ func TestDetachCSIVolumes(t *testing.T) {
 				}
 				return "", "", errors.New("unexpected run command call")
 			}
-			err := c.detachCSIVolumes(test.nodeName)
+			found, err := c.checkCSIVolumes(test.nodeName, !test.keepVolumes)
 			if test.expectedError != nil {
 				assert.NotNil(t, err)
 				assert.Contains(t, err.Error(), test.expectedError.Error())
+				assert.Equal(t, found, false)
 			} else {
 				assert.Nil(t, err)
+				assert.Equal(t, found, test.expectedFound)
 			}
 			for k, v := range actionsCount {
 				assert.Equal(t, len(test.actions[k]), v)
@@ -296,6 +402,7 @@ func TestEnsureDaemonsetLabels(t *testing.T) {
 	tests := []struct {
 		name               string
 		nodeList           v1.NodeList
+		lcmConfig          map[string]string
 		podList            map[int]v1.PodList
 		nodeGet            map[int]*v1.Node
 		isTimeout          bool
@@ -619,16 +726,81 @@ func TestEnsureDaemonsetLabels(t *testing.T) {
 				3: "csi-rbdplugin",
 			},
 		},
+		{
+			name: "found exclude daemonset label, skip node w/a daemonset label",
+			nodeList: v1.NodeList{Items: []v1.Node{
+				unitinputs.GetNodeWithLabels("test-node", map[string]string{"exclude-label": "true"}, nil),
+			}},
+			lcmConfig: map[string]string{"DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS": "exclude-label=true"},
+		},
+		{
+			name: "found exclude daemonset label, no mounts, unset daemonset label",
+			nodeList: v1.NodeList{Items: []v1.Node{
+				unitinputs.GetNodeWithLabels("test-node", map[string]string{"exclude-label": "true", "ceph-daemonset-available-node": "true"}, nil),
+			}},
+			podList: map[int]v1.PodList{
+				1: {Items: []v1.Pod{}},
+			},
+			nodeGet: map[int]*v1.Node{
+				1: &[]v1.Node{unitinputs.GetNodeWithLabels("test-node", map[string]string{"exclude-label": "true", "ceph-daemonset-available-node": "true"}, nil)}[0],
+			},
+			actions: map[string]map[int]string{
+				"list pods": {
+					1: "return",
+				},
+				"get node": {
+					1: "return",
+				},
+				"update node": {
+					1: "return",
+				},
+			},
+			expectedNodeUpdate: map[int]*v1.Node{
+				1: &[]v1.Node{unitinputs.GetNodeWithLabels("test-node", map[string]string{"exclude-label": "true"}, nil)}[0],
+			},
+			lcmConfig: map[string]string{"DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS": "exclude-label=true"},
+		},
+		{
+			name: "found exclude daemonset label, failed to check mounts, cant unset daemonset label",
+			nodeList: v1.NodeList{Items: []v1.Node{
+				unitinputs.GetNodeWithLabels("test-node", map[string]string{"exclude-label": "true", "ceph-daemonset-available-node": "true"}, nil),
+			}},
+			podList: map[int]v1.PodList{
+				1: {Items: []v1.Pod{}},
+			},
+			actions: map[string]map[int]string{
+				"list pods": {
+					1: "error",
+				},
+			},
+			lcmConfig: map[string]string{"DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS": "exclude-label=true"},
+		},
+		{
+			name: "found exclude daemonset label, found mounts, cant unset daemonset label",
+			nodeList: v1.NodeList{Items: []v1.Node{
+				unitinputs.GetNodeWithLabels("node-1", map[string]string{"exclude-label": "true", "ceph-daemonset-available-node": "true"}, nil),
+			}},
+			podList: map[int]v1.PodList{
+				1: {Items: []v1.Pod{unitinputs.CsiRbdPod}},
+			},
+			actions: map[string]map[int]string{
+				"list pods": {
+					1: "return",
+				},
+			},
+			lcmConfig: map[string]string{"DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS": "exclude-label=true"},
+		},
 	}
 	oldVerifyCSIPodEvictedTimeout := verifyCSIPodEvictedTimeout
 	oldWaitForDaemonsetsPodsTimeout := waitForDaemonsetsPodsTimeout
 	oldWaitForDaemonsetsPodsInterval := waitForDaemonsetsPodsInterval
 	oldCSIPollInterval := csiPollInterval
 	oldDetachCSIVolumesTimeout := detachCSIVolumesTimeout
+	oldFunc := lcmcommon.RunPodCommandWithValidation
 	actionsCount := map[string]int{}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: unitinputs.BaseCephDeployment.DeepCopy()}, nil)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: unitinputs.BaseCephDeployment.DeepCopy()}, test.lcmConfig)
 			waitForDaemonsetsPodsInterval = 300 * time.Millisecond
 			csiPollInterval = 300 * time.Millisecond
 			detachCSIVolumesTimeout = 200 * time.Millisecond
@@ -701,6 +873,12 @@ func TestEnsureDaemonsetLabels(t *testing.T) {
 				}
 				return true, nil, errors.Errorf("unexpected update node call, count = %v", actionsCount["update node"])
 			})
+			lcmcommon.RunPodCommandWithValidation = func(e lcmcommon.ExecConfig) (string, string, error) {
+				if e.Command == "mount" {
+					return "/dev/rbd0 /dev/dm0\n/dev/rbd1 /dev/dm1", "", nil
+				}
+				return "", "", errors.New("unexpected CLI command run: " + e.Command)
+			}
 			c.ensureDaemonsetLabels()
 			for k, v := range actionsCount {
 				assert.Equal(t, len(test.actions[k]), v)
@@ -713,4 +891,5 @@ func TestEnsureDaemonsetLabels(t *testing.T) {
 	waitForDaemonsetsPodsInterval = oldWaitForDaemonsetsPodsInterval
 	csiPollInterval = oldCSIPollInterval
 	detachCSIVolumesTimeout = oldDetachCSIVolumesTimeout
+	lcmcommon.RunPodCommandWithValidation = oldFunc
 }
