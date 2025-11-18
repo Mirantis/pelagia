@@ -90,7 +90,7 @@ func prepareTestDeployment(cephFsTestDeploymentName, cephFsPVCName, storageClass
 					},
 				},
 				Spec: v1.PodSpec{
-					// Avoid spawning on UCP Master node
+					// Spawn only on Ceph-daemonset ready nodes
 					Affinity: &v1.Affinity{
 						NodeAffinity: &v1.NodeAffinity{
 							RequiredDuringSchedulingIgnoredDuringExecution: &v1.NodeSelector{
@@ -98,8 +98,8 @@ func prepareTestDeployment(cephFsTestDeploymentName, cephFsPVCName, storageClass
 									{
 										MatchExpressions: []v1.NodeSelectorRequirement{
 											{
-												Key:      "node-role.kubernetes.io/master",
-												Operator: v1.NodeSelectorOpDoesNotExist,
+												Key:      "ceph-daemonset-available-node",
+												Operator: v1.NodeSelectorOpExists,
 											},
 										},
 									},
@@ -240,9 +240,9 @@ func TestCephFS(t *testing.T) {
 		cd.Spec.SharedFilesystem = sharedFS
 		toUpdate = true
 	}
-	for _, node := range cd.Spec.Nodes {
-		if lcmcommon.Contains(node.Roles, "mon") && !lcmcommon.Contains(node.Roles, "mds") {
-			node.Roles = append(node.Roles, "mds")
+	for idx := range cd.Spec.Nodes {
+		if lcmcommon.Contains(cd.Spec.Nodes[idx].Roles, "mon") && !lcmcommon.Contains(cd.Spec.Nodes[idx].Roles, "mds") {
+			cd.Spec.Nodes[idx].Roles = append(cd.Spec.Nodes[idx].Roles, "mds")
 			toUpdate = true
 		}
 	}
@@ -302,7 +302,6 @@ func TestCephFS(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-
 		t.Run("check content from pods", func(t *testing.T) {
 			for _, contentFromPod := range contents {
 				assert.Equal(t, content, contentFromPod)

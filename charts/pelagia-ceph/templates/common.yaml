@@ -22,6 +22,9 @@ data:
   {{- if (.Values.rookConfig.caBundleRef)}}
   DEPLOYMENT_MULTISITE_CABUNDLE_SECRET: {{ .Values.rookConfig.caBundleRef }}
   {{- end }}
+  {{- if (.Values.lcmConfig.cephDaemonsetLabelExclude) }}
+  DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS: {{ .Values.lcmConfig.cephDaemonsetLabelExclude }}
+  {{- end }}
 {{- end }}
 {{- if .Values.global.namespace }}
 ---
