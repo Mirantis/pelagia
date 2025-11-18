@@ -79,7 +79,7 @@ cephRelease: ""
 images:
   pelagia:
     repository: pelagia/pelagia
-    tag: 1.1.0
+    tag: 1.2.0
     # fullName is mostly used for test purposes
     fullName: ""
     pullPolicy: Always
