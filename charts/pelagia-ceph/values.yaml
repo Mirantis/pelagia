@@ -13,6 +13,7 @@ lcmConfig:
   rgwPublicAccessServiceSelector: "external_access=rgw"
   diskDaemonPortParameter: 9999
   diskDaemonNodeSelector: "ceph_role_osd=true"
+  cephDaemonsetLabelExclude: ""
 
 controllers:
   securityContext:

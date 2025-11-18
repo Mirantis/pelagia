@@ -49,8 +49,8 @@ func (c *ManagedConfig) NewSSHPod(name string, privKeySecretName string) (*corev
 							{
 								MatchExpressions: []corev1.NodeSelectorRequirement{
 									{
-										Key:      "node-role.kubernetes.io/master",
-										Operator: corev1.NodeSelectorOpDoesNotExist,
+										Key:      "ceph-daemonset-available-node",
+										Operator: corev1.NodeSelectorOpExists,
 									},
 								},
 							},

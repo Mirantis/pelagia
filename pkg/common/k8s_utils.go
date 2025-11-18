@@ -44,7 +44,12 @@ func IsDaemonSetReady(ds *appsv1.DaemonSet) bool {
 }
 
 func IsDeploymentReady(deploy *appsv1.Deployment) bool {
+	replicas := int32(1)
+	if deploy.Spec.Replicas != nil {
+		replicas = *deploy.Spec.Replicas
+	}
 	return deploy.Status.Replicas > 0 &&
+		deploy.Status.Replicas == replicas &&
 		deploy.Status.UpdatedReplicas == deploy.Status.Replicas &&
 		deploy.Status.ReadyReplicas == deploy.Status.Replicas &&
 		deploy.Status.AvailableReplicas == deploy.Status.Replicas

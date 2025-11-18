@@ -83,6 +83,8 @@ type DeployParams struct {
 	OpenstackCephSharedNamespace string
 	// secret with cabundle for multisite public access between zones
 	MultisiteCabundleSecretRef string
+	// excluding label to place ceph daemonsets
+	CephDaemonsetPlacementLabelExclude string
 }
 
 type ControlParams string
@@ -154,13 +156,14 @@ var (
 	taskOsdPgRebalanceTimeout         = "TASK_OSD_PG_REBALANCE_TIMEOUT_MIN"
 	taskAllowRemoveManuallyCreatedLvm = "TASK_ALLOW_REMOVE_MANUALLY_CREATED_LVMS"
 	// params for ceph deployment controller
-	cephDplLogLevel              = "DEPLOYMENT_LOG_LEVEL"
-	cephDplCephImage             = "DEPLOYMENT_CEPH_IMAGE"
-	cephDplCephRelease           = "DEPLOYMENT_CEPH_RELEASE"
-	cephDplRookImage             = "DEPLOYMENT_ROOK_IMAGE"
-	cephDplNetPolEnabled         = "DEPLOYMENT_NETPOL_ENABLED"
-	cephDplOpenstackCephSharedNs = "DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE"
-	cephDplMultisiteCabundleRef  = "DEPLOYMENT_MULTISITE_CABUNDLE_SECRET"
+	cephDplLogLevel                  = "DEPLOYMENT_LOG_LEVEL"
+	cephDplCephImage                 = "DEPLOYMENT_CEPH_IMAGE"
+	cephDplCephRelease               = "DEPLOYMENT_CEPH_RELEASE"
+	cephDplRookImage                 = "DEPLOYMENT_ROOK_IMAGE"
+	cephDplNetPolEnabled             = "DEPLOYMENT_NETPOL_ENABLED"
+	cephDplOpenstackCephSharedNs     = "DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE"
+	cephDplMultisiteCabundleRef      = "DEPLOYMENT_MULTISITE_CABUNDLE_SECRET"
+	cephDplCephDaemonsetLabelExclude = "DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS"
 )
 
 func dropConfiguration(namespace string) {
@@ -301,6 +304,16 @@ func loadCephDeploymentConfiguration(objLog zerolog.Logger, configData map[strin
 		} else {
 			objLog.Debug().Msgf(debugMsgTmpl, rgwPublicAccessServiceSelectorParameter, rgwPublicServiceSelector)
 			newCephDplConfig.RgwPublicAccessLabel = selector.String()
+		}
+	}
+
+	if cephDaemonsExcludeSelector, present := configData[cephDplCephDaemonsetLabelExclude]; present {
+		selector, err := labels.Parse(cephDaemonsExcludeSelector)
+		if err != nil {
+			objLog.Error().Msgf(errorMsgTmpl, cephDplCephDaemonsetLabelExclude, cephDaemonsExcludeSelector, "valid k8s label/selector")
+		} else {
+			objLog.Debug().Msgf(debugMsgTmpl, cephDplCephDaemonsetLabelExclude, cephDaemonsExcludeSelector)
+			newCephDplConfig.CephDaemonsetPlacementLabelExclude = selector.String()
 		}
 	}
 
