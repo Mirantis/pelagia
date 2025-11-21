@@ -11,10 +11,15 @@ function _git {
 function get_version {
     main_version=$1
     build_mode=$2
+    dev_version=$3
     version=""
     cur_commit="$(_git rev-parse --short=8 HEAD)"
     if [[ "${build_mode}" == "dev" ]]; then
-        version="${main_version}-dev-${cur_commit}"
+        if [[ -n "${dev_version}" ]]; then
+            version="${main_version}-${dev_version}-pr"
+        else
+            version="${main_version}-dev-${cur_commit}"
+        fi
     else
         last_tag="$(_git describe --abbrev=0 --tags --always)"
         # check we are good for release

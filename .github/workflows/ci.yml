@@ -2,9 +2,9 @@ name: Golang CI
 
 on:
   push:
-    branches: [ "main", "release-**" ]
+    branches: [ "main", "release-*" ]
   pull_request:
-    branches: [ "main", "release-**" ]
+    branches: [ "main", "release-*" ]
 
 # abort in progress when PR is refreshed.
 concurrency:

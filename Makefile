@@ -14,13 +14,12 @@ DISK_DAEMON_CMD := ./cmd/disk-daemon
 CONNECTOR_NAME := pelagia-connector
 CONNECTOR_CMD := ./cmd/connector
 CEPH_E2E_NAME := pelagia-e2e
-GERRIT_USER_NAME ?= mcp-ci-gerrit
 SKIP_SNAPSHOT_CONTROLLER ?= ""
 SKIP_ROOK_CRDS ?= ""
 CURRENT_RELEASE_VERSION := "1.2.0"
 BUILD_MODE ?= "dev"
-VERSION := $(shell build/scripts/get_version.sh $(CURRENT_RELEASE_VERSION) $(BUILD_MODE))
-GITHUB_USERNAME ?= infra-ci-user
+DEV_VERSION ?= ""
+VERSION := $(shell build/scripts/get_version.sh $(CURRENT_RELEASE_VERSION) $(BUILD_MODE) $(DEV_VERSION))
 E2E_TESTLIST_LOCAL ?= $(shell ls ./test/e2e/ | grep _test.go | grep -v entrypoint_test | xargs printf "./test/e2e/%s " $1)
 LDFLAGS := "-X 'github.com/Mirantis/pelagia/version.Version=${VERSION}'"
 IMAGE_NAME ?= localdocker:5000/$(CONTROLLER_NAME)
