@@ -2,7 +2,7 @@ name: Build E2E CI
 
 on:
   push:
-    branches: [ "main", "release-**" ]
+    branches: [ "main", "release-*" ]
     paths:
     - 'pkg/apis/**'
     - 'test/e2e/**'
@@ -11,7 +11,7 @@ on:
     - 'e2e.mk'
     - 'Makefile'
   pull_request:
-    branches: [ "main", "release-**" ]
+    branches: [ "main", "release-*" ]
     paths:
     - 'pkg/apis/**'
     - 'test/e2e/**'
@@ -30,6 +30,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BUILD_MODE: ${{ github.event_name == 'push' && 'merge' || 'dev' }}
+      E2E_IMAGE_NAME: ${{ github.event_name == 'pull_request' && format('{0}/pelagia/pr/pelagia-e2e', vars.REGISTRY_CI) || format('{0}/pelagia/pelagia-e2e', vars.REGISTRY_CI) }}
+      DEV_VERSION: ${{ github.event_name == 'pull_request' && github.event.pull_request.number }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -50,4 +52,11 @@ jobs:
         run: make get-version
       - name: Run e2e image build
         run: make image-e2e
-  # TODO (degorenko): add push docker image to registry later
+      - name: Login to registry CI
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.REGISTRY_CI }}
+          username: ${{ secrets.REGISTRY_CI_USERNAME }}
+          password: ${{ secrets.REGISTRY_CI_PASSWORD }}
+      - name: Push build
+        run: make publish-e2e
