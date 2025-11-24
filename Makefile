@@ -17,14 +17,15 @@ CEPH_E2E_NAME := pelagia-e2e
 SKIP_SNAPSHOT_CONTROLLER ?= ""
 SKIP_ROOK_CRDS ?= ""
 CURRENT_RELEASE_VERSION := "2.0.0"
-BUILD_MODE ?= "dev"
-DEV_VERSION ?= ""
-VERSION := $(shell build/scripts/get_version.sh $(CURRENT_RELEASE_VERSION) $(BUILD_MODE) $(DEV_VERSION))
+CODE_VERSION := $(shell build/scripts/get_version.sh)
+DEV_VERSION ?= "dev-$(CODE_VERSION)"
+VERSION := $(shell build/scripts/get_version.sh $(CURRENT_RELEASE_VERSION) $(DEV_VERSION))
 E2E_TESTLIST_LOCAL ?= $(shell ls ./test/e2e/ | grep _test.go | grep -v entrypoint_test | xargs printf "./test/e2e/%s " $1)
 LDFLAGS := "-X 'github.com/Mirantis/pelagia/version.Version=${VERSION}'"
 IMAGE_NAME ?= localdocker:5000/$(CONTROLLER_NAME)
 E2E_IMAGE_NAME ?= localdocker:5000/$(CEPH_E2E_NAME)
 IMAGE_TAG ?= $(VERSION)
+HELM_REGISTRY ?= oci://localhost/pelagia/pelagia-ceph
 
 # TODO(prazumovsky): add envvar for different products: kubevirt, k0rdent, MOSK, upstream. It will allow us to build different
 # charts for different products. Then manage this envvar in helm build and other commands.
@@ -46,7 +47,7 @@ pelagia-ceph: snapshot-controller rook-crds ## Build helm package.
 		sed -i '/^dependencies:/,$$d' charts/pelagia-ceph/Chart.yaml ; \
 	fi
 	helm lint charts/pelagia-ceph
-	helm package charts/pelagia-ceph --version $(VERSION)
+	helm package charts/pelagia-ceph --version $(VERSION) --app-version $(VERSION)
 	mv charts/pelagia-ceph/.Chart.yaml.bckp charts/pelagia-ceph/Chart.yaml
 
 rook-crds:
@@ -67,6 +68,9 @@ snapshot-controller:
 		printf "\n=== PACKAGING SNAPSHOT-CONTROLLER CHART HAS BEEN SKIPPED ===\n"; \
 	fi
 
+publish-chart:
+	helm push pelagia-ceph-$(VERSION).tgz $(HELM_REGISTRY)
+
 $(OUTPUT)/$(CONTROLLER_NAME): vendor ## Build controller binary
 	go build -o $@ -trimpath -ldflags $(LDFLAGS) -mod=vendor $(CONTROLLER_CMD)
 
@@ -78,10 +82,10 @@ $(OUTPUT)/$(CONNECTOR_NAME): vendor
 
 .docker: $(OUTPUT)/$(CONTROLLER_NAME) $(OUTPUT)/$(DISK_DAEMON_NAME) $(OUTPUT)/$(CONNECTOR_NAME)
 	@touch $@
-	docker image build --platform linux/$(GOARCH) -t $(IMAGE_NAME):$(IMAGE_TAG) -f controller.Dockerfile .
+	docker image build --build-arg REF=$(CODE_VERSION) --platform linux/$(GOARCH) -t $(IMAGE_NAME):$(IMAGE_TAG) -f controller.Dockerfile .
 
 .docker-e2e: build-e2e
-	docker image build --platform linux/$(GOARCH) -t $(E2E_IMAGE_NAME):$(IMAGE_TAG) -f e2e.Dockerfile .
+	docker image build --build-arg REF=$(CODE_VERSION) --platform linux/$(GOARCH) -t $(E2E_IMAGE_NAME):$(IMAGE_TAG) -f e2e.Dockerfile .
 
 .PHONY: get-version
 get-version:
@@ -95,10 +99,16 @@ build-e2e: vendor
 	go clean -testcache
 image: .docker  ## Build docker image.
 image-e2e: .docker-e2e  ## Build e2e docker image.
-publish: image ## Publish docker image to its repostory.
+publish: ## Publish docker image to its repostory.
 	docker push $(IMAGE_NAME):$(IMAGE_TAG)
-publish-e2e: image-e2e ## Publish docker image to its repostory.
+publish-e2e: ## Publish docker image to its repostory.
 	docker push $(E2E_IMAGE_NAME):$(IMAGE_TAG)
+rename-image: ## Tag image with new name
+	@if [ -z $(NEW_IMAGE_NAME) ]; then \
+		printf "\n=== Failed to tag, NEW_IMAGE_NAME var is not specified ===\n"; \
+		exit 1 ; \
+	fi
+	docker tag $(IMAGE_NAME):$(IMAGE_TAG) $(NEW_IMAGE_NAME):$(IMAGE_TAG)
 
 .PHONY: clean clean-all clean-docker
 clean: ## Clean built object and vendor libraries.

@@ -3,13 +3,14 @@ name: Helm CI
 on:
   push:
     branches: [ "main", "release-*" ]
+    tags: ['*']
     paths:
-    - 'chart/**'
+    - 'charts/**'
     - 'Makefile'
   pull_request:
     branches: [ "main", "release-*" ]
     paths:
-    - 'chart/**'
+    - 'charts/**'
     - 'Makefile'
 
 # abort in progress when PR is refreshed.
@@ -21,8 +22,7 @@ jobs:
   helm-check:
     runs-on: ubuntu-latest
     env:
-      BUILD_MODE: ${{ github.event_name == 'push' && 'merge' || 'dev' }}
-      DEV_VERSION: ${{ github.event_name == 'pull_request' && github.event.pull_request.number }}
+      DEV_VERSION: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) }}
       HELM_REPO: ${{ github.event_name == 'push' && 'pelagia' || 'pelagia/pr' }}
     steps:
       - name: Checkout
@@ -46,8 +46,19 @@ jobs:
           registry: ${{ vars.REGISTRY_CI }}
           username: ${{ secrets.REGISTRY_CI_USERNAME }}
           password: ${{ secrets.REGISTRY_CI_PASSWORD }}
-      - name: Push Helm chart
-        run: |
-          for pkg in ./pelagia-ceph-*.tgz; do
-            helm push ${pkg} oci://${{ vars.REGISTRY_CI }}/${{ env.HELM_REPO }}
-          done
+      - name: Push Helm chart to registry CI
+        env:
+          HELM_REGISTRY: oci://${{ vars.REGISTRY_CI }}/${{ env.HELM_REPO }}
+        run: make publish-chart
+      - name: Login to main registry
+        if: ${{ github.ref_type == 'tag' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.REGISTRY_PROD }}
+          username: ${{ secrets.REGISTRY_PROD_USERNAME }}
+          password: ${{ secrets.REGISTRY_PROD_PASSWORD }}
+      - name: Push Helm chart to main registry
+        if: ${{ github.ref_type == 'tag' }}
+        env:
+          HELM_REGISTRY: oci://${{ vars.REGISTRY_PROD }}/${{ env.HELM_REPO }}
+        run: make publish-chart
