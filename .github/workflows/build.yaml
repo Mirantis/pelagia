@@ -3,6 +3,7 @@ name: Build CI
 on:
   push:
     branches: [ "main", "release-*" ]
+    tags: ['*']
     paths:
     - 'cmd/**'
     - 'pkg/**'
@@ -27,9 +28,9 @@ jobs:
   build-controller:
     runs-on: ubuntu-latest
     env:
-      BUILD_MODE: ${{ github.event_name == 'push' && 'merge' || 'dev' }}
       IMAGE_NAME: ${{ github.event_name == 'pull_request' && format('{0}/pelagia/pr/pelagia', vars.REGISTRY_CI) || format('{0}/pelagia/pelagia', vars.REGISTRY_CI) }}
-      DEV_VERSION: ${{ github.event_name == 'pull_request' && github.event.pull_request.number }}
+      DEV_VERSION: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
+      RELEASE_IMAGE_NAME: ${{ format('{0}/pelagia/pelagia', vars.REGISTRY_PROD) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -56,5 +57,22 @@ jobs:
           registry: ${{ vars.REGISTRY_CI }}
           username: ${{ secrets.REGISTRY_CI_USERNAME }}
           password: ${{ secrets.REGISTRY_CI_PASSWORD }}
-      - name: Push build
+      - name: Push build to registry CI
+        run: make publish
+      - name: Login to main registry
+        if: ${{ github.ref_type == 'tag' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.REGISTRY_PROD }}
+          username: ${{ secrets.REGISTRY_PROD_USERNAME }}
+          password: ${{ secrets.REGISTRY_PROD_PASSWORD }}
+      - name: Retag image for main registry
+        if: ${{ github.ref_type == 'tag' }}
+        env:
+          NEW_IMAGE_NAME: ${{ env.RELEASE_IMAGE_NAME }}
+        run: make rename-image
+      - name: Push build to main registry
+        if: ${{ github.ref_type == 'tag' }}
+        env:
+          IMAGE_NAME: ${{ env.RELEASE_IMAGE_NAME }}
         run: make publish

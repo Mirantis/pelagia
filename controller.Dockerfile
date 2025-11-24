@@ -1,5 +1,10 @@
 FROM alpine:3.20.1
 
+ARG REF=local
+LABEL org.opencontainers.image.authors="Mirantis Inc. https://mirantis.com" \
+      org.opencontainers.image.source="https://github.com/Mirantis/pelagia" \
+      org.opencontainers.image.ref.commit="${REF}"
+
 # rebuild=1
 ENV USER_UID=1001 \
     USER_GID=1001 \
