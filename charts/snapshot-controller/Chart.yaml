@@ -3,3 +3,6 @@ appVersion: "8.2.0"
 description: A Helm chart to deploy snapshot controller
 name: snapshot-controller
 version: 1.0.0
+maintainers:
+- name: Mirantis Inc.
+  url: https://github.com/Mirantis/pelagia

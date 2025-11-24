@@ -8,18 +8,12 @@ function _git {
     ${GIT_CMD} "$@"
 }
 
-function get_version {
+function get_app_version {
     main_version=$1
-    build_mode=$2
-    dev_version=$3
+    dev_version=$2
     version=""
-    cur_commit="$(_git rev-parse --short=8 HEAD)"
-    if [[ "${build_mode}" == "dev" ]]; then
-        if [[ -n "${dev_version}" ]]; then
-            version="${main_version}-${dev_version}-pr"
-        else
-            version="${main_version}-dev-${cur_commit}"
-        fi
+    if [[ -n "${dev_version}" ]]; then
+        version="${main_version}-${dev_version}"
     else
         last_tag="$(_git describe --abbrev=0 --tags --always)"
         # check we are good for release
@@ -31,10 +25,20 @@ function get_version {
                 version="${last_tag}"
             fi
         else
+            cur_commit="$(_git rev-parse --short=10 HEAD)"
             version="${main_version}-custom-${cur_commit}"
         fi
     fi
     echo ${version}
 }
 
-get_version "$@"
+function get_git_version {
+    version=$(_git rev-parse --short=10 HEAD)
+    echo $version
+}
+
+if [ "$#" -lt 1 ]; then
+    get_git_version
+else
+    get_app_version "$@"
+fi
