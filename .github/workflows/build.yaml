@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_NAME: ${{ github.event_name == 'pull_request' && format('{0}/pelagia/pr/pelagia', vars.REGISTRY_CI) || format('{0}/pelagia/pelagia', vars.REGISTRY_CI) }}
-      DEV_VERSION: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) }}
+      DEV_VERSION: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
       RELEASE_IMAGE_NAME: ${{ format('{0}/pelagia/pelagia', vars.REGISTRY_PROD) }}
     steps:
       - name: Checkout

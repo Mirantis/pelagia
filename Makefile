@@ -103,7 +103,7 @@ publish: ## Publish docker image to its repostory.
 	docker push $(IMAGE_NAME):$(IMAGE_TAG)
 publish-e2e: ## Publish docker image to its repostory.
 	docker push $(E2E_IMAGE_NAME):$(IMAGE_TAG)
-rename-image: ## Tag image with new name
+rename-image: ## Tag image with new name for another registry
 	@if [ -z $(NEW_IMAGE_NAME) ]; then \
 		printf "\n=== Failed to tag, NEW_IMAGE_NAME var is not specified ===\n"; \
 		exit 1 ; \
