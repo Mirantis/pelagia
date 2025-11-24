@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       E2E_IMAGE_NAME: ${{ github.event_name == 'pull_request' && format('{0}/pelagia/pr/pelagia-e2e', vars.REGISTRY_CI) || format('{0}/pelagia/pelagia-e2e', vars.REGISTRY_CI) }}
-      DEV_VERSION: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) }}
+      DEV_VERSION: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
       RELEASE_IMAGE_NAME: ${{ format('{0}/pelagia/pelagia-e2e', vars.REGISTRY_PROD) }}
     steps:
       - name: Checkout

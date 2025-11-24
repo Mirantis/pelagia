@@ -22,7 +22,7 @@ jobs:
   helm-check:
     runs-on: ubuntu-latest
     env:
-      DEV_VERSION: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) }}
+      DEV_VERSION: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
       HELM_REPO: ${{ github.event_name == 'push' && 'pelagia' || 'pelagia/pr' }}
     steps:
       - name: Checkout
