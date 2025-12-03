@@ -1,5 +1,10 @@
 FROM golang:1.23.6
 
+ARG REF=local
+LABEL org.opencontainers.image.authors="Mirantis Inc. https://mirantis.com" \
+      org.opencontainers.image.source="https://github.com/Mirantis/pelagia" \
+      org.opencontainers.image.ref.commit="${REF}"
+
 # rebuild=1
 ARG E2E_PATH=/root/pelagia-e2e
 ARG TESTCONFIG_PATH=$E2E_PATH/testconfig
