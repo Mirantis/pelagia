@@ -30,9 +30,8 @@ jobs:
   build-e2e:
     runs-on: ubuntu-latest
     env:
-      E2E_IMAGE_NAME: ${{ github.event_name == 'pull_request' && format('{0}/pelagia/pr/pelagia-e2e', vars.REGISTRY_CI) || format('{0}/pelagia/pelagia-e2e', vars.REGISTRY_CI) }}
+      CI_E2E_IMAGE_NAME: ${{ github.event_name == 'pull_request' && format('{0}/pelagia/pr/pelagia-e2e', vars.REGISTRY_CI) || format('{0}/pelagia/pelagia-e2e', vars.REGISTRY_CI) }}
       DEV_VERSION: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
-      RELEASE_IMAGE_NAME: ${{ format('{0}/pelagia/pelagia-e2e', vars.REGISTRY_PROD) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -43,24 +42,19 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.23.6'
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: all
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
       - name: Check lint
         run: make lint
-      - name: Show current version
-        run: make get-version
-      - name: Run e2e image build
-        run: make image-e2e
+      - name: Set image version
+        run: |
+          echo IMAGE_TAG=$(make get-version) >> $GITHUB_ENV
       - name: Login to registry CI
         uses: docker/login-action@v3
         with:
           registry: ${{ vars.REGISTRY_CI }}
           username: ${{ secrets.REGISTRY_CI_USERNAME }}
           password: ${{ secrets.REGISTRY_CI_PASSWORD }}
-      - name: Push build to registry CI
-        run: make publish-e2e
       - name: Login to main registry
         if: ${{ github.ref_type == 'tag' }}
         uses: docker/login-action@v3
@@ -68,13 +62,15 @@ jobs:
           registry: ${{ vars.REGISTRY_PROD }}
           username: ${{ secrets.REGISTRY_PROD_USERNAME }}
           password: ${{ secrets.REGISTRY_PROD_PASSWORD }}
-      - name: Retag image for main registry
+      - name: Set e2e image multibuild output for CI
+        if: ${{ github.ref_type != 'tag' }}
+        run: |
+          echo IMAGE_E2E_MULTIBUILD_OUTPUT='type=image,name=${{ env.CI_E2E_IMAGE_NAME }}:${{ env.IMAGE_TAG }},push=true' >> $GITHUB_ENV
+      - name: Set e2e image multibuild output for release
         if: ${{ github.ref_type == 'tag' }}
         env:
-          NEW_IMAGE_NAME: ${{ env.RELEASE_IMAGE_NAME }}
-        run: make rename-image
-      - name: Push build to main registry
-        if: ${{ github.ref_type == 'tag' }}
-        env:
-          IMAGE_NAME: ${{ env.RELEASE_IMAGE_NAME }}
-        run: make publish
+          RELEASE_E2E_IMAGE_NAME: ${{ format('{0}/pelagia/pelagia-e2e', vars.REGISTRY_PROD) }}
+        run: |
+          echo IMAGE_E2E_MULTIBUILD_OUTPUT='type=image,name=${{ env.CI_E2E_IMAGE_NAME }}:${{ env.IMAGE_TAG }},push=true type=image,name=${{ env.RELEASE_E2E_IMAGE_NAME }}:${{ env.IMAGE_TAG }},push=true' >> $GITHUB_ENV
+      - name: Run image build and push to registry
+        run: make docker.build/e2e
