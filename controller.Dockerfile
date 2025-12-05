@@ -1,6 +1,9 @@
-FROM alpine:3.20.1
+FROM --platform=$TARGETPLATFORM alpine:3.20.1
 
+ARG TARGETOS
+ARG TARGETARCH
 ARG REF=local
+
 LABEL org.opencontainers.image.authors="Mirantis Inc. https://mirantis.com" \
       org.opencontainers.image.source="https://github.com/Mirantis/pelagia" \
       org.opencontainers.image.ref.commit="${REF}"
@@ -15,11 +18,11 @@ RUN apk update \
      && apk upgrade -U --no-cache \
      && apk add shadow --no-cache
 
-COPY build/docker build/bin /usr/local/bin
+COPY build/docker build/bin/${TARGETOS}/${TARGETARCH} /usr/local/bin
 RUN  /usr/local/bin/user_setup
 
 # save tini for disk-daemon init process to reap zombies
-RUN wget https://github.com/krallin/tini/releases/download/v0.19.0/tini -O /usr/local/bin/tini \
+RUN wget https://github.com/krallin/tini/releases/download/v0.19.0/tini-${TARGETARCH} -O /usr/local/bin/tini \
      && chmod +x /usr/local/bin/tini
 
 USER ${USER_UID}:${USER_GID}
