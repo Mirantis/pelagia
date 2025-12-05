@@ -26,8 +26,9 @@ LDFLAGS := "-X 'github.com/Mirantis/pelagia/version.Version=${VERSION}'"
 IMAGE_NAME ?= localdocker:5000/$(CONTROLLER_NAME)
 E2E_IMAGE_NAME ?= localdocker:5000/$(CEPH_E2E_NAME)
 IMAGE_TAG ?= $(VERSION)
-IMAGE_MULTIBUILD_OUTPUT ?= type=image,name=$(IMAGE_NAME):$(IMAGE_TAG)
-IMAGE_E2E_MULTIBUILD_OUTPUT ?= type=image,name=$(E2E_IMAGE_NAME):$(IMAGE_TAG)
+PUSH_ON_BUILD ?= true
+IMAGE_MULTIBUILD_OUTPUT ?= type=image,name=$(IMAGE_NAME):$(IMAGE_TAG),push=$(PUSH_ON_BUILD)
+IMAGE_E2E_MULTIBUILD_OUTPUT ?= type=image,name=$(E2E_IMAGE_NAME):$(IMAGE_TAG),push=$(PUSH_ON_BUILD)
 HELM_REGISTRY ?= oci://localhost/pelagia/pelagia-ceph
 
 #============#
@@ -123,10 +124,21 @@ docker.build/e2e: go.build/e2e ## Build Pelagia E2E docker image for all specifi
 
 docker.build: docker.build/controller docker.build/e2e ## Build all docker images for all platforms
 
-docker.publish/controller: ## Publish Pelagia docker image to its registry.
+docker.publish/controller: ## Publish Pelagia single docker image to its registry.
 	docker push $(IMAGE_NAME):$(IMAGE_TAG)
-docker.publish/e2e: ## Publish Pelagia E2E docker image to its registry.
+docker.publish/e2e: ## Publish Pelagia E2E single docker image to its registry.
 	docker push $(E2E_IMAGE_NAME):$(IMAGE_TAG)
+
+docker.copy.%: ## Copy existing multiarch image to new registry
+	@if [ -z $(NEW_IMAGE_NAME) ]; then \
+		printf "\n=== Failed to create new manifest, NEW_IMAGE_NAME var is not specified ===\n"; \
+		exit 1 ; \
+	fi
+	@if [ "$*" == "controller" ]; then \
+		docker buildx imagetools create -t $(NEW_IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_NAME):$(IMAGE_TAG)
+	else \
+		docker buildx imagetools create -t $(NEW_IMAGE_NAME):$(IMAGE_TAG) $(E2E_IMAGE_NAME):$(IMAGE_TAG)
+	fi
 
 #===============#
 # Cleanup stuff #
