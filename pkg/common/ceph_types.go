@@ -47,7 +47,7 @@ type OsdTree struct {
 		DeviceClass string  `json:"device_class"`
 		Status      string  `json:"status"`
 		Weight      float64 `json:"crush_weight"`
-		Reweight    int     `json:"reweight"`
+		Reweight    float64 `json:"reweight"`
 	} `json:"nodes"`
 }
 
