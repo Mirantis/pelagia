@@ -249,6 +249,10 @@ func TestValidationFailure(t *testing.T) {
 		cd.Spec.ObjectStorage.Rgw.MetadataPool.Replicated = nil
 		cd.Spec.ObjectStorage.Rgw.MetadataPool.ErasureCoded = nil
 	}
+	poolDefaultClass := f.GetDefaultPoolDeviceClass(cd)
+	if poolDefaultClass == "" {
+		t.Fatal("failed to find default pool")
+	}
 	// cephfs validation
 	cd.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{
 		CephFS: []cephlcmv1alpha1.CephFS{
@@ -259,7 +263,7 @@ func TestValidationFailure(t *testing.T) {
 					{
 						Name: "fake-datapool-1",
 						CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-							DeviceClass: "hdd",
+							DeviceClass: poolDefaultClass,
 							ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
 								CodingChunks: 2,
 								DataChunks:   1,
@@ -269,7 +273,7 @@ func TestValidationFailure(t *testing.T) {
 					{
 						Name: "fake-datapool-2",
 						CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-							DeviceClass: "hdd",
+							DeviceClass: poolDefaultClass,
 						},
 					},
 				},

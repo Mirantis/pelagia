@@ -508,6 +508,10 @@ func TestCephFSManila(t *testing.T) {
 		}
 	}
 	f.Step(t, "Enable CephFS for Manila in Ceph cluster")
+	poolDefaultClass := f.GetDefaultPoolDeviceClass(cd)
+	if poolDefaultClass == "" {
+		t.Fatal("failed to find default pool")
+	}
 	cephFSName := fmt.Sprintf("shared-cephfs-%d", time.Now().Unix())
 	cephFS := cephlcmv1alpha1.CephFS{
 		Name: cephFSName,
@@ -515,7 +519,7 @@ func TestCephFSManila(t *testing.T) {
 			{
 				Name: "data-pool",
 				CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-					DeviceClass:   "hdd",
+					DeviceClass:   poolDefaultClass,
 					FailureDomain: "host",
 					Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
 						Size: 2,
@@ -524,7 +528,7 @@ func TestCephFSManila(t *testing.T) {
 			},
 		},
 		MetadataPool: cephlcmv1alpha1.CephPoolSpec{
-			DeviceClass:   "hdd",
+			DeviceClass:   poolDefaultClass,
 			FailureDomain: "host",
 			Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
 				Size: 2,
