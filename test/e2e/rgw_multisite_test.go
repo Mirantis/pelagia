@@ -66,6 +66,10 @@ func TestMultisiteRgw(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	poolDefaultClass := f.GetDefaultPoolDeviceClass(cd)
+	if poolDefaultClass == "" {
+		t.Fatal("failed to find default pool")
+	}
 
 	realmName := ""
 	zonegroupName := ""
@@ -91,13 +95,13 @@ func TestMultisiteRgw(t *testing.T) {
 					{
 						Name: "rgw-storezone",
 						MetadataPool: cephlcmv1alpha1.CephPoolSpec{
-							DeviceClass: "hdd",
+							DeviceClass: poolDefaultClass,
 							Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
 								Size: 3,
 							},
 						},
 						DataPool: cephlcmv1alpha1.CephPoolSpec{
-							DeviceClass: "hdd",
+							DeviceClass: poolDefaultClass,
 							ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
 								CodingChunks: 1,
 								DataChunks:   2,
@@ -230,13 +234,13 @@ func TestMultisiteRgw(t *testing.T) {
 				{
 					Name: zoneName,
 					MetadataPool: cephlcmv1alpha1.CephPoolSpec{
-						DeviceClass: "hdd",
+						DeviceClass: poolDefaultClass,
 						Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
 							Size: 3,
 						},
 					},
 					DataPool: cephlcmv1alpha1.CephPoolSpec{
-						DeviceClass: "hdd",
+						DeviceClass: poolDefaultClass,
 						ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
 							CodingChunks: 1,
 							DataChunks:   2,
