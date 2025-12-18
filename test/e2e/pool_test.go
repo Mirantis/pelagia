@@ -46,10 +46,14 @@ func TestAddRemovePool(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	poolDefaultClass := f.GetDefaultPoolDeviceClass(cd)
+	if poolDefaultClass == "" {
+		t.Fatal("failed to find default pool")
+	}
 
 	f.Step(t, "Adding new Ceph Pool")
 	poolName := "test-pool-new-" + fmt.Sprintf("%d", time.Now().Unix())
-	newPool := f.GetNewPool(poolName, false, false, 2, "", "", "hdd")
+	newPool := f.GetNewPool(poolName, false, false, 2, "", "", poolDefaultClass)
 	cd.Spec.Pools = append(cd.Spec.Pools, newPool)
 	err = f.UpdateCephDeploymentSpec(cd, true)
 	if err != nil {
@@ -57,7 +61,7 @@ func TestAddRemovePool(t *testing.T) {
 	}
 
 	f.Step(t, "Validate a new pool")
-	pool, err := f.TF.ManagedCluster.GetCephBlockPool(poolName + "-hdd")
+	pool, err := f.TF.ManagedCluster.GetCephBlockPool(fmt.Sprintf("%s-%s", poolName, poolDefaultClass))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,7 +85,7 @@ func TestAddRemovePool(t *testing.T) {
 	}
 
 	f.Step(t, "Validate if the pool was removed")
-	_, err = f.TF.ManagedCluster.GetCephBlockPool(poolName + "-hdd")
+	_, err = f.TF.ManagedCluster.GetCephBlockPool(fmt.Sprintf("%s-%s", poolName, poolDefaultClass))
 	if err == nil {
 		t.Fatal("Pool still exists")
 	} else {
@@ -101,10 +105,14 @@ func TestVolumesBackendPool(t *testing.T) {
 	if !lcmcommon.IsOpenStackPoolsPresent(cd.Spec.Pools) {
 		t.Skip("There are no openstack pools therefore could not proceed the test")
 	}
+	poolDefaultClass := f.GetDefaultPoolDeviceClass(cd)
+	if poolDefaultClass == "" {
+		t.Fatal("failed to find default pool")
+	}
 
 	f.Step(t, "Build volumes-backend role pool spec")
 	name := "test-volumes-backend-" + fmt.Sprintf("%d", time.Now().Unix())
-	newPool := f.GetNewPool(name, true, false, 2, "volumes", "", "hdd")
+	newPool := f.GetNewPool(name, true, false, 2, "volumes", "", poolDefaultClass)
 
 	cd.Spec.Pools = append(cd.Spec.Pools, newPool)
 	f.Step(t, "Create Ceph Pool with volumes-backend role")
@@ -281,11 +289,15 @@ func TestVolumeExpansionPool(t *testing.T) {
 
 	f.Step(t, "Build volume expansion pool spec")
 	name := "test-volumes-expansion-" + fmt.Sprintf("%d", time.Now().Unix())
-	newPool := f.GetNewPool(name, true, true, 2, "", "", "hdd")
 	cd, err := f.TF.ManagedCluster.FindCephDeployment()
 	if err != nil {
 		t.Fatal(err)
 	}
+	poolDefaultClass := f.GetDefaultPoolDeviceClass(cd)
+	if poolDefaultClass == "" {
+		t.Fatal("failed to find default pool")
+	}
+	newPool := f.GetNewPool(name, true, true, 2, "", "", poolDefaultClass)
 	cd.Spec.Pools = append(cd.Spec.Pools, newPool)
 	f.Step(t, "Create new pool %s", name)
 	err = f.UpdateCephDeploymentSpec(cd, true)
