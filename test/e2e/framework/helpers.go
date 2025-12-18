@@ -161,3 +161,14 @@ func GetRgwPublicEndpoint(cdhName string) (string, error) {
 	}
 	return cdh.Status.HealthReport.ClusterDetails.RgwInfo.PublicEndpoint, nil
 }
+
+func GetDefaultPoolDeviceClass(cd *cephlcmv1alpha.CephDeployment) string {
+	poolDefaultClass := ""
+	for _, pool := range cd.Spec.Pools {
+		if pool.StorageClassOpts.Default {
+			poolDefaultClass = pool.DeviceClass
+			break
+		}
+	}
+	return poolDefaultClass
+}
