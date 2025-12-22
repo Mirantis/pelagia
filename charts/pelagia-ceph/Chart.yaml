@@ -2,14 +2,14 @@ apiVersion: v2
 appVersion: dev
 description: A Helm chart to deploy Ceph Pelagia resources
 name: pelagia-ceph
-version: 1.2.0
+version: 1.3.0
 maintainers:
 - name: Mirantis Inc.
   url: https://github.com/Mirantis/pelagia
 dependencies:
 - name: rook-crds
   repository: file://charts/rook-crds
-  version: 1.2.0
+  version: 1.3.0
 - name: snapshot-controller
   repository: file://charts/snapshot-controller
-  version: 1.2.0
+  version: 1.3.0
