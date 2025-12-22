@@ -134,7 +134,7 @@ docker.copy.%: ## Copy existing multiarch image to new registry
 		printf "\n=== Failed to create new manifest, NEW_IMAGE_NAME var is not specified ===\n"; \
 		exit 1 ; \
 	fi
-	@if [ "$*" == "controller" ]; then \
+	@if [ "$*" = "controller" ]; then \
 		docker buildx imagetools create -t $(NEW_IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_NAME):$(IMAGE_TAG) ; \
 	else \
 		docker buildx imagetools create -t $(NEW_IMAGE_NAME):$(IMAGE_TAG) $(E2E_IMAGE_NAME):$(IMAGE_TAG) ; \
