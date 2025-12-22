@@ -135,9 +135,9 @@ docker.copy.%: ## Copy existing multiarch image to new registry
 		exit 1 ; \
 	fi
 	@if [ "$*" == "controller" ]; then \
-		docker buildx imagetools create -t $(NEW_IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_NAME):$(IMAGE_TAG)
+		docker buildx imagetools create -t $(NEW_IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_NAME):$(IMAGE_TAG) ; \
 	else \
-		docker buildx imagetools create -t $(NEW_IMAGE_NAME):$(IMAGE_TAG) $(E2E_IMAGE_NAME):$(IMAGE_TAG)
+		docker buildx imagetools create -t $(NEW_IMAGE_NAME):$(IMAGE_TAG) $(E2E_IMAGE_NAME):$(IMAGE_TAG) ; \
 	fi
 
 #===============#
