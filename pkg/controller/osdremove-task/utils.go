@@ -18,6 +18,7 @@ package osdremove
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/pkg/errors"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -25,6 +26,8 @@ import (
 
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
 )
+
+var diskDaemonRetryTimeout = 10 * time.Second
 
 func (c *cephOsdRemoveConfig) tryToGetNodeOsdsReportOrIssues(host string) (*lcmcommon.DiskDaemonOsdsReport, []string) {
 	nodeReport, err := c.getNodeReport(host)
@@ -46,7 +49,7 @@ func (c *cephOsdRemoveConfig) tryToGetNodeOsdsReportOrIssues(host string) (*lcmc
 
 func (c *cephOsdRemoveConfig) getNodeReport(hostName string) (*lcmcommon.DiskDaemonReport, error) {
 	cmd := fmt.Sprintf("%s --osd-report --port %d", lcmcommon.PelagiaDiskDaemon, c.lcmConfig.DiskDaemonPort)
-	nodeReportRes, err := lcmcommon.RunFuncWithRetry(retriesForFailedCommand, commandRetryRunTimeout, func() (interface{}, error) {
+	nodeReportRes, err := lcmcommon.RunFuncWithRetry(retriesForFailedCommand, diskDaemonRetryTimeout, func() (interface{}, error) {
 		var report *lcmcommon.DiskDaemonReport
 		daemonErr := lcmcommon.RunAndParseDiskDaemonCLI(c.context, c.api.Kubeclientset, c.api.Config, c.taskConfig.task.Namespace, hostName, cmd, &report)
 		if daemonErr != nil {
