@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Mirantis IT.
+Copyright 2026 Mirantis IT.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,15 +19,14 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
-	"time"
+	context "context"
 
-	v1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	cephpelagialcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	scheme "github.com/Mirantis/pelagia/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
-	rest "k8s.io/client-go/rest"
+	gentype "k8s.io/client-go/gentype"
 )
 
 // CephOsdRemoveTasksGetter has a method to return a CephOsdRemoveTaskInterface.
@@ -38,158 +37,36 @@ type CephOsdRemoveTasksGetter interface {
 
 // CephOsdRemoveTaskInterface has methods to work with CephOsdRemoveTask resources.
 type CephOsdRemoveTaskInterface interface {
-	Create(ctx context.Context, cephOsdRemoveTask *v1alpha1.CephOsdRemoveTask, opts v1.CreateOptions) (*v1alpha1.CephOsdRemoveTask, error)
-	Update(ctx context.Context, cephOsdRemoveTask *v1alpha1.CephOsdRemoveTask, opts v1.UpdateOptions) (*v1alpha1.CephOsdRemoveTask, error)
-	UpdateStatus(ctx context.Context, cephOsdRemoveTask *v1alpha1.CephOsdRemoveTask, opts v1.UpdateOptions) (*v1alpha1.CephOsdRemoveTask, error)
+	Create(ctx context.Context, cephOsdRemoveTask *cephpelagialcmv1alpha1.CephOsdRemoveTask, opts v1.CreateOptions) (*cephpelagialcmv1alpha1.CephOsdRemoveTask, error)
+	Update(ctx context.Context, cephOsdRemoveTask *cephpelagialcmv1alpha1.CephOsdRemoveTask, opts v1.UpdateOptions) (*cephpelagialcmv1alpha1.CephOsdRemoveTask, error)
+	// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
+	UpdateStatus(ctx context.Context, cephOsdRemoveTask *cephpelagialcmv1alpha1.CephOsdRemoveTask, opts v1.UpdateOptions) (*cephpelagialcmv1alpha1.CephOsdRemoveTask, error)
 	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
-	Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.CephOsdRemoveTask, error)
-	List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.CephOsdRemoveTaskList, error)
+	Get(ctx context.Context, name string, opts v1.GetOptions) (*cephpelagialcmv1alpha1.CephOsdRemoveTask, error)
+	List(ctx context.Context, opts v1.ListOptions) (*cephpelagialcmv1alpha1.CephOsdRemoveTaskList, error)
 	Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.CephOsdRemoveTask, err error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *cephpelagialcmv1alpha1.CephOsdRemoveTask, err error)
 	CephOsdRemoveTaskExpansion
 }
 
 // cephOsdRemoveTasks implements CephOsdRemoveTaskInterface
 type cephOsdRemoveTasks struct {
-	client rest.Interface
-	ns     string
+	*gentype.ClientWithList[*cephpelagialcmv1alpha1.CephOsdRemoveTask, *cephpelagialcmv1alpha1.CephOsdRemoveTaskList]
 }
 
 // newCephOsdRemoveTasks returns a CephOsdRemoveTasks
 func newCephOsdRemoveTasks(c *LcmV1alpha1Client, namespace string) *cephOsdRemoveTasks {
 	return &cephOsdRemoveTasks{
-		client: c.RESTClient(),
-		ns:     namespace,
+		gentype.NewClientWithList[*cephpelagialcmv1alpha1.CephOsdRemoveTask, *cephpelagialcmv1alpha1.CephOsdRemoveTaskList](
+			"cephosdremovetasks",
+			c.RESTClient(),
+			scheme.ParameterCodec,
+			namespace,
+			func() *cephpelagialcmv1alpha1.CephOsdRemoveTask { return &cephpelagialcmv1alpha1.CephOsdRemoveTask{} },
+			func() *cephpelagialcmv1alpha1.CephOsdRemoveTaskList {
+				return &cephpelagialcmv1alpha1.CephOsdRemoveTaskList{}
+			},
+		),
 	}
-}
-
-// Get takes name of the cephOsdRemoveTask, and returns the corresponding cephOsdRemoveTask object, and an error if there is any.
-func (c *cephOsdRemoveTasks) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.CephOsdRemoveTask, err error) {
-	result = &v1alpha1.CephOsdRemoveTask{}
-	err = c.client.Get().
-		Namespace(c.ns).
-		Resource("cephosdremovetasks").
-		Name(name).
-		VersionedParams(&options, scheme.ParameterCodec).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// List takes label and field selectors, and returns the list of CephOsdRemoveTasks that match those selectors.
-func (c *cephOsdRemoveTasks) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.CephOsdRemoveTaskList, err error) {
-	var timeout time.Duration
-	if opts.TimeoutSeconds != nil {
-		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
-	}
-	result = &v1alpha1.CephOsdRemoveTaskList{}
-	err = c.client.Get().
-		Namespace(c.ns).
-		Resource("cephosdremovetasks").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Watch returns a watch.Interface that watches the requested cephOsdRemoveTasks.
-func (c *cephOsdRemoveTasks) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
-	var timeout time.Duration
-	if opts.TimeoutSeconds != nil {
-		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
-	}
-	opts.Watch = true
-	return c.client.Get().
-		Namespace(c.ns).
-		Resource("cephosdremovetasks").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Watch(ctx)
-}
-
-// Create takes the representation of a cephOsdRemoveTask and creates it.  Returns the server's representation of the cephOsdRemoveTask, and an error, if there is any.
-func (c *cephOsdRemoveTasks) Create(ctx context.Context, cephOsdRemoveTask *v1alpha1.CephOsdRemoveTask, opts v1.CreateOptions) (result *v1alpha1.CephOsdRemoveTask, err error) {
-	result = &v1alpha1.CephOsdRemoveTask{}
-	err = c.client.Post().
-		Namespace(c.ns).
-		Resource("cephosdremovetasks").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(cephOsdRemoveTask).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Update takes the representation of a cephOsdRemoveTask and updates it. Returns the server's representation of the cephOsdRemoveTask, and an error, if there is any.
-func (c *cephOsdRemoveTasks) Update(ctx context.Context, cephOsdRemoveTask *v1alpha1.CephOsdRemoveTask, opts v1.UpdateOptions) (result *v1alpha1.CephOsdRemoveTask, err error) {
-	result = &v1alpha1.CephOsdRemoveTask{}
-	err = c.client.Put().
-		Namespace(c.ns).
-		Resource("cephosdremovetasks").
-		Name(cephOsdRemoveTask.Name).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(cephOsdRemoveTask).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *cephOsdRemoveTasks) UpdateStatus(ctx context.Context, cephOsdRemoveTask *v1alpha1.CephOsdRemoveTask, opts v1.UpdateOptions) (result *v1alpha1.CephOsdRemoveTask, err error) {
-	result = &v1alpha1.CephOsdRemoveTask{}
-	err = c.client.Put().
-		Namespace(c.ns).
-		Resource("cephosdremovetasks").
-		Name(cephOsdRemoveTask.Name).
-		SubResource("status").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(cephOsdRemoveTask).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Delete takes name of the cephOsdRemoveTask and deletes it. Returns an error if one occurs.
-func (c *cephOsdRemoveTasks) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
-	return c.client.Delete().
-		Namespace(c.ns).
-		Resource("cephosdremovetasks").
-		Name(name).
-		Body(&opts).
-		Do(ctx).
-		Error()
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *cephOsdRemoveTasks) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
-	var timeout time.Duration
-	if listOpts.TimeoutSeconds != nil {
-		timeout = time.Duration(*listOpts.TimeoutSeconds) * time.Second
-	}
-	return c.client.Delete().
-		Namespace(c.ns).
-		Resource("cephosdremovetasks").
-		VersionedParams(&listOpts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Body(&opts).
-		Do(ctx).
-		Error()
-}
-
-// Patch applies the patch and returns the patched cephOsdRemoveTask.
-func (c *cephOsdRemoveTasks) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.CephOsdRemoveTask, err error) {
-	result = &v1alpha1.CephOsdRemoveTask{}
-	err = c.client.Patch(pt).
-		Namespace(c.ns).
-		Resource("cephosdremovetasks").
-		Name(name).
-		SubResource(subresources...).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(data).
-		Do(ctx).
-		Into(result)
-	return
 }

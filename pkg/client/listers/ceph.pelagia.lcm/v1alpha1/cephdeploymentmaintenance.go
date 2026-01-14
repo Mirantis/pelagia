@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Mirantis IT.
+Copyright 2026 Mirantis IT.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/tools/cache"
+	cephpelagialcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	labels "k8s.io/apimachinery/pkg/labels"
+	listers "k8s.io/client-go/listers"
+	cache "k8s.io/client-go/tools/cache"
 )
 
 // CephDeploymentMaintenanceLister helps list CephDeploymentMaintenances.
@@ -30,7 +30,7 @@ import (
 type CephDeploymentMaintenanceLister interface {
 	// List lists all CephDeploymentMaintenances in the indexer.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1alpha1.CephDeploymentMaintenance, err error)
+	List(selector labels.Selector) (ret []*cephpelagialcmv1alpha1.CephDeploymentMaintenance, err error)
 	// CephDeploymentMaintenances returns an object that can list and get CephDeploymentMaintenances.
 	CephDeploymentMaintenances(namespace string) CephDeploymentMaintenanceNamespaceLister
 	CephDeploymentMaintenanceListerExpansion
@@ -38,25 +38,17 @@ type CephDeploymentMaintenanceLister interface {
 
 // cephDeploymentMaintenanceLister implements the CephDeploymentMaintenanceLister interface.
 type cephDeploymentMaintenanceLister struct {
-	indexer cache.Indexer
+	listers.ResourceIndexer[*cephpelagialcmv1alpha1.CephDeploymentMaintenance]
 }
 
 // NewCephDeploymentMaintenanceLister returns a new CephDeploymentMaintenanceLister.
 func NewCephDeploymentMaintenanceLister(indexer cache.Indexer) CephDeploymentMaintenanceLister {
-	return &cephDeploymentMaintenanceLister{indexer: indexer}
-}
-
-// List lists all CephDeploymentMaintenances in the indexer.
-func (s *cephDeploymentMaintenanceLister) List(selector labels.Selector) (ret []*v1alpha1.CephDeploymentMaintenance, err error) {
-	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.CephDeploymentMaintenance))
-	})
-	return ret, err
+	return &cephDeploymentMaintenanceLister{listers.New[*cephpelagialcmv1alpha1.CephDeploymentMaintenance](indexer, cephpelagialcmv1alpha1.Resource("cephdeploymentmaintenance"))}
 }
 
 // CephDeploymentMaintenances returns an object that can list and get CephDeploymentMaintenances.
 func (s *cephDeploymentMaintenanceLister) CephDeploymentMaintenances(namespace string) CephDeploymentMaintenanceNamespaceLister {
-	return cephDeploymentMaintenanceNamespaceLister{indexer: s.indexer, namespace: namespace}
+	return cephDeploymentMaintenanceNamespaceLister{listers.NewNamespaced[*cephpelagialcmv1alpha1.CephDeploymentMaintenance](s.ResourceIndexer, namespace)}
 }
 
 // CephDeploymentMaintenanceNamespaceLister helps list and get CephDeploymentMaintenances.
@@ -64,36 +56,15 @@ func (s *cephDeploymentMaintenanceLister) CephDeploymentMaintenances(namespace s
 type CephDeploymentMaintenanceNamespaceLister interface {
 	// List lists all CephDeploymentMaintenances in the indexer for a given namespace.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1alpha1.CephDeploymentMaintenance, err error)
+	List(selector labels.Selector) (ret []*cephpelagialcmv1alpha1.CephDeploymentMaintenance, err error)
 	// Get retrieves the CephDeploymentMaintenance from the indexer for a given namespace and name.
 	// Objects returned here must be treated as read-only.
-	Get(name string) (*v1alpha1.CephDeploymentMaintenance, error)
+	Get(name string) (*cephpelagialcmv1alpha1.CephDeploymentMaintenance, error)
 	CephDeploymentMaintenanceNamespaceListerExpansion
 }
 
 // cephDeploymentMaintenanceNamespaceLister implements the CephDeploymentMaintenanceNamespaceLister
 // interface.
 type cephDeploymentMaintenanceNamespaceLister struct {
-	indexer   cache.Indexer
-	namespace string
-}
-
-// List lists all CephDeploymentMaintenances in the indexer for a given namespace.
-func (s cephDeploymentMaintenanceNamespaceLister) List(selector labels.Selector) (ret []*v1alpha1.CephDeploymentMaintenance, err error) {
-	err = cache.ListAllByNamespace(s.indexer, s.namespace, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.CephDeploymentMaintenance))
-	})
-	return ret, err
-}
-
-// Get retrieves the CephDeploymentMaintenance from the indexer for a given namespace and name.
-func (s cephDeploymentMaintenanceNamespaceLister) Get(name string) (*v1alpha1.CephDeploymentMaintenance, error) {
-	obj, exists, err := s.indexer.GetByKey(s.namespace + "/" + name)
-	if err != nil {
-		return nil, err
-	}
-	if !exists {
-		return nil, errors.NewNotFound(v1alpha1.Resource("cephdeploymentmaintenance"), name)
-	}
-	return obj.(*v1alpha1.CephDeploymentMaintenance), nil
+	listers.ResourceIndexer[*cephpelagialcmv1alpha1.CephDeploymentMaintenance]
 }
