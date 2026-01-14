@@ -1,6 +1,6 @@
 module github.com/Mirantis/pelagia
 
-go 1.24.3
+go 1.24.11
 
 replace (
 	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.4.1
