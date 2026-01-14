@@ -10,61 +10,61 @@ spec:
     kind: ObjectBucket
     listKind: ObjectBucketList
     plural: objectbuckets
-    shortNames:
-    - ob
-    - obs
     singular: objectbucket
+    shortNames:
+      - ob
+      - obs
   scope: Cluster
   versions:
-  - name: v1alpha1
-    schema:
-      openAPIV3Schema:
-        properties:
-          spec:
-            properties:
-              additionalState:
-                nullable: true
-                type: object
-                x-kubernetes-preserve-unknown-fields: true
-              authentication:
-                items:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                storageClassName:
+                  type: string
+                endpoint:
                   type: object
-                  x-kubernetes-preserve-unknown-fields: true
-                nullable: true
-                type: object
-              claimRef:
-                nullable: true
-                type: object
-                x-kubernetes-preserve-unknown-fields: true
-              endpoint:
-                nullable: true
-                properties:
-                  additionalConfig:
-                    nullable: true
+                  nullable: true
+                  properties:
+                    bucketHost:
+                      type: string
+                    bucketPort:
+                      type: integer
+                      format: int32
+                    bucketName:
+                      type: string
+                    region:
+                      type: string
+                    subRegion:
+                      type: string
+                    additionalConfig:
+                      type: object
+                      nullable: true
+                      x-kubernetes-preserve-unknown-fields: true
+                authentication:
+                  type: object
+                  nullable: true
+                  items:
                     type: object
                     x-kubernetes-preserve-unknown-fields: true
-                  bucketHost:
-                    type: string
-                  bucketName:
-                    type: string
-                  bucketPort:
-                    format: int32
-                    type: integer
-                  region:
-                    type: string
-                  subRegion:
-                    type: string
-                type: object
-              reclaimPolicy:
-                type: string
-              storageClassName:
-                type: string
-            type: object
-          status:
-            type: object
-            x-kubernetes-preserve-unknown-fields: true
-        type: object
-    served: true
-    storage: true
-    subresources:
-      status: {}
+                additionalState:
+                  type: object
+                  nullable: true
+                  x-kubernetes-preserve-unknown-fields: true
+                reclaimPolicy:
+                  type: string
+                claimRef:
+                  type: object
+                  nullable: true
+                  x-kubernetes-preserve-unknown-fields: true
+            status:
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+      subresources:
+        status: {}
