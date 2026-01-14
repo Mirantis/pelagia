@@ -36,8 +36,8 @@ var CephRBDMirror = cephv1.CephRBDMirror{
 
 func CephRBDMirrorWithStatus(mirror cephv1.CephRBDMirror, phase string) *cephv1.CephRBDMirror {
 	rbdMirror := mirror.DeepCopy()
-	rbdMirror.Status = &cephv1.Status{
-		Phase: phase,
+	rbdMirror.Status = &cephv1.RBDMirrorStatus{
+		Status: cephv1.Status{Phase: phase},
 	}
 	return rbdMirror
 }
@@ -53,7 +53,9 @@ var CephRBDMirrorUpdatedReady = cephv1.CephRBDMirror{
 			SecretNames: []string{"rbd-mirror-token-mirror1-pool-1", "rbd-mirror-token-mirror1-pool-2"},
 		},
 	},
-	Status: &cephv1.Status{Phase: "Ready"},
+	Status: &cephv1.RBDMirrorStatus{
+		Status: cephv1.Status{Phase: "Ready"},
+	},
 }
 
 var CephRBDMirrorsEmpty = cephv1.CephRBDMirrorList{

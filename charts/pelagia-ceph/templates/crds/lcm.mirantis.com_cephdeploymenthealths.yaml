@@ -307,6 +307,35 @@ spec:
                               description: CephBlockPoolStatus represents the mirroring
                                 status of Ceph Storage Pool
                               properties:
+                                cephx:
+                                  description: PeerTokenCephxStatus represents the
+                                    cephx key rotation status for peer tokens
+                                  properties:
+                                    peerToken:
+                                      description: PeerToken shows the rotation status
+                                        of the peer token associated with the `rbd-mirror-peer`
+                                        user.
+                                      properties:
+                                        keyCephVersion:
+                                          description: |-
+                                            KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+                                            same string format as reported by `CephCluster.status.version.version` to allow them to be
+                                            compared. E.g., `20.2.0-0`.
+                                            For all newly-created resources, this field set to the version of Ceph that created the key.
+                                            The special value "Uninitialized" indicates that keys are being created for the first time.
+                                            An empty string indicates that the version is unknown, as expected in brownfield deployments.
+                                          type: string
+                                        keyGeneration:
+                                          description: |-
+                                            KeyGeneration represents the CephX key generation for the last successful reconcile.
+                                            For all newly-created resources, this field is set to `1`.
+                                            When keys are rotated due to any rotation policy, the generation is incremented or updated to
+                                            the configured policy generation.
+                                            Generation `0` indicates that keys existed prior to the implementation of key tracking.
+                                          format: int32
+                                          type: integer
+                                      type: object
+                                  type: object
                                 conditions:
                                   items:
                                     description: Condition represents a status condition
@@ -600,6 +629,27 @@ spec:
                           description: CephClientStatus represents the Status of Ceph
                             Client
                           properties:
+                            cephx:
+                              properties:
+                                keyCephVersion:
+                                  description: |-
+                                    KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+                                    same string format as reported by `CephCluster.status.version.version` to allow them to be
+                                    compared. E.g., `20.2.0-0`.
+                                    For all newly-created resources, this field set to the version of Ceph that created the key.
+                                    The special value "Uninitialized" indicates that keys are being created for the first time.
+                                    An empty string indicates that the version is unknown, as expected in brownfield deployments.
+                                  type: string
+                                keyGeneration:
+                                  description: |-
+                                    KeyGeneration represents the CephX key generation for the last successful reconcile.
+                                    For all newly-created resources, this field is set to `1`.
+                                    When keys are rotated due to any rotation policy, the generation is incremented or updated to
+                                    the configured policy generation.
+                                    Generation `0` indicates that keys existed prior to the implementation of key tracking.
+                                  format: int32
+                                  type: integer
+                              type: object
                             info:
                               additionalProperties:
                                 type: string
@@ -709,6 +759,201 @@ spec:
                                       type: integer
                                     description: Rgw shows Rgw Ceph version
                                     type: object
+                                type: object
+                            type: object
+                          cephx:
+                            description: ClusterCephxStatus defines the cephx key
+                              rotation status of various daemons on the cephCluster
+                              resource
+                            properties:
+                              admin:
+                                description: Admin shows the CephX key status for
+                                  the client.admin key
+                                properties:
+                                  keyCephVersion:
+                                    description: |-
+                                      KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+                                      same string format as reported by `CephCluster.status.version.version` to allow them to be
+                                      compared. E.g., `20.2.0-0`.
+                                      For all newly-created resources, this field set to the version of Ceph that created the key.
+                                      The special value "Uninitialized" indicates that keys are being created for the first time.
+                                      An empty string indicates that the version is unknown, as expected in brownfield deployments.
+                                    type: string
+                                  keyGeneration:
+                                    description: |-
+                                      KeyGeneration represents the CephX key generation for the last successful reconcile.
+                                      For all newly-created resources, this field is set to `1`.
+                                      When keys are rotated due to any rotation policy, the generation is incremented or updated to
+                                      the configured policy generation.
+                                      Generation `0` indicates that keys existed prior to the implementation of key tracking.
+                                    format: int32
+                                    type: integer
+                                type: object
+                              cephExporter:
+                                description: Ceph Exporter represents the cephx key
+                                  rotation status of the ceph exporter daemon
+                                properties:
+                                  keyCephVersion:
+                                    description: |-
+                                      KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+                                      same string format as reported by `CephCluster.status.version.version` to allow them to be
+                                      compared. E.g., `20.2.0-0`.
+                                      For all newly-created resources, this field set to the version of Ceph that created the key.
+                                      The special value "Uninitialized" indicates that keys are being created for the first time.
+                                      An empty string indicates that the version is unknown, as expected in brownfield deployments.
+                                    type: string
+                                  keyGeneration:
+                                    description: |-
+                                      KeyGeneration represents the CephX key generation for the last successful reconcile.
+                                      For all newly-created resources, this field is set to `1`.
+                                      When keys are rotated due to any rotation policy, the generation is incremented or updated to
+                                      the configured policy generation.
+                                      Generation `0` indicates that keys existed prior to the implementation of key tracking.
+                                    format: int32
+                                    type: integer
+                                type: object
+                              crashCollector:
+                                description: Crash Collector represents the cephx
+                                  key rotation status of the crash collector daemon
+                                properties:
+                                  keyCephVersion:
+                                    description: |-
+                                      KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+                                      same string format as reported by `CephCluster.status.version.version` to allow them to be
+                                      compared. E.g., `20.2.0-0`.
+                                      For all newly-created resources, this field set to the version of Ceph that created the key.
+                                      The special value "Uninitialized" indicates that keys are being created for the first time.
+                                      An empty string indicates that the version is unknown, as expected in brownfield deployments.
+                                    type: string
+                                  keyGeneration:
+                                    description: |-
+                                      KeyGeneration represents the CephX key generation for the last successful reconcile.
+                                      For all newly-created resources, this field is set to `1`.
+                                      When keys are rotated due to any rotation policy, the generation is incremented or updated to
+                                      the configured policy generation.
+                                      Generation `0` indicates that keys existed prior to the implementation of key tracking.
+                                    format: int32
+                                    type: integer
+                                type: object
+                              csi:
+                                description: CSI shows the CephX key status for Ceph-CSI
+                                  components.
+                                properties:
+                                  keyCephVersion:
+                                    description: |-
+                                      KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+                                      same string format as reported by `CephCluster.status.version.version` to allow them to be
+                                      compared. E.g., `20.2.0-0`.
+                                      For all newly-created resources, this field set to the version of Ceph that created the key.
+                                      The special value "Uninitialized" indicates that keys are being created for the first time.
+                                      An empty string indicates that the version is unknown, as expected in brownfield deployments.
+                                    type: string
+                                  keyGeneration:
+                                    description: |-
+                                      KeyGeneration represents the CephX key generation for the last successful reconcile.
+                                      For all newly-created resources, this field is set to `1`.
+                                      When keys are rotated due to any rotation policy, the generation is incremented or updated to
+                                      the configured policy generation.
+                                      Generation `0` indicates that keys existed prior to the implementation of key tracking.
+                                    format: int32
+                                    type: integer
+                                  priorKeyCount:
+                                    description: PriorKeyCount reports the number
+                                      of prior-generation CephX keys that remain active
+                                      for the related component
+                                    type: integer
+                                type: object
+                              mgr:
+                                description: Mgr represents the cephx key rotation
+                                  status of the ceph manager daemon
+                                properties:
+                                  keyCephVersion:
+                                    description: |-
+                                      KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+                                      same string format as reported by `CephCluster.status.version.version` to allow them to be
+                                      compared. E.g., `20.2.0-0`.
+                                      For all newly-created resources, this field set to the version of Ceph that created the key.
+                                      The special value "Uninitialized" indicates that keys are being created for the first time.
+                                      An empty string indicates that the version is unknown, as expected in brownfield deployments.
+                                    type: string
+                                  keyGeneration:
+                                    description: |-
+                                      KeyGeneration represents the CephX key generation for the last successful reconcile.
+                                      For all newly-created resources, this field is set to `1`.
+                                      When keys are rotated due to any rotation policy, the generation is incremented or updated to
+                                      the configured policy generation.
+                                      Generation `0` indicates that keys existed prior to the implementation of key tracking.
+                                    format: int32
+                                    type: integer
+                                type: object
+                              mon:
+                                description: Mon represents the CephX key status of
+                                  the Monitor daemons
+                                properties:
+                                  keyCephVersion:
+                                    description: |-
+                                      KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+                                      same string format as reported by `CephCluster.status.version.version` to allow them to be
+                                      compared. E.g., `20.2.0-0`.
+                                      For all newly-created resources, this field set to the version of Ceph that created the key.
+                                      The special value "Uninitialized" indicates that keys are being created for the first time.
+                                      An empty string indicates that the version is unknown, as expected in brownfield deployments.
+                                    type: string
+                                  keyGeneration:
+                                    description: |-
+                                      KeyGeneration represents the CephX key generation for the last successful reconcile.
+                                      For all newly-created resources, this field is set to `1`.
+                                      When keys are rotated due to any rotation policy, the generation is incremented or updated to
+                                      the configured policy generation.
+                                      Generation `0` indicates that keys existed prior to the implementation of key tracking.
+                                    format: int32
+                                    type: integer
+                                type: object
+                              osd:
+                                description: OSD shows the CephX key status of of
+                                  OSDs
+                                properties:
+                                  keyCephVersion:
+                                    description: |-
+                                      KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+                                      same string format as reported by `CephCluster.status.version.version` to allow them to be
+                                      compared. E.g., `20.2.0-0`.
+                                      For all newly-created resources, this field set to the version of Ceph that created the key.
+                                      The special value "Uninitialized" indicates that keys are being created for the first time.
+                                      An empty string indicates that the version is unknown, as expected in brownfield deployments.
+                                    type: string
+                                  keyGeneration:
+                                    description: |-
+                                      KeyGeneration represents the CephX key generation for the last successful reconcile.
+                                      For all newly-created resources, this field is set to `1`.
+                                      When keys are rotated due to any rotation policy, the generation is incremented or updated to
+                                      the configured policy generation.
+                                      Generation `0` indicates that keys existed prior to the implementation of key tracking.
+                                    format: int32
+                                    type: integer
+                                type: object
+                              rbdMirrorPeer:
+                                description: RBDMirrorPeer represents the cephx key
+                                  rotation status of the `rbd-mirror-peer` user
+                                properties:
+                                  keyCephVersion:
+                                    description: |-
+                                      KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+                                      same string format as reported by `CephCluster.status.version.version` to allow them to be
+                                      compared. E.g., `20.2.0-0`.
+                                      For all newly-created resources, this field set to the version of Ceph that created the key.
+                                      The special value "Uninitialized" indicates that keys are being created for the first time.
+                                      An empty string indicates that the version is unknown, as expected in brownfield deployments.
+                                    type: string
+                                  keyGeneration:
+                                    description: |-
+                                      KeyGeneration represents the CephX key generation for the last successful reconcile.
+                                      For all newly-created resources, this field is set to `1`.
+                                      When keys are rotated due to any rotation policy, the generation is incremented or updated to
+                                      the configured policy generation.
+                                      Generation `0` indicates that keys existed prior to the implementation of key tracking.
+                                    format: int32
+                                    type: integer
                                 type: object
                             type: object
                           conditions:
@@ -848,6 +1093,33 @@ spec:
                               description: ObjectStoreStatus represents the status
                                 of a Ceph Object Store resource
                               properties:
+                                cephx:
+                                  properties:
+                                    daemon:
+                                      description: Daemon shows the CephX key status
+                                        for local Ceph daemons associated with this
+                                        resources.
+                                      properties:
+                                        keyCephVersion:
+                                          description: |-
+                                            KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+                                            same string format as reported by `CephCluster.status.version.version` to allow them to be
+                                            compared. E.g., `20.2.0-0`.
+                                            For all newly-created resources, this field set to the version of Ceph that created the key.
+                                            The special value "Uninitialized" indicates that keys are being created for the first time.
+                                            An empty string indicates that the version is unknown, as expected in brownfield deployments.
+                                          type: string
+                                        keyGeneration:
+                                          description: |-
+                                            KeyGeneration represents the CephX key generation for the last successful reconcile.
+                                            For all newly-created resources, this field is set to `1`.
+                                            When keys are rotated due to any rotation policy, the generation is incremented or updated to
+                                            the configured policy generation.
+                                            Generation `0` indicates that keys existed prior to the implementation of key tracking.
+                                          format: int32
+                                          type: integer
+                                      type: object
+                                  type: object
                                 conditions:
                                   items:
                                     description: Condition represents a status condition
@@ -1058,6 +1330,33 @@ spec:
                               description: CephFilesystemStatus represents the status
                                 of a Ceph Filesystem
                               properties:
+                                cephx:
+                                  properties:
+                                    daemon:
+                                      description: Daemon shows the CephX key status
+                                        for local Ceph daemons associated with this
+                                        resources.
+                                      properties:
+                                        keyCephVersion:
+                                          description: |-
+                                            KeyCephVersion reports the Ceph version that created the current generation's keys. This is
+                                            same string format as reported by `CephCluster.status.version.version` to allow them to be
+                                            compared. E.g., `20.2.0-0`.
+                                            For all newly-created resources, this field set to the version of Ceph that created the key.
+                                            The special value "Uninitialized" indicates that keys are being created for the first time.
+                                            An empty string indicates that the version is unknown, as expected in brownfield deployments.
+                                          type: string
+                                        keyGeneration:
+                                          description: |-
+                                            KeyGeneration represents the CephX key generation for the last successful reconcile.
+                                            For all newly-created resources, this field is set to `1`.
+                                            When keys are rotated due to any rotation policy, the generation is incremented or updated to
+                                            the configured policy generation.
+                                            Generation `0` indicates that keys existed prior to the implementation of key tracking.
+                                          format: int32
+                                          type: integer
+                                      type: object
+                                  type: object
                                 conditions:
                                   items:
                                     description: Condition represents a status condition
