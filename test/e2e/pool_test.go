@@ -114,6 +114,12 @@ func TestVolumesBackendPool(t *testing.T) {
 	name := "test-volumes-backend-" + fmt.Sprintf("%d", time.Now().Unix())
 	newPool := f.GetNewPool(name, true, false, 2, "volumes", "", poolDefaultClass)
 
+	cinderVolumeSts, err := f.TF.ManagedCluster.GetStatefulset("cinder-volume", "openstack")
+	if err != nil {
+		t.Fatalf("failed to get openstack/cinder-volume statefulset: %v", err)
+	}
+	curGeneration := cinderVolumeSts.Generation
+
 	cd.Spec.Pools = append(cd.Spec.Pools, newPool)
 	f.Step(t, "Create Ceph Pool with volumes-backend role")
 	err = f.UpdateCephDeploymentSpec(cd, true)
@@ -181,11 +187,6 @@ func TestVolumesBackendPool(t *testing.T) {
 	}
 
 	f.Step(t, "Wait for cinder-volume statefulset updated")
-	cinderVolumeSts, err := f.TF.ManagedCluster.GetStatefulset("cinder-volume", "openstack")
-	if err != nil {
-		t.Fatalf("failed to get openstack/cinder-volume statefulset: %v", err)
-	}
-	curGeneration := cinderVolumeSts.Generation
 	newGeneration := cinderVolumeSts.Generation
 	err = wait.PollUntilContextTimeout(f.TF.ManagedCluster.Context, 15*time.Second, 15*time.Minute, true, func(_ context.Context) (done bool, err error) {
 		sts, err := f.TF.ManagedCluster.GetStatefulset("cinder-volume", "openstack")
