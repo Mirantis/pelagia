@@ -151,7 +151,7 @@ var BuiltinMgrPool = &cephv1.CephBlockPool{
 	Spec: cephv1.NamedBlockPoolSpec{
 		Name: ".mgr",
 		PoolSpec: cephv1.PoolSpec{
-			EnableCrushUpdates: true,
+			EnableCrushUpdates: &TrueVarForPointer,
 			DeviceClass:        "hdd",
 			Replicated: cephv1.ReplicatedSpec{
 				Size: 3,
@@ -170,7 +170,7 @@ var BuiltinRgwRootPool = &cephv1.CephBlockPool{
 	Spec: cephv1.NamedBlockPoolSpec{
 		Name: ".rgw.root",
 		PoolSpec: cephv1.PoolSpec{
-			EnableCrushUpdates: true,
+			EnableCrushUpdates: &TrueVarForPointer,
 			DeviceClass:        "hdd",
 			Replicated: cephv1.ReplicatedSpec{
 				Size: 3,

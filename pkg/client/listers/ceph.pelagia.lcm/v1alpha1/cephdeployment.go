@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Mirantis IT.
+Copyright 2026 Mirantis IT.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/tools/cache"
+	cephpelagialcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	labels "k8s.io/apimachinery/pkg/labels"
+	listers "k8s.io/client-go/listers"
+	cache "k8s.io/client-go/tools/cache"
 )
 
 // CephDeploymentLister helps list CephDeployments.
@@ -30,7 +30,7 @@ import (
 type CephDeploymentLister interface {
 	// List lists all CephDeployments in the indexer.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1alpha1.CephDeployment, err error)
+	List(selector labels.Selector) (ret []*cephpelagialcmv1alpha1.CephDeployment, err error)
 	// CephDeployments returns an object that can list and get CephDeployments.
 	CephDeployments(namespace string) CephDeploymentNamespaceLister
 	CephDeploymentListerExpansion
@@ -38,25 +38,17 @@ type CephDeploymentLister interface {
 
 // cephDeploymentLister implements the CephDeploymentLister interface.
 type cephDeploymentLister struct {
-	indexer cache.Indexer
+	listers.ResourceIndexer[*cephpelagialcmv1alpha1.CephDeployment]
 }
 
 // NewCephDeploymentLister returns a new CephDeploymentLister.
 func NewCephDeploymentLister(indexer cache.Indexer) CephDeploymentLister {
-	return &cephDeploymentLister{indexer: indexer}
-}
-
-// List lists all CephDeployments in the indexer.
-func (s *cephDeploymentLister) List(selector labels.Selector) (ret []*v1alpha1.CephDeployment, err error) {
-	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.CephDeployment))
-	})
-	return ret, err
+	return &cephDeploymentLister{listers.New[*cephpelagialcmv1alpha1.CephDeployment](indexer, cephpelagialcmv1alpha1.Resource("cephdeployment"))}
 }
 
 // CephDeployments returns an object that can list and get CephDeployments.
 func (s *cephDeploymentLister) CephDeployments(namespace string) CephDeploymentNamespaceLister {
-	return cephDeploymentNamespaceLister{indexer: s.indexer, namespace: namespace}
+	return cephDeploymentNamespaceLister{listers.NewNamespaced[*cephpelagialcmv1alpha1.CephDeployment](s.ResourceIndexer, namespace)}
 }
 
 // CephDeploymentNamespaceLister helps list and get CephDeployments.
@@ -64,36 +56,15 @@ func (s *cephDeploymentLister) CephDeployments(namespace string) CephDeploymentN
 type CephDeploymentNamespaceLister interface {
 	// List lists all CephDeployments in the indexer for a given namespace.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1alpha1.CephDeployment, err error)
+	List(selector labels.Selector) (ret []*cephpelagialcmv1alpha1.CephDeployment, err error)
 	// Get retrieves the CephDeployment from the indexer for a given namespace and name.
 	// Objects returned here must be treated as read-only.
-	Get(name string) (*v1alpha1.CephDeployment, error)
+	Get(name string) (*cephpelagialcmv1alpha1.CephDeployment, error)
 	CephDeploymentNamespaceListerExpansion
 }
 
 // cephDeploymentNamespaceLister implements the CephDeploymentNamespaceLister
 // interface.
 type cephDeploymentNamespaceLister struct {
-	indexer   cache.Indexer
-	namespace string
-}
-
-// List lists all CephDeployments in the indexer for a given namespace.
-func (s cephDeploymentNamespaceLister) List(selector labels.Selector) (ret []*v1alpha1.CephDeployment, err error) {
-	err = cache.ListAllByNamespace(s.indexer, s.namespace, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.CephDeployment))
-	})
-	return ret, err
-}
-
-// Get retrieves the CephDeployment from the indexer for a given namespace and name.
-func (s cephDeploymentNamespaceLister) Get(name string) (*v1alpha1.CephDeployment, error) {
-	obj, exists, err := s.indexer.GetByKey(s.namespace + "/" + name)
-	if err != nil {
-		return nil, err
-	}
-	if !exists {
-		return nil, errors.NewNotFound(v1alpha1.Resource("cephdeployment"), name)
-	}
-	return obj.(*v1alpha1.CephDeployment), nil
+	listers.ResourceIndexer[*cephpelagialcmv1alpha1.CephDeployment]
 }

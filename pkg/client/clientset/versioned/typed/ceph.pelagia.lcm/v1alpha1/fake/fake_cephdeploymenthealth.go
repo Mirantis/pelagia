@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Mirantis IT.
+Copyright 2026 Mirantis IT.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,123 +19,34 @@ limitations under the License.
 package fake
 
 import (
-	"context"
-
 	v1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	types "k8s.io/apimachinery/pkg/types"
-	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
+	cephpelagialcmv1alpha1 "github.com/Mirantis/pelagia/pkg/client/clientset/versioned/typed/ceph.pelagia.lcm/v1alpha1"
+	gentype "k8s.io/client-go/gentype"
 )
 
-// FakeCephDeploymentHealths implements CephDeploymentHealthInterface
-type FakeCephDeploymentHealths struct {
+// fakeCephDeploymentHealths implements CephDeploymentHealthInterface
+type fakeCephDeploymentHealths struct {
+	*gentype.FakeClientWithList[*v1alpha1.CephDeploymentHealth, *v1alpha1.CephDeploymentHealthList]
 	Fake *FakeLcmV1alpha1
-	ns   string
 }
 
-var cephdeploymenthealthsResource = v1alpha1.SchemeGroupVersion.WithResource("cephdeploymenthealths")
-
-var cephdeploymenthealthsKind = v1alpha1.SchemeGroupVersion.WithKind("CephDeploymentHealth")
-
-// Get takes name of the cephDeploymentHealth, and returns the corresponding cephDeploymentHealth object, and an error if there is any.
-func (c *FakeCephDeploymentHealths) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.CephDeploymentHealth, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewGetAction(cephdeploymenthealthsResource, c.ns, name), &v1alpha1.CephDeploymentHealth{})
-
-	if obj == nil {
-		return nil, err
+func newFakeCephDeploymentHealths(fake *FakeLcmV1alpha1, namespace string) cephpelagialcmv1alpha1.CephDeploymentHealthInterface {
+	return &fakeCephDeploymentHealths{
+		gentype.NewFakeClientWithList[*v1alpha1.CephDeploymentHealth, *v1alpha1.CephDeploymentHealthList](
+			fake.Fake,
+			namespace,
+			v1alpha1.SchemeGroupVersion.WithResource("cephdeploymenthealths"),
+			v1alpha1.SchemeGroupVersion.WithKind("CephDeploymentHealth"),
+			func() *v1alpha1.CephDeploymentHealth { return &v1alpha1.CephDeploymentHealth{} },
+			func() *v1alpha1.CephDeploymentHealthList { return &v1alpha1.CephDeploymentHealthList{} },
+			func(dst, src *v1alpha1.CephDeploymentHealthList) { dst.ListMeta = src.ListMeta },
+			func(list *v1alpha1.CephDeploymentHealthList) []*v1alpha1.CephDeploymentHealth {
+				return gentype.ToPointerSlice(list.Items)
+			},
+			func(list *v1alpha1.CephDeploymentHealthList, items []*v1alpha1.CephDeploymentHealth) {
+				list.Items = gentype.FromPointerSlice(items)
+			},
+		),
+		fake,
 	}
-	return obj.(*v1alpha1.CephDeploymentHealth), err
-}
-
-// List takes label and field selectors, and returns the list of CephDeploymentHealths that match those selectors.
-func (c *FakeCephDeploymentHealths) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.CephDeploymentHealthList, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewListAction(cephdeploymenthealthsResource, cephdeploymenthealthsKind, c.ns, opts), &v1alpha1.CephDeploymentHealthList{})
-
-	if obj == nil {
-		return nil, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1alpha1.CephDeploymentHealthList{ListMeta: obj.(*v1alpha1.CephDeploymentHealthList).ListMeta}
-	for _, item := range obj.(*v1alpha1.CephDeploymentHealthList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
-}
-
-// Watch returns a watch.Interface that watches the requested cephDeploymentHealths.
-func (c *FakeCephDeploymentHealths) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewWatchAction(cephdeploymenthealthsResource, c.ns, opts))
-
-}
-
-// Create takes the representation of a cephDeploymentHealth and creates it.  Returns the server's representation of the cephDeploymentHealth, and an error, if there is any.
-func (c *FakeCephDeploymentHealths) Create(ctx context.Context, cephDeploymentHealth *v1alpha1.CephDeploymentHealth, opts v1.CreateOptions) (result *v1alpha1.CephDeploymentHealth, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(cephdeploymenthealthsResource, c.ns, cephDeploymentHealth), &v1alpha1.CephDeploymentHealth{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.CephDeploymentHealth), err
-}
-
-// Update takes the representation of a cephDeploymentHealth and updates it. Returns the server's representation of the cephDeploymentHealth, and an error, if there is any.
-func (c *FakeCephDeploymentHealths) Update(ctx context.Context, cephDeploymentHealth *v1alpha1.CephDeploymentHealth, opts v1.UpdateOptions) (result *v1alpha1.CephDeploymentHealth, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(cephdeploymenthealthsResource, c.ns, cephDeploymentHealth), &v1alpha1.CephDeploymentHealth{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.CephDeploymentHealth), err
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeCephDeploymentHealths) UpdateStatus(ctx context.Context, cephDeploymentHealth *v1alpha1.CephDeploymentHealth, opts v1.UpdateOptions) (*v1alpha1.CephDeploymentHealth, error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceAction(cephdeploymenthealthsResource, "status", c.ns, cephDeploymentHealth), &v1alpha1.CephDeploymentHealth{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.CephDeploymentHealth), err
-}
-
-// Delete takes name of the cephDeploymentHealth and deletes it. Returns an error if one occurs.
-func (c *FakeCephDeploymentHealths) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(cephdeploymenthealthsResource, c.ns, name, opts), &v1alpha1.CephDeploymentHealth{})
-
-	return err
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *FakeCephDeploymentHealths) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(cephdeploymenthealthsResource, c.ns, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1alpha1.CephDeploymentHealthList{})
-	return err
-}
-
-// Patch applies the patch and returns the patched cephDeploymentHealth.
-func (c *FakeCephDeploymentHealths) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.CephDeploymentHealth, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(cephdeploymenthealthsResource, c.ns, name, pt, data, subresources...), &v1alpha1.CephDeploymentHealth{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.CephDeploymentHealth), err
 }

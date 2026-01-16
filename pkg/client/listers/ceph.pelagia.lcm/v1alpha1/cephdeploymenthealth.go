@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Mirantis IT.
+Copyright 2026 Mirantis IT.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/tools/cache"
+	cephpelagialcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	labels "k8s.io/apimachinery/pkg/labels"
+	listers "k8s.io/client-go/listers"
+	cache "k8s.io/client-go/tools/cache"
 )
 
 // CephDeploymentHealthLister helps list CephDeploymentHealths.
@@ -30,7 +30,7 @@ import (
 type CephDeploymentHealthLister interface {
 	// List lists all CephDeploymentHealths in the indexer.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1alpha1.CephDeploymentHealth, err error)
+	List(selector labels.Selector) (ret []*cephpelagialcmv1alpha1.CephDeploymentHealth, err error)
 	// CephDeploymentHealths returns an object that can list and get CephDeploymentHealths.
 	CephDeploymentHealths(namespace string) CephDeploymentHealthNamespaceLister
 	CephDeploymentHealthListerExpansion
@@ -38,25 +38,17 @@ type CephDeploymentHealthLister interface {
 
 // cephDeploymentHealthLister implements the CephDeploymentHealthLister interface.
 type cephDeploymentHealthLister struct {
-	indexer cache.Indexer
+	listers.ResourceIndexer[*cephpelagialcmv1alpha1.CephDeploymentHealth]
 }
 
 // NewCephDeploymentHealthLister returns a new CephDeploymentHealthLister.
 func NewCephDeploymentHealthLister(indexer cache.Indexer) CephDeploymentHealthLister {
-	return &cephDeploymentHealthLister{indexer: indexer}
-}
-
-// List lists all CephDeploymentHealths in the indexer.
-func (s *cephDeploymentHealthLister) List(selector labels.Selector) (ret []*v1alpha1.CephDeploymentHealth, err error) {
-	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.CephDeploymentHealth))
-	})
-	return ret, err
+	return &cephDeploymentHealthLister{listers.New[*cephpelagialcmv1alpha1.CephDeploymentHealth](indexer, cephpelagialcmv1alpha1.Resource("cephdeploymenthealth"))}
 }
 
 // CephDeploymentHealths returns an object that can list and get CephDeploymentHealths.
 func (s *cephDeploymentHealthLister) CephDeploymentHealths(namespace string) CephDeploymentHealthNamespaceLister {
-	return cephDeploymentHealthNamespaceLister{indexer: s.indexer, namespace: namespace}
+	return cephDeploymentHealthNamespaceLister{listers.NewNamespaced[*cephpelagialcmv1alpha1.CephDeploymentHealth](s.ResourceIndexer, namespace)}
 }
 
 // CephDeploymentHealthNamespaceLister helps list and get CephDeploymentHealths.
@@ -64,36 +56,15 @@ func (s *cephDeploymentHealthLister) CephDeploymentHealths(namespace string) Cep
 type CephDeploymentHealthNamespaceLister interface {
 	// List lists all CephDeploymentHealths in the indexer for a given namespace.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1alpha1.CephDeploymentHealth, err error)
+	List(selector labels.Selector) (ret []*cephpelagialcmv1alpha1.CephDeploymentHealth, err error)
 	// Get retrieves the CephDeploymentHealth from the indexer for a given namespace and name.
 	// Objects returned here must be treated as read-only.
-	Get(name string) (*v1alpha1.CephDeploymentHealth, error)
+	Get(name string) (*cephpelagialcmv1alpha1.CephDeploymentHealth, error)
 	CephDeploymentHealthNamespaceListerExpansion
 }
 
 // cephDeploymentHealthNamespaceLister implements the CephDeploymentHealthNamespaceLister
 // interface.
 type cephDeploymentHealthNamespaceLister struct {
-	indexer   cache.Indexer
-	namespace string
-}
-
-// List lists all CephDeploymentHealths in the indexer for a given namespace.
-func (s cephDeploymentHealthNamespaceLister) List(selector labels.Selector) (ret []*v1alpha1.CephDeploymentHealth, err error) {
-	err = cache.ListAllByNamespace(s.indexer, s.namespace, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.CephDeploymentHealth))
-	})
-	return ret, err
-}
-
-// Get retrieves the CephDeploymentHealth from the indexer for a given namespace and name.
-func (s cephDeploymentHealthNamespaceLister) Get(name string) (*v1alpha1.CephDeploymentHealth, error) {
-	obj, exists, err := s.indexer.GetByKey(s.namespace + "/" + name)
-	if err != nil {
-		return nil, err
-	}
-	if !exists {
-		return nil, errors.NewNotFound(v1alpha1.Resource("cephdeploymenthealth"), name)
-	}
-	return obj.(*v1alpha1.CephDeploymentHealth), nil
+	listers.ResourceIndexer[*cephpelagialcmv1alpha1.CephDeploymentHealth]
 }

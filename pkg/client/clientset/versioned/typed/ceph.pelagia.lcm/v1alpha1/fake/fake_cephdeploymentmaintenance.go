@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Mirantis IT.
+Copyright 2026 Mirantis IT.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,123 +19,34 @@ limitations under the License.
 package fake
 
 import (
-	"context"
-
 	v1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	labels "k8s.io/apimachinery/pkg/labels"
-	types "k8s.io/apimachinery/pkg/types"
-	watch "k8s.io/apimachinery/pkg/watch"
-	testing "k8s.io/client-go/testing"
+	cephpelagialcmv1alpha1 "github.com/Mirantis/pelagia/pkg/client/clientset/versioned/typed/ceph.pelagia.lcm/v1alpha1"
+	gentype "k8s.io/client-go/gentype"
 )
 
-// FakeCephDeploymentMaintenances implements CephDeploymentMaintenanceInterface
-type FakeCephDeploymentMaintenances struct {
+// fakeCephDeploymentMaintenances implements CephDeploymentMaintenanceInterface
+type fakeCephDeploymentMaintenances struct {
+	*gentype.FakeClientWithList[*v1alpha1.CephDeploymentMaintenance, *v1alpha1.CephDeploymentMaintenanceList]
 	Fake *FakeLcmV1alpha1
-	ns   string
 }
 
-var cephdeploymentmaintenancesResource = v1alpha1.SchemeGroupVersion.WithResource("cephdeploymentmaintenances")
-
-var cephdeploymentmaintenancesKind = v1alpha1.SchemeGroupVersion.WithKind("CephDeploymentMaintenance")
-
-// Get takes name of the cephDeploymentMaintenance, and returns the corresponding cephDeploymentMaintenance object, and an error if there is any.
-func (c *FakeCephDeploymentMaintenances) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.CephDeploymentMaintenance, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewGetAction(cephdeploymentmaintenancesResource, c.ns, name), &v1alpha1.CephDeploymentMaintenance{})
-
-	if obj == nil {
-		return nil, err
+func newFakeCephDeploymentMaintenances(fake *FakeLcmV1alpha1, namespace string) cephpelagialcmv1alpha1.CephDeploymentMaintenanceInterface {
+	return &fakeCephDeploymentMaintenances{
+		gentype.NewFakeClientWithList[*v1alpha1.CephDeploymentMaintenance, *v1alpha1.CephDeploymentMaintenanceList](
+			fake.Fake,
+			namespace,
+			v1alpha1.SchemeGroupVersion.WithResource("cephdeploymentmaintenances"),
+			v1alpha1.SchemeGroupVersion.WithKind("CephDeploymentMaintenance"),
+			func() *v1alpha1.CephDeploymentMaintenance { return &v1alpha1.CephDeploymentMaintenance{} },
+			func() *v1alpha1.CephDeploymentMaintenanceList { return &v1alpha1.CephDeploymentMaintenanceList{} },
+			func(dst, src *v1alpha1.CephDeploymentMaintenanceList) { dst.ListMeta = src.ListMeta },
+			func(list *v1alpha1.CephDeploymentMaintenanceList) []*v1alpha1.CephDeploymentMaintenance {
+				return gentype.ToPointerSlice(list.Items)
+			},
+			func(list *v1alpha1.CephDeploymentMaintenanceList, items []*v1alpha1.CephDeploymentMaintenance) {
+				list.Items = gentype.FromPointerSlice(items)
+			},
+		),
+		fake,
 	}
-	return obj.(*v1alpha1.CephDeploymentMaintenance), err
-}
-
-// List takes label and field selectors, and returns the list of CephDeploymentMaintenances that match those selectors.
-func (c *FakeCephDeploymentMaintenances) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.CephDeploymentMaintenanceList, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewListAction(cephdeploymentmaintenancesResource, cephdeploymentmaintenancesKind, c.ns, opts), &v1alpha1.CephDeploymentMaintenanceList{})
-
-	if obj == nil {
-		return nil, err
-	}
-
-	label, _, _ := testing.ExtractFromListOptions(opts)
-	if label == nil {
-		label = labels.Everything()
-	}
-	list := &v1alpha1.CephDeploymentMaintenanceList{ListMeta: obj.(*v1alpha1.CephDeploymentMaintenanceList).ListMeta}
-	for _, item := range obj.(*v1alpha1.CephDeploymentMaintenanceList).Items {
-		if label.Matches(labels.Set(item.Labels)) {
-			list.Items = append(list.Items, item)
-		}
-	}
-	return list, err
-}
-
-// Watch returns a watch.Interface that watches the requested cephDeploymentMaintenances.
-func (c *FakeCephDeploymentMaintenances) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
-	return c.Fake.
-		InvokesWatch(testing.NewWatchAction(cephdeploymentmaintenancesResource, c.ns, opts))
-
-}
-
-// Create takes the representation of a cephDeploymentMaintenance and creates it.  Returns the server's representation of the cephDeploymentMaintenance, and an error, if there is any.
-func (c *FakeCephDeploymentMaintenances) Create(ctx context.Context, cephDeploymentMaintenance *v1alpha1.CephDeploymentMaintenance, opts v1.CreateOptions) (result *v1alpha1.CephDeploymentMaintenance, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewCreateAction(cephdeploymentmaintenancesResource, c.ns, cephDeploymentMaintenance), &v1alpha1.CephDeploymentMaintenance{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.CephDeploymentMaintenance), err
-}
-
-// Update takes the representation of a cephDeploymentMaintenance and updates it. Returns the server's representation of the cephDeploymentMaintenance, and an error, if there is any.
-func (c *FakeCephDeploymentMaintenances) Update(ctx context.Context, cephDeploymentMaintenance *v1alpha1.CephDeploymentMaintenance, opts v1.UpdateOptions) (result *v1alpha1.CephDeploymentMaintenance, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateAction(cephdeploymentmaintenancesResource, c.ns, cephDeploymentMaintenance), &v1alpha1.CephDeploymentMaintenance{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.CephDeploymentMaintenance), err
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *FakeCephDeploymentMaintenances) UpdateStatus(ctx context.Context, cephDeploymentMaintenance *v1alpha1.CephDeploymentMaintenance, opts v1.UpdateOptions) (*v1alpha1.CephDeploymentMaintenance, error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewUpdateSubresourceAction(cephdeploymentmaintenancesResource, "status", c.ns, cephDeploymentMaintenance), &v1alpha1.CephDeploymentMaintenance{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.CephDeploymentMaintenance), err
-}
-
-// Delete takes name of the cephDeploymentMaintenance and deletes it. Returns an error if one occurs.
-func (c *FakeCephDeploymentMaintenances) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
-	_, err := c.Fake.
-		Invokes(testing.NewDeleteActionWithOptions(cephdeploymentmaintenancesResource, c.ns, name, opts), &v1alpha1.CephDeploymentMaintenance{})
-
-	return err
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *FakeCephDeploymentMaintenances) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
-	action := testing.NewDeleteCollectionAction(cephdeploymentmaintenancesResource, c.ns, listOpts)
-
-	_, err := c.Fake.Invokes(action, &v1alpha1.CephDeploymentMaintenanceList{})
-	return err
-}
-
-// Patch applies the patch and returns the patched cephDeploymentMaintenance.
-func (c *FakeCephDeploymentMaintenances) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.CephDeploymentMaintenance, err error) {
-	obj, err := c.Fake.
-		Invokes(testing.NewPatchSubresourceAction(cephdeploymentmaintenancesResource, c.ns, name, pt, data, subresources...), &v1alpha1.CephDeploymentMaintenance{})
-
-	if obj == nil {
-		return nil, err
-	}
-	return obj.(*v1alpha1.CephDeploymentMaintenance), err
 }

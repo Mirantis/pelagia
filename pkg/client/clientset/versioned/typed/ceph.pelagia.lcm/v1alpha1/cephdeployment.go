@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Mirantis IT.
+Copyright 2026 Mirantis IT.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,15 +19,14 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
-	"time"
+	context "context"
 
-	v1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	cephpelagialcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	scheme "github.com/Mirantis/pelagia/pkg/client/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
-	rest "k8s.io/client-go/rest"
+	gentype "k8s.io/client-go/gentype"
 )
 
 // CephDeploymentsGetter has a method to return a CephDeploymentInterface.
@@ -38,158 +37,34 @@ type CephDeploymentsGetter interface {
 
 // CephDeploymentInterface has methods to work with CephDeployment resources.
 type CephDeploymentInterface interface {
-	Create(ctx context.Context, cephDeployment *v1alpha1.CephDeployment, opts v1.CreateOptions) (*v1alpha1.CephDeployment, error)
-	Update(ctx context.Context, cephDeployment *v1alpha1.CephDeployment, opts v1.UpdateOptions) (*v1alpha1.CephDeployment, error)
-	UpdateStatus(ctx context.Context, cephDeployment *v1alpha1.CephDeployment, opts v1.UpdateOptions) (*v1alpha1.CephDeployment, error)
+	Create(ctx context.Context, cephDeployment *cephpelagialcmv1alpha1.CephDeployment, opts v1.CreateOptions) (*cephpelagialcmv1alpha1.CephDeployment, error)
+	Update(ctx context.Context, cephDeployment *cephpelagialcmv1alpha1.CephDeployment, opts v1.UpdateOptions) (*cephpelagialcmv1alpha1.CephDeployment, error)
+	// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
+	UpdateStatus(ctx context.Context, cephDeployment *cephpelagialcmv1alpha1.CephDeployment, opts v1.UpdateOptions) (*cephpelagialcmv1alpha1.CephDeployment, error)
 	Delete(ctx context.Context, name string, opts v1.DeleteOptions) error
 	DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error
-	Get(ctx context.Context, name string, opts v1.GetOptions) (*v1alpha1.CephDeployment, error)
-	List(ctx context.Context, opts v1.ListOptions) (*v1alpha1.CephDeploymentList, error)
+	Get(ctx context.Context, name string, opts v1.GetOptions) (*cephpelagialcmv1alpha1.CephDeployment, error)
+	List(ctx context.Context, opts v1.ListOptions) (*cephpelagialcmv1alpha1.CephDeploymentList, error)
 	Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error)
-	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.CephDeployment, err error)
+	Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *cephpelagialcmv1alpha1.CephDeployment, err error)
 	CephDeploymentExpansion
 }
 
 // cephDeployments implements CephDeploymentInterface
 type cephDeployments struct {
-	client rest.Interface
-	ns     string
+	*gentype.ClientWithList[*cephpelagialcmv1alpha1.CephDeployment, *cephpelagialcmv1alpha1.CephDeploymentList]
 }
 
 // newCephDeployments returns a CephDeployments
 func newCephDeployments(c *LcmV1alpha1Client, namespace string) *cephDeployments {
 	return &cephDeployments{
-		client: c.RESTClient(),
-		ns:     namespace,
+		gentype.NewClientWithList[*cephpelagialcmv1alpha1.CephDeployment, *cephpelagialcmv1alpha1.CephDeploymentList](
+			"cephdeployments",
+			c.RESTClient(),
+			scheme.ParameterCodec,
+			namespace,
+			func() *cephpelagialcmv1alpha1.CephDeployment { return &cephpelagialcmv1alpha1.CephDeployment{} },
+			func() *cephpelagialcmv1alpha1.CephDeploymentList { return &cephpelagialcmv1alpha1.CephDeploymentList{} },
+		),
 	}
-}
-
-// Get takes name of the cephDeployment, and returns the corresponding cephDeployment object, and an error if there is any.
-func (c *cephDeployments) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1alpha1.CephDeployment, err error) {
-	result = &v1alpha1.CephDeployment{}
-	err = c.client.Get().
-		Namespace(c.ns).
-		Resource("cephdeployments").
-		Name(name).
-		VersionedParams(&options, scheme.ParameterCodec).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// List takes label and field selectors, and returns the list of CephDeployments that match those selectors.
-func (c *cephDeployments) List(ctx context.Context, opts v1.ListOptions) (result *v1alpha1.CephDeploymentList, err error) {
-	var timeout time.Duration
-	if opts.TimeoutSeconds != nil {
-		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
-	}
-	result = &v1alpha1.CephDeploymentList{}
-	err = c.client.Get().
-		Namespace(c.ns).
-		Resource("cephdeployments").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Watch returns a watch.Interface that watches the requested cephDeployments.
-func (c *cephDeployments) Watch(ctx context.Context, opts v1.ListOptions) (watch.Interface, error) {
-	var timeout time.Duration
-	if opts.TimeoutSeconds != nil {
-		timeout = time.Duration(*opts.TimeoutSeconds) * time.Second
-	}
-	opts.Watch = true
-	return c.client.Get().
-		Namespace(c.ns).
-		Resource("cephdeployments").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Watch(ctx)
-}
-
-// Create takes the representation of a cephDeployment and creates it.  Returns the server's representation of the cephDeployment, and an error, if there is any.
-func (c *cephDeployments) Create(ctx context.Context, cephDeployment *v1alpha1.CephDeployment, opts v1.CreateOptions) (result *v1alpha1.CephDeployment, err error) {
-	result = &v1alpha1.CephDeployment{}
-	err = c.client.Post().
-		Namespace(c.ns).
-		Resource("cephdeployments").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(cephDeployment).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Update takes the representation of a cephDeployment and updates it. Returns the server's representation of the cephDeployment, and an error, if there is any.
-func (c *cephDeployments) Update(ctx context.Context, cephDeployment *v1alpha1.CephDeployment, opts v1.UpdateOptions) (result *v1alpha1.CephDeployment, err error) {
-	result = &v1alpha1.CephDeployment{}
-	err = c.client.Put().
-		Namespace(c.ns).
-		Resource("cephdeployments").
-		Name(cephDeployment.Name).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(cephDeployment).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// UpdateStatus was generated because the type contains a Status member.
-// Add a +genclient:noStatus comment above the type to avoid generating UpdateStatus().
-func (c *cephDeployments) UpdateStatus(ctx context.Context, cephDeployment *v1alpha1.CephDeployment, opts v1.UpdateOptions) (result *v1alpha1.CephDeployment, err error) {
-	result = &v1alpha1.CephDeployment{}
-	err = c.client.Put().
-		Namespace(c.ns).
-		Resource("cephdeployments").
-		Name(cephDeployment.Name).
-		SubResource("status").
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(cephDeployment).
-		Do(ctx).
-		Into(result)
-	return
-}
-
-// Delete takes name of the cephDeployment and deletes it. Returns an error if one occurs.
-func (c *cephDeployments) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
-	return c.client.Delete().
-		Namespace(c.ns).
-		Resource("cephdeployments").
-		Name(name).
-		Body(&opts).
-		Do(ctx).
-		Error()
-}
-
-// DeleteCollection deletes a collection of objects.
-func (c *cephDeployments) DeleteCollection(ctx context.Context, opts v1.DeleteOptions, listOpts v1.ListOptions) error {
-	var timeout time.Duration
-	if listOpts.TimeoutSeconds != nil {
-		timeout = time.Duration(*listOpts.TimeoutSeconds) * time.Second
-	}
-	return c.client.Delete().
-		Namespace(c.ns).
-		Resource("cephdeployments").
-		VersionedParams(&listOpts, scheme.ParameterCodec).
-		Timeout(timeout).
-		Body(&opts).
-		Do(ctx).
-		Error()
-}
-
-// Patch applies the patch and returns the patched cephDeployment.
-func (c *cephDeployments) Patch(ctx context.Context, name string, pt types.PatchType, data []byte, opts v1.PatchOptions, subresources ...string) (result *v1alpha1.CephDeployment, err error) {
-	result = &v1alpha1.CephDeployment{}
-	err = c.client.Patch(pt).
-		Namespace(c.ns).
-		Resource("cephdeployments").
-		Name(name).
-		SubResource(subresources...).
-		VersionedParams(&opts, scheme.ParameterCodec).
-		Body(data).
-		Do(ctx).
-		Into(result)
-	return
 }
