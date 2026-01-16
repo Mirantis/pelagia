@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Mirantis IT.
+Copyright 2026 Mirantis IT.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -29,23 +29,23 @@ type FakeLcmV1alpha1 struct {
 }
 
 func (c *FakeLcmV1alpha1) CephDeployments(namespace string) v1alpha1.CephDeploymentInterface {
-	return &FakeCephDeployments{c, namespace}
+	return newFakeCephDeployments(c, namespace)
 }
 
 func (c *FakeLcmV1alpha1) CephDeploymentHealths(namespace string) v1alpha1.CephDeploymentHealthInterface {
-	return &FakeCephDeploymentHealths{c, namespace}
+	return newFakeCephDeploymentHealths(c, namespace)
 }
 
 func (c *FakeLcmV1alpha1) CephDeploymentMaintenances(namespace string) v1alpha1.CephDeploymentMaintenanceInterface {
-	return &FakeCephDeploymentMaintenances{c, namespace}
+	return newFakeCephDeploymentMaintenances(c, namespace)
 }
 
 func (c *FakeLcmV1alpha1) CephDeploymentSecrets(namespace string) v1alpha1.CephDeploymentSecretInterface {
-	return &FakeCephDeploymentSecrets{c, namespace}
+	return newFakeCephDeploymentSecrets(c, namespace)
 }
 
 func (c *FakeLcmV1alpha1) CephOsdRemoveTasks(namespace string) v1alpha1.CephOsdRemoveTaskInterface {
-	return &FakeCephOsdRemoveTasks{c, namespace}
+	return newFakeCephOsdRemoveTasks(c, namespace)
 }
 
 // RESTClient returns a RESTClient that is used to communicate

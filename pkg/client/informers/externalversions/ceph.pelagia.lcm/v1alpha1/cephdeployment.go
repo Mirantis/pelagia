@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Mirantis IT.
+Copyright 2026 Mirantis IT.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
+	context "context"
 	time "time"
 
-	cephpelagialcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	apiscephpelagialcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	versioned "github.com/Mirantis/pelagia/pkg/client/clientset/versioned"
 	internalinterfaces "github.com/Mirantis/pelagia/pkg/client/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/Mirantis/pelagia/pkg/client/listers/ceph.pelagia.lcm/v1alpha1"
+	cephpelagialcmv1alpha1 "github.com/Mirantis/pelagia/pkg/client/listers/ceph.pelagia.lcm/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -36,7 +36,7 @@ import (
 // CephDeployments.
 type CephDeploymentInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1alpha1.CephDeploymentLister
+	Lister() cephpelagialcmv1alpha1.CephDeploymentLister
 }
 
 type cephDeploymentInformer struct {
@@ -62,16 +62,28 @@ func NewFilteredCephDeploymentInformer(client versioned.Interface, namespace str
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.LcmV1alpha1().CephDeployments(namespace).List(context.TODO(), options)
+				return client.LcmV1alpha1().CephDeployments(namespace).List(context.Background(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.LcmV1alpha1().CephDeployments(namespace).Watch(context.TODO(), options)
+				return client.LcmV1alpha1().CephDeployments(namespace).Watch(context.Background(), options)
+			},
+			ListWithContextFunc: func(ctx context.Context, options v1.ListOptions) (runtime.Object, error) {
+				if tweakListOptions != nil {
+					tweakListOptions(&options)
+				}
+				return client.LcmV1alpha1().CephDeployments(namespace).List(ctx, options)
+			},
+			WatchFuncWithContext: func(ctx context.Context, options v1.ListOptions) (watch.Interface, error) {
+				if tweakListOptions != nil {
+					tweakListOptions(&options)
+				}
+				return client.LcmV1alpha1().CephDeployments(namespace).Watch(ctx, options)
 			},
 		},
-		&cephpelagialcmv1alpha1.CephDeployment{},
+		&apiscephpelagialcmv1alpha1.CephDeployment{},
 		resyncPeriod,
 		indexers,
 	)
@@ -82,9 +94,9 @@ func (f *cephDeploymentInformer) defaultInformer(client versioned.Interface, res
 }
 
 func (f *cephDeploymentInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&cephpelagialcmv1alpha1.CephDeployment{}, f.defaultInformer)
+	return f.factory.InformerFor(&apiscephpelagialcmv1alpha1.CephDeployment{}, f.defaultInformer)
 }
 
-func (f *cephDeploymentInformer) Lister() v1alpha1.CephDeploymentLister {
-	return v1alpha1.NewCephDeploymentLister(f.Informer().GetIndexer())
+func (f *cephDeploymentInformer) Lister() cephpelagialcmv1alpha1.CephDeploymentLister {
+	return cephpelagialcmv1alpha1.NewCephDeploymentLister(f.Informer().GetIndexer())
 }

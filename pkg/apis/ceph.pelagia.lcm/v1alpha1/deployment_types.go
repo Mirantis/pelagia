@@ -315,6 +315,7 @@ type CephRGW struct {
 	// Whether host networking is enabled for the rgw daemon.
 	// If not set, the network settings from the cluster CR will be applied.
 	// +optional
+	// +nullable
 	RgwUseHostNetwork *bool `json:"rgwUseHostNetwork,omitempty"`
 	// MetadataPool represents Ceph Pool's settings which stores RGW metadata.
 	// Mutually exclusive with Zone
@@ -500,7 +501,8 @@ type CephPoolSpec struct {
 	// EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
 	// Can cause data remapping if crush rule changes, Defaults to false.
 	// +optional
-	EnableCrushUpdates bool `json:"enableCrushUpdates,omitempty"`
+	// +nullable
+	EnableCrushUpdates *bool `json:"enableCrushUpdates,omitempty"`
 }
 
 type CephStorageClassSpec struct {

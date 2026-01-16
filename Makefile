@@ -237,16 +237,16 @@ e2e-code: ## Run e2e tests
 
 .PHONY: install-controller-gen install-client-gen install-lister-gen install-informer-gen
 install-controller-gen:
-	go $(GOGETCMD) sigs.k8s.io/controller-tools/cmd/controller-gen@v0.16.1
+	go $(GOGETCMD) sigs.k8s.io/controller-tools/cmd/controller-gen@v0.19.0
 
 install-client-gen:
-	go $(GOGETCMD) k8s.io/code-generator/cmd/client-gen@v0.27.7
+	go $(GOGETCMD) k8s.io/code-generator/cmd/client-gen@v0.34.3
 
 install-lister-gen:
-	go $(GOGETCMD) k8s.io/code-generator/cmd/lister-gen@v0.27.7
+	go $(GOGETCMD) k8s.io/code-generator/cmd/lister-gen@v0.34.3
 
 install-informer-gen:
-	go $(GOGETCMD) k8s.io/code-generator/cmd/informer-gen@v0.27.7
+	go $(GOGETCMD) k8s.io/code-generator/cmd/informer-gen@v0.34.3
 
 .PHONY: generate client-gen controller-go-generate client-go-generate lister-go-generate informer-go-generate copy-client-gen-output go-generate
 generate: go-generate install-controller-gen controller-go-generate ## Generate API and CRDs
@@ -260,26 +260,30 @@ controller-go-generate: vendor
 
 client-go-generate: vendor
 	@printf "\n=== <PROCESS CLIENT-GEN> ===\n"
-	$(GOPATH)/bin/client-gen --clientset-name versioned --input-base "" \
-	   --input "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1" \
-	   --output-package "github.com/Mirantis/pelagia/pkg/client/clientset" \
-	   -h boilerplate.go.txt
+	$(GOPATH)/bin/client-gen \
+		--clientset-name versioned --input-base "" \
+		--input "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1" \
+		--output-pkg "github.com/Mirantis/pelagia/pkg/client/clientset" \
+		--output-dir ./pkg/client/clientset \
+		--go-header-file boilerplate.go.txt
 
 lister-go-generate: vendor
 	@printf "\n=== <PROCESS LISTER-GEN> ===\n"
 	$(GOPATH)/bin/lister-gen \
-		--input-dirs "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1" \
-		--output-package "github.com/Mirantis/pelagia/pkg/client/listers" \
-		-h boilerplate.go.txt
+		--output-pkg "github.com/Mirantis/pelagia/pkg/client/listers" \
+		--output-dir ./pkg/client/listers \
+		--go-header-file boilerplate.go.txt \
+		"github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 
 informer-go-generate: vendor
 	@printf "\n=== <PROCESS INFORMER-GEN> ===\n"
 	$(GOPATH)/bin/informer-gen \
-		--input-dirs "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1" \
 		--versioned-clientset-package "github.com/Mirantis/pelagia/pkg/client/clientset/versioned" \
 		--listers-package "github.com/Mirantis/pelagia/pkg/client/listers" \
-		--output-package "github.com/Mirantis/pelagia/pkg/client/informers" \
-		-h boilerplate.go.txt
+		--output-pkg "github.com/Mirantis/pelagia/pkg/client/informers" \
+		--output-dir ./pkg/client/informers \
+		--go-header-file boilerplate.go.txt \
+		"github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 
 go-generate: vendor
 	@printf "\n=== <PROCESS GO GENERATE> ===\n"

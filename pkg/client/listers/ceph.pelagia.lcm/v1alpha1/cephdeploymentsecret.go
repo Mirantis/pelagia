@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Mirantis IT.
+Copyright 2026 Mirantis IT.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ limitations under the License.
 package v1alpha1
 
 import (
-	v1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/tools/cache"
+	cephpelagialcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	labels "k8s.io/apimachinery/pkg/labels"
+	listers "k8s.io/client-go/listers"
+	cache "k8s.io/client-go/tools/cache"
 )
 
 // CephDeploymentSecretLister helps list CephDeploymentSecrets.
@@ -30,7 +30,7 @@ import (
 type CephDeploymentSecretLister interface {
 	// List lists all CephDeploymentSecrets in the indexer.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1alpha1.CephDeploymentSecret, err error)
+	List(selector labels.Selector) (ret []*cephpelagialcmv1alpha1.CephDeploymentSecret, err error)
 	// CephDeploymentSecrets returns an object that can list and get CephDeploymentSecrets.
 	CephDeploymentSecrets(namespace string) CephDeploymentSecretNamespaceLister
 	CephDeploymentSecretListerExpansion
@@ -38,25 +38,17 @@ type CephDeploymentSecretLister interface {
 
 // cephDeploymentSecretLister implements the CephDeploymentSecretLister interface.
 type cephDeploymentSecretLister struct {
-	indexer cache.Indexer
+	listers.ResourceIndexer[*cephpelagialcmv1alpha1.CephDeploymentSecret]
 }
 
 // NewCephDeploymentSecretLister returns a new CephDeploymentSecretLister.
 func NewCephDeploymentSecretLister(indexer cache.Indexer) CephDeploymentSecretLister {
-	return &cephDeploymentSecretLister{indexer: indexer}
-}
-
-// List lists all CephDeploymentSecrets in the indexer.
-func (s *cephDeploymentSecretLister) List(selector labels.Selector) (ret []*v1alpha1.CephDeploymentSecret, err error) {
-	err = cache.ListAll(s.indexer, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.CephDeploymentSecret))
-	})
-	return ret, err
+	return &cephDeploymentSecretLister{listers.New[*cephpelagialcmv1alpha1.CephDeploymentSecret](indexer, cephpelagialcmv1alpha1.Resource("cephdeploymentsecret"))}
 }
 
 // CephDeploymentSecrets returns an object that can list and get CephDeploymentSecrets.
 func (s *cephDeploymentSecretLister) CephDeploymentSecrets(namespace string) CephDeploymentSecretNamespaceLister {
-	return cephDeploymentSecretNamespaceLister{indexer: s.indexer, namespace: namespace}
+	return cephDeploymentSecretNamespaceLister{listers.NewNamespaced[*cephpelagialcmv1alpha1.CephDeploymentSecret](s.ResourceIndexer, namespace)}
 }
 
 // CephDeploymentSecretNamespaceLister helps list and get CephDeploymentSecrets.
@@ -64,36 +56,15 @@ func (s *cephDeploymentSecretLister) CephDeploymentSecrets(namespace string) Cep
 type CephDeploymentSecretNamespaceLister interface {
 	// List lists all CephDeploymentSecrets in the indexer for a given namespace.
 	// Objects returned here must be treated as read-only.
-	List(selector labels.Selector) (ret []*v1alpha1.CephDeploymentSecret, err error)
+	List(selector labels.Selector) (ret []*cephpelagialcmv1alpha1.CephDeploymentSecret, err error)
 	// Get retrieves the CephDeploymentSecret from the indexer for a given namespace and name.
 	// Objects returned here must be treated as read-only.
-	Get(name string) (*v1alpha1.CephDeploymentSecret, error)
+	Get(name string) (*cephpelagialcmv1alpha1.CephDeploymentSecret, error)
 	CephDeploymentSecretNamespaceListerExpansion
 }
 
 // cephDeploymentSecretNamespaceLister implements the CephDeploymentSecretNamespaceLister
 // interface.
 type cephDeploymentSecretNamespaceLister struct {
-	indexer   cache.Indexer
-	namespace string
-}
-
-// List lists all CephDeploymentSecrets in the indexer for a given namespace.
-func (s cephDeploymentSecretNamespaceLister) List(selector labels.Selector) (ret []*v1alpha1.CephDeploymentSecret, err error) {
-	err = cache.ListAllByNamespace(s.indexer, s.namespace, selector, func(m interface{}) {
-		ret = append(ret, m.(*v1alpha1.CephDeploymentSecret))
-	})
-	return ret, err
-}
-
-// Get retrieves the CephDeploymentSecret from the indexer for a given namespace and name.
-func (s cephDeploymentSecretNamespaceLister) Get(name string) (*v1alpha1.CephDeploymentSecret, error) {
-	obj, exists, err := s.indexer.GetByKey(s.namespace + "/" + name)
-	if err != nil {
-		return nil, err
-	}
-	if !exists {
-		return nil, errors.NewNotFound(v1alpha1.Resource("cephdeploymentsecret"), name)
-	}
-	return obj.(*v1alpha1.CephDeploymentSecret), nil
+	listers.ResourceIndexer[*cephpelagialcmv1alpha1.CephDeploymentSecret]
 }

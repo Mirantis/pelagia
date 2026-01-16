@@ -132,7 +132,7 @@ func (c *cephDeploymentHealthConfig) checkCephCluster() (*cephv1.ClusterStatus, 
 	}
 	if skipClusterVerification(cephCluster) {
 		msg := fmt.Sprintf("verification is supported since Ceph Pacific versions (v16.2), current is '%s'", cephCluster.Status.CephVersion.Version)
-		c.log.Warn().Msgf(msg)
+		c.log.Warn().Msgf("%s", msg)
 		return nil, []string{msg}
 	}
 	c.healthConfig.cephCluster = cephCluster

@@ -1,5 +1,5 @@
 /*
-Copyright 2025 Mirantis IT.
+Copyright 2026 Mirantis IT.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"context"
+	context "context"
 	time "time"
 
-	cephpelagialcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	apiscephpelagialcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	versioned "github.com/Mirantis/pelagia/pkg/client/clientset/versioned"
 	internalinterfaces "github.com/Mirantis/pelagia/pkg/client/informers/externalversions/internalinterfaces"
-	v1alpha1 "github.com/Mirantis/pelagia/pkg/client/listers/ceph.pelagia.lcm/v1alpha1"
+	cephpelagialcmv1alpha1 "github.com/Mirantis/pelagia/pkg/client/listers/ceph.pelagia.lcm/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"
@@ -36,7 +36,7 @@ import (
 // CephOsdRemoveTasks.
 type CephOsdRemoveTaskInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1alpha1.CephOsdRemoveTaskLister
+	Lister() cephpelagialcmv1alpha1.CephOsdRemoveTaskLister
 }
 
 type cephOsdRemoveTaskInformer struct {
@@ -62,16 +62,28 @@ func NewFilteredCephOsdRemoveTaskInformer(client versioned.Interface, namespace 
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.LcmV1alpha1().CephOsdRemoveTasks(namespace).List(context.TODO(), options)
+				return client.LcmV1alpha1().CephOsdRemoveTasks(namespace).List(context.Background(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.LcmV1alpha1().CephOsdRemoveTasks(namespace).Watch(context.TODO(), options)
+				return client.LcmV1alpha1().CephOsdRemoveTasks(namespace).Watch(context.Background(), options)
+			},
+			ListWithContextFunc: func(ctx context.Context, options v1.ListOptions) (runtime.Object, error) {
+				if tweakListOptions != nil {
+					tweakListOptions(&options)
+				}
+				return client.LcmV1alpha1().CephOsdRemoveTasks(namespace).List(ctx, options)
+			},
+			WatchFuncWithContext: func(ctx context.Context, options v1.ListOptions) (watch.Interface, error) {
+				if tweakListOptions != nil {
+					tweakListOptions(&options)
+				}
+				return client.LcmV1alpha1().CephOsdRemoveTasks(namespace).Watch(ctx, options)
 			},
 		},
-		&cephpelagialcmv1alpha1.CephOsdRemoveTask{},
+		&apiscephpelagialcmv1alpha1.CephOsdRemoveTask{},
 		resyncPeriod,
 		indexers,
 	)
@@ -82,9 +94,9 @@ func (f *cephOsdRemoveTaskInformer) defaultInformer(client versioned.Interface, 
 }
 
 func (f *cephOsdRemoveTaskInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&cephpelagialcmv1alpha1.CephOsdRemoveTask{}, f.defaultInformer)
+	return f.factory.InformerFor(&apiscephpelagialcmv1alpha1.CephOsdRemoveTask{}, f.defaultInformer)
 }
 
-func (f *cephOsdRemoveTaskInformer) Lister() v1alpha1.CephOsdRemoveTaskLister {
-	return v1alpha1.NewCephOsdRemoveTaskLister(f.Informer().GetIndexer())
+func (f *cephOsdRemoveTaskInformer) Lister() cephpelagialcmv1alpha1.CephOsdRemoveTaskLister {
+	return cephpelagialcmv1alpha1.NewCephOsdRemoveTaskLister(f.Informer().GetIndexer())
 }

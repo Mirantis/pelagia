@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.16.1
+    controller-gen.kubebuilder.io/version: v0.19.0
   name: cephdeployments.lcm.mirantis.com
 spec:
   group: lcm.mirantis.com
@@ -216,7 +216,8 @@ spec:
                             alive or ready to receive traffic.
                           properties:
                             exec:
-                              description: Exec specifies the action to take.
+                              description: Exec specifies a command to execute in
+                                the container.
                               properties:
                                 command:
                                   description: |-
@@ -237,8 +238,7 @@ spec:
                               format: int32
                               type: integer
                             grpc:
-                              description: GRPC specifies an action involving a GRPC
-                                port.
+                              description: GRPC specifies a GRPC HealthCheckRequest.
                               properties:
                                 port:
                                   description: Port number of the gRPC service. Number
@@ -257,7 +257,8 @@ spec:
                               - port
                               type: object
                             httpGet:
-                              description: HTTPGet specifies the http request to perform.
+                              description: HTTPGet specifies an HTTP GET request to
+                                perform.
                               properties:
                                 host:
                                   description: |-
@@ -324,8 +325,8 @@ spec:
                               format: int32
                               type: integer
                             tcpSocket:
-                              description: TCPSocket specifies an action involving
-                                a TCP port.
+                              description: TCPSocket specifies a connection to a TCP
+                                port.
                               properties:
                                 host:
                                   description: 'Optional: Host name to connect to,
@@ -384,7 +385,8 @@ spec:
                             alive or ready to receive traffic.
                           properties:
                             exec:
-                              description: Exec specifies the action to take.
+                              description: Exec specifies a command to execute in
+                                the container.
                               properties:
                                 command:
                                   description: |-
@@ -405,8 +407,7 @@ spec:
                               format: int32
                               type: integer
                             grpc:
-                              description: GRPC specifies an action involving a GRPC
-                                port.
+                              description: GRPC specifies a GRPC HealthCheckRequest.
                               properties:
                                 port:
                                   description: Port number of the gRPC service. Number
@@ -425,7 +426,8 @@ spec:
                               - port
                               type: object
                             httpGet:
-                              description: HTTPGet specifies the http request to perform.
+                              description: HTTPGet specifies an HTTP GET request to
+                                perform.
                               properties:
                                 host:
                                   description: |-
@@ -492,8 +494,8 @@ spec:
                               format: int32
                               type: integer
                             tcpSocket:
-                              description: TCPSocket specifies an action involving
-                                a TCP port.
+                              description: TCPSocket specifies a connection to a TCP
+                                port.
                               properties:
                                 host:
                                   description: 'Optional: Host name to connect to,
@@ -1241,6 +1243,7 @@ spec:
                                   description: |-
                                     EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
                                     Can cause data remapping if crush rule changes, Defaults to false.
+                                  nullable: true
                                   type: boolean
                                 erasureCoded:
                                   description: ErasureCoded represents Ceph Pool's
@@ -1334,6 +1337,7 @@ spec:
                                   description: |-
                                     EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
                                     Can cause data remapping if crush rule changes, Defaults to false.
+                                  nullable: true
                                   type: boolean
                                 erasureCoded:
                                   description: ErasureCoded represents Ceph Pool's
@@ -1475,6 +1479,7 @@ spec:
                             description: |-
                               EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
                               Can cause data remapping if crush rule changes, Defaults to false.
+                            nullable: true
                             type: boolean
                           erasureCoded:
                             description: ErasureCoded represents Ceph Pool's erasure
@@ -1678,7 +1683,8 @@ spec:
                                   alive or ready to receive traffic.
                                 properties:
                                   exec:
-                                    description: Exec specifies the action to take.
+                                    description: Exec specifies a command to execute
+                                      in the container.
                                     properties:
                                       command:
                                         description: |-
@@ -1699,8 +1705,7 @@ spec:
                                     format: int32
                                     type: integer
                                   grpc:
-                                    description: GRPC specifies an action involving
-                                      a GRPC port.
+                                    description: GRPC specifies a GRPC HealthCheckRequest.
                                     properties:
                                       port:
                                         description: Port number of the gRPC service.
@@ -1719,7 +1724,7 @@ spec:
                                     - port
                                     type: object
                                   httpGet:
-                                    description: HTTPGet specifies the http request
+                                    description: HTTPGet specifies an HTTP GET request
                                       to perform.
                                     properties:
                                       host:
@@ -1787,8 +1792,8 @@ spec:
                                     format: int32
                                     type: integer
                                   tcpSocket:
-                                    description: TCPSocket specifies an action involving
-                                      a TCP port.
+                                    description: TCPSocket specifies a connection
+                                      to a TCP port.
                                     properties:
                                       host:
                                         description: 'Optional: Host name to connect
@@ -1844,7 +1849,8 @@ spec:
                                   alive or ready to receive traffic.
                                 properties:
                                   exec:
-                                    description: Exec specifies the action to take.
+                                    description: Exec specifies a command to execute
+                                      in the container.
                                     properties:
                                       command:
                                         description: |-
@@ -1865,8 +1871,7 @@ spec:
                                     format: int32
                                     type: integer
                                   grpc:
-                                    description: GRPC specifies an action involving
-                                      a GRPC port.
+                                    description: GRPC specifies a GRPC HealthCheckRequest.
                                     properties:
                                       port:
                                         description: Port number of the gRPC service.
@@ -1885,7 +1890,7 @@ spec:
                                     - port
                                     type: object
                                   httpGet:
-                                    description: HTTPGet specifies the http request
+                                    description: HTTPGet specifies an HTTP GET request
                                       to perform.
                                     properties:
                                       host:
@@ -1953,8 +1958,8 @@ spec:
                                     format: int32
                                     type: integer
                                   tcpSocket:
-                                    description: TCPSocket specifies an action involving
-                                      a TCP port.
+                                    description: TCPSocket specifies a connection
+                                      to a TCP port.
                                     properties:
                                       host:
                                         description: 'Optional: Host name to connect
@@ -2014,6 +2019,7 @@ spec:
                             description: |-
                               EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
                               Can cause data remapping if crush rule changes, Defaults to false.
+                            nullable: true
                             type: boolean
                           erasureCoded:
                             description: ErasureCoded represents Ceph Pool's erasure
@@ -2291,6 +2297,7 @@ spec:
                         description: |-
                           Whether host networking is enabled for the rgw daemon.
                           If not set, the network settings from the cluster CR will be applied.
+                        nullable: true
                         type: boolean
                       skipAutoZoneGroupHostnameUpdate:
                         description: |-
@@ -2333,6 +2340,7 @@ spec:
                       description: |-
                         EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
                         Can cause data remapping if crush rule changes, Defaults to false.
+                      nullable: true
                       type: boolean
                     erasureCoded:
                       description: ErasureCoded represents Ceph Pool's erasure coding
@@ -2523,6 +2531,7 @@ spec:
                                 description: |-
                                   EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
                                   Can cause data remapping if crush rule changes, Defaults to false.
+                                nullable: true
                                 type: boolean
                               erasureCoded:
                                 description: ErasureCoded represents Ceph Pool's erasure
@@ -2614,6 +2623,7 @@ spec:
                               description: |-
                                 EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
                                 Can cause data remapping if crush rule changes, Defaults to false.
+                              nullable: true
                               type: boolean
                             erasureCoded:
                               description: ErasureCoded represents Ceph Pool's erasure
@@ -2719,8 +2729,8 @@ spec:
                                         alive or ready to receive traffic.
                                       properties:
                                         exec:
-                                          description: Exec specifies the action to
-                                            take.
+                                          description: Exec specifies a command to
+                                            execute in the container.
                                           properties:
                                             command:
                                               description: |-
@@ -2741,8 +2751,7 @@ spec:
                                           format: int32
                                           type: integer
                                         grpc:
-                                          description: GRPC specifies an action involving
-                                            a GRPC port.
+                                          description: GRPC specifies a GRPC HealthCheckRequest.
                                           properties:
                                             port:
                                               description: Port number of the gRPC
@@ -2762,7 +2771,7 @@ spec:
                                           - port
                                           type: object
                                         httpGet:
-                                          description: HTTPGet specifies the http
+                                          description: HTTPGet specifies an HTTP GET
                                             request to perform.
                                           properties:
                                             host:
@@ -2834,8 +2843,8 @@ spec:
                                           format: int32
                                           type: integer
                                         tcpSocket:
-                                          description: TCPSocket specifies an action
-                                            involving a TCP port.
+                                          description: TCPSocket specifies a connection
+                                            to a TCP port.
                                           properties:
                                             host:
                                               description: 'Optional: Host name to
@@ -2890,8 +2899,8 @@ spec:
                                         alive or ready to receive traffic.
                                       properties:
                                         exec:
-                                          description: Exec specifies the action to
-                                            take.
+                                          description: Exec specifies a command to
+                                            execute in the container.
                                           properties:
                                             command:
                                               description: |-
@@ -2912,8 +2921,7 @@ spec:
                                           format: int32
                                           type: integer
                                         grpc:
-                                          description: GRPC specifies an action involving
-                                            a GRPC port.
+                                          description: GRPC specifies a GRPC HealthCheckRequest.
                                           properties:
                                             port:
                                               description: Port number of the gRPC
@@ -2933,7 +2941,7 @@ spec:
                                           - port
                                           type: object
                                         httpGet:
-                                          description: HTTPGet specifies the http
+                                          description: HTTPGet specifies an HTTP GET
                                             request to perform.
                                           properties:
                                             host:
@@ -3005,8 +3013,8 @@ spec:
                                           format: int32
                                           type: integer
                                         tcpSocket:
-                                          description: TCPSocket specifies an action
-                                            involving a TCP port.
+                                          description: TCPSocket specifies a connection
+                                            to a TCP port.
                                           properties:
                                             host:
                                               description: 'Optional: Host name to
