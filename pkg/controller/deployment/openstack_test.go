@@ -35,6 +35,7 @@ import (
 func TestDeleteOpenstackSecret(t *testing.T) {
 	tests := []struct {
 		name          string
+		nonmosk       bool
 		deleteError   error
 		deleted       bool
 		expectedError string
@@ -51,10 +52,18 @@ func TestDeleteOpenstackSecret(t *testing.T) {
 			deleteError:   errors.New("secrets delete failed"),
 			expectedError: "failed to delete openstack secret openstack-ceph-shared/openstack-ceph-keys: secrets delete failed",
 		},
+		{
+			name:    "delete openstack secrets - non-mosk, success",
+			nonmosk: true,
+			deleted: true,
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(nil, nil)
+			if test.nonmosk {
+				c.lcmConfig.DeployParams.OpenstackCephSharedNamespace = ""
+			}
 			inputRes := map[string]runtime.Object{"secrets": &corev1.SecretList{}}
 			if !test.deleted {
 				inputRes["secrets"] = &corev1.SecretList{Items: []corev1.Secret{unitinputs.OpenstackSecretGenerated}}
