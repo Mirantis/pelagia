@@ -148,15 +148,18 @@ func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
 }
 
 func (c *cephDeploymentConfig) deleteOpenstackSecret() (bool, error) {
-	err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Delete(c.context, openstackSharedSecret, metav1.DeleteOptions{})
-	if err != nil {
-		if apierrors.IsNotFound(err) {
-			return true, nil
+	if c.lcmConfig.DeployParams.OpenstackCephSharedNamespace != "" {
+		err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Delete(c.context, openstackSharedSecret, metav1.DeleteOptions{})
+		if err != nil {
+			if apierrors.IsNotFound(err) {
+				return true, nil
+			}
+			return false, errors.Wrapf(err, "failed to delete openstack secret %s/%s", c.lcmConfig.DeployParams.OpenstackCephSharedNamespace, openstackSharedSecret)
 		}
-		return false, errors.Wrapf(err, "failed to delete openstack secret %s/%s", c.lcmConfig.DeployParams.OpenstackCephSharedNamespace, openstackSharedSecret)
+		c.log.Info().Msgf("removed openstack secret %s/%s", c.lcmConfig.DeployParams.OpenstackCephSharedNamespace, openstackSharedSecret)
+		return false, nil
 	}
-	c.log.Info().Msgf("removed openstack secret %s/%s", c.lcmConfig.DeployParams.OpenstackCephSharedNamespace, openstackSharedSecret)
-	return false, nil
+	return true, nil
 }
 
 func (c *cephDeploymentConfig) getCephClientAuthKeys(cephFSDeployed bool) (map[string]string, error) {

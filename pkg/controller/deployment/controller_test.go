@@ -63,6 +63,7 @@ func fakeDeploymentConfig(dconfig *deployConfig, lcmConfigData map[string]string
 		lcmConfigData = map[string]string{}
 	}
 	lcmConfigData["DEPLOYMENT_LOG_LEVEL"] = "TRACE"
+	lcmConfigData["DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE"] = "openstack-ceph-shared"
 	lcmConfig := lcmconfig.ReadConfiguration(log.With().Str(lcmcommon.LoggerObjectField, "configmap").Logger(), lcmConfigData)
 	sublog := log.With().Str(lcmcommon.LoggerObjectField, "cephdeployment").Logger().Level(lcmConfig.DeployParams.LogLevel)
 	dc := deployConfig{
@@ -1434,7 +1435,7 @@ func TestCleanCephDeployment(t *testing.T) {
 				"delete-secrets":                    errors.New("failed to delete secret"),
 				"delete-storageclasses":             errors.New("failed to delete storageclass"),
 			},
-			expectedError: "deletion is not completed for CephDeployment: failed to remove CephDeploymentSecret 'lcm-namespace/cephcluster', failed to remove CephDeploymentMaintenance 'lcm-namespace/cephcluster', failed to remove openstack shared secret, failed to remove object storage, failed to remove rbd mirror, failed to remove ceph clients, failed to remove storage classes, failed to remove external resources",
+			expectedError: "deletion is not completed for CephDeployment: failed to remove CephDeploymentSecret 'lcm-namespace/cephcluster', failed to remove CephDeploymentMaintenance 'lcm-namespace/cephcluster', failed to remove object storage, failed to remove rbd mirror, failed to remove ceph clients, failed to remove storage classes, failed to remove external resources",
 		},
 		{
 			name:           "external - delete resources is in progress (first step)",

@@ -131,9 +131,8 @@ var (
 		OsdPgRebalanceTimeout: 30 * time.Minute,
 	}
 	defaultDeployParams = DeployParams{
-		LogLevel:                     zerolog.InfoLevel,
-		OpenstackCephSharedNamespace: "openstack-ceph-shared",
-		RgwPublicAccessLabel:         "external_access=rgw",
+		LogLevel:             zerolog.InfoLevel,
+		RgwPublicAccessLabel: "external_access=rgw",
 	}
 )
 
