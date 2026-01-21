@@ -30,21 +30,21 @@ func TestCephVersionGreaterOrEqual(t *testing.T) {
 		expected        bool
 	}{
 		{
-			name:            "ceph version comparison - current Squid greater than required Reef",
-			cephImage:       Squid,
-			requiredVersion: Reef,
-			expected:        true,
-		},
-		{
-			name:            "ceph version comparison - current equal to required, Reef",
-			cephImage:       Reef,
-			requiredVersion: Reef,
-			expected:        true,
-		},
-		{
-			name:            "ceph version comparison - current Reef less than required Squid",
-			cephImage:       Reef,
+			name:            "ceph version comparison - current greater than required",
+			cephImage:       Tentacle,
 			requiredVersion: Squid,
+			expected:        true,
+		},
+		{
+			name:            "ceph version comparison - current equal to required",
+			cephImage:       Squid,
+			requiredVersion: Squid,
+			expected:        true,
+		},
+		{
+			name:            "ceph version comparison - current less than required",
+			cephImage:       Squid,
+			requiredVersion: Tentacle,
 			expected:        false,
 		},
 		{
@@ -75,14 +75,14 @@ func TestCheckExpectedCephVersion(t *testing.T) {
 		},
 		{
 			name:          "check ceph version - current image version different from expected release",
-			cephImage:     "ceph/ceph:v18.2.7",
-			expectedError: "expected Ceph release Squid 'v19.2' version, but specified Reef 'v18.2' version (image: ceph/ceph:v18.2.7)",
+			cephImage:     "ceph/ceph:v19.2.3",
+			expectedError: "expected Ceph release Tentacle 'v20.2' version, but specified Squid 'v19.2' version (image: ceph/ceph:v19.2.3)",
 		},
 		{
 			name:          "check ceph version - invalid version release version is set",
-			cephImage:     "ceph/ceph:v18.2.7",
-			cephRelease:   "rif",
-			expectedError: "failed to find appropriate Ceph version of 'rif' release. Is release name correct?",
+			cephImage:     "ceph/ceph:v19.2.3",
+			cephRelease:   "sqid",
+			expectedError: "failed to find appropriate Ceph version of 'sqid' release. Is release name correct?",
 		},
 		{
 			name:          "check ceph version - invalid image version is set",
@@ -91,19 +91,19 @@ func TestCheckExpectedCephVersion(t *testing.T) {
 		},
 		{
 			name:          "check ceph version - image is not in list supported minors",
-			cephImage:     "ceph/ceph:v18.2.10",
-			expectedError: "failed to identify Ceph version for image 'ceph/ceph:v18.2.10': specified Ceph version 'v18.2.10' is not supported. Please use one of: [v18.2.3 v18.2.4 v18.2.7]",
+			cephImage:     "ceph/ceph:v19.2.20",
+			expectedError: "failed to identify Ceph version for image 'ceph/ceph:v19.2.20': specified Ceph version 'v19.2.20' is not supported. Please use one of: [v19.2.3]",
 		},
 		{
-			name:        "check ceph version - reef image version passed and reef release",
-			cephImage:   "ceph/ceph:v18.2.3",
-			cephRelease: "reef",
+			name:        "check ceph version - tentacle image version passed and tentacle release",
+			cephImage:   "ceph/ceph:v20.2.0",
+			cephRelease: "tentacle",
 			expectedVersion: &CephVersion{
-				Name:            "Reef",
-				MajorVersion:    "v18.2",
-				MinorVersion:    "3",
-				Order:           18,
-				SupportedMinors: []string{"3", "4", "7"},
+				Name:            "Tentacle",
+				MajorVersion:    "v20.2",
+				MinorVersion:    "0",
+				Order:           20,
+				SupportedMinors: []string{"0"},
 			},
 		},
 		{
@@ -120,13 +120,13 @@ func TestCheckExpectedCephVersion(t *testing.T) {
 		},
 		{
 			name:      "check ceph version - latest image version passed and no release",
-			cephImage: "ceph/ceph:v19.2.3",
+			cephImage: "ceph/ceph:v20.2.0",
 			expectedVersion: &CephVersion{
-				Name:            "Squid",
-				MajorVersion:    "v19.2",
-				MinorVersion:    "3",
-				Order:           19,
-				SupportedMinors: []string{"3"},
+				Name:            "Tentacle",
+				MajorVersion:    "v20.2",
+				MinorVersion:    "0",
+				Order:           20,
+				SupportedMinors: []string{"0"},
 			},
 		},
 	}

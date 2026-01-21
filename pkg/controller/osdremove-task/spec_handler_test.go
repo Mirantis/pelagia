@@ -34,11 +34,11 @@ import (
 )
 
 func TestGetOsdsForCleanup(t *testing.T) {
-	cephClusterNoNodes := unitinputs.ReefCephClusterReady.DeepCopy()
+	cephClusterNoNodes := unitinputs.CephClusterReady.DeepCopy()
 	cephClusterNoNodes.Spec.Storage.Nodes = nil
-	cephClusterReducedNodes := unitinputs.ReefCephClusterReady.DeepCopy()
+	cephClusterReducedNodes := unitinputs.CephClusterReady.DeepCopy()
 	cephClusterReducedNodes.Spec.Storage.Nodes = unitinputs.StorageNodesForRequestReduced
-	cephClusterFilteredDevices := unitinputs.ReefCephClusterReady.DeepCopy()
+	cephClusterFilteredDevices := unitinputs.CephClusterReady.DeepCopy()
 	cephClusterFilteredDevices.Spec.Storage.Nodes = unitinputs.StorageNodesForRequestFiltered
 
 	getTaskConfig := func(nodesInTask map[string]lcmv1alpha1.NodeCleanUpSpec, cephCluster *cephv1.CephCluster, specAnalysis map[string]lcmv1alpha1.DaemonStatus) taskConfig {
@@ -56,7 +56,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 			newTaskConfig.task = unitinputs.CephOsdRemoveTaskOnValidation
 		}
 		if newTaskConfig.cephCluster == nil {
-			newTaskConfig.cephCluster = &unitinputs.ReefCephClusterReady
+			newTaskConfig.cephCluster = &unitinputs.CephClusterReady
 		}
 		if newTaskConfig.cephHealthOsdAnalysis.SpecAnalysis == nil {
 			newTaskConfig.cephHealthOsdAnalysis.SpecAnalysis = unitinputs.OsdStorageSpecAnalysisOk
@@ -65,7 +65,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 	}
 
 	tcEmptytaskFullnodesOk := getTaskConfig(nil, nil, nil)
-	tcEmptytaskNotalldevsOk := getTaskConfig(nil, &unitinputs.ReefCephClusterHasHealthIssues, nil)
+	tcEmptytaskNotalldevsOk := getTaskConfig(nil, &unitinputs.CephClusterHasHealthIssues, nil)
 	tcEmptytaskNonodes := getTaskConfig(nil, cephClusterNoNodes, map[string]lcmv1alpha1.DaemonStatus{})
 	tcFullremoveNonodes := getTaskConfig(unitinputs.RequestRemoveFullNodeRemove, cephClusterNoNodes, map[string]lcmv1alpha1.DaemonStatus{})
 
@@ -178,7 +178,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 			taskConfig: getTaskConfig(
 				nil,
 				func() *cephv1.CephCluster {
-					cluster := unitinputs.ReefCephClusterHasHealthIssues.DeepCopy()
+					cluster := unitinputs.CephClusterHasHealthIssues.DeepCopy()
 					cluster.Spec.Storage.Nodes[0].Devices[1].Config["metadataDevice"] = "/dev/vdd"
 					return cluster
 				}(), nil),
@@ -493,7 +493,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 			hostsFromCluster: unitinputs.CephOsdTreeOutput,
 			osdsMetadata:     unitinputs.CephOsdMetadataOutputNoStray,
 			osdInfo:          unitinputs.CephOsdInfoOutputNoStray,
-			taskConfig: getTaskConfig(nil, &unitinputs.ReefCephClusterHasHealthIssues,
+			taskConfig: getTaskConfig(nil, &unitinputs.CephClusterHasHealthIssues,
 				map[string]lcmv1alpha1.DaemonStatus{
 					"node-1": {Status: lcmv1alpha1.DaemonStateSkipped},
 					"node-2": {Status: lcmv1alpha1.DaemonStateSkipped},
@@ -863,7 +863,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 			taskConfig: getTaskConfig(map[string]lcmv1alpha1.NodeCleanUpSpec{
 				"node-1": {CleanupByOsd: []lcmv1alpha1.OsdCleanupSpec{{ID: 20}}},
 				"node-2": {CleanupByOsd: []lcmv1alpha1.OsdCleanupSpec{{ID: 4}}},
-			}, &unitinputs.ReefCephClusterHasHealthIssues, nil),
+			}, &unitinputs.CephClusterHasHealthIssues, nil),
 			nodeList: nodesListLabeledAvailable,
 			nodeOsdReport: map[string]*lcmcommon.DiskDaemonReport{
 				"node-1": &unitinputs.DiskDaemonReportOkNode1,
@@ -892,7 +892,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 			taskConfig: getTaskConfig(
 				map[string]lcmv1alpha1.NodeCleanUpSpec{"node-1": {CleanupByOsd: []lcmv1alpha1.OsdCleanupSpec{{ID: 20}}}},
 				func() *cephv1.CephCluster {
-					cluster := unitinputs.ReefCephClusterHasHealthIssues.DeepCopy()
+					cluster := unitinputs.CephClusterHasHealthIssues.DeepCopy()
 					cluster.Spec.Storage.Nodes[0].Devices[1].Config["metadataDevice"] = "/dev/vdd"
 					return cluster
 				}(), nil),
@@ -919,7 +919,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 			osdInfo:          unitinputs.CephOsdInfoOutputNoStray,
 			taskConfig: getTaskConfig(map[string]lcmv1alpha1.NodeCleanUpSpec{
 				"node-1": {CleanupByOsd: []lcmv1alpha1.OsdCleanupSpec{{ID: 20}}},
-			}, &unitinputs.ReefCephClusterHasHealthIssues, map[string]lcmv1alpha1.DaemonStatus{"node-1": unitinputs.OsdStorageSpecAnalysisOk["node-1"]}),
+			}, &unitinputs.CephClusterHasHealthIssues, map[string]lcmv1alpha1.DaemonStatus{"node-1": unitinputs.OsdStorageSpecAnalysisOk["node-1"]}),
 			nodeList: nodesListNode1LabeledAvailable,
 			nodeOsdReport: map[string]*lcmcommon.DiskDaemonReport{
 				"node-1": &unitinputs.DiskDaemonReportOkNode1SomeDevLost,
@@ -979,7 +979,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 			hostsFromCluster: unitinputs.CephOsdTreeOutput,
 			osdsMetadata:     unitinputs.CephOsdMetadataOutputNoStray,
 			osdInfo:          unitinputs.CephOsdInfoOutputNoStray,
-			taskConfig:       getTaskConfig(unitinputs.RequestRemoveByDevice, &unitinputs.ReefCephClusterHasHealthIssues, nil),
+			taskConfig:       getTaskConfig(unitinputs.RequestRemoveByDevice, &unitinputs.CephClusterHasHealthIssues, nil),
 			nodeList:         nodesListLabeledAvailable,
 			nodeOsdReport: map[string]*lcmcommon.DiskDaemonReport{
 				"node-1": &unitinputs.DiskDaemonReportOkNode1,
@@ -992,7 +992,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 			hostsFromCluster: unitinputs.CephOsdTreeOutput,
 			osdsMetadata:     unitinputs.CephOsdMetadataOutputNoStray,
 			osdInfo:          unitinputs.CephOsdInfoOutputNoStray,
-			taskConfig:       getTaskConfig(unitinputs.RequestRemoveByDevice, &unitinputs.ReefCephClusterHasHealthIssues, nil),
+			taskConfig:       getTaskConfig(unitinputs.RequestRemoveByDevice, &unitinputs.CephClusterHasHealthIssues, nil),
 			nodeList:         nodesListLabeledAvailable,
 			nodeOsdReport: map[string]*lcmcommon.DiskDaemonReport{
 				"node-1": &unitinputs.DiskDaemonReportOkNode1,
@@ -1010,7 +1010,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 			hostsFromCluster: unitinputs.CephOsdTreeOutput,
 			osdsMetadata:     unitinputs.CephOsdMetadataOutputNoStray,
 			osdInfo:          unitinputs.CephOsdInfoOutputNoStray,
-			taskConfig:       getTaskConfig(unitinputs.RequestRemoveByDevice, &unitinputs.ReefCephClusterHasHealthIssues, nil),
+			taskConfig:       getTaskConfig(unitinputs.RequestRemoveByDevice, &unitinputs.CephClusterHasHealthIssues, nil),
 			nodeList:         nodesListLabeledAvailable,
 			nodeOsdReport: map[string]*lcmcommon.DiskDaemonReport{
 				"node-1": &unitinputs.DiskDaemonReportOkNode1WithParted,
@@ -1040,7 +1040,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 			taskConfig: getTaskConfig(map[string]lcmv1alpha1.NodeCleanUpSpec{
 				"node-1": {CleanupByDevice: []lcmv1alpha1.DeviceCleanupSpec{
 					{Device: "/dev/disk/by-path/virtio-pci-0000:00:0f.0"}, {Device: "vdd"}}},
-			}, &unitinputs.ReefCephClusterHasHealthIssues, map[string]lcmv1alpha1.DaemonStatus{"node-1": unitinputs.OsdStorageSpecAnalysisOk["node-1"]}),
+			}, &unitinputs.CephClusterHasHealthIssues, map[string]lcmv1alpha1.DaemonStatus{"node-1": unitinputs.OsdStorageSpecAnalysisOk["node-1"]}),
 			nodeList: nodesListNode1LabeledAvailable,
 			nodeOsdReport: map[string]*lcmcommon.DiskDaemonReport{
 				"node-1": &unitinputs.DiskDaemonReportOkNode1SomeDevLost,
@@ -1068,7 +1068,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 			taskConfig: getTaskConfig(map[string]lcmv1alpha1.NodeCleanUpSpec{
 				"node-1": {CleanupByDevice: []lcmv1alpha1.DeviceCleanupSpec{{Device: "/dev/disk/by-id/virtio-e8d89e2f-ffc6-4988-9"}}},
 				"node-2": {CleanupByDevice: []lcmv1alpha1.DeviceCleanupSpec{{Device: "vdr"}}},
-			}, &unitinputs.ReefCephClusterHasHealthIssues, nil),
+			}, &unitinputs.CephClusterHasHealthIssues, nil),
 			nodeList: nodesListLabeledAvailable,
 			nodeOsdReport: map[string]*lcmcommon.DiskDaemonReport{
 				"node-1": &unitinputs.DiskDaemonReportOkNode1,
@@ -1189,7 +1189,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 			osdInfo:          unitinputs.CephOsdInfoOutputNoStray,
 			taskConfig: getTaskConfig(
 				map[string]lcmv1alpha1.NodeCleanUpSpec{"node-1": {CompleteCleanup: true}},
-				&unitinputs.ReefCephClusterHasHealthIssues,
+				&unitinputs.CephClusterHasHealthIssues,
 				map[string]lcmv1alpha1.DaemonStatus{"node-1": {Status: lcmv1alpha1.DaemonStateSkipped}},
 			),
 			nodeList: nodesListLabeledAvailable,

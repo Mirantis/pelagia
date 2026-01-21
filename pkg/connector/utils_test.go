@@ -46,7 +46,7 @@ func TestGetClusterFSID(t *testing.T) {
 		{
 			name: "more than one cluster found",
 			inputResources: map[string]runtime.Object{
-				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.ReefCephClusterReady, unitinputs.ReefCephClusterReady}},
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.CephClusterReady, unitinputs.CephClusterReady}},
 			},
 			expectedError: "multiple CephCluster objects found in namespace 'rook-ceph'",
 		},
@@ -60,7 +60,7 @@ func TestGetClusterFSID(t *testing.T) {
 		{
 			name: "cluster has no ceph status",
 			inputResources: map[string]runtime.Object{
-				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.BuildBaseCephCluster(unitinputs.ReefCephClusterReady.Name, unitinputs.ReefCephClusterReady.Namespace)}},
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.BuildBaseCephCluster(unitinputs.CephClusterReady.Name, unitinputs.CephClusterReady.Namespace)}},
 			},
 			expectedError: "status is not present for CephCluster 'rook-ceph/cephcluster'",
 		},
@@ -70,7 +70,7 @@ func TestGetClusterFSID(t *testing.T) {
 				"cephclusters": &cephv1.CephClusterList{
 					Items: []cephv1.CephCluster{
 						func() cephv1.CephCluster {
-							cephCluster := unitinputs.ReefCephClusterHasHealthIssues.DeepCopy()
+							cephCluster := unitinputs.CephClusterHasHealthIssues.DeepCopy()
 							cephCluster.Status.CephStatus.FSID = ""
 							return *cephCluster
 						}(),

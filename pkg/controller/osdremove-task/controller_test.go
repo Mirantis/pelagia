@@ -268,7 +268,7 @@ func TestTaskReconcile(t *testing.T) {
 				"cephosdremovetasks": &lcmv1alpha1.CephOsdRemoveTaskList{
 					Items: []lcmv1alpha1.CephOsdRemoveTask{*unitinputs.CephOsdRemoveTaskFullInited.DeepCopy()},
 				},
-				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.BuildBaseCephCluster(unitinputs.ReefCephClusterReady.Name, unitinputs.ReefCephClusterReady.Namespace)}},
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.BuildBaseCephCluster(unitinputs.CephClusterReady.Name, unitinputs.CephClusterReady.Namespace)}},
 			},
 			expectedTask: func() *lcmv1alpha1.CephOsdRemoveTask {
 				req := unitinputs.CephOsdRemoveTaskFullInited.DeepCopy()

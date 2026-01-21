@@ -129,12 +129,13 @@ func TestReconcile(t *testing.T) {
 	requeueAfterInterval := reconcile.Result{RequeueAfter: requeueAfterInterval}
 	noRequeue := reconcile.Result{}
 	immediateRequeue := reconcile.Result{Requeue: true}
+	//latestClusterVersion = lcmcommon.LatestRelease
 	latestClusterVersion := &lcmcommon.CephVersion{
-		Name:            "Squid",
-		MajorVersion:    "v19.2",
-		MinorVersion:    "3",
-		Order:           19,
-		SupportedMinors: []string{"3"},
+		Name:            "Tentacle",
+		MajorVersion:    "v20.2",
+		MinorVersion:    "0",
+		Order:           20,
+		SupportedMinors: []string{"0"},
 	}
 	tests := []struct {
 		name            string
@@ -596,7 +597,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 10,
 				},
-				ClusterVersion: "v19.2.3",
+				ClusterVersion: "v20.2.0",
 				LastRun:        "2021-08-15T14:30:31+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -650,7 +651,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 10,
 				},
-				ClusterVersion: "v19.2.3",
+				ClusterVersion: "v20.2.0",
 				LastRun:        "2021-08-15T14:30:32+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -748,7 +749,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 10,
 				},
-				ClusterVersion: "v19.2.3",
+				ClusterVersion: "v20.2.0",
 				LastRun:        "2021-08-15T14:30:33+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -757,7 +758,7 @@ func TestReconcile(t *testing.T) {
 			name: "reconcile cephdeployment - update non-mosk ceph cluster",
 			inputResources: map[string]runtime.Object{
 				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{
-					*unitinputs.GetUpdatedClusterVersionCephDeploy(unitinputs.CephDeployNonMosk.DeepCopy(), "v18.2.7")}},
+					*unitinputs.GetUpdatedClusterVersionCephDeploy(unitinputs.CephDeployNonMosk.DeepCopy(), "v19.2.3")}},
 				"cephdeploymentsecrets":      &cephlcmv1alpha1.CephDeploymentSecretList{Items: []cephlcmv1alpha1.CephDeploymentSecret{*unitinputs.EmptyCephSecret}},
 				"cephdeploymenthealths":      &cephlcmv1alpha1.CephDeploymentHealthList{Items: []cephlcmv1alpha1.CephDeploymentHealth{unitinputs.CephDeploymentHealth}},
 				"cephdeploymentmaintenances": unitinputs.CephDeploymentMaintenanceListIdle,
@@ -782,11 +783,11 @@ func TestReconcile(t *testing.T) {
 			},
 			testclient: faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.BaseCephDeployment.DeepCopy()).WithObjects(unitinputs.BaseCephDeployment.DeepCopy()),
 			expectedVersion: &lcmcommon.CephVersion{
-				Name:            "Reef",
-				MajorVersion:    "v18.2",
-				MinorVersion:    "7",
-				Order:           18,
-				SupportedMinors: []string{"3", "4", "7"},
+				Name:            "Squid",
+				MajorVersion:    "v19.2",
+				MinorVersion:    "3",
+				Order:           19,
+				SupportedMinors: []string{"3"},
 			},
 			result: requeueAfterInterval,
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
@@ -796,7 +797,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 10,
 				},
-				ClusterVersion: "v18.2.7",
+				ClusterVersion: "v19.2.3",
 				LastRun:        "2021-08-15T14:30:34+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -899,7 +900,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,
 				},
-				ClusterVersion: "v19.2.3",
+				ClusterVersion: "v20.2.0",
 				LastRun:        "2021-08-15T14:30:36+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -1025,7 +1026,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,
 				},
-				ClusterVersion: "v19.2.3",
+				ClusterVersion: "v20.2.0",
 				LastRun:        "2021-08-15T14:30:39+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -1097,7 +1098,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,
 				},
-				ClusterVersion: "v19.2.3",
+				ClusterVersion: "v20.2.0",
 				LastRun:        "2021-08-15T14:30:40+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -1129,7 +1130,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,
 				},
-				ClusterVersion: "v19.2.3",
+				ClusterVersion: "v20.2.0",
 				LastRun:        "2021-08-15T14:30:41+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -1470,7 +1471,7 @@ func TestCleanCephDeployment(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, map[string]string{"DEPLOYMENT_NETPOL_ENABLED": "true"})
-			c.cdConfig.currentCephVersion = lcmcommon.Reef
+			c.cdConfig.currentCephVersion = lcmcommon.LatestRelease
 
 			lcmcommon.RunPodCommandWithValidation = func(e lcmcommon.ExecConfig) (string, string, error) {
 				if strings.HasPrefix(e.Command, "ceph fs subvolumegroup -f json") {
@@ -1544,7 +1545,7 @@ func TestVerifySetup(t *testing.T) {
 				},
 				"pods": unitinputs.ToolBoxPodList,
 			},
-			cephVersion:   lcmcommon.Squid,
+			cephVersion:   lcmcommon.Tentacle,
 			expectedError: "failed to ensure consistent Rook image version: deployment rook-ceph/rook-ceph-operator rook image update is in progress",
 		},
 		{
@@ -1577,7 +1578,7 @@ func TestVerifySetup(t *testing.T) {
 				"daemonsets": &appsv1.DaemonSetList{},
 				"pods":       unitinputs.ToolBoxPodList,
 			},
-			cephVersion:   lcmcommon.Squid,
+			cephVersion:   lcmcommon.Tentacle,
 			expectedError: "failed to ensure consistent Rook image version: failed to get rook-ceph/rook-discover daemonset: daemonsets \"rook-discover\" not found",
 		},
 		{
@@ -1600,7 +1601,7 @@ func TestVerifySetup(t *testing.T) {
 					}(),
 				}},
 			},
-			cephVersion:     lcmcommon.Squid,
+			cephVersion:     lcmcommon.Tentacle,
 			rookOverrideSet: true,
 			expectedError:   "failed to ensure consistent Ceph cluster version: update CephCluster rook-ceph/cephcluster version is in progress",
 		},
@@ -1619,7 +1620,7 @@ func TestVerifySetup(t *testing.T) {
 				"daemonsets": &appsv1.DaemonSetList{Items: []appsv1.DaemonSet{*unitinputs.RookDiscover.DeepCopy()}},
 				"pods":       unitinputs.ToolBoxPodList,
 			},
-			cephVersion:     lcmcommon.Squid,
+			cephVersion:     lcmcommon.Tentacle,
 			rookOverrideSet: true,
 		},
 	}
@@ -2170,7 +2171,7 @@ func TestApplyConfiguration(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.ccsettingsMap)
 
 			if test.cephVersion == nil {
-				c.cdConfig.currentCephVersion = lcmcommon.Reef
+				c.cdConfig.currentCephVersion = lcmcommon.LatestRelease
 			} else {
 				c.cdConfig.currentCephVersion = test.cephVersion
 			}

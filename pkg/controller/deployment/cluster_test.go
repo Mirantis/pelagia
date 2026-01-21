@@ -435,7 +435,7 @@ func TestEnsureCluster(t *testing.T) {
 			name:    "cluster status check is not ready, configmap is updated, cephcluster is not updated",
 			cephDpl: &unitinputs.BaseCephDeployment,
 			inputResources: map[string]runtime.Object{
-				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.ReefCephClusterNotReady}},
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.CephClusterNotReady}},
 				"configmaps":   &v1.ConfigMapList{Items: []v1.ConfigMap{*unitinputs.BaseRookConfigOverride.DeepCopy()}},
 			},
 			expectedError: "failed to ensure cephcluster rook-ceph/cephcluster: ceph cluster rook-ceph/cephcluster is not ready to be updated: cluster healthy = true, cluster state = 'Created', cluster phase = 'Progressing'",
@@ -822,7 +822,7 @@ func TestHealthCluster(t *testing.T) {
 	}{
 		{
 			name:           "verify health cluster - ceph cluster is HEALTH_OK",
-			cephStatus:     unitinputs.ReefCephClusterReady.Status.CephStatus,
+			cephStatus:     unitinputs.CephClusterReady.Status.CephStatus,
 			expectedResult: true,
 		},
 		{
@@ -840,7 +840,7 @@ func TestHealthCluster(t *testing.T) {
 		},
 		{
 			name:           "verify health cluster - ceph cluster is HEALTH_WARN, critical issues",
-			cephStatus:     unitinputs.ReefCephClusterHasHealthIssues.Status.CephStatus,
+			cephStatus:     unitinputs.CephClusterHasHealthIssues.Status.CephStatus,
 			expectedResult: false,
 		},
 		{
@@ -884,7 +884,7 @@ func TestStatusCluster(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
 					func() cephv1.CephCluster {
-						cl := unitinputs.ReefCephClusterReady.DeepCopy()
+						cl := unitinputs.CephClusterReady.DeepCopy()
 						cl.Status.State = cephv1.ClusterStateUpdating
 						return *cl
 					}(),
@@ -895,7 +895,7 @@ func TestStatusCluster(t *testing.T) {
 		{
 			name: "cephcluster status check - failed, phase progressing",
 			inputResources: map[string]runtime.Object{
-				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.ReefCephClusterNotReady}},
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.CephClusterNotReady}},
 			},
 			expectedError: "ceph cluster rook-ceph/cephcluster is not ready to be updated: cluster healthy = true, cluster state = 'Created', cluster phase = 'Progressing'",
 		},
@@ -904,7 +904,7 @@ func TestStatusCluster(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
 					func() cephv1.CephCluster {
-						cl := unitinputs.ReefCephClusterNotReady.DeepCopy()
+						cl := unitinputs.CephClusterNotReady.DeepCopy()
 						cl.Status.State = cephv1.ClusterStateUpdating
 						return *cl
 					}(),
@@ -917,7 +917,7 @@ func TestStatusCluster(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
 					func() cephv1.CephCluster {
-						cl := unitinputs.ReefCephClusterHasHealthIssues.DeepCopy()
+						cl := unitinputs.CephClusterHasHealthIssues.DeepCopy()
 						cl.Status.State = cephv1.ClusterStateUpdating
 						return *cl
 					}(),

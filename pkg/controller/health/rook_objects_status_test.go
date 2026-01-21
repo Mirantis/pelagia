@@ -50,7 +50,7 @@ func TestRookObjectsVerification(t *testing.T) {
 				"cephclusters": &unitinputs.CephClusterListReady,
 			},
 			expectedStatus: &lcmv1alpha1.RookCephObjectsStatus{
-				CephCluster: &unitinputs.ReefCephClusterReady.Status,
+				CephCluster: &unitinputs.CephClusterReady.Status,
 			},
 			expectedIssues: []string{
 				"failed to list cephblockpools in 'rook-ceph' namespace",
@@ -66,7 +66,7 @@ func TestRookObjectsVerification(t *testing.T) {
 			expectedHealthConfig: &healthConfig{
 				name:                 "cephcluster",
 				namespace:            "lcm-namespace",
-				cephCluster:          &unitinputs.ReefCephClusterReady,
+				cephCluster:          &unitinputs.CephClusterReady,
 				sharedFilesystemOpts: basehc.sharedFilesystemOpts,
 			},
 		},
@@ -89,7 +89,7 @@ func TestRookObjectsVerification(t *testing.T) {
 			expectedHealthConfig: &healthConfig{
 				name:                 "cephcluster",
 				namespace:            "lcm-namespace",
-				cephCluster:          &unitinputs.ReefCephClusterReady,
+				cephCluster:          &unitinputs.CephClusterReady,
 				sharedFilesystemOpts: basehc.sharedFilesystemOpts,
 			},
 		},
@@ -130,7 +130,7 @@ func TestRookObjectsVerification(t *testing.T) {
 			expectedHealthConfig: &healthConfig{
 				name:        "cephcluster",
 				namespace:   "lcm-namespace",
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 				rgwOpts: rgwOpts{
 					storeName:         "rgw-store",
 					desiredRgwDaemons: 3,
@@ -164,7 +164,7 @@ func TestRookObjectsVerification(t *testing.T) {
 			expectedHealthConfig: &healthConfig{
 				name:        "cephcluster",
 				namespace:   "lcm-namespace",
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 				rgwOpts: rgwOpts{
 					storeName:         "rgw-store",
 					desiredRgwDaemons: 3,
@@ -246,7 +246,7 @@ func TestСheckCephCluster(t *testing.T) {
 				}(),
 			},
 			expectedStatus: func() *cephv1.ClusterStatus {
-				status := unitinputs.ReefCephClusterHasHealthIssues.DeepCopy().Status
+				status := unitinputs.CephClusterHasHealthIssues.DeepCopy().Status
 				status.CephStatus = nil
 				return &status
 			}(),
@@ -260,7 +260,7 @@ func TestСheckCephCluster(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &unitinputs.CephClusterListHealthIssues,
 			},
-			expectedStatus: &unitinputs.ReefCephClusterHasHealthIssues.Status,
+			expectedStatus: &unitinputs.CephClusterHasHealthIssues.Status,
 			expectedIssues: []string{
 				"cephcluster 'rook-ceph/cephcluster' object state is 'Failure'",
 				"RECENT_MGR_MODULE_CRASH: 2 mgr modules have recently crashed",
@@ -282,7 +282,7 @@ func TestСheckCephCluster(t *testing.T) {
 				}(),
 			},
 			expectedStatus: func() *cephv1.ClusterStatus {
-				status := unitinputs.ReefCephClusterReady.DeepCopy().Status
+				status := unitinputs.CephClusterReady.DeepCopy().Status
 				status.CephStatus.Details = map[string]cephv1.CephHealthMessage{
 					"RECENT_CRASH": {
 						Message:  "4 daemons have recently crashed",
@@ -298,7 +298,7 @@ func TestСheckCephCluster(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &unitinputs.CephClusterListReady,
 			},
-			expectedStatus: &unitinputs.ReefCephClusterReady.Status,
+			expectedStatus: &unitinputs.CephClusterReady.Status,
 			expectedIssues: []string{},
 		},
 	}

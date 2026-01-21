@@ -32,7 +32,7 @@ import (
 )
 
 func TestRunCleanupJob(t *testing.T) {
-	taskConfigForTest := taskConfig{task: unitinputs.CephOsdRemoveTaskProcessing, cephCluster: &unitinputs.ReefCephClusterReady}
+	taskConfigForTest := taskConfig{task: unitinputs.CephOsdRemoveTaskProcessing, cephCluster: &unitinputs.CephClusterReady}
 	tests := []struct {
 		name             string
 		taskConfig       taskConfig
@@ -52,7 +52,7 @@ func TestRunCleanupJob(t *testing.T) {
 		},
 		{
 			name:          "job create - cephcluster has no image",
-			taskConfig:    taskConfig{task: unitinputs.CephOsdRemoveTaskProcessing, cephCluster: &unitinputs.ReefCephClusterNotReady},
+			taskConfig:    taskConfig{task: unitinputs.CephOsdRemoveTaskProcessing, cephCluster: &unitinputs.CephClusterNotReady},
 			expectedError: "failed to determine ceph cluster image, no current used image in status",
 		},
 		{
