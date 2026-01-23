@@ -87,20 +87,20 @@ images:
     operator:
       repository: pelagia/rook
       tag:
-        latest: &latestImageRook v1.18.8-3
+        latest: &latestImageRook v1.18.8-4
         squid: *latestImageRook
         reef: *latestImageRook
   ceph:
     repository: pelagia/ceph
     tag:
-      latest: &latestImageCeph v19.2.3-15.cve
+      latest: &latestImageCeph v19.2.3-17.cve
       squid: *latestImageCeph
       reef: v18.2.7-6.release
   csi:
     ceph:
       repository: pelagia/cephcsi
       tag:
-        latest: &latestImageCephCSI v3.15.0-1.release
+        latest: &latestImageCephCSI v3.15.0-2.cve
         squid: *latestImageCephCSI
         reef: *latestImageCephCSI
     registrar:
