@@ -769,14 +769,16 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 		}
 		return false, err
 	})
-	// Delete openstack secret
-	if c.cdConfig.cephDpl.Spec.ExtraOpts != nil && c.cdConfig.cephDpl.Spec.ExtraOpts.DisableOsKeys {
-		c.log.Warn().Msgf("openstack secret %s/%s ensure disabled, skip deleting. Do not forget to remove it manually",
-			c.lcmConfig.DeployParams.OpenstackCephSharedNamespace, openstackSharedSecret)
-	} else {
-		runRemoveState("openstack shared secret", func() (bool, error) {
-			return c.deleteOpenstackSecret()
-		})
+	if !c.cdConfig.cephDpl.Spec.External {
+		// Delete openstack secret
+		if c.cdConfig.cephDpl.Spec.ExtraOpts != nil && c.cdConfig.cephDpl.Spec.ExtraOpts.DisableOsKeys {
+			c.log.Warn().Msgf("openstack secret %s/%s ensure disabled, skip deleting. Do not forget to remove it manually",
+				c.lcmConfig.DeployParams.OpenstackCephSharedNamespace, openstackSharedSecret)
+		} else {
+			runRemoveState("openstack shared secret", func() (bool, error) {
+				return c.deleteOpenstackSecret()
+			})
+		}
 	}
 	// Delete object storage stuff
 	runRemoveState("object storage", func() (bool, error) {
