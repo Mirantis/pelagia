@@ -59,7 +59,7 @@ var PelagiaConfig = corev1.ConfigMap{
 	},
 	Data: map[string]string{
 		"DEPLOYMENT_CEPH_IMAGE":                      fmt.Sprintf("mirantis.azurecr.io/ceph/ceph:%s", LatestCephVersionImage),
-		"DEPLOYMENT_ROOK_IMAGE":                      "mirantis.azurecr.io/mirantis/rook:v1.17.4-15",
+		"DEPLOYMENT_ROOK_IMAGE":                      "mirantis.azurecr.io/mirantis/rook:v1.18.8",
 		"DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE": "openstack-ceph-shared",
 		"DEPLOYMENT_NETPOL_ENABLED":                  "true",
 		"DEPLOYMENT_LOG_LEVEL":                       "trace",
@@ -74,7 +74,7 @@ var PelagiaConfigForPrevCephVersion = corev1.ConfigMap{
 	Data: map[string]string{
 		"DEPLOYMENT_CEPH_RELEASE":                    PreviousCephVersion,
 		"DEPLOYMENT_CEPH_IMAGE":                      fmt.Sprintf("mirantis.azurecr.io/ceph/ceph:%s", PreviousCephVersionImage),
-		"DEPLOYMENT_ROOK_IMAGE":                      "mirantis.azurecr.io/mirantis/rook:v1.16.7-1",
+		"DEPLOYMENT_ROOK_IMAGE":                      "mirantis.azurecr.io/mirantis/rook:v1.17.4",
 		"DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE": "openstack-ceph-shared",
 		"DEPLOYMENT_NETPOL_ENABLED":                  "true",
 		"DEPLOYMENT_LOG_LEVEL":                       "trace",

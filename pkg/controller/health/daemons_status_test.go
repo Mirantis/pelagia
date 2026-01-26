@@ -33,7 +33,7 @@ import (
 
 func TestDaemonsStatusVerification(t *testing.T) {
 	baseConfig := getEmtpyHealthConfig()
-	baseConfig.cephCluster = &unitinputs.ReefCephClusterReady
+	baseConfig.cephCluster = &unitinputs.CephClusterReady
 	tests := []struct {
 		name           string
 		inputResources map[string]runtime.Object
@@ -118,7 +118,7 @@ func TestDaemonsStatusVerification(t *testing.T) {
 
 func TestGetCephDaemonsStatus(t *testing.T) {
 	baseConfig := getEmtpyHealthConfig()
-	baseConfig.cephCluster = &unitinputs.ReefCephClusterReady
+	baseConfig.cephCluster = &unitinputs.CephClusterReady
 	tests := []struct {
 		name           string
 		cephStatus     string
@@ -150,7 +150,7 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			name: "healthy daemons state, mgr ha, no extra daemons",
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
-				hc.cephCluster = unitinputs.ReefCephClusterReady.DeepCopy()
+				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
 				hc.cephCluster.Spec.Mgr.Count = 2
 				return hc
 			}(),
@@ -172,7 +172,7 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			name: "unhealthy daemons state, no extra daemons",
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
-				hc.cephCluster = &unitinputs.ReefCephClusterNotReady
+				hc.cephCluster = &unitinputs.CephClusterNotReady
 				return hc
 			}(),
 			cephStatus:     unitinputs.CephStatusBaseUnhealthy,
@@ -184,7 +184,7 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			name: "unhealthy daemons state, unexpected base daemons count #1",
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
-				hc.cephCluster = &unitinputs.ReefCephClusterNotReady
+				hc.cephCluster = &unitinputs.CephClusterNotReady
 				return hc
 			}(),
 			cephStatus:  unitinputs.BuildCliOutput(unitinputs.CephStatusTmpl, "status", map[string]string{"quorum_names": `["a", "b"]`, "monmap": `{"num_mons": 2}`}),
@@ -210,7 +210,7 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			name: "unhealthy daemons state, unexpected base daemons count #2",
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
-				hc.cephCluster = unitinputs.ReefCephClusterNotReady.DeepCopy()
+				hc.cephCluster = unitinputs.CephClusterNotReady.DeepCopy()
 				hc.cephCluster.Spec.Mgr.Count = 2
 				return hc
 			}(),
@@ -237,7 +237,7 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			name: "daemons healthy verification, cephfs, rgw daemons",
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
-				hc.cephCluster = unitinputs.ReefCephClusterReady.DeepCopy()
+				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
 				hc.rgwOpts.storeName = "rgw-store"
 				hc.rgwOpts.desiredRgwDaemons = 2
 				hc.sharedFilesystemOpts.mdsDaemonsDesired["cephfs-1"] = map[string]int{"up:active": 1}
@@ -253,7 +253,7 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			name: "daemons unhealthy verification, cephfs, rgw daemons",
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
-				hc.cephCluster = unitinputs.ReefCephClusterNotReady.DeepCopy()
+				hc.cephCluster = unitinputs.CephClusterNotReady.DeepCopy()
 				hc.rgwOpts.storeName = "rgw-store"
 				hc.rgwOpts.desiredRgwDaemons = 2
 				hc.sharedFilesystemOpts.mdsDaemonsDesired["cephfs-1"] = map[string]int{"up:active": 1}
@@ -273,7 +273,7 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			name: "daemons healthy verification, multiple cephfs, rgw daemons",
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
-				hc.cephCluster = unitinputs.ReefCephClusterReady.DeepCopy()
+				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
 				hc.rgwOpts.storeName = "rgw-store"
 				hc.rgwOpts.desiredRgwDaemons = 3
 				hc.sharedFilesystemOpts.mdsDaemonsDesired["cephfs-1"] = map[string]int{"up:active": 1}
@@ -306,7 +306,7 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			name: "daemons unhealthy verification, multiple cephfs, rgw daemons",
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
-				hc.cephCluster = unitinputs.ReefCephClusterReady.DeepCopy()
+				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
 				hc.rgwOpts.storeName = "rgw-store"
 				hc.rgwOpts.desiredRgwDaemons = 3
 				hc.sharedFilesystemOpts.mdsDaemonsDesired["cephfs-1"] = map[string]int{"up:active": 1}

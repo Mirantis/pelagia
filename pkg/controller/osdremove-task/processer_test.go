@@ -38,7 +38,7 @@ import (
 func TestHandleTask(t *testing.T) {
 	validationConfig := taskConfig{
 		task:                  unitinputs.CephOsdRemoveTaskOnValidation.DeepCopy(),
-		cephCluster:           &unitinputs.ReefCephClusterReady,
+		cephCluster:           &unitinputs.CephClusterReady,
 		cephHealthOsdAnalysis: unitinputs.OsdSpecAnalysisOk,
 	}
 	nodesListLabeledAvailable := unitinputs.GetNodesList(
@@ -62,7 +62,7 @@ func TestHandleTask(t *testing.T) {
 					task.Status.Conditions = nil
 					return task
 				}(),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			expectedStatus: &lcmv1alpha1.CephOsdRemoveTaskStatus{
 				Phase:     lcmv1alpha1.TaskPhaseAborted,
@@ -83,7 +83,7 @@ func TestHandleTask(t *testing.T) {
 			name: "move task to validating state",
 			taskConfig: taskConfig{
 				task:        unitinputs.CephOsdRemoveTaskFullInited.DeepCopy(),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			requeueNow:     true,
 			expectedStatus: unitinputs.CephOsdRemoveTaskOnValidation.Status,
@@ -115,7 +115,7 @@ func TestHandleTask(t *testing.T) {
 			name: "task validation postponed, waiting for spec analyse",
 			taskConfig: taskConfig{
 				task:                  unitinputs.CephOsdRemoveTaskOnValidation.DeepCopy(),
-				cephCluster:           &unitinputs.ReefCephClusterReady,
+				cephCluster:           &unitinputs.CephClusterReady,
 				cephHealthOsdAnalysis: &lcmv1alpha1.OsdSpecAnalysisState{CephClusterSpecGeneration: &[]int64{3}[0]},
 			},
 			expectedStatus: unitinputs.CephOsdRemoveTaskOnValidation.Status,
@@ -172,7 +172,7 @@ func TestHandleTask(t *testing.T) {
 					removeTask.Spec = &lcmv1alpha1.CephOsdRemoveTaskSpec{Approve: true}
 					return removeTask
 				}(),
-				cephCluster:           &unitinputs.ReefCephClusterReady,
+				cephCluster:           &unitinputs.CephClusterReady,
 				cephHealthOsdAnalysis: unitinputs.OsdSpecAnalysisOk,
 			},
 			cmdOutputs: map[string]string{
@@ -206,7 +206,7 @@ func TestHandleTask(t *testing.T) {
 			name: "task waiting for approve",
 			taskConfig: taskConfig{
 				task:                  unitinputs.CephOsdRemoveTaskOnApproveWaiting.DeepCopy(),
-				cephCluster:           &unitinputs.ReefCephClusterReady,
+				cephCluster:           &unitinputs.CephClusterReady,
 				cephHealthOsdAnalysis: unitinputs.OsdSpecAnalysisOk,
 			},
 			expectedStatus: unitinputs.CephOsdRemoveTaskOnApproveWaiting.Status,
@@ -224,7 +224,7 @@ func TestHandleTask(t *testing.T) {
 					return taskNew
 				}(),
 				cephCluster: func() *cephv1.CephCluster {
-					cluster := unitinputs.ReefCephClusterReady.DeepCopy()
+					cluster := unitinputs.CephClusterReady.DeepCopy()
 					cluster.Generation = 10
 					return cluster
 				}(),
@@ -258,7 +258,7 @@ func TestHandleTask(t *testing.T) {
 					taskNew.Spec = &lcmv1alpha1.CephOsdRemoveTaskSpec{Approve: true}
 					return taskNew
 				}(),
-				cephCluster:           &unitinputs.ReefCephClusterReady,
+				cephCluster:           &unitinputs.CephClusterReady,
 				cephHealthOsdAnalysis: unitinputs.OsdSpecAnalysisOk,
 			},
 			expectedStatus: unitinputs.CephOsdRemoveTaskOnApproved.Status,
@@ -277,7 +277,7 @@ func TestHandleTask(t *testing.T) {
 					return taskNew
 				}(),
 				cephCluster: func() *cephv1.CephCluster {
-					cluster := unitinputs.ReefCephClusterReady.DeepCopy()
+					cluster := unitinputs.CephClusterReady.DeepCopy()
 					cluster.Generation = 10
 					return cluster
 				}(),
@@ -306,7 +306,7 @@ func TestHandleTask(t *testing.T) {
 			name: "waiting rook operator stooped before processing",
 			taskConfig: taskConfig{
 				task:                  unitinputs.CephOsdRemoveTaskOnApproved.DeepCopy(),
-				cephCluster:           &unitinputs.ReefCephClusterReady,
+				cephCluster:           &unitinputs.CephClusterReady,
 				cephHealthOsdAnalysis: unitinputs.OsdSpecAnalysisOk,
 			},
 			deploymentList: unitinputs.DeploymentList,
@@ -316,7 +316,7 @@ func TestHandleTask(t *testing.T) {
 			name: "move task to processing state failed",
 			taskConfig: taskConfig{
 				task:                  unitinputs.CephOsdRemoveTaskOnApproved.DeepCopy(),
-				cephCluster:           &unitinputs.ReefCephClusterReady,
+				cephCluster:           &unitinputs.CephClusterReady,
 				cephHealthOsdAnalysis: unitinputs.OsdSpecAnalysisOk,
 			},
 			deploymentList: &appsv1.DeploymentList{},
@@ -326,7 +326,7 @@ func TestHandleTask(t *testing.T) {
 			name: "move task to processing state",
 			taskConfig: taskConfig{
 				task:                  unitinputs.CephOsdRemoveTaskOnApproved.DeepCopy(),
-				cephCluster:           &unitinputs.ReefCephClusterReady,
+				cephCluster:           &unitinputs.CephClusterReady,
 				cephHealthOsdAnalysis: unitinputs.OsdSpecAnalysisOk,
 			},
 			deploymentList: &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.RookDeploymentNotScaled}},
@@ -345,7 +345,7 @@ func TestHandleTask(t *testing.T) {
 					)
 					return newTask
 				}(),
-				cephCluster:           &unitinputs.ReefCephClusterReady,
+				cephCluster:           &unitinputs.CephClusterReady,
 				cephHealthOsdAnalysis: unitinputs.OsdSpecAnalysisOk,
 			},
 			expectedStatus: func() *lcmv1alpha1.CephOsdRemoveTaskStatus {
@@ -374,7 +374,7 @@ func TestHandleTask(t *testing.T) {
 			name: "waiting task finished",
 			taskConfig: taskConfig{
 				task:                  unitinputs.CephOsdRemoveTaskProcessing.DeepCopy(),
-				cephCluster:           &unitinputs.ReefCephClusterReady,
+				cephCluster:           &unitinputs.CephClusterReady,
 				cephHealthOsdAnalysis: unitinputs.OsdSpecAnalysisOk,
 			},
 			cmdOutputs: map[string]string{
@@ -408,7 +408,7 @@ func TestHandleTask(t *testing.T) {
 						})
 					return newTask
 				}(),
-				cephCluster:           &unitinputs.ReefCephClusterReady,
+				cephCluster:           &unitinputs.CephClusterReady,
 				cephHealthOsdAnalysis: unitinputs.OsdSpecAnalysisOk,
 			},
 			expectedStatus: unitinputs.CephOsdRemoveTaskCompletedWithWarnings.Status,
@@ -423,7 +423,7 @@ func TestHandleTask(t *testing.T) {
 					newTask.Status.RemoveInfo.Warnings = nil
 					return newTask
 				}(),
-				cephCluster:           &unitinputs.ReefCephClusterReady,
+				cephCluster:           &unitinputs.CephClusterReady,
 				cephHealthOsdAnalysis: unitinputs.OsdSpecAnalysisOk,
 			},
 			expectedStatus: unitinputs.CephOsdRemoveTaskCompleted.Status,
@@ -433,7 +433,7 @@ func TestHandleTask(t *testing.T) {
 			name: "cephdeployment present, task validation postponed, waiting for cephdeployment hold",
 			taskConfig: taskConfig{
 				task:                  unitinputs.CephOsdRemoveTaskOnValidation.DeepCopy(),
-				cephCluster:           &unitinputs.ReefCephClusterReady,
+				cephCluster:           &unitinputs.CephClusterReady,
 				cephHealthOsdAnalysis: &lcmv1alpha1.OsdSpecAnalysisState{CephClusterSpecGeneration: &[]int64{3}[0]},
 				cephDeploymentPhase:   &unitinputs.BaseCephDeployment.Status.Phase,
 			},
@@ -443,7 +443,7 @@ func TestHandleTask(t *testing.T) {
 			name: "cephdeployment present, task validation ok",
 			taskConfig: taskConfig{
 				task:                  unitinputs.CephOsdRemoveTaskOnValidation.DeepCopy(),
-				cephCluster:           &unitinputs.ReefCephClusterReady,
+				cephCluster:           &unitinputs.CephClusterReady,
 				cephHealthOsdAnalysis: unitinputs.OsdSpecAnalysisOk,
 				cephDeploymentPhase: func() *lcmv1alpha1.CephDeploymentPhase {
 					phase := lcmv1alpha1.PhaseOnHold
@@ -517,7 +517,7 @@ func TestHandleTask(t *testing.T) {
 func TestValidateRequest(t *testing.T) {
 	baseTaskConfig := taskConfig{
 		task:        unitinputs.CephOsdRemoveTaskOnValidation,
-		cephCluster: &unitinputs.ReefCephClusterReady,
+		cephCluster: &unitinputs.CephClusterReady,
 		cephHealthOsdAnalysis: &lcmv1alpha1.OsdSpecAnalysisState{
 			SpecAnalysis: unitinputs.OsdStorageSpecAnalysisOk,
 		},
@@ -693,7 +693,7 @@ func TestProcessRequest(t *testing.T) {
 			name: "empty status in request",
 			taskConfig: taskConfig{
 				task:        unitinputs.CephOsdRemoveTaskOnValidation,
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			finished:           true,
 			expectedRemoveInfo: &lcmv1alpha1.TaskRemoveInfo{Issues: []string{"empty remove info, aborting"}},
@@ -702,7 +702,7 @@ func TestProcessRequest(t *testing.T) {
 			name: "processing is not finished",
 			taskConfig: taskConfig{
 				task:        unitinputs.GetTaskForRemove(unitinputs.CephOsdRemoveTaskProcessing, unitinputs.NodesRemoveMapOsdFinishedStatus.DeepCopy()),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			expectedRemoveInfo: removeInfoFinished,
 		},
@@ -710,7 +710,7 @@ func TestProcessRequest(t *testing.T) {
 			name: "processing is finished",
 			taskConfig: taskConfig{
 				task:        unitinputs.GetTaskForRemove(unitinputs.CephOsdRemoveTaskProcessing, removeInfoFinished.DeepCopy()),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			finished:           true,
 			expectedRemoveInfo: removeInfoFinished,

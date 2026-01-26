@@ -30,9 +30,9 @@ storage-backend: ceph
 {{- end -}}
 
 {{- define "get.image" -}}
-  {{- if or (eq .release "reef") (eq .release "squid") -}}
-    {{- if (eq .release "reef") -}}
-      {{- printf "%s:%s" .values.repository .values.tag.reef -}}
+  {{- if or (eq .release "tentacle") (eq .release "squid") -}}
+    {{- if (eq .release "tentacle") -}}
+      {{- printf "%s:%s" .values.repository .values.tag.tentacle -}}
     {{- else if (eq .release "squid") -}}
       {{- printf "%s:%s" .values.repository .values.tag.squid -}}
     {{- end -}}

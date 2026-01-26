@@ -118,7 +118,7 @@ var osdClusterDetails = map[string]nodeDetails{
 
 func TestGetDeviceMappings(t *testing.T) {
 	baseConfig := getEmtpyHealthConfig()
-	baseConfig.cephCluster = &unitinputs.ReefCephClusterReady
+	baseConfig.cephCluster = &unitinputs.CephClusterReady
 	tests := []struct {
 		name              string
 		cephOsdMetaOutput string
@@ -195,7 +195,7 @@ func TestGetSpecAnalysisStatus(t *testing.T) {
 	nodesList := unitinputs.GetNodesList(
 		[]unitinputs.NodeAttrs{{Name: "node-1", Labeled: true}, {Name: "node-2", Labeled: true}})
 	baseConfig := getEmtpyHealthConfig()
-	baseConfig.cephCluster = &unitinputs.ReefCephClusterReady
+	baseConfig.cephCluster = &unitinputs.CephClusterReady
 	tests := []struct {
 		name           string
 		inputResources map[string]runtime.Object
@@ -308,7 +308,7 @@ func TestGetSpecAnalysisStatus(t *testing.T) {
 			},
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
-				hc.cephCluster = unitinputs.ReefCephClusterReady.DeepCopy()
+				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
 				hc.cephCluster.Spec.Storage.Nodes = nil
 				return hc
 			}(),
@@ -461,7 +461,7 @@ func TestThreadsForPrepareSpecAnalysis(t *testing.T) {
 	oldCmdFunc := lcmcommon.RunPodCommandWithValidation
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			cephCluster := unitinputs.ReefCephClusterReady.DeepCopy()
+			cephCluster := unitinputs.CephClusterReady.DeepCopy()
 			cephCluster.Spec.Storage.Nodes = test.nodes
 			baseConfig := getEmtpyHealthConfig()
 			baseConfig.cephCluster = cephCluster
@@ -510,7 +510,7 @@ func TestPrepareSpecAnalysis(t *testing.T) {
 	}{
 		{
 			name:        "can't parse disk daemon daemonset report",
-			cephCluster: &unitinputs.ReefCephClusterReady,
+			cephCluster: &unitinputs.CephClusterReady,
 			daemonReport: map[string]string{
 				"node-1": "{||}",
 				"node-2": "{||}",
@@ -524,7 +524,7 @@ func TestPrepareSpecAnalysis(t *testing.T) {
 		{
 			name: "disk daemon daemonset report contains issues for some nodes",
 			cephCluster: func() *cephv1.CephCluster {
-				cluster := unitinputs.ReefCephClusterReady.DeepCopy()
+				cluster := unitinputs.CephClusterReady.DeepCopy()
 				cluster.Spec.Storage.Nodes[1] = unitinputs.StorageNodesForAnalysisNotAllSpecified[1]
 				return cluster
 			}(),
@@ -557,7 +557,7 @@ func TestPrepareSpecAnalysis(t *testing.T) {
 		},
 		{
 			name:        "disk daemon daemonset report contains no issues found",
-			cephCluster: &unitinputs.ReefCephClusterReady,
+			cephCluster: &unitinputs.CephClusterReady,
 			daemonReport: map[string]string{
 				"node-1": unitinputs.CephDiskDaemonDiskReportStringNode1,
 				"node-2": unitinputs.CephDiskDaemonDiskReportStringNode2,

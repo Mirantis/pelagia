@@ -402,7 +402,7 @@ func TestGetRgwInfo(t *testing.T) {
 			name: "cephobjectstore local, failed to check ingresses and zones",
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
-				hc.cephCluster = unitinputs.ReefCephClusterReady.DeepCopy()
+				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
 				hc.rgwOpts.storeName = "rgw-store"
 				hc.rgwOpts.desiredRgwDaemons = 2
 				return hc
@@ -419,7 +419,7 @@ func TestGetRgwInfo(t *testing.T) {
 			},
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
-				hc.cephCluster = unitinputs.ReefCephClusterReady.DeepCopy()
+				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
 				hc.rgwOpts.storeName = "rgw-store"
 				hc.rgwOpts.desiredRgwDaemons = 2
 				return hc
@@ -437,7 +437,7 @@ func TestGetRgwInfo(t *testing.T) {
 			},
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
-				hc.cephCluster = unitinputs.ReefCephClusterReady.DeepCopy()
+				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
 				hc.rgwOpts.storeName = "rgw-store"
 				hc.rgwOpts.desiredRgwDaemons = 2
 				hc.rgwOpts.multisite = true
@@ -457,7 +457,7 @@ func TestGetRgwInfo(t *testing.T) {
 			},
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
-				hc.cephCluster = unitinputs.ReefCephClusterReady.DeepCopy()
+				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
 				hc.rgwOpts.storeName = "rgw-store"
 				hc.rgwOpts.desiredRgwDaemons = 2
 				hc.rgwOpts.multisite = true

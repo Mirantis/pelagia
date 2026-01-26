@@ -33,7 +33,7 @@ import (
 func TestEnsureDiskDaemon(t *testing.T) {
 	config := infraConfig{
 		namespace:       unitinputs.LcmObjectMeta.Namespace,
-		cephImage:       unitinputs.ReefCephClusterReady.Status.CephVersion.Image,
+		cephImage:       unitinputs.CephClusterReady.Status.CephVersion.Image,
 		controllerImage: "some-registry/lcm-controller:v1",
 	}
 	tests := []struct {
@@ -207,7 +207,7 @@ func TestGenerateDiskDaemon(t *testing.T) {
 			name: "generate daemonset",
 			infraConfig: infraConfig{
 				namespace:       "lcm-namespace",
-				cephImage:       unitinputs.ReefCephClusterReady.Status.CephVersion.Image,
+				cephImage:       unitinputs.CephClusterReady.Status.CephVersion.Image,
 				controllerImage: "some-registry/lcm-controller:v1",
 			},
 			expectedDaemonSet: &unitinputs.DiskDaemonDaemonset,
@@ -216,7 +216,7 @@ func TestGenerateDiskDaemon(t *testing.T) {
 			name: "generate daemonset with osd tolerations",
 			infraConfig: infraConfig{
 				namespace:       "lcm-namespace",
-				cephImage:       unitinputs.ReefCephClusterReady.Status.CephVersion.Image,
+				cephImage:       unitinputs.CephClusterReady.Status.CephVersion.Image,
 				controllerImage: "some-registry/lcm-controller:v1",
 				osdPlacement: cephv1.Placement{
 					Tolerations: []corev1.Toleration{

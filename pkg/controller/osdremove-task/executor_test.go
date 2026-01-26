@@ -53,7 +53,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 			name: "processing - osds are not ready to move to rebalancing",
 			taskConfig: taskConfig{
 				task:        unitinputs.GetTaskForRemove(unitinputs.CephOsdRemoveTaskOnValidation, unitinputs.FullNodesRemoveMap.DeepCopy()),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			cephCliOutput: map[string]string{
 				"ceph osd info 0 --format json":  `{"osd":0, "up":1, "in":1}`,
@@ -75,7 +75,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 			name: "processing - osd 25 moved to rebalancing",
 			taskConfig: taskConfig{
 				task:        unitinputs.GetTaskForRemove(unitinputs.CephOsdRemoveTaskOnValidation, unitinputs.FullNodesRemoveMap.DeepCopy()),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			cephCliOutput: map[string]string{
 				"ceph osd info 0 --format json":      `{"osd":0, "up":1, "in":1}`,
@@ -99,7 +99,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 			name: "processing - osd 25 is rebalancing",
 			taskConfig: taskConfig{
 				task:        unitinputs.GetTaskForRemove(unitinputs.CephOsdRemoveTaskOnValidation, infoWithRebalancingOsd),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			cephCliOutput: map[string]string{
 				"ceph pg ls-by-osd 25 --format json": `{"pg_stats": [ {"key": "value"} ]}`,
@@ -110,7 +110,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 			name: "processing - osd 25 rebalance is finished",
 			taskConfig: taskConfig{
 				task:        unitinputs.GetTaskForRemove(unitinputs.CephOsdRemoveTaskOnValidation, infoWithRebalancingOsd),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			cephCliOutput: map[string]string{
 				"ceph pg ls-by-osd 25 --format json": `{"pg_stats": []}`,
@@ -130,7 +130,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 					info.CleanupMap["node-1"].OsdMapping["25"].RemoveStatus.OsdRemoveStatus.Status = lcmv1alpha1.RemoveInProgress
 					return info
 				}()),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			cephCliOutput: map[string]string{
 				"ceph osd info 0 --format json":                    `{"osd":0, "up":1, "in":1}`,
@@ -171,7 +171,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 					info.CleanupMap["node-2"] = host2
 					return info
 				}()),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			cephCliOutput: map[string]string{
 				"ceph osd info 4 --format json":  `{"osd":4, "up":1, "in":1}`,
@@ -219,7 +219,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 					info.CleanupMap["node-1"].OsdMapping["25"].RemoveStatus.OsdRemoveStatus.Error = "timeouted"
 					return info
 				}()),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			cephCliOutput: map[string]string{},
 			expectedRemoveMap: func() *lcmv1alpha1.TaskRemoveInfo {
@@ -250,7 +250,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 					info.CleanupMap["node-2"].OsdMapping["0"].RemoveStatus.OsdRemoveStatus.Status = lcmv1alpha1.RemoveFinished
 					return info
 				}()),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			cephCliOutput: map[string]string{
 				"ceph osd purge 20 --force --yes-i-really-mean-it": "",
@@ -300,7 +300,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 					}
 					return info
 				}()),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			cephCliOutput: map[string]string{
 				"ceph osd info 0 --format json":  `{"osd":0, "up":1, "in":1}`,
@@ -354,7 +354,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 					}
 					return info
 				}()),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			cephCliOutput: map[string]string{
 				"ceph osd info 0 --format json":     `{"osd":0, "up":1, "in":1}`,
@@ -397,7 +397,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 			name: "processing - remove stray osds with partitions",
 			taskConfig: taskConfig{
 				task:        unitinputs.GetTaskForRemove(unitinputs.CephOsdRemoveTaskOnValidation, unitinputs.StrayOnNodeAndInCrushRemoveMap.DeepCopy()),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			cephCliOutput: map[string]string{
 				"ceph osd ls": "0\n9\n",
@@ -432,7 +432,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 						},
 					},
 				)),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			expectedRemoveMap: unitinputs.GetInfoWithStatus(unitinputs.StrayOnlyInCrushRemoveMap,
 				map[string]*lcmv1alpha1.RemoveResult{
@@ -477,7 +477,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 						},
 					},
 				)),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			batchJob: unitinputs.GetCleanupJobOnlyStatus("device-cleanup-job-node-2-2", "lcm-namespace", 0, 0, 1),
 			expectedRemoveMap: unitinputs.GetInfoWithStatus(unitinputs.StrayOnNodeAndInCrushRemoveMap,
@@ -514,7 +514,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 			taskConfig: taskConfig{
 				task: unitinputs.GetTaskForRemove(unitinputs.CephOsdRemoveTaskOnValidation,
 					&lcmv1alpha1.TaskRemoveInfo{CleanupMap: map[string]lcmv1alpha1.HostMapping{"node-1": {DropFromCrush: true}}}),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			cephCliOutput: map[string]string{
 				"ceph osd crush remove node-1": "",
@@ -554,7 +554,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 								},
 							},
 						}}),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			cephCliOutput: map[string]string{
 				"ceph osd crush remove node-1": "",
@@ -616,7 +616,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 								},
 							},
 						}}),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			expectedRemoveMap: &lcmv1alpha1.TaskRemoveInfo{
 				Issues: []string{
@@ -659,7 +659,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 					map[string]*lcmv1alpha1.RemoveResult{
 						"*": {OsdRemoveStatus: &lcmv1alpha1.RemoveStatus{Status: lcmv1alpha1.RemoveFinished}},
 					})),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			expectedRemoveMap: unitinputs.GetInfoWithStatus(unitinputs.SkipCleanupJobRemoveMap.DeepCopy(),
 				map[string]*lcmv1alpha1.RemoveResult{
@@ -699,7 +699,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 					)
 					return info
 				}()),
-				cephCluster: &unitinputs.ReefCephClusterReady,
+				cephCluster: &unitinputs.CephClusterReady,
 			},
 			cephCliOutput: map[string]string{
 				"ceph osd info 4 --format json":  `{"osd":4, "up":1, "in":1}`,
@@ -772,7 +772,7 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 }
 
 func TestRemoveStray(t *testing.T) {
-	taskConfigForTest := taskConfig{task: unitinputs.CephOsdRemoveTaskProcessing, cephCluster: &unitinputs.ReefCephClusterReady}
+	taskConfigForTest := taskConfig{task: unitinputs.CephOsdRemoveTaskProcessing, cephCluster: &unitinputs.CephClusterReady}
 	var1 := int32(1)
 	var0 := int32(0)
 	osdDeploy := unitinputs.GetDeployment("rook-ceph-osd-0", "rook-ceph", map[string]string{"app": "rook-ceph-osd"}, &var1)
@@ -899,7 +899,7 @@ func TestRemoveStray(t *testing.T) {
 }
 
 func TestRemoveFromCrush(t *testing.T) {
-	taskConfigForTest := taskConfig{task: unitinputs.CephOsdRemoveTaskProcessing, cephCluster: &unitinputs.ReefCephClusterReady}
+	taskConfigForTest := taskConfig{task: unitinputs.CephOsdRemoveTaskProcessing, cephCluster: &unitinputs.CephClusterReady}
 	var1 := int32(1)
 	var0 := int32(0)
 	osdDeploy := unitinputs.GetDeployment("rook-ceph-osd-5", "rook-ceph", map[string]string{"app": "rook-ceph-osd"}, &var1)
@@ -1009,7 +1009,7 @@ func TestRemoveFromCrush(t *testing.T) {
 }
 
 func TestCheckRebalance(t *testing.T) {
-	taskConfigForTest := taskConfig{task: unitinputs.CephOsdRemoveTaskProcessing, cephCluster: &unitinputs.ReefCephClusterReady}
+	taskConfigForTest := taskConfig{task: unitinputs.CephOsdRemoveTaskProcessing, cephCluster: &unitinputs.CephClusterReady}
 	rebalanceStatusNoTimestamp := &lcmv1alpha1.RemoveStatus{Status: lcmv1alpha1.RemoveWaitingRebalance}
 	rebalanceStatus := &lcmv1alpha1.RemoveStatus{
 		Status:    lcmv1alpha1.RemoveWaitingRebalance,
@@ -1090,7 +1090,7 @@ func TestCheckRebalance(t *testing.T) {
 }
 
 func TestTryMoveOsdOut(t *testing.T) {
-	taskConfigForTest := taskConfig{task: unitinputs.CephOsdRemoveTaskProcessing, cephCluster: &unitinputs.ReefCephClusterReady}
+	taskConfigForTest := taskConfig{task: unitinputs.CephOsdRemoveTaskProcessing, cephCluster: &unitinputs.CephClusterReady}
 
 	tests := []struct {
 		name           string
@@ -1293,7 +1293,7 @@ func TestGetJobData(t *testing.T) {
 }
 
 func TestHandleJobRun(t *testing.T) {
-	taskConfigForTest := taskConfig{task: unitinputs.CephOsdRemoveTaskProcessing, cephCluster: &unitinputs.ReefCephClusterReady}
+	taskConfigForTest := taskConfig{task: unitinputs.CephOsdRemoveTaskProcessing, cephCluster: &unitinputs.CephClusterReady}
 	statusForCreatedJob := unitinputs.GetInfoWithStatus(
 		unitinputs.FullNodesRemoveMap, map[string]*lcmv1alpha1.RemoveResult{"4": {
 			DeviceCleanUpJob: &lcmv1alpha1.RemoveStatus{

@@ -138,7 +138,7 @@ var DiskDaemonDaemonset = appsv1.DaemonSet{
 				Containers: []corev1.Container{
 					{
 						Name:  "pelagia-disk-daemon",
-						Image: "some-registry.com/ceph:v18.2.4",
+						Image: cephClusterImage,
 						Command: []string{
 							"/usr/local/bin/tini", "--",
 						},

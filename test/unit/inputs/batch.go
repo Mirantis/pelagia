@@ -86,7 +86,7 @@ func GetCleanupJob(host, osd, longName string, devices map[string]string) *batch
 							script := devices[dev]
 							container := corev1.Container{
 								Name:  fmt.Sprintf("cleanup-run-%d", idx),
-								Image: "some-registry.com/ceph:v18.2.4",
+								Image: cephClusterImage,
 								SecurityContext: &corev1.SecurityContext{
 									Capabilities: &corev1.Capabilities{
 										Drop: []corev1.Capability{"NET_RAW"},

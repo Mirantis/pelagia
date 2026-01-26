@@ -26,10 +26,13 @@ import (
 
 var CephClusterListEmpty = cephv1.CephClusterList{Items: []cephv1.CephCluster{}}
 var CephClusterListNotSupported = cephv1.CephClusterList{Items: []cephv1.CephCluster{OctopusCephCluster}}
-var CephClusterListReady = cephv1.CephClusterList{Items: []cephv1.CephCluster{ReefCephClusterReady}}
-var CephClusterListNotReady = cephv1.CephClusterList{Items: []cephv1.CephCluster{ReefCephClusterNotReady}}
-var CephClusterListHealthIssues = cephv1.CephClusterList{Items: []cephv1.CephCluster{ReefCephClusterHasHealthIssues}}
+var CephClusterListReady = cephv1.CephClusterList{Items: []cephv1.CephCluster{CephClusterReady}}
+var CephClusterListNotReady = cephv1.CephClusterList{Items: []cephv1.CephCluster{CephClusterNotReady}}
+var CephClusterListHealthIssues = cephv1.CephClusterList{Items: []cephv1.CephCluster{CephClusterHasHealthIssues}}
 var CephClusterListExternal = cephv1.CephClusterList{Items: []cephv1.CephCluster{CephClusterExternal}}
+
+var cephClusterVersion = "20.2.0-0"
+var cephClusterImage = "some-registry.com/ceph:v20.2.0"
 
 func BuildBaseCephCluster(name, namespace string) cephv1.CephCluster {
 	cephcluster := cephv1.CephCluster{
@@ -66,9 +69,9 @@ var OctopusCephCluster = func() cephv1.CephCluster {
 	return newcluster
 }()
 
-var ReefCephClusterReady = func() cephv1.CephCluster {
+var CephClusterReady = func() cephv1.CephCluster {
 	newcluster := BuildBaseCephCluster(LcmObjectMeta.Name, RookNamespace)
-	newcluster.Spec.CephVersion.Image = "some-registry.com/ceph:v18.2.4"
+	newcluster.Spec.CephVersion.Image = cephClusterImage
 	newcluster.Status = cephv1.ClusterStatus{
 		Phase: cephv1.ConditionReady,
 		State: cephv1.ClusterStateCreated,
@@ -78,24 +81,24 @@ var ReefCephClusterReady = func() cephv1.CephCluster {
 			LastChecked: time.Now().Format(time.RFC3339),
 		},
 		CephVersion: &cephv1.ClusterVersion{
-			Image:   "some-registry.com/ceph:v18.2.4",
-			Version: "18.2.4-0",
+			Image:   cephClusterImage,
+			Version: cephClusterVersion,
 		},
 	}
 	return newcluster
 }()
 
-var ReefCephClusterNotReady = func() cephv1.CephCluster {
+var CephClusterNotReady = func() cephv1.CephCluster {
 	newcluster := BuildBaseCephCluster(LcmObjectMeta.Name, RookNamespace)
 	newcluster.Status = cephv1.ClusterStatus{
 		Phase:      cephv1.ConditionProgressing,
 		State:      cephv1.ClusterStateCreated,
-		CephStatus: ReefCephClusterReady.Status.CephStatus,
+		CephStatus: CephClusterReady.Status.CephStatus,
 	}
 	return newcluster
 }()
 
-var ReefCephClusterHasHealthIssues = func() cephv1.CephCluster {
+var CephClusterHasHealthIssues = func() cephv1.CephCluster {
 	newcluster := BuildBaseCephCluster(LcmObjectMeta.Name, RookNamespace)
 	newcluster.Spec.Storage.Nodes = StorageNodesForAnalysisNotAllSpecified
 	newcluster.Status = cephv1.ClusterStatus{
@@ -111,8 +114,8 @@ var ReefCephClusterHasHealthIssues = func() cephv1.CephCluster {
 			},
 		},
 		CephVersion: &cephv1.ClusterVersion{
-			Image:   "some-registry.com/ceph:v18.2.4",
-			Version: "18.2.4-0",
+			Image:   cephClusterImage,
+			Version: cephClusterVersion,
 		},
 	}
 	return newcluster
@@ -138,8 +141,8 @@ var CephClusterExternal = cephv1.CephCluster{
 			LastChecked: time.Now().Format(time.RFC3339),
 		},
 		CephVersion: &cephv1.ClusterVersion{
-			Image:   "some-registry.com/ceph:v18.2.4",
-			Version: "18.2.4-0",
+			Image:   cephClusterImage,
+			Version: cephClusterVersion,
 		},
 	},
 }

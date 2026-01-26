@@ -74,7 +74,7 @@ controllers:
         leaderElectionID: pelagia-osdremove-task-controller-leader-election
     replicas: 3
 
-# cephRelease is ceph version name, i.e. reef, squid etc. Empty means latest supported.
+# cephRelease is ceph version name, i.e. tentacle, squid etc. Empty means latest supported.
 cephRelease: ""
 images:
   pelagia:
@@ -89,50 +89,50 @@ images:
       tag:
         latest: &latestImageRook v1.18.8-4
         squid: *latestImageRook
-        reef: *latestImageRook
+        tentacle: *latestImageRook
   ceph:
     repository: pelagia/ceph
     tag:
-      latest: &latestImageCeph v19.2.3-17.cve
-      squid: *latestImageCeph
-      reef: v18.2.7-6.release
+      latest: &latestImageCeph v20.2.0-1.release
+      squid: v19.2.3-17.cve
+      tentacle: *latestImageCeph
   csi:
     ceph:
       repository: pelagia/cephcsi
       tag:
         latest: &latestImageCephCSI v3.15.0-2.cve
         squid: *latestImageCephCSI
-        reef: *latestImageCephCSI
+        tentacle: *latestImageCephCSI
     registrar:
       repository: pelagia/cephcsi-registrar
       tag:
         latest: &latestImageRegistar v2.13.0-10.cve
         squid: *latestImageRegistar
-        reef: *latestImageRegistar
+        tentacle: *latestImageRegistar
     provisioner:
       repository: pelagia/cephcsi-provisioner
       tag:
         latest: &latestImageProvisioner v5.2.0-10.cve
         squid: *latestImageProvisioner
-        reef: *latestImageProvisioner
+        tentacle: *latestImageProvisioner
     snapshotter:
       repository: pelagia/cephcsi-snapshotter
       tag:
         latest: &latestImageSnapshotter v8.2.1-1.release
         squid: *latestImageSnapshotter
-        reef: *latestImageSnapshotter
+        tentacle: *latestImageSnapshotter
     attacher:
       repository: pelagia/cephcsi-attacher
       tag:
         latest: &latestImageAttacher v4.8.1-1.release
         squid: *latestImageAttacher
-        reef: *latestImageAttacher
+        tentacle: *latestImageAttacher
     resizer:
       repository: pelagia/cephcsi-resizer
       tag:
         latest: &latestImageResizer v1.13.2-10.cve
         squid: *latestImageResizer
-        reef: *latestImageResizer
+        tentacle: *latestImageResizer
 rookConfig:
   configureRook: true
   rookNamespace: rook-ceph

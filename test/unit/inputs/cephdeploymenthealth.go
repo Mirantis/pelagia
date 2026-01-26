@@ -96,7 +96,7 @@ var CephBaseClusterReportNotOk = &lcmv1alpha1.CephDeploymentHealthReport{
 	RookOperator: RookOperatorStatusOk,
 	RookCephObjects: func() *lcmv1alpha1.RookCephObjectsStatus {
 		status := RookCephObjectsReportOnlyCephCluster.DeepCopy()
-		status.CephCluster = &ReefCephClusterHasHealthIssues.Status
+		status.CephCluster = &CephClusterHasHealthIssues.Status
 		return status
 	}(),
 	CephDaemons:    CephDaemonsStatusUnhealthy,
@@ -152,11 +152,11 @@ var RookOperatorStatusFailed = lcmv1alpha1.DaemonStatus{
 }
 
 var RookCephObjectsReportOnlyCephCluster = &lcmv1alpha1.RookCephObjectsStatus{
-	CephCluster: &ReefCephClusterReady.Status,
+	CephCluster: &CephClusterReady.Status,
 }
 
 var RookCephObjectsReportReadyOnlyCephCluster = &lcmv1alpha1.RookCephObjectsStatus{
-	CephCluster: &ReefCephClusterReady.Status,
+	CephCluster: &CephClusterReady.Status,
 	BlockStorage: &lcmv1alpha1.BlockStorageStatus{
 		CephBlockPools: map[string]*cephv1.CephBlockPoolStatus{
 			"pool1": CephBlockPoolListNotReady.Items[0].Status,
@@ -201,7 +201,7 @@ var RookCephObjectsReportReadyOnlyCephCluster = &lcmv1alpha1.RookCephObjectsStat
 }
 
 var RookCephObjectsReportReadyFull = &lcmv1alpha1.RookCephObjectsStatus{
-	CephCluster: &ReefCephClusterReady.Status,
+	CephCluster: &CephClusterReady.Status,
 	BlockStorage: &lcmv1alpha1.BlockStorageStatus{
 		CephBlockPools: map[string]*cephv1.CephBlockPoolStatus{
 			"pool1": CephBlockPoolListReady.Items[0].Status,
@@ -440,7 +440,7 @@ var OsdSpecAnalysisOk = &lcmv1alpha1.OsdSpecAnalysisState{
 		Status:   lcmv1alpha1.DaemonStateOk,
 		Messages: []string{"2/2 ready"},
 	},
-	CephClusterSpecGeneration: &ReefCephClusterReady.Generation,
+	CephClusterSpecGeneration: &CephClusterReady.Generation,
 	SpecAnalysis:              OsdStorageSpecAnalysisOk,
 }
 
@@ -449,7 +449,7 @@ var OsdSpecAnalysisNotOk = &lcmv1alpha1.OsdSpecAnalysisState{
 		Status:   lcmv1alpha1.DaemonStateOk,
 		Messages: []string{"2/2 ready"},
 	},
-	CephClusterSpecGeneration: &ReefCephClusterReady.Generation,
+	CephClusterSpecGeneration: &CephClusterReady.Generation,
 	SpecAnalysis:              OsdStorageSpecAnalysisFailed,
 }
 

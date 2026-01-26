@@ -202,7 +202,7 @@ func TestReconcile(t *testing.T) {
 				"cephclusters": &cephv1.CephClusterList{
 					Items: []cephv1.CephCluster{
 						func() cephv1.CephCluster {
-							cluster := unitinputs.ReefCephClusterReady.DeepCopy()
+							cluster := unitinputs.CephClusterReady.DeepCopy()
 							cluster.Spec.Placement = cephv1.PlacementSpec{
 								cephv1.KeyOSD: cephv1.Placement{
 									Tolerations: []corev1.Toleration{

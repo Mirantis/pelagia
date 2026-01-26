@@ -37,22 +37,22 @@ type CephVersion struct {
 	SupportedMinors []string
 }
 
-var AvailableCephVersions = []*CephVersion{Squid, Reef}
+var AvailableCephVersions = []*CephVersion{Tentacle, Squid}
 
 var (
+	Tentacle = &CephVersion{
+		Name:            "Tentacle",
+		MajorVersion:    "v20.2",
+		Order:           20,
+		SupportedMinors: []string{"0"},
+	}
 	Squid = &CephVersion{
 		Name:            "Squid",
 		MajorVersion:    "v19.2",
 		Order:           19,
 		SupportedMinors: []string{"3"},
 	}
-	Reef = &CephVersion{
-		Name:            "Reef",
-		MajorVersion:    "v18.2",
-		Order:           18,
-		SupportedMinors: []string{"3", "4", "7"},
-	}
-	LatestRelease = Squid
+	LatestRelease = Tentacle
 )
 
 func GetCephVersionFromImage(cephImage string) string {

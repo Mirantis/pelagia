@@ -77,7 +77,7 @@ func BuildCliOutput(template string, cmd string, overrideForOutput map[string]st
 	case "status":
 		replaceStatusParams = map[string]string{
 			"quorum_names":    `["a", "b", "c"]`,
-			"monmap":          `{"min_mon_release_name": "reef", "num_mons": 3}`,
+			"monmap":          `{"min_mon_release_name": "squid", "num_mons": 3}`,
 			"osdmap":          `{"num_osds": 3, "num_up_osds": 3, "num_in_osds": 3}`,
 			"fsmap":           `{"by_rank": [], "up:standby": 0}`,
 			"servicemap":      `{"services": {}}`,
