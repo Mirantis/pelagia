@@ -97,6 +97,12 @@ images:
       squid: v19.2.3-17.cve
       tentacle: *latestImageCeph
   csi:
+    operator:
+      repository: pelagia/cephcsi-operator
+      tag:
+        latest: &latestImageCSIOperator v0.4.1-1.release
+        squid: *latestImageCSIOperator
+        tentacle: *latestImageCSIOperator
     ceph:
       repository: pelagia/cephcsi
       tag:

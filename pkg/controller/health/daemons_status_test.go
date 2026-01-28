@@ -51,6 +51,7 @@ func TestDaemonsStatusVerification(t *testing.T) {
 				"cephfilesystems":  &unitinputs.CephFilesystemListEmpty,
 				"configmaps":       unitinputs.ConfigMapList,
 				"daemonsets":       unitinputs.DaemonSetListReady,
+				"deployments":      unitinputs.DeploymentListWithCSIReady,
 			},
 			cephStatus:     unitinputs.CephStatusBaseHealthy,
 			cephMgrDump:    unitinputs.CephMgrDumpBaseHealthy,
@@ -65,12 +66,15 @@ func TestDaemonsStatusVerification(t *testing.T) {
 				"cephfilesystems":  &unitinputs.CephFilesystemListEmpty,
 				"configmaps":       unitinputs.ConfigMapList,
 				"daemonsets":       unitinputs.DaemonSetListNotReady,
+				"deployments":      unitinputs.DeploymentListWithCSINotReady,
 			},
 			cephStatus:     unitinputs.CephStatusBaseUnhealthy,
 			cephMgrDump:    unitinputs.CephMgrDumpBaseUnhealthy,
 			expectedStatus: unitinputs.CephDaemonsStatusUnhealthy,
 			expectedIssues: []string{
-				"daemonset 'rook-ceph/csi-cephfsplugin' is not ready", "daemonset 'rook-ceph/csi-rbdplugin' is not ready",
+				"daemonset 'rook-ceph/rook-ceph.cephfs.csi.ceph.com-nodeplugin' is not ready", "daemonset 'rook-ceph/rook-ceph.rbd.csi.ceph.com-nodeplugin' is not ready",
+				"deployment 'rook-ceph/ceph-csi-controller-manager' is not ready",
+				"deployment 'rook-ceph/rook-ceph.cephfs.csi.ceph.com-ctrlplugin' is not ready", "deployment 'rook-ceph/rook-ceph.rbd.csi.ceph.com-ctrlplugin' is not ready",
 				"no active mgr", "not all (2/3) mons are running", "not all osds are in", "not all osds are up",
 			},
 		},
@@ -85,12 +89,13 @@ func TestDaemonsStatusVerification(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			lcmConfigData := map[string]string{}
 			if test.skipChecks {
-				lcmConfigData["HEALTH_CHECKS_SKIP"] = "ceph_daemons,ceph_csi_plugin_daemons"
+				lcmConfigData["HEALTH_CHECKS_SKIP"] = "ceph_daemons,ceph_csi_daemons"
 			}
 			c := fakeCephReconcileConfig(&baseConfig, lcmConfigData)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "list", []string{"pods"}, map[string]runtime.Object{"pods": unitinputs.ToolBoxPodList}, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"configmaps"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.AppsV1(), "get", []string{"daemonsets"}, test.inputResources, nil)
+			faketestclients.FakeReaction(c.api.Kubeclientset.AppsV1(), "get", []string{"deployments"}, test.inputResources, nil)
 
 			lcmcommon.RunPodCommand = func(e lcmcommon.ExecConfig) (string, string, error) {
 				switch e.Command {
@@ -449,7 +454,7 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 	lcmcommon.RunPodCommand = oldCephCmdFunc
 }
 
-func TestGetCSIPluginDaemonsStatus(t *testing.T) {
+func TestGetCSIDaemonsStatus(t *testing.T) {
 	tests := []struct {
 		name           string
 		inputResources map[string]runtime.Object
@@ -468,7 +473,7 @@ func TestGetCSIPluginDaemonsStatus(t *testing.T) {
 			name: "csi plugins disabled",
 			inputResources: map[string]runtime.Object{
 				"configmaps": &corev1.ConfigMapList{Items: []corev1.ConfigMap{
-					*unitinputs.RookOperatorConfig(map[string]string{"ROOK_CSI_ENABLE_RBD": "false", "ROOK_CSI_ENABLE_CEPHFS": "false"}),
+					*unitinputs.RookOperatorConfig(map[string]string{"ROOK_CSI_ENABLE_RBD": "false", "ROOK_CSI_ENABLE_CEPHFS": "false", "ROOK_USE_CSI_OPERATOR": "false"}),
 				}},
 			},
 			expectedStatus: map[string]lcmv1alpha1.DaemonStatus{},
@@ -477,8 +482,9 @@ func TestGetCSIPluginDaemonsStatus(t *testing.T) {
 		{
 			name: "csi plugins ready",
 			inputResources: map[string]runtime.Object{
-				"configmaps": unitinputs.ConfigMapList,
-				"daemonsets": unitinputs.DaemonSetListReady,
+				"configmaps":  unitinputs.ConfigMapList,
+				"daemonsets":  unitinputs.DaemonSetListReady,
+				"deployments": unitinputs.DeploymentListWithCSIReady,
 			},
 			expectedStatus: unitinputs.CephCSIDaemonsReady,
 			expectedIssues: make([]string, 0),
@@ -486,11 +492,103 @@ func TestGetCSIPluginDaemonsStatus(t *testing.T) {
 		{
 			name: "csi plugins not ready",
 			inputResources: map[string]runtime.Object{
-				"configmaps": unitinputs.ConfigMapList,
-				"daemonsets": unitinputs.DaemonSetListNotReady,
+				"configmaps":  unitinputs.ConfigMapList,
+				"daemonsets":  unitinputs.DaemonSetListNotReady,
+				"deployments": unitinputs.DeploymentListWithCSINotReady,
 			},
 			expectedStatus: unitinputs.CephCSIDaemonsNotReady,
-			expectedIssues: []string{"daemonset 'rook-ceph/csi-rbdplugin' is not ready", "daemonset 'rook-ceph/csi-cephfsplugin' is not ready"},
+			expectedIssues: []string{
+				"deployment 'rook-ceph/ceph-csi-controller-manager' is not ready",
+				"daemonset 'rook-ceph/rook-ceph.rbd.csi.ceph.com-nodeplugin' is not ready",
+				"deployment 'rook-ceph/rook-ceph.rbd.csi.ceph.com-ctrlplugin' is not ready",
+				"daemonset 'rook-ceph/rook-ceph.cephfs.csi.ceph.com-nodeplugin' is not ready",
+				"deployment 'rook-ceph/rook-ceph.cephfs.csi.ceph.com-ctrlplugin' is not ready",
+			},
+		},
+		{
+			name: "csi plugins ready w/o ceph-csi operator",
+			inputResources: map[string]runtime.Object{
+				"configmaps": &corev1.ConfigMapList{Items: []corev1.ConfigMap{
+					*unitinputs.RookOperatorConfig(map[string]string{"ROOK_USE_CSI_OPERATOR": "false"}),
+				}},
+				"daemonsets": &appsv1.DaemonSetList{
+					Items: []appsv1.DaemonSet{
+						*unitinputs.DaemonSetWithStatus("rook-ceph", "csi-rbdplugin", 3, 3), *unitinputs.DaemonSetWithStatus("rook-ceph", "csi-cephfsplugin", 3, 3),
+					},
+				},
+				"deployments": &appsv1.DeploymentList{
+					Items: []appsv1.Deployment{
+						*unitinputs.GetDeploymentWithStatus("csi-cephfsplugin-provisioner", "rook-ceph", nil, 2, 2),
+						*unitinputs.GetDeploymentWithStatus("csi-rbdplugin-provisioner", "rook-ceph", nil, 2, 2),
+					},
+				},
+			},
+			expectedStatus: map[string]lcmv1alpha1.DaemonStatus{
+				"csi-rbdplugin": {
+					Status:   lcmv1alpha1.DaemonStateOk,
+					Messages: []string{"3/3 ready"},
+				},
+				"csi-rbdplugin-provisioner": {
+					Status:   lcmv1alpha1.DaemonStateOk,
+					Messages: []string{"2/2 ready"},
+				},
+				"csi-cephfsplugin": {
+					Status:   lcmv1alpha1.DaemonStateOk,
+					Messages: []string{"3/3 ready"},
+				},
+				"csi-cephfsplugin-provisioner": {
+					Status:   lcmv1alpha1.DaemonStateOk,
+					Messages: []string{"2/2 ready"},
+				},
+			},
+			expectedIssues: make([]string, 0),
+		},
+		{
+			name: "csi plugins not ready w/o ceph-csi operator",
+			inputResources: map[string]runtime.Object{
+				"configmaps": &corev1.ConfigMapList{Items: []corev1.ConfigMap{
+					*unitinputs.RookOperatorConfig(map[string]string{"ROOK_USE_CSI_OPERATOR": "false"}),
+				}},
+				"daemonsets": &appsv1.DaemonSetList{
+					Items: []appsv1.DaemonSet{
+						*unitinputs.DaemonSetWithStatus("rook-ceph", "csi-rbdplugin", 3, 1), *unitinputs.DaemonSetWithStatus("rook-ceph", "csi-cephfsplugin", 3, 1),
+					},
+				},
+				"deployments": &appsv1.DeploymentList{
+					Items: []appsv1.Deployment{
+						*unitinputs.GetDeploymentWithStatus("csi-cephfsplugin-provisioner", "rook-ceph", nil, 2, 0),
+						*unitinputs.GetDeploymentWithStatus("csi-rbdplugin-provisioner", "rook-ceph", nil, 2, 0),
+					},
+				},
+			},
+			expectedStatus: map[string]lcmv1alpha1.DaemonStatus{
+				"csi-rbdplugin": {
+					Status:   lcmv1alpha1.DaemonStateFailed,
+					Messages: []string{"1/3 ready"},
+					Issues:   []string{"daemonset 'rook-ceph/csi-rbdplugin' is not ready"},
+				},
+				"csi-cephfsplugin": {
+					Status:   lcmv1alpha1.DaemonStateFailed,
+					Messages: []string{"1/3 ready"},
+					Issues:   []string{"daemonset 'rook-ceph/csi-cephfsplugin' is not ready"},
+				},
+				"csi-rbdplugin-provisioner": {
+					Status:   lcmv1alpha1.DaemonStateFailed,
+					Messages: []string{"0/2 ready"},
+					Issues:   []string{"deployment 'rook-ceph/csi-rbdplugin-provisioner' is not ready"},
+				},
+				"csi-cephfsplugin-provisioner": {
+					Status:   lcmv1alpha1.DaemonStateFailed,
+					Messages: []string{"0/2 ready"},
+					Issues:   []string{"deployment 'rook-ceph/csi-cephfsplugin-provisioner' is not ready"},
+				},
+			},
+			expectedIssues: []string{
+				"daemonset 'rook-ceph/csi-rbdplugin' is not ready",
+				"deployment 'rook-ceph/csi-rbdplugin-provisioner' is not ready",
+				"daemonset 'rook-ceph/csi-cephfsplugin' is not ready",
+				"deployment 'rook-ceph/csi-cephfsplugin-provisioner' is not ready",
+			},
 		},
 	}
 
@@ -499,7 +597,8 @@ func TestGetCSIPluginDaemonsStatus(t *testing.T) {
 			c := fakeCephReconcileConfig(nil, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"configmaps"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.AppsV1(), "get", []string{"daemonsets"}, test.inputResources, nil)
-			status, issues := c.getCSIPluginDaemonsStatus()
+			faketestclients.FakeReaction(c.api.Kubeclientset.AppsV1(), "get", []string{"deployments"}, test.inputResources, nil)
+			status, issues := c.getCSIDaemonsStatus()
 			assert.Equal(t, test.expectedStatus, status)
 			assert.Equal(t, test.expectedIssues, issues)
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())

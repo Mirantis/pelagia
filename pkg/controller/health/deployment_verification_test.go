@@ -60,7 +60,7 @@ func TestCephDeploymentVerification(t *testing.T) {
 			name: "cephcluster external ok",
 			inputResources: map[string]runtime.Object{
 				"daemonsets":           unitinputs.DaemonSetListReady,
-				"deployments":          unitinputs.DeploymentList,
+				"deployments":          unitinputs.DeploymentListWithCSIReady,
 				"configmaps":           unitinputs.ConfigMapList,
 				"cephclusters":         &unitinputs.CephClusterListExternal,
 				"cephblockpools":       &unitinputs.CephBlockPoolListEmpty,
@@ -90,7 +90,7 @@ func TestCephDeploymentVerification(t *testing.T) {
 			name: "cephcluster external issues",
 			inputResources: map[string]runtime.Object{
 				"daemonsets":  unitinputs.DaemonSetListEmpty,
-				"deployments": unitinputs.DeploymentList,
+				"deployments": unitinputs.DeploymentListWithCSINotReady,
 				"configmaps":  unitinputs.ConfigMapList,
 				"cephclusters": func() *cephv1.CephClusterList {
 					list := unitinputs.CephClusterListExternal.DeepCopy()
@@ -119,23 +119,25 @@ func TestCephDeploymentVerification(t *testing.T) {
 				report.RookCephObjects.ObjectStorage = nil
 				report.ClusterDetails.CephEvents = nil
 				report.ClusterDetails.RgwInfo = nil
+				report.CephDaemons = unitinputs.CephDaemonsStatusUnhealthy.DeepCopy()
 				report.CephDaemons.CephDaemons = nil
-				report.CephDaemons.CephCSIPluginDaemons = map[string]lcmv1alpha1.DaemonStatus{
-					"csi-rbdplugin": {
-						Status: lcmv1alpha1.DaemonStateFailed,
-						Issues: []string{"daemonset 'rook-ceph/csi-rbdplugin' is not found"},
-					},
-					"csi-cephfsplugin": {
-						Status: lcmv1alpha1.DaemonStateFailed,
-						Issues: []string{"daemonset 'rook-ceph/csi-cephfsplugin' is not found"},
-					},
+				report.CephDaemons.CephCSIDaemons["rook-ceph.rbd.csi.ceph.com-nodeplugin"] = lcmv1alpha1.DaemonStatus{
+					Status: lcmv1alpha1.DaemonStateFailed,
+					Issues: []string{"daemonset 'rook-ceph/rook-ceph.rbd.csi.ceph.com-nodeplugin' is not found"},
+				}
+				report.CephDaemons.CephCSIDaemons["rook-ceph.cephfs.csi.ceph.com-nodeplugin"] = lcmv1alpha1.DaemonStatus{
+					Status: lcmv1alpha1.DaemonStateFailed,
+					Issues: []string{"daemonset 'rook-ceph/rook-ceph.cephfs.csi.ceph.com-nodeplugin' is not found"},
 				}
 				return report
 			}(),
 			foundIssues: []string{
 				"cephcluster 'rook-ceph/cephcluster' object state is 'Failure'",
-				"daemonset 'rook-ceph/csi-cephfsplugin' is not found",
-				"daemonset 'rook-ceph/csi-rbdplugin' is not found",
+				"daemonset 'rook-ceph/rook-ceph.cephfs.csi.ceph.com-nodeplugin' is not found",
+				"daemonset 'rook-ceph/rook-ceph.rbd.csi.ceph.com-nodeplugin' is not found",
+				"deployment 'rook-ceph/ceph-csi-controller-manager' is not ready",
+				"deployment 'rook-ceph/rook-ceph.cephfs.csi.ceph.com-ctrlplugin' is not ready",
+				"deployment 'rook-ceph/rook-ceph.rbd.csi.ceph.com-ctrlplugin' is not ready",
 				"failed to list cephobjectstores in 'rook-ceph' namespace",
 				"failed to run 'ceph status -f json' command to check daemons status",
 				"failed to run 'ceph status -f json' command to check events details",
@@ -145,7 +147,7 @@ func TestCephDeploymentVerification(t *testing.T) {
 			name: "cephcluster base ok",
 			inputResources: map[string]runtime.Object{
 				"daemonsets":           unitinputs.DaemonSetListReady,
-				"deployments":          unitinputs.DeploymentList,
+				"deployments":          unitinputs.DeploymentListWithCSIReady,
 				"configmaps":           unitinputs.ConfigMapList,
 				"cephclusters":         &unitinputs.CephClusterListReady,
 				"cephblockpools":       &unitinputs.CephBlockPoolListEmpty,
@@ -180,7 +182,7 @@ func TestCephDeploymentVerification(t *testing.T) {
 			name: "cephcluster base issues",
 			inputResources: map[string]runtime.Object{
 				"daemonsets":           unitinputs.DaemonSetListNotReady,
-				"deployments":          unitinputs.DeploymentList,
+				"deployments":          unitinputs.DeploymentListWithCSINotReady,
 				"configmaps":           unitinputs.ConfigMapList,
 				"cephclusters":         &unitinputs.CephClusterListHealthIssues,
 				"cephblockpools":       &unitinputs.CephBlockPoolListEmpty,
@@ -207,7 +209,7 @@ func TestCephDeploymentVerification(t *testing.T) {
 			name: "cephcluster extra multisite ok",
 			inputResources: map[string]runtime.Object{
 				"daemonsets":           unitinputs.DaemonSetListReady,
-				"deployments":          unitinputs.DeploymentList,
+				"deployments":          unitinputs.DeploymentListWithCSIReady,
 				"configmaps":           unitinputs.ConfigMapList,
 				"ingresses":            &unitinputs.IngressesList,
 				"cephclusters":         &unitinputs.CephClusterListReady,
@@ -244,7 +246,7 @@ func TestCephDeploymentVerification(t *testing.T) {
 			name: "cephcluster multisite issues",
 			inputResources: map[string]runtime.Object{
 				"daemonsets":           unitinputs.DaemonSetListReady,
-				"deployments":          unitinputs.DeploymentList,
+				"deployments":          unitinputs.DeploymentListWithCSIReady,
 				"configmaps":           unitinputs.ConfigMapList,
 				"cephclusters":         &unitinputs.CephClusterListReady,
 				"cephblockpools":       &unitinputs.CephBlockPoolListNotReady,

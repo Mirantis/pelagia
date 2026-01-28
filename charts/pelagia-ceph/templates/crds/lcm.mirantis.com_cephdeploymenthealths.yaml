@@ -63,7 +63,7 @@ spec:
                   cephDaemons:
                     description: CephDaemons contains status of ceph daemons
                     properties:
-                      cephCSIPluginDaemons:
+                      cephCSIDaemons:
                         additionalProperties:
                           properties:
                             info:
@@ -84,8 +84,31 @@ spec:
                               type: string
                           type: object
                         description: |-
-                          CephCSIPluginsStatus contains Ceph CSI plugins status
-                          Supported statuses for csi-cephfsplugin, csi-rbdplugin plugins.
+                          CephCSIDaemons contains Ceph CSI related daemons status
+                          Supported statuses for CSI operator, CephFS, RBD node plugins and controllers.
+                        type: object
+                      cephCSIPluginDaemons:
+                        additionalProperties:
+                          properties:
+                            info:
+                              description: Messages contains human-readable additional
+                                information about current daemon state
+                              items:
+                                type: string
+                              type: array
+                            issues:
+                              description: Issues represents found Ceph daemon issues,
+                                otherwise it is empty
+                              items:
+                                type: string
+                              type: array
+                            status:
+                              description: Status contains short state of current
+                                daemon
+                              type: string
+                          type: object
+                        description: CephCSIPluginDaemons is deprecated in favor cephCSIDaemons
+                          section
                         type: object
                       cephDaemons:
                         additionalProperties:

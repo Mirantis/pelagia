@@ -49,8 +49,11 @@ var CephDeploymentHealthStatusNotOk = lcmv1alpha1.CephDeploymentHealth{
 			"cephcluster 'rook-ceph/cephcluster' object state is 'Failure'",
 			"cephcluster 'rook-ceph/cephcluster' object status is not updated for last 5 minutes",
 			"daemonset 'lcm-namespace/pelagia-disk-daemon' is not ready",
-			"daemonset 'rook-ceph/csi-cephfsplugin' is not ready",
-			"daemonset 'rook-ceph/csi-rbdplugin' is not ready",
+			"daemonset 'rook-ceph/rook-ceph.cephfs.csi.ceph.com-nodeplugin' is not ready",
+			"daemonset 'rook-ceph/rook-ceph.rbd.csi.ceph.com-nodeplugin' is not ready",
+			"deployment 'rook-ceph/ceph-csi-controller-manager' is not ready",
+			"deployment 'rook-ceph/rook-ceph.cephfs.csi.ceph.com-ctrlplugin' is not ready",
+			"deployment 'rook-ceph/rook-ceph.rbd.csi.ceph.com-ctrlplugin' is not ready",
 			"failed to run 'ceph osd tree -f json' command to check replicas sizing",
 			"no active mgr",
 			"not all (2/3) mons are running",
@@ -129,7 +132,7 @@ var CephMultisiteClusterReportOk = &lcmv1alpha1.CephDeploymentHealthReport{
 				Messages: []string{"3 rgws running, daemons: [10223488 11556688 12065099]"},
 			},
 		},
-		CephCSIPluginDaemons: CephCSIDaemonsReady,
+		CephCSIDaemons: CephCSIDaemonsReady,
 	},
 	ClusterDetails: &lcmv1alpha1.ClusterDetails{
 		UsageDetails: CephExtraUsageDetails,
@@ -243,13 +246,13 @@ var RookCephObjectsReportReadyFull = &lcmv1alpha1.RookCephObjectsStatus{
 }
 
 var CephDaemonsStatusHealthy = &lcmv1alpha1.CephDaemonsStatus{
-	CephDaemons:          CephDaemonsBaseHealthy,
-	CephCSIPluginDaemons: CephCSIDaemonsReady,
+	CephDaemons:    CephDaemonsBaseHealthy,
+	CephCSIDaemons: CephCSIDaemonsReady,
 }
 
 var CephDaemonsStatusUnhealthy = &lcmv1alpha1.CephDaemonsStatus{
-	CephDaemons:          CephDaemonsBaseUnhealthy,
-	CephCSIPluginDaemons: CephCSIDaemonsNotReady,
+	CephDaemons:    CephDaemonsBaseUnhealthy,
+	CephCSIDaemons: CephCSIDaemonsNotReady,
 }
 
 var CephDaemonsBaseHealthy = map[string]lcmv1alpha1.DaemonStatus{
@@ -335,26 +338,53 @@ var CephDaemonsCephFsRgwUnhealthy = map[string]lcmv1alpha1.DaemonStatus{
 }
 
 var CephCSIDaemonsReady = map[string]lcmv1alpha1.DaemonStatus{
-	"csi-rbdplugin": {
+	"ceph-csi-operator": {
+		Status:   lcmv1alpha1.DaemonStateOk,
+		Messages: []string{"1/1 ready"},
+	},
+	"rook-ceph.rbd.csi.ceph.com-nodeplugin": {
 		Status:   lcmv1alpha1.DaemonStateOk,
 		Messages: []string{"3/3 ready"},
 	},
-	"csi-cephfsplugin": {
+	"rook-ceph.cephfs.csi.ceph.com-nodeplugin": {
 		Status:   lcmv1alpha1.DaemonStateOk,
 		Messages: []string{"3/3 ready"},
+	},
+	"rook-ceph.rbd.csi.ceph.com-ctrlplugin": {
+		Status:   lcmv1alpha1.DaemonStateOk,
+		Messages: []string{"2/2 ready"},
+	},
+	"rook-ceph.cephfs.csi.ceph.com-ctrlplugin": {
+		Status:   lcmv1alpha1.DaemonStateOk,
+		Messages: []string{"2/2 ready"},
 	},
 }
 
 var CephCSIDaemonsNotReady = map[string]lcmv1alpha1.DaemonStatus{
-	"csi-rbdplugin": {
+	"ceph-csi-operator": {
 		Status:   lcmv1alpha1.DaemonStateFailed,
-		Messages: []string{"1/3 ready"},
-		Issues:   []string{"daemonset 'rook-ceph/csi-rbdplugin' is not ready"},
+		Messages: []string{"0/1 ready"},
+		Issues:   []string{"deployment 'rook-ceph/ceph-csi-controller-manager' is not ready"},
 	},
-	"csi-cephfsplugin": {
+	"rook-ceph.rbd.csi.ceph.com-nodeplugin": {
 		Status:   lcmv1alpha1.DaemonStateFailed,
 		Messages: []string{"1/3 ready"},
-		Issues:   []string{"daemonset 'rook-ceph/csi-cephfsplugin' is not ready"},
+		Issues:   []string{"daemonset 'rook-ceph/rook-ceph.rbd.csi.ceph.com-nodeplugin' is not ready"},
+	},
+	"rook-ceph.cephfs.csi.ceph.com-nodeplugin": {
+		Status:   lcmv1alpha1.DaemonStateFailed,
+		Messages: []string{"1/3 ready"},
+		Issues:   []string{"daemonset 'rook-ceph/rook-ceph.cephfs.csi.ceph.com-nodeplugin' is not ready"},
+	},
+	"rook-ceph.rbd.csi.ceph.com-ctrlplugin": {
+		Status:   lcmv1alpha1.DaemonStateFailed,
+		Messages: []string{"0/2 ready"},
+		Issues:   []string{"deployment 'rook-ceph/rook-ceph.rbd.csi.ceph.com-ctrlplugin' is not ready"},
+	},
+	"rook-ceph.cephfs.csi.ceph.com-ctrlplugin": {
+		Status:   lcmv1alpha1.DaemonStateFailed,
+		Messages: []string{"0/2 ready"},
+		Issues:   []string{"deployment 'rook-ceph/rook-ceph.cephfs.csi.ceph.com-ctrlplugin' is not ready"},
 	},
 }
 

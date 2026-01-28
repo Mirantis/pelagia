@@ -76,9 +76,11 @@ type CephDaemonsStatus struct {
 	// For now supported statuses for next Ceph daemons: mon, mgr, osd, rgw, mds.
 	// +optional
 	CephDaemons map[string]DaemonStatus `json:"cephDaemons,omitempty"`
-	// CephCSIPluginsStatus contains Ceph CSI plugins status
-	// Supported statuses for csi-cephfsplugin, csi-rbdplugin plugins.
+	// CephCSIDaemons contains Ceph CSI related daemons status
+	// Supported statuses for CSI operator, CephFS, RBD node plugins and controllers.
 	// +optional
+	CephCSIDaemons map[string]DaemonStatus `json:"cephCSIDaemons,omitempty"`
+	// CephCSIPluginDaemons is deprecated in favor cephCSIDaemons section
 	CephCSIPluginDaemons map[string]DaemonStatus `json:"cephCSIPluginDaemons,omitempty"`
 }
 

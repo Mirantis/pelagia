@@ -153,7 +153,7 @@ func TestHealthReconcile(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"cephdeploymenthealths": &lcmv1alpha1.CephDeploymentHealthList{Items: []lcmv1alpha1.CephDeploymentHealth{unitinputs.CephDeploymentHealth}},
 				"daemonsets":            unitinputs.DaemonSetListNotReady,
-				"deployments":           unitinputs.DeploymentList,
+				"deployments":           unitinputs.DeploymentListWithCSINotReady,
 				"configmaps":            unitinputs.ConfigMapList,
 				"cephclusters":          &unitinputs.CephClusterListHealthIssues,
 				"cephblockpools":        &unitinputs.CephBlockPoolListEmpty,
@@ -186,7 +186,7 @@ func TestHealthReconcile(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"cephdeploymenthealths": &lcmv1alpha1.CephDeploymentHealthList{Items: []lcmv1alpha1.CephDeploymentHealth{unitinputs.CephDeploymentHealth}},
 				"daemonsets":            unitinputs.DaemonSetListReady,
-				"deployments":           unitinputs.DeploymentList,
+				"deployments":           unitinputs.DeploymentListWithCSIReady,
 				"configmaps":            unitinputs.ConfigMapList,
 				"cephclusters":          &unitinputs.CephClusterListReady,
 				"cephblockpools":        &unitinputs.CephBlockPoolListEmpty,
@@ -227,7 +227,7 @@ func TestHealthReconcile(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"cephdeploymenthealths": &lcmv1alpha1.CephDeploymentHealthList{Items: []lcmv1alpha1.CephDeploymentHealth{*unitinputs.CephDeploymentHealthStatusOk.DeepCopy()}},
 				"daemonsets":            unitinputs.DaemonSetListReady,
-				"deployments":           unitinputs.DeploymentList,
+				"deployments":           unitinputs.DeploymentListWithCSIReady,
 				"configmaps":            unitinputs.ConfigMapList,
 				"cephclusters":          &unitinputs.CephClusterListReady,
 				"cephblockpools":        &unitinputs.CephBlockPoolListEmpty,
@@ -343,7 +343,7 @@ func TestHealthAndConfigReconcile(t *testing.T) {
 	oldVal := lcmconfig.ParamsToControl
 	lcmconfig.ParamsToControl = lcmconfig.ControlParamsHealth
 	configRequest := reconcile.Request{NamespacedName: types.NamespacedName{Namespace: unitinputs.LcmObjectMeta.Namespace, Name: "pelagia-lcmconfig"}}
-	disableAllChecks := []string{cephDaemonsCheck, cephCSIPluginDaemonsCheck, usageDetailsCheck, cephEventsCheck, poolReplicasCheck, rgwInfoCheck, specAnalysisCheck}
+	disableAllChecks := []string{cephDaemonsCheck, cephCSIDaemonsCheck, usageDetailsCheck, cephEventsCheck, poolReplicasCheck, rgwInfoCheck, specAnalysisCheck}
 	disableAllChecksStr := strings.Join(disableAllChecks, ",")
 	lcmConfigMap := unitinputs.GetConfigMap(configRequest.Name, configRequest.Namespace, map[string]string{"HEALTH_CHECKS_SKIP": disableAllChecksStr, "HEALTH_LOG_LEVEL": "trace"})
 	configReconciler := &lcmconfig.ReconcileCephDeploymentHealthConfig{
@@ -358,7 +358,7 @@ func TestHealthAndConfigReconcile(t *testing.T) {
 	inputResources := map[string]runtime.Object{
 		"cephdeploymenthealths": &lcmv1alpha1.CephDeploymentHealthList{Items: []lcmv1alpha1.CephDeploymentHealth{*unitinputs.CephDeploymentHealthStatusOk.DeepCopy()}},
 		"daemonsets":            unitinputs.DaemonSetListReady,
-		"deployments":           unitinputs.DeploymentList,
+		"deployments":           unitinputs.DeploymentListWithCSIReady,
 		"configmaps":            unitinputs.ConfigMapList,
 		"cephclusters":          &unitinputs.CephClusterListReady,
 		"cephblockpools":        &unitinputs.CephBlockPoolListEmpty,
