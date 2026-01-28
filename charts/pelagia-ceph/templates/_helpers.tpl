@@ -8,6 +8,10 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
+{{- define "ceph-csi-operator.labels" -}}
+operator: ceph-csi
+{{- end -}}
+
 {{- define "rook.labels" -}}
 operator: rook
 storage-backend: ceph
@@ -43,6 +47,10 @@ storage-backend: ceph
 
 {{- define "rook.image" -}}
 {{- printf "%s/%s" .Values.global.dockerBaseUrl (include "get.image" (dict "release" .Values.cephRelease "values" .Values.images.rook.operator)) }}
+{{- end -}}
+
+{{- define "csi.ceph.operator.image" -}}
+{{- printf "%s/%s" .Values.global.dockerBaseUrl (include "get.image" (dict "release" .Values.cephRelease "values" .Values.images.csi.operator)) }}
 {{- end -}}
 
 {{- define "ceph.image" -}}
