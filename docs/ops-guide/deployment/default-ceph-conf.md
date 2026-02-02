@@ -5,7 +5,7 @@
 Pelagia Deployment Controller provides the capability to specify configuration options for
 the Ceph cluster through the `rookConfig` key-value section of the
 `CephDeployment` CR as if they were set in a usual `ceph.conf` file. For details,
-see [Architecture: CephDeployment](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment.md).
+see [Architecture: CephDeployment](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment).
 
 However, if `rookConfig` is empty, Pelagia Deployment Controller still specifies the
 following default configuration options for each Ceph cluster:
@@ -82,4 +82,4 @@ default configuration options for each Ceph cluster:
 
 #### SEE ALSO
 
-[Architecture: CephDeployment](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment.md)
+[Architecture: CephDeployment](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment)
