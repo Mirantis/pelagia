@@ -20,6 +20,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 
 	"github.com/pkg/errors"
 	rookclient "github.com/rook/rook/pkg/client/clientset/versioned"
@@ -37,15 +38,13 @@ type CephConnector struct {
 }
 
 type Opts struct {
-	RookNamespace    string
-	AuthClient       string
-	UseRBD           bool
-	UseCephFS        bool
-	UseRgw           bool
-	RgwUserName      string
-	ToolBoxLabel     string
-	ToolBoxNamespace string
-	EncodedBase64    bool
+	RookNamespace string
+	AuthClient    string
+	UseRBD        bool
+	UseCephFS     bool
+	UseRgw        bool
+	RgwUserName   string
+	EncodedBase64 bool
 }
 
 func GetConnector() (*CephConnector, error) {
@@ -88,7 +87,7 @@ func (c *CephConnector) getConnectionInfo(opts Opts) (*lcmcommon.CephConnection,
 		return nil, err
 	}
 
-	clientKeyring, err := c.getClusterClientKeyring(opts.ToolBoxNamespace, opts.ToolBoxLabel, opts.AuthClient)
+	clientKeyring, err := c.getClusterClientKeyring(opts.RookNamespace, opts.AuthClient)
 	if err != nil {
 		return nil, err
 	}
@@ -98,11 +97,11 @@ func (c *CephConnector) getConnectionInfo(opts Opts) (*lcmcommon.CephConnection,
 
 	if opts.AuthClient != "admin" {
 		if opts.UseRBD {
-			nodeKeyring, err := c.getClusterClientKeyring(opts.ToolBoxNamespace, opts.ToolBoxLabel, lcmcommon.CephCSIRBDNodeClientName)
+			nodeKeyring, err := c.getCephKeyringFromSecret(opts.RookNamespace, fmt.Sprintf("rook-%s", lcmcommon.CephCSIRBDNodeClientName))
 			if err != nil {
 				return nil, err
 			}
-			provisionerKeyring, err := c.getClusterClientKeyring(opts.ToolBoxNamespace, opts.ToolBoxLabel, lcmcommon.CephCSIRBDProvisionerClientName)
+			provisionerKeyring, err := c.getCephKeyringFromSecret(opts.RookNamespace, fmt.Sprintf("rook-%s", lcmcommon.CephCSIRBDProvisionerClientName))
 			if err != nil {
 				return nil, err
 			}
@@ -112,11 +111,11 @@ func (c *CephConnector) getConnectionInfo(opts Opts) (*lcmcommon.CephConnection,
 			}
 		}
 		if opts.UseCephFS {
-			nodeKeyring, err := c.getClusterClientKeyring(opts.ToolBoxNamespace, opts.ToolBoxLabel, lcmcommon.CephCSICephFSNodeClientName)
+			nodeKeyring, err := c.getCephKeyringFromSecret(opts.RookNamespace, fmt.Sprintf("rook-%s", lcmcommon.CephCSICephFSNodeClientName))
 			if err != nil {
 				return nil, err
 			}
-			provisionerKeyring, err := c.getClusterClientKeyring(opts.ToolBoxNamespace, opts.ToolBoxLabel, lcmcommon.CephCSICephFSProvisionerClientName)
+			provisionerKeyring, err := c.getCephKeyringFromSecret(opts.RookNamespace, fmt.Sprintf("rook-%s", lcmcommon.CephCSICephFSProvisionerClientName))
 			if err != nil {
 				return nil, err
 			}
@@ -128,7 +127,7 @@ func (c *CephConnector) getConnectionInfo(opts Opts) (*lcmcommon.CephConnection,
 	}
 
 	if opts.UseRgw {
-		rgwAdminOpsUserKeys, err := c.getRgwKeys(opts.ToolBoxNamespace, opts.ToolBoxLabel, opts.RgwUserName)
+		rgwAdminOpsUserKeys, err := c.getRgwKeys(opts.RookNamespace, opts.RgwUserName)
 		if err != nil {
 			return nil, err
 		}
