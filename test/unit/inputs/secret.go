@@ -80,8 +80,8 @@ var CSICephFSNodeSecret = corev1.Secret{
 		Namespace: "rook-ceph",
 	},
 	Data: map[string][]byte{
-		"adminID":  []byte("csi-cephfs-node"),
-		"adminKey": []byte("AQDh+HRjCGpLDxAA1DqwfBPBGkW7+XM65JVChg=="),
+		"userID":  []byte("csi-cephfs-node"),
+		"userKey": []byte("AQDh+HRjCGpLDxAA1DqwfBPBGkW7+XM65JVChg=="),
 	},
 }
 
@@ -91,8 +91,8 @@ var CSICephFSProvisionerSecret = corev1.Secret{
 		Namespace: "rook-ceph",
 	},
 	Data: map[string][]byte{
-		"adminID":  []byte("csi-cephfs-provisioner"),
-		"adminKey": []byte("AQDg+HRjKB9bLBAArfLLNtGN+KZRq4eaJf6Ptg=="),
+		"userID":  []byte("csi-cephfs-provisioner"),
+		"userKey": []byte("AQDg+HRjKB9bLBAArfLLNtGN+KZRq4eaJf6Ptg=="),
 	},
 }
 
