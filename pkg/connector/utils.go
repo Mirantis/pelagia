@@ -59,15 +59,15 @@ func (c *CephConnector) getClusterMonEndpoints(rookNamespace string) (string, er
 	return endpoints, nil
 }
 
-func (c *CephConnector) getClusterClientKeyring(toolBoxNamespace, toolboxLabel, clientName string) (string, error) {
+func (c *CephConnector) getClusterClientKeyring(rookNamespace, clientName string) (string, error) {
 	command := fmt.Sprintf("ceph auth get-key client.%s", clientName)
 	e := lcmcommon.ExecConfig{
 		Context:    c.Context,
 		Kubeclient: c.Kubeclientset,
 		Config:     c.Config,
-		Namespace:  toolBoxNamespace,
+		Namespace:  rookNamespace,
 		Command:    command,
-		Labels:     []string{fmt.Sprintf("app=%s", toolboxLabel)},
+		Labels:     []string{fmt.Sprintf("app=%s", lcmcommon.PelagiaToolBox)},
 	}
 	keyring, _, err := lcmcommon.RunPodCmdAndCheckError(e)
 	if err != nil {
@@ -79,15 +79,27 @@ func (c *CephConnector) getClusterClientKeyring(toolBoxNamespace, toolboxLabel, 
 	return keyring, nil
 }
 
-func (c *CephConnector) getRgwKeys(toolBoxNamespace, toolboxLabel, username string) (*lcmcommon.RgwUserKeys, error) {
+func (c *CephConnector) getCephKeyringFromSecret(rookNamespace, keyringSecretName string) (string, error) {
+	secret, err := c.Kubeclientset.CoreV1().Secrets(rookNamespace).Get(c.Context, keyringSecretName, metav1.GetOptions{})
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to get Secret '%s/%s'", rookNamespace, keyringSecretName)
+	}
+	keyring := string(secret.Data["userKey"])
+	if keyring == "" {
+		return "", errors.Errorf("Secret '%s/%s' has empty keyring", rookNamespace, keyringSecretName)
+	}
+	return keyring, nil
+}
+
+func (c *CephConnector) getRgwKeys(rookNamespace, username string) (*lcmcommon.RgwUserKeys, error) {
 	cmd := fmt.Sprintf("radosgw-admin user info --uid %s", username)
 	e := lcmcommon.ExecConfig{
 		Context:    c.Context,
 		Kubeclient: c.Kubeclientset,
 		Config:     c.Config,
-		Namespace:  toolBoxNamespace,
+		Namespace:  rookNamespace,
 		Command:    cmd,
-		Labels:     []string{fmt.Sprintf("app=%s", toolboxLabel)},
+		Labels:     []string{fmt.Sprintf("app=%s", lcmcommon.PelagiaToolBox)},
 	}
 	rgwAdminOpsUserInfo, _, err := lcmcommon.RunPodCmdAndCheckError(e)
 	if err != nil {
