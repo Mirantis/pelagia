@@ -79,7 +79,7 @@ cephRelease: ""
 images:
   pelagia:
     repository: pelagia/pelagia
-    tag: 1.4.2
+    tag: 1.4.6
     # fullName is mostly used for test purposes
     fullName: ""
     pullPolicy: Always
@@ -87,20 +87,20 @@ images:
     operator:
       repository: pelagia/rook
       tag:
-        latest: &latestImageRook v1.18.8-5
+        latest: &latestImageRook v1.18.8-6
         squid: *latestImageRook
         reef: *latestImageRook
   ceph:
     repository: pelagia/ceph
     tag:
-      latest: &latestImageCeph v19.2.3-17.cve
+      latest: &latestImageCeph v19.2.3-18.cve
       squid: *latestImageCeph
       reef: v18.2.7-6.release
   csi:
     ceph:
       repository: pelagia/cephcsi
       tag:
-        latest: &latestImageCephCSI v3.15.0-3.cve
+        latest: &latestImageCephCSI v3.15.0-4.cve
         squid: *latestImageCephCSI
         reef: *latestImageCephCSI
     registrar:
