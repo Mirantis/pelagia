@@ -150,6 +150,51 @@ func TestGetClusterMonEndpoints(t *testing.T) {
 	}
 }
 
+func TestGetCephKeyringFromSecret(t *testing.T) {
+	c := FakeConnector()
+	tests := []struct {
+		name           string
+		inputResources map[string]runtime.Object
+		keyring        string
+		expectedError  string
+	}{
+		{
+			name:           "no secret found",
+			inputResources: map[string]runtime.Object{"secrets": &unitinputs.SecretsListEmpty},
+			expectedError:  "failed to get Secret 'rook-ceph/rook-csi-rbd-node': secrets \"rook-csi-rbd-node\" not found",
+		},
+		{
+			name: "no keyring specified in secret",
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{{ObjectMeta: unitinputs.CSIRBDNodeSecret.ObjectMeta}}},
+			},
+			expectedError: "Secret 'rook-ceph/rook-csi-rbd-node' has empty keyring",
+		},
+		{
+			name: "no keyring specified in secret",
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.CSIRBDNodeSecret}},
+			},
+			keyring: "AQDd+HRjKiMBOhAATVfdzSNdlOAG3vaPSeTBzw==",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			faketestclients.FakeReaction(c.Kubeclientset.CoreV1(), "get", []string{"secrets"}, test.inputResources, nil)
+
+			keyring, err := c.getCephKeyringFromSecret("rook-ceph", "rook-csi-rbd-node")
+			if test.expectedError != "" {
+				assert.NotNil(t, err)
+				assert.Equal(t, test.expectedError, err.Error())
+			} else {
+				assert.Nil(t, err)
+				assert.Equal(t, test.keyring, keyring)
+			}
+			faketestclients.CleanupFakeClientReactions(c.Kubeclientset.CoreV1())
+		})
+	}
+}
+
 func TestGetClusterClientKeyring(t *testing.T) {
 	c := FakeConnector()
 	tests := []struct {
@@ -186,7 +231,7 @@ func TestGetClusterClientKeyring(t *testing.T) {
 				return test.cmdOut, "", nil
 			}
 
-			keyring, err := c.getClusterClientKeyring("lcm-namespace", lcmcommon.PelagiaToolBox, "test")
+			keyring, err := c.getClusterClientKeyring("rook-ceph", "test")
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
@@ -243,7 +288,7 @@ func TestGetRgwAdminOpsKeys(t *testing.T) {
 				return test.cmdOutput, "", nil
 			}
 
-			keys, err := c.getRgwKeys("lcm-namespace", lcmcommon.PelagiaToolBox, "rgw-admin-ops-user")
+			keys, err := c.getRgwKeys("rook-ceph", "rgw-admin-ops-user")
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
