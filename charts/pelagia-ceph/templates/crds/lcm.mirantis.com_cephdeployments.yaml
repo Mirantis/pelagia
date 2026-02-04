@@ -762,10 +762,6 @@ spec:
                     description: HostNetwork is deprecated field, always true to have
                       persistan mons ips
                     type: boolean
-                  monOnPublicNet:
-                    description: MonOnPublicNet defines monitors on public network
-                      instead of LCM network
-                    type: boolean
                   provider:
                     description: Provider specifies the network provider that will
                       be used to connect the network interface
