@@ -20,7 +20,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"runtime"
 
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
@@ -58,9 +57,8 @@ func main() {
 	}
 
 	if version {
-		fmt.Printf("Go OS/Arch: %s/%s\n", runtime.GOOS, runtime.GOARCH)
-		fmt.Printf("Go Version: %s\n", runtime.Version())
-		fmt.Printf("Disk-daemon code version: %s\n", lcmversion.Version)
+		fmt.Println(lcmversion.GetCodeVersion("Disk daemon"))
+		fmt.Println(lcmversion.GetGoRuntimeVersion())
 		os.Exit(0)
 	}
 
