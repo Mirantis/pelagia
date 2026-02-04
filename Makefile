@@ -163,7 +163,7 @@ get-version:
 	@printf $(VERSION)
 
 golangci-lint-install:
-ifeq (,$(shell golangci-lint version 2>/dev/null))
+ifeq (,$(shell $$GOPATH/golangci-lint version 2>/dev/null))
 	@printf "\n=== <INSTALL GO-LINT> ===\n"
 	@echo Missing golangci-lint. Going to install if for $(HOSTOS).
 ifeq ("Linux","$(HOSTOS)")

@@ -19,7 +19,6 @@ package main
 import (
 	"flag"
 	"os"
-	"runtime"
 	"strings"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
@@ -39,9 +38,8 @@ import (
 
 func main() {
 	log := lcmcommon.InitLogger(false)
-	log.Info().Msgf("Contoller code version: %s", lcmversion.Version)
-	log.Info().Msgf("Go Version: %s", runtime.Version())
-	log.Info().Msgf("Go OS/Arch: %s/%s", runtime.GOOS, runtime.GOARCH)
+	log.Info().Msg(lcmversion.GetCodeVersion("Controller"))
+	log.Info().Msg(lcmversion.GetGoRuntimeVersion())
 
 	var controllerName, leaderElectionID string
 	flag.StringVar(&controllerName, "controller-name", "", "controller name")

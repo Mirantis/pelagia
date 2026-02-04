@@ -20,7 +20,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"runtime"
 
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
@@ -45,9 +44,8 @@ func main() {
 	flag.Parse()
 
 	if version {
-		log.Info().Msgf("Connector code version: %s", lcmversion.Version)
-		log.Info().Msgf("Go Version: %s", runtime.Version())
-		log.Info().Msgf("Go OS/Arch: %s/%s", runtime.GOOS, runtime.GOARCH)
+		fmt.Println(lcmversion.GetCodeVersion("Connector"))
+		fmt.Println(lcmversion.GetGoRuntimeVersion())
 		os.Exit(0)
 	}
 
