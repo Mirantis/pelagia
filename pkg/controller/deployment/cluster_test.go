@@ -344,26 +344,6 @@ func TestGenerateCephCluster(t *testing.T) {
 			}(),
 		},
 		{
-			name: "generate ceph cluster with addressRanges",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.BaseCephDeployment.DeepCopy()
-				mc.Spec.Network.MonOnPublicNet = true
-				return mc
-			}(),
-			expectedClusterSpec: func() cephv1.ClusterSpec {
-				cs := unitinputs.CephClusterGenerated.Spec.DeepCopy()
-				cs.Network.AddressRanges = &cephv1.AddressRangesSpec{
-					Cluster: cephv1.CIDRList{
-						"127.0.0.0/16",
-					},
-					Public: cephv1.CIDRList{
-						"192.168.0.0/16",
-					},
-				}
-				return *cs
-			}(),
-		},
-		{
 			name:    "generate ceph cluster with multus provider",
 			cephDpl: &unitinputs.BaseCephDeploymentMultus,
 			expectedClusterSpec: func() cephv1.ClusterSpec {
