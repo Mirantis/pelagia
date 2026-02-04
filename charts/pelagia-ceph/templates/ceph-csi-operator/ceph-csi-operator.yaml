@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ceph-csi-controller-manager
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: ceph-csi-op-controller-manager
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+      labels:
+        control-plane: ceph-csi-op-controller-manager
+    spec:
+      containers:
+        - args:
+            - --leader-elect
+          command:
+            - /manager
+          env:
+            - name: OPERATOR_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: CSI_SERVICE_ACCOUNT_PREFIX
+              value: ceph-csi-
+            - name: WATCH_NAMESPACE
+              value: {{ .Values.rookConfig.rookNamespace }}
+          image: {{ template "csi.ceph.operator.image" . }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          name: manager
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              memory: 128Mi
+            requests:
+              cpu: 10m
+              memory: 64Mi
+          {{- with $.Values.controllers.securityContextControllers }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: ceph-csi-controller-manager
+      terminationGracePeriodSeconds: 10

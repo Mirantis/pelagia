@@ -264,8 +264,6 @@ data:
 
   # Whether the OBC provisioner should watch on the operator namespace or not, if not the namespace of the cluster will be used
   ROOK_OBC_WATCH_OPERATOR_NAMESPACE: "true"
-  # Disable new CSI operator for now, will be enabled in next release
-  ROOK_USE_CSI_OPERATOR: "false"
 ---
 # OLM: BEGIN OPERATOR DEPLOYMENT
 apiVersion: apps/v1

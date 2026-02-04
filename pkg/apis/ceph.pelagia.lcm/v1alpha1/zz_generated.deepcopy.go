@@ -131,6 +131,13 @@ func (in *CephDaemonsStatus) DeepCopyInto(out *CephDaemonsStatus) {
 			(*out)[key] = *val.DeepCopy()
 		}
 	}
+	if in.CephCSIDaemons != nil {
+		in, out := &in.CephCSIDaemons, &out.CephCSIDaemons
+		*out = make(map[string]DaemonStatus, len(*in))
+		for key, val := range *in {
+			(*out)[key] = *val.DeepCopy()
+		}
+	}
 	if in.CephCSIPluginDaemons != nil {
 		in, out := &in.CephCSIPluginDaemons, &out.CephCSIPluginDaemons
 		*out = make(map[string]DaemonStatus, len(*in))

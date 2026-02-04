@@ -27,14 +27,14 @@ var DaemonSetListEmpty = &appsv1.DaemonSetList{Items: []appsv1.DaemonSet{}}
 
 var DaemonSetListReady = &appsv1.DaemonSetList{
 	Items: []appsv1.DaemonSet{
-		*DaemonSetWithStatus(RookNamespace, "csi-rbdplugin", 3, 3), *DaemonSetWithStatus(RookNamespace, "csi-cephfsplugin", 3, 3),
+		*DaemonSetWithStatus(RookNamespace, "rook-ceph.rbd.csi.ceph.com-nodeplugin", 3, 3), *DaemonSetWithStatus(RookNamespace, "rook-ceph.cephfs.csi.ceph.com-nodeplugin", 3, 3),
 		*DaemonSetWithStatus(LcmObjectMeta.Namespace, "pelagia-disk-daemon", 2, 2),
 	},
 }
 
 var DaemonSetListNotReady = &appsv1.DaemonSetList{
 	Items: []appsv1.DaemonSet{
-		*DaemonSetWithStatus(RookNamespace, "csi-rbdplugin", 3, 1), *DaemonSetWithStatus(RookNamespace, "csi-cephfsplugin", 3, 1),
+		*DaemonSetWithStatus(RookNamespace, "rook-ceph.rbd.csi.ceph.com-nodeplugin", 3, 1), *DaemonSetWithStatus(RookNamespace, "rook-ceph.cephfs.csi.ceph.com-nodeplugin", 3, 1),
 		*DaemonSetWithStatus(LcmObjectMeta.Namespace, "pelagia-disk-daemon", 2, 0),
 	},
 }

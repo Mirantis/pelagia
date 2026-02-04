@@ -38,13 +38,13 @@ func (c *cephDeploymentHealthConfig) daemonsStatusVerification() (*lcmv1alpha1.C
 	}
 	newDaemonsStatus.CephDaemons = cephDaemonsStatus
 
-	cephCSIPluginDaemonsStatus, cephCSIIssues := c.getCSIPluginDaemonsStatus()
+	cephCSIDaemonsStatus, cephCSIIssues := c.getCSIDaemonsStatus()
 	if len(cephCSIIssues) > 0 {
 		daemonsIssues = append(daemonsIssues, cephCSIIssues...)
 	}
-	newDaemonsStatus.CephCSIPluginDaemons = cephCSIPluginDaemonsStatus
+	newDaemonsStatus.CephCSIDaemons = cephCSIDaemonsStatus
 	// to avoid api diff since section is optional and omit empty set
-	if cephDaemonsStatus == nil && cephCSIPluginDaemonsStatus == nil {
+	if cephDaemonsStatus == nil && cephCSIDaemonsStatus == nil {
 		newDaemonsStatus = nil
 	}
 	sort.Strings(daemonsIssues)
@@ -268,9 +268,9 @@ func (c *cephDeploymentHealthConfig) getCephDaemonsStatus() (map[string]lcmv1alp
 	return daemonsStatus, daemonsIssues
 }
 
-func (c *cephDeploymentHealthConfig) getCSIPluginDaemonsStatus() (map[string]lcmv1alpha1.DaemonStatus, []string) {
-	if lcmcommon.Contains(c.lcmConfig.HealthParams.ChecksSkip, cephCSIPluginDaemonsCheck) {
-		c.log.Debug().Msgf("skipping ceph csi plugin daemons check, set '%s' to skip through lcm config settings", cephCSIPluginDaemonsCheck)
+func (c *cephDeploymentHealthConfig) getCSIDaemonsStatus() (map[string]lcmv1alpha1.DaemonStatus, []string) {
+	if lcmcommon.Contains(c.lcmConfig.HealthParams.ChecksSkip, cephCSIDaemonsCheck) {
+		c.log.Debug().Msgf("skipping ceph csi daemons check, set '%s' to skip through lcm config settings", cephCSIDaemonsCheck)
 		return nil, nil
 	}
 	rookOperatorMap, err := c.api.Kubeclientset.CoreV1().ConfigMaps(c.lcmConfig.RookNamespace).Get(c.context, lcmcommon.RookOperatorConfigMapName, metav1.GetOptions{})
@@ -281,20 +281,48 @@ func (c *cephDeploymentHealthConfig) getCSIPluginDaemonsStatus() (map[string]lcm
 	csiPluginsStatus := map[string]lcmv1alpha1.DaemonStatus{}
 	csiPluginsIssues := make([]string, 0)
 
+	rbdNodePlugin := fmt.Sprintf(lcmcommon.CephCSIRBDPlugin, c.lcmConfig.RookNamespace, "nodeplugin")
+	cephfsNodePlugin := fmt.Sprintf(lcmcommon.CephCSICephFSPlugin, c.lcmConfig.RookNamespace, "nodeplugin")
+	rbdPluginController := fmt.Sprintf(lcmcommon.CephCSIRBDPlugin, c.lcmConfig.RookNamespace, "ctrlplugin")
+	cephfsPluginController := fmt.Sprintf(lcmcommon.CephCSICephFSPlugin, c.lcmConfig.RookNamespace, "ctrlplugin")
+	// use old plugin names if CSI operator disabled, for backward compatibility
+	if rookOperatorMap.Data["ROOK_USE_CSI_OPERATOR"] == "false" {
+		rbdNodePlugin = lcmcommon.CephCSIRBDPluginDaemonSetNameOld
+		cephfsNodePlugin = lcmcommon.CephCSICephFSPluginDaemonSetNameOld
+		rbdPluginController = fmt.Sprintf("%s-provisioner", lcmcommon.CephCSIRBDPluginDaemonSetNameOld)
+		cephfsPluginController = fmt.Sprintf("%s-provisioner", lcmcommon.CephCSICephFSPluginDaemonSetNameOld)
+	} else {
+		cephCSIOperatorStatus, _ := c.getDeploymentStatus(c.lcmConfig.RookNamespace, lcmcommon.CephCSIOperatorName)
+		if len(cephCSIOperatorStatus.Issues) > 0 {
+			csiPluginsIssues = append(csiPluginsIssues, cephCSIOperatorStatus.Issues...)
+		}
+		csiPluginsStatus["ceph-csi-operator"] = cephCSIOperatorStatus
+	}
+
 	if rookOperatorMap.Data["ROOK_CSI_ENABLE_RBD"] == "true" {
-		rbdDaemonStatus, _ := c.getDaemonSetStatus(c.lcmConfig.RookNamespace, lcmcommon.CephCSIRBDPluginDaemonSetName)
+		rbdDaemonStatus, _ := c.getDaemonSetStatus(c.lcmConfig.RookNamespace, rbdNodePlugin)
 		if len(rbdDaemonStatus.Issues) > 0 {
 			csiPluginsIssues = append(csiPluginsIssues, rbdDaemonStatus.Issues...)
 		}
-		csiPluginsStatus[lcmcommon.CephCSIRBDPluginDaemonSetName] = rbdDaemonStatus
+		csiPluginsStatus[rbdNodePlugin] = rbdDaemonStatus
+		rbdControllerStatus, _ := c.getDeploymentStatus(c.lcmConfig.RookNamespace, rbdPluginController)
+		if len(rbdControllerStatus.Issues) > 0 {
+			csiPluginsIssues = append(csiPluginsIssues, rbdControllerStatus.Issues...)
+		}
+		csiPluginsStatus[rbdPluginController] = rbdControllerStatus
 	}
 
 	if rookOperatorMap.Data["ROOK_CSI_ENABLE_CEPHFS"] == "true" {
-		cephFSDaemonStatus, _ := c.getDaemonSetStatus(c.lcmConfig.RookNamespace, lcmcommon.CephCSICephFSPluginDaemonSetName)
+		cephFSDaemonStatus, _ := c.getDaemonSetStatus(c.lcmConfig.RookNamespace, cephfsNodePlugin)
 		if len(cephFSDaemonStatus.Issues) > 0 {
 			csiPluginsIssues = append(csiPluginsIssues, cephFSDaemonStatus.Issues...)
 		}
-		csiPluginsStatus[lcmcommon.CephCSICephFSPluginDaemonSetName] = cephFSDaemonStatus
+		csiPluginsStatus[cephfsNodePlugin] = cephFSDaemonStatus
+		cephFSControllerStatus, _ := c.getDeploymentStatus(c.lcmConfig.RookNamespace, cephfsPluginController)
+		if len(cephFSControllerStatus.Issues) > 0 {
+			csiPluginsIssues = append(csiPluginsIssues, cephFSControllerStatus.Issues...)
+		}
+		csiPluginsStatus[cephfsPluginController] = cephFSControllerStatus
 	}
 
 	return csiPluginsStatus, csiPluginsIssues
@@ -321,4 +349,27 @@ func (c *cephDeploymentHealthConfig) getDaemonSetStatus(daemonSetNamespace, daem
 		daemonStatus.Issues = []string{fmt.Sprintf("daemonset '%s/%s' is not ready", daemonSetNamespace, daemonSetName)}
 	}
 	return daemonStatus, int(ds.Status.NumberReady)
+}
+
+func (c *cephDeploymentHealthConfig) getDeploymentStatus(deploymentNamespace, deploymentName string) (lcmv1alpha1.DaemonStatus, int) {
+	daemonStatus := lcmv1alpha1.DaemonStatus{
+		Status: lcmv1alpha1.DaemonStateFailed,
+	}
+	deploy, err := c.api.Kubeclientset.AppsV1().Deployments(deploymentNamespace).Get(c.context, deploymentName, metav1.GetOptions{})
+	if err != nil {
+		c.log.Error().Err(err).Msg("")
+		if apierrors.IsNotFound(err) {
+			daemonStatus.Issues = []string{fmt.Sprintf("deployment '%s/%s' is not found", deploymentNamespace, deploymentName)}
+		} else {
+			daemonStatus.Issues = []string{fmt.Sprintf("failed to get '%s/%s' deployment", deploymentNamespace, deploymentName)}
+		}
+		return daemonStatus, 0
+	}
+	daemonStatus.Messages = []string{fmt.Sprintf("%d/%d ready", deploy.Status.ReadyReplicas, deploy.Status.Replicas)}
+	if lcmcommon.IsDeploymentReady(deploy) {
+		daemonStatus.Status = lcmv1alpha1.DaemonStateOk
+	} else {
+		daemonStatus.Issues = []string{fmt.Sprintf("deployment '%s/%s' is not ready", deploymentNamespace, deploymentName)}
+	}
+	return daemonStatus, int(deploy.Status.ReadyReplicas)
 }

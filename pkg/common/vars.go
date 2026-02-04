@@ -26,9 +26,9 @@ const (
 	// app names for disk-daemon and toolbox
 	PelagiaToolBox    = "pelagia-ceph-toolbox"
 	PelagiaDiskDaemon = "pelagia-disk-daemon"
-	// csi plugin names
-	CephCSIRBDPluginDaemonSetName    = "csi-rbdplugin"
-	CephCSICephFSPluginDaemonSetName = "csi-cephfsplugin"
+	// rook csi plugin names, deprecated in favor of using csi operator
+	CephCSIRBDPluginDaemonSetNameOld    = "csi-rbdplugin"
+	CephCSICephFSPluginDaemonSetNameOld = "csi-cephfsplugin"
 	// CephCSIRBDNodeClientName is the name of CSI RBD node client
 	CephCSIRBDNodeClientName = "csi-rbd-node"
 	// CephCSIRBDProvisionerClientName is the name of CSI RBD provisioner client
@@ -37,6 +37,8 @@ const (
 	CephCSICephFSNodeClientName = "csi-cephfs-node"
 	// CephCSICephFSProvisionerClientName is the name of CSI CephFS provisioner client
 	CephCSICephFSProvisionerClientName = "csi-cephfs-provisioner"
+	// CephCSIOperator deployment name
+	CephCSIOperatorName = "ceph-csi-controller-manager"
 	// rook related vars
 	RookCephOperatorName      = "rook-ceph-operator"
 	RookDiscoverName          = "rook-discover"
@@ -58,6 +60,12 @@ const (
 	CephNodeLabelTemplate = "ceph_role_%s"
 	// Timeout for disk cleanup job
 	DiskCleanupTimeout = 3600
+)
+
+var (
+	// csi operator plugin names
+	CephCSIRBDPlugin    = "%s.rbd.csi.ceph.com-%s"
+	CephCSICephFSPlugin = "%s.cephfs.csi.ceph.com-%s"
 )
 
 var (

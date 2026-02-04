@@ -24,6 +24,18 @@ import (
 
 var DeploymentListEmpty = &appsv1.DeploymentList{Items: []appsv1.Deployment{}}
 var DeploymentList = &appsv1.DeploymentList{Items: []appsv1.Deployment{*RookDeploymentLatestVersion}}
+var DeploymentListWithCSIReady = &appsv1.DeploymentList{
+	Items: []appsv1.Deployment{
+		*RookDeploymentLatestVersion, *GetDeploymentWithStatus("ceph-csi-controller-manager", "rook-ceph", nil, 1, 1),
+		*GetDeploymentWithStatus("rook-ceph.cephfs.csi.ceph.com-ctrlplugin", "rook-ceph", nil, 2, 2), *GetDeploymentWithStatus("rook-ceph.rbd.csi.ceph.com-ctrlplugin", "rook-ceph", nil, 2, 2),
+	},
+}
+var DeploymentListWithCSINotReady = &appsv1.DeploymentList{
+	Items: []appsv1.Deployment{
+		*RookDeploymentLatestVersion, *GetDeploymentWithStatus("ceph-csi-controller-manager", "rook-ceph", nil, 1, 0),
+		*GetDeploymentWithStatus("rook-ceph.cephfs.csi.ceph.com-ctrlplugin", "rook-ceph", nil, 2, 0), *GetDeploymentWithStatus("rook-ceph.rbd.csi.ceph.com-ctrlplugin", "rook-ceph", nil, 2, 0),
+	},
+}
 
 func GetDeployment(name, namespace string, labels map[string]string, replicas *int32) *appsv1.Deployment {
 	return &appsv1.Deployment{
@@ -36,6 +48,17 @@ func GetDeployment(name, namespace string, labels map[string]string, replicas *i
 			Replicas: replicas,
 		},
 	}
+}
+
+func GetDeploymentWithStatus(name, namespace string, labels map[string]string, desiredReplicas, readyReplicas int32) *appsv1.Deployment {
+	deploy := GetDeployment(name, namespace, labels, &desiredReplicas)
+	deploy.Status = appsv1.DeploymentStatus{
+		Replicas:          desiredReplicas,
+		UpdatedReplicas:   readyReplicas,
+		ReadyReplicas:     readyReplicas,
+		AvailableReplicas: readyReplicas,
+	}
+	return deploy
 }
 
 func GetRookDeployment(image string, desiredReplicas, readyReplicas int32) *appsv1.Deployment {

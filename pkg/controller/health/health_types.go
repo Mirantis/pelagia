@@ -56,11 +56,11 @@ type sharedFilesystemOpts struct {
 }
 
 const (
-	cephDaemonsCheck          = "ceph_daemons"
-	cephCSIPluginDaemonsCheck = "ceph_csi_plugin_daemons"
-	usageDetailsCheck         = "usage_details"
-	cephEventsCheck           = "ceph_events"
-	poolReplicasCheck         = "pools_replicas"
-	rgwInfoCheck              = "rgw_info"
-	specAnalysisCheck         = "spec_analysis"
+	cephDaemonsCheck    = "ceph_daemons"
+	cephCSIDaemonsCheck = "ceph_csi_daemons"
+	usageDetailsCheck   = "usage_details"
+	cephEventsCheck     = "ceph_events"
+	poolReplicasCheck   = "pools_replicas"
+	rgwInfoCheck        = "rgw_info"
+	specAnalysisCheck   = "spec_analysis"
 )
