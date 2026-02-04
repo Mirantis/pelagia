@@ -313,24 +313,6 @@ func generateCephClusterSpec(cephDpl *cephlcmv1alpha1.CephDeployment, image stri
 	switch cephDpl.Spec.Network.Provider {
 	case "", "host":
 		clusterSpec.Network.Provider = "host"
-		if cephDpl.Spec.Network.MonOnPublicNet {
-			publics := strings.Split(cephDpl.Spec.Network.PublicNet, ",")
-			publicCIDRs := cephv1.CIDRList{}
-			for _, pubNet := range publics {
-				publicCIDRs = append(publicCIDRs, cephv1.CIDR(pubNet))
-			}
-
-			clusters := strings.Split(cephDpl.Spec.Network.ClusterNet, ",")
-			clusterCIDRs := cephv1.CIDRList{}
-			for _, clusterNet := range clusters {
-				clusterCIDRs = append(clusterCIDRs, cephv1.CIDR(clusterNet))
-			}
-
-			clusterSpec.Network.AddressRanges = &cephv1.AddressRangesSpec{
-				Public:  publicCIDRs,
-				Cluster: clusterCIDRs,
-			}
-		}
 	case "multus":
 		clusterSpec.Network.Provider = "multus"
 		clusterSpec.Network.Selectors = cephDpl.Spec.Network.Selector

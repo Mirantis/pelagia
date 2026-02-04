@@ -244,9 +244,6 @@ type CephNetworkSpec struct {
 	ClusterNet string `json:"clusterNet"`
 	// ClusterNet defines public network for an external access to Ceph Cluster
 	PublicNet string `json:"publicNet"`
-	// MonOnPublicNet defines monitors on public network instead of LCM network
-	// +optional
-	MonOnPublicNet bool `json:"monOnPublicNet,omitempty"`
 	// Provider specifies the network provider that will be used to connect the network interface
 	// +nullable
 	Provider string `json:"provider,omitempty"`
