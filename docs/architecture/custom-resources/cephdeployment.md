@@ -109,9 +109,9 @@ spec:
 
 2. Using the tables below, configure the Ceph cluster as required:
 
-     - [General parameters](#general)
-     - [Network parameters](#network)
-     - [Nodes parameters](#nodes)
+     - [General parameters](#cephdpl-general)
+     - [Network parameters](#cephdpl-network)
+     - [Nodes parameters](#cephdpl-nodes)
      - [Pools parameters](#pools)
      - [Clients parameters](#clients)
      - [Object Storage parameters](#rgw)
@@ -130,7 +130,8 @@ spec:
       ```
       kubectl apply -f cephdeployment.yaml
       ```
-     - If you are editing `CephDeployment` , save the changes and exit the text editor to apply it.
+
+    - If you are editing `CephDeployment` , save the changes and exit the text editor to apply it.
 
 4. Verify `CephDeployment` reconcile status with [Status fields](#status).
 
@@ -139,26 +140,24 @@ spec:
 The following subsections contain a description of `CephDeployment` parameters for an
 advanced configuration.
 
-### General parameters <a name="general"></a>
+### General parameters <a name="cephdpl-general"></a>
 
-| <div style="width:150px">Parameter</div> | Description                                                                                                                                                                                                                                                                              |
-|------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `network`                                | Specifies access and public networks for the Ceph cluster. For details, see [Network parameters](#network).                                                                                                                                                                              |
-| `nodes`                                  | Specifies the list of Ceph nodes. For details, see [Node parameters](#nodes). The `nodes` parameter is a list with Ceph node specifications. List item could define Ceph node specification for a single node or a group of nodes listed or defined by label. It could be also combined. |
-| `pools`                                  | Specifies the list of Ceph pools. For details, see [Pool parameters](#pools).                                                                                                                                                                                                            |
-| `clients`                                | List of Ceph clients. For details, see [Clients parameters](#clients).                                                                                                                                                                                                                   |
-| `objectStorage`                          | Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage. Also specifies the RADOS Gateway Multisite configuration. For details, see [RADOS Gateway parameters](#rgw) and [Multisite parameters](#multisite).                                         |
-| `ingressConfig`                          | Enables a custom ingress rule for public access on Ceph services, for example, Ceph RADOS Gateway. For details, see [Configure Ceph Object Gateway TLS](https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-tls).                                                                |
-| `sharedFilesystem`                       | Enables Ceph Filesystem. For details, see [CephFS parameters](#cephfs).                                                                                                                                                                                                                  |
-| `rookConfig`                             | String key-value parameter that allows overriding Ceph configuration options. For details, see [RookConfig parameters](#rookConfig).                                                                                                                                                     |
-| `healthCheck`                            | Configures health checks and liveness probe settings for Ceph daemons. For details, see [Health check parameters](#healthcheck).                                                                                                                                                         |
-| `extraOpts`                              | Enables specification of extra options for a setup, includes the `deviceLabels` parameter. Refer to [Extra options](#extraopts) for details.                                                                                                                                             |
-| `mgr`                                    | Specifies a list of Ceph Manager modules to be enabled or disabled. For details, see [Manager modules parameters](#mgr-modules). Modules `balancer` and `pg_autoscaler` are enabled by default.                                                                                          |
-| `dashboard`                              | Enables Ceph dashboard. Currently, Pelagia has no support of Ceph Dashboard. Defaults to `false`.                                                                                                                                                                                        |
-| `rbdMirror`                              | Specifies the parameters for RBD Mirroring. For details, see [RBD Mirroring parameters](#rbdmirror).                                                                                                                                                                                     |
-| `external`                               | Enables external Ceph cluster mode. If enabled, Pelagia will read a special `Secret` with external Ceph cluster credentials data connect to.                                                                                                                                             |
+- `network` - Specifies access and public networks for the Ceph cluster. For details, see [Network parameters](#cephdpl-network).
+- `nodes` - Specifies the list of Ceph nodes. For details, see [Node parameters](#cephdpl-nodes). The `nodes` parameter is a list with Ceph node specifications. List item could define Ceph node specification for a single node or a group of nodes listed or defined by label. It could be also combined.
+- `pools` - Specifies the list of Ceph pools. For details, see [Pool parameters](#pools).
+- `clients` - List of Ceph clients. For details, see [Clients parameters](#clients).
+- `objectStorage` - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage. Also specifies the RADOS Gateway Multisite configuration. For details, see [RADOS Gateway parameters](#rgw) and [Multisite parameters](#multisite).
+- `ingressConfig` - Enables a custom ingress rule for public access on Ceph services, for example, Ceph RADOS Gateway. For details, see [Configure Ceph Object Gateway TLS](https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-tls).
+- `sharedFilesystem` - Enables Ceph Filesystem. For details, see [CephFS parameters](#cephfs).
+- `rookConfig` - String key-value parameter that allows overriding Ceph configuration options. For details, see [RookConfig parameters](#rookConfig).
+- `healthCheck` - Configures health checks and liveness probe settings for Ceph daemons. For details, see [Health check parameters](#healthcheck).
+- `extraOpts` - Enables specification of extra options for a setup, includes the `deviceLabels` parameter. Refer to [Extra options](#extraopts) for details.
+- `mgr` - Specifies a list of Ceph Manager modules to be enabled or disabled. For details, see [Manager modules parameters](#mgr-modules). Modules `balancer` and `pg_autoscaler` are enabled by default.
+- `dashboard` - Enables Ceph dashboard. Currently, Pelagia has no support of Ceph Dashboard. Defaults to `false`.
+- `rbdMirror` - Specifies the parameters for RBD Mirroring. For details, see [RBD Mirroring parameters](#rbdmirror).
+- `external` - Enables external Ceph cluster mode. If enabled, Pelagia will read a special `Secret` with external Ceph cluster credentials data connect to.
 
-### Network parameters <a name="network"></a>
+### Network parameters <a name="cephdpl-network"></a>
 
 - `clusterNet` - specifies a Classless Inter-Domain Routing (CIDR)
   for the Ceph OSD replication network.
@@ -198,7 +197,7 @@ spec:
     publicNet:  192.100.0.0/24
 ```
 
-### Nodes parameters <a name="nodes"></a>
+### Nodes parameters <a name="cephdpl-nodes"></a>
 
 - `name` - Mandatory. Specifies the following:
 
@@ -828,7 +827,7 @@ parameters:
     Most Ceph Manager modules require additional configuration that you can perform through the `pelagia-lcm-tooblox`
     pod.
 
-## RBD Mirroring parameters <a name="rbdmirror"></a>
+### RBD Mirroring parameters <a name="rbdmirror"></a>
 
 - `daemonsCount` - Count of `rbd-mirror` daemons to spawn. We recommend using one instance of the `rbd-mirror` daemon.                                                                                                                                                                                                                                                                                                                                                                                                                  |
 - `peers` - Optional. List of mirroring peers of an external cluster to connect to. Only a single peer is supported.
@@ -841,11 +840,14 @@ parameters:
 
 ## Status fields <a name="status"></a>
 
-| Field            | Description                                                                                                                                                                                                                                                                                                                                   |
-|------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `phase`          | Current handling phase of the applied Ceph cluster spec. Can equal to `Creating`, `Deploying`, `Validation`, `Ready`, `Deleting`, `OnHold` or `Failed`.                                                                                                                                                                                       |
-| `message`        | Detailed description of the current phase or an error message if the phase is `Failed`.                                                                                                                                                                                                                                                       |
-| `lastRun`        | `DateTime` when previous spec reconcile occurred.                                                                                                                                                                                                                                                                                             |
-| `clusterVersion` | Current Ceph cluster version, for example, `v19.2.3`.                                                                                                                                                                                                                                                                                         |
-| `validation`     | Validation result (`Succeed` or `Failed`) of the spec with a list of messages, if any. The `validation` section includes the following fields:<ul><li>`result` - Succeed or Failed</li><li>`messages` - the list of error messages</li><li>`lastValidatedGeneration` - the last validated `metadata.generation` of `CephDeployment`</li></ul> |
-| `objRefs`        | Pelagia API object refereneces such as `CephDeploymentHealth` and `CephDeploymentSecret`.                                                                                                                                                                                                                                                     |
+- `phase` - Current handling phase of the applied Ceph cluster spec. Can equal to `Creating`, `Deploying`, `Validation`, `Ready`, `Deleting`, `OnHold` or `Failed`.
+- `message` - Detailed description of the current phase or an error message if the phase is `Failed`.
+- `lastRun` - `DateTime` when previous spec reconcile occurred.
+- `clusterVersion` - Current Ceph cluster version, for example, `v19.2.3`.
+- `validation` - Validation result (`Succeed` or `Failed`) of the spec with a list of messages, if any. The `validation` section includes the following fields:
+
+   - `result` - Succeed or Failed
+   - `messages` - the list of error messages
+   - `lastValidatedGeneration` - the last validated `metadata.generation` of `CephDeployment`
+
+- `objRefs` - Pelagia API object refereneces such as `CephDeploymentHealth` and `CephDeploymentSecret`.

@@ -214,7 +214,7 @@ Substitute the following parameters:
 * `<osProjectId>` - the target OpenStack project ID
 * `<bucketName>` - the target bucket name where the policy will be set
 
-### Provide access to a bucket from a Ceph Object Storage user to an OpenStack project
+### Provide access to a bucket from a Ceph RGW user to an OpenStack project
 
 ```json
 {

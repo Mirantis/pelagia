@@ -12,7 +12,7 @@ details, see [Ceph Documentation: Ceph File System](https://docs.ceph.com/en/lat
 
     By design, CephFS data pool and metadata pool must be `replicated` only.
 
-## CephFS specification parameters <a name="parameters"></a>
+## CephFS specification parameters <a name="cephfs-parameters"></a>
 
 The `CephDeployment` custom resource (CR) `spec` includes the `sharedFilesystem.cephFS` section
 with the following CephFS parameters:
@@ -139,7 +139,7 @@ with the following CephFS parameters:
    kubectl -n pelagia edit cephdpl
    ```
 
-3. In the `sharedFilesystem` section, specify parameters according to [CephFS specification](#parameters). For example:
+3. In the `sharedFilesystem` section, specify parameters according to [CephFS specification](#cephfs-parameters). For example:
    ```yaml
    spec:
      sharedFilesystem:

@@ -32,16 +32,14 @@ where `ca.crt` is a CA certificate signs Ceph Object Storage public endpoint.
 
 The command will ask to specify the following bucket access parameters:
 
-| Parameter                                                        | Description                                               | Comment                                          |
-|------------------------------------------------------------------|-----------------------------------------------------------|--------------------------------------------------|
-| `Access Key`                                                     | Public part of access credentials.                        | Specify a user access key.                       |
-| `Secret Key`                                                     | Secret part of access credentials.                        | Specify a user secret key.                       |
-| `Default Region`                                                 | Region of AWS servers where requests are sent by default. | Use the default value.                           |
-| `S3 Endpoint`                                                    | Connection point to the Ceph Object Storage.              | Specify the Ceph Object Storage public endpoint. |
-| `DNS-style bucket+hostname:port template for accessing a bucket` | Bucket location.                                          | Specify the Ceph Object Storage public endpoint. |
-| `Path to GPG program`                                            | Path to the GNU Privacy Guard encryption suite.           | Use the default value.                           |
-| `Use HTTPS protocol`                                             | HTTPS protocol switch.                                    | Specify `Yes`.                                   |
-| `HTTP Proxy server name`                                         | HTTP Proxy server name.                                   | Skip this parameter.                             |
+- `Access Key` - Public part of access credentials. Specify a user access key.
+- `Secret Key` - Secret part of access credentials. Specify a user secret key.
+- `Default Region` - Region of AWS servers where requests are sent by default. Use the default value.
+- `S3 Endpoint` - Connection point to the Ceph Object Storage. Specify the Ceph Object Storage public endpoint.
+- `DNS-style bucket+hostname:port template for accessing a bucket` - Bucket location. Specify the Ceph Object Storage public endpoint.
+- `Path to GPG program` - Path to the GNU Privacy Guard encryption suite. Use the default value.
+- `Use HTTPS protocol` - HTTPS protocol switch. Specify `Yes`.
+- `HTTP Proxy server name` - HTTP Proxy server name. Skip this parameter.
 
 When configured correctly, the `s3cmd` tool connects to the Ceph Object Storage.
 Save new settings when prompted by the system.

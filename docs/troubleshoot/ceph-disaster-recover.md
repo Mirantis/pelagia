@@ -108,7 +108,7 @@ Consider the common state of a failed or removed Ceph cluster:
         helm uninstall <releaseName>
         ```
 
-         where `<releaseName>` is Pelagia Helm release, for example, `pelagia-ceph`.
+          where `<releaseName>` is Pelagia Helm release, for example, `pelagia-ceph`.
 
 4. Create the `CephDeployment` CR template and edit the roles of nodes. The entire
    `nodes` spec must contain only one `mon` and one `mgr` role. Save the `CephDeployment`

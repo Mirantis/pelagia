@@ -16,11 +16,9 @@ The following sections describe the `CephOsdRemoveTask` custom resource specific
 
 ## Spec parameters <a name="spec"></a>
 
-| <div style="width:150px">Parameter</div> | Description                                                                                                                              |
-|------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------|
-| `nodes`                                  | Map of Kubernetes nodes that specifies how to remove Ceph OSDs: by host-devices or OSD IDs. For details, see [Nodes parameters](#nodes). |
-| `approve`                                | Flag that indicates whether a request is ready to execute removal. Can only be manually enabled by the Operator. Defaults to `false`.    |
-| `resolved`                               | Optional. Flag that marks a finished request, even if it failed, to keep it in historydo not block any further operations.               |
+- `nodes` - Map of Kubernetes nodes that specifies how to remove Ceph OSDs: by host-devices or OSD IDs. For details, see [Nodes parameters](#nodes).
+- `approve` - Flag that indicates whether a request is ready to execute removal. Can only be manually enabled by the Operator. Defaults to `false`.
+- `resolved` - Optional. Flag that marks a finished request, even if it failed, to keep it in historydo not block any further operations.
 
 ### Nodes parameters <a name="nodes"></a>
 
@@ -102,13 +100,11 @@ The example above includes the following actions:
 
 ## Status fields <a name="status"></a>
 
-| <div style="width:150px">Field</div> | Description                                                                                                                                                                                                                                                                                                                        |
-|--------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `phase`                              | Describes the current task phase.                                                                                                                                                                                                                                                                                                  |
-| `phaseInfo`                          | Additional human-readable message describing task phase.                                                                                                                                                                                                                                                                           |
-| `removeInfo`                         | The overall information about the Ceph OSDs to remove: final removal map, issues, and warnings. Once the `Processing` phase succeeds, `removeInfo` will be extended with the removal status for each node and Ceph OSD. In case of an entire node removal, the status will contain the status itself and an error message, if any. |
-| `messages`                           | Informational messages describing the reason for the request transition to the next phase.                                                                                                                                                                                                                                         |
-| `conditions`                         | History of spec updates for the request.                                                                                                                                                                                                                                                                                           |
+- `phase` - Describes the current task phase.
+- `phaseInfo` - Additional human-readable message describing task phase.
+- `removeInfo` - The overall information about the Ceph OSDs to remove: final removal map, issues, and warnings. Once the `Processing` phase succeeds, `removeInfo` will be extended with the removal status for each node and Ceph OSD. In case of an entire node removal, the status will contain the status itself and an error message, if any.
+- `messages` - Informational messages describing the reason for the request transition to the next phase.
+- `conditions` - History of spec updates for the request.
 
 `CephOsdRemoveTask` phases are moving in the following order:
 
@@ -124,11 +120,9 @@ Here are the following **final** phases:
 
 ### Remove info fields <a name="remove-info"></a>
 
-| <div style="width:150px">Field</div> | Description                                                                                                                                                                                                             |
-|--------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `cleanupMap`                         | Map of desired nodes and devices to clean up. Based on this map, the cloud operator decides whether to approve the current task or not. After approve, it will contain all statuses and errors happened during cleanup. |
-| `issues`                             | List of error messages found during validation or processing phases                                                                                                                                                     |
-| `warnings`                           | List of non-blocking warning messages found during validation or processing phases                                                                                                                                      |
+- `cleanupMap` - Map of desired nodes and devices to clean up. Based on this map, the cloud operator decides whether to approve the current task or not. After approve, it will contain all statuses and errors happened during cleanup.
+- `issues` - List of error messages found during validation or processing phases
+- `warnings` - List of non-blocking warning messages found during validation or processing phases
 
 `cleanupMap` is a map of nodes to devices contains the following fields:
 
