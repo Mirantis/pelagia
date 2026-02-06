@@ -3,6 +3,9 @@ global:
   clusterRelease: ""
   namespace: ""
 
+snapshot-controller:
+  enabled: true
+
 productSetup: "mke"
 cephDeployment:
   enabled: true

@@ -9,7 +9,11 @@ maintainers:
 dependencies:
 - name: rook-crds
   repository: file://charts/rook-crds
+  condition: rookConfig.configureRook
   version: 1.0.0
 - name: snapshot-controller
   repository: file://charts/snapshot-controller
+  condition: snapshot-controller.enabled
   version: 1.0.0
+  tags:
+    - snapshot-controller
