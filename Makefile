@@ -15,8 +15,6 @@ DISK_DAEMON_CMD := ./cmd/disk-daemon
 CONNECTOR_NAME := pelagia-connector
 CONNECTOR_CMD := ./cmd/connector
 CEPH_E2E_NAME := pelagia-e2e
-SKIP_SNAPSHOT_CONTROLLER ?= ""
-SKIP_ROOK_CRDS ?= ""
 CURRENT_RELEASE_VERSION := "2.0.0"
 CODE_VERSION := $(shell build/scripts/get_version.sh)
 DEV_VERSION ?= "dev-$(CODE_VERSION)"
@@ -39,40 +37,20 @@ HELM_REGISTRY ?= oci://localhost/pelagia/pelagia-ceph
 pelagia-ceph-chart: snapshot-controller-chart rook-crds-chart ## Build helm package
 	@printf "\n=== PACKAGING PELAGIA-CEPH CHART ===\n"
 	@cp charts/pelagia-ceph/Chart.yaml charts/pelagia-ceph/.Chart.yaml.bckp
-	@if [ -n $(SKIP_SNAPSHOT_CONTROLLER) ]; then \
-		printf "\n=== REMOVING SNAPSHOT-CONTROLLER DEPENDENCY ===\n"; \
-		sed -i '/- name: snapshot-controller/,+2d' charts/pelagia-ceph/Chart.yaml ; \
-	fi
-	@if [ -n $(SKIP_ROOK_CRDS) ]; then \
-		printf "\n=== REMOVING ROOK-CRDS DEPENDENCY ===\n"; \
-		sed -i '/- name: rook-crds/,+2d' charts/pelagia-ceph/Chart.yaml ; \
-	fi
-	@if [ -z $(SKIP_SNAPSHOT_CONTROLLER) -o -z $(SKIP_ROOK_CRDS) ]; then \
-		sed -i 's/^  version:.*$$/  version: $(VERSION)/g' charts/pelagia-ceph/Chart.yaml ; \
-	else \
-		sed -i '/^dependencies:/,$$d' charts/pelagia-ceph/Chart.yaml ; \
-	fi
+	@sed -i 's/^  version:.*$$/  version: $(VERSION)/g' charts/pelagia-ceph/Chart.yaml
 	helm lint charts/pelagia-ceph
 	helm package charts/pelagia-ceph --version $(VERSION) --app-version $(VERSION)
 	@mv charts/pelagia-ceph/.Chart.yaml.bckp charts/pelagia-ceph/Chart.yaml
 
 rook-crds-chart: ## Build helm package with rook-crds deps
-	@if [ -z $(SKIP_ROOK_CRDS) ]; then \
-		printf "\n=== PACKAGING ROOK-CRDS CHART ===\n"; \
-		helm lint charts/rook-crds; \
-		helm package charts/rook-crds --version $(VERSION) -d charts/pelagia-ceph/charts; \
-	else \
-		printf "\n=== PACKAGING ROOK-CRDS CHART HAS BEEN SKIPPED ===\n"; \
-	fi
+	printf "\n=== PACKAGING ROOK-CRDS CHART ===\n"
+	helm lint charts/rook-crds
+	helm package charts/rook-crds --version $(VERSION) -d charts/pelagia-ceph/charts
 
 snapshot-controller-chart: ## Build helm package with snapshot-controller deps
-	@if [ -z $(SKIP_SNAPSHOT_CONTROLLER) ]; then \
-		printf "\n=== PACKAGING SNAPSHOT-CONTROLLER CHART ===\n"; \
-		helm lint charts/snapshot-controller; \
-		helm package charts/snapshot-controller --version $(VERSION) -d charts/pelagia-ceph/charts; \
-	else \
-		printf "\n=== PACKAGING SNAPSHOT-CONTROLLER CHART HAS BEEN SKIPPED ===\n"; \
-	fi
+	printf "\n=== PACKAGING SNAPSHOT-CONTROLLER CHART ===\n"
+	helm lint charts/snapshot-controller
+	helm package charts/snapshot-controller --version $(VERSION) -d charts/pelagia-ceph/charts
 
 publish-chart: ## Push chart to helm registry
 	helm push pelagia-ceph-$(VERSION).tgz $(HELM_REGISTRY)
