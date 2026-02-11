@@ -62,83 +62,80 @@ After the installation, you can deploy a Ceph cluster using the Pelagia `CephDep
 It will create Rook resources for Rook Operator to deploy a Ceph cluster. After Rook Operator deploys
 Ceph cluster, it could be managed by `CephDeployment` resource.
 
-<details>
-<summary>Simple example of a `CephDeployment` resource</summary>
-<div>
-```yaml
-apiVersion: lcm.mirantis.com/v1alpha1
-kind: CephDeployment
-metadata:
-  name: pelagia-ceph
-  namespace: pelagia
-spec:
-  dashboard: false
-  network:
-    publicNet: ${CEPH_PUBLIC_NET}
-    clusterNet: ${CEPH_CLUSTER_NET}
-  nodes:
-  - name: ${CEPH_NODE_CP_0}
-    roles: [ "mon", "mgr", "mds" ]
-  - name: ${CEPH_NODE_CP_1}
-    roles: [ "mon", "mgr", "mds" ]
-  - name: ${CEPH_NODE_CP_2}
-    roles: [ "mon", "mgr", "mds" ]
-  - name: ${CEPH_NODE_WORKER_0}
-    devices:
-    - config:
+??? "Simple example of a `CephDeployment` resource"
+
+    ```yaml
+    apiVersion: lcm.mirantis.com/v1alpha1
+    kind: CephDeployment
+    metadata:
+      name: pelagia-ceph
+      namespace: pelagia
+    spec:
+      dashboard: false
+      network:
+        publicNet: ${CEPH_PUBLIC_NET}
+        clusterNet: ${CEPH_CLUSTER_NET}
+      nodes:
+      - name: ${CEPH_NODE_CP_0}
+        roles: [ "mon", "mgr", "mds" ]
+      - name: ${CEPH_NODE_CP_1}
+        roles: [ "mon", "mgr", "mds" ]
+      - name: ${CEPH_NODE_CP_2}
+        roles: [ "mon", "mgr", "mds" ]
+      - name: ${CEPH_NODE_WORKER_0}
+        devices:
+        - config:
+            deviceClass: hdd
+          fullPath: /dev/disk/by-id/${CEPH_OSD_DEVICE_0}
+      - name: ${CEPH_NODE_WORKER_1}
+        devices:
+        - config:
+            deviceClass: hdd
+          fullPath: /dev/disk/by-id/${CEPH_OSD_DEVICE_1}
+      - name: ${CEPH_NODE_WORKER_2}
+        devices:
+        - config:
+            deviceClass: hdd
+          fullPath: /dev/disk/by-id/${CEPH_OSD_DEVICE_2}
+      pools:
+      - name: kubernetes
         deviceClass: hdd
-      fullPath: /dev/disk/by-id/${CEPH_OSD_DEVICE_0}
-  - name: ${CEPH_NODE_WORKER_1}
-    devices:
-    - config:
-        deviceClass: hdd
-      fullPath: /dev/disk/by-id/${CEPH_OSD_DEVICE_1}
-  - name: ${CEPH_NODE_WORKER_2}
-    devices:
-    - config:
-        deviceClass: hdd
-      fullPath: /dev/disk/by-id/${CEPH_OSD_DEVICE_2}
-  pools:
-  - name: kubernetes
-    deviceClass: hdd
-    default: true
-    replicated:
-      size: 3
-  objectStorage:
-    rgw:
-      name: rgw-store
-      dataPool:
-        deviceClass: hdd
+        default: true
         replicated:
           size: 3
-      metadataPool:
-        deviceClass: hdd
-        replicated:
-          size: 3
-      gateway:
-        allNodes: false
-        instances: 3
-        port: 8081
-        securePort: 8443
-      preservePoolsOnDelete: false
-  sharedFilesystem:
-    cephFS:
-    - name: cephfs-store
-      dataPools:
-      - name: cephfs-pool-1
-        deviceClass: hdd
-        replicated:
-          size: 3
-      metadataPool:
-        deviceClass: hdd
-        replicated:
-          size: 3
-      metadataServer:
-        activeCount: 1
-        activeStandby: false
-```
-</div>
-</details>
+      objectStorage:
+        rgw:
+          name: rgw-store
+          dataPool:
+            deviceClass: hdd
+            replicated:
+              size: 3
+          metadataPool:
+            deviceClass: hdd
+            replicated:
+              size: 3
+          gateway:
+            allNodes: false
+            instances: 3
+            port: 8081
+            securePort: 8443
+          preservePoolsOnDelete: false
+      sharedFilesystem:
+        cephFS:
+        - name: cephfs-store
+          dataPools:
+          - name: cephfs-pool-1
+            deviceClass: hdd
+            replicated:
+              size: 3
+          metadataPool:
+            deviceClass: hdd
+            replicated:
+              size: 3
+          metadataServer:
+            activeCount: 1
+            activeStandby: false
+    ```
 
 The example above contains `3` control plane nodes and `3` worker nodes in a Ceph cluster.
 You can change the number of nodes and their roles according to your needs. As a result, you will have

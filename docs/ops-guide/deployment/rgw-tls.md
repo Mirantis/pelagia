@@ -103,29 +103,26 @@ Also, `rgw dns name` is specified by Pelagia Deployment Controller and is set to
 You can override `rgw dns name` using the `rookConfig` key-value parameter. In this case, also change the corresponding
 ingress annotation.
 
-<details>
-<summary>Configuration example with the rgw_dns_name override</summary>
-<div>
-```yaml
-spec:
-  objectStorage:
-    rgw:
-      name: rgw-store
-      ...
-  ingressConfig:
-    tlsConfig:
-      publicDomain: public.domain.name
-      tlsSecretRefName: pelagia-ingress-tls-secret
-    controllerClassName: openstack-ingress-nginx
-    annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: /
-      nginx.ingress.kubernetes.io/upstream-vhost: rgw-store.public.domain.name
-      nginx.ingress.kubernetes.io/proxy-body-size: 100m
-  rookConfig:
-    "rgw dns name": rgw-store.public.domain.name
-```
-</div>
-</details>
+??? "Configuration example with the `rgw_dns_name` override"
+
+    ```yaml
+    spec:
+      objectStorage:
+        rgw:
+          name: rgw-store
+          ...
+      ingressConfig:
+        tlsConfig:
+          publicDomain: public.domain.name
+          tlsSecretRefName: pelagia-ingress-tls-secret
+        controllerClassName: openstack-ingress-nginx
+        annotations:
+          nginx.ingress.kubernetes.io/rewrite-target: /
+          nginx.ingress.kubernetes.io/upstream-vhost: rgw-store.public.domain.name
+          nginx.ingress.kubernetes.io/proxy-body-size: 100m
+      rookConfig:
+        "rgw dns name": rgw-store.public.domain.name
+    ```
 
 For clouds with the `publicDomain` parameter specified, align the `upstream-vhost` ingress annotation with the
 name of the Ceph Object Storage and the specified public domain.

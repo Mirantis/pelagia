@@ -67,36 +67,33 @@ configuration values:
          - `all` - specifies general toleration rules for all daemons if no separate daemon rule is specified.
          - `mds` - specifies the CephFS Metadata Server daemons.
 
-         <details>
-         <summary>Example configuration</summary>
-         <div>
-         ```yaml
-         spec:
-           hyperconverge:
-             tolerations:
-               mon:
-                 rules:
-                 - effect: NoSchedule
-                   key: node-role.kubernetes.io/controlplane
-                   operator: Exists
-               mgr:
-                 rules:
-                 - effect: NoSchedule
-                   key: node-role.kubernetes.io/controlplane
-                   operator: Exists
-               osd:
-                 rules:
-                 - effect: NoSchedule
-                   key: node-role.kubernetes.io/controlplane
-                   operator: Exists
-               rgw:
-                 rules:
-                 - effect: NoSchedule
-                   key: node-role.kubernetes.io/controlplane
-                   operator: Exists
-         ```
-         </div>
-         </details>
+        ??? "Example configuration"
+
+            ```yaml
+            spec:
+              hyperconverge:
+                tolerations:
+                  mon:
+                    rules:
+                    - effect: NoSchedule
+                      key: node-role.kubernetes.io/controlplane
+                      operator: Exists
+                  mgr:
+                    rules:
+                    - effect: NoSchedule
+                      key: node-role.kubernetes.io/controlplane
+                      operator: Exists
+                  osd:
+                    rules:
+                    - effect: NoSchedule
+                      key: node-role.kubernetes.io/controlplane
+                      operator: Exists
+                  rgw:
+                    rules:
+                    - effect: NoSchedule
+                      key: node-role.kubernetes.io/controlplane
+                      operator: Exists
+            ```
 
      - `resources` - Specifies resource requests or limits. The parameter is a map with the
        daemon type as a key and the following structure as a value:
@@ -113,58 +110,55 @@ configuration values:
          `rgw`, and `mds`. The `osd-hdd`, `osd-ssd`, and `osd-nvme` resource requirements handle only the Ceph OSDs
          with a corresponding device class.
 
-         <details>
-         <summary>Example configuration</summary>
-         <div>
-         ```yaml
-         spec:
-           hyperconverge:
-             resources:
-               mon:
-                 requests:
-                   memory: 1Gi
-                   cpu: 2
-                 limits:
-                   memory: 2Gi
-                   cpu: 3
-               mgr:
-                 requests:
-                   memory: 1Gi
-                   cpu: 2
-                 limits:
-                   memory: 2Gi
-                   cpu: 3
-               osd:
-                 requests:
-                   memory: 1Gi
-                   cpu: 2
-                 limits:
-                   memory: 2Gi
-                   cpu: 3
-               osd-hdd:
-                 requests:
-                   memory: 1Gi
-                   cpu: 2
-                 limits:
-                   memory: 2Gi
-                   cpu: 3
-               osd-ssd:
-                 requests:
-                   memory: 1Gi
-                   cpu: 2
-                 limits:
-                   memory: 2Gi
-                   cpu: 3
-               osd-nvme:
-                 requests:
-                   memory: 1Gi
-                   cpu: 2
-                 limits:
-                   memory: 2Gi
-                   cpu: 3
-         ```
-         </div>
-         </details>
+        ??? "Example configuration"
+
+            ```yaml
+            spec:
+              hyperconverge:
+                resources:
+                  mon:
+                    requests:
+                      memory: 1Gi
+                      cpu: 2
+                    limits:
+                      memory: 2Gi
+                      cpu: 3
+                  mgr:
+                    requests:
+                      memory: 1Gi
+                      cpu: 2
+                    limits:
+                      memory: 2Gi
+                      cpu: 3
+                  osd:
+                    requests:
+                      memory: 1Gi
+                      cpu: 2
+                    limits:
+                      memory: 2Gi
+                      cpu: 3
+                  osd-hdd:
+                    requests:
+                      memory: 1Gi
+                      cpu: 2
+                    limits:
+                      memory: 2Gi
+                      cpu: 3
+                  osd-ssd:
+                    requests:
+                      memory: 1Gi
+                      cpu: 2
+                    limits:
+                      memory: 2Gi
+                      cpu: 3
+                  osd-nvme:
+                    requests:
+                      memory: 1Gi
+                      cpu: 2
+                    limits:
+                      memory: 2Gi
+                      cpu: 3
+            ```
 
 4. For the Ceph node-specific resource settings, specify the `resources`
    section in the corresponding `nodes` spec of `CephDeployment` CR:
