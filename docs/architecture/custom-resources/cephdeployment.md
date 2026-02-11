@@ -574,7 +574,9 @@ spec:
 
 ### RADOS Gateway Multisite parameters <a name="multisite"></a>
 
-!!! warning "Technical Preview"
+!!! warning
+
+    This feature is in Technical Preview, use it on own risk.
 
 @Snippet:cephdpl-parameters:multisiteParameters@
 
