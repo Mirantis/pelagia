@@ -59,7 +59,7 @@ plugins:
 markdown_extensions:
   - admonition
   - tables
-  # - markdown_grid_tables
+  - markdown_grid_tables
   - attr_list
   - md_in_html
   - pymdownx.details
