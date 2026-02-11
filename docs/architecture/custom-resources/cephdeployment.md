@@ -518,7 +518,7 @@ To configure additional required pools for [Rockoon](https://github.com/Mirantis
 
 ### RADOS Gateway parameters <a name="rgw"></a>
 
-@Snippet:cephdpl-parameters:rgwParameters@
+{% include "../../snippets/rgwParameters.md" %}
 
 ??? "Example configuration of RADOS gateway specification"
 
@@ -552,7 +552,7 @@ To configure additional required pools for [Rockoon](https://github.com/Mirantis
 
     This feature is in Technical Preview, use it on own risk.
 
-@Snippet:cephdpl-parameters:multisiteParameters@
+{% include "../../snippets/multisiteParameters.md" %}
 
 For configuration example, see [Ops Guide: Enable Multisite for Ceph Object Storage](https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-multisite).
 
@@ -561,7 +561,7 @@ For configuration example, see [Ops Guide: Enable Multisite for Ceph Object Stor
 `sharedFilesystem` contains a list of Ceph Filesystems `cephFS`. Each `cephFS` item
 contains the following parameters:
 
-@Snippet:cephdpl-parameters:cephfsParameters@
+{% include "../../snippets/cephfsParameters.md" %}
 
 ??? "Example configuration of shared Filesystem specification"
 

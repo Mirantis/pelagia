@@ -2,7 +2,7 @@
 
 # Enable Ceph RBD mirroring
 
-@Snippet:admonissions:techpreview@
+{% include "../../snippets/techpreview.md" %}
 
 This section describes how to configure and use RADOS Block Device (RBD) mirroring for Ceph pools using
 the `rbdMirror` section in the `CephDeployment` custom resource (CR). The feature may be useful if,

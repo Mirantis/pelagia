@@ -55,6 +55,7 @@ plugins:
       glob:
         - snippets/*
   - snippets
+  - include-markdown
 
 markdown_extensions:
   - admonition

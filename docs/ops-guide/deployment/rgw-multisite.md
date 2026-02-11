@@ -2,7 +2,7 @@
 
 # Enable Multisite for Ceph Object Storage
 
-@Snippet:admonissions:techpreview@
+{% include "../../snippets/techpreview.md" %}
 
 The Ceph Object Storage Multisite feature allows object storage to replicate its data over multiple Ceph clusters.
 Using multisite, such object storage is independent and isolated from another object storage in the cluster.
@@ -11,7 +11,7 @@ Only the multi-zone multisite setup is currently supported. For more details, se
 
 ## Multisite parameters <a name="parameters"></a>
 
-@Snippet:cephdpl-parameters:multisiteParameters@
+{% include "../../snippets/multisiteParameters.md" %}
 
 ## Enable the multisite RGW Object Storage <a name="enable"></a>
 
