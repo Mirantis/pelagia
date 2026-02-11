@@ -7,3 +7,4 @@ mkdocs-material
 markdown-grid-tables
 mkdocs-snippets
 mkdocs-exclude
+mkdocs-table-reader-plugin
