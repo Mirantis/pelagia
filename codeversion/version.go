@@ -1,3 +1,3 @@
-package version
+package codeversion
 
 var Version string

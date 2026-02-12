@@ -31,10 +31,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
+	lcmversion "github.com/Mirantis/pelagia/codeversion"
 	lcmapi "github.com/Mirantis/pelagia/pkg/apis"
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
 	lcmcontroller "github.com/Mirantis/pelagia/pkg/controller"
-	lcmversion "github.com/Mirantis/pelagia/version"
 )
 
 func main() {
