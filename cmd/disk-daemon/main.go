@@ -23,8 +23,8 @@ import (
 
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
+	lcmversion "github.com/Mirantis/pelagia/codeversion"
 	diskdaemon "github.com/Mirantis/pelagia/pkg/disk-daemon"
-	lcmversion "github.com/Mirantis/pelagia/version"
 )
 
 // dummy mutually exclusive flags checker

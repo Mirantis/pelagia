@@ -20,7 +20,7 @@ CODE_VERSION := $(shell build/scripts/get_version.sh)
 DEV_VERSION ?= "dev-$(CODE_VERSION)"
 VERSION := $(shell build/scripts/get_version.sh $(CURRENT_RELEASE_VERSION) $(DEV_VERSION))
 E2E_TESTLIST_LOCAL ?= $(shell ls ./test/e2e/ | grep _test.go | grep -v entrypoint_test | xargs printf "./test/e2e/%s " $1)
-LDFLAGS := "-X 'github.com/Mirantis/pelagia/version.Version=${VERSION}'"
+LDFLAGS := "-X 'github.com/Mirantis/pelagia/codeversion.Version=${VERSION}'"
 IMAGE_NAME ?= localdocker:5000/$(CONTROLLER_NAME)
 E2E_IMAGE_NAME ?= localdocker:5000/$(CEPH_E2E_NAME)
 IMAGE_TAG ?= $(VERSION)
