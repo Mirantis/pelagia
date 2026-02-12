@@ -146,7 +146,7 @@ Configure TLS for Ceph Object Gateway using a custom `ingressConfig`:
   kubectl -n pelagia edit cephdpl <name>
   ```
   Substitute `<name>` with the name of your `CephDeployment`.
-2. Specify the `ingressConfig` parameters according [Ingress config parameters](#ingress).
+2. Specify the `ingressConfig` parameters as required.
 3. Save the changes and close the editor.
 
 !!! note

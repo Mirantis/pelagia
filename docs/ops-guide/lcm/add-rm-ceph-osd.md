@@ -242,10 +242,8 @@ OSDs.
 
 ## Reconfigure a Ceph OSD
 
-There is no hot reconfiguration procedure for existing Ceph OSDs. To
-reconfigure an existing Ceph OSD, follow the steps below:
+There is no hot reconfiguration procedure for existing Ceph OSDs.
+To reconfigure an existing Ceph OSD:
 
-1. Remove a Ceph OSD from the Ceph cluster as described in
-   [Remove a Ceph OSD](#ceph-osd-remove).
-2. Add the same Ceph OSD but with a modified configuration as described in
-   [Add a Ceph OSD](#ceph-osd-add).
+1. Remove a Ceph OSD from the Ceph cluster.
+2. Add the same Ceph OSD but with a modified configuration.

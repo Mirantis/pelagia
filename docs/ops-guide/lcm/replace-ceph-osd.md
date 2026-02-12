@@ -27,8 +27,7 @@ follows:
 
     A Ceph OSD removal using `by-path`, `by-id`, or device name is
     not supported if a device was physically removed from a node. Therefore, use
-    `cleanupByOsdId` instead. For details, see
-    [Remove a failed Ceph OSD by Ceph OSD ID](#replace-by-osd-id).
+    `cleanupByOsdId` instead.
 
 !!! warning
 

@@ -224,10 +224,7 @@ nodes.
 
 ## Reconfigure a Ceph node
 
-There is no hot reconfiguration procedure for existing Ceph OSDs and Ceph
-Monitors. To reconfigure an existing Ceph node, follow the steps below:
+There is no hot reconfiguration procedure for existing Ceph OSDs and Ceph Monitors. To reconfigure an existing Ceph node:
 
-1. Remove the Ceph node from the Ceph cluster as described in
-   [Remove a Ceph node](#ceph-node-remove).
-2. Add the same Ceph node but with a modified configuration as described in
-   [Add a Ceph node](#ceph-node-add).
+1. Remove the Ceph node from the Ceph cluster.
+2. Add the same Ceph node but with a modified configuration.

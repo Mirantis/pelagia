@@ -244,11 +244,6 @@ metadata:
 </div>
 </details>
 
-To understand the status of a `CephDeploymentHealth`, learn the following:
-
-- [High-level status fields](#general)
-- [Health report status fields](#full)
-
 ## High-level status fields <a name="general"></a>
 
 - `healthReport` - Complete information about Ceph cluster including cluster, Ceph resources, and daemon health. It helps reveal potentially problematic components.

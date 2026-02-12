@@ -3,17 +3,6 @@
 This section describes the `CephOsdRemoveTask` custom resource specification.
 For the procedure workflow, see [Creating a Ceph OSD removal task](https://mirantis.github.io/pelagia/ops-guide/lcm/create-task-workflow).
 
-The following sections describe the `CephOsdRemoveTask` custom resource specification:
-
-- [Spec parameters](#spec)
-
-    - [Nodes parameters](#nodes)
-
-- [Status fields](#status)
-
-    - [Remove info fields](#remove-info)
-    - [Remove info examples](#remove-info-examples)
-
 ## Spec parameters <a name="spec"></a>
 
 - `nodes` - Map of Kubernetes nodes that specifies how to remove Ceph OSDs: by host-devices or OSD IDs. For details, see [Nodes parameters](#nodes).

@@ -138,8 +138,7 @@ Logical volume "meta_1" created.
    ```
 
      Substitute `<nodeName>` with the node name where the new device `<deviceByID>` or `<deviceByPath>` must be added.
-     Also specify `metadataDevice` with the path to the logical volume created
-     during the [Re-create the partition on the existing metadata disk](#recreate-meta-lvm) procedure.
+     Also specify `metadataDevice` with the path to the logical volume created earlier.
 
 4. Wait for the replaced disk to apply to the Ceph cluster as a new Ceph OSD.
    You can monitor the application state using either the `status` section
