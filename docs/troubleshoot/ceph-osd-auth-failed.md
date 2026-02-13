@@ -21,7 +21,9 @@ in the Ceph cluster and on a node in the corresponding host path:
 
 1. Obtain the keyring of a Ceph OSD stored in the Ceph cluster:
    ```bash
-   kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- ceph auth get osd.<ID>
+   kubectl -n rook-ceph exec -it \
+       deploy/pelagia-ceph-toolbox \
+       -- ceph auth get osd.<ID>
    ```
 
      Substitute `<ID>` with the number of the required Ceph OSD.

@@ -41,7 +41,7 @@ If you have an existing `CephOsdRemoveTask` resource with issues in
 
 1. In the failed `CephOsdRemoveTask` resource, copy the `spec` section.
 2. Create a new `CephOsdRemoveTask` with a different name. For details,
-   see [Creating a Ceph OSD remove task](https://mirantis.github.io/pelagia/ops-guide/lcm/create-task-workflow).
+   see [Creating a Ceph OSD remove task](../ops-guide/lcm/create-task-workflow.md#create-osd-rm-request).
 3. Paste the previously copied `spec` section of the failed
    `CephOsdRemoveTask` resource to the new one.
 4. Remove the failed `CephOsdRemoveTask` resource.

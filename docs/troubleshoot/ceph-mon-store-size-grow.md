@@ -26,13 +26,17 @@ perform the steps described below to resolve the issue.
 
 1. Verify the original state of placement groups (PGs):
    ```bash
-   kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- ceph -s
+   kubectl -n rook-ceph exec -it \
+       deploy/pelagia-ceph-toolbox \
+       -- ceph -s
    ```
 
 2. Apply `clog_to_monitors` with the `false` value for all Ceph OSDs at
    runtime:
    ```bash
-   kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- bash
+   kubectl -n rook-ceph exec -it \
+       deploy/pelagia-ceph-toolbox \
+       -- bash
    ceph tell osd.* config set clog_to_monitors false
    ```
 
