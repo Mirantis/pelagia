@@ -37,14 +37,14 @@ This section describes how to specify a custom public endpoint for the Ceph Obje
       tls.key: <base64encodedTlsKey>
     ```
 
-    !!! danger "Caution"
+    !!! danger
 
         When using `tlsSecretRefName`, remove `certs` section.
 
 - `certs` - TLS configuration for ingress including certificates.
   Contains the following parameters:
 
-    !!! danger "Caution"
+    !!! danger
 
         `certs` parameters section is insecure because it stores
         TLS certificates in plain text. Consider using the
@@ -58,7 +58,7 @@ This section describes how to specify a custom public endpoint for the Ceph Obje
 
 - `publicDomain` -  Mandatory. The domain name to use for public endpoints.
 
-    !!! danger "Caution"
+    !!! danger
 
         For Pelagia integrated with Rockoon, the default ingress controller does not support `publicDomain` values
         different from the OpenStack ingress public domain. Therefore, if you intend to use the default OpenStack
