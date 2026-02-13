@@ -2849,8 +2849,10 @@ through the Ceph CLI. However, for any changes in <code>metadataPool</code>, we 
 </code></pre></div></p>
 </li>
 <li>
-<p>In the <code>sharedFilesystem</code> section, specify parameters according to <a href="#cephfs-parameters">CephFS specification</a>. For example:
-   <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<p>Update the <code>sharedFilesystem</code> section specification as required using the configuration reference above. For example: </p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">sharedFilesystem</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cephFS</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-store</span>
@@ -2868,10 +2870,9 @@ through the Ceph CLI. However, for any changes in <code>metadataPool</code>, we 
 <span class="w">      </span><span class="nt">metadataServer</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">activeCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">        </span><span class="nt">activeStandby</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>Define the <code>mds</code> role for the corresponding nodes where Ceph MDS daemons should be deployed. We recommend
+</code></pre></div>
+<ol>
+<li>Define the <code>mds</code> role for the corresponding nodes where Ceph MDS daemons should be deployed. We recommend
    labeling only one node with the <code>mds</code> role. For example:
    <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
@@ -2880,8 +2881,7 @@ through the Ceph CLI. However, for any changes in <code>metadataPool</code>, we 
 <span class="w">      </span><span class="nt">roles</span><span class="p">:</span>
 <span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mds</span>
-</code></pre></div></p>
-</li>
+</code></pre></div></li>
 </ol>
 <p>Once CephFS is specified in the <code>CephDeployment</code> CR, Pelagia Deployment Controller will validate it and
 request Rook to create CephFS. Then Pelagia Deployment Controller will create a Kubernetes <code>StorageClass</code>,

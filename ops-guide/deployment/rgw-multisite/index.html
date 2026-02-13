@@ -2818,8 +2818,8 @@
 <p><a id="enable-multisite-mira"></a></p>
 <h1 id="enable-multisite-for-ceph-object-storage">Enable Multisite for Ceph Object Storage<a class="headerlink" href="#enable-multisite-for-ceph-object-storage" title="Permanent link">#</a></h1>
 <div class="admonition warning">
-<p class="admonition-title">Technical Preview</p>
-<p>This feature is in Technical Preview, use it on own risk. </p>
+<p class="admonition-title">Warning</p>
+<p>This feature is in Technical Preview, use it on own risk.</p>
 </div>
 <p>The Ceph Object Storage Multisite feature allows object storage to replicate its data over multiple Ceph clusters.
 Using multisite, such object storage is independent and isolated from another object storage in the cluster.
@@ -2828,8 +2828,7 @@ Only the multi-zone multisite setup is currently supported. For more details, se
 <h2 id="multisite-parameters">Multisite parameters <a name="parameters"></a><a class="headerlink" href="#multisite-parameters" title="Permanent link">#</a></h2>
 <ul>
 <li>
-<p><code>realms</code> - Required. List of realms to use, represents the realm namespaces.
-  Includes the following parameters:</p>
+<p><code>realms</code> - Required. List of realms to use, represents the realm namespaces. Includes the following parameters:</p>
 <ul>
 <li><code>name</code> - required, the realm name.</li>
 <li>
@@ -2838,19 +2837,15 @@ Only the multi-zone multisite setup is currently supported. For more details, se
   of the system user from the realm to pull from. Includes the
   following parameters:</p>
 <ul>
-<li><code>endpoint</code> - the endpoint of the master zone in the master zone
-  group.</li>
-<li><code>accessKey</code> - the access key of the system user from the realm to
-  pull from.</li>
-<li><code>secretKey</code> - the system key of the system user from the realm to
-  pull from.</li>
+<li><code>endpoint</code> - the endpoint of the master zone in the master zone group.</li>
+<li><code>accessKey</code> - the access key of the system user from the realm to pull from.</li>
+<li><code>secretKey</code> - the system key of the system user from the realm to pull from.</li>
 </ul>
 </li>
 </ul>
 </li>
 <li>
-<p><code>zoneGroups</code> - Required. The list of zone groups for realms. Includes the following
-  parameters:</p>
+<p><code>zoneGroups</code> - Required. The list of zone groups for realms. Includes the following parameters:</p>
 <ul>
 <li><code>name</code> - required, the zone group name.</li>
 <li><code>realmName</code> - required, the realm namespace name to which
@@ -2858,23 +2853,15 @@ Only the multi-zone multisite setup is currently supported. For more details, se
 </ul>
 </li>
 <li>
-<p><code>zones</code> - Required. The list of zones used within one zone group. Includes
-  the following parameters:</p>
+<p><code>zones</code> - Required. The list of zones used within one zone group. Includes the following parameters:</p>
 <ul>
 <li><code>name</code> - required, the zone name.</li>
-<li><code>metadataPool</code> - required, the settings used to create the Object
-  Storage metadata pools. Must use replication. For details, see
-  description of <a href="https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment/#pools">Pool parameters</a>.</li>
-<li><code>dataPool</code> - required, the settings used to create the Object Storage
-  data pool. Can use replication or erasure coding. For details, see
-  <a href="https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment/#pools">Pool parameters</a>.</li>
+<li><code>metadataPool</code> - required, the settings used to create the Object Storage metadata pools. Must use replication. For details, see description of <a href="https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment/#pools">Pool parameters</a>.</li>
+<li><code>dataPool</code> - required, the settings used to create the Object Storage data pool. Can use replication or erasure coding. For details, see <a href="https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment/#pools">Pool parameters</a>.</li>
 <li><code>zoneGroupName</code> - required, the zone group name.</li>
 <li><code>endpointsForZone</code> - optional. The list of all endpoints in the zone group.
-  If you use ingress proxy for RGW,
-  the list of endpoints must contain that FQDN/IP address to access RGW.
-  By default, if no ingress proxy is used, the list of endpoints is set
-  to the IP address of the RGW external service. Endpoints must follow
-  the HTTP URL format.</li>
+  If you use ingress proxy for RGW, the list of endpoints must contain that FQDN/IP address to access RGW.
+  By default, if no ingress proxy is used, the list of endpoints is set to the IP address of the RGW external service. Endpoints must follow the HTTP URL format.</li>
 </ul>
 </li>
 </ul>
@@ -2883,9 +2870,8 @@ Only the multi-zone multisite setup is currently supported. For more details, se
 <li>Open the <code>CephDeployment</code> custom resource for editing:
    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephdpl<span class="w"> </span>&lt;name&gt;
 </code></pre></div></li>
-<li>Using the parameters from <a href="#parameters">Multisite parameters</a>, update the <code>spec.objectStorage.multiSite</code>
-   section specification as required:
-   <a href="#master-zone-multisite">Master zone</a> or <a href="#replication-zone-multisite">Replication zone</a>.</li>
+<li>Update the <code>spec.objectStorage.multiSite</code> section specification as required using the configuration
+   references for master or replication zones below.</li>
 <li>
 <p>Configure the <code>zone</code> RGW parameter and leave <code>dataPool</code>
    and <code>metadataPool</code> empty. These parameters are ignored because

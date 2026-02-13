@@ -2770,11 +2770,6 @@ To obtain the resource, run the following command:</p>
 <span class="w">  </span><span class="nt">resourceVersion</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 </code></pre></div>
 </details>
-<p>To understand the status of a <code>CephDeploymentHealth</code>, learn the following:</p>
-<ul>
-<li><a href="#general">High-level status fields</a></li>
-<li><a href="#secret-info">Secret info fields</a></li>
-</ul>
 <h2 id="high-level-status-fields">High-level status fields <a name="general"></a><a class="headerlink" href="#high-level-status-fields" title="Permanent link">#</a></h2>
 <p>The <code>CephDeploymentSecret</code> custom resource contains the following high-level status fields:</p>
 <ul>
@@ -2789,7 +2784,7 @@ To obtain the resource, run the following command:</p>
 <p><code>lastSecretCheck</code> - <code>DateTime</code> when the Ceph cluster secrets were verified last time.</p>
 </li>
 <li><code>lastSecretUpdate</code> - <code>DateTime</code> when the Ceph cluster secrets were updated last time.</li>
-<li><code>secretsInfo</code> - List of secrets for Ceph <code>authx</code> clients and RADOS Gateway users. For details, see <a href="#secret-info">Secret info fields</a>.</li>
+<li><code>secretsInfo</code> - List of secrets for Ceph <code>authx</code> clients and RADOS Gateway users. For details, see the reference below. </li>
 <li><code>messages</code> - List of error or warning messages, if any, found when collecting information about the Ceph cluster.</li>
 </ul>
 <h2 id="secret-info-fields">Secret info fields <a name="secret-info"></a><a class="headerlink" href="#secret-info-fields" title="Permanent link">#</a></h2>

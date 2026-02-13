@@ -2849,7 +2849,7 @@ the public domain and the common certificate from the <code>OpenStackDeployment<
 <span class="w">  </span><span class="nt">tls.key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64encodedTlsKey&gt;</span>
 </code></pre></div>
 <div class="admonition danger">
-<p class="admonition-title">Caution</p>
+<p class="admonition-title">Danger</p>
 <p>When using <code>tlsSecretRefName</code>, remove <code>certs</code> section.</p>
 </div>
 </li>
@@ -2857,7 +2857,7 @@ the public domain and the common certificate from the <code>OpenStackDeployment<
 <p><code>certs</code> - TLS configuration for ingress including certificates.
   Contains the following parameters:</p>
 <div class="admonition danger">
-<p class="admonition-title">Caution</p>
+<p class="admonition-title">Danger</p>
 <p><code>certs</code> parameters section is insecure because it stores
 TLS certificates in plain text. Consider using the
 <code>tlsSecretRefName</code> parameter instead to avoid exposing
@@ -2873,7 +2873,7 @@ TLS certificates in the <code>CephDeployment</code> CR.</p>
 <li>
 <p><code>publicDomain</code> -  Mandatory. The domain name to use for public endpoints.</p>
 <div class="admonition danger">
-<p class="admonition-title">Caution</p>
+<p class="admonition-title">Danger</p>
 <p>For Pelagia integrated with Rockoon, the default ingress controller does not support <code>publicDomain</code> values
 different from the OpenStack ingress public domain. Therefore, if you intend to use the default OpenStack
 Ingress Controller for your Ceph Object Storage public endpoint, plan to use the same
@@ -2947,7 +2947,7 @@ For details, see <a href="https://mirantis.github.io/pelagia/ceph-ops/deployment
   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephdpl<span class="w"> </span>&lt;name&gt;
 </code></pre></div>
   Substitute <code>&lt;name&gt;</code> with the name of your <code>CephDeployment</code>.</li>
-<li>Specify the <code>ingressConfig</code> parameters according <a href="#ingress">Ingress config parameters</a>.</li>
+<li>Specify the <code>ingressConfig</code> parameters as required.</li>
 <li>Save the changes and close the editor.</li>
 </ol>
 <div class="admonition note">

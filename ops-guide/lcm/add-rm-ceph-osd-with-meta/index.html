@@ -3048,16 +3048,12 @@ symlinks or use <code>cleanupByOsdId</code> instead. For details, see
 </li>
 </ol>
 <h2 id="reconfigure-a-partition-of-a-ceph-osd-metadata-device">Reconfigure a partition of a Ceph OSD metadata device <a name="ceph-osd-meta-reconfig"></a><a class="headerlink" href="#reconfigure-a-partition-of-a-ceph-osd-metadata-device" title="Permanent link">#</a></h2>
-<p>There is no hot reconfiguration procedure for existing Ceph OSDs. To
-reconfigure an existing Ceph node, remove and re-add a Ceph OSD with a
-metadata device. However, the automated LCM will clean up the logical volume without a removal,
-and it can be reused. For this reason, to reconfigure a partition of a Ceph
-OSD metadata device:</p>
+<p>There is no hot reconfiguration procedure for existing Ceph OSDs.
+To reconfigure an existing Ceph node, remove and re-add a Ceph OSD with a metadata device.
+However, the automated LCM will clean up the logical volume without a removal, and it can be reused. For this reason, to reconfigure a partition of a Ceph OSD metadata device:</p>
 <ol>
-<li>Remove a Ceph OSD from the Ceph cluster as described in
-   <a href="#ceph-osd-meta-remove">Remove a Ceph OSD with a metadata device</a>.</li>
-<li>Add the same Ceph OSD but with a modified configuration as described in
-   <a href="#ceph-osd-meta-add">Add a Ceph OSD with a metadata device</a>.</li>
+<li>Remove a Ceph OSD from the Ceph cluster.</li>
+<li>Add the same Ceph OSD but with a modified configuration.</li>
 </ol>
 
 

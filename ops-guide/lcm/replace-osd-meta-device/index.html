@@ -2911,8 +2911,7 @@ device, refer to official <a href="https://github.com/rook/rook/blob/master/Docu
 <span class="w">        </span><span class="nt">metadataDevice</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/&lt;vgName&gt;/meta_1</span>
 </code></pre></div></p>
 <p>Substitute <code>&lt;nodeName&gt;</code> with the node name where the new device <code>&lt;deviceByID&gt;</code> or <code>&lt;deviceByPath&gt;</code> must be added.
- Also specify <code>metadataDevice</code> with the path to the logical volume created
- during the <a href="#recreate-meta-lvm">Re-create the partition on the existing metadata disk</a> procedure.</p>
+ Also specify <code>metadataDevice</code> with the path to the logical volume created earlier.</p>
 </li>
 <li>
 <p>Wait for the replaced disk to apply to the Ceph cluster as a new Ceph OSD.

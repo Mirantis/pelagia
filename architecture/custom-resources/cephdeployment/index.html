@@ -3159,22 +3159,7 @@ deployed based on the <code>devices</code> parameter defined for each Ceph node.
 </code></pre></div>
 </li>
 <li>
-<p>Using the tables below, configure the Ceph cluster as required:</p>
-<ul>
-<li><a href="#cephdpl-general">General parameters</a></li>
-<li><a href="#cephdpl-network">Network parameters</a></li>
-<li><a href="#cephdpl-nodes">Nodes parameters</a></li>
-<li><a href="#pools">Pools parameters</a></li>
-<li><a href="#clients">Clients parameters</a></li>
-<li><a href="#rgw">Object Storage parameters</a></li>
-<li><a href="#multisite">Object Storage Multisite parameters</a></li>
-<li><a href="#cephfs">CephFS parameters</a></li>
-<li><a href="#rookConfig">RookConfig parameters</a></li>
-<li><a href="#healthcheck">Health check parameters</a></li>
-<li><a href="#extraopts">Extra options</a></li>
-<li><a href="#mgr-modules">Ceph Manager modules parameters</a></li>
-<li><a href="#rbdmirror">RBD Mirroring parameters</a></li>
-</ul>
+<p>Set up the Ceph cluster using the configuration reference below.</p>
 </li>
 <li>
 <p>Select from the following options:</p>
@@ -3191,7 +3176,7 @@ deployed based on the <code>devices</code> parameter defined for each Ceph node.
 </ul>
 </li>
 <li>
-<p>Verify <code>CephDeployment</code> reconcile status with <a href="#status">Status fields</a>.</p>
+<p>Verify <code>CephDeployment</code> reconcile status with the Status fields.</p>
 </li>
 </ol>
 <h2 id="cephdeployment-configuration-options">CephDeployment configuration options<a class="headerlink" href="#cephdeployment-configuration-options" title="Permanent link">#</a></h2>
@@ -3610,11 +3595,11 @@ permission on the mount point of persistent volumes based on any
 <p><code>dataPool</code> - Required if <code>zone.name</code> is not specified. Mutually exclusive with
   <code>zone</code>. Must be used together with <code>metadataPool</code>.</p>
 <p>Object storage data pool spec that must only contain <code>replicated</code> or
-<code>erasureCoded</code>, <code>deviceClass</code> and <code>failureDomain</code> parameters. The <code>failureDomain</code>
-parameter may be set to <code>host</code>, <code>rack</code>, <code>room</code>, or <code>datacenter</code>,
-defining the failure domain across which the data will be spread. The
-<code>deviceClass</code> must be explicitly defined. For <code>dataPool</code>, We recommend
-using an <code>erasureCoded</code> pool.</p>
+ <code>erasureCoded</code>, <code>deviceClass</code> and <code>failureDomain</code> parameters. The <code>failureDomain</code>
+ parameter may be set to <code>host</code>, <code>rack</code>, <code>room</code>, or <code>datacenter</code>,
+ defining the failure domain across which the data will be spread. The
+ <code>deviceClass</code> must be explicitly defined. For <code>dataPool</code>, We recommend
+ using an <code>erasureCoded</code> pool.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">   </span><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">     </span><span class="nt">rgw</span><span class="p">:</span>
@@ -3627,8 +3612,7 @@ using an <code>erasureCoded</code> pool.</p>
 </code></pre></div>
 </li>
 <li>
-<p><code>metadataPool</code> - Required if <code>zone.name</code> is not specified. Mutually exclusive with
-  <code>zone</code>. Must be used together with <code>dataPool</code>.</p>
+<p><code>metadataPool</code> - Required if <code>zone.name</code> is not specified. Mutually exclusive with <code>zone</code>. Must be used together with <code>dataPool</code>.</p>
 <p>Object storage metadata pool spec that must only contain <code>replicated</code>, <code>deviceClass</code> and
 <code>failureDomain</code> parameters. The <code>failureDomain</code> parameter may be set to
 <code>host</code>, <code>rack</code>, <code>room</code>, or <code>datacenter</code>, defining the failure domain
@@ -3691,9 +3675,9 @@ health warning that blocks Ceph OSD removal. We recommend setting
   only when external Ceph cluster is used. Contains the following parameters:</p>
 <ul>
 <li><code>ip</code> - represents the IP address of RGW endpoint.</li>
-<li><code>hostname</code> - represents the DNS-addressable hostname of RGW endpoint.
-  This field will be preferred over IP if both are given.</li>
-</ul>
+<li>
+<p><code>hostname</code> - represents the DNS-addressable hostname of RGW endpoint.
+  This field will be preferred over IP if both are given.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
@@ -3703,6 +3687,8 @@ health warning that blocks Ceph OSD removal. We recommend setting
 <span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
 <span class="w">        </span><span class="nt">securePort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span>
 </code></pre></div>
+</li>
+</ul>
 </li>
 </ul>
 </li>
@@ -3774,11 +3760,10 @@ health warning that blocks Ceph OSD removal. We recommend setting
 </ul>
 </li>
 <li>
-<p><code>zone</code> - Required if <code>dataPool</code> and <code>metadataPool</code> are not specified. Mutually
-    exclusive with these parameters.</p>
+<p><code>zone</code> - Required if <code>dataPool</code> and <code>metadataPool</code> are not specified. Mutually exclusive with these parameters.</p>
 <p>Defines the Ceph Multisite zone where the object storage must be placed.
-  Includes the <code>name</code> parameter that must be set to one of the <code>zones</code>
-  items. For details, see the <a href="https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-multisite">Ops Guide: Enable Multisite for Ceph Object Storage</a>.</p>
+Includes the <code>name</code> parameter that must be set to one of the <code>zones</code>
+items. For details, see the <a href="https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-multisite">Ops Guide: Enable Multisite for Ceph Object Storage</a>.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">multisite</span><span class="p">:</span>
@@ -3791,8 +3776,7 @@ health warning that blocks Ceph OSD removal. We recommend setting
 </code></pre></div>
 </li>
 <li>
-<p><code>SSLCert</code> - Optional. Custom TLS certificate parameters used to access the Ceph RGW
-    endpoint. If not specified, a self-signed certificate will be generated.</p>
+<p><code>SSLCert</code> - Optional. Custom TLS certificate parameters used to access the Ceph RGW endpoint. If not specified, a self-signed certificate will be generated.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
@@ -3866,12 +3850,12 @@ health warning that blocks Ceph OSD removal. We recommend setting
 </details>
 <h3 id="rados-gateway-multisite-parameters">RADOS Gateway Multisite parameters <a name="multisite"></a><a class="headerlink" href="#rados-gateway-multisite-parameters" title="Permanent link">#</a></h3>
 <div class="admonition warning">
-<p class="admonition-title">Technical Preview</p>
+<p class="admonition-title">Warning</p>
+<p>This feature is in Technical Preview, use it on own risk.</p>
 </div>
 <ul>
 <li>
-<p><code>realms</code> - Required. List of realms to use, represents the realm namespaces.
-  Includes the following parameters:</p>
+<p><code>realms</code> - Required. List of realms to use, represents the realm namespaces. Includes the following parameters:</p>
 <ul>
 <li><code>name</code> - required, the realm name.</li>
 <li>
@@ -3880,19 +3864,15 @@ health warning that blocks Ceph OSD removal. We recommend setting
   of the system user from the realm to pull from. Includes the
   following parameters:</p>
 <ul>
-<li><code>endpoint</code> - the endpoint of the master zone in the master zone
-  group.</li>
-<li><code>accessKey</code> - the access key of the system user from the realm to
-  pull from.</li>
-<li><code>secretKey</code> - the system key of the system user from the realm to
-  pull from.</li>
+<li><code>endpoint</code> - the endpoint of the master zone in the master zone group.</li>
+<li><code>accessKey</code> - the access key of the system user from the realm to pull from.</li>
+<li><code>secretKey</code> - the system key of the system user from the realm to pull from.</li>
 </ul>
 </li>
 </ul>
 </li>
 <li>
-<p><code>zoneGroups</code> - Required. The list of zone groups for realms. Includes the following
-  parameters:</p>
+<p><code>zoneGroups</code> - Required. The list of zone groups for realms. Includes the following parameters:</p>
 <ul>
 <li><code>name</code> - required, the zone group name.</li>
 <li><code>realmName</code> - required, the realm namespace name to which
@@ -3900,23 +3880,15 @@ health warning that blocks Ceph OSD removal. We recommend setting
 </ul>
 </li>
 <li>
-<p><code>zones</code> - Required. The list of zones used within one zone group. Includes
-  the following parameters:</p>
+<p><code>zones</code> - Required. The list of zones used within one zone group. Includes the following parameters:</p>
 <ul>
 <li><code>name</code> - required, the zone name.</li>
-<li><code>metadataPool</code> - required, the settings used to create the Object
-  Storage metadata pools. Must use replication. For details, see
-  description of <a href="https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment/#pools">Pool parameters</a>.</li>
-<li><code>dataPool</code> - required, the settings used to create the Object Storage
-  data pool. Can use replication or erasure coding. For details, see
-  <a href="https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment/#pools">Pool parameters</a>.</li>
+<li><code>metadataPool</code> - required, the settings used to create the Object Storage metadata pools. Must use replication. For details, see description of <a href="https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment/#pools">Pool parameters</a>.</li>
+<li><code>dataPool</code> - required, the settings used to create the Object Storage data pool. Can use replication or erasure coding. For details, see <a href="https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment/#pools">Pool parameters</a>.</li>
 <li><code>zoneGroupName</code> - required, the zone group name.</li>
 <li><code>endpointsForZone</code> - optional. The list of all endpoints in the zone group.
-  If you use ingress proxy for RGW,
-  the list of endpoints must contain that FQDN/IP address to access RGW.
-  By default, if no ingress proxy is used, the list of endpoints is set
-  to the IP address of the RGW external service. Endpoints must follow
-  the HTTP URL format.</li>
+  If you use ingress proxy for RGW, the list of endpoints must contain that FQDN/IP address to access RGW.
+  By default, if no ingress proxy is used, the list of endpoints is set to the IP address of the RGW external service. Endpoints must follow the HTTP URL format.</li>
 </ul>
 </li>
 </ul>
@@ -3927,12 +3899,8 @@ contains the following parameters:</p>
 <ul>
 <li><code>name</code> - Mandatory. CephFS instance name.</li>
 <li>
-<p><code>dataPools</code> - A list of CephFS data pool specifications. Each spec contains the
-  <code>name</code>, <code>replicated</code> or <code>erasureCoded</code>, <code>deviceClass</code>, and
-  <code>failureDomain</code> parameters. The first pool in the list is treated
-  as the default data pool for CephFS and must always be
-  <code>replicated</code>. The number of data pools is unlimited, but the default
-  pool must always be present. For example:</p>
+<p><code>dataPools</code> - A list of CephFS data pool specifications. Each spec contains the <code>name</code>, <code>replicated</code> or <code>erasureCoded</code>, <code>deviceClass</code>, and <code>failureDomain</code> parameters. The first pool in the list is treated as the default data pool for CephFS and must always be <code>replicated</code>
+ The number of data pools is unlimited, but the default pool must always be present. For example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">sharedFilesystem</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cephFS</span><span class="p">:</span>
@@ -3950,31 +3918,23 @@ contains the following parameters:</p>
 <span class="w">          </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 <span class="w">          </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </code></pre></div>
-<p>where <code>replicated.size</code> is the number of full copies of data on
-  multiple nodes.</p>
+<p>where <code>replicated.size</code> is the number of full copies of data on multiple nodes.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>When using the non-recommended Ceph pools <code>replicated.size</code> of
-  less than <code>3</code>, Ceph OSD removal cannot be performed. The minimal replica
-  size equals a rounded up half of the specified <code>replicated.size</code>.</p>
-<p>For example, if <code>replicated.size</code> is <code>2</code>, the minimal replica size is
-  <code>1</code>, and if <code>replicated.size</code> is <code>3</code>, then the minimal replica size
-  is <code>2</code>. The replica size of <code>1</code> allows Ceph having PGs with only one
-  Ceph OSD in the <code>acting</code> state, which may cause a <code>PG_TOO_DEGRADED</code>
-  health warning that blocks Ceph OSD removal. We recommend setting
-  <code>replicated.size</code> to <code>3</code> for each Ceph pool.</p>
+<p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>, Ceph OSD removal cannot be performed. The minimal replica size equals a rounded up half of the specified <code>replicated.size</code>.</p>
+<p>For example, if <code>replicated.size</code> is <code>2</code>, the minimal replica size is <code>1</code>, and if <code>replicated.size</code> is <code>3</code>, then the minimal replica size is <code>2</code>.
+The replica size of <code>1</code> allows Ceph having PGs with only one Ceph OSD in the <code>acting</code> state, which may cause a <code>PG_TOO_DEGRADED</code> health warning that blocks Ceph OSD removal. We recommend setting <code>replicated.size</code> to <code>3</code> for each Ceph pool.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Modifying of <code>dataPools</code> on a deployed CephFS has no
-  effect. You can manually adjust pool settings through the Ceph
-  CLI. However, for any changes in <code>dataPools</code>, we recommend re-creating CephFS.</p>
+<p>Modifying of <code>dataPools</code> on a deployed CephFS has no effect.
+You can manually adjust pool settings through the Ceph CLI.
+However, for any changes in <code>dataPools</code>, we recommend re-creating CephFS.</p>
 </div>
 </li>
 <li>
-<p><code>metadataPool</code> - CephFS metadata pool spec that should only contain <code>replicated</code>,
-  <code>deviceClass</code>, and <code>failureDomain</code> parameters. Can use only <code>replicated</code> settings.
-  For example:</p>
+<p><code>metadataPool</code> - CephFS metadata pool spec that should only contain <code>replicated</code>, <code>deviceClass</code>, and <code>failureDomain</code> parameters.
+  Can use only <code>replicated</code> settings. For example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">sharedFilesystem</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cephFS</span><span class="p">:</span>
@@ -3985,42 +3945,28 @@ contains the following parameters:</p>
 <span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 <span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
 </code></pre></div>
-<p>where <code>replicated.size</code> is the number of full copies of data on
-  multiple nodes.</p>
+<p>where <code>replicated.size</code> is the number of full copies of data on multiple nodes.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Modifying of <code>metadataPool</code> on a deployed CephFS has
-  no effect. You can manually adjust pool settings through the
-  Ceph CLI. However, for any changes in <code>metadataPool</code>,
-  we recommend re-creating CephFS.</p>
+<p>Modifying of <code>metadataPool</code> on a deployed CephFS has no effect.
+You can manually adjust pool settings through the Ceph CLI.
+However, for any changes in <code>metadataPool</code>, we recommend re-creating CephFS.</p>
 </div>
 </li>
 <li>
-<p><code>preserveFilesystemOnDelete</code> - Defines whether to delete the data and metadata pools if CephFS is
-  deleted. Set to <code>true</code> to avoid occasional data loss in case of
-  human error. However, for security reasons, we recommend
-  setting <code>preserveFilesystemOnDelete</code> to <code>false</code>.</p>
+<p><code>preserveFilesystemOnDelete</code> - Defines whether to delete the data and metadata pools if CephFS is deleted.
+Set to <code>true</code> to avoid occasional data loss in case of human error.
+However, for security reasons, we recommend setting <code>preserveFilesystemOnDelete</code> to <code>false</code>.</p>
 </li>
 <li>
 <p><code>metadataServer</code> - Metadata Server settings correspond to the Ceph MDS daemon settings.
-  Contains the following fields:</p>
+Contains the following fields:</p>
 <ul>
-<li><code>activeCount</code> - the number of active Ceph MDS instances. As load
-  increases, CephFS will automatically partition the file system
-  across the Ceph MDS instances. Rook will create double the number
-  of Ceph MDS instances as requested by <code>activeCount</code>. The extra
-  instances will be in the standby mode for failover. We
-  recommend specifying this parameter to <code>1</code> and increasing the
-  MDS daemons count only in case of high load.</li>
-<li><code>activeStandby</code> - defines whether the extra Ceph MDS instances
-  will be in active standby mode and will keep a warm cache of the
-  file system metadata for faster failover. The instances will be
-  assigned by CephFS in failover pairs. If <code>false</code>, the extra
-  Ceph MDS instances will all be in passive standby mode and will
-  not maintain a warm cache of the metadata. The default value is
-  <code>false</code>.</li>
+<li><code>activeCount</code> - the number of active Ceph MDS instances. As load increases, CephFS will automatically partition the file system across the Ceph MDS instances. Rook will create double the number of Ceph MDS instances as requested by <code>activeCount</code>. The extra instances will be in the standby mode for failover. We recommend specifying this parameter to <code>1</code> and increasing the MDS daemons count only in case of high load.</li>
+<li><code>activeStandby</code> - defines whether the extra Ceph MDS instances will be in active standby mode and will keep a warm cache of the file system metadata for faster failover.
+The instances will be assigned by CephFS in failover pairs. If <code>false</code>, the extra Ceph MDS instances will all be in passive standby mode and will not maintain a warm cache of the metadata. The default value is <code>false</code>.</li>
 <li><code>resources</code> - represents Kubernetes resource requirements for Ceph MDS pods.
-  For details see: <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">Kubernetes docs: Resource Management for Pods and Containers</a>.</li>
+For details see: <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">Kubernetes docs: Resource Management for Pods and Containers</a>.</li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">sharedFilesystem</span><span class="p">:</span>

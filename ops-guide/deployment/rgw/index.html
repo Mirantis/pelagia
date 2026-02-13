@@ -2749,11 +2749,11 @@ instances and automatically manage its resources such as users and buckets.</p>
 <p><code>dataPool</code> - Required if <code>zone.name</code> is not specified. Mutually exclusive with
   <code>zone</code>. Must be used together with <code>metadataPool</code>.</p>
 <p>Object storage data pool spec that must only contain <code>replicated</code> or
-<code>erasureCoded</code>, <code>deviceClass</code> and <code>failureDomain</code> parameters. The <code>failureDomain</code>
-parameter may be set to <code>host</code>, <code>rack</code>, <code>room</code>, or <code>datacenter</code>,
-defining the failure domain across which the data will be spread. The
-<code>deviceClass</code> must be explicitly defined. For <code>dataPool</code>, We recommend
-using an <code>erasureCoded</code> pool.</p>
+ <code>erasureCoded</code>, <code>deviceClass</code> and <code>failureDomain</code> parameters. The <code>failureDomain</code>
+ parameter may be set to <code>host</code>, <code>rack</code>, <code>room</code>, or <code>datacenter</code>,
+ defining the failure domain across which the data will be spread. The
+ <code>deviceClass</code> must be explicitly defined. For <code>dataPool</code>, We recommend
+ using an <code>erasureCoded</code> pool.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">   </span><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">     </span><span class="nt">rgw</span><span class="p">:</span>
@@ -2766,8 +2766,7 @@ using an <code>erasureCoded</code> pool.</p>
 </code></pre></div>
 </li>
 <li>
-<p><code>metadataPool</code> - Required if <code>zone.name</code> is not specified. Mutually exclusive with
-  <code>zone</code>. Must be used together with <code>dataPool</code>.</p>
+<p><code>metadataPool</code> - Required if <code>zone.name</code> is not specified. Mutually exclusive with <code>zone</code>. Must be used together with <code>dataPool</code>.</p>
 <p>Object storage metadata pool spec that must only contain <code>replicated</code>, <code>deviceClass</code> and
 <code>failureDomain</code> parameters. The <code>failureDomain</code> parameter may be set to
 <code>host</code>, <code>rack</code>, <code>room</code>, or <code>datacenter</code>, defining the failure domain
@@ -2830,9 +2829,9 @@ health warning that blocks Ceph OSD removal. We recommend setting
   only when external Ceph cluster is used. Contains the following parameters:</p>
 <ul>
 <li><code>ip</code> - represents the IP address of RGW endpoint.</li>
-<li><code>hostname</code> - represents the DNS-addressable hostname of RGW endpoint.
-  This field will be preferred over IP if both are given.</li>
-</ul>
+<li>
+<p><code>hostname</code> - represents the DNS-addressable hostname of RGW endpoint.
+  This field will be preferred over IP if both are given.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
@@ -2842,6 +2841,8 @@ health warning that blocks Ceph OSD removal. We recommend setting
 <span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
 <span class="w">        </span><span class="nt">securePort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span>
 </code></pre></div>
+</li>
+</ul>
 </li>
 </ul>
 </li>
@@ -2913,11 +2914,10 @@ health warning that blocks Ceph OSD removal. We recommend setting
 </ul>
 </li>
 <li>
-<p><code>zone</code> - Required if <code>dataPool</code> and <code>metadataPool</code> are not specified. Mutually
-    exclusive with these parameters.</p>
+<p><code>zone</code> - Required if <code>dataPool</code> and <code>metadataPool</code> are not specified. Mutually exclusive with these parameters.</p>
 <p>Defines the Ceph Multisite zone where the object storage must be placed.
-  Includes the <code>name</code> parameter that must be set to one of the <code>zones</code>
-  items. For details, see the <a href="https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-multisite">Ops Guide: Enable Multisite for Ceph Object Storage</a>.</p>
+Includes the <code>name</code> parameter that must be set to one of the <code>zones</code>
+items. For details, see the <a href="https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-multisite">Ops Guide: Enable Multisite for Ceph Object Storage</a>.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">multisite</span><span class="p">:</span>
@@ -2930,8 +2930,7 @@ health warning that blocks Ceph OSD removal. We recommend setting
 </code></pre></div>
 </li>
 <li>
-<p><code>SSLCert</code> - Optional. Custom TLS certificate parameters used to access the Ceph RGW
-    endpoint. If not specified, a self-signed certificate will be generated.</p>
+<p><code>SSLCert</code> - Optional. Custom TLS certificate parameters used to access the Ceph RGW endpoint. If not specified, a self-signed certificate will be generated.</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
@@ -2985,8 +2984,7 @@ health warning that blocks Ceph OSD removal. We recommend setting
 </code></pre></div>
    Substitute <code>&lt;name&gt;</code> with the name of your <code>CephDeployment</code>.</li>
 <li>
-<p>Using <a href="#parameters">Ceph RGW Object Storage parameters</a>, update the <code>objectStorage.rgw</code> section
-   specification.</p>
+<p>Update the <code>objectStorage.rgw</code> section specification using the configuration reference above:</p>
 <p>For example:
  <div class="highlight"><pre><span></span><code><span class="nt">rgw</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store</span>
