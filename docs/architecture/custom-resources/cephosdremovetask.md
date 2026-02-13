@@ -54,36 +54,31 @@ The following sections describe the `CephOsdRemoveTask` custom resource specific
 - `cleanupStrayPartitions` - Flag used to for cleaning disks with osd lvm partitions
   which not belong to current cluster, for example, when disk was not cleaned up previously.
 
-Example of `CephOsdRemoveTask` with `spec.nodes`:
+??? "Example of `CephOsdRemoveTask` with `spec.nodes`"
 
-<details>
-<summary>Example CephOsdRemoveTask nodes specification</summary>
-<div>
-```yaml
-apiVersion: lcm.mirantis.com/v1alpha1
-kind: CephOsdRemoveTask
-metadata:
-  name: remove-osd-task
-  namespace: pelagia
-spec:
-  nodes:
-    "node-a":
-      completeCleanUp: true
-    "node-b":
-      cleanupByOsd:
-      - id: 1
-      - id: 15
-      - id: 25
-    "node-c":
-      cleanupByDevice:
-      - device: "sdb"
-      - device: "/dev/disk/by-path/pci-0000:00:1c.5"
-      - device: "/dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS"
-    "node-d":
-      dropFromCrush: true
-```
-</div>
-</details>
+    ```yaml
+    apiVersion: lcm.mirantis.com/v1alpha1
+    kind: CephOsdRemoveTask
+    metadata:
+      name: remove-osd-task
+      namespace: pelagia
+    spec:
+      nodes:
+        "node-a":
+          completeCleanUp: true
+        "node-b":
+          cleanupByOsd:
+          - id: 1
+          - id: 15
+          - id: 25
+        "node-c":
+          cleanupByDevice:
+          - device: "sdb"
+          - device: "/dev/disk/by-path/pci-0000:00:1c.5"
+          - device: "/dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS"
+        "node-d":
+          dropFromCrush: true
+    ```
 
 The example above includes the following actions:
 
@@ -131,9 +126,49 @@ Here are the following **final** phases:
 - `osdMapping` - Map of Ceph OSD IDs to the device names or symlink used for the Ceph OSD. It includes device info and
   statuses of Ceph OSD remove itself, Rook Ceph OSD deployment remove, Ceph OSD device cleanup job.
 
-    <details>
-    <summary>CephOsdRemoveTask *osdMapping* example output</summary>
-    <div>
+    ??? "`CephOsdRemoveTask` `osdMapping` example output"
+
+        ```yaml
+        status:
+          removeInfo:
+            cleanupMap:
+              "node-a":
+                completeCleanUp: true
+                osdMapping:
+                  "2":
+                    deviceMapping:
+                      "sdb":
+                        path: "/dev/disk/by-path/pci-0000:00:0a.0"
+                        partition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
+                        type: "block"
+                        class: "hdd"
+                        zapDisk: true
+                  "6":
+                    deviceMapping:
+                      "sdc":
+                        path: "/dev/disk/by-path/pci-0000:00:0c.0"
+                        partition: "/dev/ceph-a-vg_sdc/osd-block-b-lv_sdc-1"
+                        type: "block"
+                        class: "hdd"
+                        zapDisk: true
+                  "11":
+                    deviceMapping:
+                      "sdc":
+                        path: "/dev/disk/by-path/pci-0000:00:0c.0"
+                        partition: "/dev/ceph-a-vg_sdc/osd-block-b-lv_sdc-2"
+                        type: "block"
+                        class: "hdd"
+                        zapDisk: true
+        ```
+
+- `nodeIsDown` - Flag that indicates whether the node is down.
+- `volumeInfoMissed` - Flag that indicates whether `disk-daemon` collected device info or not.
+- `hostRemoveStatus` - Node removal status if node is marked for complete cleanup.
+
+### Remove info examples <a name="remove-info-examples"></a>
+
+??? "Example of `status.removeInfo` after successful `Validation`"
+
     ```yaml
     status:
       removeInfo:
@@ -165,104 +200,56 @@ Here are the following **final** phases:
                     type: "block"
                     class: "hdd"
                     zapDisk: true
+          "node-b":
+            osdMapping:
+              "1":
+                deviceMapping:
+                  "sdb":
+                    path: "/dev/disk/by-path/pci-0000:00:0a.0"
+                    partition: "/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb"
+                    type: "block"
+                    class: "ssd"
+                    zapDisk: true
+              "15":
+                deviceMapping:
+                  "sdc":
+                    path: "/dev/disk/by-path/pci-0000:00:0b.1"
+                    partition: "/dev/ceph-b-vg_sdc/osd-block-b-lv_sdc"
+                    type: "block"
+                    class: "ssd"
+                    zapDisk: true
+              "25":
+                deviceMapping:
+                  "sdd":
+                    path: "/dev/disk/by-path/pci-0000:00:0c.2"
+                    partition: "/dev/ceph-b-vg_sdd/osd-block-b-lv_sdd"
+                    type: "block"
+                    class: "ssd"
+                    zapDisk: true
+          "node-c":
+            osdMapping:
+              "0":
+                deviceMapping:
+                  "sdb":
+                    path: "/dev/disk/by-path/pci-0000:00:1t.9"
+                    partition: "/dev/ceph-c-vg_sdb/osd-block-c-lv_sdb"
+                    type: "block"
+                    class: "hdd"
+                    zapDisk: true
+              "8":
+                deviceMapping:
+                  "sde":
+                    path: "/dev/disk/by-path/pci-0000:00:1c.5"
+                    partition: "/dev/ceph-c-vg_sde/osd-block-c-lv_sde"
+                    type: "block"
+                    class: "hdd"
+                    zapDisk: true
+                  "sdf":
+                    path: "/dev/disk/by-path/pci-0000:00:5a.5",
+                    partition: "/dev/ceph-c-vg_sdf/osd-db-c-lv_sdf-1",
+                    type: "db",
+                    class: "ssd"
     ```
-    </div>
-    </details>
-
-- `nodeIsDown` - Flag that indicates whether the node is down.
-- `volumeInfoMissed` - Flag that indicates whether `disk-daemon` collected device info or not.
-- `hostRemoveStatus` - Node removal status if node is marked for complete cleanup.
-
-### Remove info examples <a name="remove-info-examples"></a>
-
-Example of `status.removeInfo` after successful `Validation`:
-
-<details>
-<summary>Example output</summary>
-<div>
-```yaml
-status:
-  removeInfo:
-    cleanupMap:
-      "node-a":
-        completeCleanUp: true
-        osdMapping:
-          "2":
-            deviceMapping:
-              "sdb":
-                path: "/dev/disk/by-path/pci-0000:00:0a.0"
-                partition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
-                type: "block"
-                class: "hdd"
-                zapDisk: true
-          "6":
-            deviceMapping:
-              "sdc":
-                path: "/dev/disk/by-path/pci-0000:00:0c.0"
-                partition: "/dev/ceph-a-vg_sdc/osd-block-b-lv_sdc-1"
-                type: "block"
-                class: "hdd"
-                zapDisk: true
-          "11":
-            deviceMapping:
-              "sdc":
-                path: "/dev/disk/by-path/pci-0000:00:0c.0"
-                partition: "/dev/ceph-a-vg_sdc/osd-block-b-lv_sdc-2"
-                type: "block"
-                class: "hdd"
-                zapDisk: true
-      "node-b":
-        osdMapping:
-          "1":
-            deviceMapping:
-              "sdb":
-                path: "/dev/disk/by-path/pci-0000:00:0a.0"
-                partition: "/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb"
-                type: "block"
-                class: "ssd"
-                zapDisk: true
-          "15":
-            deviceMapping:
-              "sdc":
-                path: "/dev/disk/by-path/pci-0000:00:0b.1"
-                partition: "/dev/ceph-b-vg_sdc/osd-block-b-lv_sdc"
-                type: "block"
-                class: "ssd"
-                zapDisk: true
-          "25":
-            deviceMapping:
-              "sdd":
-                path: "/dev/disk/by-path/pci-0000:00:0c.2"
-                partition: "/dev/ceph-b-vg_sdd/osd-block-b-lv_sdd"
-                type: "block"
-                class: "ssd"
-                zapDisk: true
-      "node-c":
-        osdMapping:
-          "0":
-            deviceMapping:
-              "sdb":
-                path: "/dev/disk/by-path/pci-0000:00:1t.9"
-                partition: "/dev/ceph-c-vg_sdb/osd-block-c-lv_sdb"
-                type: "block"
-                class: "hdd"
-                zapDisk: true
-          "8":
-            deviceMapping:
-              "sde":
-                path: "/dev/disk/by-path/pci-0000:00:1c.5"
-                partition: "/dev/ceph-c-vg_sde/osd-block-c-lv_sde"
-                type: "block"
-                class: "hdd"
-                zapDisk: true
-              "sdf":
-                path: "/dev/disk/by-path/pci-0000:00:5a.5",
-                partition: "/dev/ceph-c-vg_sdf/osd-db-c-lv_sdf-1",
-                type: "db",
-                class: "ssd"
-```
-</div>
-</details>
 
 During the `Validation` phase, the provided information was validated and
 reflects the final map of the Ceph OSDs to remove:
@@ -278,101 +265,81 @@ reflects the final map of the Ceph OSDs to remove:
   the disk itself untouched. Other partitions on that device will not be
   touched.
 
-Example of `removeInfo` with `removeStatus` succeeded:
+??? "Example of `removeInfo` with `removeStatus` succeeded"
 
-<details>
-<summary>Example output</summary>
-<div>
-```yaml
-status:
-  removeInfo:
-    cleanupMap:
-      "node-a":
-        completeCleanUp: true
-        hostRemoveStatus:
-          status: Removed
-        osdMapping:
-          "2":
-            removeStatus:
-              osdRemoveStatus:
-                status: Removed
-              deploymentRemoveStatus:
-                status: Removed
-                name: "rook-ceph-osd-2"
-              deviceCleanUpJob:
-                status: Finished
-                name: "job-name-for-osd-2"
-            deviceMapping:
-              "sdb":
-                path: "/dev/disk/by-path/pci-0000:00:0a.0"
-                partition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
-                type: "block"
-                class: "hdd"
-                zapDisk: true
-```
-</div>
-</details>
+    ```yaml
+    status:
+      removeInfo:
+        cleanupMap:
+          "node-a":
+            completeCleanUp: true
+            hostRemoveStatus:
+              status: Removed
+            osdMapping:
+              "2":
+                removeStatus:
+                  osdRemoveStatus:
+                    status: Removed
+                  deploymentRemoveStatus:
+                    status: Removed
+                    name: "rook-ceph-osd-2"
+                  deviceCleanUpJob:
+                    status: Finished
+                    name: "job-name-for-osd-2"
+                deviceMapping:
+                  "sdb":
+                    path: "/dev/disk/by-path/pci-0000:00:0a.0"
+                    partition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
+                    type: "block"
+                    class: "hdd"
+                    zapDisk: true
+    ```
 
-Example of `removeInfo` with `removeStatus` failed:
+??? "Example of `removeInfo` with `removeStatus` failed"
 
-<details>
-<summary>Example output</summary>
-<div>
-```yaml
-status:
-  removeInfo:
-    cleanupMap:
-      "node-a":
-        completeCleanUp: true
-        osdMapping:
-          "2":
-            removeStatus:
-              osdRemoveStatus:
-                error: "retries for cmd ‘ceph osd ok-to-stop 2’ exceeded"
-                status: Failed
-            deviceMapping:
-              "sdb":
-                path: "/dev/disk/by-path/pci-0000:00:0a.0"
-                partition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
-                type: "block"
-                class: "hdd"
-                zapDisk: true
-```
-</div>
-</details>
+    ```yaml
+    status:
+      removeInfo:
+        cleanupMap:
+          "node-a":
+            completeCleanUp: true
+            osdMapping:
+              "2":
+                removeStatus:
+                  osdRemoveStatus:
+                    error: "retries for cmd ‘ceph osd ok-to-stop 2’ exceeded"
+                    status: Failed
+                deviceMapping:
+                  "sdb":
+                    path: "/dev/disk/by-path/pci-0000:00:0a.0"
+                    partition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
+                    type: "block"
+                    class: "hdd"
+                    zapDisk: true
+    ```
 
-Example of `removeInfo` with `removeStatus` failed by timeout:
+??? "Example of `removeInfo` with `removeStatus` failed by timeout"
 
-<details>
-<summary>Example output</summary>
-<div>
-```yaml
-status:
-  removeInfo:
-    cleanupMap:
-      "node-a":
-        completeCleanUp: true
-        osdMapping:
-          "2":
-            removeStatus:
-              osdRemoveStatus:
-                error: Timeout (30m0s) reached for waiting pg rebalance for osd 2
-                status: Failed
-            deviceMapping:
-              "sdb":
-                path: "/dev/disk/by-path/pci-0000:00:0a.0"
-                partition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
-                type: "block"
-                class: "hdd"
-                zapDisk: true
-```
-</div>
-</details>
+    ```yaml
+    status:
+      removeInfo:
+        cleanupMap:
+          "node-a":
+            completeCleanUp: true
+            osdMapping:
+              "2":
+                removeStatus:
+                  osdRemoveStatus:
+                    error: Timeout (30m0s) reached for waiting pg rebalance for osd 2
+                    status: Failed
+                deviceMapping:
+                  "sdb":
+                    path: "/dev/disk/by-path/pci-0000:00:0a.0"
+                    partition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
+                    type: "block"
+                    class: "hdd"
+                    zapDisk: true
+    ```
 
-!!! note
-
-    In case of failures similar to the examples above, review the
-    `pelagia-lcm-controller` logs and both statuses of Rook `CephCluster` and Pelagia `CephDeploymentHealth`.
-    Such failures may simply indicate timeout and retry issues. If no other issues were found,
-    re-create the request with a new name and skip adding successfully removed
-    Ceph OSDS or Ceph nodes.
+In case of failures similar to the examples above, review the `pelagia-lcm-controller` logs and both statuses of Rook `CephCluster` and Pelagia `CephDeploymentHealth`.
+Such failures may simply indicate timeout and retry issues. If no other issues were found, re-create the request with a new name and skip adding successfully removed Ceph OSDS or Ceph nodes.

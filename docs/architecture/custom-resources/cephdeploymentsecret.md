@@ -8,38 +8,33 @@ To obtain the resource, run the following command:
 kubectl -n pelagia get cephdeploymentsecret -o yaml
 ```
 
-Example output:
+??? "Example `CephDeploymentSecret` output"
 
-<details>
-<summary>Example CephDeploymentSecret output</summary>
-<div>
-```yaml
-apiVersion: v1
-items:
-- apiVersion: lcm.mirantis.com/v1alpha1
-  kind: CephDeploymentSecret
-  metadata:
-    name: pelagia-ceph
-    namespace: pelagia
-  status:
-    lastSecretCheck: "2025-08-15T12:22:11Z"
-    lastSecretUpdate: "2025-08-15T12:22:11Z"
-    secretInfo:
-      clientSecrets:
-      - name: client.admin
-        secretName: rook-ceph-admin-keyring
-        secretNamespace: rook-ceph
-      rgwUserSecrets:
-      - name: test-user
-        secretName: rook-ceph-object-user-rgw-store-test-user
-        secretNamespace: rook-ceph
-    state: Ok
-kind: List
-metadata:
-  resourceVersion: ""
-```
-</div>
-</details>
+    ```yaml
+    apiVersion: v1
+    items:
+    - apiVersion: lcm.mirantis.com/v1alpha1
+      kind: CephDeploymentSecret
+      metadata:
+        name: pelagia-ceph
+        namespace: pelagia
+      status:
+        lastSecretCheck: "2025-08-15T12:22:11Z"
+        lastSecretUpdate: "2025-08-15T12:22:11Z"
+        secretInfo:
+          clientSecrets:
+          - name: client.admin
+            secretName: rook-ceph-admin-keyring
+            secretNamespace: rook-ceph
+          rgwUserSecrets:
+          - name: test-user
+            secretName: rook-ceph-object-user-rgw-store-test-user
+            secretNamespace: rook-ceph
+        state: Ok
+    kind: List
+    metadata:
+      resourceVersion: ""
+    ```
 
 To understand the status of a `CephDeploymentHealth`, learn the following:
 
@@ -71,22 +66,17 @@ The `secretsInfo` field contains the following fields:
 - `rgwUserSecrets` - Details on secrets for Ceph RADOS Gateway users such as `name`, `secretName`, and
   `secretNamespace`.
 
-Example of the `secretsInfo` field:
+??? "Example of the `secretsInfo` field"
 
-<details>
-<summary>Example *secretsInfo* field</summary>
-<div>
-```yaml
-status:
-  secretInfo:
-    clientSecrets:
-    - name: client.admin
-      secretName: rook-ceph-admin-keyring
-      secretNamespace: rook-ceph
-    rgwUserSecrets:
-    - name: test-user
-      secretName: rook-ceph-object-user-rgw-store-test-user
-      secretNamespace: rook-ceph
-```
-</div>
-</details>
+    ```yaml
+    status:
+      secretInfo:
+        clientSecrets:
+        - name: client.admin
+          secretName: rook-ceph-admin-keyring
+          secretNamespace: rook-ceph
+        rgwUserSecrets:
+        - name: test-user
+          secretName: rook-ceph-object-user-rgw-store-test-user
+          secretNamespace: rook-ceph
+    ```

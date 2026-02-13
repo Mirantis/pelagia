@@ -10,91 +10,88 @@ deployed based on the `devices` parameter defined for each Ceph node.
 
 For the default `CephDeployment` CR, see the following example:
 
-<details>
-<summary>Example configuration of Ceph specification</summary>
-<div>
-```yaml
-apiVersion: lcm.mirantis.com/v1alpha1
-kind: CephDeployment
-metadata:
-  name: pelagia-ceph
-  namespace: pelagia
-spec:
-  nodes:
-  - name: cluster-storage-controlplane-0
-    roles:
-    - mgr
-    - mon
-    - mds
-  - name: cluster-storage-controlplane-1
-    roles:
-    - mgr
-    - mon
-    - mds
-  - name: cluster-storage-controlplane-2
-    roles:
-    - mgr
-    - mon
-    - mds
-  - name: cluster-storage-worker-0
-    roles: []
-    devices:
-    - config:
+??? "Example configuration of Ceph specification"
+
+    ```yaml
+    apiVersion: lcm.mirantis.com/v1alpha1
+    kind: CephDeployment
+    metadata:
+      name: pelagia-ceph
+      namespace: pelagia
+    spec:
+      nodes:
+      - name: cluster-storage-controlplane-0
+        roles:
+        - mgr
+        - mon
+        - mds
+      - name: cluster-storage-controlplane-1
+        roles:
+        - mgr
+        - mon
+        - mds
+      - name: cluster-storage-controlplane-2
+        roles:
+        - mgr
+        - mon
+        - mds
+      - name: cluster-storage-worker-0
+        roles: []
+        devices:
+        - config:
+            deviceClass: ssd
+          fullPath: /dev/disk/by-id/scsi-1ATA_WDC_WDS100T2B0A-00SM50_200231434939
+      - name: cluster-storage-worker-1
+        roles: []
+        devices:
+        - config:
+            deviceClass: ssd
+          fullPath: /dev/disk/by-id/scsi-1ATA_WDC_WDS100T2B0A-00SM50_200231440912
+      - name: cluster-storage-worker-2
+        roles: []
+        devices:
+        - config:
+            deviceClass: ssd
+          fullPath: /dev/disk/by-id/scsi-1ATA_WDC_WDS100T2B0A-00SM50_200231443409
+      pools:
+      - default: true
         deviceClass: ssd
-      fullPath: /dev/disk/by-id/scsi-1ATA_WDC_WDS100T2B0A-00SM50_200231434939
-  - name: cluster-storage-worker-1
-    roles: []
-    devices:
-    - config:
-        deviceClass: ssd
-      fullPath: /dev/disk/by-id/scsi-1ATA_WDC_WDS100T2B0A-00SM50_200231440912
-  - name: cluster-storage-worker-2
-    roles: []
-    devices:
-    - config:
-        deviceClass: ssd
-      fullPath: /dev/disk/by-id/scsi-1ATA_WDC_WDS100T2B0A-00SM50_200231443409
-  pools:
-  - default: true
-    deviceClass: ssd
-    name: kubernetes
-    replicated:
-      size: 3
-  objectStorage:
-    rgw:
-      name: rgw-store
-      dataPool:
-        deviceClass: ssd
+        name: kubernetes
         replicated:
           size: 3
-      metadataPool:
-        deviceClass: ssd
-        replicated:
-          size: 3
-      gateway:
-        allNodes: false
-        instances: 3
-        port: 8081
-        securePort: 8443
-      preservePoolsOnDelete: false
-  sharedFilesystem:
-    cephFS:
-    - name: cephfs-store
-      dataPools:
-      - name: cephfs-pool-1
-        deviceClass: ssd
-        replicated:
-          size: 3
-      metadataPool:
-        deviceClass: ssd
-        replicated:
-          size: 3
-      metadataServer:
-        activeCount: 1
-        activeStandby: false
-```
-</div>
-</details>
+      objectStorage:
+        rgw:
+          name: rgw-store
+          dataPool:
+            deviceClass: ssd
+            replicated:
+              size: 3
+          metadataPool:
+            deviceClass: ssd
+            replicated:
+              size: 3
+          gateway:
+            allNodes: false
+            instances: 3
+            port: 8081
+            securePort: 8443
+          preservePoolsOnDelete: false
+      sharedFilesystem:
+        cephFS:
+        - name: cephfs-store
+          dataPools:
+          - name: cephfs-pool-1
+            deviceClass: ssd
+            replicated:
+              size: 3
+          metadataPool:
+            deviceClass: ssd
+            replicated:
+              size: 3
+          metadataServer:
+            activeCount: 1
+            activeStandby: false
+    ```
 
 ## Configure a Ceph cluster with CephDeployment
 
@@ -477,36 +474,33 @@ spec:
 - `enableCrushUpdates` - Optional. Enables automatic updates of the CRUSH map
   when the pool is created or updated. Defaulted to `false`.
 
-<details>
-<summary>Example configuration of Pools specification</summary>
-<div>
-```yaml
-spec:
-  pools:
-  - name: kubernetes
-    deviceClass: hdd
-    replicated:
-      size: 3
-    parameters:
-      target_size_ratio: "10.0"
-    storageClassOpts:
-      default: true
-    preserveOnDelete: true
-  - name: kubernetes
-    deviceClass: nvme
-    erasureCoded:
-      codingChunks: 1
-      dataChunks: 2
-    failureDomain: host
-  - name: archive
-    useAsFullName: true
-    deviceClass: hdd
-    failureDomain: rack
-    replicated:
-      size: 3
-```
-</div>
-</details>
+??? "Example configuration of Pools specification"
+
+    ```yaml
+    spec:
+      pools:
+      - name: kubernetes
+        deviceClass: hdd
+        replicated:
+          size: 3
+        parameters:
+          target_size_ratio: "10.0"
+        storageClassOpts:
+          default: true
+        preserveOnDelete: true
+      - name: kubernetes
+        deviceClass: nvme
+        erasureCoded:
+          codingChunks: 1
+          dataChunks: 2
+        failureDomain: host
+      - name: archive
+        useAsFullName: true
+        deviceClass: hdd
+        failureDomain: rack
+        replicated:
+          size: 3
+    ```
 
 As a result, the following Ceph pools will be created: `kubernetes-hdd`, `kubernetes-nvme`, and `archive`.
 
@@ -525,52 +519,46 @@ To configure additional required pools for [Rockoon](https://github.com/Mirantis
 - `caps` - Mandatory. Key-value parameter with Ceph client capabilities. For details about
   `caps`, refer to [Ceph documentation: Authorization (capabilities)](https://docs.ceph.com/en/latest/rados/operations/user-management/#authorization-capabilities).
 
-<details>
-<summary>Example configuration of Clients specification</summary>
-<div>
-```yaml
-spec:
-  clients:
-  - name: test-client
-    caps:
-      mon: allow r, allow command "osd blacklist"
-      osd: profile rbd pool=kubernetes-nvme
-```
-</div>
-</details>
+??? "Example configuration of Clients specification"
+
+    ```yaml
+    spec:
+      clients:
+      - name: test-client
+        caps:
+          mon: allow r, allow command "osd blacklist"
+          osd: profile rbd pool=kubernetes-nvme
+    ```
 
 ### RADOS Gateway parameters <a name="rgw"></a>
 
 @Snippet:cephdpl-parameters:rgwParameters@
 
-<details>
-<summary>Example configuration of RADOS gateway specification</summary>
-<div>
-```yaml
-spec:
-  objectStorage:
-    rgw:
-      name: rgw-store
-      dataPool:
-        deviceClass: hdd
-        erasureCoded:
-          codingChunks: 1
-          dataChunks: 2
-        failureDomain: host
-      metadataPool:
-        deviceClass: hdd
-        failureDomain: host
-        replicated:
-          size: 3
-      gateway:
-        allNodes: false
-        instances: 3
-        port: 80
-        securePort: 8443
-      preservePoolsOnDelete: false
-```
-</div>
-</details>
+??? "Example configuration of RADOS gateway specification"
+
+    ```yaml
+    spec:
+      objectStorage:
+        rgw:
+          name: rgw-store
+          dataPool:
+            deviceClass: hdd
+            erasureCoded:
+              codingChunks: 1
+              dataChunks: 2
+            failureDomain: host
+          metadataPool:
+            deviceClass: hdd
+            failureDomain: host
+            replicated:
+              size: 3
+          gateway:
+            allNodes: false
+            instances: 3
+            port: 80
+            securePort: 8443
+          preservePoolsOnDelete: false
+    ```
 
 ### RADOS Gateway Multisite parameters <a name="multisite"></a>
 
@@ -587,31 +575,28 @@ contains the following parameters:
 
 @Snippet:cephdpl-parameters:cephfsParameters@
 
-<details>
-<summary>Example configuration of shared Filesystem specification</summary>
-<div>
-```yaml
-spec:
-  sharedFilesystem:
-    cephFS:
-    - name: cephfs-store
-      dataPools:
-      - name: cephfs-pool-1
-        deviceClass: hdd
-        replicated:
-          size: 3
-        failureDomain: host
-      metadataPool:
-        deviceClass: nvme
-        replicated:
-          size: 3
-        failureDomain: host
-      metadataServer:
-        activeCount: 1
-        activeStandby: false
-```
-</div>
-</details>
+??? "Example configuration of shared Filesystem specification"
+
+    ```yaml
+    spec:
+      sharedFilesystem:
+        cephFS:
+        - name: cephfs-store
+          dataPools:
+          - name: cephfs-pool-1
+            deviceClass: hdd
+            replicated:
+              size: 3
+            failureDomain: host
+          metadataPool:
+            deviceClass: nvme
+            replicated:
+              size: 3
+            failureDomain: host
+          metadataServer:
+            activeCount: 1
+            activeStandby: false
+    ```
 
 ### RookConfig parameters <a name="rookConfig"></a>
 
@@ -694,48 +679,45 @@ spec:
     - `failureThreshold` - the minimum consecutive failures for the
       probe to be considered failed after having succeeded. Integer.
 
-<details>
-<summary>Example configuration of health check specification</summary>
-<div>
-```yaml
-spec:
-  healthCheck:
-    daemonHealth:
-      mon:
-        disabled: false
-        interval: 45s
-        timeout: 600s
-      osd:
-        disabled: false
-        interval: 60s
-      status:
-        disabled: true
-    livenessProbe:
-      mon:
-        disabled: false
-        probe:
-          timeoutSeconds: 10
-          periodSeconds: 3
-          successThreshold: 3
-      mgr:
-        disabled: false
-        probe:
-          timeoutSeconds: 5
-          failureThreshold: 5
-      osd:
-        probe:
-          initialDelaySeconds: 5
-          timeoutSeconds: 10
-          failureThreshold: 7
-    startupProbe:
-      mon:
-        disabled: true
-      mgr:
-        probe:
-          successThreshold: 3
-```
-</div>
-</details>
+??? "Example configuration of health check specification?
+
+    ```yaml
+    spec:
+      healthCheck:
+        daemonHealth:
+          mon:
+            disabled: false
+            interval: 45s
+            timeout: 600s
+          osd:
+            disabled: false
+            interval: 60s
+          status:
+            disabled: true
+        livenessProbe:
+          mon:
+            disabled: false
+            probe:
+              timeoutSeconds: 10
+              periodSeconds: 3
+              successThreshold: 3
+          mgr:
+            disabled: false
+            probe:
+              timeoutSeconds: 5
+              failureThreshold: 5
+          osd:
+            probe:
+              initialDelaySeconds: 5
+              timeoutSeconds: 10
+              failureThreshold: 7
+        startupProbe:
+          mon:
+            disabled: true
+          mgr:
+            probe:
+              successThreshold: 3
+    ```
 
 ### ExtraOpts parameters <a name="extraopts"></a>
 
