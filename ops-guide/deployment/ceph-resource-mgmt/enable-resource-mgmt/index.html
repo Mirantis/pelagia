@@ -2782,10 +2782,9 @@ ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">set</spa
 <li><code>all</code> - specifies general toleration rules for all daemons if no separate daemon rule is specified.</li>
 <li><code>mds</code> - specifies the CephFS Metadata Server daemons.</li>
 </ul>
-<p><details>
- <summary>Example configuration</summary>
- <div>
- <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<details>
+<summary>Example configuration</summary>
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">hyperconverge</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">tolerations</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">mon</span><span class="p">:</span>
@@ -2809,8 +2808,7 @@ ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">set</spa
 <span class="w">          </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/controlplane</span>
 <span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
 </code></pre></div>
- </div>
- </details></p>
+</details>
 </li>
 <li>
 <p><code>resources</code> - Specifies resource requests or limits. The parameter is a map with the
@@ -2825,10 +2823,9 @@ ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">set</spa
 <p>Possible values for <code>&lt;daemonType&gt;</code> are <code>mon</code>, <code>mgr</code>, <code>osd</code>, <code>osd-hdd</code>, <code>osd-ssd</code>, <code>osd-nvme</code>, <code>prepareosd</code>,
  <code>rgw</code>, and <code>mds</code>. The <code>osd-hdd</code>, <code>osd-ssd</code>, and <code>osd-nvme</code> resource requirements handle only the Ceph OSDs
  with a corresponding device class.</p>
-<p><details>
- <summary>Example configuration</summary>
- <div>
- <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<details>
+<summary>Example configuration</summary>
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">hyperconverge</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">mon</span><span class="p">:</span>
@@ -2874,8 +2871,7 @@ ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">set</spa
 <span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2Gi</span>
 <span class="w">          </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 </code></pre></div>
- </div>
- </details></p>
+</details>
 </li>
 </ul>
 </li>

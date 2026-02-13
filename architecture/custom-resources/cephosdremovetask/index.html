@@ -2892,10 +2892,8 @@ Ceph OSDs with device <code>by-id</code> symlinks or use <code>cleanupByOsd</cod
   which not belong to current cluster, for example, when disk was not cleaned up previously.</p>
 </li>
 </ul>
-<p>Example of <code>CephOsdRemoveTask</code> with <code>spec.nodes</code>:</p>
 <details>
-<summary>Example CephOsdRemoveTask nodes specification</summary>
-<div>
+<summary>Example of <code>CephOsdRemoveTask</code> with <code>spec.nodes</code></summary>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CephOsdRemoveTask</span>
 <span class="nt">metadata</span><span class="p">:</span>
@@ -2918,9 +2916,7 @@ Ceph OSDs with device <code>by-id</code> symlinks or use <code>cleanupByOsd</cod
 <span class="w">    </span><span class="s">&quot;node-d&quot;</span><span class="p p-Indicator">:</span>
 <span class="w">      </span><span class="nt">dropFromCrush</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
-</div>
 </details>
-
 <p>The example above includes the following actions:</p>
 <ul>
 <li>For <code>node-a</code>, full cleanup, including all OSDs on the node, node drop from
@@ -2965,9 +2961,8 @@ Ceph OSDs with device <code>by-id</code> symlinks or use <code>cleanupByOsd</cod
 <li>
 <p><code>osdMapping</code> - Map of Ceph OSD IDs to the device names or symlink used for the Ceph OSD. It includes device info and
   statuses of Ceph OSD remove itself, Rook Ceph OSD deployment remove, Ceph OSD device cleanup job.</p>
-<p><details>
-<summary>CephOsdRemoveTask <em>osdMapping</em> example output</summary>
-<div>
+<details>
+<summary><code>CephOsdRemoveTask</code> <code>osdMapping</code> example output</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
@@ -2999,8 +2994,7 @@ Ceph OSDs with device <code>by-id</code> symlinks or use <code>cleanupByOsd</cod
 <span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
 <span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
-</div>
-</details></p>
+</details>
 </li>
 <li>
 <p><code>nodeIsDown</code> - Flag that indicates whether the node is down.</p>
@@ -3009,10 +3003,8 @@ Ceph OSDs with device <code>by-id</code> symlinks or use <code>cleanupByOsd</cod
 <li><code>hostRemoveStatus</code> - Node removal status if node is marked for complete cleanup.</li>
 </ul>
 <h3 id="remove-info-examples">Remove info examples <a name="remove-info-examples"></a><a class="headerlink" href="#remove-info-examples" title="Permanent link">#</a></h3>
-<p>Example of <code>status.removeInfo</code> after successful <code>Validation</code>:</p>
 <details>
-<summary>Example output</summary>
-<div>
+<summary>Example of <code>status.removeInfo</code> after successful <code>Validation</code></summary>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
@@ -3093,9 +3085,7 @@ Ceph OSDs with device <code>by-id</code> symlinks or use <code>cleanupByOsd</cod
 <span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;db&quot;</span><span class="err">,</span>
 <span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ssd&quot;</span>
 </code></pre></div>
-</div>
 </details>
-
 <p>During the <code>Validation</code> phase, the provided information was validated and
 reflects the final map of the Ceph OSDs to remove:</p>
 <ul>
@@ -3110,10 +3100,8 @@ reflects the final map of the Ceph OSDs to remove:</p>
   the disk itself untouched. Other partitions on that device will not be
   touched.</li>
 </ul>
-<p>Example of <code>removeInfo</code> with <code>removeStatus</code> succeeded:</p>
 <details>
-<summary>Example output</summary>
-<div>
+<summary>Example of <code>removeInfo</code> with <code>removeStatus</code> succeeded</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
@@ -3140,13 +3128,9 @@ reflects the final map of the Ceph OSDs to remove:</p>
 <span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
 <span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
-</div>
 </details>
-
-<p>Example of <code>removeInfo</code> with <code>removeStatus</code> failed:</p>
 <details>
-<summary>Example output</summary>
-<div>
+<summary>Example of <code>removeInfo</code> with <code>removeStatus</code> failed</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
@@ -3166,13 +3150,9 @@ reflects the final map of the Ceph OSDs to remove:</p>
 <span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
 <span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
-</div>
 </details>
-
-<p>Example of <code>removeInfo</code> with <code>removeStatus</code> failed by timeout:</p>
 <details>
-<summary>Example output</summary>
-<div>
+<summary>Example of <code>removeInfo</code> with <code>removeStatus</code> failed by timeout</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
@@ -3192,17 +3172,9 @@ reflects the final map of the Ceph OSDs to remove:</p>
 <span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
 <span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
-</div>
 </details>
-
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>In case of failures similar to the examples above, review the
-<code>pelagia-lcm-controller</code> logs and both statuses of Rook <code>CephCluster</code> and Pelagia <code>CephDeploymentHealth</code>.
-Such failures may simply indicate timeout and retry issues. If no other issues were found,
-re-create the request with a new name and skip adding successfully removed
-Ceph OSDS or Ceph nodes.</p>
-</div>
+<p>In case of failures similar to the examples above, review the <code>pelagia-lcm-controller</code> logs and both statuses of Rook <code>CephCluster</code> and Pelagia <code>CephDeploymentHealth</code>.
+Such failures may simply indicate timeout and retry issues. If no other issues were found, re-create the request with a new name and skip adding successfully removed Ceph OSDS or Ceph nodes.</p>
 
 
 

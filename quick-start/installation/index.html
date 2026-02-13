@@ -2811,8 +2811,7 @@ Lifecycle Management Controller does. To install Pelagia in LCM-only mode, pleas
 It will create Rook resources for Rook Operator to deploy a Ceph cluster. After Rook Operator deploys
 Ceph cluster, it could be managed by <code>CephDeployment</code> resource.</p>
 <details>
-<summary>Simple example of a `CephDeployment` resource</summary>
-<div>
+<summary>Simple example of a <code>CephDeployment</code> resource</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CephDeployment</span>
 <span class="nt">metadata</span><span class="p">:</span>
@@ -2884,9 +2883,7 @@ Ceph cluster, it could be managed by <code>CephDeployment</code> resource.</p>
 <span class="w">        </span><span class="nt">activeCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">        </span><span class="nt">activeStandby</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 </code></pre></div>
-</div>
 </details>
-
 <p>The example above contains <code>3</code> control plane nodes and <code>3</code> worker nodes in a Ceph cluster.
 You can change the number of nodes and their roles according to your needs. As a result, you will have
 a Ceph cluster with RBD pool, CephFS filesystem, and RGW object storage deployed in your Kubernetes cluster.

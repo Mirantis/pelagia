@@ -3067,7 +3067,6 @@ deployed based on the <code>devices</code> parameter defined for each Ceph node.
 <p>For the default <code>CephDeployment</code> CR, see the following example:</p>
 <details>
 <summary>Example configuration of Ceph specification</summary>
-<div>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CephDeployment</span>
 <span class="nt">metadata</span><span class="p">:</span>
@@ -3147,9 +3146,7 @@ deployed based on the <code>devices</code> parameter defined for each Ceph node.
 <span class="w">        </span><span class="nt">activeCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">        </span><span class="nt">activeStandby</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 </code></pre></div>
-</div>
 </details>
-
 <h2 id="configure-a-ceph-cluster-with-cephdeployment">Configure a Ceph cluster with CephDeployment<a class="headerlink" href="#configure-a-ceph-cluster-with-cephdeployment" title="Permanent link">#</a></h2>
 <ol>
 <li>
@@ -3556,7 +3553,6 @@ the <code>rack</code> topology instead. The <code>osd</code> failure domain is p
 </ul>
 <details>
 <summary>Example configuration of Pools specification</summary>
-<div>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">pools</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes</span>
@@ -3581,9 +3577,7 @@ the <code>rack</code> topology instead. The <code>osd</code> failure domain is p
 <span class="w">    </span><span class="nt">replicated</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 </code></pre></div>
-</div>
 </details>
-
 <p>As a result, the following Ceph pools will be created: <code>kubernetes-hdd</code>, <code>kubernetes-nvme</code>, and <code>archive</code>.</p>
 <p>To configure additional required pools for <a href="https://github.com/Mirantis/rockoon">Rockoon</a>, see
 <a href="https://mirantis.github.io/pelagia/ops-guide/rockoon/rockoon-integration">Ops Guide: Integrate Pelagia with Rockoon</a>.</p>
@@ -3601,7 +3595,6 @@ permission on the mount point of persistent volumes based on any
 </ul>
 <details>
 <summary>Example configuration of Clients specification</summary>
-<div>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">clients</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test-client</span>
@@ -3609,9 +3602,7 @@ permission on the mount point of persistent volumes based on any
 <span class="w">      </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow r, allow command &quot;osd blacklist&quot;</span>
 <span class="w">      </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile rbd pool=kubernetes-nvme</span>
 </code></pre></div>
-</div>
 </details>
-
 <h3 id="rados-gateway-parameters">RADOS Gateway parameters <a name="rgw"></a><a class="headerlink" href="#rados-gateway-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li><code>name</code> - Required. Ceph Object Storage instance name.</li>
@@ -3850,7 +3841,6 @@ health warning that blocks Ceph OSD removal. We recommend setting
 </ul>
 <details>
 <summary>Example configuration of RADOS gateway specification</summary>
-<div>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
@@ -3873,9 +3863,7 @@ health warning that blocks Ceph OSD removal. We recommend setting
 <span class="w">        </span><span class="nt">securePort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span>
 <span class="w">      </span><span class="nt">preservePoolsOnDelete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 </code></pre></div>
-</div>
 </details>
-
 <h3 id="rados-gateway-multisite-parameters">RADOS Gateway Multisite parameters <a name="multisite"></a><a class="headerlink" href="#rados-gateway-multisite-parameters" title="Permanent link">#</a></h3>
 <div class="admonition warning">
 <p class="admonition-title">Technical Preview</p>
@@ -4053,7 +4041,6 @@ contains the following parameters:</p>
 </ul>
 <details>
 <summary>Example configuration of shared Filesystem specification</summary>
-<div>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">sharedFilesystem</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cephFS</span><span class="p">:</span>
@@ -4073,9 +4060,7 @@ contains the following parameters:</p>
 <span class="w">        </span><span class="nt">activeCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">        </span><span class="nt">activeStandby</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 </code></pre></div>
-</div>
 </details>
-
 <h3 id="rookconfig-parameters">RookConfig parameters <a name="rookConfig"></a><a class="headerlink" href="#rookconfig-parameters" title="Permanent link">#</a></h3>
 <p>String key-value parameter that allows overriding Ceph configuration options.</p>
 <p>Use the <code>|</code> delimiter to specify the section where a parameter
@@ -4159,48 +4144,45 @@ for <code>mon</code>, <code>mgr</code>, <code>osd</code>, and <code>mds</code> (
 </ul>
 </li>
 </ul>
-<details>
-<summary>Example configuration of health check specification</summary>
-<div>
-<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">healthCheck</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">daemonHealth</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">mon</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">45s</span>
-<span class="w">        </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">600s</span>
-<span class="w">      </span><span class="nt">osd</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60s</span>
-<span class="w">      </span><span class="nt">status</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">livenessProbe</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">mon</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">probe</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">timeoutSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
-<span class="w">          </span><span class="nt">periodSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">          </span><span class="nt">successThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">      </span><span class="nt">mgr</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">probe</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">timeoutSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
-<span class="w">          </span><span class="nt">failureThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
-<span class="w">      </span><span class="nt">osd</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">probe</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">initialDelaySeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
-<span class="w">          </span><span class="nt">timeoutSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
-<span class="w">          </span><span class="nt">failureThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7</span>
-<span class="w">    </span><span class="nt">startupProbe</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">mon</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">      </span><span class="nt">mgr</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">probe</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">successThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-</code></pre></div>
-</div>
-</details>
-
+<p>??? "Example configuration of health check specification?</p>
+<pre><code>```yaml
+spec:
+  healthCheck:
+    daemonHealth:
+      mon:
+        disabled: false
+        interval: 45s
+        timeout: 600s
+      osd:
+        disabled: false
+        interval: 60s
+      status:
+        disabled: true
+    livenessProbe:
+      mon:
+        disabled: false
+        probe:
+          timeoutSeconds: 10
+          periodSeconds: 3
+          successThreshold: 3
+      mgr:
+        disabled: false
+        probe:
+          timeoutSeconds: 5
+          failureThreshold: 5
+      osd:
+        probe:
+          initialDelaySeconds: 5
+          timeoutSeconds: 10
+          failureThreshold: 7
+    startupProbe:
+      mon:
+        disabled: true
+      mgr:
+        probe:
+          successThreshold: 3
+```
+</code></pre>
 <h3 id="extraopts-parameters">ExtraOpts parameters <a name="extraopts"></a><a class="headerlink" href="#extraopts-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li>

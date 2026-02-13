@@ -2745,10 +2745,8 @@ problematic components. To obtain the detailed status for a particular Rook reso
 which Pelagia manages:</p>
 <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephdeploymenthealth<span class="w"> </span>-o<span class="w"> </span>yaml
 </code></pre></div>
-<p>Example output:</p>
 <details>
-<summary>Example CephDeploymentHealth status</summary>
-<div>
+<summary>Example <code>CephDeploymentHealth</code> status</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">items</span><span class="p">:</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
@@ -2974,9 +2972,7 @@ which Pelagia manages:</p>
 <span class="nt">metadata</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">resourceVersion</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 </code></pre></div>
-</div>
 </details>
-
 <p>To understand the status of a <code>CephDeploymentHealth</code>, learn the following:</p>
 <ul>
 <li><a href="#general">High-level status fields</a></li>
@@ -3009,9 +3005,8 @@ which Pelagia manages:</p>
 <li><code>objectStorage</code> - Contains status of object-storage related objects status information.</li>
 <li><code>sharedFilesystems</code> - Contains status of shared filesystems related objects status information.</li>
 </ul>
-<p><details>
-<summary>Example <em>rookCephObjects</em> status</summary>
-<div>
+<details>
+<summary>Example <code>rookCephObjects</code> status</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">healthReport</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">rookCephObjects</span><span class="p">:</span>
@@ -3066,8 +3061,7 @@ which Pelagia manages:</p>
 <span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph filesystem resource phase&gt;</span>
 </code></pre></div>
-</div>
-</details></p>
+</details>
 </li>
 <li>
 <p><code>cephDaemons</code> - Contains information about the state of the Ceph and Ceph CSI daemons in the cluster.
@@ -3079,9 +3073,8 @@ which Pelagia manages:</p>
 <li><code>cephCSIPluginDaemons</code> - Contains information, similar to the <code>daemonsStatus</code> format, for each
   Ceph CSI plugin deployed in the Ceph cluster: <code>rbd</code> and <code>cephfs</code>.</li>
 </ul>
-<p><details>
-<summary>Example <em>cephDaemons</em> status</summary>
-<div>
+<details>
+<summary>Example <code>cephDaemons</code> status</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">healthReport</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cephDaemons</span><span class="p">:</span>
@@ -3116,8 +3109,7 @@ which Pelagia manages:</p>
 <span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;2</span><span class="nv"> </span><span class="s">rgws</span><span class="nv"> </span><span class="s">running,</span><span class="nv"> </span><span class="s">daemons:</span><span class="nv"> </span><span class="s">[21273</span><span class="nv"> </span><span class="s">38213]&#39;</span>
 <span class="w">          </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
 </code></pre></div>
-</div>
-</details></p>
+</details>
 </li>
 <li>
 <p><code>clusterDetails</code> - Verbose details of the Ceph cluster state. Contains the following fields:</p>
@@ -3129,9 +3121,8 @@ which Pelagia manages:</p>
 <li><code>rgwInfo</code> - represents additional Ceph Object Storage Multisite information like public endpoint
   to connect external zone and sync statuses.</li>
 </ul>
-<p><details>
-<summary>Example <em>clusterDetails</em> status</summary>
-<div>
+<details>
+<summary>Example <code>clusterDetails</code> status</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">healthReport</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">clusterDetails</span><span class="p">:</span>
@@ -3186,8 +3177,7 @@ which Pelagia manages:</p>
 <span class="w">            </span><span class="nt">usedBytes</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0&quot;</span>
 <span class="w">            </span><span class="nt">usedBytesPercentage</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.000&quot;</span>
 </code></pre></div>
-</div>
-</details></p>
+</details>
 </li>
 <li>
 <p><code>osdAnalysis</code> - Ceph OSD analysis results based on Rook <code>CephCluster</code> specification and <code>disk-daemon</code> reports.
@@ -3198,9 +3188,8 @@ which Pelagia manages:</p>
 <li><code>cephClusterSpecGeneration</code> - Last validated Rook <code>CephCluster</code> specification generation.</li>
 <li><code>specAnalysis</code> - Map of per-node analysis results based on the Rook <code>CephCluster</code> specification.</li>
 </ul>
-<p><details>
-<summary>Example <em>osdAnalysis</em> status</summary>
-<div>
+<details>
+<summary>Example <code>osdAnalysis</code> status</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">healthReport</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">osdAnalysis</span><span class="p">:</span>
@@ -3217,8 +3206,7 @@ which Pelagia manages:</p>
 <span class="w">        </span><span class="nt">cluster-storage-worker-2</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
 </code></pre></div>
-</div>
-</details></p>
+</details>
 </li>
 </ul>
 

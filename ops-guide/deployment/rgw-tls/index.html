@@ -2914,8 +2914,7 @@ Also, <code>rgw dns name</code> is specified by Pelagia Deployment Controller an
 <p>You can override <code>rgw dns name</code> using the <code>rookConfig</code> key-value parameter. In this case, also change the corresponding
 ingress annotation.</p>
 <details>
-<summary>Configuration example with the rgw_dns_name override</summary>
-<div>
+<summary>Configuration example with the <code>rgw_dns_name</code> override</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
@@ -2933,9 +2932,7 @@ ingress annotation.</p>
 <span class="w">  </span><span class="nt">rookConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="s">&quot;rgw</span><span class="nv"> </span><span class="s">dns</span><span class="nv"> </span><span class="s">name&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store.public.domain.name</span>
 </code></pre></div>
-</div>
 </details>
-
 <p>For clouds with the <code>publicDomain</code> parameter specified, align the <code>upstream-vhost</code> ingress annotation with the
 name of the Ceph Object Storage and the specified public domain.</p>
 <p>Pelagia Ceph Object Storage requires the <code>upstream-vhost</code> and <code>rgw dns name</code> parameters to be equal. Therefore,

@@ -2743,10 +2743,8 @@ contains the information about all Ceph RBD/RGW credential secrets to be used fo
 To obtain the resource, run the following command:</p>
 <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephdeploymentsecret<span class="w"> </span>-o<span class="w"> </span>yaml
 </code></pre></div>
-<p>Example output:</p>
 <details>
-<summary>Example CephDeploymentSecret output</summary>
-<div>
+<summary>Example <code>CephDeploymentSecret</code> output</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">items</span><span class="p">:</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
@@ -2771,9 +2769,7 @@ To obtain the resource, run the following command:</p>
 <span class="nt">metadata</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">resourceVersion</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 </code></pre></div>
-</div>
 </details>
-
 <p>To understand the status of a <code>CephDeploymentHealth</code>, learn the following:</p>
 <ul>
 <li><a href="#general">High-level status fields</a></li>
@@ -2804,10 +2800,8 @@ To obtain the resource, run the following command:</p>
 <li><code>rgwUserSecrets</code> - Details on secrets for Ceph RADOS Gateway users such as <code>name</code>, <code>secretName</code>, and
   <code>secretNamespace</code>.</li>
 </ul>
-<p>Example of the <code>secretsInfo</code> field:</p>
 <details>
-<summary>Example *secretsInfo* field</summary>
-<div>
+<summary>Example of the <code>secretsInfo</code> field</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">secretInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">clientSecrets</span><span class="p">:</span>
@@ -2819,7 +2813,6 @@ To obtain the resource, run the following command:</p>
 <span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rook-ceph-object-user-rgw-store-test-user</span>
 <span class="w">      </span><span class="nt">secretNamespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rook-ceph</span>
 </code></pre></div>
-</div>
 </details>
 
 
