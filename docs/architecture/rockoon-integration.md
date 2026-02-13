@@ -1,6 +1,6 @@
 # Pelagia integration with Rockoon
 
-The integration between Pelagia and [Rockoon OpenStack Controllers](https://github.com/Mirantis/rockoon)
+The integration between Pelagia and Rockoon OpenStack Controller
 is implemented through the shared Kubernetes `openstack-ceph-shared` namespace. Both
 controllers have access to this namespace to read and write the Kubernetes
 `kind: Secret` objects.
@@ -9,8 +9,7 @@ controllers have access to this namespace to read and write the Kubernetes
 
 To integrate Pelagia with Rockoon, all necessary Ceph pools must be specified
 in the configuration of the `CephDeployment` custom resource as part of the deployment.
-For the required pools, see
-[Ops Guide: Integrate Pelagia with Rockoon](https://mirantis.github.io/ops-guide/rockoon/rockoon-integration).
+For the required pools, see [Integrate Pelagia with Rockoon](../ops-guide/rockoon/rockoon-integration.md#integrate-pelagia-with-rockoon).
 
 Once the Ceph cluster is deployed, Pelagia Deployment Controller posts the
 information required by Rockoon OpenStack services to be properly configured

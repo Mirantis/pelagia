@@ -1,5 +1,4 @@
-<a id="enable-multisite-mira"></a>
-
+<a id="enable-multisite-for-ceph=object-storage"></a>
 # Enable Multisite for Ceph Object Storage
 
 {% include "../../snippets/techpreview.md" %}

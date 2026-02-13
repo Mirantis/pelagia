@@ -1,11 +1,9 @@
 <a id="default-ceph-conf"></a>
-
 # Ceph default configuration options
 
 Pelagia Deployment Controller provides the capability to specify configuration options for
 the Ceph cluster through the `rookConfig` key-value section of the
-`CephDeployment` CR as if they were set in a usual `ceph.conf` file. For details,
-see [Architecture: CephDeployment](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment).
+`CephDeployment` CR as if they were set in a usual `ceph.conf` file.
 
 However, if `rookConfig` is empty, Pelagia Deployment Controller still specifies the
 following default configuration options for each Ceph cluster:
@@ -80,6 +78,6 @@ default configuration options for each Ceph cluster:
   rgw keystone admin project = <keystoneProjectName>
   ```
 
-#### SEE ALSO
+!!! info "See also"
 
-[Architecture: CephDeployment](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment)
+    [CephDeployment Custom Resource](../../architecture/custom-resources/cephdeployment.md#cephdeployment-custom-resource)

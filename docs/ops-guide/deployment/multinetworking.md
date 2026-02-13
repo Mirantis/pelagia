@@ -1,5 +1,4 @@
-<a id="l3-ceph"></a>
-
+<a id="enable-ceph-multinetwork"></a>
 # Enable Ceph multinetwork
 
 Ceph allows establishing multiple IP networks and subnet masks for clusters

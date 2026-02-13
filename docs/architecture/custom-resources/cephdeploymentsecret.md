@@ -1,4 +1,4 @@
-# CephDeploymentSecret Custom Resource
+# CephDeploymentSecret custom resource
 
 `CephDeploymentSecret` (`cephdeploymentsecrets.lcm.mirantis.com`) custom resource (CR)
 contains the information about all Ceph RBD/RGW credential secrets to be used for the access to Ceph cluster.

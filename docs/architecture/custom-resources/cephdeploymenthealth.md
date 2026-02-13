@@ -1,4 +1,4 @@
-# CephDeploymentHealth Custom Resource
+# CephDeploymentHealth custom resource
 
 Verifying Ceph cluster state is **an entry point for issues investigation**.
 `CephDeploymentHealth` (`cephdeploymenthealths.lcm.mirantis.com`) custom resource (CR)

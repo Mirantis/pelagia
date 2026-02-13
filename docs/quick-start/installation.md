@@ -1,4 +1,5 @@
-# Installation Guide
+<a id="installation-guide"></a>
+# Installation guide
 
 This section provides instructions on how to install Pelagia that will deploy a
 Ceph cluster managed by [Rook](https://github.com/rook/rook) on a Kubernetes cluster, for example, deployed with [k0s](https://docs.k0sproject.io/stable/).

@@ -1,10 +1,10 @@
-# Pelagia Overview
+# Pelagia overview
 
 Pelagia Helm chart deploys the following components:
 
 - Pelagia Deployment Controller
 - Pelagia Lifecycle Management Controller
-- Rook Ceph Operator from [Rook](https://github.com/rook/rook).
+- Rook Ceph Operator from Rook
 
 ## Pelagia Deployment Controller
 
@@ -21,8 +21,7 @@ Pelagia Deployment Controller operations include:
 - Transforming user parameters from the `CephDeployment` resource into Rook resources
   and deploying a Ceph cluster using Rook.
 - Providing single entrypoint management of the Ceph cluster with Kubernetes.
-- Integrating with [Rockoon](https://github.com/Mirantis/rockoon) and providing data for OpenStack
-  to integrate with the deployed Ceph cluster.
+- Integrating with Rockoon OpenStack Controller and providing data for OpenStack to integrate with the deployed Ceph cluster.
 
 Also, Pelagia Controller eventually obtains the data from the OpenStack Controller
 (Rockoon) for the Keystone integration and updates the Ceph Object Gateway
@@ -76,7 +75,7 @@ Pelagia Task Controller operations include:
 
 ## Rook Ceph Operator
 
-[Rook](https://github.com/rook/rook) is a storage orchestrator that deploys Ceph on top of a Kubernetes cluster. Also
+Rook is a storage orchestrator that deploys Ceph on top of a Kubernetes cluster. Also
 known as `Rook`, `Rook Ceph Operator` or `Rook Operator`.
 
 Rook operations include:
@@ -85,11 +84,9 @@ Rook operations include:
   `CephCluster`, `CephBlockPool`, `CephObjectStore`, and so on
 - Orchestrating the state of the Ceph cluster and all its daemons
 
-For more information about Rook, see the official
-[Rook documentation](https://rook.github.io/docs/rook/latest-release/Getting-Started/intro/).
+!!! note
 
-Note that Pelagia Helm chart deploys the Rook Operator
-according to the [Rook chart templates](https://github.com/rook/rook/tree/master/deploy/charts/rook-ceph).
+    Pelagia Helm chart deploys the Rook Operator according to the Rook chart templates.
 
 A typical Ceph cluster deployed by Rook consists of the following components:
 
@@ -105,14 +102,15 @@ A typical Ceph cluster deployed by Rook consists of the following components:
     tolerance and is not eligible for recovery operations, such as a disk or
     an entire Ceph node replacement.
 
-## Pelagia Data Flow
+## Pelagia data flow
 
 The following diagram illustrates the processes within Pelagia and Rook Ceph Operator
 that are involved in the Ceph cluster deployment and lifecycle management:
 
 ![Overview](../../assets/overview.svg)
 
-## See also
+!!! info "See also"
 
-- [Ceph documentation](https://docs.ceph.com/docs/master/)
-- [Rook documentation](https://rook.github.io/docs/rook/latest-release/Getting-Started/intro/)
+    - [Ceph documentation](https://docs.ceph.com/docs/master/)
+    - [Rook documentation](https://rook.github.io/docs/rook/latest-release/Getting-Started/intro/)
+    - [Rockoon documentation](https://github.com/Mirantis/rockoon)

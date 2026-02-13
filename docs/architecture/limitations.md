@@ -1,12 +1,10 @@
-# Pelagia Limitations
+# Pelagia limitations
 
 A Pelagia `CephDeployment` configuration includes but is
 not limited to the following limitations:
 
 - The replication size for any Ceph pool must be set to more than 1.
-- Only one CRUSH tree per cluster. The separation of devices per Ceph pool is
-  supported through [Ceph Device Classes](https://docs.ceph.com/en/latest/rados/operations/crush-map/#device-classes)
-  with only one pool of each type for a device class.
+- Only one CRUSH tree per cluster. The separation of devices per Ceph pool is supported through Ceph Device Classes with only one pool of each type for a device class.
 - Only the following types of CRUSH buckets are supported:
 
     - `topology.kubernetes.io/region`
@@ -39,3 +37,7 @@ not limited to the following limitations:
   `CephDeployment` CR does not remove Ceph Managers. To remove a Ceph
   Manager from a node, remove it from the `nodes` spec and manually delete
   the `rook-ceph-mgr` pod in the Rook namespace.
+
+!!! info "See also"
+
+    [Ceph Device Classes](https://docs.ceph.com/en/latest/rados/operations/crush-map/#device-classes)
