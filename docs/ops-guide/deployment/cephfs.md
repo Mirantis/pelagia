@@ -139,7 +139,8 @@ with the following CephFS parameters:
    kubectl -n pelagia edit cephdpl
    ```
 
-3. In the `sharedFilesystem` section, specify parameters according to [CephFS specification](#cephfs-parameters). For example:
+3. Update the `sharedFilesystem` section specification as required using the configuration reference above. For example: 
+
    ```yaml
    spec:
      sharedFilesystem:

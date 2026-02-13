@@ -268,13 +268,9 @@ OSDs with a separate metadata device.
 
 ## Reconfigure a partition of a Ceph OSD metadata device <a name="ceph-osd-meta-reconfig"></a>
 
-There is no hot reconfiguration procedure for existing Ceph OSDs. To
-reconfigure an existing Ceph node, remove and re-add a Ceph OSD with a
-metadata device. However, the automated LCM will clean up the logical volume without a removal,
-and it can be reused. For this reason, to reconfigure a partition of a Ceph
-OSD metadata device:
+There is no hot reconfiguration procedure for existing Ceph OSDs.
+To reconfigure an existing Ceph node, remove and re-add a Ceph OSD with a metadata device.
+However, the automated LCM will clean up the logical volume without a removal, and it can be reused. For this reason, to reconfigure a partition of a Ceph OSD metadata device:
 
-1. Remove a Ceph OSD from the Ceph cluster as described in
-   [Remove a Ceph OSD with a metadata device](#ceph-osd-meta-remove).
-2. Add the same Ceph OSD but with a modified configuration as described in
-   [Add a Ceph OSD with a metadata device](#ceph-osd-meta-add).
+1. Remove a Ceph OSD from the Ceph cluster.
+2. Add the same Ceph OSD but with a modified configuration.

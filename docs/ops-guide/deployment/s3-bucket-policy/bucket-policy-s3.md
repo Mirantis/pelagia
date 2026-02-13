@@ -10,9 +10,7 @@ a bucket (`test01`) stored in a Ceph Object Storage. The bucket policy
 requires at least two users: a bucket owner (`user-a`) and a bucket user
 (`user-t`). The bucket owner creates the bucket and sets the policy that
 regulates access for the bucket user.
-
-The procedure uses `s3cmd` command-line tool. To configure `s3cmd` for
-using it with Ceph Object Storage, please refer to [Configure s3cmd](#s3cmd).
+The procedure uses the `s3cmd` command-line tool.
 
 ## Configure `s3cmd` command-line tool <a name="s3cmd"></a>
 

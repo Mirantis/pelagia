@@ -104,21 +104,7 @@ For the default `CephDeployment` CR, see the following example:
        kubectl -n pelagia edit cephdpl
        ```
 
-2. Using the tables below, configure the Ceph cluster as required:
-
-     - [General parameters](#cephdpl-general)
-     - [Network parameters](#cephdpl-network)
-     - [Nodes parameters](#cephdpl-nodes)
-     - [Pools parameters](#pools)
-     - [Clients parameters](#clients)
-     - [Object Storage parameters](#rgw)
-     - [Object Storage Multisite parameters](#multisite)
-     - [CephFS parameters](#cephfs)
-     - [RookConfig parameters](#rookConfig)
-     - [Health check parameters](#healthcheck)
-     - [Extra options](#extraopts)
-     - [Ceph Manager modules parameters](#mgr-modules)
-     - [RBD Mirroring parameters](#rbdmirror)
+2. Set up the Ceph cluster using the configuration reference below.
 
 3. Select from the following options:
 
@@ -130,7 +116,7 @@ For the default `CephDeployment` CR, see the following example:
 
     - If you are editing `CephDeployment` , save the changes and exit the text editor to apply it.
 
-4. Verify `CephDeployment` reconcile status with [Status fields](#status).
+4. Verify `CephDeployment` reconcile status with the Status fields.
 
 ## CephDeployment configuration options
 

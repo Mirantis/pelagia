@@ -19,9 +19,8 @@ Only the multi-zone multisite setup is currently supported. For more details, se
    ```bash
    kubectl -n pelagia edit cephdpl <name>
    ```
-2. Using the parameters from [Multisite parameters](#parameters), update the `spec.objectStorage.multiSite`
-   section specification as required:
-   [Master zone](#master-zone-multisite) or [Replication zone](#replication-zone-multisite).
+2. Update the `spec.objectStorage.multiSite` section specification as required using the configuration
+   references for master or replication zones below.
 3. Configure the `zone` RGW parameter and leave `dataPool`
    and `metadataPool` empty. These parameters are ignored because
    the `zone` section in the multisite configuration specifies the pool parameters.
