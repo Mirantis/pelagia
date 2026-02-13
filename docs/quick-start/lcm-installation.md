@@ -1,4 +1,5 @@
-# LCM-only Installation Guide
+<a id="lcmonly-installation-guide"></a>
+# LCM-only installation guide
 
 This section provides instructions on how to install Pelagia in lifecycle-management-only (lcm-only) mode.
 This mode allows you to automatically remove Rook Ceph OSD disks and nodes in your Kubernetes cluster.
