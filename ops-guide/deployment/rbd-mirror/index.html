@@ -2735,24 +2735,17 @@ access to all images. For details, see <a href="https://docs.ceph.com/en/latest/
 <h2 id="rbd-mirror-parameters">RBD mirror parameters<a class="headerlink" href="#rbd-mirror-parameters" title="Permanent link">#</a></h2>
 <p>To enable Ceph RBD monitoring, follow the procedure below and use the following
 <code>rbdMirror</code> parameters description:</p>
-<table>
-<thead>
-<tr>
-<th><div style="width:150px">Parameter</div></th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>daemonsCount</code></td>
-<td>Count of <code>rbd-mirror</code> daemons to spawn. We recommend using one instance of the <code>rbd-mirror</code> daemon.</td>
-</tr>
-<tr>
-<td><code>peers</code></td>
-<td>Optional. List of mirroring peers of an external cluster to connect to. Only a single peer is supported. The <code>peer</code> section includes the following parameters:<br/><ul><li><code>site</code> - the label of a remote Ceph cluster associated with the token.</li><li><code>token</code> - the token that will be used by one site (Ceph cluster) to pull images from the other site. To obtain the token, use the <strong>rbd mirror pool peer bootstrap create</strong> command.</li><li><code>pools</code> - optional, a list of pool names to mirror.</li></ul></td>
-</tr>
-</tbody>
-</table>
+<ul>
+<li><code>daemonsCount</code> - Count of <code>rbd-mirror</code> daemons to spawn. We recommend using one instance of the <code>rbd-mirror</code> daemon.</li>
+<li>
+<p><code>peers</code> - Optional. List of mirroring peers of an external cluster to connect to. Only a single peer is supported. The <code>peer</code> section includes the following parameters:</p>
+</li>
+<li>
+<p><code>site</code> - the label of a remote Ceph cluster associated with the token.</p>
+</li>
+<li><code>token</code> - the token that will be used by one site (Ceph cluster) to pull images from the other site. To obtain the token, use the <strong>rbd mirror pool peer bootstrap create</strong> command.</li>
+<li><code>pools</code> - optional, a list of pool names to mirror.</li>
+</ul>
 <h2 id="enable-ceph-rbd-mirroring_1">Enable Ceph RBD mirroring<a class="headerlink" href="#enable-ceph-rbd-mirroring_1" title="Permanent link">#</a></h2>
 <ol>
 <li>

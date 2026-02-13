@@ -2781,36 +2781,21 @@ To obtain the resource, run the following command:</p>
 </ul>
 <h2 id="high-level-status-fields">High-level status fields <a name="general"></a><a class="headerlink" href="#high-level-status-fields" title="Permanent link">#</a></h2>
 <p>The <code>CephDeploymentSecret</code> custom resource contains the following high-level status fields:</p>
-<table>
-<thead>
-<tr>
-<th><div style="width:150px">Field</div></th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>state</code></td>
-<td>Current state of the secret collector on the Ceph cluster:<br/><br/>  - <code>Ready</code> - information about secrets is collected successfully<br/>  - <code>Failed</code> - information about secrets fails to be collected</td>
-</tr>
-<tr>
-<td><code>lastSecretCheck</code></td>
-<td><code>DateTime</code> when the Ceph cluster secrets were verified last time.</td>
-</tr>
-<tr>
-<td><code>lastSecretUpdate</code></td>
-<td><code>DateTime</code> when the Ceph cluster secrets were updated last time.</td>
-</tr>
-<tr>
-<td><code>secretsInfo</code></td>
-<td>List of secrets for Ceph <code>authx</code> clients and RADOS Gateway users. For details, see <a href="#secret-info">Secret info fields</a>.</td>
-</tr>
-<tr>
-<td><code>messages</code></td>
-<td>List of error or warning messages, if any, found when collecting information about the Ceph cluster.</td>
-</tr>
-</tbody>
-</table>
+<ul>
+<li>
+<p><code>state</code> - Current state of the secret collector on the Ceph cluster:</p>
+<ul>
+<li><code>Ready</code> - information about secrets is collected successfully</li>
+<li><code>Failed</code> - information about secrets fails to be collected</li>
+</ul>
+</li>
+<li>
+<p><code>lastSecretCheck</code> - <code>DateTime</code> when the Ceph cluster secrets were verified last time.</p>
+</li>
+<li><code>lastSecretUpdate</code> - <code>DateTime</code> when the Ceph cluster secrets were updated last time.</li>
+<li><code>secretsInfo</code> - List of secrets for Ceph <code>authx</code> clients and RADOS Gateway users. For details, see <a href="#secret-info">Secret info fields</a>.</li>
+<li><code>messages</code> - List of error or warning messages, if any, found when collecting information about the Ceph cluster.</li>
+</ul>
 <h2 id="secret-info-fields">Secret info fields <a name="secret-info"></a><a class="headerlink" href="#secret-info-fields" title="Permanent link">#</a></h2>
 <p>The <code>secretsInfo</code> field contains the following fields:</p>
 <ul>

@@ -1381,6 +1381,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Enable the multisite RGW Object Storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-master-zone-for-rgw-object-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring master zone for RGW Object Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-replication-zone-for-rgw-object-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring replication zone for RGW Object Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2660,6 +2688,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Enable the multisite RGW Object Storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-master-zone-for-rgw-object-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring master zone for RGW Object Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-replication-zone-for-rgw-object-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring replication zone for RGW Object Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2827,153 +2883,9 @@ Only the multi-zone multisite setup is currently supported. For more details, se
 <li>Open the <code>CephDeployment</code> custom resource for editing:
    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephdpl<span class="w"> </span>&lt;name&gt;
 </code></pre></div></li>
-<li>
-<p>Using the parameters from <a href="#parameters">Multisite parameters</a>, update the <code>spec.objectStorage.multiSite</code>
-   section specification as required.</p>
-</li>
-<li>
-<p>Select from the following options:</p>
-<ul>
-<li>
-<p>If you do not need to replicate data from a different storage cluster,
-  and the current cluster represents the master zone, modify the current
-  <code>objectStorage</code> section to use the multisite mode:</p>
-<ol>
-<li>
-<p>Configure the <code>zone</code> RADOS Gateway (RGW) parameter by setting it to
-   the RGW Object Storage name.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Leave <code>dataPool</code> and <code>metadataPool</code> empty. These
-  parameters are ignored because the <code>zone</code> block in the multisite
-  configuration specifies the pools parameters. Other RGW parameters
-  do not require changes.</p>
-</div>
-<p>For example:
-<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w"> </span><span class="nt">objectStorage</span><span class="p">:</span>
-<span class="w">   </span><span class="nt">rgw</span><span class="p">:</span>
-<span class="w">     </span><span class="nt">gateway</span><span class="p">:</span>
-<span class="w">       </span><span class="nt">allNodes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">       </span><span class="nt">instances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-<span class="w">       </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
-<span class="w">       </span><span class="nt">securePort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span>
-<span class="w">     </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
-<span class="w">     </span><span class="nt">preservePoolsOnDelete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">     </span><span class="nt">zone</span><span class="p">:</span>
-<span class="w">       </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>Create the <code>multiSite</code> section where the names of realm, zone group,
-   and zone must match the current RGW name.</p>
-<p>Specify the <code>endpointsForZone</code> parameter according to your
-configuration:</p>
-<ul>
-<li>If you use ingress proxy, which is defined in the <code>spec.ingressConfig</code>
-   section, add the FQDN endpoint.</li>
-<li>If you do not use any ingress proxy and access the RGW API using the
-   default RGW external service, add the IP address of the external
-   service or leave this parameter empty.</li>
-</ul>
-<p>The following example illustrates a complete <code>objectStorage</code> section:
-<div class="highlight"><pre><span></span><code><span class="nt">objectStorage</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">multiSite</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">realms</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
-<span class="w">    </span><span class="nt">zoneGroups</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
-<span class="w">      </span><span class="nt">realmName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
-<span class="w">    </span><span class="nt">zones</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
-<span class="w">      </span><span class="nt">zoneGroupName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
-<span class="w">      </span><span class="nt">endpointsForZone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://10.11.0.75:8080</span>
-<span class="w">      </span><span class="nt">metadataPool</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">replicated</span><span class="p p-Indicator">:</span>
-<span class="w">            </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">      </span><span class="nt">dataPool</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">erasureCoded</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
-<span class="w">          </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-<span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
-<span class="w">  </span><span class="nt">rgw</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">gateway</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">allNodes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">      </span><span class="nt">instances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
-<span class="w">      </span><span class="nt">securePort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
-<span class="w">    </span><span class="nt">preservePoolsOnDelete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">    </span><span class="nt">zone</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
-</code></pre></div></p>
-</li>
-</ol>
-</li>
-<li>
-<p>If you use a different storage cluster, and its object storage data must
-  be replicated, specify the realm and zone group names along with the
-  <code>pullEndpoint</code> parameter. Additionally, specify the endpoint, access
-  key, and system keys of the system user of the realm from which you need
-  to replicate data. For details, see step 2 of this procedure.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>All commands below should be executed inside <code>pelagia-ceph-toolbox</code> pod.</p>
-</div>
-<ul>
-<li>
-<p>To obtain the endpoint of the cluster zone that must be replicated, run
-  the following command by specifying the zone group name of the required
-  master zone on the master zone side:
-  <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>zonegroup<span class="w"> </span>get<span class="w"> </span>--rgw-zonegroup<span class="o">=</span>&lt;ZONE_GROUP_NAME&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.endpoints&#39;</span>
-</code></pre></div>
-  The endpoint is located in the <code>endpoints</code> field.</p>
-</li>
-<li>
-<p>To obtain the access key and the secret key of the system user, run
-  the following command on the required Ceph cluster:
-  <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>user<span class="w"> </span>list
-</code></pre></div></p>
-</li>
-<li>To obtain the system user name, which has your RGW <code>ObjectStorage</code>
-  name as prefix:
-  <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>user<span class="w"> </span>info<span class="w"> </span>--uid<span class="o">=</span><span class="s2">&quot;&lt;USER_NAME&gt;&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.keys&#39;</span>
-</code></pre></div></li>
-</ul>
-<p>For example:
-<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">multiSite</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">realms</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
-<span class="w">        </span><span class="nt">pullEndpoint</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://10.11.0.75:8080</span>
-<span class="w">          </span><span class="nt">accessKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DRND5J2SVC9O6FQGEJJF</span>
-<span class="w">          </span><span class="nt">secretKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qpjIjY4lRFOWh5IAnbrgL5O6RTA1rigvmsqRGSJk</span>
-<span class="w">      </span><span class="nt">zoneGroups</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
-<span class="w">        </span><span class="nt">realmName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
-<span class="w">      </span><span class="nt">zones</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store-backup</span>
-<span class="w">        </span><span class="nt">zoneGroupName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
-<span class="w">        </span><span class="nt">metadataPool</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
-<span class="w">          </span><span class="nt">replicated</span><span class="p">:</span>
-<span class="w">            </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">        </span><span class="nt">dataPool</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">erasureCoded</span><span class="p">:</span>
-<span class="w">            </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
-<span class="w">            </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-<span class="w">          </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
-</code></pre></div></p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>We recommend using the same <code>metadataPool</code> and <code>dataPool</code> settings as you use in the master zone.</p>
-</div>
-</li>
-</ul>
-</li>
+<li>Using the parameters from <a href="#parameters">Multisite parameters</a>, update the <code>spec.objectStorage.multiSite</code>
+   section specification as required:
+   <a href="#master-zone-multisite">Master zone</a> or <a href="#replication-zone-multisite">Replication zone</a>.</li>
 <li>
 <p>Configure the <code>zone</code> RGW parameter and leave <code>dataPool</code>
    and <code>metadataPool</code> empty. These parameters are ignored because
@@ -3030,6 +2942,144 @@ configuration:</p>
 </ol>
 <p>Once done, Pelagia Deployment Controller will create the required resources and Rook will
 handle the multisite configuration. For details, see: <a href="https://rook.io/docs/rook/latest/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/">Rook documentation: Object Multisite</a>.</p>
+<h3 id="configuring-master-zone-for-rgw-object-storage">Configuring master zone for RGW Object Storage <a name="master-zone-multisite"></a><a class="headerlink" href="#configuring-master-zone-for-rgw-object-storage" title="Permanent link">#</a></h3>
+<p>If you do not need to replicate data from a different storage cluster,
+and the current cluster represents the master zone, modify the current
+<code>objectStorage</code> section to use the multisite mode:</p>
+<ol>
+<li>
+<p>Configure the <code>zone</code> RADOS Gateway (RGW) parameter by setting it to
+   the RGW Object Storage name.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Leave <code>dataPool</code> and <code>metadataPool</code> empty. These
+parameters are ignored because the <code>zone</code> block in the multisite
+configuration specifies the pools parameters. Other RGW parameters
+do not require changes.</p>
+</div>
+<p>For example:
+<code>yaml
+  spec:
+    objectStorage:
+      rgw:
+        gateway:
+          allNodes: false
+          instances: 2
+          port: 80
+          securePort: 8443
+        name: openstack-store
+        preservePoolsOnDelete: false
+        zone:
+          name: openstack-store</code></p>
+</li>
+<li>
+<p>Create the <code>multiSite</code> section where the names of realm, zone group,
+   and zone must match the current RGW name.</p>
+<p>Specify the <code>endpointsForZone</code> parameter according to your
+configuration:</p>
+<ul>
+<li>If you use ingress proxy, which is defined in the <code>spec.ingressConfig</code>
+    section, add the FQDN endpoint.</li>
+<li>If you do not use any ingress proxy and access the RGW API using the
+    default RGW external service, add the IP address of the external
+    service or leave this parameter empty.</li>
+</ul>
+<p>The following example illustrates a complete <code>objectStorage</code> section:
+<div class="highlight"><pre><span></span><code><span class="nt">objectStorage</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">multiSite</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">realms</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">    </span><span class="nt">zoneGroups</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">      </span><span class="nt">realmName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">    </span><span class="nt">zones</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">      </span><span class="nt">zoneGroupName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">      </span><span class="nt">endpointsForZone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://10.11.0.75:8080</span>
+<span class="w">      </span><span class="nt">metadataPool</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">replicated</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">      </span><span class="nt">dataPool</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">erasureCoded</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">          </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">  </span><span class="nt">rgw</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gateway</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">allNodes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">      </span><span class="nt">instances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">      </span><span class="nt">securePort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">    </span><span class="nt">preservePoolsOnDelete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">zone</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+</code></pre></div></p>
+</li>
+</ol>
+<h3 id="configuring-replication-zone-for-rgw-object-storage">Configuring replication zone for RGW Object Storage <a name="replication-zone-multisite"></a><a class="headerlink" href="#configuring-replication-zone-for-rgw-object-storage" title="Permanent link">#</a></h3>
+<p>If you use a different storage cluster, and its object storage data must
+be replicated, specify the realm and zone group names along with the
+<code>pullEndpoint</code> parameter. Additionally, specify the endpoint, access
+key, and system keys of the system user of the realm from which you need
+to replicate data. For details, see step 2 of this procedure.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All commands below should be executed inside <code>pelagia-ceph-toolbox</code> pod.</p>
+</div>
+<ol>
+<li>To obtain the endpoint of the cluster zone that must be replicated, run
+   the following command by specifying the zone group name of the required
+   master zone on the master zone side:
+   <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>zonegroup<span class="w"> </span>get<span class="w"> </span>--rgw-zonegroup<span class="o">=</span>&lt;ZONE_GROUP_NAME&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.endpoints&#39;</span>
+</code></pre></div></li>
+</ol>
+<p>The endpoint is located in the <code>endpoints</code> field.</p>
+<ol>
+<li>
+<p>To obtain the access key and the secret key of the system user, run
+   the following command on the required Ceph cluster:
+   <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>user<span class="w"> </span>list
+</code></pre></div></p>
+</li>
+<li>
+<p>To obtain the system user name, which has your RGW <code>ObjectStorage</code>
+   name as prefix:
+   <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>user<span class="w"> </span>info<span class="w"> </span>--uid<span class="o">=</span><span class="s2">&quot;&lt;USER_NAME&gt;&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.keys&#39;</span>
+</code></pre></div></p>
+</li>
+</ol>
+<p>For example:
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">multiSite</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">realms</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">        </span><span class="nt">pullEndpoint</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://10.11.0.75:8080</span>
+<span class="w">          </span><span class="nt">accessKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DRND5J2SVC9O6FQGEJJF</span>
+<span class="w">          </span><span class="nt">secretKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qpjIjY4lRFOWh5IAnbrgL5O6RTA1rigvmsqRGSJk</span>
+<span class="w">      </span><span class="nt">zoneGroups</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">        </span><span class="nt">realmName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">      </span><span class="nt">zones</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store-backup</span>
+<span class="w">        </span><span class="nt">zoneGroupName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">        </span><span class="nt">metadataPool</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">          </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">        </span><span class="nt">dataPool</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">erasureCoded</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">            </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">          </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+</code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We recommend using the same <code>metadataPool</code> and <code>dataPool</code> settings as you use in the master zone.</p>
+</div>
 <h2 id="configure-and-clean-up-a-multisite-configuration">Configure and clean up a multisite configuration<a class="headerlink" href="#configure-and-clean-up-a-multisite-configuration" title="Permanent link">#</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -3065,9 +3115,9 @@ steps on the <code>pelagia-ceph-toolbox</code> pod:</p>
 <p>If the pool <code>.rgw.root</code> is not removed, remove it manually:
    <div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>osd<span class="w"> </span>pool<span class="w"> </span>rm<span class="w"> </span>.rgw.root<span class="w"> </span>.rgw.root<span class="w"> </span>--yes-i-really-really-mean-it
 </code></pre></div></p>
+<p>Some other RGW pools may also require a removal after cleanup.</p>
 </li>
 </ul>
-<p>Some other RGW pools may also require a removal after cleanup.</p>
 </li>
 <li>
 <p>Remove the related RGW crush rules:

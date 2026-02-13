@@ -2983,36 +2983,13 @@ which Pelagia manages:</p>
 <li><a href="#full">Health report status fields</a></li>
 </ul>
 <h2 id="high-level-status-fields">High-level status fields <a name="general"></a><a class="headerlink" href="#high-level-status-fields" title="Permanent link">#</a></h2>
-<table>
-<thead>
-<tr>
-<th><div style="width:150px">Field</div></th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>healthReport</code></td>
-<td>Complete information about Ceph cluster including cluster, Ceph resources, and daemon health. It helps reveal potentially problematic components.</td>
-</tr>
-<tr>
-<td><code>lastHealthCheck</code></td>
-<td><code>DateTime</code> when previous cluster state check occurred.</td>
-</tr>
-<tr>
-<td><code>lastHealthUpdate</code></td>
-<td><code>DateTime</code> when previous cluster state update occurred.</td>
-</tr>
-<tr>
-<td><code>issues</code></td>
-<td>List of strings of all issues found during cluster state check.</td>
-</tr>
-<tr>
-<td><code>state</code></td>
-<td>Cluster state that can be <code>Ok</code> or <code>Failed</code> depending on the Ceph cluster state check.</td>
-</tr>
-</tbody>
-</table>
+<ul>
+<li><code>healthReport</code> - Complete information about Ceph cluster including cluster, Ceph resources, and daemon health. It helps reveal potentially problematic components.</li>
+<li><code>lastHealthCheck</code> - <code>DateTime</code> when previous cluster state check occurred.</li>
+<li><code>lastHealthUpdate</code> - <code>DateTime</code> when previous cluster state update occurred.</li>
+<li><code>issues</code> - List of strings of all issues found during cluster state check.</li>
+<li><code>state</code> - Cluster state that can be <code>Ok</code> or <code>Failed</code> depending on the Ceph cluster state check.</li>
+</ul>
 <h2 id="health-report-status-fields">Health report status fields <a name="full"></a><a class="headerlink" href="#health-report-status-fields" title="Permanent link">#</a></h2>
 <ul>
 <li>

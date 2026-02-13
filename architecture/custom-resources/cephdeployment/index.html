@@ -711,12 +711,7 @@
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
+          <li class="md-nav__item">
   <a href="#rbd-mirroring-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -724,6 +719,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2944,12 +2944,7 @@
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
+          <li class="md-nav__item">
   <a href="#rbd-mirroring-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2957,6 +2952,11 @@
       
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -3164,9 +3164,9 @@ deployed based on the <code>devices</code> parameter defined for each Ceph node.
 <li>
 <p>Using the tables below, configure the Ceph cluster as required:</p>
 <ul>
-<li><a href="#general">General parameters</a></li>
-<li><a href="#network">Network parameters</a></li>
-<li><a href="#nodes">Nodes parameters</a></li>
+<li><a href="#cephdpl-general">General parameters</a></li>
+<li><a href="#cephdpl-network">Network parameters</a></li>
+<li><a href="#cephdpl-nodes">Nodes parameters</a></li>
 <li><a href="#pools">Pools parameters</a></li>
 <li><a href="#clients">Clients parameters</a></li>
 <li><a href="#rgw">Object Storage parameters</a></li>
@@ -3182,11 +3182,15 @@ deployed based on the <code>devices</code> parameter defined for each Ceph node.
 <li>
 <p>Select from the following options:</p>
 <ul>
-<li>If you are creating Ceph cluster, save the updated
+<li>
+<p>If you are creating Ceph cluster, save the updated
   <code>CephDeployment</code> template to the corresponding file and apply the file to a cluster:
   <div class="highlight"><pre><span></span><code>kubectl apply -f cephdeployment.yaml
-</code></pre></div></li>
-<li>If you are editing <code>CephDeployment</code> , save the changes and exit the text editor to apply it.</li>
+</code></pre></div></p>
+</li>
+<li>
+<p>If you are editing <code>CephDeployment</code> , save the changes and exit the text editor to apply it.</p>
+</li>
 </ul>
 </li>
 <li>
@@ -3196,74 +3200,24 @@ deployed based on the <code>devices</code> parameter defined for each Ceph node.
 <h2 id="cephdeployment-configuration-options">CephDeployment configuration options<a class="headerlink" href="#cephdeployment-configuration-options" title="Permanent link">#</a></h2>
 <p>The following subsections contain a description of <code>CephDeployment</code> parameters for an
 advanced configuration.</p>
-<h3 id="general-parameters">General parameters <a name="general"></a><a class="headerlink" href="#general-parameters" title="Permanent link">#</a></h3>
-<table>
-<thead>
-<tr>
-<th><div style="width:150px">Parameter</div></th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>network</code></td>
-<td>Specifies access and public networks for the Ceph cluster. For details, see <a href="#network">Network parameters</a>.</td>
-</tr>
-<tr>
-<td><code>nodes</code></td>
-<td>Specifies the list of Ceph nodes. For details, see <a href="#nodes">Node parameters</a>. The <code>nodes</code> parameter is a list with Ceph node specifications. List item could define Ceph node specification for a single node or a group of nodes listed or defined by label. It could be also combined.</td>
-</tr>
-<tr>
-<td><code>pools</code></td>
-<td>Specifies the list of Ceph pools. For details, see <a href="#pools">Pool parameters</a>.</td>
-</tr>
-<tr>
-<td><code>clients</code></td>
-<td>List of Ceph clients. For details, see <a href="#clients">Clients parameters</a>.</td>
-</tr>
-<tr>
-<td><code>objectStorage</code></td>
-<td>Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage. Also specifies the RADOS Gateway Multisite configuration. For details, see <a href="#rgw">RADOS Gateway parameters</a> and <a href="#multisite">Multisite parameters</a>.</td>
-</tr>
-<tr>
-<td><code>ingressConfig</code></td>
-<td>Enables a custom ingress rule for public access on Ceph services, for example, Ceph RADOS Gateway. For details, see <a href="https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-tls">Configure Ceph Object Gateway TLS</a>.</td>
-</tr>
-<tr>
-<td><code>sharedFilesystem</code></td>
-<td>Enables Ceph Filesystem. For details, see <a href="#cephfs">CephFS parameters</a>.</td>
-</tr>
-<tr>
-<td><code>rookConfig</code></td>
-<td>String key-value parameter that allows overriding Ceph configuration options. For details, see <a href="#rookConfig">RookConfig parameters</a>.</td>
-</tr>
-<tr>
-<td><code>healthCheck</code></td>
-<td>Configures health checks and liveness probe settings for Ceph daemons. For details, see <a href="#healthcheck">Health check parameters</a>.</td>
-</tr>
-<tr>
-<td><code>extraOpts</code></td>
-<td>Enables specification of extra options for a setup, includes the <code>deviceLabels</code> parameter. Refer to <a href="#extraopts">Extra options</a> for details.</td>
-</tr>
-<tr>
-<td><code>mgr</code></td>
-<td>Specifies a list of Ceph Manager modules to be enabled or disabled. For details, see <a href="#mgr-modules">Manager modules parameters</a>. Modules <code>balancer</code> and <code>pg_autoscaler</code> are enabled by default.</td>
-</tr>
-<tr>
-<td><code>dashboard</code></td>
-<td>Enables Ceph dashboard. Currently, Pelagia has no support of Ceph Dashboard. Defaults to <code>false</code>.</td>
-</tr>
-<tr>
-<td><code>rbdMirror</code></td>
-<td>Specifies the parameters for RBD Mirroring. For details, see <a href="#rbdmirror">RBD Mirroring parameters</a>.</td>
-</tr>
-<tr>
-<td><code>external</code></td>
-<td>Enables external Ceph cluster mode. If enabled, Pelagia will read a special <code>Secret</code> with external Ceph cluster credentials data connect to.</td>
-</tr>
-</tbody>
-</table>
-<h3 id="network-parameters">Network parameters <a name="network"></a><a class="headerlink" href="#network-parameters" title="Permanent link">#</a></h3>
+<h3 id="general-parameters">General parameters <a name="cephdpl-general"></a><a class="headerlink" href="#general-parameters" title="Permanent link">#</a></h3>
+<ul>
+<li><code>network</code> - Specifies access and public networks for the Ceph cluster. For details, see <a href="#cephdpl-network">Network parameters</a>.</li>
+<li><code>nodes</code> - Specifies the list of Ceph nodes. For details, see <a href="#cephdpl-nodes">Node parameters</a>. The <code>nodes</code> parameter is a list with Ceph node specifications. List item could define Ceph node specification for a single node or a group of nodes listed or defined by label. It could be also combined.</li>
+<li><code>pools</code> - Specifies the list of Ceph pools. For details, see <a href="#pools">Pool parameters</a>.</li>
+<li><code>clients</code> - List of Ceph clients. For details, see <a href="#clients">Clients parameters</a>.</li>
+<li><code>objectStorage</code> - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage. Also specifies the RADOS Gateway Multisite configuration. For details, see <a href="#rgw">RADOS Gateway parameters</a> and <a href="#multisite">Multisite parameters</a>.</li>
+<li><code>ingressConfig</code> - Enables a custom ingress rule for public access on Ceph services, for example, Ceph RADOS Gateway. For details, see <a href="https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-tls">Configure Ceph Object Gateway TLS</a>.</li>
+<li><code>sharedFilesystem</code> - Enables Ceph Filesystem. For details, see <a href="#cephfs">CephFS parameters</a>.</li>
+<li><code>rookConfig</code> - String key-value parameter that allows overriding Ceph configuration options. For details, see <a href="#rookConfig">RookConfig parameters</a>.</li>
+<li><code>healthCheck</code> - Configures health checks and liveness probe settings for Ceph daemons. For details, see <a href="#healthcheck">Health check parameters</a>.</li>
+<li><code>extraOpts</code> - Enables specification of extra options for a setup, includes the <code>deviceLabels</code> parameter. Refer to <a href="#extraopts">Extra options</a> for details.</li>
+<li><code>mgr</code> - Specifies a list of Ceph Manager modules to be enabled or disabled. For details, see <a href="#mgr-modules">Manager modules parameters</a>. Modules <code>balancer</code> and <code>pg_autoscaler</code> are enabled by default.</li>
+<li><code>dashboard</code> - Enables Ceph dashboard. Currently, Pelagia has no support of Ceph Dashboard. Defaults to <code>false</code>.</li>
+<li><code>rbdMirror</code> - Specifies the parameters for RBD Mirroring. For details, see <a href="#rbdmirror">RBD Mirroring parameters</a>.</li>
+<li><code>external</code> - Enables external Ceph cluster mode. If enabled, Pelagia will read a special <code>Secret</code> with external Ceph cluster credentials data connect to.</li>
+</ul>
+<h3 id="network-parameters">Network parameters <a name="cephdpl-network"></a><a class="headerlink" href="#network-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li>
 <p><code>clusterNet</code> - specifies a Classless Inter-Domain Routing (CIDR)
@@ -3304,7 +3258,7 @@ multiple IP networks. For details, see <a href="https://mirantis.github.io/pelag
 <span class="w">    </span><span class="nt">clusterNet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.10.0.0/24</span>
 <span class="w">    </span><span class="nt">publicNet</span><span class="p">:</span><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">192.100.0.0/24</span>
 </code></pre></div></p>
-<h3 id="nodes-parameters">Nodes parameters <a name="nodes"></a><a class="headerlink" href="#nodes-parameters" title="Permanent link">#</a></h3>
+<h3 id="nodes-parameters">Nodes parameters <a name="cephdpl-nodes"></a><a class="headerlink" href="#nodes-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li>
 <p><code>name</code> - Mandatory. Specifies the following:</p>
@@ -4331,7 +4285,7 @@ parameters:</p>
 <p>Most Ceph Manager modules require additional configuration that you can perform through the <code>pelagia-lcm-tooblox</code>
 pod.</p>
 </div>
-<h2 id="rbd-mirroring-parameters">RBD Mirroring parameters <a name="rbdmirror"></a><a class="headerlink" href="#rbd-mirroring-parameters" title="Permanent link">#</a></h2>
+<h3 id="rbd-mirroring-parameters">RBD Mirroring parameters <a name="rbdmirror"></a><a class="headerlink" href="#rbd-mirroring-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li><code>daemonsCount</code> - Count of <code>rbd-mirror</code> daemons to spawn. We recommend using one instance of the <code>rbd-mirror</code> daemon.                                                                                                                                                                                                                                                                                                                                                                                                                  |</li>
 <li>
@@ -4346,40 +4300,25 @@ pod.</p>
 </li>
 </ul>
 <h2 id="status-fields">Status fields <a name="status"></a><a class="headerlink" href="#status-fields" title="Permanent link">#</a></h2>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>phase</code></td>
-<td>Current handling phase of the applied Ceph cluster spec. Can equal to <code>Creating</code>, <code>Deploying</code>, <code>Validation</code>, <code>Ready</code>, <code>Deleting</code>, <code>OnHold</code> or <code>Failed</code>.</td>
-</tr>
-<tr>
-<td><code>message</code></td>
-<td>Detailed description of the current phase or an error message if the phase is <code>Failed</code>.</td>
-</tr>
-<tr>
-<td><code>lastRun</code></td>
-<td><code>DateTime</code> when previous spec reconcile occurred.</td>
-</tr>
-<tr>
-<td><code>clusterVersion</code></td>
-<td>Current Ceph cluster version, for example, <code>v19.2.3</code>.</td>
-</tr>
-<tr>
-<td><code>validation</code></td>
-<td>Validation result (<code>Succeed</code> or <code>Failed</code>) of the spec with a list of messages, if any. The <code>validation</code> section includes the following fields:<ul><li><code>result</code> - Succeed or Failed</li><li><code>messages</code> - the list of error messages</li><li><code>lastValidatedGeneration</code> - the last validated <code>metadata.generation</code> of <code>CephDeployment</code></li></ul></td>
-</tr>
-<tr>
-<td><code>objRefs</code></td>
-<td>Pelagia API object refereneces such as <code>CephDeploymentHealth</code> and <code>CephDeploymentSecret</code>.</td>
-</tr>
-</tbody>
-</table>
+<ul>
+<li><code>phase</code> - Current handling phase of the applied Ceph cluster spec. Can equal to <code>Creating</code>, <code>Deploying</code>, <code>Validation</code>, <code>Ready</code>, <code>Deleting</code>, <code>OnHold</code> or <code>Failed</code>.</li>
+<li><code>message</code> - Detailed description of the current phase or an error message if the phase is <code>Failed</code>.</li>
+<li><code>lastRun</code> - <code>DateTime</code> when previous spec reconcile occurred.</li>
+<li><code>clusterVersion</code> - Current Ceph cluster version, for example, <code>v19.2.3</code>.</li>
+<li>
+<p><code>validation</code> - Validation result (<code>Succeed</code> or <code>Failed</code>) of the spec with a list of messages, if any. The <code>validation</code> section includes the following fields:</p>
+</li>
+<li>
+<p><code>result</code> - Succeed or Failed</p>
+</li>
+<li><code>messages</code> - the list of error messages</li>
+<li>
+<p><code>lastValidatedGeneration</code> - the last validated <code>metadata.generation</code> of <code>CephDeployment</code></p>
+</li>
+<li>
+<p><code>objRefs</code> - Pelagia API object refereneces such as <code>CephDeploymentHealth</code> and <code>CephDeploymentSecret</code>.</p>
+</li>
+</ul>
 
 
 

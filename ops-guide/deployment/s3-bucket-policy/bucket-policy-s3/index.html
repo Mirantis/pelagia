@@ -2782,57 +2782,16 @@ providers that use the S3 protocol. You can download the s3cmd CLI tool from
 </code></pre></div></p>
 <p>where <code>ca.crt</code> is a CA certificate signs Ceph Object Storage public endpoint.</p>
 <p>The command will ask to specify the following bucket access parameters:</p>
-<table>
-<thead>
-<tr>
-<th>Parameter</th>
-<th>Description</th>
-<th>Comment</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Access Key</code></td>
-<td>Public part of access credentials.</td>
-<td>Specify a user access key.</td>
-</tr>
-<tr>
-<td><code>Secret Key</code></td>
-<td>Secret part of access credentials.</td>
-<td>Specify a user secret key.</td>
-</tr>
-<tr>
-<td><code>Default Region</code></td>
-<td>Region of AWS servers where requests are sent by default.</td>
-<td>Use the default value.</td>
-</tr>
-<tr>
-<td><code>S3 Endpoint</code></td>
-<td>Connection point to the Ceph Object Storage.</td>
-<td>Specify the Ceph Object Storage public endpoint.</td>
-</tr>
-<tr>
-<td><code>DNS-style bucket+hostname:port template for accessing a bucket</code></td>
-<td>Bucket location.</td>
-<td>Specify the Ceph Object Storage public endpoint.</td>
-</tr>
-<tr>
-<td><code>Path to GPG program</code></td>
-<td>Path to the GNU Privacy Guard encryption suite.</td>
-<td>Use the default value.</td>
-</tr>
-<tr>
-<td><code>Use HTTPS protocol</code></td>
-<td>HTTPS protocol switch.</td>
-<td>Specify <code>Yes</code>.</td>
-</tr>
-<tr>
-<td><code>HTTP Proxy server name</code></td>
-<td>HTTP Proxy server name.</td>
-<td>Skip this parameter.</td>
-</tr>
-</tbody>
-</table>
+<ul>
+<li><code>Access Key</code> - Public part of access credentials. Specify a user access key.</li>
+<li><code>Secret Key</code> - Secret part of access credentials. Specify a user secret key.</li>
+<li><code>Default Region</code> - Region of AWS servers where requests are sent by default. Use the default value.</li>
+<li><code>S3 Endpoint</code> - Connection point to the Ceph Object Storage. Specify the Ceph Object Storage public endpoint.</li>
+<li><code>DNS-style bucket+hostname:port template for accessing a bucket</code> - Bucket location. Specify the Ceph Object Storage public endpoint.</li>
+<li><code>Path to GPG program</code> - Path to the GNU Privacy Guard encryption suite. Use the default value.</li>
+<li><code>Use HTTPS protocol</code> - HTTPS protocol switch. Specify <code>Yes</code>.</li>
+<li><code>HTTP Proxy server name</code> - HTTP Proxy server name. Skip this parameter.</li>
+</ul>
 <p>When configured correctly, the <code>s3cmd</code> tool connects to the Ceph Object Storage.
 Save new settings when prompted by the system.</p>
 <h2 id="configure-an-amazon-s3-bucket-policy">Configure an Amazon S3 bucket policy<a class="headerlink" href="#configure-an-amazon-s3-bucket-policy" title="Permanent link">#</a></h2>

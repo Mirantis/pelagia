@@ -2773,31 +2773,28 @@ upper bounds for <code>dataPool</code>.</p>
 </li>
 <li>
 <p>Calculate a target ratio for each considered pool. For example:</p>
-<table>
-<thead>
-<tr>
-<th>Pools upper bounds</th>
-<th>Pools capacity</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><ul><li><code>kubernetes-hdd</code> = 2048 GB</li><li><code>images-hdd</code> = 2048 GB</li><li><code>volumes-hdd</code> = 30600 GB</li><li><code>backup-hdd</code> = 30600 GB * 5 = 153000 GB</li><li><code>vms-hdd</code> = 500 GB</li></ul></td>
-<td><ul><li>Summary capacity = 188196 GB</li><li>Total raw capacity = 189440 GB</li></ul></td>
-</tr>
-</tbody>
-</table>
+<p>Pools upper bounds:
+ <div class="highlight"><pre><span></span><code><span class="w">   </span>-<span class="w"> </span><span class="sb">`</span>kubernetes-hdd<span class="sb">`</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2048</span><span class="w"> </span>GB
+<span class="w">   </span>-<span class="w"> </span><span class="sb">`</span>images-hdd<span class="sb">`</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">2048</span><span class="w"> </span>GB
+<span class="w">   </span>-<span class="w"> </span><span class="sb">`</span>volumes-hdd<span class="sb">`</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">30600</span><span class="w"> </span>GB
+<span class="w">   </span>-<span class="w"> </span><span class="sb">`</span>backup-hdd<span class="sb">`</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">30600</span><span class="w"> </span>GB<span class="w"> </span><span class="se">\*</span><span class="w"> </span><span class="nv">5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">153000</span><span class="w"> </span>GB
+<span class="w">   </span>-<span class="w"> </span><span class="sb">`</span>vms-hdd<span class="sb">`</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">500</span><span class="w"> </span>GB
+</code></pre></div></p>
+<p>Pools capacity:
+ <div class="highlight"><pre><span></span><code><span class="w">   </span>-<span class="w"> </span>Summary<span class="w"> </span><span class="nv">capacity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">188196</span><span class="w"> </span>GB
+<span class="w">   </span>-<span class="w"> </span>Total<span class="w"> </span>raw<span class="w"> </span><span class="nv">capacity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">189440</span><span class="w"> </span>GB
+</code></pre></div></p>
 <ol>
 <li>
 <p>Calculate pools' fit factor using the
-    <strong>(total raw capacity) / (pools' summary capacity)</strong> formula. For example:
-    <div class="highlight"><pre><span></span><code><span class="na">pools fit factor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">189440 / 188196 = 1.0066</span>
+  <strong>(total raw capacity) / (pools' summary capacity)</strong> formula. For example:
+  <div class="highlight"><pre><span></span><code><span class="na">pools fit factor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">189440 / 188196 = 1.0066</span>
 </code></pre></div></p>
 </li>
 <li>
 <p>Calculate pools' upper bounds size using the
-    <strong>(pool upper bounds) * (pools fit factor)</strong> formula. For example:
-    <div class="highlight"><pre><span></span><code><span class="na">kubernetes-hdd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2048 GB * 1.0066   = 2061.5168 GB</span>
+  <strong>(pool upper bounds) * (pools fit factor)</strong> formula. For example:
+  <div class="highlight"><pre><span></span><code><span class="na">kubernetes-hdd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2048 GB * 1.0066   = 2061.5168 GB</span>
 <span class="na">images-hdd</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">2048 GB * 1.0066   = 2061.5168 GB</span>
 <span class="na">volumes-hdd</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">30600 GB * 1.0066  = 30801.96 GB</span>
 <span class="na">backup-hdd</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">153000 GB * 1.0066 = 154009.8 GB</span>
@@ -2806,9 +2803,9 @@ upper bounds for <code>dataPool</code>.</p>
 </li>
 <li>
 <p>Calculate pools' target ratio using the
-    <strong>(pool upper bounds) * 100 / (total raw capacity)</strong> formula. For
-    example:
-    <div class="highlight"><pre><span></span><code><span class="na">kubernetes-hdd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2061.5168 GB * 100 / 189440 GB = 1.088</span>
+  <strong>(pool upper bounds) * 100 / (total raw capacity)</strong> formula. For
+  example:
+  <div class="highlight"><pre><span></span><code><span class="na">kubernetes-hdd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2061.5168 GB * 100 / 189440 GB = 1.088</span>
 <span class="na">images-hdd</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">2061.5168 GB * 100 / 189440 GB = 1.088</span>
 <span class="na">volumes-hdd</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">30801.96 GB * 100 / 189440 GB  = 16.259</span>
 <span class="na">backup-hdd</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">154009.8 GB * 100 / 189440 GB  = 81.297</span>

@@ -2833,28 +2833,11 @@ the public domain and the common certificate from the <code>OpenStackDeployment<
 </div>
 <p>This section describes how to specify a custom public endpoint for the Ceph Object Storage.</p>
 <h2 id="ingress-config-parameters">Ingress config parameters <a name="ingress"></a><a class="headerlink" href="#ingress-config-parameters" title="Permanent link">#</a></h2>
-<table>
-<thead>
-<tr>
-<th><div style="width:150px">Parameter</div></th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>tlsConfig</code></td>
-<td>Defines TLS configuration for the Ceph Object Gateway public endpoint.</td>
-</tr>
-<tr>
-<td><code>controllerClassName</code></td>
-<td>Name of Ingress Controller class. The default value for Pelagia integrated Rockoon is <code>openstack-ingress-nginx</code></td>
-</tr>
-<tr>
-<td><code>annotations</code></td>
-<td>Extra annotations for the ingress proxy.</td>
-</tr>
-</tbody>
-</table>
+<ul>
+<li><code>tlsConfig</code> - Defines TLS configuration for the Ceph Object Gateway public endpoint.</li>
+<li><code>controllerClassName</code> - Name of Ingress Controller class. The default value for Pelagia integrated Rockoon is <code>openstack-ingress-nginx</code></li>
+<li><code>annotations</code> - Extra annotations for the ingress proxy.</li>
+</ul>
 <h3 id="tlsconfig-section-parameters"><code>tlsConfig</code> section parameters<a class="headerlink" href="#tlsconfig-section-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li>
@@ -2958,32 +2941,28 @@ name of the Ceph Object Storage and the specified public domain.</p>
 <p>Pelagia Ceph Object Storage requires the <code>upstream-vhost</code> and <code>rgw dns name</code> parameters to be equal. Therefore,
 override the default <code>rgw dns name</code> with the corresponding ingress annotation value.</p>
 <h2 id="to-configure-ceph-object-gateway-tls">To configure Ceph Object Gateway TLS<a class="headerlink" href="#to-configure-ceph-object-gateway-tls" title="Permanent link">#</a></h2>
-<ol>
-<li>To generate an SSL certificate for internal usage, verify that the
-   RADOS Gateway <code>spec.objectStorage.rgw.gateway.securePort</code> parameter is specified in the <code>CephDeployment</code> CR.
-   For details, see <a href="https://mirantis.github.io/pelagia/ceph-ops/deployment/rgw">Enable Ceph RGW Object Storage</a>.</li>
-<li>
+<p>To generate an SSL certificate for internal usage, verify that the
+RADOS Gateway <code>spec.objectStorage.rgw.gateway.securePort</code> parameter is specified in the <code>CephDeployment</code> CR.
+For details, see <a href="https://mirantis.github.io/pelagia/ceph-ops/deployment/rgw">Enable Ceph RGW Object Storage</a>.</p>
 <p>Configure TLS for Ceph Object Gateway using a custom <code>ingressConfig</code>:</p>
 <ol>
 <li>Open the <code>CephDeployment</code> CR for editing:
-    <div class="highlight"><pre><span></span><code>kubectl -n pelagia edit cephdpl &lt;name&gt;
+  <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephdpl<span class="w"> </span>&lt;name&gt;
 </code></pre></div>
-    Substitute <code>&lt;name&gt;</code> with the name of your <code>CephDeployment</code>.</li>
+  Substitute <code>&lt;name&gt;</code> with the name of your <code>CephDeployment</code>.</li>
 <li>Specify the <code>ingressConfig</code> parameters according <a href="#ingress">Ingress config parameters</a>.</li>
 <li>Save the changes and close the editor.</li>
 </ol>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For Pelagia with Rockoon, you can omit TLS configuration for the default settings provided by Rockoon to be
- applied. Just obtain the Rockoon OpenStack CA certificate for a trusted connection:
- <div class="highlight"><pre><span></span><code>kubectl -n openstack-ceph-shared get secret openstack-rgw-creds -o jsonpath=&quot;{.data.ca_cert}&quot; | base64 -d
+  applied. Just obtain the Rockoon OpenStack CA certificate for a trusted connection:
+  <div class="highlight"><pre><span></span><code>kubectl -n openstack-ceph-shared get secret openstack-rgw-creds -o jsonpath=&quot;{.data.ca_cert}&quot; | base64 -d
 </code></pre></div></p>
 </div>
-</li>
-<li>
 <p>If you use the HTTP scheme instead of HTTPS for internal or public Ceph Object Gateway endpoints,
-   add custom annotations to the <code>ingressConfig.annotations</code> section of the <code>CephDeployment</code> CR:
-   <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+add custom annotations to the <code>ingressConfig.annotations</code> section of the <code>CephDeployment</code> CR:
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">ingressConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
 <span class="w">      </span><span class="s">&quot;nginx.ingress.kubernetes.io/force-ssl-redirect&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span>
@@ -2999,27 +2978,20 @@ override the default <code>rgw dns name</code> with the corresponding ingress an
 <span class="w">      </span><span class="s">&quot;nginx.ingress.kubernetes.io/force-ssl-redirect&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span>
 <span class="w">      </span><span class="s">&quot;nginx.ingress.kubernetes.io/ssl-redirect&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span>
 </code></pre></div></p>
-</li>
-<li>
-<p>Access internal and public Ceph Object Gateway endpoints by selecting one of the following options:</p>
-<ul>
-<li>
-<p>For a public endpoint:</p>
+<p>Access public Ceph Object Gateway endpoint:</p>
 <ol>
 <li>Obtain the Ceph Object Gateway public endpoint:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>ingress
+    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>ingress
 </code></pre></div></li>
 <li>Obtain the public endpoint TLS CA certificate:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>ingress<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.items[0].spec.tls[0].secretName}{&quot;\n&quot;}&#39;</span><span class="k">)</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.data.ca\.crt}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="p">;</span><span class="w"> </span><span class="nb">echo</span>
+    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>ingress<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.items[0].spec.tls[0].secretName}{&quot;\n&quot;}&#39;</span><span class="k">)</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.data.ca\.crt}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="p">;</span><span class="w"> </span><span class="nb">echo</span>
 </code></pre></div></li>
 </ol>
-</li>
-<li>
-<p>For an internal endpoint:</p>
+<p>Access internal Ceph Object Gateway endpoint if needed:</p>
 <ol>
 <li>
 <p>Obtain the internal endpoint name for Ceph Object Gateway:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>svc<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>rook-ceph-rgw
+    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>svc<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>rook-ceph-rgw
 </code></pre></div></p>
 <p>The internal endpoint for Ceph Object Gateway has the following format:
 <div class="highlight"><pre><span></span><code>https://&lt;internal-svc-name&gt;.rook-ceph.svc:&lt;rgw-secure-port&gt;/
@@ -3029,55 +3001,49 @@ in the <code>CephDeployment</code> CR.</p>
 </li>
 <li>
 <p>Obtain the internal endpoint TLS CA certificate:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>rgw-ssl-certificate<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s2">&quot;{.data.cacert}&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d
+    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>rgw-ssl-certificate<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s2">&quot;{.data.cacert}&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d
 </code></pre></div></p>
 </li>
 </ol>
-</li>
-</ul>
-</li>
-<li>
-<p>Skip this step if one of the following requirements is met:</p>
-<ul>
-<li>The public hostname matches the public domain name set by the <code>spec.ingressConfig.tlsConfig.publicDomain</code> field;</li>
-<li>The OpenStack configuration has been applied.</li>
-</ul>
-<p>Otherwise, update the zonegroup <code>hostnames</code> of Ceph Object Gateway:</p>
+<p>Verify at least one of the following requirements is met:
+    * The public hostname matches the public domain name set by the <code>spec.ingressConfig.tlsConfig.publicDomain</code> field;
+    * The OpenStack configuration has been applied.</p>
+<p>If both options is not true, update the zonegroup <code>hostnames</code> of Ceph Object Gateway:</p>
 <ol>
 <li>Enter the <code>pelagia-ceph-toolbox</code> pod:
-     <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deployment/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>bash
+    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deployment/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>bash
 </code></pre></div></li>
 <li>
 <p>Obtain Ceph Object Gateway default zonegroup configuration:
-     <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>zonegroup<span class="w"> </span>get<span class="w"> </span>--rgw-zonegroup<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>--rgw-zone<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>tee<span class="w"> </span>zonegroup.json
+    <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>zonegroup<span class="w"> </span>get<span class="w"> </span>--rgw-zonegroup<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>--rgw-zone<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>tee<span class="w"> </span>zonegroup.json
 </code></pre></div></p>
 <p>Substitute <code>&lt;objectStorageName&gt;</code> with the Ceph Object Storage name from
-  <code>spec.objectStorage.rgw.name</code>.</p>
+<code>spec.objectStorage.rgw.name</code>.</p>
 </li>
 <li>
 <p>Inspect <code>zonegroup.json</code> and verify that the <code>hostnames</code> key is a
-     list that contains two endpoints: an internal endpoint and a custom
-     public endpoint:
-     <div class="highlight"><pre><span></span><code><span class="s2">&quot;hostnames&quot;</span>:<span class="w"> </span><span class="o">[</span><span class="s2">&quot;rook-ceph-rgw-&lt;objectStorageName&gt;.rook-ceph.svc&quot;</span>,<span class="w"> </span>&lt;customPublicEndpoint&gt;<span class="o">]</span>
+    list that contains two endpoints: an internal endpoint and a custom
+    public endpoint:
+    <div class="highlight"><pre><span></span><code><span class="s2">&quot;hostnames&quot;</span>:<span class="w"> </span><span class="o">[</span><span class="s2">&quot;rook-ceph-rgw-&lt;objectStorageName&gt;.rook-ceph.svc&quot;</span>,<span class="w"> </span>&lt;customPublicEndpoint&gt;<span class="o">]</span>
 </code></pre></div></p>
 <p>Substitute <code>&lt;objectStorageName&gt;</code> with the Ceph Object Storage name and
- <code>&lt;customPublicEndpoint&gt;</code> with the public endpoint with a custom public
- domain.</p>
+<code>&lt;customPublicEndpoint&gt;</code> with the public endpoint with a custom public
+domain.</p>
 </li>
 <li>
 <p>If one or both endpoints are omitted in the list, add the missing
-     endpoints to the <code>hostnames</code> list in the <code>zonegroup.json</code> file and
-     update Ceph Object Gateway zonegroup configuration:
-     <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>zonegroup<span class="w"> </span><span class="nb">set</span><span class="w"> </span>--rgw-zonegroup<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>--rgw-zone<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>--infile<span class="w"> </span>zonegroup.json
+    endpoints to the <code>hostnames</code> list in the <code>zonegroup.json</code> file and
+    update Ceph Object Gateway zonegroup configuration:
+    <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>zonegroup<span class="w"> </span><span class="nb">set</span><span class="w"> </span>--rgw-zonegroup<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>--rgw-zone<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>--infile<span class="w"> </span>zonegroup.json
 radosgw-admin<span class="w"> </span>period<span class="w"> </span>update<span class="w"> </span>--commit
 </code></pre></div></p>
 </li>
 <li>
 <p>Verify that the <code>hostnames</code> list contains both the internal and custom public endpoint:
-     <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>--rgw-zonegroup<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>--rgw-zone<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>zonegroup<span class="w"> </span>get<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;.hostnames&quot;</span>
+    <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>--rgw-zonegroup<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>--rgw-zone<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>zonegroup<span class="w"> </span>get<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;.hostnames&quot;</span>
 </code></pre></div></p>
 <p>Example of system response:
-   <div class="highlight"><pre><span></span><code><span class="p">[</span>
+  <div class="highlight"><pre><span></span><code><span class="p">[</span>
 <span class="w">  </span><span class="s2">&quot;rook-ceph-rgw-obj-store.rook-ceph.svc&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="s2">&quot;obj-store.mcc1.cluster1.example.com&quot;</span>
 <span class="p">]</span>
@@ -3085,10 +3051,8 @@ radosgw-admin<span class="w"> </span>period<span class="w"> </span>update<span c
 </li>
 <li>
 <p>Exit the <code>pelagia-ceph-toolbox</code> pod:
-     <div class="highlight"><pre><span></span><code><span class="nb">exit</span>
+    <div class="highlight"><pre><span></span><code><span class="nb">exit</span>
 </code></pre></div></p>
-</li>
-</ol>
 </li>
 </ol>
 <p>Once done, Ceph Object Gateway becomes available by the custom public endpoint

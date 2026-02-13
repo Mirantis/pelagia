@@ -2728,7 +2728,7 @@ details, see <a href="https://docs.ceph.com/en/latest/cephfs/index.html">Ceph Do
 <p class="admonition-title">Note</p>
 <p>By design, CephFS data pool and metadata pool must be <code>replicated</code> only.</p>
 </div>
-<h2 id="cephfs-specification-parameters">CephFS specification parameters <a name="parameters"></a><a class="headerlink" href="#cephfs-specification-parameters" title="Permanent link">#</a></h2>
+<h2 id="cephfs-specification-parameters">CephFS specification parameters <a name="cephfs-parameters"></a><a class="headerlink" href="#cephfs-specification-parameters" title="Permanent link">#</a></h2>
 <p>The <code>CephDeployment</code> custom resource (CR) <code>spec</code> includes the <code>sharedFilesystem.cephFS</code> section
 with the following CephFS parameters:</p>
 <ul>
@@ -2849,7 +2849,7 @@ through the Ceph CLI. However, for any changes in <code>metadataPool</code>, we 
 </code></pre></div></p>
 </li>
 <li>
-<p>In the <code>sharedFilesystem</code> section, specify parameters according to <a href="#parameters">CephFS specification</a>. For example:
+<p>In the <code>sharedFilesystem</code> section, specify parameters according to <a href="#cephfs-parameters">CephFS specification</a>. For example:
    <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">sharedFilesystem</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cephFS</span><span class="p">:</span>

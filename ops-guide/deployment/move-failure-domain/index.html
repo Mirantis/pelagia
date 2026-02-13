@@ -2858,38 +2858,35 @@ ceph<span class="w"> </span>osd<span class="w"> </span>crush<span class="w"> </s
 </li>
 <li>
 <p>Optional. Order buckets as required:</p>
-<ol>
+</li>
 <li>
 <p>Add the first Ceph CRUSH smaller bucket to its respective wider bucket:
-    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>bash
+     <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>bash
 ceph<span class="w"> </span>osd<span class="w"> </span>crush<span class="w"> </span>move<span class="w"> </span>&lt;smallerBucketName&gt;<span class="w"> </span>&lt;bucketType&gt;<span class="o">=</span>&lt;widerBucketName&gt;
 </code></pre></div></p>
+<p>!!! warning</p>
+<pre><code>   We highly recommend moving one bucket at a time.
+
+   For more details, refer to official Ceph documentation:
+   [CRUHS Maps: Moving a bucket](https://docs.ceph.com/en/latest/rados/operations/crush-map/#moving-a-bucket).
+</code></pre>
 <p>Substitute the following parameters:</p>
-<ul>
-<li><code>&lt;smallerBucketName&gt;</code> with the name of the smaller bucket, for example, host name;</li>
-<li><code>&lt;bucketType&gt;</code> with the required bucket type, for example, <code>rack</code>;</li>
-<li><code>&lt;widerBucketName&gt;</code> with the name of the wider bucket, for example, rack name.</li>
-</ul>
+<pre><code> * `&lt;smallerBucketName&gt;` with the name of the smaller bucket, for example, host name;
+ * `&lt;bucketType&gt;` with the required bucket type, for example, `rack`;
+ * `&lt;widerBucketName&gt;` with the name of the wider bucket, for example, rack name.
+</code></pre>
 <p>For example:
-  <div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>osd<span class="w"> </span>crush<span class="w"> </span>move<span class="w"> </span>kaas-node-1<span class="w"> </span><span class="nv">rack</span><span class="o">=</span>rack-1<span class="w"> </span><span class="nv">root</span><span class="o">=</span>default
+   <div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>osd<span class="w"> </span>crush<span class="w"> </span>move<span class="w"> </span>kaas-node-1<span class="w"> </span><span class="nv">rack</span><span class="o">=</span>rack-1<span class="w"> </span><span class="nv">root</span><span class="o">=</span>default
 </code></pre></div></p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>We highly recommend moving one bucket at a time.</p>
-</div>
-<p>For more details, refer to official Ceph documentation:
-  <a href="https://docs.ceph.com/en/latest/rados/operations/crush-map/#moving-a-bucket">CRUHS Maps: Moving a bucket</a>.</p>
 </li>
 <li>
 <p>After the bucket is moved to the new location in the CRUSH hierarchy,
-    verify that no data rebalancing occurs:
-    <div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>-s
+     verify that no data rebalancing occurs:
+     <div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>-s
 </code></pre></div></p>
 </li>
 <li>
 <p>Add the remaining Ceph CRUSH smaller buckets to their respective wider buckets one by one.</p>
-</li>
-</ol>
 </li>
 <li>
 <p>Scale the Pelagia Controllers and Rook Ceph Operator deployments to <code>0</code> replicas:
