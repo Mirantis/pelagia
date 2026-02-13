@@ -1,3 +1,4 @@
+<a id="set-bucket-policy-for-ceph-object-storage-user"></a>
 # Set a bucket policy for a Ceph Object Storage user
 
 Amazon S3 is an object storage service with different access policies. A bucket

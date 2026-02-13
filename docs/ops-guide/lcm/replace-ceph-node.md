@@ -9,10 +9,7 @@ follows:
 1. Remove the obsolete Ceph node from the Ceph cluster.
 2. Add a new Ceph node with the same configuration to the Ceph cluster.
 
-!!! note
-
-    Ceph node removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see
-    [High-level workflow of Ceph OSD or node removal](https://mirantis.github.io/pelagia/ops-guide/lcm/create-task-workflow).
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-osd-rm-request).
 
 ## Remove a failed Ceph node <a name="replace-ceph-node-remove"></a>
 
@@ -170,7 +167,7 @@ follows:
     !!! warning
 
         We highly recommend using the non-wwn `by-id` symlinks to specify storage devices in the `devices` list.
-        For details, see [Architecture: Addressing Ceph devices](https://mirantis.github.io/pelagia/architecture/addressing-ceph-devices).
+        For details, see [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-storage-devices).
 
 3. Verify that all Ceph daemons from the replaced node have appeared on the
    Ceph cluster and are `in` and `up`. The `healthReport` section of `CephDeploymentHealth` CR

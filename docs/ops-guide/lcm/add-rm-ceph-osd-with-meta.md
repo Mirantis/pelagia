@@ -32,7 +32,7 @@ OSDs with a separate metadata device.
 
 4. In the `nodes.<nodeName>.devices` section, specify the
    parameters for a Ceph OSD as required. For the parameters description, see
-   [CephDeployment: Nodes parameters](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment#nodes).
+   [Nodes parameters](../../../architecture/custom-resources/cephdeployment#cephdpl-nodes).
 
      The example configuration of the `nodes` section with the new node:
      ```yaml
@@ -54,7 +54,7 @@ OSDs with a separate metadata device.
     !!! warning
 
         We highly recommend using the non-wwn `by-id` symlinks to specify storage devices in the `devices` list.
-        For details, see [Architecture: Addressing Ceph devices](https://mirantis.github.io/pelagia/architecture/addressing-ceph-devices).
+        For details, see [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-storage-devices).
 
 5. Verify that the Ceph OSD is successfully deployed on the specified node. The `CephDeploymentHealth` CR
    `status.healthReport.cephDaemons.cephDaemons` section should not contain any issues:
@@ -90,10 +90,7 @@ OSDs with a separate metadata device.
 
 ## Remove a Ceph OSD with a metadata device <a name="ceph-osd-meta-remove"></a>
 
-!!! note
-
-    Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see
-    [High-level workflow of Ceph OSD or node removal](https://mirantis.github.io/pelagia/ops-guide/lcm/create-task-workflow).
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-osd-rm-request).
 
 !!! warning
 
@@ -154,7 +151,7 @@ OSDs with a separate metadata device.
             We do not recommend setting device name or device `by-path` symlink in the `cleanupByDevice` field
             as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with `by-id`
             symlinks or use `cleanupByOsdId` instead. For details, see
-            [Architecture: Addressing Ceph devices](https://mirantis.github.io/pelagia/architecture/addressing-ceph-devices).
+            [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-storage-devices).
 
         !!! note
 

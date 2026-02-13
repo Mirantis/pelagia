@@ -3,7 +3,7 @@
 # Set a bucket policy for OpenStack users
 
 The following procedure illustrates the process of setting a bucket policy for
-a bucket between two OpenStack users deployed by [Rockoon](https://github.com/Mirantis/rockoon).
+a bucket between two OpenStack users deployed by Rockoon.
 
 Due to specifics of the Ceph integration with OpenStack, you should configure the bucket policy
 for OpenStack users indirectly through setting permissions for corresponding OpenStack projects.
@@ -24,7 +24,7 @@ For illustration purposes, we use the following names in the procedure:
    ```
 
 2. Prepare the Ceph Object Storage similarly to the procedure described in
-   [Create Ceph Object Storage users](https://mirantis.github.io/pelagia/ops-guide/deployment/s3-bucket-policy/s3-create-user).
+   [Create Ceph Object Storage users](./s3-create-user.md#s3-create-user).
 
 3. Create two OpenStack projects:
    ```bash
@@ -53,7 +53,7 @@ For illustration purposes, we use the following names in the procedure:
 
     !!! note
 
-         For details how to access OpenStack CLI, refer [Access OpenStack](https://mirantis.github.io/rockoon/quick-start/access-openstack/).
+         For details how to access OpenStack CLI, refer [Rockoon documentation: Access OpenStack](https://mirantis.github.io/rockoon/ops/openstack/getting-access/).
 
 4. Create an OpenStack user for each project:
    ```bash
@@ -148,7 +148,7 @@ For illustration purposes, we use the following names in the procedure:
 
 9. Create bucket users and configure a bucket policy for the `project-t`
    OpenStack project similarly to the procedure described in
-   [Set a bucket policy for a Ceph Object Storage user](https://mirantis.github.io/pelagia/ops-guide/deployment/s3-bucket-policy/bucket-policy-s3).
+   [Set a bucket policy for a Ceph Object Storage user](./bucket-policy-s3.md#set-bucket-policy-for-ceph-object-storage-user).
    Ceph integration does not allow providing permissions for OpenStack users
    directly. Therefore, you need to set permissions for the project that
    corresponds to the user:
@@ -310,7 +310,7 @@ Substitute the following parameters:
 * `<userName>` - the target Ceph Object Storage user name
 * `<bucketName>` - the target bucket name where policy will be set
 
-#### SEE ALSO
+!!! info "See also"
 
-* [AWS S3: Bucket policy examples](https://docs.aws.amazon.com/AmazonS3/latest/userguide/example-bucket-policies.html)
-* [Ceph documentation: Bucket policies](https://docs.ceph.com/en/latest/radosgw/bucketpolicy/)
+    * [AWS S3: Bucket policy examples](https://docs.aws.amazon.com/AmazonS3/latest/userguide/example-bucket-policies.html)
+    * [Ceph documentation: Bucket policies](https://docs.ceph.com/en/latest/radosgw/bucketpolicy/)

@@ -19,8 +19,8 @@
 - `zones` - Required. The list of zones used within one zone group. Includes the following parameters:
 
     - `name` - required, the zone name.
-    - `metadataPool` - required, the settings used to create the Object Storage metadata pools. Must use replication. For details, see description of [Pool parameters](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment/#pools).
-    - `dataPool` - required, the settings used to create the Object Storage data pool. Can use replication or erasure coding. For details, see [Pool parameters](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment/#pools).
+    - `metadataPool` - required, the settings used to create the Object Storage metadata pools. Must use replication. For details, see description of the Pool parameters.
+    - `dataPool` - required, the settings used to create the Object Storage data pool. Can use replication or erasure coding. For details, see the Pool parameters.
     - `zoneGroupName` - required, the zone group name.
     - `endpointsForZone` - optional. The list of all endpoints in the zone group.
       If you use ingress proxy for RGW, the list of endpoints must contain that FQDN/IP address to access RGW.

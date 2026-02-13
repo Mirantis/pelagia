@@ -160,7 +160,7 @@
 
     Defines the Ceph Multisite zone where the object storage must be placed.
     Includes the `name` parameter that must be set to one of the `zones`
-    items. For details, see the [Ops Guide: Enable Multisite for Ceph Object Storage](https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-multisite).
+    items:
 
       ```yaml
       spec:

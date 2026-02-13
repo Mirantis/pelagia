@@ -1,3 +1,4 @@
+<a id="addressing-ceph-storage-devices"></a>
 # Addressing Ceph storage devices
 
 There are several formats to use when specifying and addressing storage devices

@@ -6,8 +6,7 @@ The `CephDeployment` custom resource (CR) allows managing custom Ceph RADOS Bloc
 or Ceph File System (CephFS) clients. This section describes how to create,
 access, and remove Ceph RBD or CephFS clients.
 
-For all supported parameters of Ceph clients, refer to
-[CephDeployment: Clients parameters](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment#clients).
+For all supported parameters of Ceph clients, refer to [Clients parameters](../../../architecture/custom-resources/cephdeployment.md#clients).
 
 ## Create an RBD or CephFS client
 

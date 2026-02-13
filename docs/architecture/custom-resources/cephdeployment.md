@@ -1,3 +1,4 @@
+<a id="cephdeployment-custom-resource"></a>
 # CephDeployment Custom Resource
 
 This section describes how to configure a Ceph cluster using the `CephDeployment`
@@ -179,8 +180,8 @@ spec:
     clusterNet: 10.10.0.0/24
     publicNet:  192.100.0.0/24
 ```
-
-### Nodes parameters <a name="cephdpl-nodes"></a>
+<a name="cephdpl-nodes"></a>
+### Nodes parameters
 
 - `name` - Mandatory. Specifies the following:
 
@@ -499,7 +500,8 @@ To configure additional required pools for [Rockoon](https://github.com/Mirantis
     permission on the mount point of persistent volumes based on any
     `StorageClass` of the Ceph pool.
 
-### Clients parameters <a name="clients"></a>
+<a name="clients"></a>
+### Clients parameters
 
 - `name` - Mandatory. Ceph client name.
 - `caps` - Mandatory. Key-value parameter with Ceph client capabilities. For details about
@@ -515,8 +517,8 @@ To configure additional required pools for [Rockoon](https://github.com/Mirantis
           mon: allow r, allow command "osd blacklist"
           osd: profile rbd pool=kubernetes-nvme
     ```
-
-### RADOS Gateway parameters <a name="rgw"></a>
+<a name="rgw"></a>
+### RADOS Gateway parameters 
 
 {% include "../../snippets/rgwParameters.md" %}
 
@@ -808,7 +810,8 @@ parameters:
        To obtain the token, use the **rbd mirror pool peer bootstrap create** command.
      - `pools` - optional, a list of pool names to mirror.
 
-## Status fields <a name="status"></a>
+<a name="status"></a>
+## Status fields
 
 - `phase` - Current handling phase of the applied Ceph cluster spec. Can equal to `Creating`, `Deploying`, `Validation`, `Ready`, `Deleting`, `OnHold` or `Failed`.
 - `message` - Detailed description of the current phase or an error message if the phase is `Failed`.

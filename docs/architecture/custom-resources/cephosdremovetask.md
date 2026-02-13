@@ -1,3 +1,4 @@
+<a id="cephosdremovetask-custom-resource"></a>
 # CephOsdRemoveTask custom resource
 
 This section describes the `CephOsdRemoveTask` custom resource specification.
@@ -82,7 +83,8 @@ The example above includes the following actions:
 * For `node-d`, cleanup, including all OSDs on the node, node drop from
   the CRUSH map but skip cleanup of all disks used for Ceph OSDs on this node.
 
-## Status fields <a name="status"></a>
+<a name="status-fields"></a>
+## Status fields
 
 - `phase` - Describes the current task phase.
 - `phaseInfo` - Additional human-readable message describing task phase.

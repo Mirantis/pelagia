@@ -1,5 +1,4 @@
 <a id="move-mon-daemon-mira"></a>
-
 # Move a Ceph Monitor daemon to another node
 
 This document describes how to migrate a Ceph Monitor daemon from one node to

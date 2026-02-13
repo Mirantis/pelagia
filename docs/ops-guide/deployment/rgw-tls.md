@@ -2,20 +2,12 @@
 
 # Configure Ceph Object Gateway TLS
 
-Once you enable Ceph Object Gateway (`radosgw`) as described in
-[Enable Ceph RGW Object Storage](https://mirantis.github.io/pelagia/ceph-ops/deployment/rgw), you can configure
-the Transport Layer Security (TLS) protocol for a Ceph Object Gateway public endpoint using custom `ingressConfig`
-specified in the `CephDeployment` custom resource (CR). In this case, Ceph Object Gateway public endpoint will use
-the public domain specified using the `ingressConfig` parameters.
+Once you enable Ceph Object Gateway (`radosgw`) as described in [Enable Ceph RGW Object Storage](./rgw.md#enable-rgw-mira), you can configure the Transport Layer Security (TLS) protocol for a Ceph Object Gateway public endpoint using custom `ingressConfig` specified in the `CephDeployment` custom resource (CR). In this case, Ceph Object Gateway public endpoint will use the public domain specified using the `ingressConfig` parameters.
 
 !!! note
 
-    For clusters integrated with [Rockoon](https://github.com/Mirantis/rockoon), Pelagia has an ability to use domain
-    and certificates, defined in Rockoon configuration. Pelagia prioritize `ingressConfig` data over Rockoon ingress
-    data but if `ingressConfig` section is not configured, Pelagia will use Rockoon domain and certificates. Mirantis
-    recommends not defining `ingressConfig` section, if Rockoon has `tls-proxy` enabled. In that case, common
-    certificates are applied to all ingresses from the `OpenStackDeployment` object. This implies that Pelagia will use
-    the public domain and the common certificate from the `OpenStackDeployment` object.
+    For clusters integrated with Rockoon, Pelagia has an ability to use domain and certificates, defined in Rockoon configuration. Pelagia prioritize `ingressConfig` data over Rockoon ingress data but if `ingressConfig` section is not configured, Pelagia will use Rockoon domain and certificates.
+    Mirantis recommends not defining `ingressConfig` section, if Rockoon has `tls-proxy` enabled. In that case, common certificates are applied to all ingresses from the `OpenStackDeployment` object. This implies that Pelagia will use the public domain and the common certificate from the `OpenStackDeployment` object.
 
 This section describes how to specify a custom public endpoint for the Ceph Object Storage.
 
@@ -25,7 +17,7 @@ This section describes how to specify a custom public endpoint for the Ceph Obje
 - `controllerClassName` - Name of Ingress Controller class. The default value for Pelagia integrated Rockoon is `openstack-ingress-nginx`
 - `annotations` - Extra annotations for the ingress proxy.
 
-### `tlsConfig` section parameters
+### The `tlsConfig` section parameters
 
 - `tlsSecretRefName` - Secret name with TLS certs in Rook Ceph namespace, for example, `rook-ceph`.
   Allows avoiding exposure of certs directly in `spec`. Must contain the following format:
@@ -68,7 +60,7 @@ This section describes how to specify a custom public endpoint for the Ceph Obje
 - `hostname` - Custom name to override the Ceph Object Storage name for public access. Public RGW endpoint has the
   `https://<hostname>.<publicDomain>` format.
 
-### `controllerClassName` parameter
+### The `controllerClassName` parameter
 
 `controllClassName` defines the name of the custom Ingress Controller. Pelagia does not support deploying Ingress
 Controllers, so you must deploy the Ingress Controller before configuring the `ingressConfig` section in the
@@ -77,7 +69,7 @@ Controllers, so you must deploy the Ingress Controller before configuring the `i
 For Pelagia integrated with Rockoon, the default Ingress Controller has `openstack-ingress-nginx` class name and Ceph
 uses the Rockoon OpenStack Ingress Controller based on NGINX.
 
-### `annotations` parameter
+### The `annotations` parameter
 
 `annotations` parameter defines extra annotations for the ingress proxy that are a key-value mapping of strings
 to add or override ingress rule annotations. For details, see
@@ -134,7 +126,7 @@ override the default `rgw dns name` with the corresponding ingress annotation va
 
 To generate an SSL certificate for internal usage, verify that the
 RADOS Gateway `spec.objectStorage.rgw.gateway.securePort` parameter is specified in the `CephDeployment` CR.
-For details, see [Enable Ceph RGW Object Storage](https://mirantis.github.io/pelagia/ceph-ops/deployment/rgw).
+For details, see [Enable Ceph RGW Object Storage](./rgw.md#enable-rgw-mira).
 
 Configure TLS for Ceph Object Gateway using a custom `ingressConfig`:
 

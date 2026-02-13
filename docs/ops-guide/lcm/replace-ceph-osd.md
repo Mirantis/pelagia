@@ -10,10 +10,7 @@ follows:
    OSD ID.
 2. Add a new Ceph OSD on the new disk to the Ceph cluster.
 
-!!! note
-
-    Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see
-    [High-level workflow of Ceph OSD or node removal](https://mirantis.github.io/pelagia/ops-guide/lcm/create-task-workflow).
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-osd-rm-request).
 
 ## Remove a failed Ceph OSD by device name, path, or ID <a name="replace-by-device"></a>
 
@@ -34,7 +31,7 @@ follows:
      We do not recommend setting device name or device `by-path` symlink in the `cleanupByDevice` field
      as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with `by-id`
      symlinks or use `cleanupByOsdId` instead. For details, see
-     [Architecture: Addressing Ceph devices](https://mirantis.github.io/pelagia/architecture/addressing-ceph-devices).
+     [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-storage-devices).
 
 1. Open the `CephDeployment` CR for editing:
    ```bash

@@ -1,6 +1,6 @@
 # Integrate Pelagia with Rockoon
 
-This document describes how to integrate Pelagia with [Rockoon OpenStack Controllers](https://github.com/Mirantis/rockoon).
+This document describes how to integrate Pelagia with the Rockoon OpenStack Controller.
 As Ceph supports integration with OpenStack, Pelagia provides a way to integrate Rook Ceph cluster with
 Rockoon OpenStack inside the Kubernetes cluster.
 
