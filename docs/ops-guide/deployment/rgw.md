@@ -9,7 +9,7 @@ Pelagia has an integration for Ceph Object Storage with OpenStack Object Storage
 
 ## Ceph RGW Object Storage parameters <a name="parameters"></a>
 
-@Snippet:cephdpl-parameters:rgwParameters@
+{% include "../../snippets/rgwParameters.md" %}
 
 ## To enable the RGW Object Storage:
 

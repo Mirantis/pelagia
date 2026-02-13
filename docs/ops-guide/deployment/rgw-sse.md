@@ -2,7 +2,7 @@
 
 # Configure Ceph Object Storage server-side encryption
 
-@Snippet:admonissions:techpreview@
+{% include "../../snippets/techpreview.md" %}
 
 !!! note
 

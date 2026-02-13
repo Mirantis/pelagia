@@ -8,3 +8,4 @@ markdown-grid-tables
 mkdocs-snippets
 mkdocs-exclude
 mkdocs-table-reader-plugin
+mkdocs-include-markdown-plugin
