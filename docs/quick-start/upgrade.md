@@ -1,13 +1,14 @@
-# Upgrade Pelagia Guide
+# Upgrade Pelagia
 
 This section provides instructions on how to upgrade Pelagia on an existing Kubernetes cluster.
-
-## Upgrade chart
 
 To upgrade Pelagia, use a new Helm chart version provided in the repository:
 
 ```bash
-helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version <new-version> -n pelagia
+helm upgrade --install pelagia-ceph \
+    oci://registry.mirantis.com/pelagia/pelagia-ceph \
+    --version <target-version> \
+    -n pelagia
 ```
 
 This command upgrades Pelagia controllers in the `pelagia` namespace.
@@ -18,7 +19,11 @@ pinned in Pelagia values, Pelagia will automatically update a Ceph version if a 
 To pin the Ceph version, specify it in the `cephRelease` field of the Pelagia values file. For example:
 
 ```bash
-helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version <new-version> -n pelagia --set cephRelease=squid
+helm upgrade --install pelagia-ceph \
+    oci://registry.mirantis.com/pelagia/pelagia-ceph \
+    --version <target-version> \
+    -n pelagia \
+    --set cephRelease=squid
 ```
 
 However, Mirantis does not recommend pinning the Ceph version to ensure you obtain important updates and bug fixes.
