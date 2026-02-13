@@ -1,9 +1,8 @@
 <a id="verify-ceph-resource-mgmt"></a>
-
 # Verify Ceph tolerations and resources
 
 After you enable Ceph resources management as described in
-[Enable management of Ceph tolerations and resources](https://mirantis.github.io/pelagia/ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt),
+[Enable management of Ceph tolerations and resources](./enable-resource-mgmt.md#enable-resource-mgmt),
 perform the steps below to verify that the configured tolerations, requests, or limits have been successfully
 specified in the Ceph cluster.
 

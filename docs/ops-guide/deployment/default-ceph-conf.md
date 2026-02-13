@@ -1,11 +1,12 @@
 <a id="default-ceph-conf"></a>
 
-# Ceph default configuration options
+# Ceph default configuration
 
 Pelagia Deployment Controller provides the capability to specify configuration options for
 the Ceph cluster through the `rookConfig` key-value section of the
-`CephDeployment` CR as if they were set in a usual `ceph.conf` file. For details,
-see [Architecture: CephDeployment](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment).
+`CephDeployment` CR as if they were set in a usual `ceph.conf` file.
+
+## Default configuration options
 
 However, if `rookConfig` is empty, Pelagia Deployment Controller still specifies the
 following default configuration options for each Ceph cluster:
@@ -49,9 +50,7 @@ following default configuration options for each Ceph cluster:
 
 ## Rockoon-related default configuration options
 
-If Pelagia is integrated with [Rockoon](https://github.com/Mirantis/rockoon) and `objectStore.rgw` section
-is defined in the `CephDeployment` custom resource, Pelagia Deployment Controller specifies the OpenStack-related
-default configuration options for each Ceph cluster:
+If Pelagia is integrated with Rockoon and `objectStore.rgw` section is defined in the `CephDeployment` custom resource, Pelagia Deployment Controller specifies the OpenStack-related default configuration options for each Ceph cluster:
 
 * Ceph Object Gateway options that you can override using the `rookConfig` parameter:
   ```ini
@@ -80,6 +79,6 @@ default configuration options for each Ceph cluster:
   rgw keystone admin project = <keystoneProjectName>
   ```
 
-#### SEE ALSO
+!!! info "See also"
 
-[Architecture: CephDeployment](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment)
+    [CephDeployment custom resource](../../architecture/custom-resources/cephdeployment.md#cephdeployment-custom-resource)

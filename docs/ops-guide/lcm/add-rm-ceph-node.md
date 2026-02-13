@@ -1,5 +1,4 @@
 <a id="add-rm-ceph-node"></a>
-
 # Add, remove, or reconfigure Ceph nodes
 
 Pelagia Lifecycle Management (LCM) Controller simplifies Ceph cluster management
@@ -24,7 +23,7 @@ nodes.
 
 3. In the `nodes` section, specify the parameters for a Ceph node as
    required. For the parameter description, see
-   [CephDeployment: Nodes parameters](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment#nodes).
+   [Nodes parameters](../../../architecture/custom-resources/cephdeployment#cephdpl-nodes).
 
      The example configuration of the `nodes` section with the new node:
      ```yaml
@@ -54,7 +53,7 @@ nodes.
     !!! warning
 
         We highly recommend using the non-wwn `by-id` symlinks to specify storage devices in the `devices` list.
-        For details, see [Architecture: Addressing Ceph devices](https://mirantis.github.io/pelagia/architecture/addressing-ceph-devices).
+        For details, see [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-storage-devices).
 
     !!! note
 
@@ -94,19 +93,14 @@ nodes.
                status: ok
      ```
 
-## Remove a Ceph node <a name="ceph-node-remove"></a>
+<a name="ceph-node-remove"></a>
+## Remove a Ceph node
+
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-osd-rm-request).
 
 !!! note
 
-    Ceph node removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see
-    [High-level workflow of Ceph OSD or node removal](https://mirantis.github.io/pelagia/ops-guide/lcm/create-task-workflow).
-
-!!! note
-
-    To remove a Ceph node with a `mon` role, first move the Ceph
-    Monitor to another node and remove the `mon` role from the Ceph node as
-    described in
-    [Move a Ceph Monitor daemon to another node](https://mirantis.github.io/pelagia/ops-guide/deployment/move-mon-daemon).
+    To remove a Ceph node with a `mon` role, first move the Ceph Monitor to another node and remove the `mon` role from the Ceph node as described in [Move a Ceph Monitor daemon to another node](../../ops-guide/deployment/move-mon-daemon.md#move-mon-daemon-mira).
 
 1. Open the `CephDeployment` CR for editing:
    ```bash

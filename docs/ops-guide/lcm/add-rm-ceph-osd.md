@@ -1,12 +1,12 @@
 <a id="add-rm-ceph-osd"></a>
-
 # Add, remove, or reconfigure Ceph OSDs
 
 Pelagia Lifecycle Management (LCM) Controller simplifies Ceph cluster management
 by automating LCM operations. This section describes how to add, remove, or reconfigure Ceph
 OSDs.
 
-## Add a Ceph OSD <a name="ceph-osd-add"></a>
+<a name="ceph-osd-add"></a>
+## Add a Ceph OSD
 
 1. Manually prepare the required devices on the existing node.
 
@@ -31,29 +31,28 @@ OSDs.
      - `nodes.<nodeName>.deviceFilter`
      - `nodes.<nodeName>.devicePathFilter`
 
-     For description of parameters, see
-     [CephDeployment: Nodes parameters](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment#nodes).
+     For description of parameters, see [Nodes parameters](../../../architecture/custom-resources/cephdeployment#cephdpl-nodes).
 
-     The example configuration of the `nodes` section with the new node:
-     ```yaml
-     nodes:
-     - name: storage-worker-52
-       roles:
-       - mon
-       - mgr
-       devices:
-       - config: # existing item
-           deviceClass: hdd
-         fullPath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
-       - config: # new item
-           deviceClass: hdd
-         fullPath: /dev/disk/by-id/scsi-0ATA_HGST_HUS724040AL_PN1334PEHN1VBC
-     ```
+    ???+ "Example configuration of the `nodes` section with the new node"
+        ```yaml
+        nodes:
+        - name: storage-worker-52
+          roles:
+          - mon
+          - mgr
+          devices:
+          - config: # existing item
+              deviceClass: hdd
+            fullPath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
+          - config: # new item
+              deviceClass: hdd
+            fullPath: /dev/disk/by-id/scsi-0ATA_HGST_HUS724040AL_PN1334PEHN1VBC
+        ```
 
     !!! warning
 
         We highly recommend using the non-wwn `by-id` symlinks to specify storage devices in the `devices` list.
-        For details, see [Architecture: Addressing Ceph devices](https://mirantis.github.io/pelagia/architecture/addressing-ceph-devices).
+        For details, see [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-storage-devices).
 
 5. Verify that the Ceph OSD on the specified node is successfully deployed. The
    `CephDeploymentHealth` CR `status.healthReport.cephDaemons.cephDaemons` section should not contain any issues.
@@ -79,13 +78,9 @@ OSDs.
    ```
 
 <a id="ceph-osd-remove"></a>
-
 ## Remove a Ceph OSD <a name="ceph-osd-remove"></a>
 
-!!! note
-
-    Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see
-    [High-level workflow of Ceph OSD or node removal](https://mirantis.github.io/pelagia/ops-guide/lcm/create-task-workflow).
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-osd-rm-request).
 
 !!! warning
 
@@ -145,7 +140,7 @@ OSDs.
              We do not recommend setting device name or device `by-path` symlink in the `cleanupByDevice` field
              as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with `by-id`
              symlinks or use `cleanupByOsdId` instead. For details, see
-             [Architecture: Addressing Ceph devices](https://mirantis.github.io/pelagia/architecture/addressing-ceph-devices).
+             [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-storage-devices).
 
         !!! note
 

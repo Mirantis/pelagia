@@ -15,13 +15,11 @@ their health, and potentially problematic components.
 
      Information from `CephDeployment.status` reflects the spec handling state and
      validation result. For the description of status fields, see
-     [CephDeployment: Status fields](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment#status).
+     [Status fields](../../architecture/custom-resources/cephdeployment.md#status).
 
 2. Obtain the `CephDeploymentHealth` CR:
    ```bash
    kubectl -n pelagia get cephdeploymenthealth -o yaml
    ```
 
-     Information from `CephDeploymentHealth.status` contains extensive details about
-     Ceph cluster and a shortened version with status summary. For the description of
-     status fields, see [CephDeploymentHealth](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeploymenthealth).
+     Information from `CephDeploymentHealth.status` contains extensive details about Ceph cluster and a shortened version with status summary. For the description of status fields, see [CephDeploymentHealth custom resource](../../architecture/custom-resources/cephdeploymenthealth.md#cephdeploymenthealth-custom-resource).

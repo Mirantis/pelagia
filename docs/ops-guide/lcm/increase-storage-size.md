@@ -8,7 +8,7 @@ The procedure presupposes adding a new Ceph OSD. The overall storage size for
 the required device class automatically increases once the Ceph OSD becomes
 available in the Ceph cluster.
 
-## Increase the overall storage size for a device class
+**To increase the overall storage size for a device class:**
 
 1. Identify the current storage size for the required device class:
    ```bash
@@ -46,8 +46,7 @@ available in the Ceph cluster.
      MIN/MAX VAR: 0.85/1.15  STDDEV: 2.29
      ```
 
-3. Follow [Lifecycle management: Add a Ceph OSD](https://mirantis.github.io/pelagia/lcm/add-rm-ceph-osd#ceph-osd-add)
-   to add a new device with a supported device class: `hdd`, `ssd`, or `nvme`.
+3. Follow [Add a Ceph OSD](./add-rm-ceph-osd.md#ceph-osd-add) to add a new device with a supported device class: `hdd`, `ssd`, or `nvme`.
 
 4. Wait for the new Ceph OSD pod to start `Running`:
    ```bash

@@ -33,7 +33,11 @@ To use object storage SSE, the AWS CLI S3 client is used.
 
 3. Create a secret key in OpenStack Barbican KMS:
    ```bash
-   openstack secret order create --name <name> --algorithm <algorithm> --mode <mode> --bit-length 256 --payload-content-type=<payload-content-type> key
+   openstack secret order create --name <name> \
+       --algorithm <algorithm> \
+       --mode <mode> \
+       --bit-length 256 \
+       --payload-content-type=<payload-content-type> key
    ```
 
      Substitute the parameters enclosed in angle brackets:
@@ -80,7 +84,9 @@ To use object storage SSE, the AWS CLI S3 client is used.
 
 6. Create an S3 bucket:
    ```bash
-   aws --endpoint-url <rgw-endpoint-url> --ca-bundle <ca-bundle> s3api create-bucket --bucket <bucket-name>
+   aws --endpoint-url <rgw-endpoint-url> \
+       --ca-bundle <ca-bundle> s3api create-bucket \
+       --bucket <bucket-name>
    ```
 
      Substitute the parameters enclosed in angle brackets:
@@ -91,7 +97,11 @@ To use object storage SSE, the AWS CLI S3 client is used.
 
 7. Upload a file using object storage SSE:
    ```bash
-   aws --endpoint-url <rgw-endpoint-url> --ca-bundle <ca-bundle> s3 cp <path-to-file> "s3://<bucket-name>/<filename>" --sse aws:kms --sse-kms-key-id <key-id>
+   aws --endpoint-url <rgw-endpoint-url> \
+       --ca-bundle <ca-bundle> \
+       s3 cp <path-to-file> "s3://<bucket-name>/<filename>" \
+       --sse aws:kms \
+       --sse-kms-key-id <key-id>
    ```
 
      Substitute the parameters enclosed in angle brackets:
@@ -105,12 +115,18 @@ To use object storage SSE, the AWS CLI S3 client is used.
 
      * Download the file using a key:
        ```bash
-       aws --endpoint-url <rgw-endpoint-url> --ca-bundle <ca-bundle> s3 cp "s3://<bucket-name>/<filename>" <path-to-output-file> --sse aws:kms --sse-kms-key-id <key-id>
+       aws --endpoint-url <rgw-endpoint-url> \
+           --ca-bundle <ca-bundle> \
+           s3 cp "s3://<bucket-name>/<filename>" <path-to-output-file> \
+           --sse aws:kms \
+           --sse-kms-key-id <key-id>
        ```
 
          Substitute `<path-to-output-file>` with the path to the file you want to download.
 
      * Download the file without a key:
        ```bash
-       aws --endpoint-url <rgw-endpoint-url> --ca-bundle <ca-bundle> s3 cp "s3://<bucket-name>/<filename>" <output-filename>
+       aws --endpoint-url <rgw-endpoint-url> \
+           --ca-bundle <ca-bundle> \
+           s3 cp "s3://<bucket-name>/<filename>" <output-filename>
        ```

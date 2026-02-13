@@ -16,7 +16,8 @@ You can apply the below procedure in the following cases:
 
     The below procedure also applies to manually created metadata partitions.
 
-## Remove a failed Ceph OSD by ID with a defined metadata device <a name="replace-osd-meta-by-id"></a>
+<a name="replace-osd-meta-by-id"></a>
+## Remove a failed Ceph OSD by ID with a defined metadata device
 
 1. Identify the ID of Ceph OSD related to a failed device. For example, use
    the Ceph CLI in the `pelagia-ceph-toolbox` Pod:

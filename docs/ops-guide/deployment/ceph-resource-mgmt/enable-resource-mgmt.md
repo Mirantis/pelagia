@@ -1,5 +1,4 @@
 <a id="enable-resource-mgmt"></a>
-
 # Enable management of Ceph tolerations and resources
 
 !!! warning
@@ -15,10 +14,10 @@ configuration values:
 
 * Configuring tolerations for taint nodes for the Ceph Monitor, Ceph Manager,
   and Ceph OSD daemons. For details, see
-  [Taints and Tolerations](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/).
+  [Kubernetes documentation: Taints and Tolerations](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/).
 * Configuring node resource requests or limits for the Ceph daemons and for
   each Ceph OSD device class such as HDD, SSD, or NVMe. For details, see
-  [Managing Resources for Containers](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/).
+  [Kubernetes documentation: Managing Resources for Containers](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/).
 
 ## Enable management of Ceph tolerations and resources
 
@@ -217,7 +216,7 @@ configuration values:
    Ceph configuration to Rook. Rook will recreate Ceph Monitors, Ceph Managers, or Ceph OSDs according to the
    specified `hyperconverge` configuration.
 7. Specify tolerations for different Rook resources using Pelagia Helm chart values. For details, see
-   [Rook Ceph daemons placement](https://mirantis.github.io/pelagia/ops-guide/deployment/rook-daemon-place).
+   [Specify Rook daemons placement](../rook-daemon-place.md#ceph-daemon-place).
 8. After a successful Ceph reconfiguration, unset the flags set in step 1
    through the `pelagia-ceph-toolbox` pod:
    ```bash
@@ -234,4 +233,4 @@ configuration values:
 
         Skip this step if you have only configured the PG rebalance timeout and replicas count parameters.
 
-Once done, proceed to [Verify Ceph tolerations and resources](https://mirantis.github.io/pelagia/ops-guide/deployment/ceph-resource-mgmt/verify-resource-mgmt).
+Once done, proceed to [Verify Ceph tolerations and resources](./verify-resource-mgmt.md#verify-ceph-resource-mgmt).
