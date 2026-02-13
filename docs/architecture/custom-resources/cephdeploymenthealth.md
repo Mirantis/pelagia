@@ -251,13 +251,11 @@ To understand the status of a `CephDeploymentHealth`, learn the following:
 
 ## High-level status fields <a name="general"></a>
 
-| <div style="width:150px">Field</div> | Description                                                                                                                                       |
-|--------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|
-| `healthReport`                       | Complete information about Ceph cluster including cluster, Ceph resources, and daemon health. It helps reveal potentially problematic components. |
-| `lastHealthCheck`                    | `DateTime` when previous cluster state check occurred.                                                                                            |
-| `lastHealthUpdate`                   | `DateTime` when previous cluster state update occurred.                                                                                           |
-| `issues`                             | List of strings of all issues found during cluster state check.                                                                                   |
-| `state`                              | Cluster state that can be `Ok` or `Failed` depending on the Ceph cluster state check.                                                             |
+- `healthReport` - Complete information about Ceph cluster including cluster, Ceph resources, and daemon health. It helps reveal potentially problematic components.
+- `lastHealthCheck` - `DateTime` when previous cluster state check occurred.
+- `lastHealthUpdate` - `DateTime` when previous cluster state update occurred.
+- `issues` - List of strings of all issues found during cluster state check.
+- `state` - Cluster state that can be `Ok` or `Failed` depending on the Ceph cluster state check.
 
 
 ## Health report status fields <a name="full"></a>

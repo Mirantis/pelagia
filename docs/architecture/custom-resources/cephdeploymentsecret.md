@@ -52,13 +52,15 @@ To understand the status of a `CephDeploymentHealth`, learn the following:
 The `CephDeploymentSecret` custom resource contains the following high-level status fields:
 
 
-| <div style="width:150px">Field</div> | Description                                                                                                                                                                                              |
-|--------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `state`                              | Current state of the secret collector on the Ceph cluster:<br/><br/>  - `Ready` - information about secrets is collected successfully<br/>  - `Failed` - information about secrets fails to be collected |
-| `lastSecretCheck`                    | `DateTime` when the Ceph cluster secrets were verified last time.                                                                                                                                        |
-| `lastSecretUpdate`                   | `DateTime` when the Ceph cluster secrets were updated last time.                                                                                                                                         |
-| `secretsInfo`                        | List of secrets for Ceph `authx` clients and RADOS Gateway users. For details, see [Secret info fields](#secret-info).                                                                                   |
-| `messages`                           | List of error or warning messages, if any, found when collecting information about the Ceph cluster.                                                                                                     |
+- `state` - Current state of the secret collector on the Ceph cluster:
+
+    - `Ready` - information about secrets is collected successfully
+    - `Failed` - information about secrets fails to be collected
+
+- `lastSecretCheck` - `DateTime` when the Ceph cluster secrets were verified last time.
+- `lastSecretUpdate` - `DateTime` when the Ceph cluster secrets were updated last time.
+- `secretsInfo` - List of secrets for Ceph `authx` clients and RADOS Gateway users. For details, see [Secret info fields](#secret-info).
+- `messages` - List of error or warning messages, if any, found when collecting information about the Ceph cluster.
 
 ## Secret info fields <a name="secret-info"></a>
 
