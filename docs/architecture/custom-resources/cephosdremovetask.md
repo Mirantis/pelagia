@@ -103,7 +103,7 @@ The example above includes the following actions:
 
 `CephOsdRemoveTask` phases are moving in the following order:
 
-<img src="/pelagia/assets/remove-task-phase-flow.svg" alt="drawing"/>
+![System Flow](../../../assets/remove-task-phase-flow.svg)
 
 Here are the following **final** phases:
 

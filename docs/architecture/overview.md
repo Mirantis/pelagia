@@ -110,8 +110,7 @@ A typical Ceph cluster deployed by Rook consists of the following components:
 The following diagram illustrates the processes within Pelagia and Rook Ceph Operator
 that are involved in the Ceph cluster deployment and lifecycle management:
 
-<img src="/pelagia/assets/overview.svg" alt="drawing"/>
-
+![Overview](../../assets/overview.svg)
 
 ## See also
 
