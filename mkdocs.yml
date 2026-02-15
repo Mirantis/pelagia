@@ -6,7 +6,7 @@ repo_url: https://github.com/mirantis/pelagia
 copyright:
   '© 2005 - 2026 Mirantis, Inc. All rights reserved.'
 theme:
-  name: material
+  name: "material"
   font:
     text: Overpass
     code: Roboto Mono
