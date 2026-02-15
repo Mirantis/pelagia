@@ -25,7 +25,6 @@ theme:
         icon: material/brightness-4
         name: Switch to light mode
 
-
   icon: assets/mirantis-logo-inverted-horizontal-one-color.svg
   logo: assets/mirantis-logo-inverted-horizontal-one-color.svg
   favicon: assets/favicon.ico
@@ -42,6 +41,7 @@ theme:
     - navigation.footer
     - navigation.path
     - content.code.copy
+    - navigation.top
 
 extra_css:
   - stylesheets/extra.css
@@ -74,13 +74,13 @@ markdown_extensions:
       toc_depth: 3
 
 nav:
-  - Home: index.md
+  - index.md
   - Architecture:
-      - Pelagia Overview: architecture/overview.md
-      - Pelagia Limitations: architecture/limitations.md
+      - Pelagia overview: architecture/overview.md
+      - Pelagia limitations: architecture/limitations.md
       - Addressing Ceph Devices: architecture/addressing-ceph-devices.md
       - Rockoon integration: architecture/rockoon-integration.md
-      - Custom Resources:
+      - Custom resources:
           - CephDeployment: architecture/custom-resources/cephdeployment.md
           - CephDeploymentHealth: architecture/custom-resources/cephdeploymenthealth.md
           - CephDeploymentSecret: architecture/custom-resources/cephdeploymentsecret.md
@@ -91,7 +91,7 @@ nav:
       - Upgrade Pelagia: quick-start/upgrade.md
   - Developer Guide: developer.md
   - Operations Guide:
-      - Ceph Default Config Options: ops-guide/deployment/default-ceph-conf.md
+      - Ceph default configuration options: ops-guide/deployment/default-ceph-conf.md
       - Rook Daemons Placement: ops-guide/deployment/rook-daemon-place.md
       - Enable Ceph Multinetwork: ops-guide/deployment/multinetworking.md
       - Enable Ceph RBD mirroring: ops-guide/deployment/rbd-mirror.md
@@ -99,7 +99,7 @@ nav:
       - Change Ceph Pools Failure Domain: ops-guide/deployment/move-failure-domain.md
       - Change Ceph Monitor node: ops-guide/deployment/move-mon-daemon.md
       - Replace failed Ceph Monitor node: ops-guide/deployment/move-mon-node-replace.md
-      - Rockoon Integration:
+      - Rockoon integration:
         - Integrate Pelagia with Rockoon: ops-guide/rockoon/rockoon-integration.md
         - Configure Ceph pools for Cinder multi-backend: ops-guide/rockoon/cinder-multi-backend.md
         - Calculate target ratios for Rockoon: ops-guide/rockoon/calc-target-ratio.md
