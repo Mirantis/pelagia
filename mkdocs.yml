@@ -42,7 +42,6 @@ theme:
     - navigation.path
     - content.code.copy
     - navigation.top
-    - navigation.tracking
 
 extra_css:
   - stylesheets/extra.css
