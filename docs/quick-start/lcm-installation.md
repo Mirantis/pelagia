@@ -1,13 +1,13 @@
 <a id="lcmonly-installation-guide"></a>
-# LCM-only installation guide
+# Install Pelagia in the LCM-only mode
 
 This section provides instructions on how to install Pelagia in lifecycle-management-only (lcm-only) mode.
 This mode allows you to automatically remove Rook Ceph OSD disks and nodes in your Kubernetes cluster.
 
 ## Prerequisites
 
-* A Kubernetes cluster, for example, deployed with [k0s](https://docs.k0sproject.io/stable/).
-* A deployed Ceph cluster managed by [Rook](https://github.com/rook/rook).
+* A Kubernetes cluster, for example, deployed with k0s.
+* A deployed Ceph cluster managed by Rook.
 
 ## Installation
 
@@ -99,11 +99,3 @@ The ``CephOsdRemoveTask`` workflow is as follows:
 1. The OSD daemon is stopped and data is rebalanced out from the OSD.
 2. The OSD disk is cleaned up on the node.
 3. The OSD daemon is removed from the Ceph cluster.
-
-## See also
-
-For the Pelagia architecture and overview,
-refer to the [Architecture Guide](https://mirantis.github.io/pelagia/architecture/overview).
-
-For the detailed OSD automated lifecycle management,
-refer to [Ops Guide: Automated Lifecycle Management](https://mirantis.github.io/pelagia/ops-guide/lcm/create-task-workflow).

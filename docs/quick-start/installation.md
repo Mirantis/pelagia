@@ -1,22 +1,16 @@
 <a id="installation-guide"></a>
-# Installation guide
+# Install Pelagia
 
-This section provides instructions on how to install Pelagia that will deploy a
-Ceph cluster managed by [Rook](https://github.com/rook/rook) on a Kubernetes cluster, for example, deployed with [k0s](https://docs.k0sproject.io/stable/).
+This section provides instructions on how to install Pelagia that will deploy a Ceph cluster managed by Rook on a Kubernetes cluster, for example, deployed with [k0s](https://docs.k0sproject.io/stable/).
 
 ## Requirements and prerequisites
 
-* A Kubernetes cluster, for example, deployed with [k0s](https://docs.k0sproject.io/stable/).
-* Enough resources for a Rook installation. For details, see
-  [Rook prerequisites](https://rook.github.io/docs/rook/latest-release/Getting-Started/Prerequisites/prerequisites/).
-* Enough nodes in the cluster to run Ceph control and data daemons. Nodes must have at least
-  4 GB of RAM for each Ceph daemon (monitors, managers, metadata servers, osd, rgw).
-  The minimum recommended requirements are 6 nodes: 3 nodes for control daemons
-  (Ceph Managers and Ceph Monitors) and 3 nodes for data daemons (Ceph OSDs). For details about
-  hardware recommendations, see
-  [Ceph documentation: Hardware recommendations](https://docs.ceph.com/en/latest/start/hardware-recommendations/).
-* At least one disk per data node to be used as Ceph OSD. Miminal disk size is `5G` but Mirantis recommends
-  using disks with at least `100G` size.
+* A Kubernetes cluster, for example, deployed with k0s.
+* Enough resources for a Rook installation as described in [Rook documentation: Prerequisites](https://rook.github.io/docs/rook/latest-release/Getting-Started/Prerequisites/prerequisites/).
+* Enough nodes in the cluster to run Ceph control and data daemons. Nodes must have at least 4 GB of RAM for each Ceph daemon (monitors, managers, metadata servers, osd, rgw). The minimum recommended requirements are 6 nodes: 3 nodes for control daemons (Ceph Managers and Ceph Monitors) and 3 nodes for data daemons (Ceph OSDs).
+For details about hardware recommendations, see [Ceph documentation: Hardware recommendations](https://docs.ceph.com/en/latest/start/hardware-recommendations/).
+
+* At least one disk per data node to be used as Ceph OSD. Miminal disk size is `5G` but Mirantis recommends using disks with at least `100G` size.
 
 ## Installation
 
@@ -53,9 +47,7 @@ NAME                                  READY   STATUS    RESTARTS   AGE
 rook-ceph-operator-8495877b67-m7lf5   1/1     Running   0          4m13s
 ```
 
-Currently, Pelagia Deployment Controller does not support integration with the existing Rook Ceph cluster, only Pelagia
-Lifecycle Management Controller does. To install Pelagia in LCM-only mode, please refer to
-[LCM-only Installation Guide](https://mirantis.github.io/pelagia/quick-start/lcm-installation).
+Currently, Pelagia Deployment Controller does not support integration with the existing Rook Ceph cluster, only Pelagia Lifecycle Management Controller does. To install Pelagia in the LCM-only mode, please refer to [LCM-only installation guide](./lcm-installation.md#lcmonly-installation-guide).
 
 ## Post-installation
 
@@ -198,14 +190,3 @@ cephfs-store-cephfs-pool-1   rook-ceph.cephfs.csi.ceph.com   Delete          Imm
 kubernetes-hdd (default)     rook-ceph.rbd.csi.ceph.com      Delete          Immediate           false                  62m
 rgw-storage-class            rook-ceph.ceph.rook.io/bucket   Delete          Immediate           false                  65m
 ```
-
-## See also
-
-For the Pelagia architecture and overview,
-refer to the [Architecture Guide](https://mirantis.github.io/pelagia/ref-arch/architecture).
-
-For the detailed Ceph cluster configuration and day-2 operations,
-refer to the [Architecture: CephDeployment](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment).
-
-For the Ceph OSD automated lifecycle management, refer to
-[Ops Guide: Automated Lifecycle Management](https://mirantis.github.io/pelagia/ops-guide/lcm/create-task-workflow).
