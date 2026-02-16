@@ -1,5 +1,5 @@
 <a id="cephdeployment-custom-resource"></a>
-# CephDeployment Custom Resource
+# CephDeployment custom resource
 
 This section describes how to configure a Ceph cluster using the `CephDeployment`
 (`cephdeployments.lcm.mirantis.com`) custom resource (CR).
@@ -155,8 +155,8 @@ advanced configuration.
 
     !!! note
 
-        The ``clusterNet`` and ``publicNet`` parameters support
-        multiple IP networks. For details, see [Ops Guide: Enable Multinetworking](https://mirantis.github.io/pelagia/ops-guide/deployment/multinetworking).
+        The `clusterNet` and `publicNet` parameters support
+        multiple IP networks. For details, see [Enable multinetworking](../../ops-guide/deployment/multinetworking.md#enable-ceph-multinetwork).
 
 - `publicNet` - specifies a CIDR for communication between
   the service and operator.
@@ -171,7 +171,7 @@ advanced configuration.
     !!! note
 
         The ``clusterNet`` and ``publicNet`` parameters support
-        multiple IP networks. For details, see [Ops Guide: Enable Multinetworking](https://mirantis.github.io/pelagia/ops-guide/deployment/multinetworking).
+        multiple IP networks. For details, see [Enable multinetworking](../../ops-guide/deployment/multinetworking.md#enable-ceph-multinetwork).
 
 Example configuration:
 ```yaml
@@ -265,7 +265,7 @@ spec:
 
         Recommending to use the ``fullPath`` field for defining
         ``by-id`` symlinks as persistent device identifiers. For details, see
-        [Addressing Ceph devices](https://mirantis.github.io/pelagia/architecture/addressing-ceph-devices).
+        [Addressing Ceph storage devices](../addressing-ceph-devices.md#addressing-ceph-storage-devices).
 
     - ``fullPath`` - a storage device symlink. Accepts the following values:
 
@@ -394,7 +394,7 @@ spec:
   The resulting Ceph block pool name will be `<name>-<deviceClass>`.
 - `useAsFullName` - Optional. Enables Ceph block pool to use only the `name` value as a name.
   The resulting Ceph block pool name will be `<name>` without the `deviceClass` suffix.
-- `role` - Optional. Specifies the pool role for [Rockoon](https://github.com/Mirantis/rockoon) integration.
+- `role` - Optional. Specifies the pool role for Rockoon integration.
 - `preserveOnDelete` - Optional. Enables skipping Ceph pool delete on `pools` section item removal.
   If `pools` section item removed with this flag enabled, related `CephBlockPool` object would be
   kept untouched and will require manual deletion on demand. Defaulted to `false`.
@@ -434,8 +434,8 @@ spec:
       The default values are as follows:
 
         - The default ratio of the Ceph Object Storage `dataPool` 10.0%.
-        - Target ratios for the pools required for [Rockoon](https://github.com/Mirantis/rockoon), described in
-          [Ops Guide: Integrate Pelagia with Rockoon](https://mirantis.github.io/pelagia/ops-guide/rockoon/rockoon-integration).
+        - Target ratios for the pools required for Rockoon, described in
+          [Integrate Pelagia with Rockoon](../../ops-guide/rockoon/rockoon-integration.md#integrate-pelagia-with-rockoon).
 
         !!! note
 
@@ -455,7 +455,7 @@ spec:
         the `rack` topology instead. The `osd` failure domain is prohibited.
 
 - `mirroring` - Optional. Enables the mirroring feature for the defined pool.
-  Includes the `mode` parameter that can be set to `pool` or `image`. For details, see [Ops Guide: Enable RBD Mirroring](https://mirantis.github.io/pelagia/ops-guide/deployment/rbd-mirror).
+  Includes the `mode` parameter that can be set to `pool` or `image`. For details, see [Enable Ceph RBD Mirroring](../../ops-guide/deployment/rbd-mirror.md#enable-ceph-rbd-mirror).
 - `parameters` - Optional. Specifies the key-value map for the parameters of the Ceph pool.
   For details, see [Ceph documentation: Set Pool values](https://docs.ceph.com/en/latest/rados/operations/pools/#set-pool-values).
 - `enableCrushUpdates` - Optional. Enables automatic updates of the CRUSH map
@@ -491,8 +491,8 @@ spec:
 
 As a result, the following Ceph pools will be created: `kubernetes-hdd`, `kubernetes-nvme`, and `archive`.
 
-To configure additional required pools for [Rockoon](https://github.com/Mirantis/rockoon), see
-[Ops Guide: Integrate Pelagia with Rockoon](https://mirantis.github.io/pelagia/ops-guide/rockoon/rockoon-integration).
+To configure additional required pools for Rockoon, see
+[Integrate Pelagia with Rockoon](../../ops-guide/rockoon/rockoon-integration.md#integrate-pelagia-with-rockoon).
 
 !!! caution
 
@@ -556,7 +556,7 @@ To configure additional required pools for [Rockoon](https://github.com/Mirantis
 
 {% include "../../snippets/multisiteParameters.md" %}
 
-For configuration example, see [Ops Guide: Enable Multisite for Ceph Object Storage](https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-multisite).
+For configuration example, see [Enable Multisite for Ceph Object Storage](../../ops-guide/deployment/rgw-multisite.md#enable-multisite-for-ceph=object-storage).
 
 ### CephFS parameters <a name="cephfs"></a>
 
@@ -669,7 +669,7 @@ spec:
     - `failureThreshold` - the minimum consecutive failures for the
       probe to be considered failed after having succeeded. Integer.
 
-??? "Example configuration of health check specification?
+??? "Example configuration of health check specification"
 
     ```yaml
     spec:

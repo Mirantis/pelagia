@@ -1,5 +1,4 @@
 <a id="default-ceph-conf"></a>
-
 # Ceph default configuration
 
 Pelagia Deployment Controller provides the capability to specify configuration options for

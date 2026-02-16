@@ -2,7 +2,7 @@
 # CephOsdRemoveTask custom resource
 
 This section describes the `CephOsdRemoveTask` custom resource specification.
-For the procedure workflow, see [Creating a Ceph OSD removal task](https://mirantis.github.io/pelagia/ops-guide/lcm/create-task-workflow).
+For the procedure workflow, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-osd-rm-request).
 
 ## Spec parameters <a name="spec"></a>
 
