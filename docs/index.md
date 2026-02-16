@@ -1,6 +1,4 @@
-# Welcome to Pelagia documentation
-
-## Introduction
+# Welcome to Pelagia
 
 The Pelagia Controller is a Kubernetes operator that implements lifecycle management for Ceph clusters managed by Rook.
 
