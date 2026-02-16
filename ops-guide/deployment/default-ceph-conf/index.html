@@ -2699,8 +2699,7 @@
 <h1 id="ceph-default-configuration-options">Ceph default configuration options<a class="headerlink" href="#ceph-default-configuration-options" title="Permanent link">#</a></h1>
 <p>Pelagia Deployment Controller provides the capability to specify configuration options for
 the Ceph cluster through the <code>rookConfig</code> key-value section of the
-<code>CephDeployment</code> CR as if they were set in a usual <code>ceph.conf</code> file. For details,
-see <a href="https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment">Architecture: CephDeployment</a>.</p>
+<code>CephDeployment</code> CR as if they were set in a usual <code>ceph.conf</code> file.</p>
 <p>However, if <code>rookConfig</code> is empty, Pelagia Deployment Controller still specifies the
 following default configuration options for each Ceph cluster:</p>
 <ul>
@@ -2768,8 +2767,10 @@ default configuration options for each Ceph cluster:</p>
 <span class="na">rgw keystone admin project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneProjectName&gt;</span>
 </code></pre></div></li>
 </ul>
-<h4 id="see-also">SEE ALSO<a class="headerlink" href="#see-also" title="Permanent link">#</a></h4>
-<p><a href="https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment">Architecture: CephDeployment</a></p>
+<div class="admonition info">
+<p class="admonition-title">See also</p>
+<p><a href="../../../architecture/custom-resources/cephdeployment/#cephdeployment-custom-resource">CephDeployment Custom Resource</a></p>
+</div>
 
 
 

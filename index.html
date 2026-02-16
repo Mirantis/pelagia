@@ -2719,22 +2719,16 @@
 
 <h1 id="welcome-to-pelagia-documentation">Welcome to Pelagia documentation<a class="headerlink" href="#welcome-to-pelagia-documentation" title="Permanent link">#</a></h1>
 <h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">#</a></h2>
-<p>The Pelagia Controller is a <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/operator/">Kubernetes operator</a>
-that implements lifecycle management for Ceph clusters managed by <a href="https://github.com/rook/rook">Rook</a>.</p>
-<p>The Pelagia is written in Go lang using <a href="https://github.com/kubernetes-sigs/cluster-api">Cluster API</a> to build
-Kubernetes controllers.</p>
+<p>The Pelagia Controller is a Kubernetes operator that implements lifecycle management for Ceph clusters managed by Rook.</p>
+<p>Pelagia is written in Go lang using Cluster API to build Kubernetes controllers.</p>
 <p>Pelagia solution provides two main controllers:</p>
 <ul>
-<li><strong>Deployment Controller</strong> monitors changes in the <code>CephDeployment</code>
-  <a href="https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/">Kubernetes custom resource</a>
-   and handles these changes by creating, updating, or deleting appropriate resources in Kubernetes.</li>
-<li><strong>Ceph OSD Lifecycle Management Controller</strong> monitors changes in the
-  <code>CephOsdRemoveTask</code> custom resource and runs automated Ceph OSD disk or node removal.</li>
+<li><strong>Deployment Controller</strong> monitors changes in the <code>CephDeployment</code> Kubernetes custom resource and handles these changes by creating, updating, or deleting appropriate resources in Kubernetes.</li>
+<li><strong>Ceph OSD Lifecycle Management Controller</strong> monitors changes in the <code>CephOsdRemoveTask</code> custom resource and runs automated Ceph OSD disk or node removal.</li>
 </ul>
 <h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">#</a></h2>
-<p>To get started with Pelagia, follow the
-<a href="https://mirantis.github.io/pelagia/quick-start/installation">Quick Start Guide</a>.</p>
-<p>To install Pelagia in automated LCM mode only, follow the <a href="https://mirantis.github.io/pelagia/quick-start/lcm-installation">Quick Start LCM-only Guide</a>.</p>
+<p>To get started with Pelagia, follow the <a href="quick-start/installation/#installation-guide">Installation guide</a>.</p>
+<p>To install Pelagia in automated LCM mode only, follow the <a href="quick-start/lcm-installation/#lcmonly-installation-guide">LCM-only installation guide</a>.</p>
 <h2 id="getting-help">Getting Help<a class="headerlink" href="#getting-help" title="Permanent link">#</a></h2>
 <ul>
 <li>File a bug: <a href="https://github.com/Mirantis/pelagia/issues">https://github.com/Mirantis/pelagia/issues</a></li>
@@ -2746,6 +2740,14 @@ Kubernetes controllers.</p>
 <li>Developer Guide: <a href="https://mirantis.github.io/pelagia/developer/">https://mirantis.github.io/pelagia/developer/</a></li>
 <li>Reference Architecture: <a href="https://mirantis.github.io/pelagia">https://mirantis.github.io/pelagia</a></li>
 </ul>
+<div class="admonition info">
+<p class="admonition-title">See also</p>
+<ul>
+<li><a href="https://kubernetes.io/docs/concepts/extend-kubernetes/operator/">Kubernetes operator</a></li>
+<li><a href="https://github.com/rook/rook">Rook</a></li>
+<li><a href="https://github.com/kubernetes-sigs/cluster-api">Cluster API</a></li>
+</ul>
+</div>
 
 
 

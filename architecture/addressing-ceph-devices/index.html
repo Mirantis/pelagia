@@ -452,10 +452,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#difference-between-by-id-name-and-by-path-formats" class="md-nav__link">
+  <a href="#the-by-id-identifier" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Difference between by-id, name, and by-path formats
+        The by-id identifier
       
     </span>
   </a>
@@ -463,10 +463,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#example-cephdeployment-with-device-by-id-identifiers" class="md-nav__link">
+  <a href="#the-name-identifier" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Example CephDeployment with device by-id identifiers
+        The name identifier
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-by-path-identifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The by-path identifier
       
     </span>
   </a>
@@ -2628,10 +2639,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#difference-between-by-id-name-and-by-path-formats" class="md-nav__link">
+  <a href="#the-by-id-identifier" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Difference between by-id, name, and by-path formats
+        The by-id identifier
       
     </span>
   </a>
@@ -2639,10 +2650,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#example-cephdeployment-with-device-by-id-identifiers" class="md-nav__link">
+  <a href="#the-name-identifier" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Example CephDeployment with device by-id identifiers
+        The name identifier
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-by-path-identifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The by-path identifier
       
     </span>
   </a>
@@ -2717,12 +2739,14 @@
   
 
 
+<p><a id="addressing-ceph-storage-devices"></a></p>
 <h1 id="addressing-ceph-storage-devices">Addressing Ceph storage devices<a class="headerlink" href="#addressing-ceph-storage-devices" title="Permanent link">#</a></h1>
-<p>There are several formats to use when specifying and addressing storage devices
-of a Ceph cluster. The default and recommended one is the <code>/dev/disk/by-id</code>
-format. This format is reliable and unaffected by the disk controller actions,
-for example, device name shuffling on boot.</p>
-<h2 id="difference-between-by-id-name-and-by-path-formats">Difference between <code>by-id</code>, <code>name</code>, and <code>by-path</code> formats<a class="headerlink" href="#difference-between-by-id-name-and-by-path-formats" title="Permanent link">#</a></h2>
+<p>Selecting the correct identifier for storage devices is critical for ensuring system stability, particularly when configuring mount points or managing hardware-dependent services.</p>
+<p>The list of supported formats for device identification includes <code>by-id</code>, <code>name</code>, and <code>by-path</code>.
+The default and recommended device identification methods is <code>/dev/disk/by-id</code>.
+This format is reliable and unaffected by the disk controller actions, for example, device name shuffling on boot.</p>
+<p>This section explains each method in detail.</p>
+<h2 id="the-by-id-identifier">The <code>by-id</code> identifier<a class="headerlink" href="#the-by-id-identifier" title="Permanent link">#</a></h2>
 <p>The storage device <code>/dev/disk/by-id</code> format mostly bases on a disk serial
 number, which is unique for each disk. A <code>by-id</code> symlink is created by the
 <code>udev</code> rules in the following format, where <code>&lt;BusID&gt;</code> is an ID of the bus
@@ -2748,17 +2772,6 @@ serial numbers but also include other node information. This can lead
 to the <code>wwn</code> being recalculated when the node reboots. As a result,
 this symlink type cannot guarantee a persistent disk identifier and should
 not be used as a stable storage device symlink in a Ceph cluster.</p>
-<p>The storage device <code>name</code> format cannot be considered
-persistent because the sequence in which block devices are added during boot
-is semi-arbitrary. This means that block device names, for example, <code>nvme0n1</code>
-and <code>sdc</code>, are assigned to physical disks during discovery, which may vary
-inconsistently from the previous node state.</p>
-<p>The storage device <code>by-path</code> format is supported, but we recommend using <code>by-id</code> symlinks instead of <code>by-path</code>
-symlinks due to <code>by-id</code> symlinks directly refer to the disk serial number.</p>
-<p>Therefore, we are highly recommending using storage device <code>by-id</code> symlinks
-that contain disk serial numbers. This approach enables you to use a persistent
-device identifier addressed in the Ceph cluster specification.</p>
-<h2 id="example-cephdeployment-with-device-by-id-identifiers">Example <code>CephDeployment</code> with device <code>by-id</code> identifiers<a class="headerlink" href="#example-cephdeployment-with-device-by-id-identifiers" title="Permanent link">#</a></h2>
 <p>Below is an example <code>CephDeployment</code> custom resource using the <code>/dev/disk/by-id</code>
 format for storage devices specification:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
@@ -2801,6 +2814,18 @@ format for storage devices specification:</p>
 <span class="w">    </span><span class="nt">replicated</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 </code></pre></div>
+<h2 id="the-name-identifier">The <code>name</code> identifier<a class="headerlink" href="#the-name-identifier" title="Permanent link">#</a></h2>
+<p>The storage device <code>name</code> format cannot be considered
+persistent because the sequence in which block devices are added during boot
+is semi-arbitrary. This means that block device names, for example, <code>nvme0n1</code>
+and <code>sdc</code>, are assigned to physical disks during discovery, which may vary
+inconsistently from the previous node state.</p>
+<h2 id="the-by-path-identifier">The <code>by-path</code> identifier<a class="headerlink" href="#the-by-path-identifier" title="Permanent link">#</a></h2>
+<p>The storage device <code>by-path</code> format is supported, but we recommend using <code>by-id</code> symlinks instead of <code>by-path</code>
+symlinks due to <code>by-id</code> symlinks directly refer to the disk serial number.</p>
+<p>Therefore, we are highly recommending using storage device <code>by-id</code> symlinks
+that contain disk serial numbers. This approach enables you to use a persistent
+device identifier addressed in the Ceph cluster specification.</p>
 
 
 

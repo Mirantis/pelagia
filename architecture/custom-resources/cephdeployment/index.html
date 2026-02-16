@@ -3057,7 +3057,8 @@
   
 
 
-<h1 id="cephdeployment-custom-resource">CephDeployment Custom Resource<a class="headerlink" href="#cephdeployment-custom-resource" title="Permanent link">#</a></h1>
+<p><a id="cephdeployment-custom-resource"></a></p>
+<h1 id="cephdeployment-custom-resource">CephDeployment custom resource<a class="headerlink" href="#cephdeployment-custom-resource" title="Permanent link">#</a></h1>
 <p>This section describes how to configure a Ceph cluster using the <code>CephDeployment</code>
 (<code>cephdeployments.lcm.mirantis.com</code>) custom resource (CR).</p>
 <p>The <code>CephDeployment</code> CR spec specifies the nodes to deploy as Ceph components.
@@ -3214,7 +3215,7 @@ become unavailable.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <code>clusterNet</code> and <code>publicNet</code> parameters support
-multiple IP networks. For details, see <a href="https://mirantis.github.io/pelagia/ops-guide/deployment/multinetworking">Ops Guide: Enable Multinetworking</a>.</p>
+multiple IP networks. For details, see <a href="../../../ops-guide/deployment/multinetworking/#enable-ceph-multinetwork">Enable multinetworking</a>.</p>
 </div>
 </li>
 <li>
@@ -3230,7 +3231,7 @@ become unavailable.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <code>clusterNet</code> and <code>publicNet</code> parameters support
-multiple IP networks. For details, see <a href="https://mirantis.github.io/pelagia/ops-guide/deployment/multinetworking">Ops Guide: Enable Multinetworking</a>.</p>
+multiple IP networks. For details, see <a href="../../../ops-guide/deployment/multinetworking/#enable-ceph-multinetwork">Enable multinetworking</a>.</p>
 </div>
 </li>
 </ul>
@@ -3324,7 +3325,7 @@ in a case of a node outage.</p>
 <p class="admonition-title">Note</p>
 <p>Recommending to use the <code>fullPath</code> field for defining
 <code>by-id</code> symlinks as persistent device identifiers. For details, see
-<a href="https://mirantis.github.io/pelagia/architecture/addressing-ceph-devices">Addressing Ceph devices</a>.</p>
+<a href="../../addressing-ceph-devices/#addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
 </div>
 <ul>
 <li>
@@ -3453,7 +3454,7 @@ or <code>nvme</code> disks.</p>
   The resulting Ceph block pool name will be <code>&lt;name&gt;-&lt;deviceClass&gt;</code>.</li>
 <li><code>useAsFullName</code> - Optional. Enables Ceph block pool to use only the <code>name</code> value as a name.
   The resulting Ceph block pool name will be <code>&lt;name&gt;</code> without the <code>deviceClass</code> suffix.</li>
-<li><code>role</code> - Optional. Specifies the pool role for <a href="https://github.com/Mirantis/rockoon">Rockoon</a> integration.</li>
+<li><code>role</code> - Optional. Specifies the pool role for Rockoon integration.</li>
 <li><code>preserveOnDelete</code> - Optional. Enables skipping Ceph pool delete on <code>pools</code> section item removal.
   If <code>pools</code> section item removed with this flag enabled, related <code>CephBlockPool</code> object would be
   kept untouched and will require manual deletion on demand. Defaulted to <code>false</code>.</li>
@@ -3501,8 +3502,8 @@ or <code>nvme</code> disks.</p>
   The default values are as follows:</p>
 <ul>
 <li>The default ratio of the Ceph Object Storage <code>dataPool</code> 10.0%.</li>
-<li>Target ratios for the pools required for <a href="https://github.com/Mirantis/rockoon">Rockoon</a>, described in
-  <a href="https://mirantis.github.io/pelagia/ops-guide/rockoon/rockoon-integration">Ops Guide: Integrate Pelagia with Rockoon</a>.</li>
+<li>Target ratios for the pools required for Rockoon, described in
+  <a href="../../../ops-guide/rockoon/rockoon-integration/#integrate-pelagia-with-rockoon">Integrate Pelagia with Rockoon</a>.</li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -3529,7 +3530,7 @@ the <code>rack</code> topology instead. The <code>osd</code> failure domain is p
 </li>
 <li>
 <p><code>mirroring</code> - Optional. Enables the mirroring feature for the defined pool.
-  Includes the <code>mode</code> parameter that can be set to <code>pool</code> or <code>image</code>. For details, see <a href="https://mirantis.github.io/pelagia/ops-guide/deployment/rbd-mirror">Ops Guide: Enable RBD Mirroring</a>.</p>
+  Includes the <code>mode</code> parameter that can be set to <code>pool</code> or <code>image</code>. For details, see <a href="../../../ops-guide/deployment/rbd-mirror/#enable-ceph-rbd-mirror">Enable Ceph RBD Mirroring</a>.</p>
 </li>
 <li><code>parameters</code> - Optional. Specifies the key-value map for the parameters of the Ceph pool.
   For details, see <a href="https://docs.ceph.com/en/latest/rados/operations/pools/#set-pool-values">Ceph documentation: Set Pool values</a>.</li>
@@ -3564,8 +3565,8 @@ the <code>rack</code> topology instead. The <code>osd</code> failure domain is p
 </code></pre></div>
 </details>
 <p>As a result, the following Ceph pools will be created: <code>kubernetes-hdd</code>, <code>kubernetes-nvme</code>, and <code>archive</code>.</p>
-<p>To configure additional required pools for <a href="https://github.com/Mirantis/rockoon">Rockoon</a>, see
-<a href="https://mirantis.github.io/pelagia/ops-guide/rockoon/rockoon-integration">Ops Guide: Integrate Pelagia with Rockoon</a>.</p>
+<p>To configure additional required pools for Rockoon, see
+<a href="../../../ops-guide/rockoon/rockoon-integration/#integrate-pelagia-with-rockoon">Integrate Pelagia with Rockoon</a>.</p>
 <div class="admonition caution">
 <p class="admonition-title">Caution</p>
 <p>Since Ceph Pacific, Ceph CSI driver does not propagate the <code>777</code>
@@ -3892,7 +3893,7 @@ items. For details, see the <a href="https://mirantis.github.io/pelagia/ops-guid
 </ul>
 </li>
 </ul>
-<p>For configuration example, see <a href="https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-multisite">Ops Guide: Enable Multisite for Ceph Object Storage</a>.</p>
+<p>For configuration example, see <a href="../../../ops-guide/deployment/rgw-multisite/#enable-multisite-for-ceph=object-storage">Enable Multisite for Ceph Object Storage</a>.</p>
 <h3 id="cephfs-parameters">CephFS parameters <a name="cephfs"></a><a class="headerlink" href="#cephfs-parameters" title="Permanent link">#</a></h3>
 <p><code>sharedFilesystem</code> contains a list of Ceph Filesystems <code>cephFS</code>. Each <code>cephFS</code> item
 contains the following parameters:</p>
@@ -4090,45 +4091,45 @@ for <code>mon</code>, <code>mgr</code>, <code>osd</code>, and <code>mds</code> (
 </ul>
 </li>
 </ul>
-<p>??? "Example configuration of health check specification?</p>
-<pre><code>```yaml
-spec:
-  healthCheck:
-    daemonHealth:
-      mon:
-        disabled: false
-        interval: 45s
-        timeout: 600s
-      osd:
-        disabled: false
-        interval: 60s
-      status:
-        disabled: true
-    livenessProbe:
-      mon:
-        disabled: false
-        probe:
-          timeoutSeconds: 10
-          periodSeconds: 3
-          successThreshold: 3
-      mgr:
-        disabled: false
-        probe:
-          timeoutSeconds: 5
-          failureThreshold: 5
-      osd:
-        probe:
-          initialDelaySeconds: 5
-          timeoutSeconds: 10
-          failureThreshold: 7
-    startupProbe:
-      mon:
-        disabled: true
-      mgr:
-        probe:
-          successThreshold: 3
-```
-</code></pre>
+<details>
+<summary>Example configuration of health check specification</summary>
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">healthCheck</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">daemonHealth</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">mon</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">45s</span>
+<span class="w">        </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">600s</span>
+<span class="w">      </span><span class="nt">osd</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60s</span>
+<span class="w">      </span><span class="nt">status</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">livenessProbe</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">mon</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">probe</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">timeoutSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">          </span><span class="nt">periodSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">          </span><span class="nt">successThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">      </span><span class="nt">mgr</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">probe</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">timeoutSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">          </span><span class="nt">failureThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">      </span><span class="nt">osd</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">probe</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">initialDelaySeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">          </span><span class="nt">timeoutSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">          </span><span class="nt">failureThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7</span>
+<span class="w">    </span><span class="nt">startupProbe</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">mon</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">mgr</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">probe</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">successThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+</code></pre></div>
+</details>
 <h3 id="extraopts-parameters">ExtraOpts parameters <a name="extraopts"></a><a class="headerlink" href="#extraopts-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li>

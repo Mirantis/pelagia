@@ -2628,14 +2628,12 @@
   
 
 
-<h1 id="pelagia-limitations">Pelagia Limitations<a class="headerlink" href="#pelagia-limitations" title="Permanent link">#</a></h1>
+<h1 id="pelagia-limitations">Pelagia limitations<a class="headerlink" href="#pelagia-limitations" title="Permanent link">#</a></h1>
 <p>A Pelagia <code>CephDeployment</code> configuration includes but is
 not limited to the following limitations:</p>
 <ul>
 <li>The replication size for any Ceph pool must be set to more than 1.</li>
-<li>Only one CRUSH tree per cluster. The separation of devices per Ceph pool is
-  supported through <a href="https://docs.ceph.com/en/latest/rados/operations/crush-map/#device-classes">Ceph Device Classes</a>
-  with only one pool of each type for a device class.</li>
+<li>Only one CRUSH tree per cluster. The separation of devices per Ceph pool is supported through Ceph Device Classes with only one pool of each type for a device class.</li>
 <li>
 <p>Only the following types of CRUSH buckets are supported:</p>
 <ul>
@@ -2673,6 +2671,10 @@ not limited to the following limitations:</p>
   Manager from a node, remove it from the <code>nodes</code> spec and manually delete
   the <code>rook-ceph-mgr</code> pod in the Rook namespace.</li>
 </ul>
+<div class="admonition info">
+<p class="admonition-title">See also</p>
+<p><a href="https://docs.ceph.com/en/latest/rados/operations/crush-map/#device-classes">Ceph Device Classes</a></p>
+</div>
 
 
 

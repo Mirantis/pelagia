@@ -499,18 +499,7 @@
   <a href="#pelagia-data-flow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pelagia Data Flow
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        See also
+        Pelagia data flow
       
     </span>
   </a>
@@ -2831,18 +2820,7 @@
   <a href="#pelagia-data-flow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Pelagia Data Flow
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        See also
+        Pelagia data flow
       
     </span>
   </a>
@@ -2917,12 +2895,12 @@
   
 
 
-<h1 id="pelagia-overview">Pelagia Overview<a class="headerlink" href="#pelagia-overview" title="Permanent link">#</a></h1>
+<h1 id="pelagia-overview">Pelagia overview<a class="headerlink" href="#pelagia-overview" title="Permanent link">#</a></h1>
 <p>Pelagia Helm chart deploys the following components:</p>
 <ul>
 <li>Pelagia Deployment Controller</li>
 <li>Pelagia Lifecycle Management Controller</li>
-<li>Rook Ceph Operator from <a href="https://github.com/rook/rook">Rook</a>.</li>
+<li>Rook Ceph Operator from Rook</li>
 </ul>
 <h2 id="pelagia-deployment-controller">Pelagia Deployment Controller<a class="headerlink" href="#pelagia-deployment-controller" title="Permanent link">#</a></h2>
 <p>Pelagia Controller contains the following containers:</p>
@@ -2935,8 +2913,7 @@ based on the Ceph cluster deployment progress.</p>
 <li>Transforming user parameters from the <code>CephDeployment</code> resource into Rook resources
   and deploying a Ceph cluster using Rook.</li>
 <li>Providing single entrypoint management of the Ceph cluster with Kubernetes.</li>
-<li>Integrating with <a href="https://github.com/Mirantis/rockoon">Rockoon</a> and providing data for OpenStack
-  to integrate with the deployed Ceph cluster.</li>
+<li>Integrating with Rockoon OpenStack Controller and providing data for OpenStack to integrate with the deployed Ceph cluster.</li>
 </ul>
 <p>Also, Pelagia Controller eventually obtains the data from the OpenStack Controller
 (Rockoon) for the Keystone integration and updates the Ceph Object Gateway
@@ -2978,7 +2955,7 @@ pods that allow processing disk cleanup.</p>
 <li>Pausing the regular Rook Ceph Operator orchestration until all requests are finished</li>
 </ul>
 <h2 id="rook-ceph-operator">Rook Ceph Operator<a class="headerlink" href="#rook-ceph-operator" title="Permanent link">#</a></h2>
-<p><a href="https://github.com/rook/rook">Rook</a> is a storage orchestrator that deploys Ceph on top of a Kubernetes cluster. Also
+<p>Rook is a storage orchestrator that deploys Ceph on top of a Kubernetes cluster. Also
 known as <code>Rook</code>, <code>Rook Ceph Operator</code> or <code>Rook Operator</code>.</p>
 <p>Rook operations include:</p>
 <ul>
@@ -2986,10 +2963,10 @@ known as <code>Rook</code>, <code>Rook Ceph Operator</code> or <code>Rook Operat
   <code>CephCluster</code>, <code>CephBlockPool</code>, <code>CephObjectStore</code>, and so on</li>
 <li>Orchestrating the state of the Ceph cluster and all its daemons</li>
 </ul>
-<p>For more information about Rook, see the official
-<a href="https://rook.github.io/docs/rook/latest-release/Getting-Started/intro/">Rook documentation</a>.</p>
-<p>Note that Pelagia Helm chart deploys the Rook Operator
-according to the <a href="https://github.com/rook/rook/tree/master/deploy/charts/rook-ceph">Rook chart templates</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Pelagia Helm chart deploys the Rook Operator according to the Rook chart templates.</p>
+</div>
 <p>A typical Ceph cluster deployed by Rook consists of the following components:</p>
 <ul>
 <li>Two Ceph Managers (<code>mgr</code>).</li>
@@ -3004,15 +2981,18 @@ according to the <a href="https://github.com/rook/rook/tree/master/deploy/charts
 tolerance and is not eligible for recovery operations, such as a disk or
 an entire Ceph node replacement.</p>
 </div>
-<h2 id="pelagia-data-flow">Pelagia Data Flow<a class="headerlink" href="#pelagia-data-flow" title="Permanent link">#</a></h2>
+<h2 id="pelagia-data-flow">Pelagia data flow<a class="headerlink" href="#pelagia-data-flow" title="Permanent link">#</a></h2>
 <p>The following diagram illustrates the processes within Pelagia and Rook Ceph Operator
 that are involved in the Ceph cluster deployment and lifecycle management:</p>
 <p><img alt="Overview" src="../../assets/overview.svg" /></p>
-<h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">#</a></h2>
+<div class="admonition info">
+<p class="admonition-title">See also</p>
 <ul>
 <li><a href="https://docs.ceph.com/docs/master/">Ceph documentation</a></li>
 <li><a href="https://rook.github.io/docs/rook/latest-release/Getting-Started/intro/">Rook documentation</a></li>
+<li><a href="https://github.com/Mirantis/rockoon">Rockoon documentation</a></li>
 </ul>
+</div>
 
 
 
