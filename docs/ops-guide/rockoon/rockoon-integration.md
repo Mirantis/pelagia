@@ -1,3 +1,4 @@
+<a id="integrate-pelagia-with-rockoon"></a>
 # Integrate Pelagia with Rockoon
 
 This document describes how to integrate Pelagia with [Rockoon OpenStack Controllers](https://github.com/Mirantis/rockoon).

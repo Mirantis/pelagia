@@ -1,11 +1,15 @@
+<a id="addressing-ceph-storage-devices"></a>
 # Addressing Ceph storage devices
 
-There are several formats to use when specifying and addressing storage devices
-of a Ceph cluster. The default and recommended one is the `/dev/disk/by-id`
-format. This format is reliable and unaffected by the disk controller actions,
-for example, device name shuffling on boot.
+Selecting the correct identifier for storage devices is critical for ensuring system stability, particularly when configuring mount points or managing hardware-dependent services.
 
-## Difference between `by-id`, `name`, and `by-path` formats
+The list of supported formats for device identification includes `by-id`, `name`, and `by-path`.
+The default and recommended device identification methods is `/dev/disk/by-id`.
+This format is reliable and unaffected by the disk controller actions, for example, device name shuffling on boot.
+
+This section explains each method in detail.
+
+## The `by-id` identifier
 
 The storage device `/dev/disk/by-id` format mostly bases on a disk serial
 number, which is unique for each disk. A `by-id` symlink is created by the
@@ -38,21 +42,6 @@ serial numbers but also include other node information. This can lead
 to the `wwn` being recalculated when the node reboots. As a result,
 this symlink type cannot guarantee a persistent disk identifier and should
 not be used as a stable storage device symlink in a Ceph cluster.
-
-The storage device `name` format cannot be considered
-persistent because the sequence in which block devices are added during boot
-is semi-arbitrary. This means that block device names, for example, `nvme0n1`
-and `sdc`, are assigned to physical disks during discovery, which may vary
-inconsistently from the previous node state.
-
-The storage device `by-path` format is supported, but we recommend using `by-id` symlinks instead of `by-path`
-symlinks due to `by-id` symlinks directly refer to the disk serial number.
-
-Therefore, we are highly recommending using storage device `by-id` symlinks
-that contain disk serial numbers. This approach enables you to use a persistent
-device identifier addressed in the Ceph cluster specification.
-
-## Example `CephDeployment` with device `by-id` identifiers
 
 Below is an example `CephDeployment` custom resource using the `/dev/disk/by-id`
 format for storage devices specification:
@@ -98,3 +87,20 @@ spec:
     replicated:
       size: 3
 ```
+
+## The `name` identifier
+
+The storage device `name` format cannot be considered
+persistent because the sequence in which block devices are added during boot
+is semi-arbitrary. This means that block device names, for example, `nvme0n1`
+and `sdc`, are assigned to physical disks during discovery, which may vary
+inconsistently from the previous node state.
+
+## The `by-path` identifier
+
+The storage device `by-path` format is supported, but we recommend using `by-id` symlinks instead of `by-path`
+symlinks due to `by-id` symlinks directly refer to the disk serial number.
+
+Therefore, we are highly recommending using storage device `by-id` symlinks
+that contain disk serial numbers. This approach enables you to use a persistent
+device identifier addressed in the Ceph cluster specification.
