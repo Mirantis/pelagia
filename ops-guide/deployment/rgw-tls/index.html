@@ -267,7 +267,7 @@
   <span class="md-ellipsis">
     
   
-    Home
+    Welcome to Pelagia
   
 
     
@@ -341,7 +341,7 @@
   <span class="md-ellipsis">
     
   
-    Pelagia Overview
+    Pelagia overview
   
 
     
@@ -369,7 +369,7 @@
   <span class="md-ellipsis">
     
   
-    Pelagia Limitations
+    Pelagia limitations
   
 
     
@@ -464,7 +464,7 @@
   <span class="md-ellipsis">
     
   
-    Custom Resources
+    Custom resources
   
 
     
@@ -480,7 +480,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Custom Resources
+    Custom resources
   
 
           </label>
@@ -841,7 +841,7 @@
   <span class="md-ellipsis">
     
   
-    Ceph Default Config Options
+    Ceph default configuration options
   
 
     
@@ -1076,7 +1076,7 @@
   <span class="md-ellipsis">
     
   
-    Rockoon Integration
+    Rockoon integration
   
 
     
@@ -1092,7 +1092,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Rockoon Integration
+    Rockoon integration
   
 
           </label>
@@ -1346,10 +1346,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#tlsconfig-section-parameters" class="md-nav__link">
+  <a href="#the-tlsconfig-section-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        tlsConfig section parameters
+        The tlsConfig section parameters
       
     </span>
   </a>
@@ -1357,10 +1357,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#controllerclassname-parameter" class="md-nav__link">
+  <a href="#the-controllerclassname-parameter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        controllerClassName parameter
+        The controllerClassName parameter
       
     </span>
   </a>
@@ -1368,10 +1368,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#annotations-parameter" class="md-nav__link">
+  <a href="#the-annotations-parameter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        annotations parameter
+        The annotations parameter
       
     </span>
   </a>
@@ -2681,10 +2681,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#tlsconfig-section-parameters" class="md-nav__link">
+  <a href="#the-tlsconfig-section-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        tlsConfig section parameters
+        The tlsConfig section parameters
       
     </span>
   </a>
@@ -2692,10 +2692,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#controllerclassname-parameter" class="md-nav__link">
+  <a href="#the-controllerclassname-parameter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        controllerClassName parameter
+        The controllerClassName parameter
       
     </span>
   </a>
@@ -2703,10 +2703,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#annotations-parameter" class="md-nav__link">
+  <a href="#the-annotations-parameter" class="md-nav__link">
     <span class="md-ellipsis">
       
-        annotations parameter
+        The annotations parameter
       
     </span>
   </a>
@@ -2757,7 +2757,7 @@
       <a href="../../.." class="md-path__link">
         
   <span class="md-ellipsis">
-    Home
+    Welcome to Pelagia
   </span>
 
       </a>
@@ -2817,19 +2817,11 @@
 
 <p><a id="rgw-tls"></a></p>
 <h1 id="configure-ceph-object-gateway-tls">Configure Ceph Object Gateway TLS<a class="headerlink" href="#configure-ceph-object-gateway-tls" title="Permanent link">#</a></h1>
-<p>Once you enable Ceph Object Gateway (<code>radosgw</code>) as described in
-<a href="https://mirantis.github.io/pelagia/ceph-ops/deployment/rgw">Enable Ceph RGW Object Storage</a>, you can configure
-the Transport Layer Security (TLS) protocol for a Ceph Object Gateway public endpoint using custom <code>ingressConfig</code>
-specified in the <code>CephDeployment</code> custom resource (CR). In this case, Ceph Object Gateway public endpoint will use
-the public domain specified using the <code>ingressConfig</code> parameters.</p>
+<p>Once you enable Ceph Object Gateway (<code>radosgw</code>) as described in <a href="../rgw/#enable-rgw-mira">Enable Ceph RGW Object Storage</a>, you can configure the Transport Layer Security (TLS) protocol for a Ceph Object Gateway public endpoint using custom <code>ingressConfig</code> specified in the <code>CephDeployment</code> custom resource (CR). In this case, Ceph Object Gateway public endpoint will use the public domain specified using the <code>ingressConfig</code> parameters.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For clusters integrated with <a href="https://github.com/Mirantis/rockoon">Rockoon</a>, Pelagia has an ability to use domain
-and certificates, defined in Rockoon configuration. Pelagia prioritize <code>ingressConfig</code> data over Rockoon ingress
-data but if <code>ingressConfig</code> section is not configured, Pelagia will use Rockoon domain and certificates. Mirantis
-recommends not defining <code>ingressConfig</code> section, if Rockoon has <code>tls-proxy</code> enabled. In that case, common
-certificates are applied to all ingresses from the <code>OpenStackDeployment</code> object. This implies that Pelagia will use
-the public domain and the common certificate from the <code>OpenStackDeployment</code> object.</p>
+<p>For clusters integrated with Rockoon, Pelagia has an ability to use domain and certificates, defined in Rockoon configuration. Pelagia prioritize <code>ingressConfig</code> data over Rockoon ingress data but if <code>ingressConfig</code> section is not configured, Pelagia will use Rockoon domain and certificates.
+Mirantis recommends not defining <code>ingressConfig</code> section, if Rockoon has <code>tls-proxy</code> enabled. In that case, common certificates are applied to all ingresses from the <code>OpenStackDeployment</code> object. This implies that Pelagia will use the public domain and the common certificate from the <code>OpenStackDeployment</code> object.</p>
 </div>
 <p>This section describes how to specify a custom public endpoint for the Ceph Object Storage.</p>
 <h2 id="ingress-config-parameters">Ingress config parameters <a name="ingress"></a><a class="headerlink" href="#ingress-config-parameters" title="Permanent link">#</a></h2>
@@ -2838,7 +2830,7 @@ the public domain and the common certificate from the <code>OpenStackDeployment<
 <li><code>controllerClassName</code> - Name of Ingress Controller class. The default value for Pelagia integrated Rockoon is <code>openstack-ingress-nginx</code></li>
 <li><code>annotations</code> - Extra annotations for the ingress proxy.</li>
 </ul>
-<h3 id="tlsconfig-section-parameters"><code>tlsConfig</code> section parameters<a class="headerlink" href="#tlsconfig-section-parameters" title="Permanent link">#</a></h3>
+<h3 id="the-tlsconfig-section-parameters">The <code>tlsConfig</code> section parameters<a class="headerlink" href="#the-tlsconfig-section-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li>
 <p><code>tlsSecretRefName</code> - Secret name with TLS certs in Rook Ceph namespace, for example, <code>rook-ceph</code>.
@@ -2885,13 +2877,13 @@ public domain as your OpenStack endpoints.</p>
   <code>https://&lt;hostname&gt;.&lt;publicDomain&gt;</code> format.</p>
 </li>
 </ul>
-<h3 id="controllerclassname-parameter"><code>controllerClassName</code> parameter<a class="headerlink" href="#controllerclassname-parameter" title="Permanent link">#</a></h3>
+<h3 id="the-controllerclassname-parameter">The <code>controllerClassName</code> parameter<a class="headerlink" href="#the-controllerclassname-parameter" title="Permanent link">#</a></h3>
 <p><code>controllClassName</code> defines the name of the custom Ingress Controller. Pelagia does not support deploying Ingress
 Controllers, so you must deploy the Ingress Controller before configuring the <code>ingressConfig</code> section in the
 <code>CephDeployment</code> CR.</p>
 <p>For Pelagia integrated with Rockoon, the default Ingress Controller has <code>openstack-ingress-nginx</code> class name and Ceph
 uses the Rockoon OpenStack Ingress Controller based on NGINX.</p>
-<h3 id="annotations-parameter"><code>annotations</code> parameter<a class="headerlink" href="#annotations-parameter" title="Permanent link">#</a></h3>
+<h3 id="the-annotations-parameter">The <code>annotations</code> parameter<a class="headerlink" href="#the-annotations-parameter" title="Permanent link">#</a></h3>
 <p><code>annotations</code> parameter defines extra annotations for the ingress proxy that are a key-value mapping of strings
 to add or override ingress rule annotations. For details, see
 <a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/">NGINX Ingress Controller: Annotations</a>.</p>
@@ -2940,7 +2932,7 @@ override the default <code>rgw dns name</code> with the corresponding ingress an
 <h2 id="to-configure-ceph-object-gateway-tls">To configure Ceph Object Gateway TLS<a class="headerlink" href="#to-configure-ceph-object-gateway-tls" title="Permanent link">#</a></h2>
 <p>To generate an SSL certificate for internal usage, verify that the
 RADOS Gateway <code>spec.objectStorage.rgw.gateway.securePort</code> parameter is specified in the <code>CephDeployment</code> CR.
-For details, see <a href="https://mirantis.github.io/pelagia/ceph-ops/deployment/rgw">Enable Ceph RGW Object Storage</a>.</p>
+For details, see <a href="../rgw/#enable-rgw-mira">Enable Ceph RGW Object Storage</a>.</p>
 <p>Configure TLS for Ceph Object Gateway using a custom <code>ingressConfig</code>:</p>
 <ol>
 <li>Open the <code>CephDeployment</code> CR for editing:
@@ -3075,6 +3067,12 @@ plugin.</p>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
       </main>
       
         <footer class="md-footer">
@@ -3148,7 +3146,7 @@ plugin.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>

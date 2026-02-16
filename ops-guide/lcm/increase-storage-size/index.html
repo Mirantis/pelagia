@@ -267,7 +267,7 @@
   <span class="md-ellipsis">
     
   
-    Home
+    Welcome to Pelagia
   
 
     
@@ -341,7 +341,7 @@
   <span class="md-ellipsis">
     
   
-    Pelagia Overview
+    Pelagia overview
   
 
     
@@ -369,7 +369,7 @@
   <span class="md-ellipsis">
     
   
-    Pelagia Limitations
+    Pelagia limitations
   
 
     
@@ -464,7 +464,7 @@
   <span class="md-ellipsis">
     
   
-    Custom Resources
+    Custom resources
   
 
     
@@ -480,7 +480,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Custom Resources
+    Custom resources
   
 
           </label>
@@ -841,7 +841,7 @@
   <span class="md-ellipsis">
     
   
-    Ceph Default Config Options
+    Ceph default configuration options
   
 
     
@@ -1076,7 +1076,7 @@
   <span class="md-ellipsis">
     
   
-    Rockoon Integration
+    Rockoon integration
   
 
     
@@ -1092,7 +1092,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Rockoon Integration
+    Rockoon integration
   
 
           </label>
@@ -2090,24 +2090,6 @@
         
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Increase Ceph Cluster storage size
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -2124,36 +2106,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#increase-the-overall-storage-size-for-a-device-class" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Increase the overall storage size for a device class
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -2612,25 +2564,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#increase-the-overall-storage-size-for-a-device-class" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Increase the overall storage size for a device class
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -2657,7 +2590,7 @@
       <a href="../../.." class="md-path__link">
         
   <span class="md-ellipsis">
-    Home
+    Welcome to Pelagia
   </span>
 
       </a>
@@ -2730,7 +2663,7 @@ pools of the same device class: <code>hdd</code>, <code>ssd</code>, or <code>nvm
 The procedure presupposes adding a new Ceph OSD. The overall storage size for
 the required device class automatically increases once the Ceph OSD becomes
 available in the Ceph cluster.</p>
-<h2 id="increase-the-overall-storage-size-for-a-device-class">Increase the overall storage size for a device class<a class="headerlink" href="#increase-the-overall-storage-size-for-a-device-class" title="Permanent link">#</a></h2>
+<p><strong>To increase the overall storage size for a device class:</strong></p>
 <ol>
 <li>
 <p>Identify the current storage size for the required device class:
@@ -2764,8 +2697,7 @@ MIN/MAX<span class="w"> </span>VAR:<span class="w"> </span><span class="m">0</sp
 </code></pre></div></p>
 </li>
 <li>
-<p>Follow <a href="https://mirantis.github.io/pelagia/lcm/add-rm-ceph-osd#ceph-osd-add">Lifecycle management: Add a Ceph OSD</a>
-   to add a new device with a supported device class: <code>hdd</code>, <code>ssd</code>, or <code>nvme</code>.</p>
+<p>Follow <a href="../add-rm-ceph-osd/#ceph-osd-add">Add a Ceph OSD</a> to add a new device with a supported device class: <code>hdd</code>, <code>ssd</code>, or <code>nvme</code>.</p>
 </li>
 <li>
 <p>Wait for the new Ceph OSD pod to start <code>Running</code>:
@@ -2829,6 +2761,12 @@ kubernetes-hdd<span class="w">          </span><span class="m">2</span><span cla
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
@@ -2903,7 +2841,7 @@ kubernetes-hdd<span class="w">          </span><span class="m">2</span><span cla
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>

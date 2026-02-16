@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#installation-guide" class="md-skip">
+        <a href="#install-pelagia" class="md-skip">
           Skip to content
         </a>
       
@@ -267,7 +267,7 @@
   <span class="md-ellipsis">
     
   
-    Home
+    Welcome to Pelagia
   
 
     
@@ -341,7 +341,7 @@
   <span class="md-ellipsis">
     
   
-    Pelagia Overview
+    Pelagia overview
   
 
     
@@ -369,7 +369,7 @@
   <span class="md-ellipsis">
     
   
-    Pelagia Limitations
+    Pelagia limitations
   
 
     
@@ -464,7 +464,7 @@
   <span class="md-ellipsis">
     
   
-    Custom Resources
+    Custom resources
   
 
     
@@ -480,7 +480,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Custom Resources
+    Custom resources
   
 
           </label>
@@ -761,17 +761,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        See also
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -932,7 +921,7 @@
   <span class="md-ellipsis">
     
   
-    Ceph Default Config Options
+    Ceph default configuration options
   
 
     
@@ -1167,7 +1156,7 @@
   <span class="md-ellipsis">
     
   
-    Rockoon Integration
+    Rockoon integration
   
 
     
@@ -1183,7 +1172,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Rockoon Integration
+    Rockoon integration
   
 
           </label>
@@ -2682,17 +2671,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#see-also" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        See also
-      
-    </span>
-  </a>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2721,7 +2699,7 @@
       <a href="../.." class="md-path__link">
         
   <span class="md-ellipsis">
-    Home
+    Welcome to Pelagia
   </span>
 
       </a>
@@ -2762,22 +2740,19 @@
 
 
 <p><a id="installation-guide"></a></p>
-<h1 id="installation-guide">Installation guide<a class="headerlink" href="#installation-guide" title="Permanent link">#</a></h1>
-<p>This section provides instructions on how to install Pelagia that will deploy a
-Ceph cluster managed by <a href="https://github.com/rook/rook">Rook</a> on a Kubernetes cluster, for example, deployed with <a href="https://docs.k0sproject.io/stable/">k0s</a>.</p>
+<h1 id="install-pelagia">Install Pelagia<a class="headerlink" href="#install-pelagia" title="Permanent link">#</a></h1>
+<p>This section provides instructions on how to install Pelagia that will deploy a Ceph cluster managed by Rook on a Kubernetes cluster, for example, deployed with <a href="https://docs.k0sproject.io/stable/">k0s</a>.</p>
 <h2 id="requirements-and-prerequisites">Requirements and prerequisites<a class="headerlink" href="#requirements-and-prerequisites" title="Permanent link">#</a></h2>
 <ul>
-<li>A Kubernetes cluster, for example, deployed with <a href="https://docs.k0sproject.io/stable/">k0s</a>.</li>
-<li>Enough resources for a Rook installation. For details, see
-  <a href="https://rook.github.io/docs/rook/latest-release/Getting-Started/Prerequisites/prerequisites/">Rook prerequisites</a>.</li>
-<li>Enough nodes in the cluster to run Ceph control and data daemons. Nodes must have at least
-  4 GB of RAM for each Ceph daemon (monitors, managers, metadata servers, osd, rgw).
-  The minimum recommended requirements are 6 nodes: 3 nodes for control daemons
-  (Ceph Managers and Ceph Monitors) and 3 nodes for data daemons (Ceph OSDs). For details about
-  hardware recommendations, see
-  <a href="https://docs.ceph.com/en/latest/start/hardware-recommendations/">Ceph documentation: Hardware recommendations</a>.</li>
-<li>At least one disk per data node to be used as Ceph OSD. Miminal disk size is <code>5G</code> but Mirantis recommends
-  using disks with at least <code>100G</code> size.</li>
+<li>A Kubernetes cluster, for example, deployed with k0s.</li>
+<li>Enough resources for a Rook installation as described in <a href="https://rook.github.io/docs/rook/latest-release/Getting-Started/Prerequisites/prerequisites/">Rook documentation: Prerequisites</a>.</li>
+<li>
+<p>Enough nodes in the cluster to run Ceph control and data daemons. Nodes must have at least 4 GB of RAM for each Ceph daemon (monitors, managers, metadata servers, osd, rgw). The minimum recommended requirements are 6 nodes: 3 nodes for control daemons (Ceph Managers and Ceph Monitors) and 3 nodes for data daemons (Ceph OSDs).
+For details about hardware recommendations, see <a href="https://docs.ceph.com/en/latest/start/hardware-recommendations/">Ceph documentation: Hardware recommendations</a>.</p>
+</li>
+<li>
+<p>At least one disk per data node to be used as Ceph OSD. Miminal disk size is <code>5G</code> but Mirantis recommends using disks with at least <code>100G</code> size.</p>
+</li>
 </ul>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">#</a></h2>
 <p>To install Pelagia, use the Helm chart provided in the repository:</p>
@@ -2804,9 +2779,7 @@ pelagia-lcm-controller-6f858b6c5-whq7x<span class="w">           </span><span cl
 NAME<span class="w">                                  </span>READY<span class="w">   </span>STATUS<span class="w">    </span>RESTARTS<span class="w">   </span>AGE
 rook-ceph-operator-8495877b67-m7lf5<span class="w">   </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>4m13s
 </code></pre></div></p>
-<p>Currently, Pelagia Deployment Controller does not support integration with the existing Rook Ceph cluster, only Pelagia
-Lifecycle Management Controller does. To install Pelagia in LCM-only mode, please refer to
-<a href="https://mirantis.github.io/pelagia/quick-start/lcm-installation">LCM-only Installation Guide</a>.</p>
+<p>Currently, Pelagia Deployment Controller does not support integration with the existing Rook Ceph cluster, only Pelagia Lifecycle Management Controller does. To install Pelagia in the LCM-only mode, please refer to <a href="../lcm-installation/#lcmonly-installation-guide">LCM-only installation guide</a>.</p>
 <h2 id="post-installation">Post-installation<a class="headerlink" href="#post-installation" title="Permanent link">#</a></h2>
 <p>After the installation, you can deploy a Ceph cluster using the Pelagia <code>CephDeployment</code> custom resource.
 It will create Rook resources for Rook Operator to deploy a Ceph cluster. After Rook Operator deploys
@@ -2942,13 +2915,6 @@ cephfs-store-cephfs-pool-1<span class="w">   </span>rook-ceph.cephfs.csi.ceph.co
 kubernetes-hdd<span class="w"> </span><span class="o">(</span>default<span class="o">)</span><span class="w">     </span>rook-ceph.rbd.csi.ceph.com<span class="w">      </span>Delete<span class="w">          </span>Immediate<span class="w">           </span><span class="nb">false</span><span class="w">                  </span>62m
 rgw-storage-class<span class="w">            </span>rook-ceph.ceph.rook.io/bucket<span class="w">   </span>Delete<span class="w">          </span>Immediate<span class="w">           </span><span class="nb">false</span><span class="w">                  </span>65m
 </code></pre></div></p>
-<h2 id="see-also">See also<a class="headerlink" href="#see-also" title="Permanent link">#</a></h2>
-<p>For the Pelagia architecture and overview,
-refer to the <a href="https://mirantis.github.io/pelagia/ref-arch/architecture">Architecture Guide</a>.</p>
-<p>For the detailed Ceph cluster configuration and day-2 operations,
-refer to the <a href="https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment">Architecture: CephDeployment</a>.</p>
-<p>For the Ceph OSD automated lifecycle management, refer to
-<a href="https://mirantis.github.io/pelagia/ops-guide/lcm/create-task-workflow">Ops Guide: Automated Lifecycle Management</a>.</p>
 
 
 
@@ -2968,6 +2934,12 @@ refer to the <a href="https://mirantis.github.io/pelagia/architecture/custom-res
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
@@ -3042,7 +3014,7 @@ refer to the <a href="https://mirantis.github.io/pelagia/architecture/custom-res
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>

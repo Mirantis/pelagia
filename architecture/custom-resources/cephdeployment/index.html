@@ -267,7 +267,7 @@
   <span class="md-ellipsis">
     
   
-    Home
+    Welcome to Pelagia
   
 
     
@@ -343,7 +343,7 @@
   <span class="md-ellipsis">
     
   
-    Pelagia Overview
+    Pelagia overview
   
 
     
@@ -371,7 +371,7 @@
   <span class="md-ellipsis">
     
   
-    Pelagia Limitations
+    Pelagia limitations
   
 
     
@@ -468,7 +468,7 @@
   <span class="md-ellipsis">
     
   
-    Custom Resources
+    Custom resources
   
 
     
@@ -484,7 +484,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Custom Resources
+    Custom resources
   
 
           </label>
@@ -1072,7 +1072,7 @@
   <span class="md-ellipsis">
     
   
-    Ceph Default Config Options
+    Ceph default configuration options
   
 
     
@@ -1307,7 +1307,7 @@
   <span class="md-ellipsis">
     
   
-    Rockoon Integration
+    Rockoon integration
   
 
     
@@ -1323,7 +1323,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Rockoon Integration
+    Rockoon integration
   
 
           </label>
@@ -2999,7 +2999,7 @@
       <a href="../../.." class="md-path__link">
         
   <span class="md-ellipsis">
-    Home
+    Welcome to Pelagia
   </span>
 
       </a>
@@ -3035,7 +3035,7 @@
         <a href="./" class="md-path__link">
           
   <span class="md-ellipsis">
-    Custom Resources
+    Custom resources
   </span>
 
         </a>
@@ -3240,8 +3240,9 @@ multiple IP networks. For details, see <a href="../../../ops-guide/deployment/mu
 <span class="w">  </span><span class="nt">network</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">clusterNet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.10.0.0/24</span>
 <span class="w">    </span><span class="nt">publicNet</span><span class="p">:</span><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">192.100.0.0/24</span>
-</code></pre></div></p>
-<h3 id="nodes-parameters">Nodes parameters <a name="cephdpl-nodes"></a><a class="headerlink" href="#nodes-parameters" title="Permanent link">#</a></h3>
+</code></pre></div>
+<a name="cephdpl-nodes"></a></p>
+<h3 id="nodes-parameters">Nodes parameters<a class="headerlink" href="#nodes-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li>
 <p><code>name</code> - Mandatory. Specifies the following:</p>
@@ -3573,7 +3574,8 @@ the <code>rack</code> topology instead. The <code>osd</code> failure domain is p
 permission on the mount point of persistent volumes based on any
 <code>StorageClass</code> of the Ceph pool.</p>
 </div>
-<h3 id="clients-parameters">Clients parameters <a name="clients"></a><a class="headerlink" href="#clients-parameters" title="Permanent link">#</a></h3>
+<p><a name="clients"></a></p>
+<h3 id="clients-parameters">Clients parameters<a class="headerlink" href="#clients-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li><code>name</code> - Mandatory. Ceph client name.</li>
 <li><code>caps</code> - Mandatory. Key-value parameter with Ceph client capabilities. For details about
@@ -3589,7 +3591,8 @@ permission on the mount point of persistent volumes based on any
 <span class="w">      </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile rbd pool=kubernetes-nvme</span>
 </code></pre></div>
 </details>
-<h3 id="rados-gateway-parameters">RADOS Gateway parameters <a name="rgw"></a><a class="headerlink" href="#rados-gateway-parameters" title="Permanent link">#</a></h3>
+<p><a name="rgw"></a></p>
+<h3 id="rados-gateway-parameters">RADOS Gateway parameters<a class="headerlink" href="#rados-gateway-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li><code>name</code> - Required. Ceph Object Storage instance name.</li>
 <li>
@@ -3764,7 +3767,7 @@ health warning that blocks Ceph OSD removal. We recommend setting
 <p><code>zone</code> - Required if <code>dataPool</code> and <code>metadataPool</code> are not specified. Mutually exclusive with these parameters.</p>
 <p>Defines the Ceph Multisite zone where the object storage must be placed.
 Includes the <code>name</code> parameter that must be set to one of the <code>zones</code>
-items. For details, see the <a href="https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-multisite">Ops Guide: Enable Multisite for Ceph Object Storage</a>.</p>
+items:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">multisite</span><span class="p">:</span>
@@ -3884,8 +3887,8 @@ items. For details, see the <a href="https://mirantis.github.io/pelagia/ops-guid
 <p><code>zones</code> - Required. The list of zones used within one zone group. Includes the following parameters:</p>
 <ul>
 <li><code>name</code> - required, the zone name.</li>
-<li><code>metadataPool</code> - required, the settings used to create the Object Storage metadata pools. Must use replication. For details, see description of <a href="https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment/#pools">Pool parameters</a>.</li>
-<li><code>dataPool</code> - required, the settings used to create the Object Storage data pool. Can use replication or erasure coding. For details, see <a href="https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment/#pools">Pool parameters</a>.</li>
+<li><code>metadataPool</code> - required, the settings used to create the Object Storage metadata pools. Must use replication. For details, see description of the Pool parameters.</li>
+<li><code>dataPool</code> - required, the settings used to create the Object Storage data pool. Can use replication or erasure coding. For details, see the Pool parameters.</li>
 <li><code>zoneGroupName</code> - required, the zone group name.</li>
 <li><code>endpointsForZone</code> - optional. The list of all endpoints in the zone group.
   If you use ingress proxy for RGW, the list of endpoints must contain that FQDN/IP address to access RGW.
@@ -4228,7 +4231,8 @@ pod.</p>
 </ul>
 </li>
 </ul>
-<h2 id="status-fields">Status fields <a name="status"></a><a class="headerlink" href="#status-fields" title="Permanent link">#</a></h2>
+<p><a name="status"></a></p>
+<h2 id="status-fields">Status fields<a class="headerlink" href="#status-fields" title="Permanent link">#</a></h2>
 <ul>
 <li><code>phase</code> - Current handling phase of the applied Ceph cluster spec. Can equal to <code>Creating</code>, <code>Deploying</code>, <code>Validation</code>, <code>Ready</code>, <code>Deleting</code>, <code>OnHold</code> or <code>Failed</code>.</li>
 <li><code>message</code> - Detailed description of the current phase or an error message if the phase is <code>Failed</code>.</li>
@@ -4267,6 +4271,12 @@ pod.</p>
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
@@ -4341,7 +4351,7 @@ pod.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>

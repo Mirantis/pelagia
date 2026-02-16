@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#upgrade-pelagia-guide" class="md-skip">
+        <a href="#upgrade-pelagia" class="md-skip">
           Skip to content
         </a>
       
@@ -267,7 +267,7 @@
   <span class="md-ellipsis">
     
   
-    Home
+    Welcome to Pelagia
   
 
     
@@ -341,7 +341,7 @@
   <span class="md-ellipsis">
     
   
-    Pelagia Overview
+    Pelagia overview
   
 
     
@@ -369,7 +369,7 @@
   <span class="md-ellipsis">
     
   
-    Pelagia Limitations
+    Pelagia limitations
   
 
     
@@ -464,7 +464,7 @@
   <span class="md-ellipsis">
     
   
-    Custom Resources
+    Custom resources
   
 
     
@@ -480,7 +480,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Custom Resources
+    Custom resources
   
 
           </label>
@@ -734,24 +734,6 @@
         
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Upgrade Pelagia
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -768,36 +750,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#upgrade-chart" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Upgrade chart
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -899,7 +851,7 @@
   <span class="md-ellipsis">
     
   
-    Ceph Default Config Options
+    Ceph default configuration options
   
 
     
@@ -1134,7 +1086,7 @@
   <span class="md-ellipsis">
     
   
-    Rockoon Integration
+    Rockoon integration
   
 
     
@@ -1150,7 +1102,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Rockoon Integration
+    Rockoon integration
   
 
           </label>
@@ -2610,25 +2562,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#upgrade-chart" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Upgrade chart
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -2655,7 +2588,7 @@
       <a href="../.." class="md-path__link">
         
   <span class="md-ellipsis">
-    Home
+    Welcome to Pelagia
   </span>
 
       </a>
@@ -2695,17 +2628,23 @@
   
 
 
-<h1 id="upgrade-pelagia-guide">Upgrade Pelagia Guide<a class="headerlink" href="#upgrade-pelagia-guide" title="Permanent link">#</a></h1>
+<h1 id="upgrade-pelagia">Upgrade Pelagia<a class="headerlink" href="#upgrade-pelagia" title="Permanent link">#</a></h1>
 <p>This section provides instructions on how to upgrade Pelagia on an existing Kubernetes cluster.</p>
-<h2 id="upgrade-chart">Upgrade chart<a class="headerlink" href="#upgrade-chart" title="Permanent link">#</a></h2>
 <p>To upgrade Pelagia, use a new Helm chart version provided in the repository:</p>
-<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span>&lt;new-version&gt;<span class="w"> </span>-n<span class="w"> </span>pelagia
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--version<span class="w"> </span>&lt;target-version&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-n<span class="w"> </span>pelagia
 </code></pre></div>
 <p>This command upgrades Pelagia controllers in the <code>pelagia</code> namespace.</p>
 <p>Besides its own controllers, Pelagia can deliver updated Rook and Ceph manifests along with images. If <code>cephRelease</code> is not
 pinned in Pelagia values, Pelagia will automatically update a Ceph version if a new version is available.</p>
 <p>To pin the Ceph version, specify it in the <code>cephRelease</code> field of the Pelagia values file. For example:</p>
-<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span>&lt;new-version&gt;<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>--set<span class="w"> </span><span class="nv">cephRelease</span><span class="o">=</span>squid
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--version<span class="w"> </span>&lt;target-version&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--set<span class="w"> </span><span class="nv">cephRelease</span><span class="o">=</span>squid
 </code></pre></div>
 <p>However, Mirantis does not recommend pinning the Ceph version to ensure you obtain important updates and bug fixes.</p>
 
@@ -2727,6 +2666,12 @@ pinned in Pelagia values, Pelagia will automatically update a Ceph version if a 
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
@@ -2801,7 +2746,7 @@ pinned in Pelagia values, Pelagia will automatically update a Ceph version if a 
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
