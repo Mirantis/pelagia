@@ -59,9 +59,11 @@ func (c *ManagedConfig) WaitForCephDeploymentHealthReady(clusterName string) err
 			TF.Log.Error().Err(err).Msg("")
 			return false, nil
 		}
-		if *cephHealth.Status.HealthReport.OsdAnalysis.CephClusterSpecGeneration != cephCluster.GetGeneration() {
-			TF.Log.Error().Msgf("CephDeploymentHealth %s/%s is not validated last CephCluster version (%d)", cephHealth.Namespace, cephHealth.Name, cephCluster.GetGeneration())
-			return false, nil
+		if !cephCluster.Spec.External.Enable {
+			if *cephHealth.Status.HealthReport.OsdAnalysis.CephClusterSpecGeneration != cephCluster.GetGeneration() {
+				TF.Log.Error().Msgf("CephDeploymentHealth %s/%s is not validated last CephCluster version (%d)", cephHealth.Namespace, cephHealth.Name, cephCluster.GetGeneration())
+				return false, nil
+			}
 		}
 		return true, nil
 	})
