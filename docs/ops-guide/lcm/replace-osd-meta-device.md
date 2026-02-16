@@ -6,10 +6,7 @@ automatically creates a required metadata logical volume on a desired device.
 
 ## Remove a Ceph OSD with a metadata device as a disk name
 
-To remove the affected Ceph OSD with a metadata device as a device name,
-follow the
-[Remove a failed Ceph OSD by ID with a defined metadata device](https://mirantis.github.io/pelagia/ops-guide/lcm/replace-osd-meta-lcm#replace-osd-meta-by-id)
-procedure and capture the following details:
+To remove the affected Ceph OSD with a metadata device as a device name, follow the [Remove a failed Ceph OSD by ID with a defined metadata device](../../ops-guide/lcm/replace-osd-meta-lvm.md#replace-osd-meta-by-id) procedure and capture the following details:
 
 - While editing `CephDeployment` custom resource (CR) in the `nodes` section, capture the
   `metadataDevice` path to reuse it during re-creation of the Ceph OSD.
@@ -61,7 +58,8 @@ procedure and capture the following details:
       - `osd-db-ecf64b20-1e07-42ac-a8ee-32ba3c0b7e2f` - name of the logical
         volume that relates to a failed Ceph OSD.
 
-## Re-create the partition on the existing metadata disk <a name="recreate-meta-lvm"></a>
+<a name="recreate-meta-lvm"></a>
+## Re-create the partition on the existing metadata disk
 
 After you remove the Ceph OSD disk, manually create a separate logical volume
 for the metadata partition in an existing volume group on the metadata device:

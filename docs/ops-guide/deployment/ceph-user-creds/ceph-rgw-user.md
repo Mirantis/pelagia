@@ -7,7 +7,7 @@ users. This section describes how to create, access, and remove Ceph Object
 Storage users.
 
 For all supported parameters of Ceph Object Storage users, refer to
-[CephDeployment: Ceph Object Storage parameters](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment#rgw).
+[RADOS Gateway parameters](../../../architecture/custom-resources/cephdeployment.md#rgw).
 
 ## Create a Ceph Object Storage user
 

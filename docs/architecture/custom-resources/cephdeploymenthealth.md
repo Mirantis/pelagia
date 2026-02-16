@@ -1,3 +1,4 @@
+<a id="cephdeploymenthealth-custom-resource"></a>
 # CephDeploymentHealth custom resource
 
 Verifying Ceph cluster state is **an entry point for issues investigation**.
