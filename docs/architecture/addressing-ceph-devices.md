@@ -36,13 +36,6 @@ In the example above, symlinks contain the following IDs:
   `HGST_HUS724040AL_PN1334PEHN18ZS` and
   `WDC_WD4003FZEX-00Z4SA0_WD-WMC5D0D9DMEH`.
 
-An exception to this rule is the `wwn` `by-id` symlinks, which are
-programmatically generated at boot. They are not solely based on disk
-serial numbers but also include other node information. This can lead
-to the `wwn` being recalculated when the node reboots. As a result,
-this symlink type cannot guarantee a persistent disk identifier and should
-not be used as a stable storage device symlink in a Ceph cluster.
-
 Below is an example `CephDeployment` custom resource using the `/dev/disk/by-id`
 format for storage devices specification:
 

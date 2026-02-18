@@ -51,11 +51,6 @@ OSDs with a separate metadata device.
          fullPath: /dev/disk/by-id/scsi-0ATA_HGST_HUS724040AL_PN1334PEHN1VBC
      ```
 
-    !!! warning
-
-        We highly recommend using the non-wwn `by-id` symlinks to specify storage devices in the `devices` list.
-        For details, see [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-storage-devices).
-
 5. Verify that the Ceph OSD is successfully deployed on the specified node. The `CephDeploymentHealth` CR
    `status.healthReport.cephDaemons.cephDaemons` section should not contain any issues:
    ```bash
