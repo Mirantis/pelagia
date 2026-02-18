@@ -154,7 +154,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
      nodes:
      - name: <nodeName> # add new configuration for replaced Ceph node
        devices:
-       - fullPath: <deviceByID> # Recommended. Non-wwn by-id symlink.
+       - fullPath: <deviceByID> # Recommended. Contains either disk serial number or wwn
          # name: <deviceByID> # Not recommended. If a device is supposed to be added with by-id.
          # fullPath: <deviceByPath> # if device is supposed to be added with by-path.
          config:
@@ -163,11 +163,6 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
    ```
 
      Substitute `<nodeName>` with the replaced node name and configure it as required.
-
-    !!! warning
-
-        We highly recommend using the non-wwn `by-id` symlinks to specify storage devices in the `devices` list.
-        For details, see [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-storage-devices).
 
 3. Verify that all Ceph daemons from the replaced node have appeared on the
    Ceph cluster and are `in` and `up`. The `healthReport` section of `CephDeploymentHealth` CR

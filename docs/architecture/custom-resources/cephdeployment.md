@@ -270,7 +270,7 @@ spec:
     - ``fullPath`` - a storage device symlink. Accepts the following values:
 
         - The device ``by-id`` symlink that contains the serial number of the
-          physical device and does not contain ``wwn``. For example,
+          physical device or contains ``wwn``. For example,
           ``/dev/disk/by-id/nvme-SAMSUNG_MZ1LB3T8HMLA-00007_S46FNY0R394543``.
 
         - The device ``by-path`` symlink. For example,
@@ -286,7 +286,7 @@ spec:
           specifying storage devices with device names because such identifiers
           are not persistent and can change at node boot.
         - The device ``by-id`` symlink that contains the serial number of the
-          physical device and does not contain ``wwn``. For example,
+          physical device or contains ``wwn``. For example,
           ``/dev/disk/by-id/nvme-SAMSUNG_MZ1LB3T8HMLA-00007_S46FNY0R394543``.
         - The device label from ``extraOpts.deviceLabels`` section which is
           generally used for templating Ceph node specification for node groups.
