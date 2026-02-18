@@ -8,7 +8,9 @@ linters:
       - common-false-positives
       - legacy
       - std-error-handling
-    rules: []
+    rules:
+    - linters: [staticcheck]
+      text: 'QF1012'
     #  - linters: [staticcheck]
     #    text: 'SA1019:' # deprecated methods required to be replaced
     paths:
