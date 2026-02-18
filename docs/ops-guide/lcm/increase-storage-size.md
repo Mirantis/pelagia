@@ -1,4 +1,4 @@
-<a id="increase-storage-size"></a>
+<a id="increase-storage-size-increase-ceph-cluster-storage-size"></a>
 
 # Increase Ceph cluster storage size
 
@@ -46,7 +46,7 @@ available in the Ceph cluster.
      MIN/MAX VAR: 0.85/1.15  STDDEV: 2.29
      ```
 
-3. Follow [Add a Ceph OSD](./add-rm-ceph-osd.md#ceph-osd-add) to add a new device with a supported device class: `hdd`, `ssd`, or `nvme`.
+3. Follow [Add a Ceph OSD](./add-rm-ceph-osd.md#add-rm-ceph-osd-add-a-ceph-osd) to add a new device with a supported device class: `hdd`, `ssd`, or `nvme`.
 
 4. Wait for the new Ceph OSD pod to start `Running`:
    ```bash

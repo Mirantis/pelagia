@@ -1,4 +1,4 @@
-<a id="lcmonly-installation-guide"></a>
+<a id="lcm-installation-install-pelagia-in-the-lcm-only-mode"></a>
 # Install Pelagia in the LCM-only mode
 
 This section provides instructions on how to install Pelagia in lifecycle-management-only (lcm-only) mode.

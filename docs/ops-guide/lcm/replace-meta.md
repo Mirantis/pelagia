@@ -1,4 +1,4 @@
-<a id="replace-meta"></a>
+<a id="replace-meta-replace-a-failed-metadata-device"></a>
 
 # Replace a failed metadata device
 
@@ -67,7 +67,7 @@ will be used as a new metadata device, and re-create all affected Ceph OSDs.
 4. In the `nodes` section, remove all `devices` items that relate
    to the failed metadata device. When using a metadata device with device filters, remove the whole node
    section, including the node `name: <nodeName>` field, and perform a complete node cleanup as described in
-   [Remove a Ceph node](./add-rm-ceph-node.md#ceph-node-remove).
+   [Remove a Ceph node](./add-rm-ceph-node.md#add-rm-ceph-node-remove-a-ceph-node).
 
      For example:
      ```yaml
@@ -223,7 +223,7 @@ will be used as a new metadata device, and re-create all affected Ceph OSDs.
 
 ## Prepare the replaced metadata device for Ceph OSD re-creation
 
-This section describes how to create a metadata disk partition on N logical volumes. To create one partition on a metadata disk, refer to [Re-create the partition on the existing metadata disk](./replace-osd-meta-device.md#recreate-meta-lvm).
+This section describes how to create a metadata disk partition on N logical volumes. To create one partition on a metadata disk, refer to [Re-create the partition on the existing metadata disk](./replace-osd-meta-device.md#replace-osd-meta-device-re-create-the-partition-on-the-existing-metadata-disk).
 
 1. Partition the replaced metadata device by N logical volumes (LVs), where N
    is the number of Ceph OSDs previously located on a failed metadata device.

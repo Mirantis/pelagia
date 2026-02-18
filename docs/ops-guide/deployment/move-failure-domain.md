@@ -1,4 +1,4 @@
-<a id="move-failure-domain-mira"></a>
+<a id="move-failure-domain-migrate-ceph-pools-from-one-failure-domain-to-another"></a>
 
 # Migrate Ceph pools from one failure domain to another
 
@@ -52,7 +52,7 @@ other types of failure domains, migrate pools separately, and so on.
 
 1. Set the required CRUSH topology in the `MiraCeph` object for each
    defined node. For details on the `crush` parameter, see
-   [Node parameters](../../architecture/custom-resources/cephdeployment.md#cephdpl-nodes).
+   [Node parameters](../../architecture/custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
 
      Setting the CRUSH topology to each node causes the Pelagia Deployment Controller to set proper Kubernetes
      labels on the nodes.

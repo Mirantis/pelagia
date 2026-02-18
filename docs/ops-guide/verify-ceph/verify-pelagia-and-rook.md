@@ -1,4 +1,4 @@
-<a id="verify-ceph-controller-rook"></a>
+<a id="verify-pelagia-and-rook-verify-pelagia-controllers-and-rook-ceph-operator"></a>
 
 # Verify Pelagia Controllers and Rook Ceph Operator
 

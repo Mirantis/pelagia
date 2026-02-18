@@ -1,4 +1,4 @@
-<a id="default-ceph-conf"></a>
+<a id="default-ceph-conf-ceph-default-configuration"></a>
 # Ceph default configuration
 
 Pelagia Deployment Controller provides the capability to specify configuration options for
@@ -80,4 +80,4 @@ If Pelagia is integrated with Rockoon and `objectStore.rgw` section is defined i
 
 !!! info "See also"
 
-    [CephDeployment custom resource](../../architecture/custom-resources/cephdeployment.md#cephdeployment-custom-resource)
+    [CephDeployment custom resource](../../architecture/custom-resources/cephdeployment.md#cephdeployment-cephdeployment-custom-resource)

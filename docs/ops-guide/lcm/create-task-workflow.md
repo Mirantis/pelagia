@@ -1,16 +1,16 @@
-<a id="create-osd-rm-request"></a>
+<a id="create-task-workflow-creating-a-ceph-osd-remove-task"></a>
 # Creating a Ceph OSD remove task
 
 The workflow of creating a Ceph OSD removal task includes the following steps:
 
-1. Removing obsolete nodes or disks from the `spec.nodes` section of the `CephDeployment` custom resource (CR) as described in [Nodes parameters](../../architecture/custom-resources/cephdeployment.md#cephdpl-nodes).
+1. Removing obsolete nodes or disks from the `spec.nodes` section of the `CephDeployment` custom resource (CR) as described in [Nodes parameters](../../architecture/custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
 
     !!! note
 
           Note the names of the removed nodes, devices or their paths exactly as they were specified
           in `CephDeployment` for further usage.
 
-2. Creating a YAML template for the `CephOsdRemoveTask` CR. For details, see [CephOsdRemoveTask custom resource](../../architecture/custom-resources/cephosdremovetask.md#cephosdremovetask-custom-resource).
+2. Creating a YAML template for the `CephOsdRemoveTask` CR. For details, see [CephOsdRemoveTask custom resource](../../architecture/custom-resources/cephosdremovetask.md#cephosdremovetask-cephosdremovetask-custom-resource).
 
      - If `CephOsdRemoveTask` contains information about Ceph OSDs to remove in a proper format,
        the information will be validated to eliminate human error and avoid a wrong Ceph OSD removal.
@@ -63,7 +63,7 @@ The workflow of creating a Ceph OSD removal task includes the following steps:
          If the task completes successfully, Rook Ceph Operator and Pelagia Deployment Controller reconciliation
          resumes. Otherwise, it remains paused until the issue is resolved.
 
-4. Reviewing the Ceph OSD removal status. For details, see [Status fields](../../architecture/custom-resources/cephosdremovetask.md#status-fields)
+4. Reviewing the Ceph OSD removal status. For details, see [Status fields](../../architecture/custom-resources/cephosdremovetask.md#cephosdremovetask-status-fields)
 
 5. Manual removal of device cleanup jobs.
 

@@ -1,8 +1,8 @@
-<a id="verify-ceph-resource-mgmt"></a>
+<a id="verify-resource-mgmt-verify-ceph-tolerations-and-resources"></a>
 # Verify Ceph tolerations and resources
 
 After you enable Ceph resources management as described in
-[Enable management of Ceph tolerations and resources](./enable-resource-mgmt.md#enable-resource-mgmt),
+[Enable management of Ceph tolerations and resources](./enable-resource-mgmt.md#enable-resource-mgmt-enable-management-of-ceph-tolerations-and-resources),
 perform the steps below to verify that the configured tolerations, requests, or limits have been successfully
 specified in the Ceph cluster.
 

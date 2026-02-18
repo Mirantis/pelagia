@@ -1,4 +1,4 @@
-<a id="bucket-policy-openstack"></a>
+<a id="bucket-policy-rockoon-set-a-bucket-policy-for-openstack-users"></a>
 
 # Set a bucket policy for OpenStack users
 
@@ -24,7 +24,7 @@ For illustration purposes, we use the following names in the procedure:
    ```
 
 2. Prepare the Ceph Object Storage similarly to the procedure described in
-   [Create Ceph Object Storage users](./s3-create-user.md#s3-create-user).
+   [Create Ceph Object Storage users](./s3-create-user.md#s3-create-user-create-ceph-object-storage-users).
 
 3. Create two OpenStack projects:
    ```bash
@@ -148,7 +148,7 @@ For illustration purposes, we use the following names in the procedure:
 
 9. Create bucket users and configure a bucket policy for the `project-t`
    OpenStack project similarly to the procedure described in
-   [Set a bucket policy for a Ceph Object Storage user](./bucket-policy-s3.md#set-bucket-policy-for-ceph-object-storage-user).
+   [Set a bucket policy for a Ceph Object Storage user](./bucket-policy-s3.md#bucket-policy-s3-set-a-bucket-policy-for-a-ceph-object-storage-user).
    Ceph integration does not allow providing permissions for OpenStack users
    directly. Therefore, you need to set permissions for the project that
    corresponds to the user:

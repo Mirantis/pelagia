@@ -1,4 +1,4 @@
-<a id="cephdeploymenthealth-custom-resource"></a>
+<a id="cephdeploymenthealth-cephdeploymenthealth-custom-resource"></a>
 # CephDeploymentHealth custom resource
 
 Verifying Ceph cluster state is **an entry point for issues investigation**.
@@ -240,7 +240,8 @@ kubectl -n pelagia get cephdeploymenthealth -o yaml
       resourceVersion: ""
     ```
 
-## High-level status fields <a name="general"></a>
+<a name="cephdeploymenthealth-high-level-status-fields"></a>
+## High-level status fields
 
 - `healthReport` - Complete information about Ceph cluster including cluster, Ceph resources, and daemon health. It helps reveal potentially problematic components.
 - `lastHealthCheck` - `DateTime` when previous cluster state check occurred.
@@ -249,7 +250,8 @@ kubectl -n pelagia get cephdeploymenthealth -o yaml
 - `state` - Cluster state that can be `Ok` or `Failed` depending on the Ceph cluster state check.
 
 
-## Health report status fields <a name="full"></a>
+<a name="cephdeploymenthealth-health-report-status-fields"></a>
+## Health report status fields
 
 - `rookOperator` - State of the Rook Ceph Operator pod which contains the following fields:
 

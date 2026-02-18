@@ -9,7 +9,7 @@ controllers have access to this namespace to read and write the Kubernetes
 
 To integrate Pelagia with Rockoon, all necessary Ceph pools must be specified
 in the configuration of the `CephDeployment` custom resource as part of the deployment.
-For the required pools, see [Integrate Pelagia with Rockoon](../ops-guide/rockoon/rockoon-integration.md#integrate-pelagia-with-rockoon).
+For the required pools, see [Integrate Pelagia with Rockoon](../ops-guide/rockoon/rockoon-integration.md#rockoon-integration-integrate-pelagia-with-rockoon).
 
 Once the Ceph cluster is deployed, Pelagia Deployment Controller posts the
 information required by Rockoon OpenStack services to be properly configured

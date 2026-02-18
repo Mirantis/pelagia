@@ -1,4 +1,4 @@
-<a id="verify-ceph-core"></a>
+<a id="verify-ceph-core-verify-the-ceph-core-services"></a>
 
 # Verify the Ceph core services
 

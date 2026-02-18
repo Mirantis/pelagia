@@ -1,4 +1,4 @@
-<a id="manual-osd-remove"></a>
+<a id="manual-osd-remove-remove-ceph-osd-manually"></a>
 
 # Remove Ceph OSD manually
 
