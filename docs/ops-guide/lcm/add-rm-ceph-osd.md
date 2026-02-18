@@ -78,7 +78,8 @@ OSDs.
    ```
 
 <a id="ceph-osd-remove"></a>
-## Remove a Ceph OSD <a name="ceph-osd-remove"></a>
+<a name="ceph-osd-remove"></a>
+## Remove a Ceph OSD
 
 Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-osd-rm-request).
 

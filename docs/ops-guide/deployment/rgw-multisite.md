@@ -8,11 +8,13 @@ Using multisite, such object storage is independent and isolated from another ob
 Only the multi-zone multisite setup is currently supported. For more details, see
 [Ceph documentation: Multisite](https://docs.ceph.com/en/latest/radosgw/multisite).
 
-## Multisite parameters <a name="parameters"></a>
+<a name="parameters"></a>
+## Multisite parameters
 
 {% include "../../snippets/multisiteParameters.md" %}
 
-## Enable the multisite RGW Object Storage <a name="enable"></a>
+<a name="enable"></a>
+## Enable the multisite RGW Object Storage
 
 1. Open the `CephDeployment` custom resource for editing:
    ```bash
@@ -78,7 +80,8 @@ Only the multi-zone multisite setup is currently supported. For more details, se
 Once done, Pelagia Deployment Controller will create the required resources and Rook will
 handle the multisite configuration. For details, see: [Rook documentation: Object Multisite](https://rook.io/docs/rook/latest/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/).
 
-### Configuring master zone for RGW Object Storage <a name="master-zone-multisite"></a>
+<a name="master-zone-multisite"></a>
+### Configuring master zone for RGW Object Storage
 
 If you do not need to replicate data from a different storage cluster,
 and the current cluster represents the master zone, modify the current
@@ -156,7 +159,8 @@ and the current cluster represents the master zone, modify the current
           name: openstack-store
     ```
 
-### Configuring replication zone for RGW Object Storage <a name="replication-zone-multisite"></a>
+<a name="replication-zone-multisite"></a>
+### Configuring replication zone for RGW Object Storage
 
 If you use a different storage cluster, and its object storage data must
 be replicated, specify the realm and zone group names along with the

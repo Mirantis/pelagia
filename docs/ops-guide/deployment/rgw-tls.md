@@ -11,7 +11,8 @@ Once you enable Ceph Object Gateway (`radosgw`) as described in [Enable Ceph RGW
 
 This section describes how to specify a custom public endpoint for the Ceph Object Storage.
 
-## Ingress config parameters <a name="ingress"></a>
+<a name="ingress"></a>
+## Ingress config parameters
 
 - `tlsConfig` - Defines TLS configuration for the Ceph Object Gateway public endpoint.
 - `controllerClassName` - Name of Ingress Controller class. The default value for Pelagia integrated Rockoon is `openstack-ingress-nginx`

@@ -11,7 +11,8 @@ follows:
 
 Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-osd-rm-request).
 
-## Remove a failed Ceph node <a name="replace-ceph-node-remove"></a>
+<a name="replace-ceph-node-remove"></a>
+## Remove a failed Ceph node
 
 1. Open the `CephDeployment` CR for editing:
    ```bash
@@ -134,7 +135,8 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
     kubectl delete jobs -n pelagia -l app=pelagia-lcm-cleanup-disks
     ```
 
-## Deploy a new Ceph node after removal of a failed one <a name="replace-ceph-node-add"></a>
+<a name="replace-ceph-node-add"></a>
+## Deploy a new Ceph node after removal of a failed one
 
 !!! note
 

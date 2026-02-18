@@ -4,13 +4,15 @@
 This section describes the `CephOsdRemoveTask` custom resource specification.
 For the procedure workflow, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-osd-rm-request).
 
-## Spec parameters <a name="spec"></a>
+<a name="spec"></a>
+## Spec parameters
 
 - `nodes` - Map of Kubernetes nodes that specifies how to remove Ceph OSDs: by host-devices or OSD IDs. For details, see [Nodes parameters](#nodes).
 - `approve` - Flag that indicates whether a request is ready to execute removal. Can only be manually enabled by the Operator. Defaults to `false`.
 - `resolved` - Optional. Flag that marks a finished request, even if it failed, to keep it in historydo not block any further operations.
 
-### Nodes parameters <a name="nodes"></a>
+<a name="nodes"></a>
+### Nodes parameters
 
 - `completeCleanUp` - Flag used to clean up an entire node and drop it from the CRUSH map.
   Mutually exclusive with `cleanupByDevice` and `cleanupByOsd`.
@@ -104,7 +106,8 @@ Here are the following **final** phases:
 - `CompletedWithWarnings` - The task is completed but some steps are skipped.
 - `Failed` - The task is failed on one of the steps.
 
-### Remove info fields <a name="remove-info"></a>
+<a name="remove-info"></a>
+### Remove info fields
 
 - `cleanupMap` - Map of desired nodes and devices to clean up. Based on this map, the cloud operator decides whether to approve the current task or not. After approve, it will contain all statuses and errors happened during cleanup.
 - `issues` - List of error messages found during validation or processing phases
@@ -156,7 +159,8 @@ Here are the following **final** phases:
 - `volumeInfoMissed` - Flag that indicates whether `disk-daemon` collected device info or not.
 - `hostRemoveStatus` - Node removal status if node is marked for complete cleanup.
 
-### Remove info examples <a name="remove-info-examples"></a>
+<a name="remove-info-examples"></a>
+### Remove info examples
 
 ??? "Example of `status.removeInfo` after successful `Validation`"
 

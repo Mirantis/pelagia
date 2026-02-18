@@ -7,7 +7,8 @@ instances and automatically manage its resources such as users and buckets.
 
 Pelagia has an integration for Ceph Object Storage with OpenStack Object Storage (`Swift`) provided by Rockoon.
 
-## Ceph RGW Object Storage parameters <a name="parameters"></a>
+<a name="parameters"></a>
+## Ceph RGW Object Storage parameters
 
 {% include "../../snippets/rgwParameters.md" %}
 

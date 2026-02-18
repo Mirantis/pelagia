@@ -13,7 +13,8 @@ nodes.
     names may not follow the alphabetical order. For example, `a`, `b`, `d`,
     instead of `a`, `b`, `c`.
 
-## Add a Ceph node <a name="ceph-node-add"></a>
+<a name="ceph-node-add"></a>
+## Add a Ceph node
 
 1. Prepare a new node for the cluster.
 2. Open the `CephDeployment` custom resource (CR) for editing:

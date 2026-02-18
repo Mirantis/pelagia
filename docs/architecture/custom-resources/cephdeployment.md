@@ -124,7 +124,8 @@ For the default `CephDeployment` CR, see the following example:
 The following subsections contain a description of `CephDeployment` parameters for an
 advanced configuration.
 
-### General parameters <a name="cephdpl-general"></a>
+<a name="cephdpl-general"></a>
+### General parameters
 
 - `network` - Specifies access and public networks for the Ceph cluster. For details, see [Network parameters](#cephdpl-network).
 - `nodes` - Specifies the list of Ceph nodes. For details, see [Node parameters](#cephdpl-nodes). The `nodes` parameter is a list with Ceph node specifications. List item could define Ceph node specification for a single node or a group of nodes listed or defined by label. It could be also combined.
@@ -141,7 +142,8 @@ advanced configuration.
 - `rbdMirror` - Specifies the parameters for RBD Mirroring. For details, see [RBD Mirroring parameters](#rbdmirror).
 - `external` - Enables external Ceph cluster mode. If enabled, Pelagia will read a special `Secret` with external Ceph cluster credentials data connect to.
 
-### Network parameters <a name="cephdpl-network"></a>
+<a name="cephdpl-network"></a>
+### Network parameters
 
 - `clusterNet` - specifies a Classless Inter-Domain Routing (CIDR)
   for the Ceph OSD replication network.
@@ -388,7 +390,8 @@ spec:
           zone: zone1
     ```
 
-### Pools parameters <a name="pools"></a>
+<a name="pools"></a>
+### Pools parameters
 
 - `name` - Mandatory. Specifies the pool name as a prefix for each Ceph block pool.
   The resulting Ceph block pool name will be `<name>-<deviceClass>`.
@@ -548,7 +551,8 @@ To configure additional required pools for Rockoon, see
           preservePoolsOnDelete: false
     ```
 
-### RADOS Gateway Multisite parameters <a name="multisite"></a>
+<a name="multisite"></a>
+### RADOS Gateway Multisite parameters
 
 !!! warning
 
@@ -558,7 +562,8 @@ To configure additional required pools for Rockoon, see
 
 For configuration example, see [Enable Multisite for Ceph Object Storage](../../ops-guide/deployment/rgw-multisite.md#enable-multisite-for-ceph=object-storage).
 
-### CephFS parameters <a name="cephfs"></a>
+<a name="cephfs"></a>
+### CephFS parameters
 
 `sharedFilesystem` contains a list of Ceph Filesystems `cephFS`. Each `cephFS` item
 contains the following parameters:
@@ -588,7 +593,8 @@ contains the following parameters:
             activeStandby: false
     ```
 
-### RookConfig parameters <a name="rookConfig"></a>
+<a name="rookConfig"></a>
+### RookConfig parameters
 
 String key-value parameter that allows overriding Ceph configuration options.
 
@@ -612,7 +618,8 @@ spec:
     "osd.14|osd_journal_size": "6250"
 ```
 
-### HealthCheck parameters <a name="healthcheck"></a>
+<a name="healthcheck"></a>
+### HealthCheck parameters
 
 - `daemonHealth` - Optional. Specifies health check settings for Ceph daemons. Contains
   the following parameters:
@@ -709,7 +716,8 @@ spec:
               successThreshold: 3
     ```
 
-### ExtraOpts parameters <a name="extraopts"></a>
+<a name="extraopts"></a>
+### ExtraOpts parameters
 
 - `deviceLabels` - Optional. A key-value mapping which is used to assign a specification label to any
   available device on a specific node. These labels can then be used for the
@@ -770,7 +778,8 @@ spec:
         failureDomain: host
     ```
 
-### Manager modules parameters <a name="mgr-modules"></a>
+<a name="mgr-modules"></a>
+### Manager modules parameters
 
 `CephDeployment` specification `mgr` section contains `mgrModules` parameter. It includes the following
 parameters:
@@ -799,7 +808,8 @@ parameters:
     Most Ceph Manager modules require additional configuration that you can perform through the `pelagia-lcm-tooblox`
     pod.
 
-### RBD Mirroring parameters <a name="rbdmirror"></a>
+<a name="rbdmirror"></a>
+### RBD Mirroring parameters
 
 - `daemonsCount` - Count of `rbd-mirror` daemons to spawn. We recommend using one instance of the `rbd-mirror` daemon.                                                                                                                                                                                                                                                                                                                                                                                                                  |
 - `peers` - Optional. List of mirroring peers of an external cluster to connect to. Only a single peer is supported.

@@ -12,7 +12,8 @@ follows:
 
 Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-osd-rm-request).
 
-## Remove a failed Ceph OSD by device name, path, or ID <a name="replace-by-device"></a>
+<a name="replace-by-device"></a>
+## Remove a failed Ceph OSD by device name, path, or ID
 
 !!! warning
 
@@ -162,7 +163,8 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
     kubectl delete jobs -n pelagia -l app=pelagia-lcm-cleanup-disks
     ```
 
-## Remove a failed Ceph OSD by Ceph OSD ID <a name="replace-by-osd-id"></a>
+<a name="replace-by-osd-id"></a>
+## Remove a failed Ceph OSD by Ceph OSD ID
 
 1. Identify the node and device names used by the affected Ceph OSD. Using the
    Ceph CLI in the `pelagia-ceph-toolbox` Pod, run:
@@ -312,7 +314,8 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
     kubectl delete jobs -n pelagia -l app=pelagia-lcm-cleanup-disks
     ```
 
-## Deploy a new device after removal of a failed one <a name="add-new"></a>
+<a name="add-new"></a>
+## Deploy a new device after removal of a failed one
 
 !!! note
 

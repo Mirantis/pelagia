@@ -6,7 +6,8 @@ Pelagia Lifecycle Management (LCM) Controller simplifies Ceph cluster management
 by automating LCM operations. This section describes how to add, remove, or reconfigure Ceph
 OSDs with a separate metadata device.
 
-## Add a Ceph OSD with a metadata device <a name="ceph-osd-meta-add"></a>
+<a name="ceph-osd-meta-add"></a>
+## Add a Ceph OSD with a metadata device
 
 1. Configure one disk for data and one logical volume for metadata of a Ceph OSD to be added to the Ceph cluster.
 
@@ -88,7 +89,8 @@ OSDs with a separate metadata device.
      rook-ceph-osd-3-647f8d6c69-87gxt   1/1     Running   0          21h   10.100.91.6   kaas-node-6c5e76f9-c2d2-4b1a-b047-3c299913a4bf   <none>           <none>
      ```
 
-## Remove a Ceph OSD with a metadata device <a name="ceph-osd-meta-remove"></a>
+<a name="ceph-osd-meta-remove"></a>
+## Remove a Ceph OSD with a metadata device
 
 Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-osd-rm-request).
 
@@ -263,7 +265,8 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
     kubectl delete jobs -n pelagia -l app=pelagia-lcm-cleanup-disks
     ```
 
-## Reconfigure a partition of a Ceph OSD metadata device <a name="ceph-osd-meta-reconfig"></a>
+<a name="ceph-osd-meta-reconfig"></a>
+## Reconfigure a partition of a Ceph OSD metadata device
 
 There is no hot reconfiguration procedure for existing Ceph OSDs.
 To reconfigure an existing Ceph node, remove and re-add a Ceph OSD with a metadata device.

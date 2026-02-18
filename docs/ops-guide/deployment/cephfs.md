@@ -12,7 +12,8 @@ details, see [Ceph Documentation: Ceph File System](https://docs.ceph.com/en/lat
 
     By design, CephFS data pool and metadata pool must be `replicated` only.
 
-## CephFS specification parameters <a name="cephfs-parameters"></a>
+<a name="cephfs-parameters"></a>
+## CephFS specification parameters
 
 The `CephDeployment` custom resource (CR) `spec` includes the `sharedFilesystem.cephFS` section
 with the following CephFS parameters:

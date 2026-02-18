@@ -13,7 +13,8 @@ requires at least two users: a bucket owner (`user-a`) and a bucket user
 regulates access for the bucket user.
 The procedure uses the `s3cmd` command-line tool.
 
-## Configure `s3cmd` command-line tool <a name="s3cmd"></a>
+<a name="s3cmd"></a>
+## Configure `s3cmd` command-line tool
 
 !!! note
 
