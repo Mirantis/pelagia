@@ -1,4 +1,4 @@
-<a id="enable-cephfs-mira"></a>
+<a id="cephfs-configure-ceph-shared-file-system-cephfs"></a>
 
 # Configure Ceph Shared File System (CephFS)
 
@@ -12,7 +12,7 @@ details, see [Ceph Documentation: Ceph File System](https://docs.ceph.com/en/lat
 
     By design, CephFS data pool and metadata pool must be `replicated` only.
 
-<a name="cephfs-parameters"></a>
+<a name="cephfs-cephfs-specification-parameters"></a>
 ## CephFS specification parameters
 
 The `CephDeployment` custom resource (CR) `spec` includes the `sharedFilesystem.cephFS` section

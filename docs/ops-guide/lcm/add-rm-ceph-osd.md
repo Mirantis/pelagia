@@ -1,11 +1,11 @@
-<a id="add-rm-ceph-osd"></a>
+<a id="add-rm-ceph-osd-add-remove-or-reconfigure-ceph-osds"></a>
 # Add, remove, or reconfigure Ceph OSDs
 
 Pelagia Lifecycle Management (LCM) Controller simplifies Ceph cluster management
 by automating LCM operations. This section describes how to add, remove, or reconfigure Ceph
 OSDs.
 
-<a name="ceph-osd-add"></a>
+<a name="add-rm-ceph-osd-add-a-ceph-osd"></a>
 ## Add a Ceph OSD
 
 1. Manually prepare the required devices on the existing node.
@@ -31,7 +31,7 @@ OSDs.
      - `nodes.<nodeName>.deviceFilter`
      - `nodes.<nodeName>.devicePathFilter`
 
-     For description of parameters, see [Nodes parameters](../../../architecture/custom-resources/cephdeployment#cephdpl-nodes).
+     For description of parameters, see [Nodes parameters](../../../architecture/custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
 
     ???+ "Example configuration of the `nodes` section with the new node"
         ```yaml
@@ -52,7 +52,7 @@ OSDs.
     !!! warning
 
         We highly recommend using the non-wwn `by-id` symlinks to specify storage devices in the `devices` list.
-        For details, see [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-storage-devices).
+        For details, see [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-devices-addressing-ceph-storage-devices).
 
 5. Verify that the Ceph OSD on the specified node is successfully deployed. The
    `CephDeploymentHealth` CR `status.healthReport.cephDaemons.cephDaemons` section should not contain any issues.
@@ -77,11 +77,11 @@ OSDs.
    kubectl -n rook-ceph get pod -l app=rook-ceph-osd -o wide | grep <nodeName>
    ```
 
-<a id="ceph-osd-remove"></a>
-<a name="ceph-osd-remove"></a>
+<a id="add-rm-ceph-osd-remove-a-ceph-osd"></a>
+<a name="add-rm-ceph-osd-remove-a-ceph-osd"></a>
 ## Remove a Ceph OSD
 
-Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-osd-rm-request).
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
 
 !!! warning
 
@@ -141,7 +141,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
              We do not recommend setting device name or device `by-path` symlink in the `cleanupByDevice` field
              as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with `by-id`
              symlinks or use `cleanupByOsdId` instead. For details, see
-             [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-storage-devices).
+             [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-devices-addressing-ceph-storage-devices).
 
         !!! note
 

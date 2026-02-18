@@ -1,4 +1,4 @@
-<a id="set-bucket-policy-for-ceph-object-storage-user"></a>
+<a id="bucket-policy-s3-set-a-bucket-policy-for-a-ceph-object-storage-user"></a>
 # Set a bucket policy for a Ceph Object Storage user
 
 Amazon S3 is an object storage service with different access policies. A bucket
@@ -13,7 +13,7 @@ requires at least two users: a bucket owner (`user-a`) and a bucket user
 regulates access for the bucket user.
 The procedure uses the `s3cmd` command-line tool.
 
-<a name="s3cmd"></a>
+<a name="bucket-policy-s3-configure-s3cmd-command-line-tool"></a>
 ## Configure `s3cmd` command-line tool
 
 !!! note

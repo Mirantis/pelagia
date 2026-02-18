@@ -1,4 +1,4 @@
-<a id="osd-with-bmhp-meta-replace"></a>
+<a id="replace-osd-meta-lvm-replace-a-failed-ceph-osd-with-a-metadata-device-as-a-logical-volume-path"></a>
 
 # Replace a failed Ceph OSD with a metadata device as a logical volume path
 
@@ -16,7 +16,7 @@ You can apply the below procedure in the following cases:
 
     The below procedure also applies to manually created metadata partitions.
 
-<a name="replace-osd-meta-by-id"></a>
+<a name="replace-osd-meta-lvm-remove-a-failed-ceph-osd-by-id-with-a-defined-metadata-device"></a>
 ## Remove a failed Ceph OSD by ID with a defined metadata device
 
 1. Identify the ID of Ceph OSD related to a failed device. For example, use
@@ -190,7 +190,7 @@ You can apply the below procedure in the following cases:
       phase: Completed # or CompletedWithWarnings if there are non-critical issues
     ```
 
-<a id="ceph-osd-with-bmhp-meta-add-new"></a>
+<a id="replace-osd-meta-lvm-re-create-a-ceph-osd-with-the-same-metadata-partition"></a>
 
 ## Re-create a Ceph OSD with the same metadata partition
 

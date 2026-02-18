@@ -1,4 +1,4 @@
-<a id="enable-rgw-mira"></a>
+<a id="rgw-enable-ceph-rgw-object-storage"></a>
 
 # Enable Ceph RGW Object Storage
 
@@ -7,7 +7,7 @@ instances and automatically manage its resources such as users and buckets.
 
 Pelagia has an integration for Ceph Object Storage with OpenStack Object Storage (`Swift`) provided by Rockoon.
 
-<a name="parameters"></a>
+<a name="rgw-ceph-rgw-object-storage-parameters"></a>
 ## Ceph RGW Object Storage parameters
 
 {% include "../../snippets/rgwParameters.md" %}

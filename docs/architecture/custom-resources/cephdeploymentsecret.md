@@ -36,7 +36,7 @@ kubectl -n pelagia get cephdeploymentsecret -o yaml
       resourceVersion: ""
     ```
 
-<a name="general"></a>
+<a name="cephdeploymentsecret-high-level-status-fields"></a>
 ## High-level status fields
 
 The `CephDeploymentSecret` custom resource contains the following high-level status fields:
@@ -51,7 +51,7 @@ The `CephDeploymentSecret` custom resource contains the following high-level sta
 - `secretsInfo` - List of secrets for Ceph `authx` clients and RADOS Gateway users. For details, see the reference below. 
 - `messages` - List of error or warning messages, if any, found when collecting information about the Ceph cluster.
 
-<a name="secret-info"></a>
+<a name="cephdeploymentsecret-secret-info-fields"></a>
 ## Secret info fields
 
 The `secretsInfo` field contains the following fields:

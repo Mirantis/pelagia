@@ -1,4 +1,4 @@
-<a id="addressing-ceph-storage-devices"></a>
+<a id="addressing-ceph-devices-addressing-ceph-storage-devices"></a>
 # Addressing Ceph storage devices
 
 Selecting the correct identifier for storage devices is critical for ensuring system stability, particularly when configuring mount points or managing hardware-dependent services.

@@ -1,4 +1,4 @@
-<a id="ceph-mon-store-size-grow"></a>
+<a id="ceph-mon-store-size-grow-ceph-monitors-storedb-size-rapidly-growing"></a>
 
 # Ceph Monitors store.db size rapidly growing
 
