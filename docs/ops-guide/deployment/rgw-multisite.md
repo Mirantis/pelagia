@@ -186,7 +186,7 @@ to replicate data. For details, see step 2 of this procedure.
    ```bash
    radosgw-admin user list
    ```
-   
+
 3. To obtain the system user name, which has your RGW `ObjectStorage`
    name as prefix:
    ```bash

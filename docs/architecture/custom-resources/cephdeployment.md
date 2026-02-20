@@ -127,19 +127,19 @@ advanced configuration.
 <a name="cephdeployment-general-parameters"></a>
 ### General parameters
 
-- `network` - Specifies access and public networks for the Ceph cluster. For details, see [Network parameters](#cephdeployment-network-parameters).
-- `nodes` - Specifies the list of Ceph nodes. For details, see [Node parameters](#cephdeployment-nodes-parameters). The `nodes` parameter is a list with Ceph node specifications. List item could define Ceph node specification for a single node or a group of nodes listed or defined by label. It could be also combined.
-- `pools` - Specifies the list of Ceph pools. For details, see [Pool parameters](#cephdeployment-pools-parameters).
-- `clients` - List of Ceph clients. For details, see [Clients parameters](#cephdeployment-clients-parameters).
-- `objectStorage` - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage. Also specifies the RADOS Gateway Multisite configuration. For details, see [RADOS Gateway parameters](#cephdeployment-rados-gateway-parameters) and [Multisite parameters](#cephdeployment-rados-gateway-multisite-parameters).
+- `network` - Specifies access and public networks for the Ceph cluster. For details, see Network parameters.
+- `nodes` - Specifies the list of Ceph nodes. For details, see Node parameters. The `nodes` parameter is a list with Ceph node specifications. List item could define Ceph node specification for a single node or a group of nodes listed or defined by label. It could be also combined.
+- `pools` - Specifies the list of Ceph pools. For details, see Pool parameters.
+- `clients` - List of Ceph clients. For details, see Clients parameters.
+- `objectStorage` - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage. Also specifies the RADOS Gateway Multisite configuration. For details, see RADOS Gateway parameters and Multisite parameters.
 - `ingressConfig` - Enables a custom ingress rule for public access on Ceph services, for example, Ceph RADOS Gateway. For details, see [Configure Ceph Object Gateway TLS](https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-tls).
-- `sharedFilesystem` - Enables Ceph Filesystem. For details, see [CephFS parameters](#cephdeployment-cephfs-parameters).
-- `rookConfig` - String key-value parameter that allows overriding Ceph configuration options. For details, see [RookConfig parameters](#cephdeployment-rookconfig-parameters).
-- `healthCheck` - Configures health checks and liveness probe settings for Ceph daemons. For details, see [Health check parameters](#cephdeployment-healthcheck-parameters).
-- `extraOpts` - Enables specification of extra options for a setup, includes the `deviceLabels` parameter. Refer to [Extra options](#cephdeployment-extraopts-parameters) for details.
-- `mgr` - Specifies a list of Ceph Manager modules to be enabled or disabled. For details, see [Manager modules parameters](#cephdeployment-manager-modules-parameters). Modules `balancer` and `pg_autoscaler` are enabled by default.
+- `sharedFilesystem` - Enables Ceph Filesystem. For details, see CephFS parameters.
+- `rookConfig` - String key-value parameter that allows overriding Ceph configuration options. For details, see RookConfig parameters.
+- `healthCheck` - Configures health checks and liveness probe settings for Ceph daemons. For details, see Health check parameters.
+- `extraOpts` - Enables specification of extra options for a setup, includes the `deviceLabels` parameter. Refer to Extra options for details.
+- `mgr` - Specifies a list of Ceph Manager modules to be enabled or disabled. For details, see Manager modules parameters. Modules `balancer` and `pg_autoscaler` are enabled by default.
 - `dashboard` - Enables Ceph dashboard. Currently, Pelagia has no support of Ceph Dashboard. Defaults to `false`.
-- `rbdMirror` - Specifies the parameters for RBD Mirroring. For details, see [RBD Mirroring parameters](#cephdeployment-rbd-mirroring-parameters).
+- `rbdMirror` - Specifies the parameters for RBD Mirroring. For details, see RBD Mirroring parameters.
 - `external` - Enables external Ceph cluster mode. If enabled, Pelagia will read a special `Secret` with external Ceph cluster credentials data connect to.
 
 <a name="cephdeployment-network-parameters"></a>
@@ -292,7 +292,7 @@ spec:
           ``/dev/disk/by-id/nvme-SAMSUNG_MZ1LB3T8HMLA-00007_S46FNY0R394543``.
         - The device label from ``extraOpts.deviceLabels`` section which is
           generally used for templating Ceph node specification for node groups.
-          For details, see [Extra options](#cephdeployment-extraopts-parameters).
+          For details, see Extra options.
 
         This parameter is mutually exclusive with ``fullPath``.
 
@@ -427,7 +427,7 @@ spec:
             A Kubernetes cluster only supports increase of storage size.
 
 - `deviceClass` - Mandatory. Specifies the device class for the defined pool. Common possible
-  values are `hdd`, `ssd` and `nvme`. Also allows customized device classes, refers to [Extra options](#cephdeployment-extraopts-parameters).
+  values are `hdd`, `ssd` and `nvme`. Also allows customized device classes, refers to Extra options.
 - `replicated` - The `replicated` parameter is mutually exclusive with `erasureCoded`
   and includes the following parameters:
 
@@ -521,7 +521,7 @@ To configure additional required pools for Rockoon, see
           osd: profile rbd pool=kubernetes-nvme
     ```
 <a name="cephdeployment-rados-gateway-parameters"></a>
-### RADOS Gateway parameters 
+### RADOS Gateway parameters
 
 {% include "../../snippets/rgwParameters.md" %}
 

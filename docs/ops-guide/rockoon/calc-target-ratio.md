@@ -70,7 +70,7 @@ For details, see [Ceph Documentation: Autoscaling Placement Groups](https://docs
         - `backup-hdd` = 30600 GB \* 5 = 153000 GB
         - `vms-hdd` = 500 GB
      ```
-      
+
      Pools capacity:
      ```bash
         - Summary capacity = 188196 GB
