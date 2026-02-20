@@ -387,9 +387,7 @@ func (c *cephDeploymentConfig) ensureZones() (bool, error) {
 					} else {
 						c.log.Warn().Msgf("zone '%s' has no endpoints specified, using service '%s' external ip address and http port as endpoint if available", zone.Name, externalSvcName)
 						if len(externalSvc.Status.LoadBalancer.Ingress) > 0 {
-							ip := externalSvc.Status.LoadBalancer.Ingress[0].IP
-							port := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.Port
-							zoneResource.Spec.CustomEndpoints = []string{fmt.Sprintf("http://%s:%d", ip, port)}
+							zoneResource.Spec.CustomEndpoints = []string{fmt.Sprintf("http://%s:80", externalSvc.Status.LoadBalancer.Ingress[0].IP)}
 						}
 					}
 				}
