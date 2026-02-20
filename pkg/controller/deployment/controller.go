@@ -761,7 +761,7 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 		}
 		return false, err
 	})
-	// Delete maintenance crd object to avoid not needed secret reconcilation
+	// Delete maintenance crd object to avoid not needed maintenance reconcilation
 	runRemoveState(fmt.Sprintf("CephDeploymentMaintenance '%s/%s'", c.cdConfig.cephDpl.Namespace, c.cdConfig.cephDpl.Name), func() (bool, error) {
 		err := c.api.CephLcmclientset.LcmV1alpha1().CephDeploymentMaintenances(c.cdConfig.cephDpl.Namespace).Delete(c.context, c.cdConfig.cephDpl.Name, metav1.DeleteOptions{})
 		if err != nil && apierrors.IsNotFound(err) {
@@ -821,7 +821,7 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 
 	// if all extra resources removed, continue to main cluster resources cleanup
 	if cleanupFinished {
-		// Delete cephdeploymenthealth to avoid not needed secret reconcilation
+		// Delete cephdeploymenthealth to avoid not needed health reconcilation
 		runRemoveState(fmt.Sprintf("CephDeploymentHealth '%s/%s'", c.cdConfig.cephDpl.Namespace, c.cdConfig.cephDpl.Name), func() (bool, error) {
 			err := c.api.CephLcmclientset.LcmV1alpha1().CephDeploymentHealths(c.cdConfig.cephDpl.Namespace).Delete(c.context, c.cdConfig.cephDpl.Name, metav1.DeleteOptions{})
 			if err != nil && apierrors.IsNotFound(err) {
@@ -833,6 +833,13 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 		runRemoveState("ceph cluster", func() (bool, error) {
 			return c.deleteCluster()
 		})
+		// Delete ceph csi operator resources if cluster removed
+		if cleanupFinished {
+			runRemoveState("ceph csi operator resources", func() (bool, error) {
+				return c.dropCsiOperatorResources()
+			})
+		}
+
 		if !c.cdConfig.cephDpl.Spec.External {
 			// Delete network policies
 			runRemoveState("network policies", func() (bool, error) {
