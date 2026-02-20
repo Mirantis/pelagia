@@ -61,7 +61,8 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 			errMsgs = append(errMsgs, err)
 		}
 	}
-	if !defaultFound {
+	// do not fail for external case - may only CephFS be specified for usage
+	if !defaultFound && !c.cdConfig.cephDpl.Spec.External {
 		err := "CephDeployment has no default pool specified"
 		c.log.Error().Msg(err)
 		errMsgs = append(errMsgs, err)
