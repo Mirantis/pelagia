@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
+	csiopapi "github.com/ceph/ceph-csi-operator/api/v1"
 	rookapi "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
@@ -94,15 +95,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	log.Info().Msg("registering сomponents and APIs")
-
+	log.Info().Msg("registering components and APIs")
 	// Setup Scheme for required resources
-	if err := lcmapi.AddToScheme(mgr.GetScheme()); err != nil {
+	if err := rookapi.AddToScheme(mgr.GetScheme()); err != nil {
 		log.Fatal().Err(err).Msg("")
 		os.Exit(1)
 	}
-
-	if err := rookapi.AddToScheme(mgr.GetScheme()); err != nil {
+	if err := csiopapi.AddToScheme(mgr.GetScheme()); err != nil {
+		log.Fatal().Err(err).Msg("")
+		os.Exit(1)
+	}
+	if err := lcmapi.AddToScheme(mgr.GetScheme()); err != nil {
 		log.Fatal().Err(err).Msg("")
 		os.Exit(1)
 	}

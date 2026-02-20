@@ -72,6 +72,7 @@ func Add(mgr manager.Manager) error {
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	config, _ := rest.InClusterConfig()
+	clientNoCache, _ := client.New(config, client.Options{Scheme: mgr.GetScheme()})
 	RookClientset, _ := rookclient.NewForConfig(config)
 	CephLcmclientset, _ := lcmclient.NewForConfig(config)
 	ClaimClientset, _ := claimClient.NewForConfig(config)
@@ -80,6 +81,7 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	return &ReconcileCephDeployment{
 		Config:           config,
 		Client:           mgr.GetClient(),
+		ClientNoCache:    clientNoCache,
 		Kubeclientset:    kubeclientset,
 		Rookclientset:    RookClientset,
 		CephLcmclientset: CephLcmclientset,
@@ -136,7 +138,9 @@ var (
 type ReconcileCephDeployment struct {
 	// This client, initialized using mgr.Client() above, is a split client
 	// that reads objects from the cache and writes to the apiserver
-	Client           client.Client
+	Client client.Client
+	// client w/o any cache
+	ClientNoCache    client.Client
 	Kubeclientset    kubernetes.Interface
 	Rookclientset    rookclient.Interface
 	CephLcmclientset lcmclient.Interface
@@ -761,7 +765,7 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 		}
 		return false, err
 	})
-	// Delete maintenance crd object to avoid not needed secret reconcilation
+	// Delete maintenance crd object to avoid not needed maintenance reconcilation
 	runRemoveState(fmt.Sprintf("CephDeploymentMaintenance '%s/%s'", c.cdConfig.cephDpl.Namespace, c.cdConfig.cephDpl.Name), func() (bool, error) {
 		err := c.api.CephLcmclientset.LcmV1alpha1().CephDeploymentMaintenances(c.cdConfig.cephDpl.Namespace).Delete(c.context, c.cdConfig.cephDpl.Name, metav1.DeleteOptions{})
 		if err != nil && apierrors.IsNotFound(err) {
@@ -821,7 +825,7 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 
 	// if all extra resources removed, continue to main cluster resources cleanup
 	if cleanupFinished {
-		// Delete cephdeploymenthealth to avoid not needed secret reconcilation
+		// Delete cephdeploymenthealth to avoid not needed health reconcilation
 		runRemoveState(fmt.Sprintf("CephDeploymentHealth '%s/%s'", c.cdConfig.cephDpl.Namespace, c.cdConfig.cephDpl.Name), func() (bool, error) {
 			err := c.api.CephLcmclientset.LcmV1alpha1().CephDeploymentHealths(c.cdConfig.cephDpl.Namespace).Delete(c.context, c.cdConfig.cephDpl.Name, metav1.DeleteOptions{})
 			if err != nil && apierrors.IsNotFound(err) {
@@ -833,6 +837,11 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 		runRemoveState("ceph cluster", func() (bool, error) {
 			return c.deleteCluster()
 		})
+		// Delete ceph csi operator resources if cluster removed
+		runRemoveState("ceph csi operator resources", func() (bool, error) {
+			return c.deleteCsiOperatorResources()
+		})
+
 		if !c.cdConfig.cephDpl.Spec.External {
 			// Delete network policies
 			runRemoveState("network policies", func() (bool, error) {
