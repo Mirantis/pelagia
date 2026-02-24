@@ -48,7 +48,7 @@ rules:
   # Application: manage os access data(secrets)
   - apiGroups: [""]
     resources: [secrets]
-    verbs: [list, get, create, update, patch]
+    verbs: [list, get, create, update, patch, delete]
   # Application: manage os access data(secrets)
   - apiGroups: [""]
     resources: [configmaps]
