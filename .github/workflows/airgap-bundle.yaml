@@ -1,0 +1,61 @@
+# Build airgap bundle (images + OCI charts) when a tag is pushed.
+# Step 1: collect chart OCI refs into charts.list
+# Step 2: collect image refs into images.list
+# Step 3: run make_bundle.sh (skopeo copy images + charts, then tar)
+name: Airgap bundle
+
+on:
+  push:
+    tags: ["*"]
+
+jobs:
+  airgap-bundle:
+    runs-on: ubuntu-latest
+    env:
+      REPO_ROOT: ${{ github.workspace }}
+      # Set repo variable OCI_CHARTS_REGISTRY to override (e.g. ghcr.io/owner/pelagia-charts)
+      REGISTRY: ${{ github.ref_type == 'tag' && vars.REGISTRY_PROD || vars.REGISTRY_CI }}
+      DEV_VERSION: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
+      HELM_REPO: ${{ github.event_name == 'push' && 'pelagia' || 'pelagia/pr' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Collect chart OCI refs
+        run: python3 build/scripts/collect_chart_oci_refs.py
+        env:
+          OCI_CHARTS_REGISTRY: ${{ env.REGISTRY }}/${{ env.HELM_REPO }}
+          OUTPUT_FILE: ${{ github.workspace }}/charts.list
+
+      - name: Collect chart images
+        run: python3 build/scripts/collect_chart_images.py
+        env:
+          IMAGE_REGISTRY: ${{ env.REGISTRY }}
+          OUTPUT_FILE: ${{ github.workspace }}/images.list
+
+      - name: Build airgap bundle
+        run: bash build/scripts/make_bundle.sh
+        env:
+          FULL_IMAGES_LIST_FILE: ${{ github.workspace }}/images.list
+          FULL_CHARTS_LIST_FILE: ${{ github.workspace }}/charts.list
+          AIRGAP_BUNDLE_DIR: ${{ github.workspace }}/bundle/images
+          AIRGAP_BUNDLE_FILE: ${{ github.workspace }}/airgap-bundle-ceph.tar.gz
+          # Optional: set DOCKER_CONFIG_PATH if charts/images need private registry auth
+          # DOCKER_CONFIG_PATH: ${{ github.workspace }}/.docker/config.json
+
+      - name: Upload airgap bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: airgap-bundle-${{ github.ref_name }}
+          path: ${{ github.workspace }}/airgap-bundle-ceph.tar.gz
