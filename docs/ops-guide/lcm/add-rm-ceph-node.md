@@ -51,11 +51,6 @@ nodes.
        devicePathFilter: "^/dev/disk/by-id/scsi-SATA_HGST+*"
      ```
 
-    !!! warning
-
-        We highly recommend using the non-wwn `by-id` symlinks to specify storage devices in the `devices` list.
-        For details, see [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-devices-addressing-ceph-storage-devices).
-
     !!! note
 
         - To use a new Ceph node for a Ceph Monitor or Ceph Manager deployment,
