@@ -2,11 +2,15 @@
 set -ex
 
 AIRGAP_BUNDLE_DIR=${AIRGAP_BUNDLE_DIR:-"./bundle/images/"}
+AIRGAP_BUNDLE_FILE=${AIRGAP_BUNDLE_FILE:-"airgap-bundle-ceph.tar.gz"}
+AIRGAP_BUNDLE_VERSION=${AIRGAP_BUNDLE_VERSION:-"latest"}
+
 FULL_IMAGES_LIST_FILE=${FULL_IMAGES_LIST_FILE:-"images.list"}
 FULL_CHARTS_LIST_FILE=${FULL_CHARTS_LIST_FILE:-"charts.list"}
 SKOPEO_IMG=${SKOPEO_IMG:-"quay.io/skopeo/stable:v1.18.0"}
 DOCKER_CONFIG_PATH=${DOCKER_CONFIG_PATH:-"${HOME}/.docker/config.json"}
-AIRGAP_BUNDLE_FILE=${AIRGAP_BUNDLE_FILE:-"airgap-bundle-ceph.tar.gz"}
+
+PUBLIC_BUCKET='s3://get-mirantis.com/pelagia'
 
 mkdir -p ${AIRGAP_BUNDLE_DIR}
 
@@ -27,3 +31,6 @@ for chart in $(cat ${FULL_CHARTS_LIST_FILE}); do
 done;
 
 tar -czf ${AIRGAP_BUNDLE_FILE} -C ${AIRGAP_BUNDLE_DIR} .
+
+# Upload to get.mirantis.com as a binary
+aws s3 cp "${AIRGAP_BUNDLE_FILE}" "${PUBLIC_BUCKET}/${AIRGAP_BUNDLE_VERSION}/"
