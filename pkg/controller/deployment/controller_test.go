@@ -50,6 +50,7 @@ func FakeReconciler() *ReconcileCephDeployment {
 	return &ReconcileCephDeployment{
 		Config:           &rest.Config{},
 		Client:           faketestclients.GetClient(nil),
+		ClientNoCache:    faketestclients.GetClient(nil),
 		Kubeclientset:    faketestclients.GetFakeKubeclient(),
 		Rookclientset:    faketestclients.GetFakeRookclient(),
 		CephLcmclientset: faketestclients.GetFakeLcmclient(),
@@ -1363,6 +1364,7 @@ func TestCleanCephDeployment(t *testing.T) {
 		name           string
 		cephDpl        *cephlcmv1alpha1.CephDeployment
 		inputResources map[string]runtime.Object
+		dropCsiRes     bool
 		apiErrors      map[string]error
 		expectedError  string
 		cleanupDone    bool
@@ -1417,6 +1419,12 @@ func TestCleanCephDeployment(t *testing.T) {
 			inputResources: inputResourcesBase,
 		},
 		{
+			name:           "delete resources is in progress (csi res)",
+			cephDpl:        cephDplFull.DeepCopy(),
+			inputResources: inputResourcesBase,
+			dropCsiRes:     true,
+		},
+		{
 			name:           "resources are deleted",
 			cephDpl:        cephDplFull.DeepCopy(),
 			inputResources: inputResourcesBase,
@@ -1460,6 +1468,12 @@ func TestCleanCephDeployment(t *testing.T) {
 			inputResources: inputResourcesExternal,
 		},
 		{
+			name:           "external - resources are deleting (csi res)",
+			cephDpl:        cephDplExternal.DeepCopy(),
+			inputResources: inputResourcesExternal,
+			dropCsiRes:     true,
+		},
+		{
 			name:           "external - resources are deleted",
 			cephDpl:        cephDplExternal.DeepCopy(),
 			inputResources: inputResourcesExternal,
@@ -1478,6 +1492,11 @@ func TestCleanCephDeployment(t *testing.T) {
 					return "[]", "", nil
 				}
 				return "", "", errors.New("unexpected command")
+			}
+
+			if test.dropCsiRes {
+				c.api.ClientNoCache = faketestclients.GetClient(faketestclients.GetClientBuilder().WithLists(unitinputs.CsiDriversRook.DeepCopy()))
+				delete(test.inputResources, "drivers")
 			}
 
 			// deployment actions
