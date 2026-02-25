@@ -1,4 +1,4 @@
-<a id="ceph-osd-auth-failed"></a>
+<a id="ceph-osd-auth-failed-replaced-ceph-osd-fails-to-start-on-authorization"></a>
 
 # Replaced Ceph OSD fails to start on authorization
 

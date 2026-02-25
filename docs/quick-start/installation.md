@@ -1,4 +1,4 @@
-<a id="installation-guide"></a>
+<a id="installation-install-pelagia"></a>
 # Install Pelagia
 
 This section provides instructions on how to install Pelagia that will deploy a Ceph cluster managed by Rook on a Kubernetes cluster, for example, deployed with [k0s](https://docs.k0sproject.io/stable/).
@@ -47,7 +47,7 @@ NAME                                  READY   STATUS    RESTARTS   AGE
 rook-ceph-operator-8495877b67-m7lf5   1/1     Running   0          4m13s
 ```
 
-Currently, Pelagia Deployment Controller does not support integration with the existing Rook Ceph cluster, only Pelagia Lifecycle Management Controller does. To install Pelagia in the LCM-only mode, please refer to [LCM-only installation guide](./lcm-installation.md#lcmonly-installation-guide).
+Currently, Pelagia Deployment Controller does not support integration with the existing Rook Ceph cluster, only Pelagia Lifecycle Management Controller does. To install Pelagia in the LCM-only mode, please refer to [LCM-only installation guide](./lcm-installation.md#lcm-installation-install-pelagia-in-the-lcm-only-mode).
 
 ## Post-installation
 

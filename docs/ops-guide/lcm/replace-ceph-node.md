@@ -1,4 +1,4 @@
-<a id="replace-ceph-node"></a>
+<a id="replace-ceph-node-replace-a-failed-ceph-node"></a>
 
 # Replace a failed Ceph node
 
@@ -9,9 +9,10 @@ follows:
 1. Remove the obsolete Ceph node from the Ceph cluster.
 2. Add a new Ceph node with the same configuration to the Ceph cluster.
 
-Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-osd-rm-request).
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
 
-## Remove a failed Ceph node <a name="replace-ceph-node-remove"></a>
+<a name="replace-ceph-node-remove-a-failed-ceph-node"></a>
+## Remove a failed Ceph node
 
 1. Open the `CephDeployment` CR for editing:
    ```bash
@@ -134,7 +135,8 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
     kubectl delete jobs -n pelagia -l app=pelagia-lcm-cleanup-disks
     ```
 
-## Deploy a new Ceph node after removal of a failed one <a name="replace-ceph-node-add"></a>
+<a name="replace-ceph-node-deploy-a-new-ceph-node-after-removal-of-a-failed-one"></a>
+## Deploy a new Ceph node after removal of a failed one
 
 !!! note
 

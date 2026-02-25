@@ -1,4 +1,4 @@
-<a id="enable-resource-mgmt"></a>
+<a id="enable-resource-mgmt-enable-management-of-ceph-tolerations-and-resources"></a>
 # Enable management of Ceph tolerations and resources
 
 !!! warning
@@ -216,7 +216,7 @@ configuration values:
    Ceph configuration to Rook. Rook will recreate Ceph Monitors, Ceph Managers, or Ceph OSDs according to the
    specified `hyperconverge` configuration.
 7. Specify tolerations for different Rook resources using Pelagia Helm chart values. For details, see
-   [Specify Rook daemons placement](../rook-daemon-place.md#ceph-daemon-place).
+   [Specify Rook daemons placement](../rook-daemon-place.md#rook-daemon-place-specify-rook-daemons-placement).
 8. After a successful Ceph reconfiguration, unset the flags set in step 1
    through the `pelagia-ceph-toolbox` pod:
    ```bash
@@ -233,4 +233,4 @@ configuration values:
 
         Skip this step if you have only configured the PG rebalance timeout and replicas count parameters.
 
-Once done, proceed to [Verify Ceph tolerations and resources](./verify-resource-mgmt.md#verify-ceph-resource-mgmt).
+Once done, proceed to [Verify Ceph tolerations and resources](./verify-resource-mgmt.md#verify-resource-mgmt-verify-ceph-tolerations-and-resources).

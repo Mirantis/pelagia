@@ -1,8 +1,8 @@
-<a id="rgw-tls"></a>
+<a id="rgw-tls-configure-ceph-object-gateway-tls"></a>
 
 # Configure Ceph Object Gateway TLS
 
-Once you enable Ceph Object Gateway (`radosgw`) as described in [Enable Ceph RGW Object Storage](./rgw.md#enable-rgw-mira), you can configure the Transport Layer Security (TLS) protocol for a Ceph Object Gateway public endpoint using custom `ingressConfig` specified in the `CephDeployment` custom resource (CR). In this case, Ceph Object Gateway public endpoint will use the public domain specified using the `ingressConfig` parameters.
+Once you enable Ceph Object Gateway (`radosgw`) as described in [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-object-storage), you can configure the Transport Layer Security (TLS) protocol for a Ceph Object Gateway public endpoint using custom `ingressConfig` specified in the `CephDeployment` custom resource (CR). In this case, Ceph Object Gateway public endpoint will use the public domain specified using the `ingressConfig` parameters.
 
 !!! note
 
@@ -11,7 +11,8 @@ Once you enable Ceph Object Gateway (`radosgw`) as described in [Enable Ceph RGW
 
 This section describes how to specify a custom public endpoint for the Ceph Object Storage.
 
-## Ingress config parameters <a name="ingress"></a>
+<a name="rgw-tls-ingress-config-parameters"></a>
+## Ingress config parameters
 
 - `tlsConfig` - Defines TLS configuration for the Ceph Object Gateway public endpoint.
 - `controllerClassName` - Name of Ingress Controller class. The default value for Pelagia integrated Rockoon is `openstack-ingress-nginx`
@@ -126,7 +127,7 @@ override the default `rgw dns name` with the corresponding ingress annotation va
 
 To generate an SSL certificate for internal usage, verify that the
 RADOS Gateway `spec.objectStorage.rgw.gateway.securePort` parameter is specified in the `CephDeployment` CR.
-For details, see [Enable Ceph RGW Object Storage](./rgw.md#enable-rgw-mira).
+For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-object-storage).
 
 Configure TLS for Ceph Object Gateway using a custom `ingressConfig`:
 

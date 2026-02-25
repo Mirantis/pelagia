@@ -1,4 +1,4 @@
-<a id="verify-ceph-cluster-mira"></a>
+<a id="verify-cephdeploymenthealth-verify-ceph-cluster-state"></a>
 
 # Verify Ceph cluster state
 
@@ -15,11 +15,11 @@ their health, and potentially problematic components.
 
      Information from `CephDeployment.status` reflects the spec handling state and
      validation result. For the description of status fields, see
-     [Status fields](../../architecture/custom-resources/cephdeployment.md#status).
+     [Status fields](../../architecture/custom-resources/cephdeployment.md#cephdeployment-status-fields).
 
 2. Obtain the `CephDeploymentHealth` CR:
    ```bash
    kubectl -n pelagia get cephdeploymenthealth -o yaml
    ```
 
-     Information from `CephDeploymentHealth.status` contains extensive details about Ceph cluster and a shortened version with status summary. For the description of status fields, see [CephDeploymentHealth custom resource](../../architecture/custom-resources/cephdeploymenthealth.md#cephdeploymenthealth-custom-resource).
+     Information from `CephDeploymentHealth.status` contains extensive details about Ceph cluster and a shortened version with status summary. For the description of status fields, see [CephDeploymentHealth custom resource](../../architecture/custom-resources/cephdeploymenthealth.md#cephdeploymenthealth-cephdeploymenthealth-custom-resource).

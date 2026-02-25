@@ -1,4 +1,4 @@
-<a id="rgw-sse-mira"></a>
+<a id="rgw-sse-configure-ceph-object-storage-server-side-encryption"></a>
 
 # Configure Ceph Object Storage server-side encryption
 

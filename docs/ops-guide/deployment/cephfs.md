@@ -1,4 +1,4 @@
-<a id="enable-cephfs-mira"></a>
+<a id="cephfs-configure-ceph-shared-file-system-cephfs"></a>
 
 # Configure Ceph Shared File System (CephFS)
 
@@ -12,7 +12,8 @@ details, see [Ceph Documentation: Ceph File System](https://docs.ceph.com/en/lat
 
     By design, CephFS data pool and metadata pool must be `replicated` only.
 
-## CephFS specification parameters <a name="cephfs-parameters"></a>
+<a name="cephfs-cephfs-specification-parameters"></a>
+## CephFS specification parameters
 
 The `CephDeployment` custom resource (CR) `spec` includes the `sharedFilesystem.cephFS` section
 with the following CephFS parameters:
@@ -139,7 +140,7 @@ with the following CephFS parameters:
    kubectl -n pelagia edit cephdpl
    ```
 
-3. Update the `sharedFilesystem` section specification as required using the configuration reference above. For example: 
+3. Update the `sharedFilesystem` section specification as required using the configuration reference above. For example:
 
    ```yaml
    spec:

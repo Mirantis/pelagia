@@ -1,4 +1,4 @@
-<a id="enable-ceph-rbd-mirror"></a>
+<a id="rbd-mirror-enable-ceph-rbd-mirroring"></a>
 # Enable Ceph RBD mirroring
 
 {% include "../../snippets/techpreview.md" %}

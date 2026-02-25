@@ -11,9 +11,9 @@ Pelagia solution provides two main controllers:
 
 ## Quick Start
 
-To get started with Pelagia, follow the [Installation guide](./quick-start/installation.md#installation-guide).
+To get started with Pelagia, follow the [Installation guide](./quick-start/installation.md#installation-install-pelagia).
 
-To install Pelagia in automated LCM mode only, follow the [LCM-only installation guide](./quick-start/lcm-installation.md#lcmonly-installation-guide).
+To install Pelagia in automated LCM mode only, follow the [LCM-only installation guide](./quick-start/lcm-installation.md#lcm-installation-install-pelagia-in-the-lcm-only-mode).
 
 ## Getting Help
 

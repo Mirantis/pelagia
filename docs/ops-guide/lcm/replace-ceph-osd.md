@@ -1,4 +1,4 @@
-<a id="replace-osd"></a>
+<a id="replace-ceph-osd-replace-a-failed-ceph-osd"></a>
 
 # Replace a failed Ceph OSD
 
@@ -10,9 +10,10 @@ follows:
    OSD ID.
 2. Add a new Ceph OSD on the new disk to the Ceph cluster.
 
-Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-osd-rm-request).
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
 
-## Remove a failed Ceph OSD by device name, path, or ID <a name="replace-by-device"></a>
+<a name="replace-ceph-osd-remove-a-failed-ceph-osd-by-device-name-path-or-id"></a>
+## Remove a failed Ceph OSD by device name, path, or ID
 
 !!! warning
 
@@ -31,7 +32,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
      We do not recommend setting device name or device `by-path` symlink in the `cleanupByDevice` field
      as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with `by-id`
      symlinks or use `cleanupByOsdId` instead. For details, see
-     [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-storage-devices).
+     [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-devices-addressing-ceph-storage-devices).
 
 1. Open the `CephDeployment` CR for editing:
    ```bash
@@ -162,7 +163,8 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
     kubectl delete jobs -n pelagia -l app=pelagia-lcm-cleanup-disks
     ```
 
-## Remove a failed Ceph OSD by Ceph OSD ID <a name="replace-by-osd-id"></a>
+<a name="replace-ceph-osd-remove-a-failed-ceph-osd-by-ceph-osd-id"></a>
+## Remove a failed Ceph OSD by Ceph OSD ID
 
 1. Identify the node and device names used by the affected Ceph OSD. Using the
    Ceph CLI in the `pelagia-ceph-toolbox` Pod, run:
@@ -312,7 +314,8 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
     kubectl delete jobs -n pelagia -l app=pelagia-lcm-cleanup-disks
     ```
 
-## Deploy a new device after removal of a failed one <a name="add-new"></a>
+<a name="replace-ceph-osd-deploy-a-new-device-after-removal-of-a-failed-one"></a>
+## Deploy a new device after removal of a failed one
 
 !!! note
 

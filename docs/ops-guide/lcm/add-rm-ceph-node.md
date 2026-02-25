@@ -1,4 +1,4 @@
-<a id="add-rm-ceph-node"></a>
+<a id="add-rm-ceph-node-add-remove-or-reconfigure-ceph-nodes"></a>
 # Add, remove, or reconfigure Ceph nodes
 
 Pelagia Lifecycle Management (LCM) Controller simplifies Ceph cluster management
@@ -13,7 +13,8 @@ nodes.
     names may not follow the alphabetical order. For example, `a`, `b`, `d`,
     instead of `a`, `b`, `c`.
 
-## Add a Ceph node <a name="ceph-node-add"></a>
+<a name="add-rm-ceph-node-add-a-ceph-node"></a>
+## Add a Ceph node
 
 1. Prepare a new node for the cluster.
 2. Open the `CephDeployment` custom resource (CR) for editing:
@@ -23,7 +24,7 @@ nodes.
 
 3. In the `nodes` section, specify the parameters for a Ceph node as
    required. For the parameter description, see
-   [Nodes parameters](../../../architecture/custom-resources/cephdeployment#cephdpl-nodes).
+   [Nodes parameters](../../../architecture/custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
 
      The example configuration of the `nodes` section with the new node:
      ```yaml
@@ -88,14 +89,14 @@ nodes.
                status: ok
      ```
 
-<a name="ceph-node-remove"></a>
+<a name="add-rm-ceph-node-remove-a-ceph-node"></a>
 ## Remove a Ceph node
 
-Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-osd-rm-request).
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
 
 !!! note
 
-    To remove a Ceph node with a `mon` role, first move the Ceph Monitor to another node and remove the `mon` role from the Ceph node as described in [Move a Ceph Monitor daemon to another node](../../ops-guide/deployment/move-mon-daemon.md#move-mon-daemon-mira).
+    To remove a Ceph node with a `mon` role, first move the Ceph Monitor to another node and remove the `mon` role from the Ceph node as described in [Move a Ceph Monitor daemon to another node](../../ops-guide/deployment/move-mon-daemon.md#move-mon-daemon-move-a-ceph-monitor-daemon-to-another-node).
 
 1. Open the `CephDeployment` CR for editing:
    ```bash
