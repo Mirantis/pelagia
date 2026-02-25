@@ -2,14 +2,15 @@ name: Helm CI
 
 on:
   push:
-    branches: [ "main", "release-**" ]
+    branches: [ "main", "release-*" ]
+    tags: ['*']
     paths:
-    - 'chart/**'
+    - 'charts/**'
     - 'Makefile'
   pull_request:
-    branches: [ "main", "release-**" ]
+    branches: [ "main", "release-*" ]
     paths:
-    - 'chart/**'
+    - 'charts/**'
     - 'Makefile'
 
 # abort in progress when PR is refreshed.
@@ -21,7 +22,8 @@ jobs:
   helm-check:
     runs-on: ubuntu-latest
     env:
-      BUILD_MODE: ${{ github.event_name == 'push' && 'merge' || 'dev' }}
+      DEV_VERSION: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
+      HELM_REPO: ${{ github.event_name == 'push' && 'pelagia' || 'pelagia/pr' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -36,6 +38,27 @@ jobs:
         uses: helm/chart-testing-action@v2.7.0
       - name: Show current version
         run: make get-version
-      - name: Run helm
+      - name: Run helm package
         run: make
-  # TODO (degorenko): add push chart to helm repo later
+      - name: Login to registry CI
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.REGISTRY_CI }}
+          username: ${{ secrets.REGISTRY_CI_USERNAME }}
+          password: ${{ secrets.REGISTRY_CI_PASSWORD }}
+      - name: Push Helm chart to registry CI
+        env:
+          HELM_REGISTRY: oci://${{ vars.REGISTRY_CI }}/${{ env.HELM_REPO }}
+        run: make publish-chart
+      - name: Login to main registry
+        if: ${{ github.ref_type == 'tag' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ vars.REGISTRY_PROD }}
+          username: ${{ secrets.REGISTRY_PROD_USERNAME }}
+          password: ${{ secrets.REGISTRY_PROD_PASSWORD }}
+      - name: Push Helm chart to main registry
+        if: ${{ github.ref_type == 'tag' }}
+        env:
+          HELM_REGISTRY: oci://${{ vars.REGISTRY_PROD }}/${{ env.HELM_REPO }}
+        run: make publish-chart
