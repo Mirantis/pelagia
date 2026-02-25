@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2765,7 +2765,7 @@
   
 
 
-<p><a id="replace-ceph-node"></a></p>
+<p><a id="replace-ceph-node-replace-a-failed-ceph-node"></a></p>
 <h1 id="replace-a-failed-ceph-node">Replace a failed Ceph node<a class="headerlink" href="#replace-a-failed-ceph-node" title="Permanent link">#</a></h1>
 <p>After a physical node replacement, you can use the Pelagia LCM API to redeploy
 failed Ceph nodes. The common flow of replacing a failed Ceph node is as
@@ -2774,8 +2774,9 @@ follows:</p>
 <li>Remove the obsolete Ceph node from the Ceph cluster.</li>
 <li>Add a new Ceph node with the same configuration to the Ceph cluster.</li>
 </ol>
-<p>Ceph OSD removal presupposes usage of a <code>CephOsdRemoveTask</code> CR. For workflow overview, see <a href="../create-task-workflow/#create-osd-rm-request">Creating a Ceph OSD remove task</a>.</p>
-<h2 id="remove-a-failed-ceph-node">Remove a failed Ceph node <a name="replace-ceph-node-remove"></a><a class="headerlink" href="#remove-a-failed-ceph-node" title="Permanent link">#</a></h2>
+<p>Ceph OSD removal presupposes usage of a <code>CephOsdRemoveTask</code> CR. For workflow overview, see <a href="../create-task-workflow/#create-task-workflow-creating-a-ceph-osd-remove-task">Creating a Ceph OSD remove task</a>.</p>
+<p><a name="replace-ceph-node-remove-a-failed-ceph-node"></a></p>
+<h2 id="remove-a-failed-ceph-node">Remove a failed Ceph node<a class="headerlink" href="#remove-a-failed-ceph-node" title="Permanent link">#</a></h2>
 <ol>
 <li>
 <p>Open the <code>CephDeployment</code> CR for editing:
@@ -2895,7 +2896,8 @@ follows:</p>
 </code></pre></div></p>
 </li>
 </ol>
-<h2 id="deploy-a-new-ceph-node-after-removal-of-a-failed-one">Deploy a new Ceph node after removal of a failed one <a name="replace-ceph-node-add"></a><a class="headerlink" href="#deploy-a-new-ceph-node-after-removal-of-a-failed-one" title="Permanent link">#</a></h2>
+<p><a name="replace-ceph-node-deploy-a-new-ceph-node-after-removal-of-a-failed-one"></a></p>
+<h2 id="deploy-a-new-ceph-node-after-removal-of-a-failed-one">Deploy a new Ceph node after removal of a failed one<a class="headerlink" href="#deploy-a-new-ceph-node-after-removal-of-a-failed-one" title="Permanent link">#</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>You can spawn Ceph OSD on a raw device, but it must be clean and
@@ -2915,7 +2917,7 @@ device, refer to official <a href="https://github.com/rook/rook/blob/master/Docu
 <span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;nodeName&gt;</span><span class="w"> </span><span class="c1"># add new configuration for replaced Ceph node</span>
 <span class="w">    </span><span class="nt">devices</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">fullPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceByID&gt;</span><span class="w"> </span><span class="c1"># Recommended. Non-wwn by-id symlink.</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">fullPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceByID&gt;</span><span class="w"> </span><span class="c1"># Recommended. Contains either disk serial number or wwn</span>
 <span class="w">      </span><span class="c1"># name: &lt;deviceByID&gt; # Not recommended. If a device is supposed to be added with by-id.</span>
 <span class="w">      </span><span class="c1"># fullPath: &lt;deviceByPath&gt; # if device is supposed to be added with by-path.</span>
 <span class="w">      </span><span class="nt">config</span><span class="p">:</span>
@@ -2923,11 +2925,6 @@ device, refer to official <a href="https://github.com/rook/rook/blob/master/Docu
 <span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div></p>
 <p>Substitute <code>&lt;nodeName&gt;</code> with the replaced node name and configure it as required.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>We highly recommend using the non-wwn <code>by-id</code> symlinks to specify storage devices in the <code>devices</code> list.
-For details, see <a href="../../../architecture/addressing-ceph-devices/#addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
-</div>
 </li>
 <li>
 <p>Verify that all Ceph daemons from the replaced node have appeared on the

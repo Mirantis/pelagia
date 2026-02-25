@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2739,7 +2739,7 @@
   
 
 
-<p><a id="addressing-ceph-storage-devices"></a></p>
+<p><a id="addressing-ceph-devices-addressing-ceph-storage-devices"></a></p>
 <h1 id="addressing-ceph-storage-devices">Addressing Ceph storage devices<a class="headerlink" href="#addressing-ceph-storage-devices" title="Permanent link">#</a></h1>
 <p>Selecting the correct identifier for storage devices is critical for ensuring system stability, particularly when configuring mount points or managing hardware-dependent services.</p>
 <p>The list of supported formats for device identification includes <code>by-id</code>, <code>name</code>, and <code>by-path</code>.
@@ -2766,12 +2766,6 @@ disk serial number:</p>
   <code>HGST_HUS724040AL_PN1334PEHN18ZS</code> and
   <code>WDC_WD4003FZEX-00Z4SA0_WD-WMC5D0D9DMEH</code>.</li>
 </ul>
-<p>An exception to this rule is the <code>wwn</code> <code>by-id</code> symlinks, which are
-programmatically generated at boot. They are not solely based on disk
-serial numbers but also include other node information. This can lead
-to the <code>wwn</code> being recalculated when the node reboots. As a result,
-this symlink type cannot guarantee a persistent disk identifier and should
-not be used as a stable storage device symlink in a Ceph cluster.</p>
 <p>Below is an example <code>CephDeployment</code> custom resource using the <code>/dev/disk/by-id</code>
 format for storage devices specification:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>

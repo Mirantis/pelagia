@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2787,12 +2787,13 @@
   
 
 
-<p><a id="add-rm-ceph-osd-with-meta"></a></p>
+<p><a id="add-rm-ceph-osd-with-meta-add-remove-or-reconfigure-ceph-osds-with-metadata-devices"></a></p>
 <h1 id="add-remove-or-reconfigure-ceph-osds-with-metadata-devices">Add, remove, or reconfigure Ceph OSDs with metadata devices<a class="headerlink" href="#add-remove-or-reconfigure-ceph-osds-with-metadata-devices" title="Permanent link">#</a></h1>
 <p>Pelagia Lifecycle Management (LCM) Controller simplifies Ceph cluster management
 by automating LCM operations. This section describes how to add, remove, or reconfigure Ceph
 OSDs with a separate metadata device.</p>
-<h2 id="add-a-ceph-osd-with-a-metadata-device">Add a Ceph OSD with a metadata device <a name="ceph-osd-meta-add"></a><a class="headerlink" href="#add-a-ceph-osd-with-a-metadata-device" title="Permanent link">#</a></h2>
+<p><a name="add-rm-ceph-osd-with-meta-add-a-ceph-osd-with-a-metadata-device"></a></p>
+<h2 id="add-a-ceph-osd-with-a-metadata-device">Add a Ceph OSD with a metadata device<a class="headerlink" href="#add-a-ceph-osd-with-a-metadata-device" title="Permanent link">#</a></h2>
 <ol>
 <li>
 <p>Configure one disk for data and one logical volume for metadata of a Ceph OSD to be added to the Ceph cluster.</p>
@@ -2822,7 +2823,7 @@ OSDs with a separate metadata device.</p>
 <li>
 <p>In the <code>nodes.&lt;nodeName&gt;.devices</code> section, specify the
    parameters for a Ceph OSD as required. For the parameters description, see
-   <a href="../../../architecture/custom-resources/cephdeployment#cephdpl-nodes">Nodes parameters</a>.</p>
+   <a href="../../../architecture/custom-resources/cephdeployment.md#cephdeployment-nodes-parameters">Nodes parameters</a>.</p>
 <p>The example configuration of the <code>nodes</code> section with the new node:
  <div class="highlight"><pre><span></span><code><span class="nt">nodes</span><span class="p">:</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">storage-worker-505</span>
@@ -2838,11 +2839,6 @@ OSDs with a separate metadata device.</p>
 <span class="w">      </span><span class="nt">metadataDevice</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/bluedb/meta_1</span>
 <span class="w">    </span><span class="nt">fullPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/disk/by-id/scsi-0ATA_HGST_HUS724040AL_PN1334PEHN1VBC</span>
 </code></pre></div></p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>We highly recommend using the non-wwn <code>by-id</code> symlinks to specify storage devices in the <code>devices</code> list.
-For details, see <a href="../../../architecture/addressing-ceph-devices/#addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
-</div>
 </li>
 <li>
 <p>Verify that the Ceph OSD is successfully deployed on the specified node. The <code>CephDeploymentHealth</code> CR
@@ -2872,8 +2868,9 @@ rook-ceph-osd-3-647f8d6c69-87gxt<span class="w">   </span><span class="m">1</spa
 </code></pre></div></p>
 </li>
 </ol>
-<h2 id="remove-a-ceph-osd-with-a-metadata-device">Remove a Ceph OSD with a metadata device <a name="ceph-osd-meta-remove"></a><a class="headerlink" href="#remove-a-ceph-osd-with-a-metadata-device" title="Permanent link">#</a></h2>
-<p>Ceph OSD removal presupposes usage of a <code>CephOsdRemoveTask</code> CR. For workflow overview, see <a href="../create-task-workflow/#create-osd-rm-request">Creating a Ceph OSD remove task</a>.</p>
+<p><a name="add-rm-ceph-osd-with-meta-remove-a-ceph-osd-with-a-metadata-device"></a></p>
+<h2 id="remove-a-ceph-osd-with-a-metadata-device">Remove a Ceph OSD with a metadata device<a class="headerlink" href="#remove-a-ceph-osd-with-a-metadata-device" title="Permanent link">#</a></h2>
+<p>Ceph OSD removal presupposes usage of a <code>CephOsdRemoveTask</code> CR. For workflow overview, see <a href="../create-task-workflow/#create-task-workflow-creating-a-ceph-osd-remove-task">Creating a Ceph OSD remove task</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>When using the non-recommended Ceph pools <code>replicated.size</code> of
@@ -2932,7 +2929,7 @@ health warning that blocks Ceph OSD removal. We recommend setting
 <p>We do not recommend setting device name or device <code>by-path</code> symlink in the <code>cleanupByDevice</code> field
 as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with <code>by-id</code>
 symlinks or use <code>cleanupByOsdId</code> instead. For details, see
-<a href="../../../architecture/addressing-ceph-devices/#addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
+<a href="../../../architecture/addressing-ceph-devices/#addressing-ceph-devices-addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -3043,7 +3040,8 @@ symlinks or use <code>cleanupByOsdId</code> instead. For details, see
 </code></pre></div></p>
 </li>
 </ol>
-<h2 id="reconfigure-a-partition-of-a-ceph-osd-metadata-device">Reconfigure a partition of a Ceph OSD metadata device <a name="ceph-osd-meta-reconfig"></a><a class="headerlink" href="#reconfigure-a-partition-of-a-ceph-osd-metadata-device" title="Permanent link">#</a></h2>
+<p><a name="add-rm-ceph-osd-with-meta-reconfigure-a-partition-of-a-ceph-osd-metadata-device"></a></p>
+<h2 id="reconfigure-a-partition-of-a-ceph-osd-metadata-device">Reconfigure a partition of a Ceph OSD metadata device<a class="headerlink" href="#reconfigure-a-partition-of-a-ceph-osd-metadata-device" title="Permanent link">#</a></h2>
 <p>There is no hot reconfiguration procedure for existing Ceph OSDs.
 To reconfigure an existing Ceph node, remove and re-add a Ceph OSD with a metadata device.
 However, the automated LCM will clean up the logical volume without a removal, and it can be reused. For this reason, to reconfigure a partition of a Ceph OSD metadata device:</p>

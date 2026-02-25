@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2648,7 +2648,7 @@
   
 
 
-<p><a id="verify-ceph-cluster-mira"></a></p>
+<p><a id="verify-cephdeploymenthealth-verify-ceph-cluster-state"></a></p>
 <h1 id="verify-ceph-cluster-state">Verify Ceph cluster state<a class="headerlink" href="#verify-ceph-cluster-state" title="Permanent link">#</a></h1>
 <p>To verify the state of a Ceph cluster, Pelagia provides statuses to <code>CephDeployment</code> and <code>CephDeploymentHealth</code>
 custom resources (CR). These resources contain information about the state of the Ceph cluster components,
@@ -2661,13 +2661,13 @@ their health, and potentially problematic components.</p>
 </code></pre></div></p>
 <p>Information from <code>CephDeployment.status</code> reflects the spec handling state and
  validation result. For the description of status fields, see
- <a href="../../../architecture/custom-resources/cephdeployment/#status">Status fields</a>.</p>
+ <a href="../../../architecture/custom-resources/cephdeployment/#cephdeployment-status-fields">Status fields</a>.</p>
 </li>
 <li>
 <p>Obtain the <code>CephDeploymentHealth</code> CR:
    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephdeploymenthealth<span class="w"> </span>-o<span class="w"> </span>yaml
 </code></pre></div></p>
-<p>Information from <code>CephDeploymentHealth.status</code> contains extensive details about Ceph cluster and a shortened version with status summary. For the description of status fields, see <a href="../../../architecture/custom-resources/cephdeploymenthealth/#cephdeploymenthealth-custom-resource">CephDeploymentHealth custom resource</a>.</p>
+<p>Information from <code>CephDeploymentHealth.status</code> contains extensive details about Ceph cluster and a shortened version with status summary. For the description of status fields, see <a href="../../../architecture/custom-resources/cephdeploymenthealth/#cephdeploymenthealth-cephdeploymenthealth-custom-resource">CephDeploymentHealth custom resource</a>.</p>
 </li>
 </ol>
 

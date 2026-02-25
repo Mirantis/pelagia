@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2792,7 +2792,7 @@
 and Ceph OSD metadata device specified as a disk. This scenario implies that the Ceph cluster
 automatically creates a required metadata logical volume on a desired device.</p>
 <h2 id="remove-a-ceph-osd-with-a-metadata-device-as-a-disk-name">Remove a Ceph OSD with a metadata device as a disk name<a class="headerlink" href="#remove-a-ceph-osd-with-a-metadata-device-as-a-disk-name" title="Permanent link">#</a></h2>
-<p>To remove the affected Ceph OSD with a metadata device as a device name, follow the <a href="../replace-osd-meta-lvm/#replace-osd-meta-by-id">Remove a failed Ceph OSD by ID with a defined metadata device</a> procedure and capture the following details:</p>
+<p>To remove the affected Ceph OSD with a metadata device as a device name, follow the <a href="../replace-osd-meta-lvm/#replace-osd-meta-lvm-remove-a-failed-ceph-osd-by-id-with-a-defined-metadata-device">Remove a failed Ceph OSD by ID with a defined metadata device</a> procedure and capture the following details:</p>
 <ul>
 <li>
 <p>While editing <code>CephDeployment</code> custom resource (CR) in the <code>nodes</code> section, capture the
@@ -2842,7 +2842,7 @@ automatically creates a required metadata logical volume on a desired device.</p
 </ul>
 </li>
 </ul>
-<p><a name="recreate-meta-lvm"></a></p>
+<p><a name="replace-osd-meta-device-re-create-the-partition-on-the-existing-metadata-disk"></a></p>
 <h2 id="re-create-the-partition-on-the-existing-metadata-disk">Re-create the partition on the existing metadata disk<a class="headerlink" href="#re-create-the-partition-on-the-existing-metadata-disk" title="Permanent link">#</a></h2>
 <p>After you remove the Ceph OSD disk, manually create a separate logical volume
 for the metadata partition in an existing volume group on the metadata device:</p>

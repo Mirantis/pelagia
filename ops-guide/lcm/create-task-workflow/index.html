@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2676,12 +2676,12 @@
   
 
 
-<p><a id="create-osd-rm-request"></a></p>
+<p><a id="create-task-workflow-creating-a-ceph-osd-remove-task"></a></p>
 <h1 id="creating-a-ceph-osd-remove-task">Creating a Ceph OSD remove task<a class="headerlink" href="#creating-a-ceph-osd-remove-task" title="Permanent link">#</a></h1>
 <p>The workflow of creating a Ceph OSD removal task includes the following steps:</p>
 <ol>
 <li>
-<p>Removing obsolete nodes or disks from the <code>spec.nodes</code> section of the <code>CephDeployment</code> custom resource (CR) as described in <a href="../../../architecture/custom-resources/cephdeployment/#cephdpl-nodes">Nodes parameters</a>.</p>
+<p>Removing obsolete nodes or disks from the <code>spec.nodes</code> section of the <code>CephDeployment</code> custom resource (CR) as described in <a href="../../../architecture/custom-resources/cephdeployment/#cephdeployment-nodes-parameters">Nodes parameters</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Note the names of the removed nodes, devices or their paths exactly as they were specified
@@ -2689,7 +2689,7 @@
 </div>
 </li>
 <li>
-<p>Creating a YAML template for the <code>CephOsdRemoveTask</code> CR. For details, see <a href="../../../architecture/custom-resources/cephosdremovetask/#cephosdremovetask-custom-resource">CephOsdRemoveTask custom resource</a>.</p>
+<p>Creating a YAML template for the <code>CephOsdRemoveTask</code> CR. For details, see <a href="../../../architecture/custom-resources/cephosdremovetask/#cephosdremovetask-cephosdremovetask-custom-resource">CephOsdRemoveTask custom resource</a>.</p>
 <ul>
 <li>If <code>CephOsdRemoveTask</code> contains information about Ceph OSDs to remove in a proper format,
    the information will be validated to eliminate human error and avoid a wrong Ceph OSD removal.</li>
@@ -2745,7 +2745,7 @@
 </div>
 </li>
 <li>
-<p>Reviewing the Ceph OSD removal status. For details, see <a href="../../../architecture/custom-resources/cephosdremovetask/#status-fields">Status fields</a></p>
+<p>Reviewing the Ceph OSD removal status. For details, see <a href="../../../architecture/custom-resources/cephosdremovetask/#cephosdremovetask-status-fields">Status fields</a></p>
 </li>
 <li>
 <p>Manual removal of device cleanup jobs.</p>

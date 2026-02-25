@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2787,7 +2787,7 @@
   
 
 
-<p><a id="replace-osd"></a></p>
+<p><a id="replace-ceph-osd-replace-a-failed-ceph-osd"></a></p>
 <h1 id="replace-a-failed-ceph-osd">Replace a failed Ceph OSD<a class="headerlink" href="#replace-a-failed-ceph-osd" title="Permanent link">#</a></h1>
 <p>After a physical disk replacement, you can use Pelagia Lifecycle Management (LCM) API to redeploy
 a failed Ceph OSD. The common flow of replacing a failed Ceph OSD is as
@@ -2797,8 +2797,9 @@ follows:</p>
    OSD ID.</li>
 <li>Add a new Ceph OSD on the new disk to the Ceph cluster.</li>
 </ol>
-<p>Ceph OSD removal presupposes usage of a <code>CephOsdRemoveTask</code> CR. For workflow overview, see <a href="../create-task-workflow/#create-osd-rm-request">Creating a Ceph OSD remove task</a>.</p>
-<h2 id="remove-a-failed-ceph-osd-by-device-name-path-or-id">Remove a failed Ceph OSD by device name, path, or ID <a name="replace-by-device"></a><a class="headerlink" href="#remove-a-failed-ceph-osd-by-device-name-path-or-id" title="Permanent link">#</a></h2>
+<p>Ceph OSD removal presupposes usage of a <code>CephOsdRemoveTask</code> CR. For workflow overview, see <a href="../create-task-workflow/#create-task-workflow-creating-a-ceph-osd-remove-task">Creating a Ceph OSD remove task</a>.</p>
+<p><a name="replace-ceph-osd-remove-a-failed-ceph-osd-by-device-name-path-or-id"></a></p>
+<h2 id="remove-a-failed-ceph-osd-by-device-name-path-or-id">Remove a failed Ceph OSD by device name, path, or ID<a class="headerlink" href="#remove-a-failed-ceph-osd-by-device-name-path-or-id" title="Permanent link">#</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The procedure below presupposes that the cloud operator knows the exact
@@ -2816,7 +2817,7 @@ not supported if a device was physically removed from a node. Therefore, use
 <p>We do not recommend setting device name or device <code>by-path</code> symlink in the <code>cleanupByDevice</code> field
  as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with <code>by-id</code>
  symlinks or use <code>cleanupByOsdId</code> instead. For details, see
- <a href="../../../architecture/addressing-ceph-devices/#addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
+ <a href="../../../architecture/addressing-ceph-devices/#addressing-ceph-devices-addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
 </div>
 <ol>
 <li>
@@ -2944,7 +2945,8 @@ not supported if a device was physically removed from a node. Therefore, use
 </code></pre></div></p>
 </li>
 </ol>
-<h2 id="remove-a-failed-ceph-osd-by-ceph-osd-id">Remove a failed Ceph OSD by Ceph OSD ID <a name="replace-by-osd-id"></a><a class="headerlink" href="#remove-a-failed-ceph-osd-by-ceph-osd-id" title="Permanent link">#</a></h2>
+<p><a name="replace-ceph-osd-remove-a-failed-ceph-osd-by-ceph-osd-id"></a></p>
+<h2 id="remove-a-failed-ceph-osd-by-ceph-osd-id">Remove a failed Ceph OSD by Ceph OSD ID<a class="headerlink" href="#remove-a-failed-ceph-osd-by-ceph-osd-id" title="Permanent link">#</a></h2>
 <ol>
 <li>
 <p>Identify the node and device names used by the affected Ceph OSD. Using the
@@ -3087,7 +3089,8 @@ not supported if a device was physically removed from a node. Therefore, use
 </code></pre></div></p>
 </li>
 </ol>
-<h2 id="deploy-a-new-device-after-removal-of-a-failed-one">Deploy a new device after removal of a failed one <a name="add-new"></a><a class="headerlink" href="#deploy-a-new-device-after-removal-of-a-failed-one" title="Permanent link">#</a></h2>
+<p><a name="replace-ceph-osd-deploy-a-new-device-after-removal-of-a-failed-one"></a></p>
+<h2 id="deploy-a-new-device-after-removal-of-a-failed-one">Deploy a new device after removal of a failed one<a class="headerlink" href="#deploy-a-new-device-after-removal-of-a-failed-one" title="Permanent link">#</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>You can spawn Ceph OSD on a raw device, but it must be clean and
@@ -3123,7 +3126,7 @@ device, refer to official
 <span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;nodeName&gt;</span>
 <span class="w">    </span><span class="nt">devices</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">fullPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceByID&gt;</span><span class="w"> </span><span class="c1"># Recommended. Non-wwn by-id symlink.</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">fullPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceByID&gt;</span><span class="w"> </span><span class="c1"># Recommended. Contains either disk serial number or wwn</span>
 <span class="w">      </span><span class="c1"># name: &lt;deviceByID&gt; # Not recommended. If a device is supposed to be added with by-id.</span>
 <span class="w">      </span><span class="c1"># fullPath: &lt;deviceByPath&gt; # Not recommended. If a device is supposed to be added with by-path.</span>
 <span class="w">      </span><span class="nt">config</span><span class="p">:</span>

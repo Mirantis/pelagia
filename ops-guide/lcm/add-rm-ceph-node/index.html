@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2787,7 +2787,7 @@
   
 
 
-<p><a id="add-rm-ceph-node"></a></p>
+<p><a id="add-rm-ceph-node-add-remove-or-reconfigure-ceph-nodes"></a></p>
 <h1 id="add-remove-or-reconfigure-ceph-nodes">Add, remove, or reconfigure Ceph nodes<a class="headerlink" href="#add-remove-or-reconfigure-ceph-nodes" title="Permanent link">#</a></h1>
 <p>Pelagia Lifecycle Management (LCM) Controller simplifies Ceph cluster management
 by automating LCM operations. This section describes how to add, remove, or reconfigure Ceph
@@ -2800,7 +2800,8 @@ named using the next alphabetic character in order. Therefore, the Ceph Monitor
 names may not follow the alphabetical order. For example, <code>a</code>, <code>b</code>, <code>d</code>,
 instead of <code>a</code>, <code>b</code>, <code>c</code>.</p>
 </div>
-<h2 id="add-a-ceph-node">Add a Ceph node <a name="ceph-node-add"></a><a class="headerlink" href="#add-a-ceph-node" title="Permanent link">#</a></h2>
+<p><a name="add-rm-ceph-node-add-a-ceph-node"></a></p>
+<h2 id="add-a-ceph-node">Add a Ceph node<a class="headerlink" href="#add-a-ceph-node" title="Permanent link">#</a></h2>
 <ol>
 <li>Prepare a new node for the cluster.</li>
 <li>
@@ -2811,7 +2812,7 @@ instead of <code>a</code>, <code>b</code>, <code>c</code>.</p>
 <li>
 <p>In the <code>nodes</code> section, specify the parameters for a Ceph node as
    required. For the parameter description, see
-   <a href="../../../architecture/custom-resources/cephdeployment#cephdpl-nodes">Nodes parameters</a>.</p>
+   <a href="../../../architecture/custom-resources/cephdeployment.md#cephdeployment-nodes-parameters">Nodes parameters</a>.</p>
 <p>The example configuration of the <code>nodes</code> section with the new node:
  <div class="highlight"><pre><span></span><code><span class="nt">nodes</span><span class="p">:</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">storage-worker-414</span>
@@ -2833,11 +2834,6 @@ instead of <code>a</code>, <code>b</code>, <code>c</code>.</p>
 <span class="w">   </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">  </span><span class="nt">devicePathFilter</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;^/dev/disk/by-id/scsi-SATA_HGST+*&quot;</span>
 </code></pre></div></p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>We highly recommend using the non-wwn <code>by-id</code> symlinks to specify storage devices in the <code>devices</code> list.
-For details, see <a href="../../../architecture/addressing-ceph-devices/#addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
-</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul>
@@ -2878,12 +2874,12 @@ For details, see <a href="../../../architecture/addressing-ceph-devices/#address
 </code></pre></div></p>
 </li>
 </ol>
-<p><a name="ceph-node-remove"></a></p>
+<p><a name="add-rm-ceph-node-remove-a-ceph-node"></a></p>
 <h2 id="remove-a-ceph-node">Remove a Ceph node<a class="headerlink" href="#remove-a-ceph-node" title="Permanent link">#</a></h2>
-<p>Ceph OSD removal presupposes usage of a <code>CephOsdRemoveTask</code> CR. For workflow overview, see <a href="../create-task-workflow/#create-osd-rm-request">Creating a Ceph OSD remove task</a>.</p>
+<p>Ceph OSD removal presupposes usage of a <code>CephOsdRemoveTask</code> CR. For workflow overview, see <a href="../create-task-workflow/#create-task-workflow-creating-a-ceph-osd-remove-task">Creating a Ceph OSD remove task</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>To remove a Ceph node with a <code>mon</code> role, first move the Ceph Monitor to another node and remove the <code>mon</code> role from the Ceph node as described in <a href="../../deployment/move-mon-daemon/#move-mon-daemon-mira">Move a Ceph Monitor daemon to another node</a>.</p>
+<p>To remove a Ceph node with a <code>mon</code> role, first move the Ceph Monitor to another node and remove the <code>mon</code> role from the Ceph node as described in <a href="../../deployment/move-mon-daemon/#move-mon-daemon-move-a-ceph-monitor-daemon-to-another-node">Move a Ceph Monitor daemon to another node</a>.</p>
 </div>
 <ol>
 <li>

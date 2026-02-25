@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2717,7 +2717,7 @@
   
 
 
-<p><a id="enable-cephfs-mira"></a></p>
+<p><a id="cephfs-configure-ceph-shared-file-system-cephfs"></a></p>
 <h1 id="configure-ceph-shared-file-system-cephfs">Configure Ceph Shared File System (CephFS)<a class="headerlink" href="#configure-ceph-shared-file-system-cephfs" title="Permanent link">#</a></h1>
 <p>The Ceph Shared File System, or CephFS, provides the ability to create
 read/write shared file system Persistent Volumes (PVs). These PVs support the
@@ -2728,7 +2728,8 @@ details, see <a href="https://docs.ceph.com/en/latest/cephfs/index.html">Ceph Do
 <p class="admonition-title">Note</p>
 <p>By design, CephFS data pool and metadata pool must be <code>replicated</code> only.</p>
 </div>
-<h2 id="cephfs-specification-parameters">CephFS specification parameters <a name="cephfs-parameters"></a><a class="headerlink" href="#cephfs-specification-parameters" title="Permanent link">#</a></h2>
+<p><a name="cephfs-cephfs-specification-parameters"></a></p>
+<h2 id="cephfs-specification-parameters">CephFS specification parameters<a class="headerlink" href="#cephfs-specification-parameters" title="Permanent link">#</a></h2>
 <p>The <code>CephDeployment</code> custom resource (CR) <code>spec</code> includes the <code>sharedFilesystem.cephFS</code> section
 with the following CephFS parameters:</p>
 <ul>
@@ -2849,7 +2850,7 @@ through the Ceph CLI. However, for any changes in <code>metadataPool</code>, we 
 </code></pre></div></p>
 </li>
 <li>
-<p>Update the <code>sharedFilesystem</code> section specification as required using the configuration reference above. For example: </p>
+<p>Update the <code>sharedFilesystem</code> section specification as required using the configuration reference above. For example:</p>
 </li>
 </ol>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>

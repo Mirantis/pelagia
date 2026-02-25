@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2739,7 +2739,7 @@
   
 
 
-<p><a id="installation-guide"></a></p>
+<p><a id="installation-install-pelagia"></a></p>
 <h1 id="install-pelagia">Install Pelagia<a class="headerlink" href="#install-pelagia" title="Permanent link">#</a></h1>
 <p>This section provides instructions on how to install Pelagia that will deploy a Ceph cluster managed by Rook on a Kubernetes cluster, for example, deployed with <a href="https://docs.k0sproject.io/stable/">k0s</a>.</p>
 <h2 id="requirements-and-prerequisites">Requirements and prerequisites<a class="headerlink" href="#requirements-and-prerequisites" title="Permanent link">#</a></h2>
@@ -2779,7 +2779,7 @@ pelagia-lcm-controller-6f858b6c5-whq7x<span class="w">           </span><span cl
 NAME<span class="w">                                  </span>READY<span class="w">   </span>STATUS<span class="w">    </span>RESTARTS<span class="w">   </span>AGE
 rook-ceph-operator-8495877b67-m7lf5<span class="w">   </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>4m13s
 </code></pre></div></p>
-<p>Currently, Pelagia Deployment Controller does not support integration with the existing Rook Ceph cluster, only Pelagia Lifecycle Management Controller does. To install Pelagia in the LCM-only mode, please refer to <a href="../lcm-installation/#lcmonly-installation-guide">LCM-only installation guide</a>.</p>
+<p>Currently, Pelagia Deployment Controller does not support integration with the existing Rook Ceph cluster, only Pelagia Lifecycle Management Controller does. To install Pelagia in the LCM-only mode, please refer to <a href="../lcm-installation/#lcm-installation-install-pelagia-in-the-lcm-only-mode">LCM-only installation guide</a>.</p>
 <h2 id="post-installation">Post-installation<a class="headerlink" href="#post-installation" title="Permanent link">#</a></h2>
 <p>After the installation, you can deploy a Ceph cluster using the Pelagia <code>CephDeployment</code> custom resource.
 It will create Rook resources for Rook Operator to deploy a Ceph cluster. After Rook Operator deploys

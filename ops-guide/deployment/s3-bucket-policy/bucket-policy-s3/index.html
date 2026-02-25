@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2757,7 +2757,7 @@
   
 
 
-<p><a id="set-bucket-policy-for-ceph-object-storage-user"></a></p>
+<p><a id="bucket-policy-s3-set-a-bucket-policy-for-a-ceph-object-storage-user"></a></p>
 <h1 id="set-a-bucket-policy-for-a-ceph-object-storage-user">Set a bucket policy for a Ceph Object Storage user<a class="headerlink" href="#set-a-bucket-policy-for-a-ceph-object-storage-user" title="Permanent link">#</a></h1>
 <p>Amazon S3 is an object storage service with different access policies. A bucket
 policy is a resource-based policy that grants permissions to a bucket and
@@ -2769,7 +2769,8 @@ requires at least two users: a bucket owner (<code>user-a</code>) and a bucket u
 (<code>user-t</code>). The bucket owner creates the bucket and sets the policy that
 regulates access for the bucket user.
 The procedure uses the <code>s3cmd</code> command-line tool.</p>
-<h2 id="configure-s3cmd-command-line-tool">Configure <code>s3cmd</code> command-line tool <a name="s3cmd"></a><a class="headerlink" href="#configure-s3cmd-command-line-tool" title="Permanent link">#</a></h2>
+<p><a name="bucket-policy-s3-configure-s3cmd-command-line-tool"></a></p>
+<h2 id="configure-s3cmd-command-line-tool">Configure <code>s3cmd</code> command-line tool<a class="headerlink" href="#configure-s3cmd-command-line-tool" title="Permanent link">#</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The s3cmd is a free command-line tool and client for uploading,

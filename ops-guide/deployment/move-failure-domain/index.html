@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2717,7 +2717,7 @@
   
 
 
-<p><a id="move-failure-domain-mira"></a></p>
+<p><a id="move-failure-domain-migrate-ceph-pools-from-one-failure-domain-to-another"></a></p>
 <h1 id="migrate-ceph-pools-from-one-failure-domain-to-another">Migrate Ceph pools from one failure domain to another<a class="headerlink" href="#migrate-ceph-pools-from-one-failure-domain-to-another" title="Permanent link">#</a></h1>
 <p>The document describes how to change the failure domain of an already deployed Ceph cluster.</p>
 <div class="admonition note">
@@ -2769,7 +2769,7 @@ other types of failure domains, migrate pools separately, and so on.</p>
 <li>
 <p>Set the required CRUSH topology in the <code>MiraCeph</code> object for each
    defined node. For details on the <code>crush</code> parameter, see
-   <a href="../../../architecture/custom-resources/cephdeployment/#cephdpl-nodes">Node parameters</a>.</p>
+   <a href="../../../architecture/custom-resources/cephdeployment/#cephdeployment-nodes-parameters">Node parameters</a>.</p>
 <p>Setting the CRUSH topology to each node causes the Pelagia Deployment Controller to set proper Kubernetes
  labels on the nodes.</p>
 <p>Example of adding the <code>rack</code> CRUSH topology key for each node in the <code>nodes</code> section:

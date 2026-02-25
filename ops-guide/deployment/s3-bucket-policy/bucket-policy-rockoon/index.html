@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2857,7 +2857,7 @@
   
 
 
-<p><a id="bucket-policy-openstack"></a></p>
+<p><a id="bucket-policy-rockoon-set-a-bucket-policy-for-openstack-users"></a></p>
 <h1 id="set-a-bucket-policy-for-openstack-users">Set a bucket policy for OpenStack users<a class="headerlink" href="#set-a-bucket-policy-for-openstack-users" title="Permanent link">#</a></h1>
 <p>The following procedure illustrates the process of setting a bucket policy for
 a bucket between two OpenStack users deployed by Rockoon.</p>
@@ -2880,7 +2880,7 @@ for OpenStack users indirectly through setting permissions for corresponding Ope
 </li>
 <li>
 <p>Prepare the Ceph Object Storage similarly to the procedure described in
-   <a href="../s3-create-user/#s3-create-user">Create Ceph Object Storage users</a>.</p>
+   <a href="../s3-create-user/#s3-create-user-create-ceph-object-storage-users">Create Ceph Object Storage users</a>.</p>
 </li>
 <li>
 <p>Create two OpenStack projects:
@@ -2992,7 +2992,7 @@ cloud storage service providers that use the S3 protocol. You can download the <
 <li>
 <p>Create bucket users and configure a bucket policy for the <code>project-t</code>
    OpenStack project similarly to the procedure described in
-   <a href="../bucket-policy-s3/#set-bucket-policy-for-ceph-object-storage-user">Set a bucket policy for a Ceph Object Storage user</a>.
+   <a href="../bucket-policy-s3/#bucket-policy-s3-set-a-bucket-policy-for-a-ceph-object-storage-user">Set a bucket policy for a Ceph Object Storage user</a>.
    Ceph integration does not allow providing permissions for OpenStack users
    directly. Therefore, you need to set permissions for the project that
    corresponds to the user:

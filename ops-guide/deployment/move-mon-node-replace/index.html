@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2628,7 +2628,7 @@
   
 
 
-<p><a id="move-mon-node-replace"></a></p>
+<p><a id="move-mon-node-replace-move-ceph-monitor-before-node-replacement"></a></p>
 <h1 id="move-ceph-monitor-before-node-replacement">Move Ceph Monitor before node replacement<a class="headerlink" href="#move-ceph-monitor-before-node-replacement" title="Permanent link">#</a></h1>
 <p>This document describes how to migrate a Ceph Monitor to another node
 on bare metal-based clusters before node replacement.</p>
@@ -2645,7 +2645,7 @@ the Ceph Manager/Monitor to another (for example, worker) node. After a node rep
 recommend migrating the Ceph Manager/Monitor to the new manager node.</p>
 <p><strong>To migrate a Ceph Monitor to another machine:</strong></p>
 <ol>
-<li>Move the Ceph Manager/Monitor daemon from the affected node to one of the worker machines as described in <a href="../move-mon-daemon/#move-mon-daemon-mira">Move a Ceph Monitor daemon to another node</a>.</li>
+<li>Move the Ceph Manager/Monitor daemon from the affected node to one of the worker machines as described in <a href="../move-mon-daemon/#move-mon-daemon-move-a-ceph-monitor-daemon-to-another-node">Move a Ceph Monitor daemon to another node</a>.</li>
 <li>Delete the affected node.</li>
 <li>
 <p>Add a new manager node without the Monitor and Manager role.</p>
@@ -2655,7 +2655,7 @@ recommend migrating the Ceph Manager/Monitor to the new manager node.</p>
 </div>
 </li>
 <li>
-<p>Move the previously migrated Ceph Manager/Monitor daemon to the new manager node as described in <a href="../move-mon-daemon/#move-mon-daemon-mira">Move a Ceph Monitor daemon to another node</a>.</p>
+<p>Move the previously migrated Ceph Manager/Monitor daemon to the new manager node as described in <a href="../move-mon-daemon/#move-mon-daemon-move-a-ceph-monitor-daemon-to-another-node">Move a Ceph Monitor daemon to another node</a>.</p>
 </li>
 </ol>
 

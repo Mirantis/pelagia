@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -3057,7 +3057,7 @@
   
 
 
-<p><a id="cephdeployment-custom-resource"></a></p>
+<p><a id="cephdeployment-cephdeployment-custom-resource"></a></p>
 <h1 id="cephdeployment-custom-resource">CephDeployment custom resource<a class="headerlink" href="#cephdeployment-custom-resource" title="Permanent link">#</a></h1>
 <p>This section describes how to configure a Ceph cluster using the <code>CephDeployment</code>
 (<code>cephdeployments.lcm.mirantis.com</code>) custom resource (CR).</p>
@@ -3183,24 +3183,26 @@ deployed based on the <code>devices</code> parameter defined for each Ceph node.
 <h2 id="cephdeployment-configuration-options">CephDeployment configuration options<a class="headerlink" href="#cephdeployment-configuration-options" title="Permanent link">#</a></h2>
 <p>The following subsections contain a description of <code>CephDeployment</code> parameters for an
 advanced configuration.</p>
-<h3 id="general-parameters">General parameters <a name="cephdpl-general"></a><a class="headerlink" href="#general-parameters" title="Permanent link">#</a></h3>
+<p><a name="cephdeployment-general-parameters"></a></p>
+<h3 id="general-parameters">General parameters<a class="headerlink" href="#general-parameters" title="Permanent link">#</a></h3>
 <ul>
-<li><code>network</code> - Specifies access and public networks for the Ceph cluster. For details, see <a href="#cephdpl-network">Network parameters</a>.</li>
-<li><code>nodes</code> - Specifies the list of Ceph nodes. For details, see <a href="#cephdpl-nodes">Node parameters</a>. The <code>nodes</code> parameter is a list with Ceph node specifications. List item could define Ceph node specification for a single node or a group of nodes listed or defined by label. It could be also combined.</li>
-<li><code>pools</code> - Specifies the list of Ceph pools. For details, see <a href="#pools">Pool parameters</a>.</li>
-<li><code>clients</code> - List of Ceph clients. For details, see <a href="#clients">Clients parameters</a>.</li>
-<li><code>objectStorage</code> - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage. Also specifies the RADOS Gateway Multisite configuration. For details, see <a href="#rgw">RADOS Gateway parameters</a> and <a href="#multisite">Multisite parameters</a>.</li>
+<li><code>network</code> - Specifies access and public networks for the Ceph cluster. For details, see Network parameters.</li>
+<li><code>nodes</code> - Specifies the list of Ceph nodes. For details, see Node parameters. The <code>nodes</code> parameter is a list with Ceph node specifications. List item could define Ceph node specification for a single node or a group of nodes listed or defined by label. It could be also combined.</li>
+<li><code>pools</code> - Specifies the list of Ceph pools. For details, see Pool parameters.</li>
+<li><code>clients</code> - List of Ceph clients. For details, see Clients parameters.</li>
+<li><code>objectStorage</code> - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage. Also specifies the RADOS Gateway Multisite configuration. For details, see RADOS Gateway parameters and Multisite parameters.</li>
 <li><code>ingressConfig</code> - Enables a custom ingress rule for public access on Ceph services, for example, Ceph RADOS Gateway. For details, see <a href="https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-tls">Configure Ceph Object Gateway TLS</a>.</li>
-<li><code>sharedFilesystem</code> - Enables Ceph Filesystem. For details, see <a href="#cephfs">CephFS parameters</a>.</li>
-<li><code>rookConfig</code> - String key-value parameter that allows overriding Ceph configuration options. For details, see <a href="#rookConfig">RookConfig parameters</a>.</li>
-<li><code>healthCheck</code> - Configures health checks and liveness probe settings for Ceph daemons. For details, see <a href="#healthcheck">Health check parameters</a>.</li>
-<li><code>extraOpts</code> - Enables specification of extra options for a setup, includes the <code>deviceLabels</code> parameter. Refer to <a href="#extraopts">Extra options</a> for details.</li>
-<li><code>mgr</code> - Specifies a list of Ceph Manager modules to be enabled or disabled. For details, see <a href="#mgr-modules">Manager modules parameters</a>. Modules <code>balancer</code> and <code>pg_autoscaler</code> are enabled by default.</li>
+<li><code>sharedFilesystem</code> - Enables Ceph Filesystem. For details, see CephFS parameters.</li>
+<li><code>rookConfig</code> - String key-value parameter that allows overriding Ceph configuration options. For details, see RookConfig parameters.</li>
+<li><code>healthCheck</code> - Configures health checks and liveness probe settings for Ceph daemons. For details, see Health check parameters.</li>
+<li><code>extraOpts</code> - Enables specification of extra options for a setup, includes the <code>deviceLabels</code> parameter. Refer to Extra options for details.</li>
+<li><code>mgr</code> - Specifies a list of Ceph Manager modules to be enabled or disabled. For details, see Manager modules parameters. Modules <code>balancer</code> and <code>pg_autoscaler</code> are enabled by default.</li>
 <li><code>dashboard</code> - Enables Ceph dashboard. Currently, Pelagia has no support of Ceph Dashboard. Defaults to <code>false</code>.</li>
-<li><code>rbdMirror</code> - Specifies the parameters for RBD Mirroring. For details, see <a href="#rbdmirror">RBD Mirroring parameters</a>.</li>
+<li><code>rbdMirror</code> - Specifies the parameters for RBD Mirroring. For details, see RBD Mirroring parameters.</li>
 <li><code>external</code> - Enables external Ceph cluster mode. If enabled, Pelagia will read a special <code>Secret</code> with external Ceph cluster credentials data connect to.</li>
 </ul>
-<h3 id="network-parameters">Network parameters <a name="cephdpl-network"></a><a class="headerlink" href="#network-parameters" title="Permanent link">#</a></h3>
+<p><a name="cephdeployment-network-parameters"></a></p>
+<h3 id="network-parameters">Network parameters<a class="headerlink" href="#network-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li>
 <p><code>clusterNet</code> - specifies a Classless Inter-Domain Routing (CIDR)
@@ -3215,7 +3217,7 @@ become unavailable.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <code>clusterNet</code> and <code>publicNet</code> parameters support
-multiple IP networks. For details, see <a href="../../../ops-guide/deployment/multinetworking/#enable-ceph-multinetwork">Enable multinetworking</a>.</p>
+multiple IP networks. For details, see <a href="../../../ops-guide/deployment/multinetworking/#multinetworking-enable-ceph-multinetwork">Enable multinetworking</a>.</p>
 </div>
 </li>
 <li>
@@ -3231,7 +3233,7 @@ become unavailable.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The <code>clusterNet</code> and <code>publicNet</code> parameters support
-multiple IP networks. For details, see <a href="../../../ops-guide/deployment/multinetworking/#enable-ceph-multinetwork">Enable multinetworking</a>.</p>
+multiple IP networks. For details, see <a href="../../../ops-guide/deployment/multinetworking/#multinetworking-enable-ceph-multinetwork">Enable multinetworking</a>.</p>
 </div>
 </li>
 </ul>
@@ -3241,7 +3243,7 @@ multiple IP networks. For details, see <a href="../../../ops-guide/deployment/mu
 <span class="w">    </span><span class="nt">clusterNet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.10.0.0/24</span>
 <span class="w">    </span><span class="nt">publicNet</span><span class="p">:</span><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">192.100.0.0/24</span>
 </code></pre></div>
-<a name="cephdpl-nodes"></a></p>
+<a name="cephdeployment-nodes-parameters"></a></p>
 <h3 id="nodes-parameters">Nodes parameters<a class="headerlink" href="#nodes-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li>
@@ -3326,7 +3328,7 @@ in a case of a node outage.</p>
 <p class="admonition-title">Note</p>
 <p>Recommending to use the <code>fullPath</code> field for defining
 <code>by-id</code> symlinks as persistent device identifiers. For details, see
-<a href="../../addressing-ceph-devices/#addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
+<a href="../../addressing-ceph-devices/#addressing-ceph-devices-addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
 </div>
 <ul>
 <li>
@@ -3334,7 +3336,7 @@ in a case of a node outage.</p>
 <ul>
 <li>
 <p>The device <code>by-id</code> symlink that contains the serial number of the
-  physical device and does not contain <code>wwn</code>. For example,
+  physical device or contains <code>wwn</code>. For example,
   <code>/dev/disk/by-id/nvme-SAMSUNG_MZ1LB3T8HMLA-00007_S46FNY0R394543</code>.</p>
 </li>
 <li>
@@ -3353,11 +3355,11 @@ in a case of a node outage.</p>
   specifying storage devices with device names because such identifiers
   are not persistent and can change at node boot.</li>
 <li>The device <code>by-id</code> symlink that contains the serial number of the
-  physical device and does not contain <code>wwn</code>. For example,
+  physical device or contains <code>wwn</code>. For example,
   <code>/dev/disk/by-id/nvme-SAMSUNG_MZ1LB3T8HMLA-00007_S46FNY0R394543</code>.</li>
 <li>The device label from <code>extraOpts.deviceLabels</code> section which is
   generally used for templating Ceph node specification for node groups.
-  For details, see <a href="#extraopts">Extra options</a>.</li>
+  For details, see Extra options.</li>
 </ul>
 <p>This parameter is mutually exclusive with <code>fullPath</code>.</p>
 </li>
@@ -3449,7 +3451,8 @@ or <code>nvme</code> disks.</p>
 </code></pre></div>
 </li>
 </ul>
-<h3 id="pools-parameters">Pools parameters <a name="pools"></a><a class="headerlink" href="#pools-parameters" title="Permanent link">#</a></h3>
+<p><a name="cephdeployment-pools-parameters"></a></p>
+<h3 id="pools-parameters">Pools parameters<a class="headerlink" href="#pools-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li><code>name</code> - Mandatory. Specifies the pool name as a prefix for each Ceph block pool.
   The resulting Ceph block pool name will be <code>&lt;name&gt;-&lt;deviceClass&gt;</code>.</li>
@@ -3490,7 +3493,7 @@ or <code>nvme</code> disks.</p>
 </li>
 <li>
 <p><code>deviceClass</code> - Mandatory. Specifies the device class for the defined pool. Common possible
-  values are <code>hdd</code>, <code>ssd</code> and <code>nvme</code>. Also allows customized device classes, refers to <a href="#extraopts">Extra options</a>.</p>
+  values are <code>hdd</code>, <code>ssd</code> and <code>nvme</code>. Also allows customized device classes, refers to Extra options.</p>
 </li>
 <li>
 <p><code>replicated</code> - The <code>replicated</code> parameter is mutually exclusive with <code>erasureCoded</code>
@@ -3504,7 +3507,7 @@ or <code>nvme</code> disks.</p>
 <ul>
 <li>The default ratio of the Ceph Object Storage <code>dataPool</code> 10.0%.</li>
 <li>Target ratios for the pools required for Rockoon, described in
-  <a href="../../../ops-guide/rockoon/rockoon-integration/#integrate-pelagia-with-rockoon">Integrate Pelagia with Rockoon</a>.</li>
+  <a href="../../../ops-guide/rockoon/rockoon-integration/#rockoon-integration-integrate-pelagia-with-rockoon">Integrate Pelagia with Rockoon</a>.</li>
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -3531,7 +3534,7 @@ the <code>rack</code> topology instead. The <code>osd</code> failure domain is p
 </li>
 <li>
 <p><code>mirroring</code> - Optional. Enables the mirroring feature for the defined pool.
-  Includes the <code>mode</code> parameter that can be set to <code>pool</code> or <code>image</code>. For details, see <a href="../../../ops-guide/deployment/rbd-mirror/#enable-ceph-rbd-mirror">Enable Ceph RBD Mirroring</a>.</p>
+  Includes the <code>mode</code> parameter that can be set to <code>pool</code> or <code>image</code>. For details, see <a href="../../../ops-guide/deployment/rbd-mirror/#rbd-mirror-enable-ceph-rbd-mirroring">Enable Ceph RBD Mirroring</a>.</p>
 </li>
 <li><code>parameters</code> - Optional. Specifies the key-value map for the parameters of the Ceph pool.
   For details, see <a href="https://docs.ceph.com/en/latest/rados/operations/pools/#set-pool-values">Ceph documentation: Set Pool values</a>.</li>
@@ -3567,14 +3570,14 @@ the <code>rack</code> topology instead. The <code>osd</code> failure domain is p
 </details>
 <p>As a result, the following Ceph pools will be created: <code>kubernetes-hdd</code>, <code>kubernetes-nvme</code>, and <code>archive</code>.</p>
 <p>To configure additional required pools for Rockoon, see
-<a href="../../../ops-guide/rockoon/rockoon-integration/#integrate-pelagia-with-rockoon">Integrate Pelagia with Rockoon</a>.</p>
+<a href="../../../ops-guide/rockoon/rockoon-integration/#rockoon-integration-integrate-pelagia-with-rockoon">Integrate Pelagia with Rockoon</a>.</p>
 <div class="admonition caution">
 <p class="admonition-title">Caution</p>
 <p>Since Ceph Pacific, Ceph CSI driver does not propagate the <code>777</code>
 permission on the mount point of persistent volumes based on any
 <code>StorageClass</code> of the Ceph pool.</p>
 </div>
-<p><a name="clients"></a></p>
+<p><a name="cephdeployment-clients-parameters"></a></p>
 <h3 id="clients-parameters">Clients parameters<a class="headerlink" href="#clients-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li><code>name</code> - Mandatory. Ceph client name.</li>
@@ -3591,7 +3594,7 @@ permission on the mount point of persistent volumes based on any
 <span class="w">      </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile rbd pool=kubernetes-nvme</span>
 </code></pre></div>
 </details>
-<p><a name="rgw"></a></p>
+<p><a name="cephdeployment-rados-gateway-parameters"></a></p>
 <h3 id="rados-gateway-parameters">RADOS Gateway parameters<a class="headerlink" href="#rados-gateway-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li><code>name</code> - Required. Ceph Object Storage instance name.</li>
@@ -3852,7 +3855,8 @@ items:</p>
 <span class="w">      </span><span class="nt">preservePoolsOnDelete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 </code></pre></div>
 </details>
-<h3 id="rados-gateway-multisite-parameters">RADOS Gateway Multisite parameters <a name="multisite"></a><a class="headerlink" href="#rados-gateway-multisite-parameters" title="Permanent link">#</a></h3>
+<p><a name="cephdeployment-rados-gateway-multisite-parameters"></a></p>
+<h3 id="rados-gateway-multisite-parameters">RADOS Gateway Multisite parameters<a class="headerlink" href="#rados-gateway-multisite-parameters" title="Permanent link">#</a></h3>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This feature is in Technical Preview, use it on own risk.</p>
@@ -3896,8 +3900,9 @@ items:</p>
 </ul>
 </li>
 </ul>
-<p>For configuration example, see <a href="../../../ops-guide/deployment/rgw-multisite/#enable-multisite-for-ceph=object-storage">Enable Multisite for Ceph Object Storage</a>.</p>
-<h3 id="cephfs-parameters">CephFS parameters <a name="cephfs"></a><a class="headerlink" href="#cephfs-parameters" title="Permanent link">#</a></h3>
+<p>For configuration example, see <a href="../../../ops-guide/deployment/rgw-multisite/#rgw-multisite-enable-multisite-for-ceph-object-storage">Enable Multisite for Ceph Object Storage</a>.</p>
+<p><a name="cephdeployment-cephfs-parameters"></a></p>
+<h3 id="cephfs-parameters">CephFS parameters<a class="headerlink" href="#cephfs-parameters" title="Permanent link">#</a></h3>
 <p><code>sharedFilesystem</code> contains a list of Ceph Filesystems <code>cephFS</code>. Each <code>cephFS</code> item
 contains the following parameters:</p>
 <ul>
@@ -4011,7 +4016,8 @@ For details see: <a href="https://kubernetes.io/docs/concepts/configuration/mana
 <span class="w">        </span><span class="nt">activeStandby</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 </code></pre></div>
 </details>
-<h3 id="rookconfig-parameters">RookConfig parameters <a name="rookConfig"></a><a class="headerlink" href="#rookconfig-parameters" title="Permanent link">#</a></h3>
+<p><a name="cephdeployment-rookconfig-parameters"></a></p>
+<h3 id="rookconfig-parameters">RookConfig parameters<a class="headerlink" href="#rookconfig-parameters" title="Permanent link">#</a></h3>
 <p>String key-value parameter that allows overriding Ceph configuration options.</p>
 <p>Use the <code>|</code> delimiter to specify the section where a parameter
 must be placed. For example, <code>mon</code> or <code>osd</code>. And, if required,
@@ -4029,7 +4035,8 @@ of all Ceph daemons except Ceph OSD.</p>
 <span class="w">    </span><span class="s">&quot;osd|osd_journal_size&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;8192&quot;</span>
 <span class="w">    </span><span class="s">&quot;osd.14|osd_journal_size&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;6250&quot;</span>
 </code></pre></div>
-<h3 id="healthcheck-parameters">HealthCheck parameters <a name="healthcheck"></a><a class="headerlink" href="#healthcheck-parameters" title="Permanent link">#</a></h3>
+<p><a name="cephdeployment-healthcheck-parameters"></a></p>
+<h3 id="healthcheck-parameters">HealthCheck parameters<a class="headerlink" href="#healthcheck-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li>
 <p><code>daemonHealth</code> - Optional. Specifies health check settings for Ceph daemons. Contains
@@ -4133,7 +4140,8 @@ for <code>mon</code>, <code>mgr</code>, <code>osd</code>, and <code>mds</code> (
 <span class="w">          </span><span class="nt">successThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 </code></pre></div>
 </details>
-<h3 id="extraopts-parameters">ExtraOpts parameters <a name="extraopts"></a><a class="headerlink" href="#extraopts-parameters" title="Permanent link">#</a></h3>
+<p><a name="cephdeployment-extraopts-parameters"></a></p>
+<h3 id="extraopts-parameters">ExtraOpts parameters<a class="headerlink" href="#extraopts-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li>
 <p><code>deviceLabels</code> - Optional. A key-value mapping which is used to assign a specification label to any
@@ -4191,7 +4199,8 @@ for <code>mon</code>, <code>mgr</code>, <code>osd</code>, and <code>mds</code> (
 </code></pre></div>
 </li>
 </ul>
-<h3 id="manager-modules-parameters">Manager modules parameters <a name="mgr-modules"></a><a class="headerlink" href="#manager-modules-parameters" title="Permanent link">#</a></h3>
+<p><a name="cephdeployment-manager-modules-parameters"></a></p>
+<h3 id="manager-modules-parameters">Manager modules parameters<a class="headerlink" href="#manager-modules-parameters" title="Permanent link">#</a></h3>
 <p><code>CephDeployment</code> specification <code>mgr</code> section contains <code>mgrModules</code> parameter. It includes the following
 parameters:</p>
 <ul>
@@ -4217,7 +4226,8 @@ parameters:</p>
 <p>Most Ceph Manager modules require additional configuration that you can perform through the <code>pelagia-lcm-tooblox</code>
 pod.</p>
 </div>
-<h3 id="rbd-mirroring-parameters">RBD Mirroring parameters <a name="rbdmirror"></a><a class="headerlink" href="#rbd-mirroring-parameters" title="Permanent link">#</a></h3>
+<p><a name="cephdeployment-rbd-mirroring-parameters"></a></p>
+<h3 id="rbd-mirroring-parameters">RBD Mirroring parameters<a class="headerlink" href="#rbd-mirroring-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li><code>daemonsCount</code> - Count of <code>rbd-mirror</code> daemons to spawn. We recommend using one instance of the <code>rbd-mirror</code> daemon.                                                                                                                                                                                                                                                                                                                                                                                                                  |</li>
 <li>
@@ -4231,7 +4241,7 @@ pod.</p>
 </ul>
 </li>
 </ul>
-<p><a name="status"></a></p>
+<p><a name="cephdeployment-status-fields"></a></p>
 <h2 id="status-fields">Status fields<a class="headerlink" href="#status-fields" title="Permanent link">#</a></h2>
 <ul>
 <li><code>phase</code> - Current handling phase of the applied Ceph cluster spec. Can equal to <code>Creating</code>, <code>Deploying</code>, <code>Validation</code>, <code>Ready</code>, <code>Deleting</code>, <code>OnHold</code> or <code>Failed</code>.</li>

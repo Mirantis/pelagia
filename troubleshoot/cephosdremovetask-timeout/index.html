@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2628,7 +2628,7 @@
   
 
 
-<p><a id="ceph-kcor-timeout"></a></p>
+<p><a id="cephosdremovetask-timeout-cephosdremovetask-failure-with-a-timeout-during-rebalance"></a></p>
 <h1 id="cephosdremovetask-failure-with-a-timeout-during-rebalance">CephOsdRemoveTask failure with a timeout during rebalance<a class="headerlink" href="#cephosdremovetask-failure-with-a-timeout-during-rebalance" title="Permanent link">#</a></h1>
 <p>Ceph OSD removal procedure includes the Ceph OSD <code>out</code> action that starts
 the Ceph PGs rebalancing process. The total time for rebalancing depends on a
@@ -2658,7 +2658,7 @@ timeout in minutes in string format:</p>
 <ol>
 <li>In the failed <code>CephOsdRemoveTask</code> resource, copy the <code>spec</code> section.</li>
 <li>Create a new <code>CephOsdRemoveTask</code> with a different name. For details,
-   see <a href="../../ops-guide/lcm/create-task-workflow/#create-osd-rm-request">Creating a Ceph OSD remove task</a>.</li>
+   see <a href="../../ops-guide/lcm/create-task-workflow/#create-task-workflow-creating-a-ceph-osd-remove-task">Creating a Ceph OSD remove task</a>.</li>
 <li>Paste the previously copied <code>spec</code> section of the failed
    <code>CephOsdRemoveTask</code> resource to the new one.</li>
 <li>Remove the failed <code>CephOsdRemoveTask</code> resource.</li>

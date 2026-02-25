@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2827,17 +2827,19 @@
   
 
 
-<p><a id="cephosdremovetask-custom-resource"></a></p>
+<p><a id="cephosdremovetask-cephosdremovetask-custom-resource"></a></p>
 <h1 id="cephosdremovetask-custom-resource">CephOsdRemoveTask custom resource<a class="headerlink" href="#cephosdremovetask-custom-resource" title="Permanent link">#</a></h1>
 <p>This section describes the <code>CephOsdRemoveTask</code> custom resource specification.
-For the procedure workflow, see <a href="../../../ops-guide/lcm/create-task-workflow/#create-osd-rm-request">Creating a Ceph OSD remove task</a>.</p>
-<h2 id="spec-parameters">Spec parameters <a name="spec"></a><a class="headerlink" href="#spec-parameters" title="Permanent link">#</a></h2>
+For the procedure workflow, see <a href="../../../ops-guide/lcm/create-task-workflow/#create-task-workflow-creating-a-ceph-osd-remove-task">Creating a Ceph OSD remove task</a>.</p>
+<p><a name="cephosdremovetask-spec-parameters"></a></p>
+<h2 id="spec-parameters">Spec parameters<a class="headerlink" href="#spec-parameters" title="Permanent link">#</a></h2>
 <ul>
-<li><code>nodes</code> - Map of Kubernetes nodes that specifies how to remove Ceph OSDs: by host-devices or OSD IDs. For details, see <a href="#nodes">Nodes parameters</a>.</li>
+<li><code>nodes</code> - Map of Kubernetes nodes that specifies how to remove Ceph OSDs: by host-devices or OSD IDs. For details, see Nodes parameters.</li>
 <li><code>approve</code> - Flag that indicates whether a request is ready to execute removal. Can only be manually enabled by the Operator. Defaults to <code>false</code>.</li>
 <li><code>resolved</code> - Optional. Flag that marks a finished request, even if it failed, to keep it in historydo not block any further operations.</li>
 </ul>
-<h3 id="nodes-parameters">Nodes parameters <a name="nodes"></a><a class="headerlink" href="#nodes-parameters" title="Permanent link">#</a></h3>
+<p><a name="cephosdremovetask-nodes-parameters"></a></p>
+<h3 id="nodes-parameters">Nodes parameters<a class="headerlink" href="#nodes-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li><code>completeCleanUp</code> - Flag used to clean up an entire node and drop it from the CRUSH map.
   Mutually exclusive with <code>cleanupByDevice</code> and <code>cleanupByOsd</code>.</li>
@@ -2915,7 +2917,7 @@ Ceph OSDs with device <code>by-id</code> symlinks or use <code>cleanupByOsd</cod
 <li>For <code>node-d</code>, cleanup, including all OSDs on the node, node drop from
   the CRUSH map but skip cleanup of all disks used for Ceph OSDs on this node.</li>
 </ul>
-<p><a name="status-fields"></a></p>
+<p><a name="cephosdremovetask-status-fields"></a></p>
 <h2 id="status-fields">Status fields<a class="headerlink" href="#status-fields" title="Permanent link">#</a></h2>
 <ul>
 <li><code>phase</code> - Describes the current task phase.</li>
@@ -2934,7 +2936,8 @@ Ceph OSDs with device <code>by-id</code> symlinks or use <code>cleanupByOsd</cod
 <li><code>CompletedWithWarnings</code> - The task is completed but some steps are skipped.</li>
 <li><code>Failed</code> - The task is failed on one of the steps.</li>
 </ul>
-<h3 id="remove-info-fields">Remove info fields <a name="remove-info"></a><a class="headerlink" href="#remove-info-fields" title="Permanent link">#</a></h3>
+<p><a name="cephosdremovetask-remove-info-fields"></a></p>
+<h3 id="remove-info-fields">Remove info fields<a class="headerlink" href="#remove-info-fields" title="Permanent link">#</a></h3>
 <ul>
 <li><code>cleanupMap</code> - Map of desired nodes and devices to clean up. Based on this map, the cloud operator decides whether to approve the current task or not. After approve, it will contain all statuses and errors happened during cleanup.</li>
 <li><code>issues</code> - List of error messages found during validation or processing phases</li>
@@ -2988,7 +2991,8 @@ Ceph OSDs with device <code>by-id</code> symlinks or use <code>cleanupByOsd</cod
 <li><code>volumeInfoMissed</code> - Flag that indicates whether <code>disk-daemon</code> collected device info or not.</li>
 <li><code>hostRemoveStatus</code> - Node removal status if node is marked for complete cleanup.</li>
 </ul>
-<h3 id="remove-info-examples">Remove info examples <a name="remove-info-examples"></a><a class="headerlink" href="#remove-info-examples" title="Permanent link">#</a></h3>
+<p><a name="cephosdremovetask-remove-info-examples"></a></p>
+<h3 id="remove-info-examples">Remove info examples<a class="headerlink" href="#remove-info-examples" title="Permanent link">#</a></h3>
 <details>
 <summary>Example of <code>status.removeInfo</code> after successful <code>Validation</code></summary>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>

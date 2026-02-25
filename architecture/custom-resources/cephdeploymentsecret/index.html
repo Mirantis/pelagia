@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2770,7 +2770,8 @@ To obtain the resource, run the following command:</p>
 <span class="w">  </span><span class="nt">resourceVersion</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 </code></pre></div>
 </details>
-<h2 id="high-level-status-fields">High-level status fields <a name="general"></a><a class="headerlink" href="#high-level-status-fields" title="Permanent link">#</a></h2>
+<p><a name="cephdeploymentsecret-high-level-status-fields"></a></p>
+<h2 id="high-level-status-fields">High-level status fields<a class="headerlink" href="#high-level-status-fields" title="Permanent link">#</a></h2>
 <p>The <code>CephDeploymentSecret</code> custom resource contains the following high-level status fields:</p>
 <ul>
 <li>
@@ -2784,10 +2785,11 @@ To obtain the resource, run the following command:</p>
 <p><code>lastSecretCheck</code> - <code>DateTime</code> when the Ceph cluster secrets were verified last time.</p>
 </li>
 <li><code>lastSecretUpdate</code> - <code>DateTime</code> when the Ceph cluster secrets were updated last time.</li>
-<li><code>secretsInfo</code> - List of secrets for Ceph <code>authx</code> clients and RADOS Gateway users. For details, see the reference below. </li>
+<li><code>secretsInfo</code> - List of secrets for Ceph <code>authx</code> clients and RADOS Gateway users. For details, see the reference below.</li>
 <li><code>messages</code> - List of error or warning messages, if any, found when collecting information about the Ceph cluster.</li>
 </ul>
-<h2 id="secret-info-fields">Secret info fields <a name="secret-info"></a><a class="headerlink" href="#secret-info-fields" title="Permanent link">#</a></h2>
+<p><a name="cephdeploymentsecret-secret-info-fields"></a></p>
+<h2 id="secret-info-fields">Secret info fields<a class="headerlink" href="#secret-info-fields" title="Permanent link">#</a></h2>
 <p>The <code>secretsInfo</code> field contains the following fields:</p>
 <ul>
 <li><code>clientSecrets</code> - Details on secrets for Ceph clients such as <code>name</code>, <code>secretName</code>, and <code>secretNamespace</code>

@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2737,7 +2737,7 @@
   
 
 
-<p><a id="cephdeploymenthealth-custom-resource"></a></p>
+<p><a id="cephdeploymenthealth-cephdeploymenthealth-custom-resource"></a></p>
 <h1 id="cephdeploymenthealth-custom-resource">CephDeploymentHealth custom resource<a class="headerlink" href="#cephdeploymenthealth-custom-resource" title="Permanent link">#</a></h1>
 <p>Verifying Ceph cluster state is <strong>an entry point for issues investigation</strong>.
 <code>CephDeploymentHealth</code> (<code>cephdeploymenthealths.lcm.mirantis.com</code>) custom resource (CR)
@@ -2974,7 +2974,8 @@ which Pelagia manages:</p>
 <span class="w">  </span><span class="nt">resourceVersion</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
 </code></pre></div>
 </details>
-<h2 id="high-level-status-fields">High-level status fields <a name="general"></a><a class="headerlink" href="#high-level-status-fields" title="Permanent link">#</a></h2>
+<p><a name="cephdeploymenthealth-high-level-status-fields"></a></p>
+<h2 id="high-level-status-fields">High-level status fields<a class="headerlink" href="#high-level-status-fields" title="Permanent link">#</a></h2>
 <ul>
 <li><code>healthReport</code> - Complete information about Ceph cluster including cluster, Ceph resources, and daemon health. It helps reveal potentially problematic components.</li>
 <li><code>lastHealthCheck</code> - <code>DateTime</code> when previous cluster state check occurred.</li>
@@ -2982,7 +2983,8 @@ which Pelagia manages:</p>
 <li><code>issues</code> - List of strings of all issues found during cluster state check.</li>
 <li><code>state</code> - Cluster state that can be <code>Ok</code> or <code>Failed</code> depending on the Ceph cluster state check.</li>
 </ul>
-<h2 id="health-report-status-fields">Health report status fields <a name="full"></a><a class="headerlink" href="#health-report-status-fields" title="Permanent link">#</a></h2>
+<p><a name="cephdeploymenthealth-health-report-status-fields"></a></p>
+<h2 id="health-report-status-fields">Health report status fields<a class="headerlink" href="#health-report-status-fields" title="Permanent link">#</a></h2>
 <ul>
 <li>
 <p><code>rookOperator</code> - State of the Rook Ceph Operator pod which contains the following fields:</p>

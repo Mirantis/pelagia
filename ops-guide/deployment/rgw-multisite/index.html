@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -2815,7 +2815,7 @@
   
 
 
-<p><a id="enable-multisite-for-ceph=object-storage"></a></p>
+<p><a id="rgw-multisite-enable-multisite-for-ceph-object-storage"></a></p>
 <h1 id="enable-multisite-for-ceph-object-storage">Enable Multisite for Ceph Object Storage<a class="headerlink" href="#enable-multisite-for-ceph-object-storage" title="Permanent link">#</a></h1>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -2825,7 +2825,8 @@
 Using multisite, such object storage is independent and isolated from another object storage in the cluster.
 Only the multi-zone multisite setup is currently supported. For more details, see
 <a href="https://docs.ceph.com/en/latest/radosgw/multisite">Ceph documentation: Multisite</a>.</p>
-<h2 id="multisite-parameters">Multisite parameters <a name="parameters"></a><a class="headerlink" href="#multisite-parameters" title="Permanent link">#</a></h2>
+<p><a name="rgw-multisite-multisite-parameters"></a></p>
+<h2 id="multisite-parameters">Multisite parameters<a class="headerlink" href="#multisite-parameters" title="Permanent link">#</a></h2>
 <ul>
 <li>
 <p><code>realms</code> - Required. List of realms to use, represents the realm namespaces. Includes the following parameters:</p>
@@ -2865,7 +2866,8 @@ Only the multi-zone multisite setup is currently supported. For more details, se
 </ul>
 </li>
 </ul>
-<h2 id="enable-the-multisite-rgw-object-storage">Enable the multisite RGW Object Storage <a name="enable"></a><a class="headerlink" href="#enable-the-multisite-rgw-object-storage" title="Permanent link">#</a></h2>
+<p><a name="rgw-multisite-enable-the-multisite-rgw-object-storage"></a></p>
+<h2 id="enable-the-multisite-rgw-object-storage">Enable the multisite RGW Object Storage<a class="headerlink" href="#enable-the-multisite-rgw-object-storage" title="Permanent link">#</a></h2>
 <ol>
 <li>Open the <code>CephDeployment</code> custom resource for editing:
    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephdpl<span class="w"> </span>&lt;name&gt;
@@ -2928,7 +2930,8 @@ Only the multi-zone multisite setup is currently supported. For more details, se
 </ol>
 <p>Once done, Pelagia Deployment Controller will create the required resources and Rook will
 handle the multisite configuration. For details, see: <a href="https://rook.io/docs/rook/latest/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/">Rook documentation: Object Multisite</a>.</p>
-<h3 id="configuring-master-zone-for-rgw-object-storage">Configuring master zone for RGW Object Storage <a name="master-zone-multisite"></a><a class="headerlink" href="#configuring-master-zone-for-rgw-object-storage" title="Permanent link">#</a></h3>
+<p><a name="rgw-multisite-configuring-master-zone-for-rgw-object-storage"></a></p>
+<h3 id="configuring-master-zone-for-rgw-object-storage">Configuring master zone for RGW Object Storage<a class="headerlink" href="#configuring-master-zone-for-rgw-object-storage" title="Permanent link">#</a></h3>
 <p>If you do not need to replicate data from a different storage cluster,
 and the current cluster represents the master zone, modify the current
 <code>objectStorage</code> section to use the multisite mode:</p>
@@ -3004,7 +3007,8 @@ configuration:</p>
 </code></pre></div></p>
 </li>
 </ol>
-<h3 id="configuring-replication-zone-for-rgw-object-storage">Configuring replication zone for RGW Object Storage <a name="replication-zone-multisite"></a><a class="headerlink" href="#configuring-replication-zone-for-rgw-object-storage" title="Permanent link">#</a></h3>
+<p><a name="rgw-multisite-configuring-replication-zone-for-rgw-object-storage"></a></p>
+<h3 id="configuring-replication-zone-for-rgw-object-storage">Configuring replication zone for RGW Object Storage<a class="headerlink" href="#configuring-replication-zone-for-rgw-object-storage" title="Permanent link">#</a></h3>
 <p>If you use a different storage cluster, and its object storage data must
 be replicated, specify the realm and zone group names along with the
 <code>pullEndpoint</code> parameter. Additionally, specify the endpoint, access
