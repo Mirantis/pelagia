@@ -40,7 +40,7 @@ var ExternalConnectionSecretWithAdminAndRgw = GetExternalConnectionSecret(
 	[]byte(`{"client_name":"admin","client_keyring":"AQAcpuJiITYXMhAAXaOoAqOKJ4mhNOAqxFb1Hw==","fsid":"8668f062-3faa-358a-85f3-f80fe6c1e306","mon_endpoints_map":"cmn01=10.0.0.1:6969,cmn02=10.0.0.2:6969,cmn03=10.0.0.3:6969","rgw_admin_keys":{"accessKey":"5TABLO7H0I6BTW6N25X5","secretKey":"Wd8SDDrtyyAuiD1klOGn9vJqOJh5dOSVlJ6kir9Q"}}`))
 
 var ExternalConnectionSecretNonAdmin = GetExternalConnectionSecret(
-	[]byte(`{"client_name":"test","client_keyring":"AQAcpuJiITYXMhAAXaOoAqOKJ4mhNOAqxFb1Hw==","fsid":"8668f062-3faa-358a-85f3-f80fe6c1e306","mon_endpoints_map":"cmn01=10.0.0.1:6969,cmn02=10.0.0.2:6969,cmn03=10.0.0.3:6969","rbd_keyring_info":{"node_key":"AQDd+HRjKiMBOhAATVfdzSNdlOAG3vaPSeTBzw==","provisioner_key":"AQDd+HRjFAcRIBAA102qzSI0WO1JfBnfPf/R2w=="},"cephfs_keyring_info":{"node_key":"AQDh+HRjCGpLDxAA1DqwfBPBGkW7+XM65JVChg==","provisioner_key":"AQDg+HRjKB9bLBAArfLLNtGN+KZRq4eaJf6Ptg=="}}`))
+	[]byte(`{"client_name":"test","client_keyring":"AQAcpuJiITYXMhAAXaOoAqOKJ4mhNOAqxFb1Hw==","fsid":"8668f062-3faa-358a-85f3-f80fe6c1e306","mon_endpoints_map":"cmn01=10.0.0.1:6969,cmn02=10.0.0.2:6969,cmn03=10.0.0.3:6969","rbd_keyring_info":{"node_user_id":"csi-rbd-node.1","node_key":"AQDd+HRjKiMBOhAATVfdzSNdlOAG3vaPSeTBzw==","provisioner_user_id":"csi-rbd-provisioner.1","provisioner_key":"AQDd+HRjFAcRIBAA102qzSI0WO1JfBnfPf/R2w=="},"cephfs_keyring_info":{"node_user_id":"csi-cephfs-node.1","node_key":"AQDh+HRjCGpLDxAA1DqwfBPBGkW7+XM65JVChg==","provisioner_user_id":"csi-cephfs-provisioner.1","provisioner_key":"AQDg+HRjKB9bLBAArfLLNtGN+KZRq4eaJf6Ptg=="},"rgw_admin_keys":{"accessKey":"5TABLO7H0I6BTW6N25X5","secretKey":"Wd8SDDrtyyAuiD1klOGn9vJqOJh5dOSVlJ6kir9Q"}}`))
 
 var CephAdminKeyringSecret = corev1.Secret{
 	ObjectMeta: metav1.ObjectMeta{
@@ -58,7 +58,7 @@ var CSIRBDNodeSecret = corev1.Secret{
 		Namespace: "rook-ceph",
 	},
 	Data: map[string][]byte{
-		"userID":  []byte("csi-rbd-node"),
+		"userID":  []byte("csi-rbd-node.1"),
 		"userKey": []byte("AQDd+HRjKiMBOhAATVfdzSNdlOAG3vaPSeTBzw=="),
 	},
 }
@@ -69,7 +69,7 @@ var CSIRBDProvisionerSecret = corev1.Secret{
 		Namespace: "rook-ceph",
 	},
 	Data: map[string][]byte{
-		"userID":  []byte("csi-rbd-provisioner"),
+		"userID":  []byte("csi-rbd-provisioner.1"),
 		"userKey": []byte("AQDd+HRjFAcRIBAA102qzSI0WO1JfBnfPf/R2w=="),
 	},
 }
@@ -80,7 +80,7 @@ var CSICephFSNodeSecret = corev1.Secret{
 		Namespace: "rook-ceph",
 	},
 	Data: map[string][]byte{
-		"userID":  []byte("csi-cephfs-node"),
+		"userID":  []byte("csi-cephfs-node.1"),
 		"userKey": []byte("AQDh+HRjCGpLDxAA1DqwfBPBGkW7+XM65JVChg=="),
 	},
 }
@@ -91,7 +91,7 @@ var CSICephFSProvisionerSecret = corev1.Secret{
 		Namespace: "rook-ceph",
 	},
 	Data: map[string][]byte{
-		"userID":  []byte("csi-cephfs-provisioner"),
+		"userID":  []byte("csi-cephfs-provisioner.1"),
 		"userKey": []byte("AQDg+HRjKB9bLBAArfLLNtGN+KZRq4eaJf6Ptg=="),
 	},
 }
