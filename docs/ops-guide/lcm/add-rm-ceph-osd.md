@@ -72,7 +72,6 @@ OSDs.
    kubectl -n rook-ceph get pod -l app=rook-ceph-osd -o wide | grep <nodeName>
    ```
 
-<a id="add-rm-ceph-osd-remove-a-ceph-osd"></a>
 <a name="add-rm-ceph-osd-remove-a-ceph-osd"></a>
 ## Remove a Ceph OSD
 

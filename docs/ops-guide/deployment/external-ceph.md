@@ -36,7 +36,7 @@ To plan a shared Ceph cluster, select resources to share on the producer Ceph cl
      ```bash
      kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph osd lspools
      ```
-      
+
      Example of system response:
 
      ```bash
@@ -49,7 +49,7 @@ To plan a shared Ceph cluster, select resources to share on the producer Ceph cl
       In the example above, `kubernetes-hdd` and `anotherpool-hdd` are RBD pools.
 
 3. In `sharedFilesystem`, identify the CephFS name. For example:
-   
+
      ```yaml
      sharedFilesystem:
        cephFS:
