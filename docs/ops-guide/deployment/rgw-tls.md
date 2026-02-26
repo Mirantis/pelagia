@@ -132,10 +132,13 @@ For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-o
 Configure TLS for Ceph Object Gateway using a custom `ingressConfig`:
 
 1. Open the `CephDeployment` CR for editing:
-  ```bash
-  kubectl -n pelagia edit cephdpl <name>
-  ```
-  Substitute `<name>` with the name of your `CephDeployment`.
+
+     ```bash
+     kubectl -n pelagia edit cephdpl <name>
+     ```
+
+    Substitute `<name>` with the name of your `CephDeployment`.
+
 2. Specify the `ingressConfig` parameters as required.
 3. Save the changes and close the editor.
 
@@ -143,9 +146,10 @@ Configure TLS for Ceph Object Gateway using a custom `ingressConfig`:
 
       For Pelagia with Rockoon, you can omit TLS configuration for the default settings provided by Rockoon to be
       applied. Just obtain the Rockoon OpenStack CA certificate for a trusted connection:
-      ```
-      kubectl -n openstack-ceph-shared get secret openstack-rgw-creds -o jsonpath="{.data.ca_cert}" | base64 -d
-      ```
+
+        ```bash
+        kubectl -n openstack-ceph-shared get secret openstack-rgw-creds -o jsonpath="{.data.ca_cert}" | base64 -d
+        ```
 
 If you use the HTTP scheme instead of HTTPS for internal or public Ceph Object Gateway endpoints,
 add custom annotations to the `ingressConfig.annotations` section of the `CephDeployment` CR:
@@ -200,10 +204,11 @@ Access internal Ceph Object Gateway endpoint if needed:
     ```
 
 Verify at least one of the following requirements is met:
-    * The public hostname matches the public domain name set by the `spec.ingressConfig.tlsConfig.publicDomain` field;
-    * The OpenStack configuration has been applied.
 
-If both options is not true, update the zonegroup `hostnames` of Ceph Object Gateway:
+- The public hostname matches the public domain name set by the `spec.ingressConfig.tlsConfig.publicDomain` field;
+- The OpenStack configuration has been applied.
+
+If both options are not ``true``, update the zonegroup `hostnames` of Ceph Object Gateway:
 
 1. Enter the `pelagia-ceph-toolbox` pod:
     ```bash

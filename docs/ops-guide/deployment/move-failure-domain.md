@@ -52,7 +52,7 @@ other types of failure domains, migrate pools separately, and so on.
 
 1. Set the required CRUSH topology in the `MiraCeph` object for each
    defined node. For details on the `crush` parameter, see
-   [Node parameters](../../architecture/custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
+   [Nodes parameters](../../architecture/custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
 
      Setting the CRUSH topology to each node causes the Pelagia Deployment Controller to set proper Kubernetes
      labels on the nodes.

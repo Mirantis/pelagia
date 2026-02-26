@@ -23,7 +23,7 @@ The workflow of creating a Ceph OSD removal task includes the following steps:
      request then moves to the `ApproveWaiting` phase until the cloud operator manually specifies the `approve`
      flag in the spec.
 
-    ???+ "Example of the `CephOsdRemoveTask` custom resource"
+    ??? "Example of the `CephOsdRemoveTask` custom resource"
         ```yaml
         apiVersion: lcm.mirantis.com/v1alpha1
         kind: CephOsdRemoveTask
@@ -65,23 +65,19 @@ The workflow of creating a Ceph OSD removal task includes the following steps:
 
 4. Reviewing the Ceph OSD removal status. For details, see [Status fields](../../architecture/custom-resources/cephosdremovetask.md#cephosdremovetask-status-fields)
 
-5. Manual removal of device cleanup jobs.
+5. Manual removal of device cleanup jobs. Device cleanup jobs are not removed automatically and are kept in Pelagia namespace along with pods containing information about the executed actions. The jobs have the following labels:
 
-    !!! note
+    ```yaml
+    labels:
+      app: pelagia-lcm-cleanup-disks
+      host: <HOST-NAME>
+      osd: <OSD-ID>
+      rook-cluster: <ROOK-CLUSTER-NAME>
+    ```
 
-         Device cleanup jobs are not removed automatically and are kept in Pelagia namespace along with pods containing
-         information about the executed actions. The jobs have the following labels:
-         ```yaml
-         labels:
-           app: pelagia-lcm-cleanup-disks
-           host: <HOST-NAME>
-           osd: <OSD-ID>
-           rook-cluster: <ROOK-CLUSTER-NAME>
-         ```
-
-         Additionally, jobs are labeled with disk names that will be cleaned up, such as `sdb=true`.
-         You can remove a single job or a group of jobs using any label described above, such as host, disk, and so on.
+    Additionally, jobs are labeled with disk names that will be cleaned up, such as `sdb=true`.
+    You can remove a single job or a group of jobs using any label described above, such as host, disk, and so on.
 
 !!! info "See also"
 
-    [CephOsdRemoveRequest failure with a timeout during rebalance](../../../troubleshoot/cephosdremovetask-timeout)
+    [CephOsdRemoveTask failure with a timeout during rebalance](../../../troubleshoot/cephosdremovetask-timeout)

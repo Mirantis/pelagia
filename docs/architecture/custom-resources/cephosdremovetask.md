@@ -7,7 +7,7 @@ For the procedure workflow, see [Creating a Ceph OSD remove task](../../ops-guid
 <a name="cephosdremovetask-spec-parameters"></a>
 ## Spec parameters
 
-- `nodes` - Map of Kubernetes nodes that specifies how to remove Ceph OSDs: by host-devices or OSD IDs. For details, see Nodes parameters.
+- `nodes` - Map of Kubernetes nodes that specifies how to remove Ceph OSDs: by host-devices or OSD IDs. For details, see the **Nodes parameters** section below.
 - `approve` - Flag that indicates whether a request is ready to execute removal. Can only be manually enabled by the Operator. Defaults to `false`.
 - `resolved` - Optional. Flag that marks a finished request, even if it failed, to keep it in historydo not block any further operations.
 
