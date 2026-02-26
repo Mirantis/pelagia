@@ -79,16 +79,17 @@ func (c *CephConnector) getClusterClientKeyring(rookNamespace, clientName string
 	return keyring, nil
 }
 
-func (c *CephConnector) getCephKeyringFromSecret(rookNamespace, keyringSecretName string) (string, error) {
+func (c *CephConnector) getCephKeyringFromSecret(rookNamespace, keyringSecretName string) (string, string, error) {
 	secret, err := c.Kubeclientset.CoreV1().Secrets(rookNamespace).Get(c.Context, keyringSecretName, metav1.GetOptions{})
 	if err != nil {
-		return "", errors.Wrapf(err, "failed to get Secret '%s/%s'", rookNamespace, keyringSecretName)
+		return "", "", errors.Wrapf(err, "failed to get Secret '%s/%s'", rookNamespace, keyringSecretName)
 	}
 	keyring := string(secret.Data["userKey"])
-	if keyring == "" {
-		return "", errors.Errorf("Secret '%s/%s' has empty keyring", rookNamespace, keyringSecretName)
+	user := string(secret.Data["userID"])
+	if keyring == "" || user == "" {
+		return "", "", errors.Errorf("Secret '%s/%s' has empty userKey or userID", rookNamespace, keyringSecretName)
 	}
-	return keyring, nil
+	return user, keyring, nil
 }
 
 func (c *CephConnector) getRgwKeys(rookNamespace, username string) (*lcmcommon.RgwUserKeys, error) {

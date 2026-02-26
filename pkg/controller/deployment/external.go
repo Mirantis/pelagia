@@ -107,12 +107,12 @@ func (c *cephDeploymentConfig) addExternalResources(ownerRefs []metav1.OwnerRefe
 			secretsToManage = append(secretsToManage,
 				createCephExternalSecret(fmt.Sprintf("rook-%s", lcmcommon.CephCSIRBDNodeClientName),
 					map[string][]byte{
-						"userID":  []byte(lcmcommon.CephCSIRBDNodeClientName),
+						"userID":  []byte(cephCon.RBDKeyring.NodeUser),
 						"userKey": []byte(cephCon.RBDKeyring.NodeKey),
 					}),
 				createCephExternalSecret(fmt.Sprintf("rook-%s", lcmcommon.CephCSIRBDProvisionerClientName),
 					map[string][]byte{
-						"userID":  []byte(lcmcommon.CephCSIRBDProvisionerClientName),
+						"userID":  []byte(cephCon.RBDKeyring.ProvisionerUser),
 						"userKey": []byte(cephCon.RBDKeyring.ProvisionerKey),
 					}),
 			)
@@ -121,12 +121,12 @@ func (c *cephDeploymentConfig) addExternalResources(ownerRefs []metav1.OwnerRefe
 				secretsToManage = append(secretsToManage,
 					createCephExternalSecret(fmt.Sprintf("rook-%s", lcmcommon.CephCSICephFSNodeClientName),
 						map[string][]byte{
-							"userID":  []byte(lcmcommon.CephCSICephFSNodeClientName),
+							"userID":  []byte(cephCon.CephFSKeyring.NodeUser),
 							"userKey": []byte(cephCon.CephFSKeyring.NodeKey),
 						}),
 					createCephExternalSecret(fmt.Sprintf("rook-%s", lcmcommon.CephCSICephFSProvisionerClientName),
 						map[string][]byte{
-							"userID":  []byte(lcmcommon.CephCSICephFSProvisionerClientName),
+							"userID":  []byte(cephCon.CephFSKeyring.ProvisionerUser),
 							"userKey": []byte(cephCon.CephFSKeyring.ProvisionerKey),
 						}),
 				)

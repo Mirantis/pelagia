@@ -155,6 +155,7 @@ func TestGetCephKeyringFromSecret(t *testing.T) {
 	tests := []struct {
 		name           string
 		inputResources map[string]runtime.Object
+		userID         string
 		keyring        string
 		expectedError  string
 	}{
@@ -168,13 +169,14 @@ func TestGetCephKeyringFromSecret(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"secrets": &v1.SecretList{Items: []v1.Secret{{ObjectMeta: unitinputs.CSIRBDNodeSecret.ObjectMeta}}},
 			},
-			expectedError: "Secret 'rook-ceph/rook-csi-rbd-node' has empty keyring",
+			expectedError: "Secret 'rook-ceph/rook-csi-rbd-node' has empty userKey or userID",
 		},
 		{
 			name: "no keyring specified in secret",
 			inputResources: map[string]runtime.Object{
 				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.CSIRBDNodeSecret}},
 			},
+			userID:  "csi-rbd-node.1",
 			keyring: "AQDd+HRjKiMBOhAATVfdzSNdlOAG3vaPSeTBzw==",
 		},
 	}
@@ -182,14 +184,15 @@ func TestGetCephKeyringFromSecret(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			faketestclients.FakeReaction(c.Kubeclientset.CoreV1(), "get", []string{"secrets"}, test.inputResources, nil)
 
-			keyring, err := c.getCephKeyringFromSecret("rook-ceph", "rook-csi-rbd-node")
+			userID, keyring, err := c.getCephKeyringFromSecret("rook-ceph", "rook-csi-rbd-node")
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
 			} else {
 				assert.Nil(t, err)
-				assert.Equal(t, test.keyring, keyring)
 			}
+			assert.Equal(t, test.userID, userID)
+			assert.Equal(t, test.keyring, keyring)
 			faketestclients.CleanupFakeClientReactions(c.Kubeclientset.CoreV1())
 		})
 	}
