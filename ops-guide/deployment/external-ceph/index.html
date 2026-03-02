@@ -11,28 +11,28 @@
       
       
       
-        <link rel="prev" href="../s3-create-user/">
+        <link rel="prev" href="../move-mon-node-replace/">
       
       
-        <link rel="next" href="../bucket-policy-rockoon/">
+        <link rel="next" href="../../rockoon/rockoon-integration/">
       
       
         
       
       
-      <link rel="icon" href="../../../../assets/favicon.ico">
+      <link rel="icon" href="../../../assets/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
-        <title>Bucket Policy for Ceph Object User - Pelagia Controller for Rook Ceph management</title>
+        <title>External Ceph cluster - Pelagia Controller for Rook Ceph management</title>
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#set-a-bucket-policy-for-a-ceph-object-storage-user" class="md-skip">
+        <a href="#share-ceph-across-two-clusters" class="md-skip">
           Skip to content
         </a>
       
@@ -94,9 +94,9 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../.." title="Pelagia Controller for Rook Ceph management" class="md-header__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
+    <a href="../../.." title="Pelagia Controller for Rook Ceph management" class="md-header__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
       
-  <img src="../../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
+  <img src="../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -113,7 +113,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Bucket Policy for Ceph Object User
+              External Ceph cluster
             
           </span>
         </div>
@@ -231,9 +231,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../.." title="Pelagia Controller for Rook Ceph management" class="md-nav__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
+    <a href="../../.." title="Pelagia Controller for Rook Ceph management" class="md-nav__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
       
-  <img src="../../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
+  <img src="../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
 
     </a>
     Pelagia Controller for Rook Ceph management
@@ -260,7 +260,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -334,7 +334,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/overview/" class="md-nav__link">
+      <a href="../../../architecture/overview/" class="md-nav__link">
         
   
   
@@ -362,7 +362,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/limitations/" class="md-nav__link">
+      <a href="../../../architecture/limitations/" class="md-nav__link">
         
   
   
@@ -390,7 +390,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/addressing-ceph-devices/" class="md-nav__link">
+      <a href="../../../architecture/addressing-ceph-devices/" class="md-nav__link">
         
   
   
@@ -418,7 +418,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/rockoon-integration/" class="md-nav__link">
+      <a href="../../../architecture/rockoon-integration/" class="md-nav__link">
         
   
   
@@ -493,7 +493,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/custom-resources/cephdeployment/" class="md-nav__link">
+      <a href="../../../architecture/custom-resources/cephdeployment/" class="md-nav__link">
         
   
   
@@ -521,7 +521,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/custom-resources/cephdeploymenthealth/" class="md-nav__link">
+      <a href="../../../architecture/custom-resources/cephdeploymenthealth/" class="md-nav__link">
         
   
   
@@ -549,7 +549,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/custom-resources/cephdeploymentsecret/" class="md-nav__link">
+      <a href="../../../architecture/custom-resources/cephdeploymentsecret/" class="md-nav__link">
         
   
   
@@ -577,7 +577,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/custom-resources/cephosdremovetask/" class="md-nav__link">
+      <a href="../../../architecture/custom-resources/cephosdremovetask/" class="md-nav__link">
         
   
   
@@ -667,7 +667,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../quick-start/installation/" class="md-nav__link">
+      <a href="../../../quick-start/installation/" class="md-nav__link">
         
   
   
@@ -695,7 +695,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../quick-start/lcm-installation/" class="md-nav__link">
+      <a href="../../../quick-start/lcm-installation/" class="md-nav__link">
         
   
   
@@ -723,7 +723,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../quick-start/upgrade/" class="md-nav__link">
+      <a href="../../../quick-start/upgrade/" class="md-nav__link">
         
   
   
@@ -758,7 +758,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../developer/" class="md-nav__link">
+      <a href="../../../developer/" class="md-nav__link">
         
   
   
@@ -834,7 +834,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../default-ceph-conf/" class="md-nav__link">
+      <a href="../default-ceph-conf/" class="md-nav__link">
         
   
   
@@ -862,7 +862,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rook-daemon-place/" class="md-nav__link">
+      <a href="../rook-daemon-place/" class="md-nav__link">
         
   
   
@@ -890,7 +890,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../multinetworking/" class="md-nav__link">
+      <a href="../multinetworking/" class="md-nav__link">
         
   
   
@@ -918,7 +918,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rbd-mirror/" class="md-nav__link">
+      <a href="../rbd-mirror/" class="md-nav__link">
         
   
   
@@ -946,7 +946,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cephfs/" class="md-nav__link">
+      <a href="../cephfs/" class="md-nav__link">
         
   
   
@@ -974,7 +974,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../move-failure-domain/" class="md-nav__link">
+      <a href="../move-failure-domain/" class="md-nav__link">
         
   
   
@@ -1002,7 +1002,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../move-mon-daemon/" class="md-nav__link">
+      <a href="../move-mon-daemon/" class="md-nav__link">
         
   
   
@@ -1030,7 +1030,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../move-mon-node-replace/" class="md-nav__link">
+      <a href="../move-mon-node-replace/" class="md-nav__link">
         
   
   
@@ -1055,10 +1055,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../external-ceph/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    External Ceph cluster
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1074,6 +1101,98 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#plan-a-shared-ceph-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plan a shared Ceph cluster
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Plan a shared Ceph cluster">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#obtain-resources-to-share-on-the-producer-ceph-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Obtain resources to share on the producer Ceph cluster
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-ceph-non-admin-client-for-a-shared-ceph-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create a Ceph non-admin client for a shared Ceph cluster
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connect-the-producer-to-the-consumer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connect the producer to the consumer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consume-pools-from-the-ceph-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consume pools from the Ceph cluster
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enable-cephfs-on-a-consumer-ceph-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enable CephFS on a consumer Ceph cluster
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1133,7 +1252,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../rockoon/rockoon-integration/" class="md-nav__link">
+      <a href="../../rockoon/rockoon-integration/" class="md-nav__link">
         
   
   
@@ -1161,7 +1280,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../rockoon/cinder-multi-backend/" class="md-nav__link">
+      <a href="../../rockoon/cinder-multi-backend/" class="md-nav__link">
         
   
   
@@ -1189,7 +1308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../rockoon/calc-target-ratio/" class="md-nav__link">
+      <a href="../../rockoon/calc-target-ratio/" class="md-nav__link">
         
   
   
@@ -1222,20 +1341,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_11" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_11" >
         
           
           <label class="md-nav__link" for="__nav_5_11" id="__nav_5_11_label" tabindex="0">
@@ -1256,7 +1373,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_11_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_11_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_11">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1274,7 +1391,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rgw/" class="md-nav__link">
+      <a href="../rgw/" class="md-nav__link">
         
   
   
@@ -1302,7 +1419,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rgw-tls/" class="md-nav__link">
+      <a href="../rgw-tls/" class="md-nav__link">
         
   
   
@@ -1330,7 +1447,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rgw-multisite/" class="md-nav__link">
+      <a href="../rgw-multisite/" class="md-nav__link">
         
   
   
@@ -1358,7 +1475,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rgw-sse/" class="md-nav__link">
+      <a href="../rgw-sse/" class="md-nav__link">
         
   
   
@@ -1383,20 +1500,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_11_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_11_5" >
         
           
           <label class="md-nav__link" for="__nav_5_11_5" id="__nav_5_11_5_label" tabindex="0">
@@ -1417,7 +1532,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_11_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_11_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_11_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1435,7 +1550,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../s3-create-user/" class="md-nav__link">
+      <a href="../s3-bucket-policy/s3-create-user/" class="md-nav__link">
         
   
   
@@ -1460,37 +1575,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Bucket Policy for Ceph Object User
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../s3-bucket-policy/bucket-policy-s3/" class="md-nav__link">
         
   
   
@@ -1506,48 +1594,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#configure-s3cmd-command-line-tool" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configure s3cmd command-line tool
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#configure-an-amazon-s3-bucket-policy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configure an Amazon S3 bucket policy
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1560,7 +1606,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bucket-policy-rockoon/" class="md-nav__link">
+      <a href="../s3-bucket-policy/bucket-policy-rockoon/" class="md-nav__link">
         
   
   
@@ -1651,7 +1697,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ceph-user-creds/ceph-client/" class="md-nav__link">
+      <a href="../ceph-user-creds/ceph-client/" class="md-nav__link">
         
   
   
@@ -1679,7 +1725,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
+      <a href="../ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
         
   
   
@@ -1762,7 +1808,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ceph-resource-mgmt/enable-resource-mgmt/" class="md-nav__link">
+      <a href="../ceph-resource-mgmt/enable-resource-mgmt/" class="md-nav__link">
         
   
   
@@ -1790,7 +1836,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ceph-resource-mgmt/verify-resource-mgmt/" class="md-nav__link">
+      <a href="../ceph-resource-mgmt/verify-resource-mgmt/" class="md-nav__link">
         
   
   
@@ -1920,7 +1966,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/create-task-workflow/" class="md-nav__link">
+      <a href="../../lcm/create-task-workflow/" class="md-nav__link">
         
   
   
@@ -1948,7 +1994,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/add-rm-ceph-osd/" class="md-nav__link">
+      <a href="../../lcm/add-rm-ceph-osd/" class="md-nav__link">
         
   
   
@@ -1976,7 +2022,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/add-rm-ceph-osd-with-meta/" class="md-nav__link">
+      <a href="../../lcm/add-rm-ceph-osd-with-meta/" class="md-nav__link">
         
   
   
@@ -2004,7 +2050,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/add-rm-ceph-node/" class="md-nav__link">
+      <a href="../../lcm/add-rm-ceph-node/" class="md-nav__link">
         
   
   
@@ -2032,7 +2078,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/replace-ceph-osd/" class="md-nav__link">
+      <a href="../../lcm/replace-ceph-osd/" class="md-nav__link">
         
   
   
@@ -2060,7 +2106,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/replace-osd-meta-lvm/" class="md-nav__link">
+      <a href="../../lcm/replace-osd-meta-lvm/" class="md-nav__link">
         
   
   
@@ -2088,7 +2134,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/replace-osd-meta-device/" class="md-nav__link">
+      <a href="../../lcm/replace-osd-meta-device/" class="md-nav__link">
         
   
   
@@ -2116,7 +2162,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/replace-ceph-node/" class="md-nav__link">
+      <a href="../../lcm/replace-ceph-node/" class="md-nav__link">
         
   
   
@@ -2144,7 +2190,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/replace-meta/" class="md-nav__link">
+      <a href="../../lcm/replace-meta/" class="md-nav__link">
         
   
   
@@ -2180,7 +2226,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/increase-storage-size/" class="md-nav__link">
+      <a href="../../lcm/increase-storage-size/" class="md-nav__link">
         
   
   
@@ -2208,7 +2254,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/manual-osd-remove/" class="md-nav__link">
+      <a href="../../lcm/manual-osd-remove/" class="md-nav__link">
         
   
   
@@ -2291,7 +2337,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../verify-ceph/verify-cephdeploymenthealth/" class="md-nav__link">
+      <a href="../../verify-ceph/verify-cephdeploymenthealth/" class="md-nav__link">
         
   
   
@@ -2319,7 +2365,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../verify-ceph/verify-ceph-core/" class="md-nav__link">
+      <a href="../../verify-ceph/verify-ceph-core/" class="md-nav__link">
         
   
   
@@ -2347,7 +2393,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../verify-ceph/verify-pelagia-and-rook/" class="md-nav__link">
+      <a href="../../verify-ceph/verify-pelagia-and-rook/" class="md-nav__link">
         
   
   
@@ -2375,7 +2421,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../verify-ceph/verify-rook-discover/" class="md-nav__link">
+      <a href="../../verify-ceph/verify-rook-discover/" class="md-nav__link">
         
   
   
@@ -2465,7 +2511,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/cephosdremovetask-timeout/" class="md-nav__link">
+      <a href="../../../troubleshoot/cephosdremovetask-timeout/" class="md-nav__link">
         
   
   
@@ -2493,7 +2539,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/ceph-osd-auth-failed/" class="md-nav__link">
+      <a href="../../../troubleshoot/ceph-osd-auth-failed/" class="md-nav__link">
         
   
   
@@ -2521,7 +2567,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/ceph-exporter-crash/" class="md-nav__link">
+      <a href="../../../troubleshoot/ceph-exporter-crash/" class="md-nav__link">
         
   
   
@@ -2549,7 +2595,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/ceph-mon-store-size-grow/" class="md-nav__link">
+      <a href="../../../troubleshoot/ceph-mon-store-size-grow/" class="md-nav__link">
         
   
   
@@ -2577,7 +2623,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/ceph-mon-recover/" class="md-nav__link">
+      <a href="../../../troubleshoot/ceph-mon-recover/" class="md-nav__link">
         
   
   
@@ -2605,7 +2651,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/ceph-disaster-recover/" class="md-nav__link">
+      <a href="../../../troubleshoot/ceph-disaster-recover/" class="md-nav__link">
         
   
   
@@ -2660,10 +2706,38 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configure-s3cmd-command-line-tool" class="md-nav__link">
+  <a href="#plan-a-shared-ceph-cluster" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configure s3cmd command-line tool
+        Plan a shared Ceph cluster
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Plan a shared Ceph cluster">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#obtain-resources-to-share-on-the-producer-ceph-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Obtain resources to share on the producer Ceph cluster
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-a-ceph-non-admin-client-for-a-shared-ceph-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create a Ceph non-admin client for a shared Ceph cluster
       
     </span>
   </a>
@@ -2671,10 +2745,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configure-an-amazon-s3-bucket-policy" class="md-nav__link">
+  <a href="#connect-the-producer-to-the-consumer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configure an Amazon S3 bucket policy
+        Connect the producer to the consumer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consume-pools-from-the-ceph-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consume pools from the Ceph cluster
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enable-cephfs-on-a-consumer-ceph-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enable CephFS on a consumer Ceph cluster
       
     </span>
   </a>
@@ -2706,7 +2802,7 @@
   
   
     <li class="md-path__item">
-      <a href="../../../.." class="md-path__link">
+      <a href="../../.." class="md-path__link">
         
   <span class="md-ellipsis">
     Welcome to Pelagia
@@ -2724,46 +2820,10 @@
     
     
       <li class="md-path__item">
-        <a href="../../default-ceph-conf/" class="md-path__link">
+        <a href="../default-ceph-conf/" class="md-path__link">
           
   <span class="md-ellipsis">
     Operations Guide
-  </span>
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-    
-    
-      <li class="md-path__item">
-        <a href="../../rgw/" class="md-path__link">
-          
-  <span class="md-ellipsis">
-    Ceph Object Storage
-  </span>
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-    
-    
-      <li class="md-path__item">
-        <a href="../s3-create-user/" class="md-path__link">
-          
-  <span class="md-ellipsis">
-    RADOS Gateway Bucket Policy
   </span>
 
         </a>
@@ -2785,161 +2845,211 @@
   
 
 
-<p><a id="bucket-policy-s3-set-a-bucket-policy-for-a-ceph-object-storage-user"></a></p>
-<h1 id="set-a-bucket-policy-for-a-ceph-object-storage-user">Set a bucket policy for a Ceph Object Storage user<a class="headerlink" href="#set-a-bucket-policy-for-a-ceph-object-storage-user" title="Permanent link">#</a></h1>
-<p>Amazon S3 is an object storage service with different access policies. A bucket
-policy is a resource-based policy that grants permissions to a bucket and
-objects in it. For more details, see
-<a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-policies.html">Amazon S3 documentation: Using bucket policies</a>.</p>
-<p>The following procedure illustrates the process of setting a bucket policy for
-a bucket (<code>test01</code>) stored in a Ceph Object Storage. The bucket policy
-requires at least two users: a bucket owner (<code>user-a</code>) and a bucket user
-(<code>user-t</code>). The bucket owner creates the bucket and sets the policy that
-regulates access for the bucket user.
-The procedure uses the <code>s3cmd</code> command-line tool.</p>
-<p><a name="bucket-policy-s3-configure-s3cmd-command-line-tool"></a></p>
-<h2 id="configure-s3cmd-command-line-tool">Configure <code>s3cmd</code> command-line tool<a class="headerlink" href="#configure-s3cmd-command-line-tool" title="Permanent link">#</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The s3cmd is a free command-line tool and client for uploading,
-retrieving, and managing data in Amazon S3 and other cloud storage service
-providers that use the S3 protocol. You can download the s3cmd CLI tool from
-<a href="https://s3tools.org/download">Amazon S3 tools: Download s3cmd</a>.</p>
+<p><a id="external-ceph-share-ceph-across-two-clusters"></a></p>
+<h1 id="share-ceph-across-two-clusters">Share Ceph across two clusters<a class="headerlink" href="#share-ceph-across-two-clusters" title="Permanent link">#</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This feature is in Technical Preview, use it on own risk.</p>
 </div>
-<p>Configure the s3cmd client with some s3 credentials, you need to run:
-<div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>--configure<span class="w"> </span>--ca-certs<span class="o">=</span>ca.crt
-</code></pre></div></p>
-<p>where <code>ca.crt</code> is a CA certificate signs Ceph Object Storage public endpoint.</p>
-<p>The command will ask to specify the following bucket access parameters:</p>
+<p>This section describes how to share a Ceph cluster with another Kubernetes cluster and how to manage such Ceph cluster.</p>
+<p>A shared Ceph cluster allows connecting of a consumer cluster to a producer cluster.
+The consumer cluster uses the Ceph cluster deployed on the producer
+to store the necessary data. In other words, the producer cluster contains the
+Ceph cluster with <code>mon</code>, <code>mgr</code>, <code>osd</code>, and <code>mds</code> daemons. And the
+consumer cluster contains clients that require access to the Ceph storage.
+For example, an NGINX application that runs in a cluster without storage
+requires a persistent volume to store data. In this case, such a cluster can
+connect to a Ceph cluster and use it as a block or file storage.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Limitations:</p>
 <ul>
-<li><code>Access Key</code> - Public part of access credentials. Specify a user access key.</li>
-<li><code>Secret Key</code> - Secret part of access credentials. Specify a user secret key.</li>
-<li><code>Default Region</code> - Region of AWS servers where requests are sent by default. Use the default value.</li>
-<li><code>S3 Endpoint</code> - Connection point to the Ceph Object Storage. Specify the Ceph Object Storage public endpoint.</li>
-<li><code>DNS-style bucket+hostname:port template for accessing a bucket</code> - Bucket location. Specify the Ceph Object Storage public endpoint.</li>
-<li><code>Path to GPG program</code> - Path to the GNU Privacy Guard encryption suite. Use the default value.</li>
-<li><code>Use HTTPS protocol</code> - HTTPS protocol switch. Specify <code>Yes</code>.</li>
-<li><code>HTTP Proxy server name</code> - HTTP Proxy server name. Skip this parameter.</li>
+<li>The producer and consumer clusters must have the same Ceph external and cluster networks reachable.</li>
+<li>Monitor endpoints' network of the producer cluster must be available in the consumer cluster.</li>
 </ul>
-<p>When configured correctly, the <code>s3cmd</code> tool connects to the Ceph Object Storage.
-Save new settings when prompted by the system.</p>
-<h2 id="configure-an-amazon-s3-bucket-policy">Configure an Amazon S3 bucket policy<a class="headerlink" href="#configure-an-amazon-s3-bucket-policy" title="Permanent link">#</a></h2>
+</div>
+<h2 id="plan-a-shared-ceph-cluster">Plan a shared Ceph cluster<a class="headerlink" href="#plan-a-shared-ceph-cluster" title="Permanent link">#</a></h2>
+<p>To plan a shared Ceph cluster, select resources to share on the producer Ceph cluster:</p>
+<ul>
+<li>Select the RADOS Block Device (RBD) pools to share from the Ceph cluster.</li>
+<li>Select the CephFS name to share from the Ceph cluster.</li>
+</ul>
+<h3 id="obtain-resources-to-share-on-the-producer-ceph-cluster">Obtain resources to share on the producer Ceph cluster<a class="headerlink" href="#obtain-resources-to-share-on-the-producer-ceph-cluster" title="Permanent link">#</a></h3>
 <ol>
-<li>Configure the <code>s3cmd</code> client with the <code>user-a</code> credentials <code>AccessKey</code> and <code>SecretKey</code>.</li>
+<li>Open the <code>CephDeployment</code> object.</li>
 <li>
-<p>As <code>user-a</code>, create a new bucket <code>test01</code>:
-   <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>mb<span class="w"> </span>s3://test01
-</code></pre></div></p>
-<p>Example of a positive system response:
- <div class="highlight"><pre><span></span><code>Bucket<span class="w"> </span><span class="s1">&#39;s3://test01/&#39;</span><span class="w"> </span>created
+<p>In <code>pools</code> section, identify the Ceph cluster pools assigned to RBD pools. To obtain full names of RBD pools:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/rook-ceph-tools<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>osd<span class="w"> </span>lspools
+</code></pre></div>
+<p>Example of system response:</p>
+<div class="highlight"><pre><span></span><code>...
+<span class="m">2</span><span class="w"> </span>kubernetes-hdd
+<span class="m">3</span><span class="w"> </span>anotherpool-hdd
+...
+</code></pre></div>
+<p>In the example above, <code>kubernetes-hdd</code> and <code>anotherpool-hdd</code> are RBD pools.</p>
+</li>
+<li>
+<p>In <code>sharedFilesystem</code>, identify the CephFS name. For example:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">sharedFilesystem</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cephFS</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-store</span>
+<span class="w">    </span><span class="nt">dataPools</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-pool-1</span>
+<span class="w">      </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
+<span class="w">      </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">      </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">    </span><span class="nt">metadataPool</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvme</span>
+<span class="w">      </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">      </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">    </span><span class="nt">metadataServer</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">activeCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">      </span><span class="nt">activeStandby</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div>
+<p>In the example above, the CephFS name is <code>cephfs-store</code>.</p>
+</li>
+</ol>
+<h2 id="create-a-ceph-non-admin-client-for-a-shared-ceph-cluster">Create a Ceph non-admin client for a shared Ceph cluster<a class="headerlink" href="#create-a-ceph-non-admin-client-for-a-shared-ceph-cluster" title="Permanent link">#</a></h2>
+<p>Ceph requires a non-admin client to share the producer cluster resources with
+the consumer cluster. To connect the consumer cluster with the producer
+cluster, the Ceph client requires the following <code>caps</code> (permissions):</p>
+<ul>
+<li>Read-write access to Ceph Managers</li>
+<li>Read and role-definer access to Ceph Monitors</li>
+<li>Read-write access to Ceph Metadata servers if CephFS pools must be shared</li>
+<li>Profile access to shared RBD/CephFS pools' access for Ceph OSDs</li>
+</ul>
+<p>To create a Ceph non-admin client, add the following snippet to the <code>clients</code> section of the <code>CephDeployment</code> object:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">clients</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;nonAdminClientName&gt;</span>
+<span class="w">    </span><span class="nt">caps</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">mgr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span>
+<span class="w">      </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">r,</span><span class="nv"> </span><span class="s">profile</span><span class="nv"> </span><span class="s">role-definer&quot;</span>
+<span class="w">      </span><span class="nt">mds</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span><span class="w"> </span><span class="c1"># if CephFS must be shared</span>
+<span class="w">      </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;poolsProfileCaps&gt;</span>
+</code></pre></div>
+<p>Substitute <code>&lt;nonAdminClientName&gt;</code> with a Ceph non-admin client name and <code>&lt;poolsProfileCaps&gt;</code> with a comma-separated profile list of RBD and CephFS pools in the following format:</p>
+<ul>
+<li><code>profile rbd pool=&lt;rbdPoolName&gt;</code> for each RBD pool</li>
+<li><code>allow rw tag cephfs data=&lt;cephFsName&gt;</code> for each CephFS pool</li>
+</ul>
+<p>For example:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">clients</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">non-admin-client</span>
+<span class="w">    </span><span class="nt">caps</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">mgr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span>
+<span class="w">      </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">r,</span><span class="nv"> </span><span class="s">profile</span><span class="nv"> </span><span class="s">role-definer&quot;</span>
+<span class="w">      </span><span class="nt">mds</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span>
+<span class="w">      </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile</span><span class="nv"> </span><span class="s">rbd</span><span class="nv"> </span><span class="s">pool=kubernetes-hdd,profile</span><span class="nv"> </span><span class="s">rbd</span><span class="nv"> </span><span class="s">pool=anotherpool-hdd,allow</span><span class="nv"> </span><span class="s">rw</span><span class="nv"> </span><span class="s">tag</span><span class="nv"> </span><span class="s">cephfs</span><span class="nv"> </span><span class="s">data=cephfs-store&quot;</span>
+</code></pre></div>
+<p>To verify the status of the created Ceph client, inspect the <code>status</code> section of the <code>MiraCephHealth</code> object. For example:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">fullClusterInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">blockStorageStatus</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">clientsStatus</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">non-admin-client</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">present</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ready</span>
+</code></pre></div>
+<h2 id="connect-the-producer-to-the-consumer">Connect the producer to the consumer<a class="headerlink" href="#connect-the-producer-to-the-consumer" title="Permanent link">#</a></h2>
+<ol>
+<li>
+<p>Install the Pelagia Helm release in the consumer cluster.</p>
+</li>
+<li>
+<p>On the producer cluster, obtain the previously created Ceph non-admin client as described above to use it as <code>&lt;clientName&gt;</code> in the following step.</p>
+</li>
+<li>
+<p>On the producer cluster, generate the connection string:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;pelagiaNamespace&gt;<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-deployment-controller<span class="w"> </span>--<span class="w"> </span>sh
+/usr/local/bin/pelagia-connector<span class="w"> </span>--rook-namespace<span class="w"> </span>&lt;rookNamespace&gt;<span class="w"> </span>--client-name<span class="w"> </span>&lt;clientName&gt;<span class="w"> </span>--use-rbd<span class="w"> </span>--use-cephfs<span class="w"> </span>--toolbox-label<span class="w"> </span>pelagia-ceph-toolbox<span class="w"> </span>--toolbox-ns<span class="w"> </span>&lt;rookNamespace&gt;<span class="w"> </span>--use-rgw<span class="w"> </span>--rgw-username<span class="w"> </span>rgw-admin-ops-user<span class="w"> </span>--base64
+</code></pre></div>
+<p>Substitute the following:</p>
+<ul>
+<li><code>pelagiaNamespace</code> with Pelagia namespace</li>
+<li><code>rookNamespace</code> with Rook namespace</li>
+<li><code>clientName</code> with created Ceph non-admin client</li>
+</ul>
+<p>Example of output:
+ <div class="highlight"><pre><span></span><code><span class="nv">eyJjbGllbnRfbmFtZSI6ImFkbWluIiwiY2xpZW50X2tleXJpbmciOiJBUUJabW5kcE9HNkhMUkFBUFBQT0tQWkcxTEI0N2EwWmpLQ0t6dz09IiwiZnNpZCI6IjYzNDg1MzQwLWJkNzMtNDNiOS1iNWQyLTY5ZjQ0OTM4N2I3OSIsIm1vbl9lbmRwb2ludHNfbWFwIjoiYT0xMC4xMC4wLjE3OjY3ODksYj0xMC4xMC4wLjE3MDo2Nzg5LGM9MTAuMTAuMC4xMzY6Njc4OSIsInJnd19hZG1pbl9rZXlzIjp7ImFjY2Vzc0tleSI6IjJOVlVTM0xKMDMwTEMzUTE4TTY0Iiwic2VjcmV0S2V5Ijoia0FPU2l3Q2xEeWVpdHpiT3prbGlySEVqWlNBN0JVUnZ6dzh1RExIcCJ9fQ</span><span class="o">==</span>
 </code></pre></div></p>
 </li>
 <li>
-<p>Upload an object to the bucket:
-   <div class="highlight"><pre><span></span><code>touch<span class="w"> </span>test.txt
-s3cmd<span class="w"> </span>put<span class="w"> </span>test.txt<span class="w"> </span>s3://test01
-</code></pre></div></p>
-<p>Example of a positive system response:
- <div class="highlight"><pre><span></span><code>upload:<span class="w"> </span><span class="s1">&#39;test.txt&#39;</span><span class="w"> </span>-&gt;<span class="w"> </span><span class="s1">&#39;s3://test01/test.txt&#39;</span><span class="w">  </span><span class="o">[</span><span class="m">1</span><span class="w"> </span>of<span class="w"> </span><span class="m">1</span><span class="o">]</span>
-<span class="m">0</span><span class="w"> </span>of<span class="w"> </span><span class="m">0</span><span class="w">     </span><span class="m">0</span>%<span class="w"> </span><span class="k">in</span><span class="w">    </span>0s<span class="w">     </span><span class="m">0</span>.00<span class="w"> </span>B/s<span class="w">  </span><span class="k">done</span>
-</code></pre></div></p>
+<p>On the consumer cluster, create the consumer <code>CephDeployment</code> object file with the following content:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CephDeployment</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">consumer-ceph</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;consumerPelagiaNamespace&gt;</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">external</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">connectionString</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;generatedConnectionString&gt;</span>
+<span class="w">  </span><span class="nt">network</span><span class="p">:</span>
+<span class="w">     </span><span class="nt">clusterNet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;clusterNetCIDR&gt;</span>
+<span class="w">     </span><span class="nt">publicNet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;publicNetCIDR&gt;</span>
+<span class="w">  </span><span class="nt">nodes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+</code></pre></div>
+<p>Specify the following values:</p>
+<ul>
+<li><code>&lt;generatedConnectionString&gt;</code> is the connection string generated in the previous step.</li>
+<li><code>&lt;clusterNetCIDR&gt;</code> and <code>&lt;publicNetCIDR&gt;</code> are values that must match the same values in the producer cluster.</li>
+</ul>
 </li>
 <li>
-<p>Verify that the object is in the <code>test01</code> bucket:
-   <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>ls<span class="w"> </span>s3://test01
-</code></pre></div></p>
-<p>Example of a positive system response:
- <div class="highlight"><pre><span></span><code><span class="m">2022</span>-09-02<span class="w"> </span><span class="m">13</span>:06<span class="w">            </span><span class="m">0</span><span class="w">  </span>s3://test01/test.txt
-</code></pre></div></p>
-</li>
-<li>
-<p>Create the bucket policy file and add bucket CRUD permissions
-   for <code>user-t</code>:
-   <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;Version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;Id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;S3Policy1&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;Statement&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="w">     </span><span class="nt">&quot;Sid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BucketAllow&quot;</span><span class="p">,</span>
-<span class="w">     </span><span class="nt">&quot;Effect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
-<span class="w">     </span><span class="nt">&quot;Principal&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">       </span><span class="nt">&quot;AWS&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;arn:aws:iam:::user/user-t&quot;</span><span class="p">]</span>
-<span class="w">     </span><span class="p">},</span>
-<span class="w">     </span><span class="nt">&quot;Action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">       </span><span class="s2">&quot;s3:ListBucket&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;s3:PutObject&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;s3:GetObject&quot;</span>
-<span class="w">     </span><span class="p">],</span>
-<span class="w">     </span><span class="nt">&quot;Resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">       </span><span class="s2">&quot;arn:aws:s3:::test01&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;arn:aws:s3:::test01/*&quot;</span>
-<span class="w">     </span><span class="p">]</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">]</span>
-<span class="p">}</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>Set the bucket policy for the <code>test01</code> bucket:
-   <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>setpolicy<span class="w"> </span>policy.json<span class="w"> </span>s3://test01
-</code></pre></div></p>
-<p>Example of a positive system response:
- <div class="highlight"><pre><span></span><code>s3://test01/:<span class="w"> </span>Policy<span class="w"> </span>updated
-</code></pre></div></p>
-</li>
-<li>
-<p>Verify that the <code>user-t</code> has access for the <code>test01</code> bucket by
-   reconfiguring the <code>s3cmd</code> client with the <code>user-t</code> credentials <code>AccessKey</code> and <code>SecretKey</code>.
-   Verify that the <code>user-t</code> can read the bucket <code>test01</code> content:
-   <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>ls<span class="w"> </span>s3://test01
-</code></pre></div></p>
-<p>Example of a positive system response:
- <div class="highlight"><pre><span></span><code><span class="m">2022</span>-09-02<span class="w"> </span><span class="m">13</span>:06<span class="w">            </span><span class="m">0</span><span class="w">  </span>s3://test01/test.txt
-</code></pre></div></p>
-</li>
-<li>
-<p>Download the object from the <code>test01</code> bucket:
-   <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>get<span class="w"> </span>s3://test01/test.txt<span class="w"> </span>check.txt
-</code></pre></div></p>
-<p>Example of a positive system response:
- <div class="highlight"><pre><span></span><code>download:<span class="w"> </span><span class="s1">&#39;s3://test01/test.txt&#39;</span><span class="w"> </span>-&gt;<span class="w"> </span><span class="s1">&#39;check.txt&#39;</span><span class="w">  </span><span class="o">[</span><span class="m">1</span><span class="w"> </span>of<span class="w"> </span><span class="m">1</span><span class="o">]</span>
-<span class="w"> </span><span class="m">0</span><span class="w"> </span>of<span class="w"> </span><span class="m">0</span><span class="w">     </span><span class="m">0</span>%<span class="w"> </span><span class="k">in</span><span class="w">    </span>0s<span class="w">     </span><span class="m">0</span>.00<span class="w"> </span>B/s<span class="w">  </span><span class="k">done</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>Upload a new object to the <code>test01</code> bucket:
-   <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>put<span class="w"> </span>check.txt<span class="w"> </span>s3://test01
-</code></pre></div></p>
-<p>Example of a positive system response:
- <div class="highlight"><pre><span></span><code>upload:<span class="w"> </span><span class="s1">&#39;check.txt&#39;</span><span class="w"> </span>-&gt;<span class="w"> </span><span class="s1">&#39;s3://test01/check.txt&#39;</span><span class="w">  </span><span class="o">[</span><span class="m">1</span><span class="w"> </span>of<span class="w"> </span><span class="m">1</span><span class="o">]</span>
-<span class="w"> </span><span class="m">0</span><span class="w"> </span>of<span class="w"> </span><span class="m">0</span><span class="w">     </span><span class="m">0</span>%<span class="w"> </span><span class="k">in</span><span class="w">    </span>0s<span class="w">     </span><span class="m">0</span>.00<span class="w"> </span>B/s<span class="w">  </span><span class="k">done</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>Verify that the object is in the <code>test01</code> bucket:
-    <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>ls<span class="w"> </span>s3://test01
-</code></pre></div></p>
-<p>Example of a positive system response:
-  <div class="highlight"><pre><span></span><code><span class="m">2022</span>-09-02<span class="w"> </span><span class="m">14</span>:41<span class="w">            </span><span class="m">0</span><span class="w">  </span>s3://test01/check.txt
-<span class="m">2022</span>-09-02<span class="w"> </span><span class="m">13</span>:06<span class="w">            </span><span class="m">0</span><span class="w">  </span>s3://test01/test.txt
-</code></pre></div></p>
-</li>
-<li>
-<p>Verify the new object by reconfiguring the <code>s3cmd</code> client with the
-    <code>user-a</code> credentials:
-    <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>--configure<span class="w"> </span>--ca-certs<span class="o">=</span>ca.crt
-</code></pre></div></p>
-</li>
-<li>
-<p>List <code>test01</code> bucket objects:
-    <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>ls<span class="w"> </span>s3://test01
-</code></pre></div></p>
-<p>Example of a positive system response:
-  <div class="highlight"><pre><span></span><code><span class="m">2022</span>-09-02<span class="w"> </span><span class="m">14</span>:41<span class="w">            </span><span class="m">0</span><span class="w">  </span>s3://test01/check.txt
-<span class="m">2022</span>-09-02<span class="w"> </span><span class="m">13</span>:06<span class="w">            </span><span class="m">0</span><span class="w">  </span>s3://test01/test.txt
+<p>Apply the file on the consumer cluster:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>consumer-cephdpl.yaml
 </code></pre></div></p>
 </li>
 </ol>
+<p>Once the Ceph cluster is specified in the <code>CephDeployment</code> CR of the consumer cluster, Pelagia validates it and requests Rook to connect the consumer and producer.</p>
+<h2 id="consume-pools-from-the-ceph-cluster">Consume pools from the Ceph cluster<a class="headerlink" href="#consume-pools-from-the-ceph-cluster" title="Permanent link">#</a></h2>
+<p>In the <code>spec.pools</code> of the consumer <code>CephDeployment</code>, specify pools from the producer cluster to be used by the consumer cluster. For example:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">pools</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssd</span>
+<span class="w">  </span><span class="nt">useAsFullName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes-ssd</span>
+<span class="w">  </span><span class="nt">storageClassOpts</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
+<span class="w">  </span><span class="nt">useAsFullName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">volumes-hdd</span>
+</code></pre></div>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
+<p>Each <code>name</code> in the <code>pools</code> section must match the corresponding full pool <code>name</code> of the producer cluster.
+You can find full pools <code>name</code> in the <code>CephDeploymentHealth</code> CR.</p>
+</div>
+<p>After specifying pools in the consumer <code>CephDeployment</code> CR, Pelagia creates a corresponding <code>StorageClass</code> for each specified pool, which can be used for creating <code>ReadWriteOnce</code> persistent volumes (PVs) in the consumer cluster.</p>
+<h2 id="enable-cephfs-on-a-consumer-ceph-cluster">Enable CephFS on a consumer Ceph cluster<a class="headerlink" href="#enable-cephfs-on-a-consumer-ceph-cluster" title="Permanent link">#</a></h2>
+<p>In the <code>sharedFilesystem</code> section of the consumer <code>CephDeployment</code>, specify the <code>dataPools</code> to share.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Sharing <code>CephFS</code> also requires specifying the <code>metadataPool</code> and <code>metadataServer</code> sections similarly to the corresponding sections of the producer cluster.</p>
+</div>
+<p>For example:
+<div class="highlight"><pre><span></span><code><span class="nt">sharedFilesystem</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cephFS</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-store</span>
+<span class="w">    </span><span class="nt">dataPools</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-pool-1</span>
+<span class="w">      </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">      </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">    </span><span class="nt">metadataPool</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">      </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">    </span><span class="nt">metadataServer</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">activeCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">      </span><span class="nt">activeStandby</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div></p>
+<p>After specifying CephFS in the <code>CephDeployment</code> CR of the consumer cluster, Pelagia creates a corresponding <code>StorageClass</code> that allows creating <code>ReadWriteMany</code> (RWX) PVs in the consumer cluster.</p>
 
 
 
@@ -2975,7 +3085,7 @@ s3cmd<span class="w"> </span>put<span class="w"> </span>test.txt<span class="w">
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../s3-create-user/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Create Ceph Object Storage User">
+          <a href="../move-mon-node-replace/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Replace failed Ceph Monitor node">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2985,20 +3095,20 @@ s3cmd<span class="w"> </span>put<span class="w"> </span>test.txt<span class="w">
                 Previous
               </span>
               <div class="md-ellipsis">
-                Create Ceph Object Storage User
+                Replace failed Ceph Monitor node
               </div>
             </div>
           </a>
         
         
           
-          <a href="../bucket-policy-rockoon/" class="md-footer__link md-footer__link--next" aria-label="Next: Bucket Policy for Rockoon OpenStack User">
+          <a href="../../rockoon/rockoon-integration/" class="md-footer__link md-footer__link--next" aria-label="Next: Integrate Pelagia with Rockoon">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Bucket Policy for Rockoon OpenStack User
+                Integrate Pelagia with Rockoon
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -3039,10 +3149,10 @@ s3cmd<span class="w"> </span>put<span class="w"> </span>test.txt<span class="w">
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
