@@ -99,6 +99,7 @@ nav:
       - Change Ceph Pools Failure Domain: ops-guide/deployment/move-failure-domain.md
       - Change Ceph Monitor node: ops-guide/deployment/move-mon-daemon.md
       - Replace failed Ceph Monitor node: ops-guide/deployment/move-mon-node-replace.md
+      - External Ceph cluster: ops-guide/deployment/external-ceph.md
       - Rockoon integration:
         - Integrate Pelagia with Rockoon: ops-guide/rockoon/rockoon-integration.md
         - Configure Ceph pools for Cinder multi-backend: ops-guide/rockoon/cinder-multi-backend.md
