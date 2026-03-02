@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 
@@ -116,6 +117,30 @@ func (c *ManagedConfig) WaitForCephDeploymentReady(cdName string) error {
 	})
 	if err != nil {
 		return errors.Wrapf(err, "failed to wait CephDeployment '%s/%s' ready", c.LcmNamespace, cdName)
+	}
+	return nil
+}
+
+func (c *ManagedConfig) RemoveCephDeployment(cdName string) error {
+	TF.Log.Info().Msgf("Removing CephDeployment %s/%s", c.LcmNamespace, cdName)
+	err := c.CephDplClient.Delete(c.Context, cdName, metav1.DeleteOptions{})
+	if err != nil {
+		return err
+	}
+	err = wait.PollUntilContextTimeout(c.Context, 1*time.Minute, 30*time.Minute, true, func(_ context.Context) (bool, error) {
+		cephDpl, err := c.GetCephDeployment(cdName)
+		if err != nil {
+			if apierrors.IsNotFound(err) {
+				return true, nil
+			}
+			TF.Log.Error().Err(err).Msgf("failed to check CephDeployment '%s/%s'", c.LcmNamespace, cdName)
+			return false, nil
+		}
+		TF.Log.Info().Msgf("CephDeployment '%s/%s' is removing", cephDpl.Namespace, cephDpl.Name)
+		return false, nil
+	})
+	if err != nil {
+		return errors.Wrapf(err, "failed to remove CephDeployment '%s/%s'", c.LcmNamespace, cdName)
 	}
 	return nil
 }

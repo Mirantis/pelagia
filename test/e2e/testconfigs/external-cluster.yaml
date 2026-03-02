@@ -1,0 +1,19 @@
+testSettings:
+  namespace: ${TEST_NAMESPACE}
+  keepAfter: true
+  caseSettings:
+  - name: TestExternalCephCluster
+    config:
+      externalClusterNamespace: ""
+      externalClusterKubeconfigPath: "/tmp/kube.yml"
+      rbdPoolsForShare: kubernetes-hdd
+      cephfsPoolsForShare: cephfs-store-cephfs-pool-1
+  - name: TestExternalCephClusterNonAdmin
+    config:
+      externalClusterNamespace: ""
+      externalClusterKubeconfigPath: "/tmp/kube.yml"
+      rbdPoolsForShare: kubernetes-hdd
+      cephfsPoolsForShare: cephfs-store-cephfs-pool-1
+testCases:
+- TestExternalCephCluster
+- TestExternalCephClusterNonAdmin
