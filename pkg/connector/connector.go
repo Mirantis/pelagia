@@ -97,31 +97,35 @@ func (c *CephConnector) getConnectionInfo(opts Opts) (*lcmcommon.CephConnection,
 
 	if opts.AuthClient != "admin" {
 		if opts.UseRBD {
-			nodeKeyring, err := c.getCephKeyringFromSecret(opts.RookNamespace, fmt.Sprintf("rook-%s", lcmcommon.CephCSIRBDNodeClientName))
+			nodeUserID, nodeKeyring, err := c.getCephKeyringFromSecret(opts.RookNamespace, fmt.Sprintf("rook-%s", lcmcommon.CephCSIRBDNodeClientName))
 			if err != nil {
 				return nil, err
 			}
-			provisionerKeyring, err := c.getCephKeyringFromSecret(opts.RookNamespace, fmt.Sprintf("rook-%s", lcmcommon.CephCSIRBDProvisionerClientName))
+			provisionerUserID, provisionerKeyring, err := c.getCephKeyringFromSecret(opts.RookNamespace, fmt.Sprintf("rook-%s", lcmcommon.CephCSIRBDProvisionerClientName))
 			if err != nil {
 				return nil, err
 			}
 			newConnectionInfo.RBDKeyring = &lcmcommon.CSIKeyring{
-				NodeKey:        nodeKeyring,
-				ProvisionerKey: provisionerKeyring,
+				NodeUser:        nodeUserID,
+				NodeKey:         nodeKeyring,
+				ProvisionerUser: provisionerUserID,
+				ProvisionerKey:  provisionerKeyring,
 			}
 		}
 		if opts.UseCephFS {
-			nodeKeyring, err := c.getCephKeyringFromSecret(opts.RookNamespace, fmt.Sprintf("rook-%s", lcmcommon.CephCSICephFSNodeClientName))
+			nodeUserID, nodeKeyring, err := c.getCephKeyringFromSecret(opts.RookNamespace, fmt.Sprintf("rook-%s", lcmcommon.CephCSICephFSNodeClientName))
 			if err != nil {
 				return nil, err
 			}
-			provisionerKeyring, err := c.getCephKeyringFromSecret(opts.RookNamespace, fmt.Sprintf("rook-%s", lcmcommon.CephCSICephFSProvisionerClientName))
+			provisionerUserID, provisionerKeyring, err := c.getCephKeyringFromSecret(opts.RookNamespace, fmt.Sprintf("rook-%s", lcmcommon.CephCSICephFSProvisionerClientName))
 			if err != nil {
 				return nil, err
 			}
 			newConnectionInfo.CephFSKeyring = &lcmcommon.CSIKeyring{
-				NodeKey:        nodeKeyring,
-				ProvisionerKey: provisionerKeyring,
+				NodeUser:        nodeUserID,
+				NodeKey:         nodeKeyring,
+				ProvisionerUser: provisionerUserID,
+				ProvisionerKey:  provisionerKeyring,
 			}
 		}
 	}
