@@ -22,8 +22,10 @@ type RgwUserKeys struct {
 }
 
 type CSIKeyring struct {
-	NodeKey        string `json:"node_key"`
-	ProvisionerKey string `json:"provisioner_key"`
+	NodeUser        string `json:"node_user_id"`
+	NodeKey         string `json:"node_key"`
+	ProvisionerUser string `json:"provisioner_user_id"`
+	ProvisionerKey  string `json:"provisioner_key"`
 }
 
 type CephConnection struct {
