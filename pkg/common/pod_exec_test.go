@@ -73,6 +73,27 @@ func TestRunPodCommandWithValidation(t *testing.T) {
 			expectedError: "failed to find pod to run command: no pods found matching criteria (label(s): 'app=test') in namespace 'default'",
 		},
 		{
+			name: "found terminating pod",
+			execConfig: ExecConfig{
+				Kubeclient: kubeClient,
+				Command:    "sleep",
+				Config:     fakeRestConfig,
+				Labels:     []string{"app=test"},
+			},
+			podList: &v1.PodList{
+				Items: []v1.Pod{
+					{
+						ObjectMeta: metav1.ObjectMeta{
+							Name:              "test-pod",
+							DeletionTimestamp: &metav1.Time{},
+							Labels:            map[string]string{"app": "test"},
+						},
+					},
+				},
+			},
+			expectedError: "failed to find pod to run command: no running ready pod matching criteria (label(s): 'app=test') in namespace 'default'",
+		},
+		{
 			name: "no running pods found",
 			execConfig: ExecConfig{
 				Kubeclient: kubeClient,
