@@ -6,6 +6,7 @@ on:
     tags: ['*']
     paths:
     - 'pkg/apis/**'
+    - 'pkg/common/**'
     - 'test/e2e/**'
     - 'go.mod'
     - 'e2e.Dockerfile'
@@ -15,6 +16,7 @@ on:
     branches: [ "main", "release-*" ]
     paths:
     - 'pkg/apis/**'
+    - 'pkg/common/**'
     - 'test/e2e/**'
     - 'go.mod'
     - 'e2e.Dockerfile'
