@@ -121,6 +121,11 @@ func (e *ExecConfig) findPod() (*corev1.Pod, error) {
 	podFound := false
 	podReady := false
 	for idx, pod := range podExecList.Items {
+		// avoid pods which are getting to be removed, but still ready
+		if pod.GetDeletionTimestamp() != nil {
+			podFound = true
+			continue
+		}
 		if pod.Status.Phase == corev1.PodRunning {
 			podFound = true
 			for _, podCondition := range pod.Status.Conditions {
