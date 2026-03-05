@@ -744,6 +744,137 @@ func TestValidate(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "validate stretch cluster, success",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cd := unitinputs.CephDeployNonMosk.DeepCopy()
+				cd.Spec.StretchCluster = &cephlcmv1alpha1.CephDeploymentStretchClusterSpec{
+					FailureDomainTopology: "zone", // short name from crushTopologyAllowedKeys
+					SubFailureDomain:      "host",
+					Zones: []cephlcmv1alpha1.CephDeploymentStretchClusterZone{
+						{Name: "arbiter", Arbiter: true},
+						{Name: "zone-a"},
+						{Name: "zone-b"},
+					},
+				}
+				// Stretch cluster requires pools with size 4 and replicasPerFailureDomain 2
+				for i := range cd.Spec.Pools {
+					if cd.Spec.Pools[i].Replicated != nil {
+						cd.Spec.Pools[i].Replicated.Size = 4
+						cd.Spec.Pools[i].Replicated.ReplicasPerFailureDomain = 2
+					}
+				}
+				// Stretch cluster requires exactly 5 mons
+				cd.Spec.Nodes = append(cd.Spec.Nodes,
+					cephlcmv1alpha1.CephDeploymentNode{Node: cephv1.Node{Name: "node-4"}, Roles: []string{"mon"}},
+					cephlcmv1alpha1.CephDeploymentNode{Node: cephv1.Node{Name: "node-5"}, Roles: []string{"mon"}},
+				)
+				return cd
+			}(),
+			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3", "node-4", "node-5"}),
+			expected: cephlcmv1alpha1.CephDeploymentValidation{
+				Result:                  cephlcmv1alpha1.ValidationSucceed,
+				LastValidatedGeneration: 10,
+			},
+		},
+		{
+			name: "validate stretch cluster missing failureDomainTopology, failed",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cd := unitinputs.CephDeployNonMosk.DeepCopy()
+				cd.Spec.StretchCluster = &cephlcmv1alpha1.CephDeploymentStretchClusterSpec{
+					FailureDomainTopology: "",
+					Zones: []cephlcmv1alpha1.CephDeploymentStretchClusterZone{
+						{Name: "a", Arbiter: true},
+						{Name: "b"},
+						{Name: "c"},
+					},
+				}
+				for i := range cd.Spec.Pools {
+					if cd.Spec.Pools[i].Replicated != nil {
+						cd.Spec.Pools[i].Replicated.Size = 4
+						cd.Spec.Pools[i].Replicated.ReplicasPerFailureDomain = 2
+					}
+				}
+				cd.Spec.Nodes = append(cd.Spec.Nodes,
+					cephlcmv1alpha1.CephDeploymentNode{Node: cephv1.Node{Name: "node-4"}, Roles: []string{"mon"}},
+					cephlcmv1alpha1.CephDeploymentNode{Node: cephv1.Node{Name: "node-5"}, Roles: []string{"mon"}},
+				)
+				return cd
+			}(),
+			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3", "node-4", "node-5"}),
+			expected: cephlcmv1alpha1.CephDeploymentValidation{
+				Result:                  cephlcmv1alpha1.ValidationFailed,
+				LastValidatedGeneration: 10,
+				Messages: []string{
+					"stretchCluster.failureDomainTopology is required",
+				},
+			},
+		},
+		{
+			name: "validate stretch cluster not 3 zones, failed",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cd := unitinputs.CephDeployNonMosk.DeepCopy()
+				cd.Spec.StretchCluster = &cephlcmv1alpha1.CephDeploymentStretchClusterSpec{
+					FailureDomainTopology: "zone",
+					Zones: []cephlcmv1alpha1.CephDeploymentStretchClusterZone{
+						{Name: "a", Arbiter: true},
+						{Name: "b"},
+					},
+				}
+				for i := range cd.Spec.Pools {
+					if cd.Spec.Pools[i].Replicated != nil {
+						cd.Spec.Pools[i].Replicated.Size = 4
+						cd.Spec.Pools[i].Replicated.ReplicasPerFailureDomain = 2
+					}
+				}
+				cd.Spec.Nodes = append(cd.Spec.Nodes,
+					cephlcmv1alpha1.CephDeploymentNode{Node: cephv1.Node{Name: "node-4"}, Roles: []string{"mon"}},
+					cephlcmv1alpha1.CephDeploymentNode{Node: cephv1.Node{Name: "node-5"}, Roles: []string{"mon"}},
+				)
+				return cd
+			}(),
+			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3", "node-4", "node-5"}),
+			expected: cephlcmv1alpha1.CephDeploymentValidation{
+				Result:                  cephlcmv1alpha1.ValidationFailed,
+				LastValidatedGeneration: 10,
+				Messages: []string{
+					"stretchCluster must have exactly 3 zones, got 2",
+				},
+			},
+		},
+		{
+			name: "validate stretch cluster not exactly one arbiter, failed",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cd := unitinputs.CephDeployNonMosk.DeepCopy()
+				cd.Spec.StretchCluster = &cephlcmv1alpha1.CephDeploymentStretchClusterSpec{
+					FailureDomainTopology: "zone",
+					Zones: []cephlcmv1alpha1.CephDeploymentStretchClusterZone{
+						{Name: "a", Arbiter: true},
+						{Name: "b", Arbiter: true},
+						{Name: "c"},
+					},
+				}
+				for i := range cd.Spec.Pools {
+					if cd.Spec.Pools[i].Replicated != nil {
+						cd.Spec.Pools[i].Replicated.Size = 4
+						cd.Spec.Pools[i].Replicated.ReplicasPerFailureDomain = 2
+					}
+				}
+				cd.Spec.Nodes = append(cd.Spec.Nodes,
+					cephlcmv1alpha1.CephDeploymentNode{Node: cephv1.Node{Name: "node-4"}, Roles: []string{"mon"}},
+					cephlcmv1alpha1.CephDeploymentNode{Node: cephv1.Node{Name: "node-5"}, Roles: []string{"mon"}},
+				)
+				return cd
+			}(),
+			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3", "node-4", "node-5"}),
+			expected: cephlcmv1alpha1.CephDeploymentValidation{
+				Result:                  cephlcmv1alpha1.ValidationFailed,
+				LastValidatedGeneration: 10,
+				Messages: []string{
+					"stretchCluster must have exactly one arbiter zone, got 2",
+				},
+			},
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {

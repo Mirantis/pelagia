@@ -141,6 +141,7 @@ advanced configuration.
 - `dashboard` - Enables Ceph dashboard. Currently, Pelagia has no support of Ceph Dashboard. Defaults to `false`.
 - `rbdMirror` - Specifies the parameters for RBD Mirroring. For details, see RBD Mirroring parameters.
 - `external` - Enables external Ceph cluster mode. If enabled, Pelagia will read a special `Secret` with external Ceph cluster credentials data connect to.
+- `stretchCluster` - Configures Rook stretch cluster mode (two data zones + arbiter). Requires exactly three zones, one marked as arbiter. For details, see [Ops Guide: Stretch cluster](https://mirantis.github.io/pelagia/ops-guide/deployment/stretch-cluster).
 
 <a name="cephdeployment-network-parameters"></a>
 ### Network parameters

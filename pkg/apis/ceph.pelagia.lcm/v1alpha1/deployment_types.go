@@ -94,6 +94,34 @@ type CephDeploymentSpec struct {
 	// SharedFilesystem enables such system as CephFS
 	// +optional
 	SharedFilesystem *CephSharedFilesystem `json:"sharedFilesystem,omitempty"`
+	// StretchCluster configures Rook stretch cluster mode (two data zones + arbiter).
+	// When set, five mons are used: two per data zone and one in the arbiter zone.
+	// OSD placement is restricted to the non-arbiter zones. Requires exactly three zones.
+	// See https://github.com/rook/rook/blob/release-1.19/design/ceph/ceph-stretch-cluster.md
+	// +optional
+	StretchCluster *CephDeploymentStretchClusterSpec `json:"stretchCluster,omitempty"`
+}
+
+// CephDeploymentStretchClusterSpec defines the stretch cluster configuration for
+// environments with two failure domains plus an arbiter zone.
+type CephDeploymentStretchClusterSpec struct {
+	// FailureDomainTopology is the failure domain for node placement. Use a short name from crushTopologyAllowedKeys
+	// (e.g. "zone" for topology.kubernetes.io/zone, "region" for topology.kubernetes.io/region) or the full
+	// Kubernetes node label. Must match a topology label used by OSDs.
+	FailureDomainTopology string `json:"failureDomainTopology"`
+	// SubFailureDomain is the failure domain within a zone (e.g. host). Rook uses it for CRUSH.
+	// +optional
+	SubFailureDomain string `json:"subFailureDomain,omitempty"`
+	// Zones must contain exactly three zones; one must have Arbiter set to true (the arbiter zone).
+	Zones []CephDeploymentStretchClusterZone `json:"zones"`
+}
+
+// CephDeploymentStretchClusterZone defines a zone in a stretch cluster.
+type CephDeploymentStretchClusterZone struct {
+	// Name is the zone name (must match the value of FailureDomainTopology on nodes).
+	Name string `json:"name"`
+	// Arbiter marks this zone as the arbiter (tiebreaker) zone. Exactly one zone must be the arbiter.
+	Arbiter bool `json:"arbiter,omitempty"`
 }
 
 type CephClient struct {
@@ -546,6 +574,10 @@ type CephPoolReplicatedSpec struct {
 	// TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity
 	// +optional
 	TargetSizeRatio float64 `json:"targetSizeRatio,omitempty"`
+	// ReplicasPerFailureDomain is the number of replicas per failure domain (e.g. 2 per zone in stretch clusters).
+	// Used with stretch clusters for pools: failure domain zone, size 4, replicasPerFailureDomain 2.
+	// +optional
+	ReplicasPerFailureDomain uint `json:"replicasPerFailureDomain,omitempty"`
 }
 
 // CephPoolMirrorSpec spec represents RBD mirroring

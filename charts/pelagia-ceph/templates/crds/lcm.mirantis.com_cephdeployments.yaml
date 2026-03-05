@@ -1290,6 +1290,11 @@ spec:
                                   description: Replicated represents Ceph Pool's replica
                                     settings
                                   properties:
+                                    replicasPerFailureDomain:
+                                      description: |-
+                                        ReplicasPerFailureDomain is the number of replicas per failure domain (e.g. 2 per zone in stretch clusters).
+                                        Used with stretch clusters for pools: failure domain zone, size 4, replicasPerFailureDomain 2.
+                                      type: integer
                                     size:
                                       description: Size - Number of copies per object
                                         in a replicated storage pool, including the
@@ -1384,6 +1389,11 @@ spec:
                                   description: Replicated represents Ceph Pool's replica
                                     settings
                                   properties:
+                                    replicasPerFailureDomain:
+                                      description: |-
+                                        ReplicasPerFailureDomain is the number of replicas per failure domain (e.g. 2 per zone in stretch clusters).
+                                        Used with stretch clusters for pools: failure domain zone, size 4, replicasPerFailureDomain 2.
+                                      type: integer
                                     size:
                                       description: Size - Number of copies per object
                                         in a replicated storage pool, including the
@@ -1526,6 +1536,11 @@ spec:
                             description: Replicated represents Ceph Pool's replica
                               settings
                             properties:
+                              replicasPerFailureDomain:
+                                description: |-
+                                  ReplicasPerFailureDomain is the number of replicas per failure domain (e.g. 2 per zone in stretch clusters).
+                                  Used with stretch clusters for pools: failure domain zone, size 4, replicasPerFailureDomain 2.
+                                type: integer
                               size:
                                 description: Size - Number of copies per object in
                                   a replicated storage pool, including the object
@@ -2066,6 +2081,11 @@ spec:
                             description: Replicated represents Ceph Pool's replica
                               settings
                             properties:
+                              replicasPerFailureDomain:
+                                description: |-
+                                  ReplicasPerFailureDomain is the number of replicas per failure domain (e.g. 2 per zone in stretch clusters).
+                                  Used with stretch clusters for pools: failure domain zone, size 4, replicasPerFailureDomain 2.
+                                type: integer
                               size:
                                 description: Size - Number of copies per object in
                                   a replicated storage pool, including the object
@@ -2393,6 +2413,11 @@ spec:
                     replicated:
                       description: Replicated represents Ceph Pool's replica settings
                       properties:
+                        replicasPerFailureDomain:
+                          description: |-
+                            ReplicasPerFailureDomain is the number of replicas per failure domain (e.g. 2 per zone in stretch clusters).
+                            Used with stretch clusters for pools: failure domain zone, size 4, replicasPerFailureDomain 2.
+                          type: integer
                         size:
                           description: Size - Number of copies per object in a replicated
                             storage pool, including the object itself (required for
@@ -2581,6 +2606,11 @@ spec:
                                 description: Replicated represents Ceph Pool's replica
                                   settings
                                 properties:
+                                  replicasPerFailureDomain:
+                                    description: |-
+                                      ReplicasPerFailureDomain is the number of replicas per failure domain (e.g. 2 per zone in stretch clusters).
+                                      Used with stretch clusters for pools: failure domain zone, size 4, replicasPerFailureDomain 2.
+                                    type: integer
                                   size:
                                     description: Size - Number of copies per object
                                       in a replicated storage pool, including the
@@ -2670,6 +2700,11 @@ spec:
                               description: Replicated represents Ceph Pool's replica
                                 settings
                               properties:
+                                replicasPerFailureDomain:
+                                  description: |-
+                                    ReplicasPerFailureDomain is the number of replicas per failure domain (e.g. 2 per zone in stretch clusters).
+                                    Used with stretch clusters for pools: failure domain zone, size 4, replicasPerFailureDomain 2.
+                                  type: integer
                                 size:
                                   description: Size - Number of copies per object
                                     in a replicated storage pool, including the object
@@ -3128,6 +3163,46 @@ spec:
                       - name
                       type: object
                     type: array
+                type: object
+              stretchCluster:
+                description: |-
+                  StretchCluster configures Rook stretch cluster mode (two data zones + arbiter).
+                  When set, five mons are used: two per data zone and one in the arbiter zone.
+                  OSD placement is restricted to the non-arbiter zones. Requires exactly three zones.
+                  See https://github.com/rook/rook/blob/release-1.19/design/ceph/ceph-stretch-cluster.md
+                properties:
+                  failureDomainTopology:
+                    description: |-
+                      FailureDomainTopology is the failure domain for node placement. Use a short name from crushTopologyAllowedKeys
+                      (e.g. "zone" for topology.kubernetes.io/zone, "region" for topology.kubernetes.io/region) or the full
+                      Kubernetes node label. Must match a topology label used by OSDs.
+                    type: string
+                  subFailureDomain:
+                    description: SubFailureDomain is the failure domain within a zone
+                      (e.g. host). Rook uses it for CRUSH.
+                    type: string
+                  zones:
+                    description: Zones must contain exactly three zones; one must
+                      have Arbiter set to true (the arbiter zone).
+                    items:
+                      description: CephDeploymentStretchClusterZone defines a zone
+                        in a stretch cluster.
+                      properties:
+                        arbiter:
+                          description: Arbiter marks this zone as the arbiter (tiebreaker)
+                            zone. Exactly one zone must be the arbiter.
+                          type: boolean
+                        name:
+                          description: Name is the zone name (must match the value
+                            of FailureDomainTopology on nodes).
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                required:
+                - failureDomainTopology
+                - zones
                 type: object
             required:
             - dashboard

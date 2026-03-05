@@ -125,3 +125,13 @@ func getCrushKeys() []string {
 	sort.Strings(keys)
 	return keys
 }
+
+// resolveFailureDomainTopology returns the Kubernetes node label key for the given
+// failure domain topology. If topology is a short name in crushTopologyAllowedKeys (e.g. "zone"),
+// returns the full label (e.g. "topology.kubernetes.io/zone"); otherwise returns topology as-is.
+func resolveFailureDomainTopology(topology string) string {
+	if resolved := crushTopologyAllowedKeys[topology]; resolved != "" {
+		return resolved
+	}
+	return topology
+}

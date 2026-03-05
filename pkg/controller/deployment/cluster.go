@@ -258,6 +258,21 @@ func generateCephClusterSpec(cephDpl *cephlcmv1alpha1.CephDeployment, image stri
 
 	clusterSpec.Mon.Count = 0
 	clusterSpec.Mgr.Count = 0
+	if cephDpl.Spec.StretchCluster != nil {
+		// Stretch cluster requires exactly five mons: two per data zone, one in arbiter zone.
+		clusterSpec.Mon.AllowMultiplePerNode = false
+		clusterSpec.Mon.StretchCluster = &cephv1.StretchClusterSpec{
+			FailureDomainLabel: resolveFailureDomainTopology(cephDpl.Spec.StretchCluster.FailureDomainTopology),
+			SubFailureDomain:   cephDpl.Spec.StretchCluster.SubFailureDomain,
+			Zones:              make([]cephv1.MonZoneSpec, 0, len(cephDpl.Spec.StretchCluster.Zones)),
+		}
+		for _, z := range cephDpl.Spec.StretchCluster.Zones {
+			clusterSpec.Mon.StretchCluster.Zones = append(clusterSpec.Mon.StretchCluster.Zones, cephv1.MonZoneSpec{
+				Name:    z.Name,
+				Arbiter: z.Arbiter,
+			})
+		}
+	}
 	for _, node := range nodesExpanded {
 		if lcmcommon.Contains(node.Roles, "mon") {
 			clusterSpec.Mon.Count = clusterSpec.Mon.Count + 1
@@ -397,6 +412,36 @@ func generateCephClusterSpec(cephDpl *cephlcmv1alpha1.CephDeployment, image stri
 		}
 		clusterSpec.Placement[cephv1.KeyCleanup] = cephv1.Placement{
 			Tolerations: osdTolerations,
+		}
+	}
+	// Stretch cluster: OSDs must run only in data zones (non-arbiter).
+	if cephDpl.Spec.StretchCluster != nil {
+		dataZones := make([]string, 0)
+		for _, z := range cephDpl.Spec.StretchCluster.Zones {
+			if !z.Arbiter {
+				dataZones = append(dataZones, z.Name)
+			}
+		}
+		if len(dataZones) > 0 {
+			osdPlacement := clusterSpec.Placement[cephv1.KeyOSD]
+			osdPlacement.NodeAffinity = &v1.NodeAffinity{
+				RequiredDuringSchedulingIgnoredDuringExecution: &v1.NodeSelector{
+					NodeSelectorTerms: []v1.NodeSelectorTerm{
+						{
+							MatchExpressions: []v1.NodeSelectorRequirement{
+								{
+									Key:      resolveFailureDomainTopology(cephDpl.Spec.StretchCluster.FailureDomainTopology),
+									Operator: "In",
+									Values:   dataZones,
+								},
+							},
+						},
+					},
+				},
+			}
+			clusterSpec.Placement[cephv1.KeyOSD] = osdPlacement
+			clusterSpec.Placement[cephv1.KeyOSDPrepare] = osdPlacement
+			clusterSpec.Placement[cephv1.KeyCleanup] = osdPlacement
 		}
 	}
 

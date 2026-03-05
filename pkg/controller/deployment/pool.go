@@ -44,6 +44,9 @@ func generatePoolSpec(poolSpec *cephlcmv1alpha1.CephPoolSpec, role string) (newp
 		} else {
 			poolSpecResource.Replicated.TargetSizeRatio = poolSpec.Replicated.TargetSizeRatio
 		}
+		if poolSpec.Replicated.ReplicasPerFailureDomain > 0 {
+			poolSpecResource.Replicated.ReplicasPerFailureDomain = poolSpec.Replicated.ReplicasPerFailureDomain
+		}
 	}
 	if poolSpec.ErasureCoded != nil {
 		poolSpecResource.ErasureCoded = cephv1.ErasureCodedSpec{

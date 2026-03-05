@@ -33,6 +33,23 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 	errMsgs := make([]string, 0)
 	defaultFound := false
 	for _, cephDplPool := range c.cdConfig.cephDpl.Spec.Pools {
+		if c.cdConfig.cephDpl.Spec.StretchCluster != nil {
+			if cephDplPool.Replicated != nil && cephDplPool.Replicated.ReplicasPerFailureDomain == 0 {
+				err := fmt.Sprintf("CephDeployment pool %s spec in stretch cluster must contain replicasPerFailureDomain", cephDplPool.Name)
+				c.log.Error().Msg(err)
+				errMsgs = append(errMsgs, err)
+			}
+			if cephDplPool.ErasureCoded != nil {
+				err := fmt.Sprintf("CephDeployment pool %s spec in stretch cluster must not contain erasureCoded", cephDplPool.Name)
+				c.log.Error().Msg(err)
+				errMsgs = append(errMsgs, err)
+			}
+			if cephDplPool.Replicated != nil && cephDplPool.Replicated.Size != 4 {
+				err := fmt.Sprintf("CephDeployment pool %s spec in stretch cluster must have size 4", cephDplPool.Name)
+				c.log.Error().Msg(err)
+				errMsgs = append(errMsgs, err)
+			}
+		}
 		if defaultFound && cephDplPool.StorageClassOpts.Default {
 			err := "CephDeployment has multiple default pools specified"
 			c.log.Error().Msg(err)
@@ -66,6 +83,23 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 		err := "CephDeployment has no default pool specified"
 		c.log.Error().Msg(err)
 		errMsgs = append(errMsgs, err)
+	}
+	if sc := c.cdConfig.cephDpl.Spec.StretchCluster; sc != nil {
+		if sc.FailureDomainTopology == "" {
+			errMsgs = append(errMsgs, "stretchCluster.failureDomainTopology is required")
+		}
+		if len(sc.Zones) != 3 {
+			errMsgs = append(errMsgs, fmt.Sprintf("stretchCluster must have exactly 3 zones, got %d", len(sc.Zones)))
+		}
+		arbiterCount := 0
+		for _, z := range sc.Zones {
+			if z.Arbiter {
+				arbiterCount++
+			}
+		}
+		if arbiterCount != 1 {
+			errMsgs = append(errMsgs, fmt.Sprintf("stretchCluster must have exactly one arbiter zone, got %d", arbiterCount))
+		}
 	}
 	if !c.cdConfig.cephDpl.Spec.External {
 		for _, node := range c.cdConfig.cephDpl.Spec.Nodes {
@@ -160,6 +194,11 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 		// skip check for PRODX-19248
 		if len(c.cdConfig.nodesListExpanded) >= 3 && monCount%2 == 0 {
 			err := fmt.Sprintf("CephDeployment monitors (roles 'mon') count %d is even, but should be odd for a healthy quorum", monCount)
+			c.log.Error().Msg(err)
+			errMsgs = append(errMsgs, err)
+		}
+		if c.cdConfig.cephDpl.Spec.StretchCluster != nil && monCount != 5 {
+			err := fmt.Sprintf("CephDeployment monitors (roles 'mon') count %d is not equal to 5 for stretch cluster", monCount)
 			c.log.Error().Msg(err)
 			errMsgs = append(errMsgs, err)
 		}

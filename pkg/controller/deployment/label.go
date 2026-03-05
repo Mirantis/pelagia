@@ -103,6 +103,13 @@ func (c *cephDeploymentConfig) ensureLabelNodes() (bool, error) {
 			changedNodes = changedNodes || changed
 		} else if osdDeploymentExists[node.Name] {
 			roles = append(roles, "osd")
+		} else if c.cdConfig.cephDpl.Spec.StretchCluster != nil {
+			changed, err := c.addTopology(node.Name, node.Crush)
+			if err != nil {
+				c.log.Error().Err(err).Msgf("failed to set crush topology labels for node %q", node.Name)
+				errCollector++
+			}
+			changedNodes = changedNodes || changed
 		}
 		nodeRoles[node.Name] = roles
 	}

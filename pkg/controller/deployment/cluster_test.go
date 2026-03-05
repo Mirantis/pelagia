@@ -353,6 +353,58 @@ func TestGenerateCephCluster(t *testing.T) {
 				return *cs
 			}(),
 		},
+		{
+			name: "generate ceph cluster with stretch cluster",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cd := unitinputs.BaseCephDeployment.DeepCopy()
+				cd.Spec.StretchCluster = &cephlcmv1alpha1.CephDeploymentStretchClusterSpec{
+					FailureDomainTopology: "zone", // short name; resolved via crushTopologyAllowedKeys to topology.kubernetes.io/zone
+					SubFailureDomain:      "host",
+					Zones: []cephlcmv1alpha1.CephDeploymentStretchClusterZone{
+						{Name: "a", Arbiter: true},
+						{Name: "b"},
+						{Name: "c"},
+					},
+				}
+				return cd
+			}(),
+			expectedClusterSpec: func() cephv1.ClusterSpec {
+				cs := unitinputs.CephClusterGenerated.Spec.DeepCopy()
+				// Mon.Count remains from nodes (same loop); stretch only adds AllowMultiplePerNode and StretchCluster
+				cs.Mon.AllowMultiplePerNode = false
+				cs.Mon.StretchCluster = &cephv1.StretchClusterSpec{
+					FailureDomainLabel: "topology.kubernetes.io/zone", // resolved from FailureDomainTopology "zone"
+					SubFailureDomain:   "host",
+					Zones: []cephv1.MonZoneSpec{
+						{Name: "a", Arbiter: true},
+						{Name: "b"},
+						{Name: "c"},
+					},
+				}
+				dataZones := []string{"b", "c"}
+				osdPlacement := cephv1.Placement{
+					NodeAffinity: &v1.NodeAffinity{
+						RequiredDuringSchedulingIgnoredDuringExecution: &v1.NodeSelector{
+							NodeSelectorTerms: []v1.NodeSelectorTerm{
+								{
+									MatchExpressions: []v1.NodeSelectorRequirement{
+										{
+											Key:      "topology.kubernetes.io/zone",
+											Operator: "In",
+											Values:   dataZones,
+										},
+									},
+								},
+							},
+						},
+					},
+				}
+				cs.Placement[cephv1.KeyOSD] = osdPlacement
+				cs.Placement[cephv1.KeyOSDPrepare] = osdPlacement
+				cs.Placement[cephv1.KeyCleanup] = osdPlacement
+				return *cs
+			}(),
+		},
 	}
 
 	for _, test := range tests {
