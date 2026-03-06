@@ -127,19 +127,19 @@ advanced configuration.
 <a name="cephdeployment-general-parameters"></a>
 ### General parameters
 
-- `network` - Specifies access and public networks for the Ceph cluster. For details, see Network parameters.
-- `nodes` - Specifies the list of Ceph nodes. For details, see Node parameters. The `nodes` parameter is a list with Ceph node specifications. List item could define Ceph node specification for a single node or a group of nodes listed or defined by label. It could be also combined.
-- `pools` - Specifies the list of Ceph pools. For details, see Pool parameters.
-- `clients` - List of Ceph clients. For details, see Clients parameters.
-- `objectStorage` - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage. Also specifies the RADOS Gateway Multisite configuration. For details, see RADOS Gateway parameters and Multisite parameters.
+- `network` - Specifies access and public networks for the Ceph cluster. For details, the **Network parameters** section below.
+- `nodes` - Specifies the list of Ceph nodes. For details, the **Nodes parameters** section below. The `nodes` parameter is a list with Ceph node specifications. List item could define Ceph node specification for a single node or a group of nodes listed or defined by label. It could be also combined.
+- `pools` - Specifies the list of Ceph pools. For details, the **Pools parameters** section below.
+- `clients` - List of Ceph clients. For details, see the **Clients parameters** section below.
+- `objectStorage` - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage. Also specifies the RADOS Gateway Multisite configuration. For details, **RADOS Gateway parameters** and **Multisite parameters** sections below.
 - `ingressConfig` - Enables a custom ingress rule for public access on Ceph services, for example, Ceph RADOS Gateway. For details, see [Configure Ceph Object Gateway TLS](https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-tls).
-- `sharedFilesystem` - Enables Ceph Filesystem. For details, see CephFS parameters.
-- `rookConfig` - String key-value parameter that allows overriding Ceph configuration options. For details, see RookConfig parameters.
-- `healthCheck` - Configures health checks and liveness probe settings for Ceph daemons. For details, see Health check parameters.
-- `extraOpts` - Enables specification of extra options for a setup, includes the `deviceLabels` parameter. Refer to Extra options for details.
-- `mgr` - Specifies a list of Ceph Manager modules to be enabled or disabled. For details, see Manager modules parameters. Modules `balancer` and `pg_autoscaler` are enabled by default.
+- `sharedFilesystem` - Enables Ceph Filesystem. For details, the **CephFS parameters** section below.
+- `rookConfig` - String key-value parameter that allows overriding Ceph configuration options. For details, see the **RookConfig parameters** section below.
+- `healthCheck` - Configures health checks and liveness probe settings for Ceph daemons. For details, the **HealthCheck parameters** section below.
+- `extraOpts` - Enables specification of extra options for a setup, includes the `deviceLabels` parameter. Refer to the **ExtraOpts parameters** section below.
+- `mgr` - Specifies a list of Ceph Manager modules to be enabled or disabled. For details, see the **Manager modules parameters** section below. Modules `balancer` and `pg_autoscaler` are enabled by default.
 - `dashboard` - Enables Ceph dashboard. Currently, Pelagia has no support of Ceph Dashboard. Defaults to `false`.
-- `rbdMirror` - Specifies the parameters for RBD Mirroring. For details, see RBD Mirroring parameters.
+- `rbdMirror` - Specifies the parameters for RBD Mirroring. For details, see the **RBD Mirroring parameters** section below.
 - `external` - Enables external Ceph cluster mode. If enabled, Pelagia will read a special `Secret` with external Ceph cluster credentials data connect to.
 
 <a name="cephdeployment-network-parameters"></a>
@@ -292,7 +292,7 @@ spec:
           ``/dev/disk/by-id/nvme-SAMSUNG_MZ1LB3T8HMLA-00007_S46FNY0R394543``.
         - The device label from ``extraOpts.deviceLabels`` section which is
           generally used for templating Ceph node specification for node groups.
-          For details, see Extra options.
+          For details, see the **ExtraOpts parameters** section below.
 
         This parameter is mutually exclusive with ``fullPath``.
 
@@ -427,7 +427,7 @@ spec:
             A Kubernetes cluster only supports increase of storage size.
 
 - `deviceClass` - Mandatory. Specifies the device class for the defined pool. Common possible
-  values are `hdd`, `ssd` and `nvme`. Also allows customized device classes, refers to Extra options.
+  values are `hdd`, `ssd` and `nvme`. Also allows customized device classes, refers to the **ExtraOpts parameters** described below.
 - `replicated` - The `replicated` parameter is mutually exclusive with `erasureCoded`
   and includes the following parameters:
 
@@ -452,7 +452,7 @@ spec:
   possible recommended values includes: `host`, `rack`, `room`,
   and `datacenter`.
 
-    !!! caution
+    !!! danger
 
         We do not recommend using the following intermediate topology keys: `pdu`, `row`, `chassis`. Consider
         the `rack` topology instead. The `osd` failure domain is prohibited.
@@ -497,7 +497,7 @@ As a result, the following Ceph pools will be created: `kubernetes-hdd`, `kubern
 To configure additional required pools for Rockoon, see
 [Integrate Pelagia with Rockoon](../../ops-guide/rockoon/rockoon-integration.md#rockoon-integration-integrate-pelagia-with-rockoon).
 
-!!! caution
+!!! danger
 
     Since Ceph Pacific, Ceph CSI driver does not propagate the `777`
     permission on the mount point of persistent volumes based on any
@@ -630,11 +630,11 @@ spec:
 
     Each parameter allows defining the following settings:
 
-      - `disabled` - a flag that disables the health check.
-      - `interval` - an interval in seconds or minutes for the health
-        check to run. For example, `60s` for 60 seconds.
-      - `timeout` - a timeout for the health check in seconds or minutes.
-        For example, `60s` for 60 seconds.
+    - `disabled` - a flag that disables the health check.
+    - `interval` - an interval in seconds or minutes for the health
+      check to run. For example, `60s` for 60 seconds.
+    - `timeout` - a timeout for the health check in seconds or minutes.
+      For example, `60s` for 60 seconds.
 
 - `livenessProbe` - Optional. Key-value parameter with liveness probe settings for
   the defined daemon types. Can be one of the following: `mgr`,
