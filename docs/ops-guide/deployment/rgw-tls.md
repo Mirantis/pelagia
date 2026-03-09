@@ -123,35 +123,32 @@ name of the Ceph Object Storage and the specified public domain.
 Pelagia Ceph Object Storage requires the `upstream-vhost` and `rgw dns name` parameters to be equal. Therefore,
 override the default `rgw dns name` with the corresponding ingress annotation value.
 
-## To configure Ceph Object Gateway TLS
+## Сonfigure TLS for Ceph Object Gateway
 
-To generate an SSL certificate for internal usage, verify that the
+1. To generate an SSL certificate for internal usage, verify that the
 RADOS Gateway `spec.objectStorage.rgw.gateway.securePort` parameter is specified in the `CephDeployment` CR.
 For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-object-storage).
-
-Configure TLS for Ceph Object Gateway using a custom `ingressConfig`:
-
-1. Open the `CephDeployment` CR for editing:
+2. Open the `CephDeployment` CR for editing:
 
      ```bash
      kubectl -n pelagia edit cephdpl <name>
      ```
 
-    Substitute `<name>` with the name of your `CephDeployment`.
+   Substitute `<name>` with the name of your `CephDeployment`.
 
 2. Specify the `ingressConfig` parameters as required.
 3. Save the changes and close the editor.
 
-!!! note
+   !!! note
 
-      For Pelagia with Rockoon, you can omit TLS configuration for the default settings provided by Rockoon to be
-      applied. Just obtain the Rockoon OpenStack CA certificate for a trusted connection:
+         For Pelagia with Rockoon, you can omit TLS configuration for the default settings provided by Rockoon to be
+         applied. Just obtain the Rockoon OpenStack CA certificate for a trusted connection:
 
-        ```bash
-        kubectl -n openstack-ceph-shared get secret openstack-rgw-creds -o jsonpath="{.data.ca_cert}" | base64 -d
-        ```
+           ```bash
+           kubectl -n openstack-ceph-shared get secret openstack-rgw-creds -o jsonpath="{.data.ca_cert}" | base64 -d
+           ```
 
-If you use the HTTP scheme instead of HTTPS for internal or public Ceph Object Gateway endpoints,
+4. If you use the HTTP scheme instead of HTTPS for internal or public Ceph Object Gateway endpoints,
 add custom annotations to the `ingressConfig.annotations` section of the `CephDeployment` CR:
 ```yaml
 spec:
@@ -173,48 +170,49 @@ spec:
       "nginx.ingress.kubernetes.io/ssl-redirect": "false"
 ```
 
-Access public Ceph Object Gateway endpoint:
+5. Access the public Ceph Object Gateway endpoint:
 
-1. Obtain the Ceph Object Gateway public endpoint:
-    ```bash
-    kubectl -n rook-ceph get ingress
-    ```
-2. Obtain the public endpoint TLS CA certificate:
-    ```bash
-    kubectl -n rook-ceph get secret $(kubectl -n rook-ceph get ingress -o jsonpath='{.items[0].spec.tls[0].secretName}{"\n"}') -o jsonpath='{.data.ca\.crt}' | base64 -d; echo
-    ```
+   1. Obtain the Ceph Object Gateway public endpoint:
+       ```bash
+       kubectl -n rook-ceph get ingress
+       ```
+   2. Obtain the public endpoint TLS CA certificate:
+       ```bash
+       kubectl -n rook-ceph get secret $(kubectl -n rook-ceph get ingress -o jsonpath='{.items[0].spec.tls[0].secretName}{"\n"}') -o jsonpath='{.data.ca\.crt}' | base64 -d; echo
+       ```
 
-Access internal Ceph Object Gateway endpoint if needed:
+   To access the internal Ceph Object Gateway endpoint, if needed:
 
-1. Obtain the internal endpoint name for Ceph Object Gateway:
-    ```bash
-    kubectl -n rook-ceph get svc -l app=rook-ceph-rgw
-    ```
+   1. Obtain the internal endpoint name for Ceph Object Gateway:
+       ```bash
+       kubectl -n rook-ceph get svc -l app=rook-ceph-rgw
+       ```
 
-    The internal endpoint for Ceph Object Gateway has the following format:
-    ```
-    https://<internal-svc-name>.rook-ceph.svc:<rgw-secure-port>/
-    ```
-    where `<rgw-secure-port>` is `spec.objectStorage.rgw.gateway.securePort` specified
-    in the `CephDeployment` CR.
+       The internal endpoint for Ceph Object Gateway has the following format:
+        ```bash
+        https://<internal-svc-name>.rook-ceph.svc:<rgw-secure-port>/
+        ```
 
-2. Obtain the internal endpoint TLS CA certificate:
-    ```bash
-    kubectl -n rook-ceph get secret rgw-ssl-certificate -o jsonpath="{.data.cacert}" | base64 -d
-    ```
+       where `<rgw-secure-port>` is `spec.objectStorage.rgw.gateway.securePort` specified
+       in the `CephDeployment` CR.
 
-Verify at least one of the following requirements is met:
+   2. Obtain the internal endpoint TLS CA certificate:
+       ```bash
+       kubectl -n rook-ceph get secret rgw-ssl-certificate -o jsonpath="{.data.cacert}" | base64 -d
+       ```
 
-- The public hostname matches the public domain name set by the `spec.ingressConfig.tlsConfig.publicDomain` field;
-- The OpenStack configuration has been applied.
+6. Verify that at least one of the following requirements is met:
 
-If both options are not ``true``, update the zonegroup `hostnames` of Ceph Object Gateway:
+- The public hostname matches the public domain name set by the `spec.ingressConfig.tlsConfig.publicDomain` field
+- The OpenStack configuration has been applied
+
+If both options are not ``true``, update the `zonegroup` `hostnames` of Ceph Object Gateway:
 
 1. Enter the `pelagia-ceph-toolbox` pod:
     ```bash
     kubectl -n rook-ceph exec -it deployment/pelagia-ceph-toolbox -- bash
     ```
-2. Obtain Ceph Object Gateway default zonegroup configuration:
+2. Obtain Ceph Object Gateway default `zonegroup` configuration:
     ```bash
     radosgw-admin zonegroup get --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> | tee zonegroup.json
     ```
@@ -235,7 +233,7 @@ If both options are not ``true``, update the zonegroup `hostnames` of Ceph Objec
 
 4. If one or both endpoints are omitted in the list, add the missing
     endpoints to the `hostnames` list in the `zonegroup.json` file and
-    update Ceph Object Gateway zonegroup configuration:
+    update the Ceph Object Gateway `zonegroup` configuration:
     ```bash
     radosgw-admin zonegroup set --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> --infile zonegroup.json
     radosgw-admin period update --commit
