@@ -203,59 +203,55 @@ spec:
 
 6. Verify that at least one of the following requirements is met:
 
-- The public hostname matches the public domain name set by the `spec.ingressConfig.tlsConfig.publicDomain` field
-- The OpenStack configuration has been applied
+   - The public hostname matches the public domain name set by the `spec.ingressConfig.tlsConfig.publicDomain` field
+   - The OpenStack configuration has been applied
 
-If both options are not ``true``, update the `zonegroup` `hostnames` of Ceph Object Gateway:
+   If both options are not ``true``, update the `zonegroup` `hostnames` of Ceph Object Gateway:
 
-1. Enter the `pelagia-ceph-toolbox` pod:
-    ```bash
-    kubectl -n rook-ceph exec -it deployment/pelagia-ceph-toolbox -- bash
-    ```
-2. Obtain Ceph Object Gateway default `zonegroup` configuration:
-    ```bash
-    radosgw-admin zonegroup get --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> | tee zonegroup.json
-    ```
+   1. Enter the `pelagia-ceph-toolbox` pod:
+       ```bash
+       kubectl -n rook-ceph exec -it deployment/pelagia-ceph-toolbox -- bash
+       ```
+   2. Obtain Ceph Object Gateway default `zonegroup` configuration:
+       ```bash
+       radosgw-admin zonegroup get --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> | tee zonegroup.json
+       ```
 
-    Substitute `<objectStorageName>` with the Ceph Object Storage name from
-    `spec.objectStorage.rgw.name`.
+      Substitute `<objectStorageName>` with the Ceph Object Storage name from `spec.objectStorage.rgw.name`.
 
-3. Inspect `zonegroup.json` and verify that the `hostnames` key is a
-    list that contains two endpoints: an internal endpoint and a custom
-    public endpoint:
-    ```bash
-    "hostnames": ["rook-ceph-rgw-<objectStorageName>.rook-ceph.svc", <customPublicEndpoint>]
-    ```
+   3. Inspect `zonegroup.json` and verify that the `hostnames` key is a list that contains two endpoints:
+      an internal endpoint and a custom public endpoint:
+       ```bash
+       "hostnames": ["rook-ceph-rgw-<objectStorageName>.rook-ceph.svc", <customPublicEndpoint>]
+       ```
 
-    Substitute `<objectStorageName>` with the Ceph Object Storage name and
-    `<customPublicEndpoint>` with the public endpoint with a custom public
-    domain.
+      Substitute `<objectStorageName>` with the Ceph Object Storage name and `<customPublicEndpoint>` with the public endpoint with a custom public domain.
 
-4. If one or both endpoints are omitted in the list, add the missing
-    endpoints to the `hostnames` list in the `zonegroup.json` file and
-    update the Ceph Object Gateway `zonegroup` configuration:
-    ```bash
-    radosgw-admin zonegroup set --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> --infile zonegroup.json
-    radosgw-admin period update --commit
-    ```
+   4. If one or both endpoints are omitted in the list, add the missing endpoints to the `hostnames` list in the
+      `zonegroup.json` file and update the Ceph Object Gateway `zonegroup` configuration:
+       ```bash
+       radosgw-admin zonegroup set --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> --infile zonegroup.json
 
-5. Verify that the `hostnames` list contains both the internal and custom public endpoint:
-    ```bash
-    radosgw-admin --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> zonegroup get | jq -r ".hostnames"
-    ```
+       radosgw-admin period update --commit
+       ```
+
+   5. Verify that the `hostnames` list contains both the internal and custom public endpoint:
+       ```bash
+       radosgw-admin --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> zonegroup get | jq -r ".hostnames"
+       ```
 
       Example of system response:
-      ```json
-      [
-        "rook-ceph-rgw-obj-store.rook-ceph.svc",
-        "obj-store.mcc1.cluster1.example.com"
-      ]
-      ```
+       ```json
+       [
+         "rook-ceph-rgw-obj-store.rook-ceph.svc",
+         "obj-store.mcc1.cluster1.example.com"
+       ]
+       ```
 
-6. Exit the `pelagia-ceph-toolbox` pod:
-    ```bash
-    exit
-    ```
+   6. Exit the `pelagia-ceph-toolbox` pod:
+       ```bash
+       exit
+       ```
 
 Once done, Ceph Object Gateway becomes available by the custom public endpoint
 with an S3 API client, OpenStack Swift CLI, and OpenStack Horizon Containers
