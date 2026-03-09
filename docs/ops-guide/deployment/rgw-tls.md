@@ -136,8 +136,8 @@ For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-o
 
    Substitute `<name>` with the name of your `CephDeployment`.
 
-2. Specify the `ingressConfig` parameters as required.
-3. Save the changes and close the editor.
+3. Specify the `ingressConfig` parameters as required.
+4. Save the changes and close the editor.
 
    !!! note
 
@@ -148,29 +148,29 @@ For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-o
            kubectl -n openstack-ceph-shared get secret openstack-rgw-creds -o jsonpath="{.data.ca_cert}" | base64 -d
            ```
 
-4. If you use the HTTP scheme instead of HTTPS for internal or public Ceph Object Gateway endpoints,
-add custom annotations to the `ingressConfig.annotations` section of the `CephDeployment` CR:
-```yaml
-spec:
-  ingressConfig:
-    annotations:
-      "nginx.ingress.kubernetes.io/force-ssl-redirect": "false"
-      "nginx.ingress.kubernetes.io/ssl-redirect": "false"
-```
+5. If you use the HTTP scheme instead of HTTPS for internal or public Ceph Object Gateway endpoints,
+   add custom annotations to the `ingressConfig.annotations` section of the `CephDeployment` CR:
+    ```yaml
+    spec:
+      ingressConfig:
+        annotations:
+          "nginx.ingress.kubernetes.io/force-ssl-redirect": "false"
+          "nginx.ingress.kubernetes.io/ssl-redirect": "false"
+    ```
 
-If both HTTP and HTTPS must be used, apply the following configuration in the `CephDeployment` object:
-```yaml
-spec:
-  ingressConfig:
-    tlsConfig:
-      publicDomain: public.domain.name
-      tlsSecretRefName: pelagia-ingress-tls-secret
-    annotations:
-      "nginx.ingress.kubernetes.io/force-ssl-redirect": "false"
-      "nginx.ingress.kubernetes.io/ssl-redirect": "false"
-```
+   If both HTTP and HTTPS must be used, apply the following configuration in the `CephDeployment` object:
+    ```yaml
+     spec:
+       ingressConfig:
+         tlsConfig:
+           publicDomain: public.domain.name
+           tlsSecretRefName: pelagia-ingress-tls-secret
+         annotations:
+           "nginx.ingress.kubernetes.io/force-ssl-redirect": "false"
+           "nginx.ingress.kubernetes.io/ssl-redirect": "false"
+    ```
 
-5. Access the public Ceph Object Gateway endpoint:
+6. Access the public Ceph Object Gateway endpoint:
 
    1. Obtain the Ceph Object Gateway public endpoint:
        ```bash
@@ -201,7 +201,7 @@ spec:
        kubectl -n rook-ceph get secret rgw-ssl-certificate -o jsonpath="{.data.cacert}" | base64 -d
        ```
 
-6. Verify that at least one of the following requirements is met:
+7. Verify that at least one of the following requirements is met:
 
    - The public hostname matches the public domain name set by the `spec.ingressConfig.tlsConfig.publicDomain` field
    - The OpenStack configuration has been applied
@@ -225,9 +225,10 @@ spec:
        "hostnames": ["rook-ceph-rgw-<objectStorageName>.rook-ceph.svc", <customPublicEndpoint>]
        ```
 
-      Substitute `<objectStorageName>` with the Ceph Object Storage name and `<customPublicEndpoint>` with the public endpoint with a custom public domain.
+      Substitute `<objectStorageName>` with the Ceph Object Storage name and `<customPublicEndpoint>` with the
+      public endpoint with a custom public domain.
 
-   4. If one or both endpoints are omitted in the list, add the missing endpoints to the `hostnames` list in the
+   5. If one or both endpoints are omitted in the list, add the missing endpoints to the `hostnames` list in the
       `zonegroup.json` file and update the Ceph Object Gateway `zonegroup` configuration:
        ```bash
        radosgw-admin zonegroup set --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> --infile zonegroup.json
@@ -235,7 +236,7 @@ spec:
        radosgw-admin period update --commit
        ```
 
-   5. Verify that the `hostnames` list contains both the internal and custom public endpoint:
+   6. Verify that the `hostnames` list contains both the internal and custom public endpoint:
        ```bash
        radosgw-admin --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> zonegroup get | jq -r ".hostnames"
        ```
@@ -248,7 +249,7 @@ spec:
        ]
        ```
 
-   6. Exit the `pelagia-ceph-toolbox` pod:
+   7. Exit the `pelagia-ceph-toolbox` pod:
        ```bash
        exit
        ```
