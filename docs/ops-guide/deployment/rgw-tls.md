@@ -228,7 +228,7 @@ For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-o
       Substitute `<objectStorageName>` with the Ceph Object Storage name and `<customPublicEndpoint>` with the
       public endpoint with a custom public domain.
 
-   5. If one or both endpoints are omitted in the list, add the missing endpoints to the `hostnames` list in the
+   4. If one or both endpoints are omitted in the list, add the missing endpoints to the `hostnames` list in the
       `zonegroup.json` file and update the Ceph Object Gateway `zonegroup` configuration:
        ```bash
        radosgw-admin zonegroup set --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> --infile zonegroup.json
@@ -236,7 +236,7 @@ For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-o
        radosgw-admin period update --commit
        ```
 
-   6. Verify that the `hostnames` list contains both the internal and custom public endpoint:
+   5. Verify that the `hostnames` list contains both the internal and custom public endpoint:
        ```bash
        radosgw-admin --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> zonegroup get | jq -r ".hostnames"
        ```
@@ -249,7 +249,7 @@ For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-o
        ]
        ```
 
-   7. Exit the `pelagia-ceph-toolbox` pod:
+   6. Exit the `pelagia-ceph-toolbox` pod:
        ```bash
        exit
        ```
