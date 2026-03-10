@@ -129,130 +129,127 @@ override the default `rgw dns name` with the corresponding ingress annotation va
 RADOS Gateway `spec.objectStorage.rgw.gateway.securePort` parameter is specified in the `CephDeployment` CR.
 For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-object-storage).
 2. Open the `CephDeployment` CR for editing:
-
      ```bash
      kubectl -n pelagia edit cephdpl <name>
      ```
 
-   Substitute `<name>` with the name of your `CephDeployment`.
+     Substitute `<name>` with the name of your `CephDeployment`.
+
+     For Pelagia with Rockoon, you can omit TLS configuration for the default settings provided by Rockoon
+     to be applied. Just obtain the Rockoon OpenStack CA certificate for a trusted connection:
+
+       ```bash
+       kubectl -n openstack-ceph-shared get secret openstack-rgw-creds -o jsonpath="{.data.ca_cert}" | base64 -d
+       ```
 
 3. Specify the `ingressConfig` parameters as required.
 4. Save the changes and close the editor.
 
-   !!! note
-
-         For Pelagia with Rockoon, you can omit TLS configuration for the default settings provided by Rockoon to be
-         applied. Just obtain the Rockoon OpenStack CA certificate for a trusted connection:
-
-           ```bash
-           kubectl -n openstack-ceph-shared get secret openstack-rgw-creds -o jsonpath="{.data.ca_cert}" | base64 -d
-           ```
-
 5. If you use the HTTP scheme instead of HTTPS for internal or public Ceph Object Gateway endpoints,
    add custom annotations to the `ingressConfig.annotations` section of the `CephDeployment` CR:
-    ```yaml
-    spec:
-      ingressConfig:
-        annotations:
-          "nginx.ingress.kubernetes.io/force-ssl-redirect": "false"
-          "nginx.ingress.kubernetes.io/ssl-redirect": "false"
-    ```
-
-   If both HTTP and HTTPS must be used, apply the following configuration in the `CephDeployment` object:
-    ```yaml
+     ```yaml
      spec:
        ingressConfig:
-         tlsConfig:
-           publicDomain: public.domain.name
-           tlsSecretRefName: pelagia-ingress-tls-secret
          annotations:
            "nginx.ingress.kubernetes.io/force-ssl-redirect": "false"
            "nginx.ingress.kubernetes.io/ssl-redirect": "false"
-    ```
+     ```
+
+     If both HTTP and HTTPS must be used, apply the following configuration in the `CephDeployment` object:
+       ```yaml
+        spec:
+          ingressConfig:
+            tlsConfig:
+              publicDomain: public.domain.name
+              tlsSecretRefName: pelagia-ingress-tls-secret
+            annotations:
+              "nginx.ingress.kubernetes.io/force-ssl-redirect": "false"
+              "nginx.ingress.kubernetes.io/ssl-redirect": "false"
+       ```
 
 6. Access the public Ceph Object Gateway endpoint:
 
-   1. Obtain the Ceph Object Gateway public endpoint:
-       ```bash
-       kubectl -n rook-ceph get ingress
-       ```
-   2. Obtain the public endpoint TLS CA certificate:
-       ```bash
-       kubectl -n rook-ceph get secret $(kubectl -n rook-ceph get ingress -o jsonpath='{.items[0].spec.tls[0].secretName}{"\n"}') -o jsonpath='{.data.ca\.crt}' | base64 -d; echo
-       ```
+     1. Obtain the Ceph Object Gateway public endpoint:
+          ```bash
+          kubectl -n rook-ceph get ingress
+          ```
+     2. Obtain the public endpoint TLS CA certificate:
+          ```bash
+          kubectl -n rook-ceph get secret $(kubectl -n rook-ceph get ingress -o jsonpath='{.items[0].spec.tls[0].secretName}{"\n"}') -o jsonpath='{.data.ca\.crt}' | base64 -d; echo
+          ```
 
-   To access the internal Ceph Object Gateway endpoint, if needed:
+     To access the internal Ceph Object Gateway endpoint, if needed:
 
-   1. Obtain the internal endpoint name for Ceph Object Gateway:
-       ```bash
-       kubectl -n rook-ceph get svc -l app=rook-ceph-rgw
-       ```
+       1. Obtain the internal endpoint name for Ceph Object Gateway:
+            ```bash
+            kubectl -n rook-ceph get svc -l app=rook-ceph-rgw
+            ```
 
-       The internal endpoint for Ceph Object Gateway has the following format:
-        ```bash
-        https://<internal-svc-name>.rook-ceph.svc:<rgw-secure-port>/
-        ```
+          The internal endpoint for Ceph Object Gateway has the following format:
+            ```bash
+            https://<internal-svc-name>.rook-ceph.svc:<rgw-secure-port>/
+            ```
 
-       where `<rgw-secure-port>` is `spec.objectStorage.rgw.gateway.securePort` specified
-       in the `CephDeployment` CR.
+          where `<rgw-secure-port>` is `spec.objectStorage.rgw.gateway.securePort` specified
+          in the `CephDeployment` CR.
 
-   2. Obtain the internal endpoint TLS CA certificate:
-       ```bash
-       kubectl -n rook-ceph get secret rgw-ssl-certificate -o jsonpath="{.data.cacert}" | base64 -d
-       ```
+       2. Obtain the internal endpoint TLS CA certificate:
+            ```bash
+            kubectl -n rook-ceph get secret rgw-ssl-certificate -o jsonpath="{.data.cacert}" | base64 -d
+            ```
 
 7. Verify that at least one of the following requirements is met:
 
-   - The public hostname matches the public domain name set by the `spec.ingressConfig.tlsConfig.publicDomain` field
-   - The OpenStack configuration has been applied
+     - The public hostname matches the public domain name set by the `spec.ingressConfig.tlsConfig.publicDomain` field
+     - The OpenStack configuration has been applied
 
-   If both options are not ``true``, update the `zonegroup` `hostnames` of Ceph Object Gateway:
+     If both options are not ``true``, update the `zonegroup` `hostnames` of Ceph Object Gateway:
 
-   1. Enter the `pelagia-ceph-toolbox` pod:
-       ```bash
-       kubectl -n rook-ceph exec -it deployment/pelagia-ceph-toolbox -- bash
-       ```
-   2. Obtain Ceph Object Gateway default `zonegroup` configuration:
-       ```bash
-       radosgw-admin zonegroup get --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> | tee zonegroup.json
-       ```
+       1. Enter the `pelagia-ceph-toolbox` pod:
+            ```bash
+            kubectl -n rook-ceph exec -it deployment/pelagia-ceph-toolbox -- bash
+            ```
+       2. Obtain Ceph Object Gateway default `zonegroup` configuration:
+            ```bash
+            radosgw-admin zonegroup get --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> | tee zonegroup.json
+            ```
 
-      Substitute `<objectStorageName>` with the Ceph Object Storage name from `spec.objectStorage.rgw.name`.
+          Substitute `<objectStorageName>` with the Ceph Object Storage name from `spec.objectStorage.rgw.name`.
 
-   3. Inspect `zonegroup.json` and verify that the `hostnames` key is a list that contains two endpoints:
-      an internal endpoint and a custom public endpoint:
-       ```bash
-       "hostnames": ["rook-ceph-rgw-<objectStorageName>.rook-ceph.svc", <customPublicEndpoint>]
-       ```
+      3. Inspect `zonegroup.json` and verify that the `hostnames` key is a list that contains two endpoints -
+         an internal endpoint and a custom public endpoint:
+           ```bash
+           "hostnames": ["rook-ceph-rgw-<objectStorageName>.rook-ceph.svc", <customPublicEndpoint>]
+           ```
 
-      Substitute `<objectStorageName>` with the Ceph Object Storage name and `<customPublicEndpoint>` with the
-      public endpoint with a custom public domain.
+        Substitute `<objectStorageName>` with the Ceph Object Storage name and `<customPublicEndpoint>` with the
+        public endpoint with a custom public domain.
 
-   4. If one or both endpoints are omitted in the list, add the missing endpoints to the `hostnames` list in the
-      `zonegroup.json` file and update the Ceph Object Gateway `zonegroup` configuration:
-       ```bash
-       radosgw-admin zonegroup set --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> --infile zonegroup.json
+     4. If one or both endpoints are omitted in the list, add the missing endpoints to the `hostnames` list in the
+        `zonegroup.json` file and update the Ceph Object Gateway `zonegroup` configuration:
+          ```bash
+          radosgw-admin zonegroup set --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> --infile zonegroup.json
 
-       radosgw-admin period update --commit
-       ```
+          radosgw-admin period update --commit
+          ```
 
-   5. Verify that the `hostnames` list contains both the internal and custom public endpoint:
-       ```bash
-       radosgw-admin --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> zonegroup get | jq -r ".hostnames"
-       ```
+     5. Verify that the `hostnames` list contains both the internal and custom public endpoint:
+          ```bash
+          radosgw-admin --rgw-zonegroup=<objectStorageName> --rgw-zone=<objectStorageName> zonegroup get | jq -r ".hostnames"
+          ```
 
-      Example of system response:
-       ```json
-       [
-         "rook-ceph-rgw-obj-store.rook-ceph.svc",
-         "obj-store.mcc1.cluster1.example.com"
-       ]
-       ```
+        Example of system response:
+          ```json
+          [
+            "rook-ceph-rgw-obj-store.rook-ceph.svc",
+            "obj-store.mcc1.cluster1.example.com"
+          ]
+          ```
 
-   6. Exit the `pelagia-ceph-toolbox` pod:
-       ```bash
-       exit
-       ```
+     6. Exit the `pelagia-ceph-toolbox` pod:
+          ```bash
+          exit
+          ```
 
 Once done, Ceph Object Gateway becomes available by the custom public endpoint
 with an S3 API client, OpenStack Swift CLI, and OpenStack Horizon Containers

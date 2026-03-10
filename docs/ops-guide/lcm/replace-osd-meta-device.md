@@ -99,29 +99,16 @@ Logical volume "meta_1" created.
 
 ## Re-create the Ceph OSD with the re-created metadata partition
 
-!!! note
+{% include "../../snippets/rawDeviceCleanup.md" %}
 
-    You can spawn Ceph OSD on a raw device, but it must be clean and
-    without any data or partitions. If you want to add a device that was in use,
-    also ensure it is raw and clean. To clean up all data and partitions from a
-    device, refer to official [Rook documentation](https://github.com/rook/rook/blob/master/Documentation/Storage-Configuration/ceph-teardown.md#zapping-devices).
+{% include "../../snippets/osdRawDevice.md" %}
 
-1. Optional. If you want to add a Ceph OSD on top of a **raw** device that already exists
-   on a node or is **hot-plugged**, add the required device using the following
-   guidelines:
-
-    - You can add a raw device to a node during node deployment.
-    - If a node supports adding devices without a node reboot, you can hot plug
-      a raw device to a node.
-    - If a node does not support adding devices without a node reboot, you can
-      hot plug a raw device during node shutdown.
-
-2. Open the `CephDeployment` CR for editing:
+1. Open the `CephDeployment` CR for editing:
    ```bash
    kubectl -n pelagia edit cephdpl
    ```
 
-3. In the `nodes` section, add the replaced device with the same `metadataDevice` path as in the previous Ceph OSD:
+2. In the `nodes` section, add the replaced device with the same `metadataDevice` path as in the previous Ceph OSD:
    ```yaml
    spec:
      nodes:
@@ -138,7 +125,7 @@ Logical volume "meta_1" created.
      Substitute `<nodeName>` with the node name where the new device `<deviceByID>` or `<deviceByPath>` must be added.
      Also specify `metadataDevice` with the path to the logical volume created earlier.
 
-4. Wait for the replaced disk to apply to the Ceph cluster as a new Ceph OSD.
+3. Wait for the replaced disk to apply to the Ceph cluster as a new Ceph OSD.
    You can monitor the application state using either the `status` section
    of the `CephDeploymentHealth` CR or in the `pelagia-ceph-toolbox` pod:
    ```bash

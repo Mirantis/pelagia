@@ -95,9 +95,10 @@ You can apply the below procedure in the following cases:
    ```
 
      Substitute the following parameters:
-     - `<nodeName>` and `<deviceName>` with the node and device names
-       from the previous step;
-     - `<osdID>` with the ID of the affected Ceph OSD.
+
+      - `<nodeName>` and `<deviceName>` with the node and device names
+        from the previous step;
+      - `<osdID>` with the ID of the affected Ceph OSD.
 
 5. Apply the template to the cluster:
    ```bash
@@ -194,29 +195,15 @@ You can apply the below procedure in the following cases:
 
 ## Re-create a Ceph OSD with the same metadata partition
 
-!!! note
+{% include "../../snippets/rawDeviceCleanup.md" %}
+{% include "../../snippets/osdRawDevice.md" %}
 
-    You can spawn Ceph OSD on a raw device, but it must be clean and
-    without any data or partitions. If you want to add a device that was in use,
-    also ensure it is raw and clean. To clean up all data and partitions from a
-    device, refer to official [Rook documentation](https://github.com/rook/rook/blob/master/Documentation/Storage-Configuration/ceph-teardown.md#zapping-devices).
-
-1. Optional. If you want to add a Ceph OSD on top of a **raw** device that already exists
-   on a node or is **hot-plugged**, add the required device using the following
-   guidelines:
-
-    - You can add a raw device to a node during node deployment.
-    - If a node supports adding devices without a node reboot, you can hot plug
-      a raw device to a node.
-    - If a node does not support adding devices without a node reboot, you can
-      hot plug a raw device during node shutdown.
-
-2. Open the `CephDeployment` CR for editing:
+1. Open the `CephDeployment` CR for editing:
    ```bash
    kubectl -n pelagia edit cephdpl
    ```
 
-3. In the `nodes` section, add the replaced device with the same
+2. In the `nodes` section, add the replaced device with the same
    `metadataDevice` path as on the removed Ceph OSD. For example:
    ```yaml
    spec:
@@ -233,7 +220,7 @@ You can apply the below procedure in the following cases:
 
      Substitute `<nodeName>` with the node name where the new device `<deviceByID>` or `<deviceByPath>` must be added.
 
-4. Wait for the replaced disk to apply to the Ceph cluster as a new Ceph OSD. You can monitor the application
+3. Wait for the replaced disk to apply to the Ceph cluster as a new Ceph OSD. You can monitor the application
    state using either the `status` section of the `CephDeploymentHealth` CR or in the `pelagia-ceph-toolbox` Pod:
    ```bash
    kubectl -n pelagia get cephdeploymenthealth -o yaml
