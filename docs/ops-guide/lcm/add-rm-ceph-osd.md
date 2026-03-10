@@ -77,18 +77,7 @@ OSDs.
 
 Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
 
-!!! warning
-
-    When using the non-recommended Ceph pools `replicated.size` of
-    less than `3`, Ceph OSD removal cannot be performed. The minimal replica
-    size equals a rounded up half of the specified `replicated.size`.
-
-    For example, if `replicated.size` is `2`, the minimal replica size is
-    `1`, and if `replicated.size` is `3`, then the minimal replica size
-    is `2`. The replica size of `1` allows Ceph having PGs with only one
-    Ceph OSD in the `acting` state, which may cause a `PG_TOO_DEGRADED`
-    health warning that blocks Ceph OSD removal. We recommend setting
-    `replicated.size` to `3` for each Ceph pool.
+{% include "../../snippets/replicatedSize.md" %}
 
 1. Open the `CephDeployment` CR on for editing:
    ```bash
