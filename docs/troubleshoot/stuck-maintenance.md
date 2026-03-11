@@ -2,7 +2,7 @@
 
 # Maintenance stuck on a compact Ceph cluster
 
-{% include "../../snippets/replicatedSize.md" %}
+{% include "../snippets/replicatedSize.md" %}
 
 When disabling or removing a Ceph node during upgrade or maintenance operations
 such as rolling reboot, Ceph may not complete rebalancing if only two of three OSD
