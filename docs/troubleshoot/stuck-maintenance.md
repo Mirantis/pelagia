@@ -1,4 +1,4 @@
-<a id="stuck-maintenance-maintenance-stuck-on-a-compact-non-prod-ceph-cluster"></a>
+<a id="stuck-maintenance-maintenance-stuck-on-a-compact-ceph-cluster"></a>
 
 # Maintenance stuck on a compact Ceph cluster
 
