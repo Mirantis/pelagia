@@ -34,23 +34,25 @@ configure their S3 credentials.
              user: read
    ```
 
+   {% include "../../../snippets/objStorUserFormat.md" %}
+
 3. Verify that `rgwUserSecrets` are created for both users:
    ```bash
    kubectl -n pelagia get cephdeploymentsecret -o yaml
    ```
 
-     Example of a positive system response:
-     ```yaml
-     status:
-       secretInfo:
-         rgwUserSecrets:
-         - name: user-a
-           secretName: <user-aCredSecretName>
-           secretNamespace: <user-aCredSecretNamespace>
-         - name: user-t
-           secretName: <user-tCredSecretName>
-           secretNamespace: <user-tCredSecretNamespace>
-     ```
+   Example of a positive system response:
+   ```yaml
+   status:
+     secretInfo:
+       rgwUserSecrets:
+       - name: user-a
+         secretName: <user-aCredSecretName>
+         secretNamespace: <user-aCredSecretNamespace>
+       - name: user-t
+         secretName: <user-tCredSecretName>
+         secretNamespace: <user-tCredSecretNamespace>
+   ```
 
 4. Obtain S3 user credentials from the cluster secrets. Specify an access key and a secret key for both users:
    ```bash
@@ -60,22 +62,22 @@ configure their S3 credentials.
    kubectl -n <user-tCredSecretNamespace> get secret <user-tCredSecretName> -o jsonpath='{.data.SecretKey}' | base64 -d
    ```
 
-     Substitute the corresponding `secretNamespace` and `secretName` for both
-     users.
+   Substitute the corresponding `secretNamespace` and `secretName` for both
+   users.
 
-5. Obtain Ceph Object Storage public endpoint from the  `CephDeploymentHealth` status:
+5. Obtain Ceph Object Storage public endpoint from the `CephDeploymentHealth` status:
    ```bash
    kubectl -n pelagia get cephdeploymenthealth -o yaml | grep publicEndpoint
    ```
 
-     Example of a positive system response:
-     ```bash
-     publicEndpoint: https://object-storage.just.example.com
-     ```
+   Example of a positive system response:
+   ```bash
+   publicEndpoint: https://object-storage.just.example.com
+   ```
 
 6. Obtain the CA certificate to use an HTTPS endpoint:
    ```bash
    kubectl -n rook-ceph get secret $(kubectl -n rook-ceph get ingress -o jsonpath='{.items[0].spec.tls[0].secretName}{"\n"}') -o jsonpath='{.data.ca\.crt}' | base64 -d; echo
    ```
 
-     Save the output to `ca.crt`.
+   Save the output to `ca.crt`.

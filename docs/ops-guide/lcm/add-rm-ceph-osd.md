@@ -10,15 +10,7 @@ OSDs.
 
 1. Manually prepare the required devices on the existing node.
 
-2. Optional. If you want to add a Ceph OSD on top of a **raw** device that already exists
-   on a node or is **hot-plugged**, add the required device using the following
-   guidelines:
-
-     - You can add a raw device to a node during node deployment.
-     - If a node supports adding devices without a node reboot, you can hot plug
-       a raw device to a node.
-     - If a node does not support adding devices without a node reboot, you can
-       hot plug a raw device during node shutdown.
+2. {% include "../../snippets/osdRawDevice.md" %}
 
 3. Open the `CephDeployment` custom resource (CR) for editing:
    ```bash
@@ -119,12 +111,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
              - device: sdb
        ```
 
-        !!! warning
-
-             We do not recommend setting device name or device `by-path` symlink in the `cleanupByDevice` field
-             as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with `by-id`
-             symlinks or use `cleanupByOsdId` instead. For details, see
-             [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-devices-addressing-ceph-storage-devices).
+        {% include "../../snippets/rawDeviceCleanup.md" %}
 
         !!! note
 

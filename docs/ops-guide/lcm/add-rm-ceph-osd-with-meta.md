@@ -11,20 +11,12 @@ OSDs with a separate metadata device.
 
 1. Configure one disk for data and one logical volume for metadata of a Ceph OSD to be added to the Ceph cluster.
 
-    !!! note
+   !!! note
 
-         If you add a new disk after node provisioning, manually prepare the required node devices using
-         Logical Volume Manager (LVM) 2 on the existing node.
+       If you add a new disk after node provisioning, manually prepare the required node devices using
+       Logical Volume Manager (LVM) 2 on the existing node.
 
-2. Optional. If you want to add a Ceph OSD on top of a **raw** device that already exists
-   on a node or is **hot-plugged**, add the required device using the following
-   guidelines:
-
-    - You can add a raw device to a node during node deployment.
-    - If a node supports adding devices without a node reboot, you can hot plug
-      a raw device to a node.
-    - If a node does not support adding devices without a node reboot, you can
-      hot plug a raw device during node shutdown.
+2. {% include "../../snippets/osdRawDevice.md" %}
 
 3. Open the `CephDeployment` custom resource (CR) for editing:
    ```bash
@@ -35,22 +27,22 @@ OSDs with a separate metadata device.
    parameters for a Ceph OSD as required. For the parameters description, see
    [Nodes parameters](../../../architecture/custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
 
-     The example configuration of the `nodes` section with the new node:
-     ```yaml
-     nodes:
-     - name: storage-worker-505
-       roles:
-       - mon
-       - mgr
-       devices:
-       - config: # existing item
-           deviceClass: hdd
-         fullPath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
-       - config: # new item
-           deviceClass: hdd
-           metadataDevice: /dev/bluedb/meta_1
-         fullPath: /dev/disk/by-id/scsi-0ATA_HGST_HUS724040AL_PN1334PEHN1VBC
-     ```
+   The example configuration of the `nodes` section with the new node:
+   ```yaml
+   nodes:
+   - name: storage-worker-505
+     roles:
+     - mon
+     - mgr
+     devices:
+     - config: # existing item
+         deviceClass: hdd
+       fullPath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
+     - config: # new item
+         deviceClass: hdd
+         metadataDevice: /dev/bluedb/meta_1
+       fullPath: /dev/disk/by-id/scsi-0ATA_HGST_HUS724040AL_PN1334PEHN1VBC
+   ```
 
 5. Verify that the Ceph OSD is successfully deployed on the specified node. The `CephDeploymentHealth` CR
    `status.healthReport.cephDaemons.cephDaemons` section should not contain any issues:
@@ -58,31 +50,31 @@ OSDs with a separate metadata device.
    kubectl -n pelagia get cephdeploymenthealth -o yaml
    ```
 
-     For example:
-     ```yaml
-     status:
-       healthReport:
+   For example:
+   ```yaml
+   status:
+     healthReport:
+       cephDaemons:
          cephDaemons:
-           cephDaemons:
-             osd:
-               info:
-               - 4 osds, 4 up, 4 in
-               status: ok
-     ```
+           osd:
+             info:
+             - 4 osds, 4 up, 4 in
+             status: ok
+   ```
 
 6. Verify the Ceph OSD status:
    ```bash
    kubectl -n rook-ceph get pod -l app=rook-ceph-osd -o wide | grep <nodeName>
    ```
 
-     Substitute `<nodeName>` with the corresponding node name.
+   Substitute `<nodeName>` with the corresponding node name.
 
-     Example of system response:
-     ```bash
-     rook-ceph-osd-0-7b8d4d58db-f6czn   1/1     Running   0          42h   10.100.91.6   kaas-node-6c5e76f9-c2d2-4b1a-b047-3c299913a4bf   <none>           <none>
-     rook-ceph-osd-1-78fbc47dc5-px9n2   1/1     Running   0          21h   10.100.91.6   kaas-node-6c5e76f9-c2d2-4b1a-b047-3c299913a4bf   <none>           <none>
-     rook-ceph-osd-3-647f8d6c69-87gxt   1/1     Running   0          21h   10.100.91.6   kaas-node-6c5e76f9-c2d2-4b1a-b047-3c299913a4bf   <none>           <none>
-     ```
+   Example of system response:
+   ```bash
+   rook-ceph-osd-0-7b8d4d58db-f6czn   1/1     Running   0          42h   10.100.91.6   kaas-node-6c5e76f9-c2d2-4b1a-b047-3c299913a4bf   <none>           <none>
+   rook-ceph-osd-1-78fbc47dc5-px9n2   1/1     Running   0          21h   10.100.91.6   kaas-node-6c5e76f9-c2d2-4b1a-b047-3c299913a4bf   <none>           <none>
+   rook-ceph-osd-3-647f8d6c69-87gxt   1/1     Running   0          21h   10.100.91.6   kaas-node-6c5e76f9-c2d2-4b1a-b047-3c299913a4bf   <none>           <none>
+   ```
 
 <a name="add-rm-ceph-osd-with-meta-remove-a-ceph-osd-with-a-metadata-device"></a>
 ## Remove a Ceph OSD with a metadata device
@@ -98,22 +90,22 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
 
 2. Remove the required Ceph OSD specification from the `spec.nodes.<nodeName>.devices` list:
 
-     The example configuration of the `nodes` section with the new node:
-     ```yaml
-     nodes:
-     - name: storage-worker-505
-       roles:
-       - mon
-       - mgr
-       storageDevices:
-       - config:
-           deviceClass: hdd
-         fullPath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
-       - config: # remove the entire item entry from devices list
-           deviceClass: hdd
-           metadataDevice: /dev/bluedb/meta_1
-         fullPath: /dev/disk/by-id/scsi-0ATA_HGST_HUS724040AL_PN1334PEHN1VBC
-     ```
+   The example configuration of the `nodes` section with the new node:
+   ```yaml
+   nodes:
+   - name: storage-worker-505
+     roles:
+     - mon
+     - mgr
+     storageDevices:
+     - config:
+         deviceClass: hdd
+       fullPath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
+     - config: # remove the entire item entry from devices list
+         deviceClass: hdd
+         metadataDevice: /dev/bluedb/meta_1
+       fullPath: /dev/disk/by-id/scsi-0ATA_HGST_HUS724040AL_PN1334PEHN1VBC
+   ```
 
 3. Create a YAML template for the `CephOsdRemoveTask` CR. Select from the following options:
 
@@ -132,17 +124,12 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
             - device: sdc
       ```
 
-        !!! warning
+      {% include "../../snippets/rawDeviceCleanup.md" %}
 
-            We do not recommend setting device name or device `by-path` symlink in the `cleanupByDevice` field
-            as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with `by-id`
-            symlinks or use `cleanupByOsdId` instead. For details, see
-            [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-devices-addressing-ceph-storage-devices).
+      !!! note
 
-        !!! note
-
-            If a device was physically removed from a node, `cleanupByDevice` is not supported. Therefore, use
-            `cleanupByOsdId` instead.
+          If a device was physically removed from a node, `cleanupByDevice` is not supported. Therefore, use
+          `cleanupByOsdId` instead.
 
     - Remove Ceph OSD by OSD ID:
       ```yaml
@@ -174,35 +161,35 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
    kubectl -n pelagia get cephosdremovetask remove-osd-<nodeName>-task -o yaml
    ```
 
-     Example of system response:
-     ```yaml
-     status:
-       removeInfo:
-         cleanupMap:
-           storage-worker-505:
-             osdMapping:
-               "10":
-                 deviceMapping:
-                   sdb:
-                     path: "/dev/disk/by-path/pci-0000:00:1t.9"
-                     partition: "/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb"
-                     type: "block"
-                     class: "hdd"
-                     zapDisk: true
-               "5":
-                 deviceMapping:
-                   /dev/sdc:
-                     deviceClass: hdd
-                     devicePath: /dev/disk/by-path/pci-0000:00:0f.0
-                     devicePurpose: block
-                     usedPartition: /dev/ceph-2d11bf90-e5be-4655-820c-fb4bdf7dda63/osd-block-e41ce9a8-4925-4d52-aae4-e45167cfcf5c
-                     zapDisk: true
-                   /dev/sdf:
-                     deviceClass: hdd
-                     devicePath: /dev/disk/by-path/pci-0000:00:12.0
-                     devicePurpose: db
-                     usedPartition: /dev/bluedb/meta_1
-     ```
+   Example of system response:
+   ```yaml
+   status:
+     removeInfo:
+       cleanupMap:
+         storage-worker-505:
+           osdMapping:
+             "10":
+               deviceMapping:
+                 sdb:
+                   path: "/dev/disk/by-path/pci-0000:00:1t.9"
+                   partition: "/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb"
+                   type: "block"
+                   class: "hdd"
+                   zapDisk: true
+             "5":
+               deviceMapping:
+                 /dev/sdc:
+                   deviceClass: hdd
+                   devicePath: /dev/disk/by-path/pci-0000:00:0f.0
+                   devicePurpose: block
+                   usedPartition: /dev/ceph-2d11bf90-e5be-4655-820c-fb4bdf7dda63/osd-block-e41ce9a8-4925-4d52-aae4-e45167cfcf5c
+                   zapDisk: true
+                 /dev/sdf:
+                   deviceClass: hdd
+                   devicePath: /dev/disk/by-path/pci-0000:00:12.0
+                   devicePurpose: db
+                   usedPartition: /dev/bluedb/meta_1
+   ```
 
 7. Verify that the `cleanupMap` section matches the required removal and
    wait for the `ApproveWaiting` phase to appear in `status`:
@@ -210,22 +197,22 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
    kubectl -n pelagia get cephosdremovetask remove-osd-<nodeName>-task -o yaml
    ```
 
-     Example of system response:
-     ```yaml
-     status:
-       phase: ApproveWaiting
-     ```
+   Example of system response:
+   ```yaml
+   status:
+     phase: ApproveWaiting
+   ```
 
 8. In the `CephOsdRemoveTask` CR, set the `approve` flag to `true`:
    ```bash
    kubectl -n pelagia edit cephosdremovetask remove-osd-<nodeName>-task
    ```
 
-     Configuration snippet:
-     ```yaml
-     spec:
-       approve: true
-     ```
+   Configuration snippet:
+   ```yaml
+   spec:
+     approve: true
+   ```
 
 9. Review the following `status` fields of the Ceph LCM CR processing:
 
@@ -238,11 +225,11 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
 
 10. Verify that the `CephOsdRemoveTask` has been completed.
 
-      Example of the positive `status.phase` field:
-      ```yaml
-      status:
-        phase: Completed # or CompletedWithWarnings if there are non-critical issues
-      ```
+    Example of the positive `status.phase` field:
+    ```yaml
+    status:
+      phase: Completed # or CompletedWithWarnings if there are non-critical issues
+    ```
 
 11. Remove the device cleanup jobs:
     ```bash
@@ -254,7 +241,8 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
 
 There is no hot reconfiguration procedure for existing Ceph OSDs.
 To reconfigure an existing Ceph node, remove and re-add a Ceph OSD with a metadata device.
-However, the automated LCM will clean up the logical volume without a removal, and it can be reused. For this reason, to reconfigure a partition of a Ceph OSD metadata device:
+However, the automated LCM will clean up the logical volume without a removal, and it can be reused.
+For this reason, to reconfigure a partition of a Ceph OSD metadata device:
 
 1. Remove a Ceph OSD from the Ceph cluster.
 2. Add the same Ceph OSD but with a modified configuration.
