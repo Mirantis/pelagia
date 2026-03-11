@@ -11,28 +11,26 @@
       
       
       
-        <link rel="prev" href="../../rgw-sse/">
+        <link rel="prev" href="../ceph-disaster-recover/">
       
-      
-        <link rel="next" href="../bucket-policy-s3/">
       
       
         
       
       
-      <link rel="icon" href="../../../../assets/favicon.ico">
+      <link rel="icon" href="../../assets/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
-        <title>Create Ceph Object Storage User - Pelagia Controller for Rook Ceph management</title>
+        <title>Maintenance stuck on a compact Ceph cluster - Pelagia Controller for Rook Ceph management</title>
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,9 +49,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#create-ceph-object-storage-users" class="md-skip">
+        <a href="#maintenance-stuck-on-a-compact-ceph-cluster" class="md-skip">
           Skip to content
         </a>
       
@@ -94,9 +92,9 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../.." title="Pelagia Controller for Rook Ceph management" class="md-header__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
+    <a href="../.." title="Pelagia Controller for Rook Ceph management" class="md-header__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
       
-  <img src="../../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
+  <img src="../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -113,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Create Ceph Object Storage User
+              Maintenance stuck on a compact Ceph cluster
             
           </span>
         </div>
@@ -231,9 +229,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../.." title="Pelagia Controller for Rook Ceph management" class="md-nav__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
+    <a href="../.." title="Pelagia Controller for Rook Ceph management" class="md-nav__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
       
-  <img src="../../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
+  <img src="../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
 
     </a>
     Pelagia Controller for Rook Ceph management
@@ -260,7 +258,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../.." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -334,7 +332,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/overview/" class="md-nav__link">
+      <a href="../../architecture/overview/" class="md-nav__link">
         
   
   
@@ -362,7 +360,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/limitations/" class="md-nav__link">
+      <a href="../../architecture/limitations/" class="md-nav__link">
         
   
   
@@ -390,7 +388,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/addressing-ceph-devices/" class="md-nav__link">
+      <a href="../../architecture/addressing-ceph-devices/" class="md-nav__link">
         
   
   
@@ -418,7 +416,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/rockoon-integration/" class="md-nav__link">
+      <a href="../../architecture/rockoon-integration/" class="md-nav__link">
         
   
   
@@ -493,7 +491,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/custom-resources/cephdeployment/" class="md-nav__link">
+      <a href="../../architecture/custom-resources/cephdeployment/" class="md-nav__link">
         
   
   
@@ -521,7 +519,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/custom-resources/cephdeploymenthealth/" class="md-nav__link">
+      <a href="../../architecture/custom-resources/cephdeploymenthealth/" class="md-nav__link">
         
   
   
@@ -549,7 +547,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/custom-resources/cephdeploymentsecret/" class="md-nav__link">
+      <a href="../../architecture/custom-resources/cephdeploymentsecret/" class="md-nav__link">
         
   
   
@@ -577,7 +575,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/custom-resources/cephosdremovetask/" class="md-nav__link">
+      <a href="../../architecture/custom-resources/cephosdremovetask/" class="md-nav__link">
         
   
   
@@ -667,7 +665,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../quick-start/installation/" class="md-nav__link">
+      <a href="../../quick-start/installation/" class="md-nav__link">
         
   
   
@@ -695,7 +693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../quick-start/lcm-installation/" class="md-nav__link">
+      <a href="../../quick-start/lcm-installation/" class="md-nav__link">
         
   
   
@@ -723,7 +721,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../quick-start/upgrade/" class="md-nav__link">
+      <a href="../../quick-start/upgrade/" class="md-nav__link">
         
   
   
@@ -758,7 +756,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../developer/" class="md-nav__link">
+      <a href="../../developer/" class="md-nav__link">
         
   
   
@@ -782,20 +780,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
@@ -816,7 +812,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -834,7 +830,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../default-ceph-conf/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/default-ceph-conf/" class="md-nav__link">
         
   
   
@@ -862,7 +858,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rook-daemon-place/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/rook-daemon-place/" class="md-nav__link">
         
   
   
@@ -890,7 +886,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../multinetworking/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/multinetworking/" class="md-nav__link">
         
   
   
@@ -918,7 +914,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rbd-mirror/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/rbd-mirror/" class="md-nav__link">
         
   
   
@@ -946,7 +942,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cephfs/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/cephfs/" class="md-nav__link">
         
   
   
@@ -974,7 +970,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../move-failure-domain/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/move-failure-domain/" class="md-nav__link">
         
   
   
@@ -1002,7 +998,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../move-mon-daemon/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/move-mon-daemon/" class="md-nav__link">
         
   
   
@@ -1030,7 +1026,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../move-mon-node-replace/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/move-mon-node-replace/" class="md-nav__link">
         
   
   
@@ -1058,7 +1054,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../external-ceph/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/external-ceph/" class="md-nav__link">
         
   
   
@@ -1133,7 +1129,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../rockoon/rockoon-integration/" class="md-nav__link">
+      <a href="../../ops-guide/rockoon/rockoon-integration/" class="md-nav__link">
         
   
   
@@ -1161,7 +1157,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../rockoon/cinder-multi-backend/" class="md-nav__link">
+      <a href="../../ops-guide/rockoon/cinder-multi-backend/" class="md-nav__link">
         
   
   
@@ -1189,7 +1185,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../rockoon/calc-target-ratio/" class="md-nav__link">
+      <a href="../../ops-guide/rockoon/calc-target-ratio/" class="md-nav__link">
         
   
   
@@ -1222,20 +1218,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_11" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_11" >
         
           
           <label class="md-nav__link" for="__nav_5_11" id="__nav_5_11_label" tabindex="0">
@@ -1256,7 +1250,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_11_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_11_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_11">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1274,7 +1268,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rgw/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/rgw/" class="md-nav__link">
         
   
   
@@ -1302,7 +1296,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rgw-tls/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/rgw-tls/" class="md-nav__link">
         
   
   
@@ -1330,7 +1324,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rgw-multisite/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/rgw-multisite/" class="md-nav__link">
         
   
   
@@ -1358,7 +1352,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rgw-sse/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/rgw-sse/" class="md-nav__link">
         
   
   
@@ -1383,20 +1377,18 @@
                 
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_11_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_11_5" >
         
           
           <label class="md-nav__link" for="__nav_5_11_5" id="__nav_5_11_5_label" tabindex="0">
@@ -1417,7 +1409,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_11_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_11_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5_11_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1432,37 +1424,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Create Ceph Object Storage User
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../ops-guide/deployment/s3-bucket-policy/s3-create-user/" class="md-nav__link">
         
   
   
@@ -1478,37 +1443,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#create-and-configure-ceph-object-storage-users" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Create and configure Ceph Object Storage users
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1521,7 +1455,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bucket-policy-s3/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/s3-bucket-policy/bucket-policy-s3/" class="md-nav__link">
         
   
   
@@ -1549,7 +1483,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bucket-policy-rockoon/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/s3-bucket-policy/bucket-policy-rockoon/" class="md-nav__link">
         
   
   
@@ -1640,7 +1574,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ceph-user-creds/ceph-client/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/ceph-user-creds/ceph-client/" class="md-nav__link">
         
   
   
@@ -1668,7 +1602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
         
   
   
@@ -1751,7 +1685,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ceph-resource-mgmt/enable-resource-mgmt/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt/" class="md-nav__link">
         
   
   
@@ -1779,7 +1713,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ceph-resource-mgmt/verify-resource-mgmt/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/ceph-resource-mgmt/verify-resource-mgmt/" class="md-nav__link">
         
   
   
@@ -1909,7 +1843,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/create-task-workflow/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/create-task-workflow/" class="md-nav__link">
         
   
   
@@ -1937,7 +1871,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/add-rm-ceph-osd/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/add-rm-ceph-osd/" class="md-nav__link">
         
   
   
@@ -1965,7 +1899,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/add-rm-ceph-osd-with-meta/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/add-rm-ceph-osd-with-meta/" class="md-nav__link">
         
   
   
@@ -1993,7 +1927,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/add-rm-ceph-node/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/add-rm-ceph-node/" class="md-nav__link">
         
   
   
@@ -2021,7 +1955,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/replace-ceph-osd/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/replace-ceph-osd/" class="md-nav__link">
         
   
   
@@ -2049,7 +1983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/replace-osd-meta-lvm/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/replace-osd-meta-lvm/" class="md-nav__link">
         
   
   
@@ -2077,7 +2011,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/replace-osd-meta-device/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/replace-osd-meta-device/" class="md-nav__link">
         
   
   
@@ -2105,7 +2039,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/replace-ceph-node/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/replace-ceph-node/" class="md-nav__link">
         
   
   
@@ -2133,7 +2067,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/replace-meta/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/replace-meta/" class="md-nav__link">
         
   
   
@@ -2169,7 +2103,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/increase-storage-size/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/increase-storage-size/" class="md-nav__link">
         
   
   
@@ -2197,7 +2131,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/manual-osd-remove/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/manual-osd-remove/" class="md-nav__link">
         
   
   
@@ -2280,7 +2214,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../verify-ceph/verify-cephdeploymenthealth/" class="md-nav__link">
+      <a href="../../ops-guide/verify-ceph/verify-cephdeploymenthealth/" class="md-nav__link">
         
   
   
@@ -2308,7 +2242,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../verify-ceph/verify-ceph-core/" class="md-nav__link">
+      <a href="../../ops-guide/verify-ceph/verify-ceph-core/" class="md-nav__link">
         
   
   
@@ -2336,7 +2270,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../verify-ceph/verify-pelagia-and-rook/" class="md-nav__link">
+      <a href="../../ops-guide/verify-ceph/verify-pelagia-and-rook/" class="md-nav__link">
         
   
   
@@ -2364,7 +2298,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../verify-ceph/verify-rook-discover/" class="md-nav__link">
+      <a href="../../ops-guide/verify-ceph/verify-rook-discover/" class="md-nav__link">
         
   
   
@@ -2404,18 +2338,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -2436,7 +2372,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2454,7 +2390,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/cephosdremovetask-timeout/" class="md-nav__link">
+      <a href="../cephosdremovetask-timeout/" class="md-nav__link">
         
   
   
@@ -2482,7 +2418,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/ceph-osd-auth-failed/" class="md-nav__link">
+      <a href="../ceph-osd-auth-failed/" class="md-nav__link">
         
   
   
@@ -2510,7 +2446,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/ceph-exporter-crash/" class="md-nav__link">
+      <a href="../ceph-exporter-crash/" class="md-nav__link">
         
   
   
@@ -2538,7 +2474,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/ceph-mon-store-size-grow/" class="md-nav__link">
+      <a href="../ceph-mon-store-size-grow/" class="md-nav__link">
         
   
   
@@ -2566,7 +2502,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/ceph-mon-recover/" class="md-nav__link">
+      <a href="../ceph-mon-recover/" class="md-nav__link">
         
   
   
@@ -2594,7 +2530,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/ceph-disaster-recover/" class="md-nav__link">
+      <a href="../ceph-disaster-recover/" class="md-nav__link">
         
   
   
@@ -2619,10 +2555,19 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../../../troubleshoot/stuck-maintenance/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -2638,6 +2583,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -2670,25 +2616,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#create-and-configure-ceph-object-storage-users" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Create and configure Ceph Object Storage users
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -2712,7 +2639,7 @@
   
   
     <li class="md-path__item">
-      <a href="../../../.." class="md-path__link">
+      <a href="../.." class="md-path__link">
         
   <span class="md-ellipsis">
     Welcome to Pelagia
@@ -2730,46 +2657,10 @@
     
     
       <li class="md-path__item">
-        <a href="../../default-ceph-conf/" class="md-path__link">
+        <a href="../cephosdremovetask-timeout/" class="md-path__link">
           
   <span class="md-ellipsis">
-    Operations Guide
-  </span>
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-    
-    
-      <li class="md-path__item">
-        <a href="../../rgw/" class="md-path__link">
-          
-  <span class="md-ellipsis">
-    Ceph Object Storage
-  </span>
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-    
-    
-      <li class="md-path__item">
-        <a href="./" class="md-path__link">
-          
-  <span class="md-ellipsis">
-    RADOS Gateway Bucket Policy
+    Troubleshoot
   </span>
 
         </a>
@@ -2791,79 +2682,28 @@
   
 
 
-<p><a id="s3-create-user-create-ceph-object-storage-users"></a></p>
-<h1 id="create-ceph-object-storage-users">Create Ceph Object Storage users<a class="headerlink" href="#create-ceph-object-storage-users" title="Permanent link">#</a></h1>
-<p>Ceph Object Storage users can create Amazon S3 buckets and bucket policies that
-grant access to other users.</p>
-<p>This section describes how to create two Ceph Object Storage users and
-configure their S3 credentials.</p>
-<h2 id="create-and-configure-ceph-object-storage-users">Create and configure Ceph Object Storage users<a class="headerlink" href="#create-and-configure-ceph-object-storage-users" title="Permanent link">#</a></h2>
-<ol>
-<li>
-<p>Open the <code>CephDeployment</code> custom resource for editing:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephdpl
+<p><a id="stuck-maintenance-maintenance-stuck-on-a-compact-ceph-cluster"></a></p>
+<h1 id="maintenance-stuck-on-a-compact-ceph-cluster">Maintenance stuck on a compact Ceph cluster<a class="headerlink" href="#maintenance-stuck-on-a-compact-ceph-cluster" title="Permanent link">#</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>, Ceph OSD removal cannot be performed. The minimum replica size equals a rounded up half of the specified <code>replicated.size</code>.</p>
+<p>For example, if <code>replicated.size</code> is <code>2</code>, the minimal replica size is
+<code>1</code>, and if <code>replicated.size</code> is <code>3</code>, then the minimal replica size
+is <code>2</code>. The replica size of <code>1</code> allows Ceph having PGs with only one
+Ceph OSD in the <code>acting</code> state, which may cause a <code>PG_TOO_DEGRADED</code>
+health warning that blocks Ceph OSD removal. Mirantis recommends setting
+<code>replicated.size</code> to <code>3</code> for each Ceph pool.</p>
+</div>
+<p>When disabling or removing a Ceph node during upgrade or maintenance operations
+such as rolling reboot, Ceph may not complete rebalancing if only two of three OSD
+nodes remain active. The <code>CephDeployment</code> object can remain in <code>Maintenance</code>, causing
+the rebalance process to wait indefinitely for Ceph to become ready.</p>
+<p>The issue may only affect environments with a small number of Ceph OSD nodes (for example, three),
+pool replica count set to one less than the number of storage nodes (<code>replicas=storage_nodes_count-1</code>),
+and failure domain <code>host</code>.</p>
+<p><strong>To apply the issue resolution</strong>, run the following command for the affected Ceph OSD node:
+<div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>osd<span class="w"> </span>reweight<span class="w"> </span>&lt;osdId&gt;<span class="w"> </span><span class="m">0</span>
 </code></pre></div></p>
-</li>
-<li>
-<p>In the <code>spec.objectStorage.rgw</code> section, add new Ceph Object Storage users.
-   For example:
-   <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">objectUsers</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user-b</span>
-<span class="w">        </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user-a</span>
-<span class="w">        </span><span class="nt">capabilities</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">bucket</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;*&quot;</span>
-<span class="w">          </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user-t</span>
-<span class="w">        </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user-t</span>
-<span class="w">        </span><span class="nt">capabilities</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">bucket</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;*&quot;</span>
-<span class="w">          </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>Verify that <code>rgwUserSecrets</code> are created for both users:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephdeploymentsecret<span class="w"> </span>-o<span class="w"> </span>yaml
-</code></pre></div></p>
-<p>Example of a positive system response:
- <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">secretInfo</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">rgwUserSecrets</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user-a</span>
-<span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;user-aCredSecretName&gt;</span>
-<span class="w">      </span><span class="nt">secretNamespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;user-aCredSecretNamespace&gt;</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user-t</span>
-<span class="w">      </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;user-tCredSecretName&gt;</span>
-<span class="w">      </span><span class="nt">secretNamespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;user-tCredSecretNamespace&gt;</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>Obtain S3 user credentials from the cluster secrets. Specify an access key and a secret key for both users:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;user-aCredSecretNamespace&gt;<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>&lt;user-aCredSecretName&gt;<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.data.AccessKey}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d
-kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;user-aCredSecretNamespace&gt;<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>&lt;user-aCredSecretName&gt;<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.data.SecretKey}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d
-kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;user-tCredSecretNamespace&gt;<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>&lt;user-tCredSecretName&gt;<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.data.AccessKey}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d
-kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;user-tCredSecretNamespace&gt;<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>&lt;user-tCredSecretName&gt;<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.data.SecretKey}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d
-</code></pre></div></p>
-<p>Substitute the corresponding <code>secretNamespace</code> and <code>secretName</code> for both
- users.</p>
-</li>
-<li>
-<p>Obtain Ceph Object Storage public endpoint from the  <code>CephDeploymentHealth</code> status:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephdeploymenthealth<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>publicEndpoint
-</code></pre></div></p>
-<p>Example of a positive system response:
- <div class="highlight"><pre><span></span><code>publicEndpoint:<span class="w"> </span>https://object-storage.just.example.com
-</code></pre></div></p>
-</li>
-<li>
-<p>Obtain the CA certificate to use an HTTPS endpoint:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>ingress<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.items[0].spec.tls[0].secretName}{&quot;\n&quot;}&#39;</span><span class="k">)</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.data.ca\.crt}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="p">;</span><span class="w"> </span><span class="nb">echo</span>
-</code></pre></div></p>
-<p>Save the output to <code>ca.crt</code>.</p>
-</li>
-</ol>
 
 
 
@@ -2899,7 +2739,7 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;user-tCredSecretNam
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../../rgw-sse/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Configure Ceph Object Storage SSE">
+          <a href="../ceph-disaster-recover/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Ceph Cluster disaster recovery">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2909,27 +2749,11 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;user-tCredSecretNam
                 Previous
               </span>
               <div class="md-ellipsis">
-                Configure Ceph Object Storage SSE
+                Ceph Cluster disaster recovery
               </div>
             </div>
           </a>
         
-        
-          
-          <a href="../bucket-policy-s3/" class="md-footer__link md-footer__link--next" aria-label="Next: Bucket Policy for Ceph Object User">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              <div class="md-ellipsis">
-                Bucket Policy for Ceph Object User
-              </div>
-            </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
-            </div>
-          </a>
         
       </nav>
     
@@ -2963,10 +2787,10 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;user-tCredSecretNam
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

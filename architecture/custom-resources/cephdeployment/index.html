@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -2784,6 +2784,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/stuck-maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintenance stuck on a compact Ceph cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -3214,19 +3242,19 @@ advanced configuration.</p>
 <p><a name="cephdeployment-general-parameters"></a></p>
 <h3 id="general-parameters">General parameters<a class="headerlink" href="#general-parameters" title="Permanent link">#</a></h3>
 <ul>
-<li><code>network</code> - Specifies access and public networks for the Ceph cluster. For details, see Network parameters.</li>
-<li><code>nodes</code> - Specifies the list of Ceph nodes. For details, see Node parameters. The <code>nodes</code> parameter is a list with Ceph node specifications. List item could define Ceph node specification for a single node or a group of nodes listed or defined by label. It could be also combined.</li>
-<li><code>pools</code> - Specifies the list of Ceph pools. For details, see Pool parameters.</li>
-<li><code>clients</code> - List of Ceph clients. For details, see Clients parameters.</li>
-<li><code>objectStorage</code> - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage. Also specifies the RADOS Gateway Multisite configuration. For details, see RADOS Gateway parameters and Multisite parameters.</li>
+<li><code>network</code> - Specifies access and public networks for the Ceph cluster. For details, the <strong>Network parameters</strong> section below.</li>
+<li><code>nodes</code> - Specifies the list of Ceph nodes. For details, the <strong>Nodes parameters</strong> section below. The <code>nodes</code> parameter is a list with Ceph node specifications. List item could define Ceph node specification for a single node or a group of nodes listed or defined by label. It could be also combined.</li>
+<li><code>pools</code> - Specifies the list of Ceph pools. For details, the <strong>Pools parameters</strong> section below.</li>
+<li><code>clients</code> - List of Ceph clients. For details, see the <strong>Clients parameters</strong> section below.</li>
+<li><code>objectStorage</code> - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage. Also specifies the RADOS Gateway Multisite configuration. For details, <strong>RADOS Gateway parameters</strong> and <strong>Multisite parameters</strong> sections below.</li>
 <li><code>ingressConfig</code> - Enables a custom ingress rule for public access on Ceph services, for example, Ceph RADOS Gateway. For details, see <a href="https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-tls">Configure Ceph Object Gateway TLS</a>.</li>
-<li><code>sharedFilesystem</code> - Enables Ceph Filesystem. For details, see CephFS parameters.</li>
-<li><code>rookConfig</code> - String key-value parameter that allows overriding Ceph configuration options. For details, see RookConfig parameters.</li>
-<li><code>healthCheck</code> - Configures health checks and liveness probe settings for Ceph daemons. For details, see Health check parameters.</li>
-<li><code>extraOpts</code> - Enables specification of extra options for a setup, includes the <code>deviceLabels</code> parameter. Refer to Extra options for details.</li>
-<li><code>mgr</code> - Specifies a list of Ceph Manager modules to be enabled or disabled. For details, see Manager modules parameters. Modules <code>balancer</code> and <code>pg_autoscaler</code> are enabled by default.</li>
+<li><code>sharedFilesystem</code> - Enables Ceph Filesystem. For details, the <strong>CephFS parameters</strong> section below.</li>
+<li><code>rookConfig</code> - String key-value parameter that allows overriding Ceph configuration options. For details, see the <strong>RookConfig parameters</strong> section below.</li>
+<li><code>healthCheck</code> - Configures health checks and liveness probe settings for Ceph daemons. For details, the <strong>HealthCheck parameters</strong> section below.</li>
+<li><code>extraOpts</code> - Enables specification of extra options for a setup, includes the <code>deviceLabels</code> parameter. Refer to the <strong>ExtraOpts parameters</strong> section below.</li>
+<li><code>mgr</code> - Specifies a list of Ceph Manager modules to be enabled or disabled. For details, see the <strong>Manager modules parameters</strong> section below. Modules <code>balancer</code> and <code>pg_autoscaler</code> are enabled by default.</li>
 <li><code>dashboard</code> - Enables Ceph dashboard. Currently, Pelagia has no support of Ceph Dashboard. Defaults to <code>false</code>.</li>
-<li><code>rbdMirror</code> - Specifies the parameters for RBD Mirroring. For details, see RBD Mirroring parameters.</li>
+<li><code>rbdMirror</code> - Specifies the parameters for RBD Mirroring. For details, see the <strong>RBD Mirroring parameters</strong> section below.</li>
 <li><code>external</code> - Enables external Ceph cluster mode. If enabled, Pelagia will read a special <code>Secret</code> with external Ceph cluster credentials data connect to.</li>
 </ul>
 <p><a name="cephdeployment-network-parameters"></a></p>
@@ -3387,7 +3415,7 @@ in a case of a node outage.</p>
   <code>/dev/disk/by-id/nvme-SAMSUNG_MZ1LB3T8HMLA-00007_S46FNY0R394543</code>.</li>
 <li>The device label from <code>extraOpts.deviceLabels</code> section which is
   generally used for templating Ceph node specification for node groups.
-  For details, see Extra options.</li>
+  For details, see the <strong>ExtraOpts parameters</strong> section below.</li>
 </ul>
 <p>This parameter is mutually exclusive with <code>fullPath</code>.</p>
 </li>
@@ -3521,7 +3549,7 @@ or <code>nvme</code> disks.</p>
 </li>
 <li>
 <p><code>deviceClass</code> - Mandatory. Specifies the device class for the defined pool. Common possible
-  values are <code>hdd</code>, <code>ssd</code> and <code>nvme</code>. Also allows customized device classes, refers to Extra options.</p>
+  values are <code>hdd</code>, <code>ssd</code> and <code>nvme</code>. Also allows customized device classes, refers to the <strong>ExtraOpts parameters</strong> described below.</p>
 </li>
 <li>
 <p><code>replicated</code> - The <code>replicated</code> parameter is mutually exclusive with <code>erasureCoded</code>
@@ -3554,8 +3582,8 @@ or <code>nvme</code> disks.</p>
   of data will be spread. Set to <code>host</code> by default. The list of
   possible recommended values includes: <code>host</code>, <code>rack</code>, <code>room</code>,
   and <code>datacenter</code>.</p>
-<div class="admonition caution">
-<p class="admonition-title">Caution</p>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
 <p>We do not recommend using the following intermediate topology keys: <code>pdu</code>, <code>row</code>, <code>chassis</code>. Consider
 the <code>rack</code> topology instead. The <code>osd</code> failure domain is prohibited.</p>
 </div>
@@ -3599,8 +3627,8 @@ the <code>rack</code> topology instead. The <code>osd</code> failure domain is p
 <p>As a result, the following Ceph pools will be created: <code>kubernetes-hdd</code>, <code>kubernetes-nvme</code>, and <code>archive</code>.</p>
 <p>To configure additional required pools for Rockoon, see
 <a href="../../../ops-guide/rockoon/rockoon-integration/#rockoon-integration-integrate-pelagia-with-rockoon">Integrate Pelagia with Rockoon</a>.</p>
-<div class="admonition caution">
-<p class="admonition-title">Caution</p>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
 <p>Since Ceph Pacific, Ceph CSI driver does not propagate the <code>777</code>
 permission on the mount point of persistent volumes based on any
 <code>StorageClass</code> of the Ceph pool.</p>
@@ -3666,14 +3694,12 @@ defined. Can use only <code>replicated</code> settings. For example:</p>
 multiple nodes.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>When using the non-recommended Ceph pools <code>replicated.size</code> of
-less than <code>3</code>, Ceph OSD removal cannot be performed. The minimal replica
-size equals a rounded up half of the specified <code>replicated.size</code>.</p>
+<p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>, Ceph OSD removal cannot be performed. The minimum replica size equals a rounded up half of the specified <code>replicated.size</code>.</p>
 <p>For example, if <code>replicated.size</code> is <code>2</code>, the minimal replica size is
 <code>1</code>, and if <code>replicated.size</code> is <code>3</code>, then the minimal replica size
 is <code>2</code>. The replica size of <code>1</code> allows Ceph having PGs with only one
 Ceph OSD in the <code>acting</code> state, which may cause a <code>PG_TOO_DEGRADED</code>
-health warning that blocks Ceph OSD removal. We recommend setting
+health warning that blocks Ceph OSD removal. Mirantis recommends setting
 <code>replicated.size</code> to <code>3</code> for each Ceph pool.</p>
 </div>
 </li>
@@ -3958,9 +3984,13 @@ contains the following parameters:</p>
 <p>where <code>replicated.size</code> is the number of full copies of data on multiple nodes.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>, Ceph OSD removal cannot be performed. The minimal replica size equals a rounded up half of the specified <code>replicated.size</code>.</p>
-<p>For example, if <code>replicated.size</code> is <code>2</code>, the minimal replica size is <code>1</code>, and if <code>replicated.size</code> is <code>3</code>, then the minimal replica size is <code>2</code>.
-The replica size of <code>1</code> allows Ceph having PGs with only one Ceph OSD in the <code>acting</code> state, which may cause a <code>PG_TOO_DEGRADED</code> health warning that blocks Ceph OSD removal. We recommend setting <code>replicated.size</code> to <code>3</code> for each Ceph pool.</p>
+<p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>, Ceph OSD removal cannot be performed. The minimum replica size equals a rounded up half of the specified <code>replicated.size</code>.</p>
+<p>For example, if <code>replicated.size</code> is <code>2</code>, the minimal replica size is
+<code>1</code>, and if <code>replicated.size</code> is <code>3</code>, then the minimal replica size
+is <code>2</code>. The replica size of <code>1</code> allows Ceph having PGs with only one
+Ceph OSD in the <code>acting</code> state, which may cause a <code>PG_TOO_DEGRADED</code>
+health warning that blocks Ceph OSD removal. Mirantis recommends setting
+<code>replicated.size</code> to <code>3</code> for each Ceph pool.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -4078,9 +4108,9 @@ of all Ceph daemons except Ceph OSD.</p>
 <ul>
 <li><code>disabled</code> - a flag that disables the health check.</li>
 <li><code>interval</code> - an interval in seconds or minutes for the health
-    check to run. For example, <code>60s</code> for 60 seconds.</li>
+  check to run. For example, <code>60s</code> for 60 seconds.</li>
 <li><code>timeout</code> - a timeout for the health check in seconds or minutes.
-    For example, <code>60s</code> for 60 seconds.</li>
+  For example, <code>60s</code> for 60 seconds.</li>
 </ul>
 </li>
 <li>

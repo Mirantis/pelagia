@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -2567,6 +2567,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/stuck-maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintenance stuck on a compact Ceph cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2729,7 +2757,7 @@
  in the <code>CephOsdRemoveTask</code> object: hosts they belong to, OSD IDs, disks, partitions, and so on. The
  request then moves to the <code>ApproveWaiting</code> phase until the cloud operator manually specifies the <code>approve</code>
  flag in the spec.</p>
-<details open="open">
+<details>
 <summary>Example of the <code>CephOsdRemoveTask</code> custom resource</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CephOsdRemoveTask</span>
@@ -2776,25 +2804,20 @@
 <p>Reviewing the Ceph OSD removal status. For details, see <a href="../../../architecture/custom-resources/cephosdremovetask/#cephosdremovetask-status-fields">Status fields</a></p>
 </li>
 <li>
-<p>Manual removal of device cleanup jobs.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Device cleanup jobs are not removed automatically and are kept in Pelagia namespace along with pods containing
- information about the executed actions. The jobs have the following labels:
- <div class="highlight"><pre><span></span><code><span class="nt">labels</span><span class="p">:</span>
+<p>Manual removal of device cleanup jobs. Device cleanup jobs are not removed automatically and are kept in Pelagia namespace along with pods containing information about the executed actions. The jobs have the following labels:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">labels</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">app</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia-lcm-cleanup-disks</span>
 <span class="w">  </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;HOST-NAME&gt;</span>
 <span class="w">  </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;OSD-ID&gt;</span>
 <span class="w">  </span><span class="nt">rook-cluster</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;ROOK-CLUSTER-NAME&gt;</span>
-</code></pre></div></p>
+</code></pre></div>
 <p>Additionally, jobs are labeled with disk names that will be cleaned up, such as <code>sdb=true</code>.
- You can remove a single job or a group of jobs using any label described above, such as host, disk, and so on.</p>
-</div>
+You can remove a single job or a group of jobs using any label described above, such as host, disk, and so on.</p>
 </li>
 </ol>
 <div class="admonition info">
 <p class="admonition-title">See also</p>
-<p><a href="../../../troubleshoot/cephosdremovetask-timeout">CephOsdRemoveRequest failure with a timeout during rebalance</a></p>
+<p><a href="../../../troubleshoot/cephosdremovetask-timeout">CephOsdRemoveTask failure with a timeout during rebalance</a></p>
 </div>
 
 

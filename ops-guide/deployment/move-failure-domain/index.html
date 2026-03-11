@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -2622,6 +2622,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/stuck-maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintenance stuck on a compact Ceph cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2797,7 +2825,7 @@ other types of failure domains, migrate pools separately, and so on.</p>
 <li>
 <p>Set the required CRUSH topology in the <code>MiraCeph</code> object for each
    defined node. For details on the <code>crush</code> parameter, see
-   <a href="../../../architecture/custom-resources/cephdeployment/#cephdeployment-nodes-parameters">Node parameters</a>.</p>
+   <a href="../../../architecture/custom-resources/cephdeployment/#cephdeployment-nodes-parameters">Nodes parameters</a>.</p>
 <p>Setting the CRUSH topology to each node causes the Pelagia Deployment Controller to set proper Kubernetes
  labels on the nodes.</p>
 <p>Example of adding the <code>rack</code> CRUSH topology key for each node in the <code>nodes</code> section:

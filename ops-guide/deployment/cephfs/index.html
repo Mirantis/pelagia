@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
     
     
       
@@ -2622,6 +2622,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../troubleshoot/stuck-maintenance/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Maintenance stuck on a compact Ceph cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2788,12 +2816,13 @@ with the following CephFS parameters:</p>
 <p>where <code>replicated.size</code> is the number of full copies of data on multiple nodes.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>, Ceph OSD removal cannot be
-performed. The minimal replica size equals a rounded up half of the specified <code>replicated.size</code>.</p>
-<p>For example, if <code>replicated.size</code> is <code>2</code>, the minimal replica size is <code>1</code>, and if <code>replicated.size</code> is <code>3</code>,
-then the minimal replica size is <code>2</code>. The replica size of <code>1</code> allows Ceph having PGs with only one
-Ceph OSD in the <code>acting</code> state, which may cause a <code>PG_TOO_DEGRADED</code> health warning that blocks
-Ceph OSD removal. We recommend setting <code>replicated.size</code> to <code>3</code> for each Ceph pool.</p>
+<p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>, Ceph OSD removal cannot be performed. The minimum replica size equals a rounded up half of the specified <code>replicated.size</code>.</p>
+<p>For example, if <code>replicated.size</code> is <code>2</code>, the minimal replica size is
+<code>1</code>, and if <code>replicated.size</code> is <code>3</code>, then the minimal replica size
+is <code>2</code>. The replica size of <code>1</code> allows Ceph having PGs with only one
+Ceph OSD in the <code>acting</code> state, which may cause a <code>PG_TOO_DEGRADED</code>
+health warning that blocks Ceph OSD removal. Mirantis recommends setting
+<code>replicated.size</code> to <code>3</code> for each Ceph pool.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
