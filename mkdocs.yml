@@ -144,6 +144,7 @@ nav:
     - Ceph Monitor size rapidly grows: troubleshoot/ceph-mon-store-size-grow.md
     - Ceph Monitor disaster recovery: troubleshoot/ceph-mon-recover.md
     - Ceph Cluster disaster recovery: troubleshoot/ceph-disaster-recover.md
+    - Maintenance stuck on a compact Ceph cluster: troubleshoot/stuck-maintenance.md
 #  - Operations Guide:
 #      - Upgrade OpenStack: ops/openstack/upgrade.md
 #      - Run tempest: ops/openstack/tempest.md
