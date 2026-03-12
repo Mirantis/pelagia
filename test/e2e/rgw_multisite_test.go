@@ -111,7 +111,7 @@ func TestMultisiteRgw(t *testing.T) {
 					},
 				},
 			},
-			Rgw: cephlcmv1alpha1.CephRGW{
+			Rgw: &cephlcmv1alpha1.CephRGW{
 				Name: "rgw-store",
 				Gateway: cephlcmv1alpha1.CephRGWGateway{
 					Instances:  2,
@@ -153,7 +153,7 @@ func TestMultisiteRgw(t *testing.T) {
 			newRgw.Zone = &cephv1.ZoneSpec{Name: cd.Spec.ObjectStorage.Rgw.Name}
 			cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
 				MultiSite: multisite,
-				Rgw:       *newRgw,
+				Rgw:       newRgw,
 			}
 		} else {
 			t.Logf("#### e2e test: RGW Multisite master zone is already configured")
@@ -250,7 +250,7 @@ func TestMultisiteRgw(t *testing.T) {
 				},
 			},
 		},
-		Rgw: cephlcmv1alpha1.CephRGW{
+		Rgw: &cephlcmv1alpha1.CephRGW{
 			Name: "rgw-store-backup",
 			Gateway: cephlcmv1alpha1.CephRGWGateway{
 				Instances:  1,

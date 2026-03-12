@@ -32,7 +32,7 @@ import (
 func TestGeneratePool(t *testing.T) {
 	tests := []struct {
 		name         string
-		cephDpl      cephlcmv1alpha1.CephPool
+		cephDpl      cephlcmv1alpha1.CephPoolOld
 		expectedPool *cephv1.CephBlockPool
 	}{
 		{
@@ -42,7 +42,7 @@ func TestGeneratePool(t *testing.T) {
 		},
 		{
 			name: "generate ceph block pool with role vms",
-			cephDpl: func() cephlcmv1alpha1.CephPool {
+			cephDpl: func() cephlcmv1alpha1.CephPoolOld {
 				cephDplPoolRole := unitinputs.CephDeployPoolReplicated.DeepCopy()
 				cephDplPoolRole.Role = "vms"
 				return *cephDplPoolRole
@@ -55,7 +55,7 @@ func TestGeneratePool(t *testing.T) {
 		},
 		{
 			name: "generate ceph block pool with target ratio",
-			cephDpl: func() cephlcmv1alpha1.CephPool {
+			cephDpl: func() cephlcmv1alpha1.CephPoolOld {
 				cephDplPoolSpec := unitinputs.CephDeployPoolReplicated.DeepCopy()
 				cephDplPoolSpec.Replicated.TargetSizeRatio = 0.1
 				return *cephDplPoolSpec
@@ -73,7 +73,7 @@ func TestGeneratePool(t *testing.T) {
 		},
 		{
 			name: "generate ceph block pool with full pool name",
-			cephDpl: func() cephlcmv1alpha1.CephPool {
+			cephDpl: func() cephlcmv1alpha1.CephPoolOld {
 				cephDplPoolUseAsFullName := unitinputs.CephDeployPoolReplicated.DeepCopy()
 				cephDplPoolUseAsFullName.UseAsFullName = true
 				return *cephDplPoolUseAsFullName
@@ -91,7 +91,7 @@ func TestGeneratePool(t *testing.T) {
 		},
 		{
 			name: "generate ceph block pool with mirroring image mode",
-			cephDpl: func() cephlcmv1alpha1.CephPool {
+			cephDpl: func() cephlcmv1alpha1.CephPoolOld {
 				cephDplPoolMirroringImage := unitinputs.CephDeployPoolMirroring.DeepCopy()
 				cephDplPoolMirroringImage.Mirroring.Mode = "image"
 				return *cephDplPoolMirroringImage
@@ -104,7 +104,7 @@ func TestGeneratePool(t *testing.T) {
 		},
 		{
 			name: "generate ceph block pool with mirroring no mode specified",
-			cephDpl: func() cephlcmv1alpha1.CephPool {
+			cephDpl: func() cephlcmv1alpha1.CephPoolOld {
 				cephDplPoolMirroringImage := unitinputs.CephDeployPoolMirroring.DeepCopy()
 				cephDplPoolMirroringImage.Mirroring.Mode = ""
 				return *cephDplPoolMirroringImage
@@ -113,7 +113,7 @@ func TestGeneratePool(t *testing.T) {
 		},
 		{
 			name: "generate ceph block pool with mirroring incorrect mode",
-			cephDpl: func() cephlcmv1alpha1.CephPool {
+			cephDpl: func() cephlcmv1alpha1.CephPoolOld {
 				cephDplPoolMirroringImage := unitinputs.CephDeployPoolMirroring.DeepCopy()
 				cephDplPoolMirroringImage.Mirroring.Mode = "fake"
 				return *cephDplPoolMirroringImage
@@ -122,7 +122,7 @@ func TestGeneratePool(t *testing.T) {
 		},
 		{
 			name: "generate pool with parameters",
-			cephDpl: func() cephlcmv1alpha1.CephPool {
+			cephDpl: func() cephlcmv1alpha1.CephPoolOld {
 				cephDplPool := unitinputs.CephDeployPoolReplicated.DeepCopy()
 				cephDplPool.Parameters = map[string]string{
 					"pg_num":            "512",
@@ -143,7 +143,7 @@ func TestGeneratePool(t *testing.T) {
 		},
 		{
 			name: "generate pool with preserve on delete flag",
-			cephDpl: func() cephlcmv1alpha1.CephPool {
+			cephDpl: func() cephlcmv1alpha1.CephPoolOld {
 				cephDplPool := unitinputs.CephDeployPoolReplicated.DeepCopy()
 				cephDplPool.PreserveOnDelete = true
 				return *cephDplPool

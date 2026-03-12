@@ -30,8 +30,8 @@ import (
 var BaseCephDeployment = cephlcmv1alpha1.CephDeployment{
 	ObjectMeta: LcmObjectMeta,
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		DashboardEnabled: false,
-		Network: cephlcmv1alpha1.CephNetworkSpec{
+		DashboardEnabled: &[]bool{false}[0],
+		Network: &cephlcmv1alpha1.CephNetworkSpec{
 			HostNetwork: true,
 			ClusterNet:  "127.0.0.0/16",
 			PublicNet:   "192.168.0.0/16",
@@ -84,7 +84,7 @@ var BaseCephDeploymentDeleting = func() cephlcmv1alpha1.CephDeployment {
 
 var BaseCephDeploymentMultus = func() cephlcmv1alpha1.CephDeployment {
 	cd := BaseCephDeployment.DeepCopy()
-	cd.Spec.Network = cephlcmv1alpha1.CephNetworkSpec{
+	cd.Spec.Network = &cephlcmv1alpha1.CephNetworkSpec{
 		Provider: "multus",
 		Selector: map[cephv1.CephNetworkType]string{
 			cephv1.CephNetworkPublic:  "192.168.0.0/16",
@@ -115,7 +115,7 @@ var CephDeployRookConfigNoRuntimeOsdParams = func() cephlcmv1alpha1.CephDeployme
 var CephDeployObjectStorageCeph = func() cephlcmv1alpha1.CephDeployment {
 	cd := BaseCephDeployment.DeepCopy()
 	cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
-		Rgw: CephRgwBaseSpec,
+		Rgw: &CephRgwBaseSpec,
 	}
 	return *cd
 }()
@@ -133,7 +133,7 @@ var CephDeployEnsureRbdMirror = func() cephlcmv1alpha1.CephDeployment {
 			},
 		},
 	}
-	cd.Spec.Pools = []cephlcmv1alpha1.CephPool{CephDeployPoolReplicated}
+	cd.Spec.Pools = []cephlcmv1alpha1.CephPoolOld{CephDeployPoolReplicated}
 	return *cd
 }()
 
@@ -213,12 +213,12 @@ var CephDeployNonMosk = cephlcmv1alpha1.CephDeployment{
 		Generation: int64(10),
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		Pools:   []cephlcmv1alpha1.CephPool{CephDeployPoolReplicated},
+		Pools:   []cephlcmv1alpha1.CephPoolOld{CephDeployPoolReplicated},
 		Clients: []cephlcmv1alpha1.CephClient{CephDeployClientTest},
 		Nodes:   CephNodesExtendedOk,
 		Network: BaseCephDeployment.Spec.Network,
 		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
-			Rgw: CephRgwSpecWithUsersBuckets,
+			Rgw: &CephRgwSpecWithUsersBuckets,
 		},
 		SharedFilesystem: CephSharedFileSystemOk,
 	},
@@ -258,7 +258,7 @@ var CephDeployMosk = cephlcmv1alpha1.CephDeployment{
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
 		Network: BaseCephDeployment.Spec.Network,
-		Pools: []cephlcmv1alpha1.CephPool{
+		Pools: []cephlcmv1alpha1.CephPoolOld{
 			CephDeployPoolReplicated,
 			GetCephDeployPool("vms", "vms"),
 			GetCephDeployPool("volumes", "volumes"),
@@ -267,7 +267,7 @@ var CephDeployMosk = cephlcmv1alpha1.CephDeployment{
 		},
 		Nodes: CephNodesExtendedOk,
 		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
-			Rgw: CephRgwBaseSpec,
+			Rgw: &CephRgwBaseSpec,
 		},
 		IngressConfig: &CephIngressConfig,
 	},
@@ -330,12 +330,12 @@ var CephDeployExternal = cephlcmv1alpha1.CephDeployment{
 		},
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		Network: cephlcmv1alpha1.CephNetworkSpec{
+		Network: &cephlcmv1alpha1.CephNetworkSpec{
 			ClusterNet: "127.0.0.0/32",
 			PublicNet:  "127.0.0.0/32",
 		},
-		External: true,
-		Pools:    []cephlcmv1alpha1.CephPool{CephDeployPoolReplicated},
+		External: &[]bool{true}[0],
+		Pools:    []cephlcmv1alpha1.CephPoolOld{CephDeployPoolReplicated},
 	},
 	Status: cephlcmv1alpha1.CephDeploymentStatus{
 		Validation: cephlcmv1alpha1.CephDeploymentValidation{
@@ -348,7 +348,7 @@ var CephDeployExternal = cephlcmv1alpha1.CephDeployment{
 var CephDeployExternalRgw = func() cephlcmv1alpha1.CephDeployment {
 	cd := CephDeployExternal.DeepCopy()
 	cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
-		Rgw: RgwExternalSslEnabled,
+		Rgw: &RgwExternalSslEnabled,
 	}
 	return *cd
 }()
@@ -396,7 +396,7 @@ var CephDeployMultisiteMasterRgw = func() cephlcmv1alpha1.CephDeployment {
 				},
 			},
 		},
-		Rgw: cephlcmv1alpha1.CephRGW{
+		Rgw: &cephlcmv1alpha1.CephRGW{
 			Name:    "rgw-store",
 			Gateway: CephRgwBaseSpec.Gateway,
 			Zone: &cephv1.ZoneSpec{
@@ -451,7 +451,7 @@ var CephDeployMultisiteRgw = func() cephlcmv1alpha1.CephDeployment {
 				},
 			},
 		},
-		Rgw: cephlcmv1alpha1.CephRGW{
+		Rgw: &cephlcmv1alpha1.CephRGW{
 			Name:    "rgw-store",
 			Gateway: CephRgwBaseSpec.Gateway,
 			Zone: &cephv1.ZoneSpec{
@@ -564,7 +564,7 @@ var HyperConvergeForExtraSVC = &cephlcmv1alpha1.CephDeploymentHyperConverge{
 }
 
 var CephDeployClientTest = cephlcmv1alpha1.CephClient{
-	ClientSpec: cephlcmv1alpha1.ClientSpec{
+	ClientSpec: cephv1.ClientSpec{
 		Name: "test",
 		Caps: map[string]string{
 			"osd": "custom-caps",
@@ -573,7 +573,7 @@ var CephDeployClientTest = cephlcmv1alpha1.CephClient{
 }
 
 var CephDeployClientCinder = cephlcmv1alpha1.CephClient{
-	ClientSpec: cephlcmv1alpha1.ClientSpec{
+	ClientSpec: cephv1.ClientSpec{
 		Name: "cinder",
 		Caps: map[string]string{
 			"mon": "allow profile rbd",
@@ -583,7 +583,7 @@ var CephDeployClientCinder = cephlcmv1alpha1.CephClient{
 }
 
 var CephDeployClientGlance = cephlcmv1alpha1.CephClient{
-	ClientSpec: cephlcmv1alpha1.ClientSpec{
+	ClientSpec: cephv1.ClientSpec{
 		Name: "glance",
 		Caps: map[string]string{
 			"mon": "allow profile rbd",
@@ -593,7 +593,7 @@ var CephDeployClientGlance = cephlcmv1alpha1.CephClient{
 }
 
 var CephDeployClientNova = cephlcmv1alpha1.CephClient{
-	ClientSpec: cephlcmv1alpha1.ClientSpec{
+	ClientSpec: cephv1.ClientSpec{
 		Name: "nova",
 		Caps: map[string]string{
 			"mon": "allow profile rbd",
@@ -603,7 +603,7 @@ var CephDeployClientNova = cephlcmv1alpha1.CephClient{
 }
 
 var CephDeployClientManila = cephlcmv1alpha1.CephClient{
-	ClientSpec: cephlcmv1alpha1.ClientSpec{
+	ClientSpec: cephv1.ClientSpec{
 		Name: "manila",
 		Caps: map[string]string{
 			"mds": "allow rw",
@@ -614,7 +614,7 @@ var CephDeployClientManila = cephlcmv1alpha1.CephClient{
 	},
 }
 
-var CephDeployPoolReplicated = cephlcmv1alpha1.CephPool{
+var CephDeployPoolReplicated = cephlcmv1alpha1.CephPoolOld{
 	Name: "pool1",
 	Role: "fake",
 	StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{
@@ -630,7 +630,7 @@ var CephDeployPoolReplicated = cephlcmv1alpha1.CephPool{
 	},
 }
 
-var CephDeployPoolErasureCoded = cephlcmv1alpha1.CephPool{
+var CephDeployPoolErasureCoded = cephlcmv1alpha1.CephPoolOld{
 	Name: "pool1",
 	Role: "fake",
 	CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
@@ -645,7 +645,7 @@ var CephDeployPoolErasureCoded = cephlcmv1alpha1.CephPool{
 	},
 }
 
-var CephDeployPoolMirroring = cephlcmv1alpha1.CephPool{
+var CephDeployPoolMirroring = cephlcmv1alpha1.CephPoolOld{
 	Name: "pool1",
 	Role: "fake",
 	CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
@@ -661,8 +661,8 @@ var CephDeployPoolMirroring = cephlcmv1alpha1.CephPool{
 	},
 }
 
-func GetCephDeployPool(name string, role string) cephlcmv1alpha1.CephPool {
-	return cephlcmv1alpha1.CephPool{
+func GetCephDeployPool(name string, role string) cephlcmv1alpha1.CephPoolOld {
+	return cephlcmv1alpha1.CephPoolOld{
 		Name: name,
 		Role: role,
 		CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{

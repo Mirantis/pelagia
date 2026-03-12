@@ -1,6 +1,7 @@
 package v1alpha1
 
 import (
+	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -39,81 +40,159 @@ type CephDeployment struct {
 // CephDeploymentSpec defines the desired configuration of resulting Ceph Cluster
 // and all corresponding resources
 type CephDeploymentSpec struct {
-	DashboardEnabled bool `json:"dashboard"`
+	// Cluster stands for main Ceph cluster configuration
+	// Required to be specified.
+	Cluster *CephCluster `json:"cluster,omitempty"`
+	// Nodes contains full cluster nodes configuration to use as Ceph Nodes.
+	// Allow to template and group Ceph nodes and assign required Ceph nodes on them.
+	// Required to be specified for non-external clusters.
+	// +optional
+	Nodes []CephDeploymentNode `json:"nodes,omitempty"`
+	// BlockStorage stands for configuration Ceph block storage,
+	// such as rbd pool and rbd mirroring
+	// +optional
+	BlockStorage *CephBlockStorage `json:"blockStorage,omitempty"`
 	// Clients is a list of Ceph Clients used for Ceph Cluster connection by
 	// consumer services
 	// +optional
 	Clients []CephClient `json:"clients,omitempty"`
-	// DataDirHostPath is a default hostPath directory where Rook stores all
-	// valuable info. Equals to '/var/lib/rook' by default
-	// +nullable
-	DataDirHostPath string `json:"dataDirHostPath,omitempty"`
-	// External enables usage of external Ceph Cluster connected to pkg
-	// Container Cloud cluster instead of local Ceph Cluster
-	// +optional
-	External bool `json:"external,omitempty"`
-	// ExtraOpts contains some extra options for managing Ceph cluster, like devices labels
+	// ExtraOpts contains some extra options for managing Ceph cluster, like devices labels,
+	// provided by Pelagia controller.
 	// +optional
 	ExtraOpts *CephDeploymentExtraOpts `json:"extraOpts,omitempty"`
-	// HealthCheck provides an ability to configure pkg daemon healthchecks
-	// and liveness probe settings for mon,mgr,osd daemons
-	// +optional
-	HealthCheck *CephClusterHealthCheckSpec `json:"healthCheck,omitempty"`
-	// HyperConverge provides an ability to configure resources requests and limitations
-	// for Ceph Daemons. Also provides an ability to spawn those Ceph Daemons on a tainted
-	// nodes
-	// +optional
-	HyperConverge *CephDeploymentHyperConverge `json:"hyperconverge,omitempty"`
 	// IngressConfig provides ability to configure custom ingress rule for an external
 	// access to Ceph Cluster resources, for example, public endpoint
 	// for Ceph Object Store access.
 	// +optional
 	IngressConfig *CephDeploymentIngressConfig `json:"ingressConfig,omitempty"`
-	// Mgr contains a list of Ceph Manager modules to enable in Ceph Cluster
-	// +optional
-	Mgr *Mgr `json:"mgr,omitempty"`
-	// Network is a section which defines the specific network range(s)
-	// for Ceph daemons to communicate with each other and the an external
-	// connections
-	Network CephNetworkSpec `json:"network"`
-	// Nodes contains full cluster nodes configuration to use as Ceph Nodes
-	Nodes []CephDeploymentNode `json:"nodes"`
-	// ObjectStorage contains full RadosGW Object Storage configurations: RGW itself
-	// and RGW multisite feature
+	// ObjectStorage contains full RadosGW Object Storage configurations
 	// +optional
 	ObjectStorage *CephObjectStorage `json:"objectStorage,omitempty"`
+	// SharedFilesystem stands for configuration CephFilesystem
+	// +optional
+	SharedFilesystem *CephSharedFilesystem `json:"sharedFilesystem,omitempty"`
+	// RookConfig is a key-value mapping which contains ceph config keys with a specified values
+	// to be applied on Ceph cluster.
+	// +optional
+	RookConfig map[string]string `json:"rookConfig,omitempty"`
+
+	// Deprecated parameter, cluster.dashboard.enabled should be used instead
+	// +optional
+	DashboardEnabled *bool `json:"dashboard,omitempty"`
+	// Deprecated parameter, cluster.dataDirHostPath should be used instead
+	// +nullable
+	DataDirHostPath string `json:"dataDirHostPath,omitempty"`
+	// Deprecated parameter, cluster.external.enabled should be used instead
+	// +optional
+	External *bool `json:"external,omitempty"`
+	// Deprecated parameter, cluster.mgr should be used instead
+	// +optional
+	Mgr *Mgr `json:"mgr,omitempty"`
+	// Deprecated parameter, cluster.network should be used instead
+	// +optional
+	Network *CephNetworkSpec `json:"network,omitempty"`
+	// Deprecated parameter, cluster.{placement,resources} should be used instead for mon,osd,mgr daemons,
+	// objectStorage.objectStores.[*].gateway.{placement,resources} for rgw daemon
+	// sharedFilesystem.cephFilesystems.[*].metadataServer.{placement,resources} for mds daemon
+	// +optional
+	HyperConverge *CephDeploymentHyperConverge `json:"hyperconverge,omitempty"`
+	// Deprecated parameter, cluster.healthCheck should be used instead for mon,osd,mgr daemons,
+	// objectStorage.objectStores.[*].healthCheck for rgw daemon
+	// sharedFilesystem.cephFilesystems.[*].metadataServer.{livenessProbe,startupProbe} for mds daemon
+	// +optional
+	HealthCheck *CephClusterHealthCheckSpec `json:"healthCheck,omitempty"`
+	// Deprecated parameter, blockStorage.pools should be used instead
+	// +optional
+	Pools []CephPoolOld `json:"pools,omitempty"`
+	// Deprecated parameter, blockStorage.rbdMirrors should be used instead
+	// +optional
+	RBDMirror *CephRBDMirrorSpec `json:"rbdMirror,omitempty"`
+}
+
+// CephCluster stands for main Ceph cluster configuration options.
+// Follow https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/
+// for available options
+type CephCluster struct {
+	// +kubebuilder:validation:Schemaless
+	// +kubebuilder:validation:Type=object
+	cephv1.ClusterSpec `json:",inline"`
+}
+
+type CephBlockStorage struct {
 	// Pools is a list of Ceph RBD Pools configurations
 	// +optional
 	Pools []CephPool `json:"pools,omitempty"`
-	// RBDMirror allows to configure RBD mirroring between two Ceph Clusters
+	// RBDMirrors allows to configure RBD mirroring between two Ceph Clusters
 	// +optional
-	RBDMirror *CephRBDMirrorSpec `json:"rbdMirror,omitempty"`
-	// RookConfig is a key-value mapping which contains ceph config keys with a specified values
-	// +optional
-	RookConfig map[string]string `json:"rookConfig,omitempty"`
-	// SharedFilesystem enables such system as CephFS
-	// +optional
-	SharedFilesystem *CephSharedFilesystem `json:"sharedFilesystem,omitempty"`
+	RBDMirrors []CephRBDMirror `json:"rbdMirrors,omitempty"`
 }
 
+// CephPool stands for specified Ceph RBD Pool configuration
+// Follow https://rook.io/docs/rook/v1.19/CRDs/Block-Storage/ceph-block-pool-crd
+// for available options
+type CephPool struct {
+	// Name represents Ceph RBD pool name
+	Name string `json:"name"`
+	// UseAsFullName uses Name as a resulting pool name instead of "<Name>-<DeviceClass>"
+	// +optional
+	UseAsFullName bool `json:"useAsFullName,omitempty"`
+	// Role represents pool role. The following values are reserved for
+	// MOS managed clusters: vms, images, backup, volumes
+	// +nullable
+	Role string `json:"role,omitempty"`
+	// PreserveOnDelete prevents related CephBlockPool object removal
+	// +optional
+	PreserveOnDelete bool `json:"preserveOnDelete,omitempty"`
+	// StorageClassOpts represents options to set on related storage class
+	// +optional
+	StorageClassOpts CephStorageClassSpec `json:"storageClassOpts,omitempty"`
+	// +kubebuilder:validation:Schemaless
+	// +kubebuilder:validation:Type=object
+	cephv1.PoolSpec `json:",inline"`
+}
+
+type CephStorageClassSpec struct {
+	// Default represents whether Ceph Pool's StorageClass would be default or not
+	// +optional
+	Default bool `json:"default,omitempty"`
+	// MapOptions is a comma-separated list of kernel RBD map options
+	// +nullable
+	MapOptions string `json:"mapOptions,omitempty"`
+	// UnmapOptions is a comma-separated list of kernel RBD unmap options
+	// +nullable
+	UnmapOptions string `json:"unmapOptions,omitempty"`
+	// ImageFeatures is a comma-separated list of RBD image features,
+	// see: https://docs.ceph.com/en/latest/man/8/rbd/#cmdoption-rbd-image-feature
+	// Default is layering.
+	// +nullable
+	ImageFeatures string `json:"imageFeatures,omitempty"`
+	// ReclaimPolicy stands for underlying StorageClass reclaimPolicy parameter.
+	// Default is 'Delete' if not set.
+	// +nullable
+	ReclaimPolicy string `json:"reclaimPolicy,omitempty"`
+	// AllowVolumeExpansion allows to extend volumes sizes in pool
+	// +optional
+	AllowVolumeExpansion bool `json:"allowVolumeExpansion,omitempty"`
+}
+
+// RBDMirrors allows to configure RBD mirroring between two Ceph Clusters
+// Follow https://rook.io/docs/rook/v1.19/CRDs/Block-Storage/ceph-rbd-mirror-crd/
+// for available options
+type CephRBDMirror struct {
+	Name string `json:"name"`
+	// +kubebuilder:validation:Schemaless
+	// +kubebuilder:validation:Type=object
+	// +optional
+	cephv1.RBDMirroringSpec `json:",inline"`
+}
+
+// CephClient stands for clients for application connections configuration
+// https://rook.io/docs/rook/v1.19/CRDs/ceph-client-crd/
+// for available options
 type CephClient struct {
-	ClientSpec `json:",inline"`
-}
-
-type ClientSpec struct {
-	// +optional
-	Name string `json:"name,omitempty"`
-	// SecretName is the name of the secret created for this ceph client.
-	// If not specified, the default name is "rook-ceph-client-" as a prefix to the CR name.
-	// +optional
-	SecretName string `json:"secretName,omitempty"`
-
-	// RemoveSecret indicates whether the current secret for this ceph client should be removed or not.
-	// If true, the K8s secret will be deleted, but the cephx keyring will remain until the CR is deleted.
-	// +optional
-	RemoveSecret bool `json:"removeSecret,omitempty"`
-	// +kubebuilder:pruning:PreserveUnknownFields
-	Caps map[string]string `json:"caps"`
+	// +kubebuilder:validation:Schemaless
+	// +kubebuilder:validation:Type=object
+	cephv1.ClientSpec `json:",inline"`
 }
 
 type LabeledDevices map[string]string
@@ -142,35 +221,10 @@ type CephDeploymentExtraOpts struct {
 	// Valuable only for MOS managed clusters
 	// +optional
 	DisableOsKeys bool `json:"disableOsSharedKeys,omitempty"`
-}
-
-type CephClusterHealthCheckSpec struct {
-	// DaemonHealth contains health check settings for ceph daemons
+	// Disable auto update allowed RGW hostnames for zone group
+	// By default is enabled, but ignored for multisite.
 	// +optional
-	DaemonHealth cephv1.DaemonHealthSpec `json:"daemonHealth,omitempty"`
-	// LivenessProbe allows changing the livenessProbe configuration for ceph daemons
-	// +optional
-	LivenessProbe map[cephv1.KeyType]*cephv1.ProbeSpec `json:"livenessProbe,omitempty"`
-	// StartupProbe allows changing the startupProbe configuration for ceph daemons
-	// +optional
-	StartupProbe map[cephv1.KeyType]*cephv1.ProbeSpec `json:"startupProbe,omitempty"`
-}
-
-// CephDeploymentHyperConverge represents hyperconverge parameters for Ceph daemons
-type CephDeploymentHyperConverge struct {
-	// Resources requirements for ceph daemons, such as: mon, mgr, mds, rgw, osd, osd-hdd, osd-ssd, osd-nvme, prepareosd
-	// +optional
-	Resources cephv1.ResourceSpec `json:"resources,omitempty"`
-	// Tolerations rules for ceph daemons: osd, mon, mgr.
-	// +optional
-	Tolerations map[string]CephDeploymentToleration `json:"tolerations,omitempty"`
-}
-
-// CephDeploymentToleration represents kubernetes toleration rules
-type CephDeploymentToleration struct {
-	// Rules is a list of kubernetes tolerations defined for some
-	// Ceph daemon
-	Rules []v1.Toleration `json:"rules"`
+	SkipAutoZoneGroupHostnameUpdate bool `json:"skipAutoZoneGroupHostnameUpdate,omitempty"`
 }
 
 type CephDeploymentIngressConfig struct {
@@ -210,49 +264,120 @@ type CephDeploymentCert struct {
 	TLSKey string `json:"tlsKey"`
 }
 
-// Mgr contains a list of Ceph Manager modules to enable in Ceph Cluster
-type Mgr struct {
-	// MgrModules is a list of Ceph Manager modules names to enable in Ceph
+// CephObjectStorage contains full RadosGW Object Storage configurations:
+// RGW itself and RGW multisite feature
+type CephObjectStorage struct {
+	// ObjectStores represents Ceph RadosGW configurations.
+	// At least one object store required to specify.
+	// +kubebuilder:validation:MinItems:=1
+	ObjectStores []CephObjectStore `json:"objectStores"`
+	// ObjectStoreUsers is a list of user to create for object storage
+	// with radosgw-admin
 	// +optional
-	MgrModules []CephMgrModule `json:"mgrModules,omitempty"`
+	ObjectStoreUsers []CephObjectStoreUser `json:"objectStoreUsers,omitempty"`
+	// ObjectBuckets is a list of buckets to create in object storage
+	// +optional
+	ObjectBuckets []CephObjectBucketClaim `json:"objectBuckets,omitempty"`
+	// ObjectRealms is a list of Ceph Object storage multisite realms.
+	// Currently is possible to specify only 1 realm.
+	// +kubebuilder:validation:MaxItems:=1
+	// +optional
+	ObjectRealms []CephObjectRealm `json:"objectRealms,omitempty"`
+	// ObjectZonegroups is a list of Ceph Object storage multisite zonegroups.
+	// Currently is possible to specify only 1 zonegroup.
+	// +kubebuilder:validation:MaxItems:=1
+	// +optional
+	ObjectZonegroups []CephObjectZonegroup `json:"objectZonegroups,omitempty"`
+	// ObjectZones is a list of Ceph Object storage multisite zones.
+	// Currently is possible to specify only 1 zone.
+	// +kubebuilder:validation:MaxItems:=1
+	// +optional
+	ObjectZones []CephObjectZone `json:"objectZones,omitempty"`
+
+	// Deprecated parameters
+	// +optional
+	Rgw *CephRGW `json:"rgw,omitempty"`
+	// +optional
+	MultiSite *CephMultiSite `json:"multiSite,omitempty"`
 }
 
-// CephMgrModule represents mgr modules that the user wants to enable or disable
-type CephMgrModule struct {
-	// Name is the name of the ceph manager module
-	// +nullable
-	Name string `json:"name,omitempty"`
-	// Enabled determines whether a module should be enabled or not
-	// +optional
-	Enabled bool `json:"enabled,omitempty"`
-	// Settings reflects mgr module settings if required
-	// +optional
-	Settings *CephMgrModuleSettings `json:"settings,omitempty"`
+// CephObjectStore stands for configuration of object store.
+// Follow https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-crd/
+// for available options
+type CephObjectStore struct {
+	Name string `json:"name"`
+	// +kubebuilder:validation:Schemaless
+	// +kubebuilder:validation:Type=object
+	cephv1.ObjectStoreSpec `json:",inline"`
 }
 
-// CephMgrModuleSettings represents mgr modules settings
-type CephMgrModuleSettings struct {
-	// BalancerMode sets the `balancer` module with different modes like `upmap`, `crush-compact` etc
-	BalancerMode string `json:"balancerMode,omitempty"`
+// CephObjectStoreUser stands for configuration of object store users.
+// https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-user-crd/
+// for available options
+type CephObjectStoreUser struct {
+	Name string `json:"name"`
+	// +kubebuilder:validation:Schemaless
+	// +kubebuilder:validation:Type=object
+	cephv1.ObjectStoreUserSpec `json:",inline"`
 }
 
-// CephNetworkSpec is a section which defines the specific network range(s)
-// for Ceph daemons to communicate with each other and the an external
-// connections
-type CephNetworkSpec struct {
-	// ClusterNet defines pkg network for Ceph Daemons intra-communication
-	ClusterNet string `json:"clusterNet"`
-	// ClusterNet defines public network for an external access to Ceph Cluster
-	PublicNet string `json:"publicNet"`
-	// Provider specifies the network provider that will be used to connect the network interface
-	// +nullable
-	Provider string `json:"provider,omitempty"`
-	// Selector is used for multus provider only. Select NetworkAttachmentDefinitions to use for Ceph networks
+// CephObjectBucketClaim stands for creation of new buckets and access to existing buckets.
+// https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-bucket-claim
+// for available options
+type CephObjectBucketClaim struct {
+	Name string `json:"name"`
+	// +kubebuilder:validation:Schemaless
+	// +kubebuilder:validation:Type=object
+	bktv1alpha1.ObjectBucketClaimSpec `json:",inline"`
+}
+
+// CephObjectRealm stands for object store multisite realm creation and configuration.
+// https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-realm-crd/
+// for available options
+type CephObjectRealm struct {
+	Name string `json:"name"`
+	// +kubebuilder:validation:Schemaless
+	// +kubebuilder:validation:Type=object
+	cephv1.ObjectRealmSpec `json:",inline"`
+}
+
+// CephObjectZonegroup stands for object store multisite zonegroup creation and configuration.
+// https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zonegroup-crd/
+// for available options
+type CephObjectZonegroup struct {
+	Name string `json:"name"`
+	// +kubebuilder:validation:Schemaless
+	// +kubebuilder:validation:Type=object
+	cephv1.ObjectZoneGroupSpec `json:",inline"`
+}
+
+// CephObjectZone stands for object store multisite zone creation and configuration.
+// https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zone-crd/
+// for available options
+type CephObjectZone struct {
+	Name string `json:"name"`
+	// +kubebuilder:validation:Schemaless
+	// +kubebuilder:validation:Type=object
+	cephv1.ObjectZoneSpec `json:",inline"`
+}
+
+type CephSharedFilesystem struct {
+	// CephFilesystems to create and configure.
+	// +kubebuilder:validation:MinItems:=1
+	CephFs []CephFilesystem `json:"cephFilesystems,omitempty"`
+	// Deprecated
 	// +optional
-	Selector map[cephv1.CephNetworkType]string `json:"selector,omitempty"`
-	// HostNetwork is deprecated field, always true to have persistan mons ips
-	// +optional
-	HostNetwork bool `json:"hostNetwork,omitempty"`
+	CephFS []CephFS `json:"cephFS,omitempty"`
+}
+
+// CephFilesystem stands for object store multisite zone creation and configuration.
+// https://rook.io/docs/rook/v1.19/CRDs/Shared-Filesystem/ceph-filesystem-crd/
+// for available options
+type CephFilesystem struct {
+	Name string `json:"name"`
+	// +kubebuilder:validation:Schemaless
+	// +kubebuilder:validation:Type=object
+	cephv1.FilesystemSpec `json:",inline"`
 }
 
 // CephDeploymentNode contains specific node configuration to use it in Ceph Cluster
@@ -280,385 +405,6 @@ type CephDeploymentNode struct {
 	// Updates have no effect on that parameter, could be used only on monitor create
 	// +nullable
 	MonitorIP string `json:"monitorIP,omitempty"`
-}
-
-// CephObjectStorage contains full RadosGW Object Storage configurations:
-// RGW itself and RGW multisite feature
-type CephObjectStorage struct {
-	// Rgw represents Ceph RadosGW settings
-	Rgw CephRGW `json:"rgw"`
-	// MultiSite represents Ceph RadosGW multisite/multizone feature settings
-	// +optional
-	MultiSite *CephMultiSite `json:"multiSite,omitempty"`
-}
-
-// CephRGW represents Ceph RadosGW settings
-type CephRGW struct {
-	// Name represents the name of specified object storage
-	// +kubebuilder:validation:MaxLength:=25
-	Name string `json:"name"`
-	// Users is a list of user names to create for object storage
-	// with radosgw-admin
-	// +optional
-	ObjectUsers []CephRGWUser `json:"objectUsers,omitempty"`
-	// Buckets is a list of initial buckets to create in object storage
-	// with radosgw-admin
-	// +optional
-	Buckets []string `json:"buckets,omitempty"`
-	// Replicas is a number of replicas for each Ceph RadosGW instance.
-	// Not used in a product currently
-	// +optional
-	Replicas *int `json:"replicas,omitempty"`
-	// Whether host networking is enabled for the rgw daemon.
-	// If not set, the network settings from the cluster CR will be applied.
-	// +optional
-	// +nullable
-	RgwUseHostNetwork *bool `json:"rgwUseHostNetwork,omitempty"`
-	// MetadataPool represents Ceph Pool's settings which stores RGW metadata.
-	// Mutually exclusive with Zone
-	// +optional
-	MetadataPool *CephPoolSpec `json:"metadataPool,omitempty"`
-	// DataPool represents Ceph Pool's settings which stores RGW data.
-	// Mutually exclusive with Zone
-	// +optional
-	DataPool *CephPoolSpec `json:"dataPool,omitempty"`
-	// PreservePoolsOnDelete is a flag whether keep RGW metadata/data pools
-	// on RGW delete or not
-	// +optional
-	PreservePoolsOnDelete bool `json:"preservePoolsOnDelete"`
-	// Gateway represents Ceph RGW daemons settings
-	Gateway CephRGWGateway `json:"gateway"`
-	// Disable auto update allowed hostnames for zone group
-	// By default is enabled, but ignored for multisite.
-	// +optional
-	SkipAutoZoneGroupHostnameUpdate bool `json:"skipAutoZoneGroupHostnameUpdate,omitempty"`
-	// SSLCert used for access to RGW Gateway endpoint, if not specified will be generated self-signed
-	// +optional
-	SSLCert *CephDeploymentCert `json:"SSLCert,omitempty"`
-	// SSLCertInRef is a flag, whether RGW SSL certs are provided internally,
-	// without exposing in spec in base default 'rgw-ssl-certificate' secret.
-	// +optional
-	SSLCertInRef bool `json:"SSLCertInRef,omitempty"`
-	// Zone represents RGW zone if multisite feature enabled
-	// +optional
-	Zone *cephv1.ZoneSpec `json:"zone,omitempty"`
-	// HealthCheck represents Ceph RGW daemons healthchecks
-	// +optional
-	HealthCheck *cephv1.ObjectHealthCheckSpec `json:"healthCheck,omitempty"`
-}
-
-// CephRGWUser represents Ceph RadosGW user
-type CephRGWUser struct {
-	// Represent a user name
-	Name string `json:"name"`
-	// The display name for the user
-	// +nullable
-	DisplayName string `json:"displayName,omitempty"`
-	// User capabilities
-	// +optional
-	Capabilities *cephv1.ObjectUserCapSpec `json:"capabilities,omitempty"`
-	// User quotas
-	// +optional
-	Quotas *cephv1.ObjectUserQuotaSpec `json:"quotas,omitempty"`
-}
-
-// CephRGWGateway represents Ceph RGW daemon settings
-type CephRGWGateway struct {
-	// Port the rgw service will be listening on (http)
-	Port int32 `json:"port"`
-	// SecurePort the rgw service will be listening on (https)
-	SecurePort int32 `json:"securePort"`
-	// Instances is the number of pods in the rgw replicaset.
-	// If AllNodes is specified, a daemonset will be created.
-	Instances int32 `json:"instances"`
-	// AllNodes is a flag whether the rgw pods should be
-	// started as a daemonset on all nodes
-	AllNodes bool `json:"allNodes"`
-	// SplitDaemonForMultisiteTrafficSync is a flag for multisite, which allows
-	// to split daemon responsible for sync between zones and daemon for serving clients requests
-	// +optional
-	SplitDaemonForMultisiteTrafficSync bool `json:"splitDaemonForMultisiteTrafficSync,omitempty"`
-	// Port the rgw multisite traffic service will be listening on (http). Optional.
-	// Has effect only for multisite configuration.
-	// +optional
-	RgwSyncPort int32 `json:"rgwSyncPort,omitempty"`
-	// Resources requirements for RGW instances
-	// +optional
-	Resources *v1.ResourceRequirements `json:"resources,omitempty"`
-	// ExternalRgwEndpoint represents external RGW Endpoint to use, when external Ceph cluster is used.
-	// Has effect only for external cluster setup.
-	// +optional
-	ExternalRgwEndpoint *cephv1.EndpointAddress `json:"externalRgwEndpoint,omitempty"`
-}
-
-// CephMultiSite represents Ceph RadosGW multisite/multizone feature settings
-type CephMultiSite struct {
-	// Realms is a list of Ceph Object storage multisite realms
-	Realms []CephRGWRealm `json:"realms"`
-	// ZoneGroups is a list of Ceph Object storage multisite zonegroups
-	ZoneGroups []CephRGWZoneGroup `json:"zoneGroups"`
-	// Zones is a list of Ceph Object storage multisite zones
-	Zones []CephRGWZone `json:"zones"`
-}
-
-// CephRGWRealm represents RGW multisite realm namespace
-type CephRGWRealm struct {
-	// Name represents realm's name
-	Name string `json:"name"`
-	// Pull stands for the Endpoint, the access key and the system key
-	// of the system user from the realm being pulled from
-	// +optional
-	Pull *CephRGWRealmPull `json:"pullEndpoint,omitempty"`
-	// Set this realm as the default in Ceph. Only one realm should be default.
-	// +optional
-	DefaultRealm bool `json:"defaultRealm,omitempty"`
-}
-
-// CephRGWRealmPull stands for the Endpoint, the access key and the system key
-// of the system user from the realm being pulled from
-type CephRGWRealmPull struct {
-	// Endpoint represents an endpoint from the master zone in the master zone group
-	Endpoint string `json:"endpoint"`
-	// AccessKey is an access key of the system user from the realm being pulled from
-	AccessKey string `json:"accessKey"`
-	// SecretKey is a system key of the system user from the realm being pulled from
-	SecretKey string `json:"secretKey"`
-}
-
-// CephRGWZoneGroup represents multisite zone group
-type CephRGWZoneGroup struct {
-	// Name represents zone group's name
-	Name string `json:"name"`
-	// Realm is a name of the realm for which zone group belongs to
-	Realm string `json:"realmName"`
-}
-
-// CephRGWZone represents multisite zone
-type CephRGWZone struct {
-	// Name represents zone's name
-	Name string `json:"name"`
-	// MetadataPool represents Ceph Pool's setting which contains
-	// RGW zone metadata
-	MetadataPool CephPoolSpec `json:"metadataPool"`
-	// DataPool represents Ceph Pool's setting which contains
-	// RGW zone data
-	DataPool CephPoolSpec `json:"dataPool"`
-	// ZoneGroup is a name of the zone group for which zone belongs to
-	ZoneGroup string `json:"zoneGroupName"`
-	// Custom endpoints for zone, which should be used in zone config
-	// +optional
-	EndpointsForZone []string `json:"endpointsForZone,omitempty"`
-}
-
-// CephPool stands for specified Ceph RBD Pool configuration
-type CephPool struct {
-	// Name represents Ceph RBD pool name
-	Name string `json:"name"`
-	// UseAsFullName uses Name as a resulting pool name instead of "<Name>-<DeviceClass>"
-	// +optional
-	UseAsFullName bool `json:"useAsFullName,omitempty"`
-	// Role represents pool role. The following values are reserved for
-	// MOS managed clusters: vms, images, backup, volumes
-	// +nullable
-	Role string `json:"role,omitempty"`
-	// PreserveOnDelete prevents related CephBlockPool object removal
-	// +optional
-	PreserveOnDelete bool `json:"preserveOnDelete,omitempty"`
-	// StorageClassOpts represents options to set on related storage class
-	// +optional
-	StorageClassOpts CephStorageClassSpec `json:"storageClassOpts,omitempty"`
-
-	CephPoolSpec `json:",inline"`
-}
-
-type CephPoolSpec struct {
-	// Replicated represents Ceph Pool's replica settings
-	// +optional
-	Replicated *CephPoolReplicatedSpec `json:"replicated,omitempty"`
-	// FailureDomain represents level of cluster fault-tolerance.
-	// Possible values are: osd, host, region or zone if available;
-	// technically also any type in the crush map
-	// +nullable
-	FailureDomain string `json:"failureDomain,omitempty"`
-	// CrushRoot is the root of the crush hierarchy utilized by the pool
-	// +nullable
-	CrushRoot string `json:"crushRoot,omitempty"`
-	// DeviceClass is the device class the OSD should set to (options are: hdd, ssd, or nvme)
-	DeviceClass string `json:"deviceClass"`
-	// ErasureCoded represents Ceph Pool's erasure coding settings
-	// +optional
-	ErasureCoded *CephPoolErasureCodedSpec `json:"erasureCoded,omitempty"`
-	// Mirroring allows to enable RBD mirroring feature in modes: pool, image
-	// +optional
-	Mirroring *CephPoolMirrorSpec `json:"mirroring,omitempty"`
-	// Parameters is a key-value mapping of all supported ceph pool parameters such
-	// as pg_num, compression_mode etc.
-	// +optional
-	Parameters map[string]string `json:"parameters,omitempty"`
-	// EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
-	// Can cause data remapping if crush rule changes, Defaults to false.
-	// +optional
-	// +nullable
-	EnableCrushUpdates *bool `json:"enableCrushUpdates,omitempty"`
-}
-
-type CephStorageClassSpec struct {
-	// Default represents whether Ceph Pool's StorageClass would be default or not
-	// +optional
-	Default bool `json:"default,omitempty"`
-	// MapOptions is a comma-separated list of kernel RBD map options
-	// +nullable
-	MapOptions string `json:"mapOptions,omitempty"`
-	// UnmapOptions is a comma-separated list of kernel RBD unmap options
-	// +nullable
-	UnmapOptions string `json:"unmapOptions,omitempty"`
-	// ImageFeatures is a comma-separated list of RBD image features,
-	// see: https://docs.ceph.com/en/latest/man/8/rbd/#cmdoption-rbd-image-feature
-	// Default is layering.
-	// +nullable
-	ImageFeatures string `json:"imageFeatures,omitempty"`
-	// ReclaimPolicy stands for underlying StorageClass reclaimPolicy parameter.
-	// Default is 'Delete' if not set.
-	// +nullable
-	ReclaimPolicy string `json:"reclaimPolicy,omitempty"`
-	// AllowVolumeExpansion allows to extend volumes sizes in pool
-	// +optional
-	AllowVolumeExpansion bool `json:"allowVolumeExpansion,omitempty"`
-}
-
-// CephPoolErasureCodedSpec represents the spec for erasure code in a pool
-type CephPoolErasureCodedSpec struct {
-	// CodingChunks is a number of coding chunks per object
-	// in an erasure coded storage pool (required for erasure-coded pool type)
-	CodingChunks uint `json:"codingChunks"`
-	// DataChunks is a number of data chunks per object
-	// in an erasure coded storage pool (required for erasure-coded pool type)
-	DataChunks uint `json:"dataChunks"`
-	// Algorithm represents the algorithm for erasure coding
-	// +nullable
-	Algorithm string `json:"algorithm,omitempty"`
-}
-
-// CephPoolReplicatedSpec represents the spec for replication in a pool
-type CephPoolReplicatedSpec struct {
-	// Size - Number of copies per object in a replicated storage pool, including the object itself (required for replicated pool type)
-	Size uint `json:"size"`
-	// TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity
-	// +optional
-	TargetSizeRatio float64 `json:"targetSizeRatio,omitempty"`
-}
-
-// CephPoolMirrorSpec spec represents RBD mirroring
-// settings for a specific Ceph RBD Pool
-type CephPoolMirrorSpec struct {
-	// Mode - mirroring mode to run
-	Mode string `json:"mode"`
-}
-
-// CephRBDMirrorSpec allows to configure RBD mirroring between two Ceph Clusters
-type CephRBDMirrorSpec struct {
-	// Count of rbd-mirror daemons to spawn
-	Count int `json:"daemonsCount"`
-
-	// Peers is a list of secret's names defined in kubernetes.
-	// Currently, (Ceph Octopus release) only a single peer is supported
-	// +optional
-	Peers []CephRBDMirrorSecret `json:"peers,omitempty"`
-}
-
-type CephRBDMirrorSecret struct {
-	// Site is a name of remote site associated with the token
-	Site string `json:"site"`
-	// Token represents base64 encoded information about
-	// remote cluster; contains fsid,client_id,key,mon_host
-	Token string `json:"token"`
-	// Pools is a list of Ceph Pools names to mirror
-	// +optional
-	Pools []string `json:"pools,omitempty"`
-}
-
-type CephSharedFilesystem struct {
-	// CephFS to create. Multiple CephFS available to deploy for clusters with Ceph Reef or above
-	// +optional
-	CephFS []CephFS `json:"cephFS,omitempty"`
-}
-
-type CephFS struct {
-	// CephFS name
-	Name string `json:"name"`
-	// The settings used to create the filesystem metadata pool. Must use replication.
-	MetadataPool CephPoolSpec `json:"metadataPool"`
-	// The settings to create the filesystem data pools. Must use replication.
-	// +optional
-	DataPools []CephFSPool `json:"dataPools,omitempty"`
-	// When set to ‘true’ the filesystem will remain when the CephFilesystem resource is deleted
-	// This is a security measure to avoid loss of data if the CephFilesystem resource is deleted accidentally.
-	// +optional
-	PreserveFilesystemOnDelete bool `json:"preserveFilesystemOnDelete,omitempty"`
-	// Metadata server settings correspond to the MDS daemon settings
-	MetadataServer CephMetadataServer `json:"metadataServer"`
-}
-
-// CephFSPool stands for specified CephFS Pool configuration
-type CephFSPool struct {
-	// Name represents CephFS pool name
-	Name string `json:"name"`
-
-	CephPoolSpec `json:",inline"`
-}
-
-type CephMetadataServer struct {
-	// The number of active MDS instances. As load increases, CephFS will automatically
-	// partition the filesystem across the MDS instances. Rook will create double the
-	// number of MDS instances as requested by the active count. The extra instances will
-	// be in standby mode for failover
-	ActiveCount int32 `json:"activeCount"`
-	// If true, the extra MDS instances will be in active standby mode and will keep
-	// a warm cache of the filesystem metadata for faster failover. The instances will
-	// be assigned by CephFS in failover pairs. If false, the extra MDS instances will
-	// all be on passive standby mode and will not maintain a warm cache of the metadata.
-	// +optional
-	ActiveStandby bool `json:"activeStandby,omitempty"`
-	// Resources represents kubernetes resource requirements for mds instances
-	// +optional
-	Resources *v1.ResourceRequirements `json:"resources,omitempty"`
-	// HealthCheck provides an ability to configure mds daemon healthchecks
-	// +optional
-	HealthCheck *CephMdsHealthCheck `json:"healthCheck,omitempty"`
-}
-
-type CephMdsHealthCheck struct {
-	// LivenessProbe allows changing the livenessProbe configuration for ceph mds daemon
-	// +optional
-	LivenessProbe *cephv1.ProbeSpec `json:"livenessProbe,omitempty"`
-	// StartupProbe allows changing the startupProbe configuration for ceph mds daemon
-	// +optional
-	StartupProbe *cephv1.ProbeSpec `json:"startupProbe,omitempty"`
-}
-
-// MiraIngress provides an ability to configure custom ingress rule for an external
-// access to Ceph Cluster resources, for example, public endpoint
-// for Ceph Object Store access
-type MiraIngress struct {
-	// Domain is a public domain used for ingress public endpoint
-	Domain string `json:"publicDomain"`
-
-	CephDeploymentCert `json:",inline"`
-
-	// CustomIngress represents Extra/Custom Ingress configuration
-	// +optional
-	CustomIngress *CephDeploymentCustomIngress `json:"customIngress,omitempty"`
-}
-
-// CephDeploymentCustomIngress represents custom Ingress Controller configuration
-type CephDeploymentCustomIngress struct {
-	// ClassName is a name of Ingress Controller class. Default for
-	// MOS cloud is 'openstack-ingress-nginx'
-	// +nullable
-	ClassName string `json:"className,omitempty"`
-	// Annotations is an extra annotations set to proxy
-	// +optional
-	Annotations map[string]string `json:"annotations,omitempty"`
 }
 
 type CephDeploymentPhase string
@@ -729,4 +475,396 @@ type CephDeploymentList struct {
 
 func init() {
 	SchemeBuilder.Register(&CephDeployment{}, &CephDeploymentList{})
+}
+
+//
+// DEPRECATED TYPES TO BE REMOVED IN FUTURE
+//
+
+// CephPool stands for specified Ceph RBD Pool configuration
+type CephPoolOld struct {
+	// Name represents Ceph RBD pool name
+	Name string `json:"name"`
+	// UseAsFullName uses Name as a resulting pool name instead of "<Name>-<DeviceClass>"
+	// +optional
+	UseAsFullName bool `json:"useAsFullName,omitempty"`
+	// Role represents pool role. The following values are reserved for
+	// MOS managed clusters: vms, images, backup, volumes
+	// +nullable
+	Role string `json:"role,omitempty"`
+	// PreserveOnDelete prevents related CephBlockPool object removal
+	// +optional
+	PreserveOnDelete bool `json:"preserveOnDelete,omitempty"`
+	// StorageClassOpts represents options to set on related storage class
+	// +optional
+	StorageClassOpts CephStorageClassSpec `json:"storageClassOpts,omitempty"`
+
+	CephPoolSpec `json:",inline"`
+}
+
+type CephPoolSpec struct {
+	// Replicated represents Ceph Pool's replica settings
+	// +optional
+	Replicated *CephPoolReplicatedSpec `json:"replicated,omitempty"`
+	// FailureDomain represents level of cluster fault-tolerance.
+	// Possible values are: osd, host, region or zone if available;
+	// technically also any type in the crush map
+	// +nullable
+	FailureDomain string `json:"failureDomain,omitempty"`
+	// CrushRoot is the root of the crush hierarchy utilized by the pool
+	// +nullable
+	CrushRoot string `json:"crushRoot,omitempty"`
+	// DeviceClass is the device class the OSD should set to (options are: hdd, ssd, or nvme)
+	DeviceClass string `json:"deviceClass"`
+	// ErasureCoded represents Ceph Pool's erasure coding settings
+	// +optional
+	ErasureCoded *CephPoolErasureCodedSpec `json:"erasureCoded,omitempty"`
+	// Mirroring allows to enable RBD mirroring feature in modes: pool, image
+	// +optional
+	Mirroring *CephPoolMirrorSpec `json:"mirroring,omitempty"`
+	// Parameters is a key-value mapping of all supported ceph pool parameters such
+	// as pg_num, compression_mode etc.
+	// +optional
+	Parameters map[string]string `json:"parameters,omitempty"`
+	// EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
+	// Can cause data remapping if crush rule changes, Defaults to false.
+	// +optional
+	// +nullable
+	EnableCrushUpdates *bool `json:"enableCrushUpdates,omitempty"`
+}
+
+// CephPoolErasureCodedSpec represents the spec for erasure code in a pool
+type CephPoolErasureCodedSpec struct {
+	// CodingChunks is a number of coding chunks per object
+	// in an erasure coded storage pool (required for erasure-coded pool type)
+	CodingChunks uint `json:"codingChunks"`
+	// DataChunks is a number of data chunks per object
+	// in an erasure coded storage pool (required for erasure-coded pool type)
+	DataChunks uint `json:"dataChunks"`
+	// Algorithm represents the algorithm for erasure coding
+	// +nullable
+	Algorithm string `json:"algorithm,omitempty"`
+}
+
+// CephPoolReplicatedSpec represents the spec for replication in a pool
+type CephPoolReplicatedSpec struct {
+	// Size - Number of copies per object in a replicated storage pool, including the object itself (required for replicated pool type)
+	Size uint `json:"size"`
+	// TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity
+	// +optional
+	TargetSizeRatio float64 `json:"targetSizeRatio,omitempty"`
+}
+
+// CephPoolMirrorSpec spec represents RBD mirroring
+// settings for a specific Ceph RBD Pool
+type CephPoolMirrorSpec struct {
+	// Mode - mirroring mode to run
+	Mode string `json:"mode"`
+}
+
+// CephRGW represents Ceph RadosGW settings
+type CephRGW struct {
+	// Name represents the name of specified object storage
+	// +kubebuilder:validation:MaxLength:=25
+	Name string `json:"name"`
+	// Users is a list of user names to create for object storage
+	// with radosgw-admin
+	// +optional
+	ObjectUsers []CephRGWUser `json:"objectUsers,omitempty"`
+	// Buckets is a list of initial buckets to create in object storage
+	// with radosgw-admin
+	// +optional
+	Buckets []string `json:"buckets,omitempty"`
+	// Replicas is a number of replicas for each Ceph RadosGW instance.
+	// Not used in a product currently
+	// +optional
+	Replicas *int `json:"replicas,omitempty"`
+	// Whether host networking is enabled for the rgw daemon.
+	// If not set, the network settings from the cluster CR will be applied.
+	// +optional
+	// +nullable
+	RgwUseHostNetwork *bool `json:"rgwUseHostNetwork,omitempty"`
+	// MetadataPool represents Ceph Pool's settings which stores RGW metadata.
+	// Mutually exclusive with Zone
+	// +optional
+	MetadataPool *CephPoolSpec `json:"metadataPool,omitempty"`
+	// DataPool represents Ceph Pool's settings which stores RGW data.
+	// Mutually exclusive with Zone
+	// +optional
+	DataPool *CephPoolSpec `json:"dataPool,omitempty"`
+	// PreservePoolsOnDelete is a flag whether keep RGW metadata/data pools
+	// on RGW delete or not
+	// +optional
+	PreservePoolsOnDelete bool `json:"preservePoolsOnDelete"`
+	// Gateway represents Ceph RGW daemons settings
+	Gateway CephRGWGateway `json:"gateway"`
+	// Disable auto update allowed hostnames for zone group
+	// By default is enabled, but ignored for multisite.
+	// +optional
+	SkipAutoZoneGroupHostnameUpdate bool `json:"skipAutoZoneGroupHostnameUpdate,omitempty"`
+	// SSLCert used for access to RGW Gateway endpoint, if not specified will be generated self-signed
+	// +optional
+	SSLCert *CephDeploymentCert `json:"SSLCert,omitempty"`
+	// SSLCertInRef is a flag, whether RGW SSL certs are provided internally,
+	// without exposing in spec in base default 'rgw-ssl-certificate' secret.
+	// +optional
+	SSLCertInRef bool `json:"SSLCertInRef,omitempty"`
+	// Zone represents RGW zone if multisite feature enabled
+	// +optional
+	Zone *cephv1.ZoneSpec `json:"zone,omitempty"`
+	// HealthCheck represents Ceph RGW daemons healthchecks
+	// +optional
+	HealthCheck *cephv1.ObjectHealthCheckSpec `json:"healthCheck,omitempty"`
+}
+
+// CephRGWGateway represents Ceph RGW daemon settings
+type CephRGWGateway struct {
+	// Port the rgw service will be listening on (http)
+	Port int32 `json:"port"`
+	// SecurePort the rgw service will be listening on (https)
+	SecurePort int32 `json:"securePort"`
+	// Instances is the number of pods in the rgw replicaset.
+	// If AllNodes is specified, a daemonset will be created.
+	Instances int32 `json:"instances"`
+	// AllNodes is a flag whether the rgw pods should be
+	// started as a daemonset on all nodes
+	AllNodes bool `json:"allNodes"`
+	// SplitDaemonForMultisiteTrafficSync is a flag for multisite, which allows
+	// to split daemon responsible for sync between zones and daemon for serving clients requests
+	// +optional
+	SplitDaemonForMultisiteTrafficSync bool `json:"splitDaemonForMultisiteTrafficSync,omitempty"`
+	// Port the rgw multisite traffic service will be listening on (http). Optional.
+	// Has effect only for multisite configuration.
+	// +optional
+	RgwSyncPort int32 `json:"rgwSyncPort,omitempty"`
+	// Resources requirements for RGW instances
+	// +optional
+	Resources *v1.ResourceRequirements `json:"resources,omitempty"`
+	// ExternalRgwEndpoint represents external RGW Endpoint to use, when external Ceph cluster is used.
+	// Has effect only for external cluster setup.
+	// +optional
+	ExternalRgwEndpoint *cephv1.EndpointAddress `json:"externalRgwEndpoint,omitempty"`
+}
+
+// CephRGWUser represents Ceph RadosGW user
+type CephRGWUser struct {
+	// Represent a user name
+	Name string `json:"name"`
+	// The display name for the user
+	// +nullable
+	DisplayName string `json:"displayName,omitempty"`
+	// User capabilities
+	// +optional
+	Capabilities *cephv1.ObjectUserCapSpec `json:"capabilities,omitempty"`
+	// User quotas
+	// +optional
+	Quotas *cephv1.ObjectUserQuotaSpec `json:"quotas,omitempty"`
+}
+
+// CephMultiSite represents Ceph RadosGW multisite/multizone feature settings
+type CephMultiSite struct {
+	// Realms is a list of Ceph Object storage multisite realms
+	Realms []CephRGWRealm `json:"realms"`
+	// ZoneGroups is a list of Ceph Object storage multisite zonegroups
+	ZoneGroups []CephRGWZoneGroup `json:"zoneGroups"`
+	// Zones is a list of Ceph Object storage multisite zones
+	Zones []CephRGWZone `json:"zones"`
+}
+
+// CephRGWRealm represents RGW multisite realm namespace
+type CephRGWRealm struct {
+	// Name represents realm's name
+	Name string `json:"name"`
+	// Pull stands for the Endpoint, the access key and the system key
+	// of the system user from the realm being pulled from
+	// +optional
+	Pull *CephRGWRealmPull `json:"pullEndpoint,omitempty"`
+	// Set this realm as the default in Ceph. Only one realm should be default.
+	// +optional
+	DefaultRealm bool `json:"defaultRealm,omitempty"`
+}
+
+// CephRGWRealmPull stands for the Endpoint, the access key and the system key
+// of the system user from the realm being pulled from
+type CephRGWRealmPull struct {
+	// Endpoint represents an endpoint from the master zone in the master zone group
+	Endpoint string `json:"endpoint"`
+	// AccessKey is an access key of the system user from the realm being pulled from
+	AccessKey string `json:"accessKey"`
+	// SecretKey is a system key of the system user from the realm being pulled from
+	SecretKey string `json:"secretKey"`
+}
+
+// CephRGWZoneGroup represents multisite zone group
+type CephRGWZoneGroup struct {
+	// Name represents zone group's name
+	Name string `json:"name"`
+	// Realm is a name of the realm for which zone group belongs to
+	Realm string `json:"realmName"`
+}
+
+// CephRGWZone represents multisite zone
+type CephRGWZone struct {
+	// Name represents zone's name
+	Name string `json:"name"`
+	// MetadataPool represents Ceph Pool's setting which contains
+	// RGW zone metadata
+	MetadataPool CephPoolSpec `json:"metadataPool"`
+	// DataPool represents Ceph Pool's setting which contains
+	// RGW zone data
+	DataPool CephPoolSpec `json:"dataPool"`
+	// ZoneGroup is a name of the zone group for which zone belongs to
+	ZoneGroup string `json:"zoneGroupName"`
+	// Custom endpoints for zone, which should be used in zone config
+	// +optional
+	EndpointsForZone []string `json:"endpointsForZone,omitempty"`
+}
+
+// CephRBDMirrorSpec allows to configure RBD mirroring between two Ceph Clusters
+type CephRBDMirrorSpec struct {
+	// Count of rbd-mirror daemons to spawn
+	Count int `json:"daemonsCount"`
+
+	// Peers is a list of secret's names defined in kubernetes.
+	// Currently, (Ceph Octopus release) only a single peer is supported
+	// +optional
+	Peers []CephRBDMirrorSecret `json:"peers,omitempty"`
+}
+
+type CephRBDMirrorSecret struct {
+	// Site is a name of remote site associated with the token
+	Site string `json:"site"`
+	// Token represents base64 encoded information about
+	// remote cluster; contains fsid,client_id,key,mon_host
+	Token string `json:"token"`
+	// Pools is a list of Ceph Pools names to mirror
+	// +optional
+	Pools []string `json:"pools,omitempty"`
+}
+
+type CephFS struct {
+	// CephFS name
+	Name string `json:"name"`
+	// The settings used to create the filesystem metadata pool. Must use replication.
+	MetadataPool CephPoolSpec `json:"metadataPool"`
+	// The settings to create the filesystem data pools. Must use replication.
+	// +optional
+	DataPools []CephFSPool `json:"dataPools,omitempty"`
+	// When set to ‘true’ the filesystem will remain when the CephFilesystem resource is deleted
+	// This is a security measure to avoid loss of data if the CephFilesystem resource is deleted accidentally.
+	// +optional
+	PreserveFilesystemOnDelete bool `json:"preserveFilesystemOnDelete,omitempty"`
+	// Metadata server settings correspond to the MDS daemon settings
+	MetadataServer CephMetadataServer `json:"metadataServer"`
+}
+
+// CephFSPool stands for specified CephFS Pool configuration
+type CephFSPool struct {
+	// Name represents CephFS pool name
+	Name string `json:"name"`
+
+	CephPoolSpec `json:",inline"`
+}
+
+type CephMetadataServer struct {
+	// The number of active MDS instances. As load increases, CephFS will automatically
+	// partition the filesystem across the MDS instances. Rook will create double the
+	// number of MDS instances as requested by the active count. The extra instances will
+	// be in standby mode for failover
+	ActiveCount int32 `json:"activeCount"`
+	// If true, the extra MDS instances will be in active standby mode and will keep
+	// a warm cache of the filesystem metadata for faster failover. The instances will
+	// be assigned by CephFS in failover pairs. If false, the extra MDS instances will
+	// all be on passive standby mode and will not maintain a warm cache of the metadata.
+	// +optional
+	ActiveStandby bool `json:"activeStandby,omitempty"`
+	// Resources represents kubernetes resource requirements for mds instances
+	// +optional
+	Resources *v1.ResourceRequirements `json:"resources,omitempty"`
+	// HealthCheck provides an ability to configure mds daemon healthchecks
+	// +optional
+	HealthCheck *CephMdsHealthCheck `json:"healthCheck,omitempty"`
+}
+
+type CephMdsHealthCheck struct {
+	// LivenessProbe allows changing the livenessProbe configuration for ceph mds daemon
+	// +optional
+	LivenessProbe *cephv1.ProbeSpec `json:"livenessProbe,omitempty"`
+	// StartupProbe allows changing the startupProbe configuration for ceph mds daemon
+	// +optional
+	StartupProbe *cephv1.ProbeSpec `json:"startupProbe,omitempty"`
+}
+
+type CephClusterHealthCheckSpec struct {
+	// DaemonHealth contains health check settings for ceph daemons
+	// +optional
+	DaemonHealth cephv1.DaemonHealthSpec `json:"daemonHealth,omitempty"`
+	// LivenessProbe allows changing the livenessProbe configuration for ceph daemons
+	// +optional
+	LivenessProbe map[cephv1.KeyType]*cephv1.ProbeSpec `json:"livenessProbe,omitempty"`
+	// StartupProbe allows changing the startupProbe configuration for ceph daemons
+	// +optional
+	StartupProbe map[cephv1.KeyType]*cephv1.ProbeSpec `json:"startupProbe,omitempty"`
+}
+
+// CephDeploymentHyperConverge represents hyperconverge parameters for Ceph daemons
+type CephDeploymentHyperConverge struct {
+	// Resources requirements for ceph daemons, such as: mon, mgr, mds, rgw, osd, osd-hdd, osd-ssd, osd-nvme, prepareosd
+	// +optional
+	Resources cephv1.ResourceSpec `json:"resources,omitempty"`
+	// Tolerations rules for ceph daemons: osd, mon, mgr.
+	// +optional
+	Tolerations map[string]CephDeploymentToleration `json:"tolerations,omitempty"`
+}
+
+// CephDeploymentToleration represents kubernetes toleration rules
+type CephDeploymentToleration struct {
+	// Rules is a list of kubernetes tolerations defined for some
+	// Ceph daemon
+	Rules []v1.Toleration `json:"rules"`
+}
+
+// Mgr contains a list of Ceph Manager modules to enable in Ceph Cluster
+type Mgr struct {
+	// MgrModules is a list of Ceph Manager modules names to enable in Ceph
+	// +optional
+	MgrModules []CephMgrModule `json:"mgrModules,omitempty"`
+}
+
+// CephMgrModule represents mgr modules that the user wants to enable or disable
+type CephMgrModule struct {
+	// Name is the name of the ceph manager module
+	// +nullable
+	Name string `json:"name,omitempty"`
+	// Enabled determines whether a module should be enabled or not
+	// +optional
+	Enabled bool `json:"enabled,omitempty"`
+	// Settings reflects mgr module settings if required
+	// +optional
+	Settings *CephMgrModuleSettings `json:"settings,omitempty"`
+}
+
+// CephMgrModuleSettings represents mgr modules settings
+type CephMgrModuleSettings struct {
+	// BalancerMode sets the `balancer` module with different modes like `upmap`, `crush-compact` etc
+	BalancerMode string `json:"balancerMode,omitempty"`
+}
+
+// CephNetworkSpec is a section which defines the specific network range(s)
+// for Ceph daemons to communicate with each other and the an external
+// connections
+type CephNetworkSpec struct {
+	// ClusterNet defines pkg network for Ceph Daemons intra-communication
+	ClusterNet string `json:"clusterNet"`
+	// ClusterNet defines public network for an external access to Ceph Cluster
+	PublicNet string `json:"publicNet"`
+	// Provider specifies the network provider that will be used to connect the network interface
+	// +nullable
+	Provider string `json:"provider,omitempty"`
+	// Selector is used for multus provider only. Select NetworkAttachmentDefinitions to use for Ceph networks
+	// +optional
+	Selector map[cephv1.CephNetworkType]string `json:"selector,omitempty"`
+	// HostNetwork is deprecated field, always true to have persistan mons ips
+	// +optional
+	HostNetwork bool `json:"hostNetwork,omitempty"`
 }

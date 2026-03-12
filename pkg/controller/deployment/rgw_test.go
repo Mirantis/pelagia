@@ -160,13 +160,13 @@ func TestGenerateRgwStore(t *testing.T) {
 		},
 		{
 			name:              "multisite rgw run sync with single daemon",
-			cephDplRGW:        unitinputs.CephDeployMultisiteMasterRgw.Spec.ObjectStorage.Rgw,
+			cephDplRGW:        *unitinputs.CephDeployMultisiteMasterRgw.Spec.ObjectStorage.Rgw,
 			useDedicatedNodes: false,
 			expected:          unitinputs.CephObjectStoreWithZone,
 		},
 		{
 			name:              "multisite rgw run sync with separate daemon, main rgw",
-			cephDplRGW:        unitinputs.MultisiteRgwWithSyncDaemon.Spec.ObjectStorage.Rgw,
+			cephDplRGW:        *unitinputs.MultisiteRgwWithSyncDaemon.Spec.ObjectStorage.Rgw,
 			useDedicatedNodes: false,
 			expected: func() *cephv1.CephObjectStore {
 				rgw := unitinputs.CephObjectStoreWithZone.DeepCopy()
@@ -864,9 +864,9 @@ func TestEnsureRgwObject(t *testing.T) {
 			name: "ensure rgw - external rgw spec without external endpoints - create failed",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					External: true,
+					External: &[]bool{true}[0],
 					ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
-						Rgw: cephlcmv1alpha1.CephRGW{Name: "rgw-store"},
+						Rgw: &cephlcmv1alpha1.CephRGW{Name: "rgw-store"},
 					},
 				},
 			},

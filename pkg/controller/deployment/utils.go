@@ -64,7 +64,7 @@ func isTypeReadyToUpdate(condition cephv1.ConditionType) bool {
 	return true
 }
 
-func getCephPoolName(pool cephlcmv1alpha1.CephPool) string {
+func getCephPoolName(pool cephlcmv1alpha1.CephPoolOld) string {
 	if pool.UseAsFullName {
 		return pool.Name
 	}
@@ -81,7 +81,7 @@ func getBuiltinPoolName(name string) string {
 	return name
 }
 
-func buildPoolName(pool cephlcmv1alpha1.CephPool) string {
+func buildPoolName(pool cephlcmv1alpha1.CephPoolOld) string {
 	cephBlockPoolName := getCephPoolName(pool)
 	// PRODX-37192 - allow to create pools names starting with '.' (.rgw.root, .mgr)
 	if lcmcommon.Contains(builtinCephPools, cephBlockPoolName) {

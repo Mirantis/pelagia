@@ -226,7 +226,7 @@ func (c *cephDeploymentConfig) getAdminSecret() (*v1.Secret, error) {
 	return adminSecret, nil
 }
 
-func (c *cephDeploymentConfig) getRgwExternalEndpoint(cephDplRGW cephlcmv1alpha1.CephRGW) string {
+func (c *cephDeploymentConfig) getRgwExternalEndpoint(cephDplRGW *cephlcmv1alpha1.CephRGW) string {
 	if cephDplRGW.Gateway.ExternalRgwEndpoint != nil {
 		endpoint := "%s://%s:%d"
 		address := ""
@@ -273,7 +273,7 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 	sort.Strings(monIPs)
 	monmapString = strings.Join(monIPs, ",")
 
-	buildPoolDescription := func(pool cephlcmv1alpha1.CephPool) string {
+	buildPoolDescription := func(pool cephlcmv1alpha1.CephPoolOld) string {
 		return fmt.Sprintf("%s:%s:%s", buildPoolName(pool), pool.Role, pool.DeviceClass)
 	}
 
@@ -301,7 +301,7 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 	}
 
 	var clientAdminSecret []byte
-	if c.cdConfig.cephDpl.Spec.External {
+	if c.cdConfig.cephDpl.Spec.External != nil {
 		// external cluster is connected with admin key
 		clientAdminSecret = secretData.adminSecret.Data["admin-secret"]
 	} else {
@@ -327,7 +327,7 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 	}
 
 	if c.cdConfig.cephDpl.Spec.ObjectStorage != nil {
-		if !c.cdConfig.cephDpl.Spec.External {
+		if c.cdConfig.cephDpl.Spec.External == nil {
 			fqdn := fmt.Sprintf("%s.%s.svc", buildRGWName(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name, ""), c.lcmConfig.RookNamespace)
 			if c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.SecurePort != int32(0) {
 				secret.Data["rgw_internal"] = []byte(fmt.Sprintf("https://%s:%d/", fqdn, c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.SecurePort))
@@ -340,7 +340,7 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 		}
 
 		ingressTLS := getIngressTLS(c.cdConfig.cephDpl)
-		if c.cdConfig.cephDpl.Spec.External {
+		if c.cdConfig.cephDpl.Spec.External != nil {
 			rgwExternal := c.getRgwExternalEndpoint(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw)
 			if rgwExternal != "" {
 				secret.Data["rgw_external"] = []byte(rgwExternal)

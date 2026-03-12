@@ -68,7 +68,7 @@ func generatePoolSpec(poolSpec *cephlcmv1alpha1.CephPoolSpec, role string) (newp
 	return &poolSpecResource
 }
 
-func generatePool(pool cephlcmv1alpha1.CephPool, namespace string) (newpool *cephv1.CephBlockPool) {
+func generatePool(pool cephlcmv1alpha1.CephPoolOld, namespace string) (newpool *cephv1.CephBlockPool) {
 	cephpool := cephv1.CephBlockPool{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      buildPoolName(pool),

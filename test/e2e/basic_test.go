@@ -196,7 +196,7 @@ func TestValidationFailure(t *testing.T) {
 	cd.Spec.Network.ClusterNet = "0.0.0.0/0"
 	// pools validation
 	poolName := "test-pool-invalid-" + fmt.Sprintf("%d", time.Now().Unix())
-	cd.Spec.Pools = append(cd.Spec.Pools, cephlcmv1alpha1.CephPool{
+	cd.Spec.Pools = append(cd.Spec.Pools, cephlcmv1alpha1.CephPoolOld{
 		Name: poolName,
 		StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{
 			ReclaimPolicy: "Fake",

@@ -109,11 +109,11 @@ func GenerateOsdRemoveTasks(tasksSpecString string) ([]*cephlcmv1alpha.CephOsdRe
 	return tasksList, nil
 }
 
-func GetNewPool(name string, useAsfullName, volumeExpansion bool, size int, role, mapOptions string, deviceClass string) cephlcmv1alpha.CephPool {
+func GetNewPool(name string, useAsfullName, volumeExpansion bool, size int, role, mapOptions string, deviceClass string) cephlcmv1alpha.CephPoolOld {
 	if role == "" {
 		role = "e2e-tests"
 	}
-	return cephlcmv1alpha.CephPool{
+	return cephlcmv1alpha.CephPoolOld{
 		Name: name,
 		Role: role,
 		StorageClassOpts: cephlcmv1alpha.CephStorageClassSpec{
