@@ -183,13 +183,17 @@ func (r *ReconcileCephDeployment) Reconcile(ctx context.Context, request reconci
 	}
 
 	// check first deprecated fields
-	err = cephDplConfig.ensureDeprecatedFields()
+	updated, err := cephDplConfig.ensureDeprecatedFields()
 	if err != nil {
 		cephDpl.Status.Phase = cephlcmv1alpha1.PhaseFailed
 		cephDpl.Status.Message = fmt.Sprintf("failed to ensure deprecated fields for CephDeployment %s/%s", cephDpl.Namespace, cephDpl.Name)
 		sublog.Error().Err(err).Msg(cephDpl.Status.Message)
 		r.setCephDeploymentPhaseFailed(ctx, sublog, cephDpl.Name, cephDpl.Namespace, cephDpl.Status)
 		return reconcile.Result{RequeueAfter: requeueAfterInterval}, nil
+	}
+	// stop working with current object and reconcile new one
+	if updated {
+		return reconcile.Result{}, nil
 	}
 
 	expandedNodes, err := lcmcommon.GetExpandedCephDeploymentNodeList(ctx, r.Client, cephDpl.Spec)
@@ -515,7 +519,7 @@ func (c *cephDeploymentConfig) verifySetup() error {
 }
 
 func (c *cephDeploymentConfig) checkLcmState() (bool, cephlcmv1alpha1.CephDeploymentPhase, error) {
-	if c.cdConfig.cephDpl.Spec.External == nil {
+	if !c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
 		c.log.Debug().Msg("ensure CephOsdRemoveTasks")
 		taskList, err := c.api.CephLcmclientset.LcmV1alpha1().CephOsdRemoveTasks(c.cdConfig.cephDpl.Namespace).List(c.context, metav1.ListOptions{})
 		if err != nil {
@@ -593,21 +597,20 @@ func (c *cephDeploymentConfig) applyConfiguration() (string, string) {
 	}
 	var err error
 	var changed bool
-	// Ensure node labels and topology
-	if c.cdConfig.cephDpl.Spec.External == nil {
+
+	if !c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
+		// Ensure node labels and topology
 		changed, err = c.ensureLabelNodes()
 		handleEnsureResult(changed, err, "label nodes")
-	}
 
-	// ensure nodes annotations if any
-	if c.cdConfig.cephDpl.Spec.External == nil {
+		// ensure nodes annotations if any
 		changed, err = c.ensureNodesAnnotation()
 		handleEnsureResult(changed, err, "annotate nodes")
 	}
 
 	// ensure network policies
 	netPoolChanged := false
-	if c.cdConfig.cephDpl.Spec.External == nil {
+	if !c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
 		netPoolChanged, err = c.ensureNetworkPolicy()
 		handleEnsureResult(netPoolChanged, err, "network policies")
 	}
@@ -618,14 +621,11 @@ func (c *cephDeploymentConfig) applyConfiguration() (string, string) {
 		changed, err = c.ensureCluster()
 		handleEnsureResult(changed, err, "cephcluster")
 
-		// Ensure ceph block pools processing for non-external cluster
-		if c.cdConfig.cephDpl.Spec.External == nil {
+		if !c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
+			// Ensure ceph block pools processing for non-external cluster
 			changed, err = c.ensurePools()
 			handleEnsureResult(changed, err, "cephblockpools")
-		}
-
-		// Ensure shared filesystems (CephFS) for non-external cluster
-		if c.cdConfig.cephDpl.Spec.External == nil {
+			// Ensure shared filesystems (CephFS) for non-external cluster
 			changed, err = c.ensureSharedFilesystem()
 			handleEnsureResult(changed, err, "shared filesystems")
 		}
@@ -646,20 +646,16 @@ func (c *cephDeploymentConfig) applyConfiguration() (string, string) {
 		changed, err = c.ensureRBDMirroring()
 		handleEnsureResult(changed, err, "RBD Mirroring")
 
-		// Ensure openstack shared secret processing for non-external cluster
-		if c.cdConfig.cephDpl.Spec.External == nil {
+		if !c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
+			// Ensure openstack shared secret processing for non-external cluster
 			changed, err = c.ensureOpenstackSecret()
 			handleEnsureResult(changed, err, "Openstack secret")
-		}
 
-		// Ensure Ingress proxy for non-external
-		if c.cdConfig.cephDpl.Spec.External == nil {
+			// Ensure Ingress proxy for non-external
 			changed, err = c.ensureIngressProxy()
 			handleEnsureResult(changed, err, "ingress proxy")
-		}
 
-		// Ensure overal cluster state
-		if c.cdConfig.cephDpl.Spec.External == nil {
+			// Ensure overal cluster state
 			changed, err = c.ensureClusterState()
 			handleEnsureResult(changed, err, "cluster state")
 		}
@@ -773,7 +769,7 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 		}
 		return false, err
 	})
-	if c.cdConfig.cephDpl.Spec.External == nil {
+	if !c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
 		// Delete openstack secret
 		if c.cdConfig.cephDpl.Spec.ExtraOpts != nil && c.cdConfig.cephDpl.Spec.ExtraOpts.DisableOsKeys {
 			c.log.Warn().Msgf("openstack secret %s/%s ensure disabled, skip deleting. Do not forget to remove it manually",
@@ -788,7 +784,7 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 	runRemoveState("object storage", func() (bool, error) {
 		return c.deleteObjectStorage()
 	})
-	if c.cdConfig.cephDpl.Spec.External == nil {
+	if !c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
 		// Delete ingress proxy
 		runRemoveState("ingress proxy", func() (bool, error) {
 			return c.deleteIngressProxy()
@@ -802,7 +798,7 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 	runRemoveState("ceph clients", func() (bool, error) {
 		return c.deleteCephClients()
 	})
-	if c.cdConfig.cephDpl.Spec.External == nil {
+	if !c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
 		// Delete ceph block pools
 		runRemoveState("ceph block pools", func() (bool, error) {
 			return c.deletePools()
@@ -817,7 +813,7 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 	runRemoveState("storage classes", func() (bool, error) {
 		return c.deleteStorageClasses()
 	})
-	if c.cdConfig.cephDpl.Spec.External != nil {
+	if c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
 		runRemoveState("external resources", func() (bool, error) {
 			return c.deleteExternalConnectionSecret()
 		})
@@ -842,7 +838,7 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 			return c.deleteCsiOperatorResources()
 		})
 
-		if c.cdConfig.cephDpl.Spec.External == nil {
+		if !c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
 			// Delete network policies
 			runRemoveState("network policies", func() (bool, error) {
 				return c.cleanupNetworkPolicy()

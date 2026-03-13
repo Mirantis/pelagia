@@ -68,7 +68,7 @@ func (c *cephDeploymentConfig) ensureRgw() (bool, error) {
 	rgwConfigurationChanged = rgwConfigurationChanged || changed
 
 	errMsg := make([]error, 0)
-	if c.cdConfig.cephDpl.Spec.External == nil && rgwStoreExists {
+	if !c.cdConfig.cephDpl.Spec.Cluster.External.Enable && rgwStoreExists {
 		// we are not support auto hostname update if:
 		// - version below octopus, that means migration is in progress
 		// - multisite case and hostnames should be updated manually with script
@@ -103,7 +103,7 @@ func (c *cephDeploymentConfig) ensureRgw() (bool, error) {
 	rgwConfigurationChanged = rgwConfigurationChanged || changed
 
 	// if openstack pools are present - create ceilomenter metrics user as well
-	if lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) && c.cdConfig.cephDpl.Spec.External == nil {
+	if lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) && !c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
 		serviceUsers := []cephlcmv1alpha1.CephRGWUser{
 			{
 				Name:        rgwMetricsUser,
@@ -127,7 +127,7 @@ func (c *cephDeploymentConfig) ensureRgw() (bool, error) {
 	}
 	rgwConfigurationChanged = rgwConfigurationChanged || changed
 
-	if c.cdConfig.cephDpl.Spec.External == nil {
+	if !c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
 		// Ensure rgw external service (for openstack keystone integration)
 		c.log.Debug().Msg("ensure rgw external service")
 		changed, err = c.ensureExternalService()
@@ -243,7 +243,7 @@ func (c *cephDeploymentConfig) ensureRgwObject() (bool, error) {
 	cephDplRGW := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw
 	namespace := c.lcmConfig.RookNamespace
 	rgwStores := []*cephv1.CephObjectStore{}
-	if c.cdConfig.cephDpl.Spec.External != nil {
+	if c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
 		// secret is required for RGW external work
 		_, err := c.api.Kubeclientset.CoreV1().Secrets(namespace).Get(c.context, rgwAdminUserSecretName, metav1.GetOptions{})
 		if err != nil {
@@ -896,7 +896,7 @@ func generateRgwExternal(cephDplRGW cephlcmv1alpha1.CephRGW, namespace string) (
 
 func (c *cephDeploymentConfig) ensureRgwInternalSslCert() (bool, error) {
 	publicCacert := ""
-	if c.cdConfig.cephDpl.Spec.External == nil && c.cdConfig.cephDpl.Spec.IngressConfig != nil {
+	if !c.cdConfig.cephDpl.Spec.Cluster.External.Enable && c.cdConfig.cephDpl.Spec.IngressConfig != nil {
 		tlsConfig := getIngressTLS(c.cdConfig.cephDpl)
 		if tlsConfig != nil {
 			if tlsConfig.TLSCerts != nil {

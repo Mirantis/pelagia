@@ -44,7 +44,7 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 			c.log.Error().Msg(err)
 			errMsgs = append(errMsgs, err)
 		}
-		if c.cdConfig.cephDpl.Spec.External == nil && (cephDplPool.ErasureCoded == nil && cephDplPool.Replicated == nil ||
+		if !c.cdConfig.cephDpl.Spec.Cluster.External.Enable && (cephDplPool.ErasureCoded == nil && cephDplPool.Replicated == nil ||
 			cephDplPool.ErasureCoded != nil && cephDplPool.Replicated != nil) {
 			err := fmt.Sprintf("CephDeployment pool %s spec should contain either replicated or erasureCoded spec", cephDplPool.Name)
 			c.log.Error().Msg(err)
@@ -62,12 +62,12 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 		}
 	}
 	// do not fail for external case - may only CephFS be specified for usage
-	if !defaultFound && c.cdConfig.cephDpl.Spec.External == nil {
+	if !defaultFound && !c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
 		err := "CephDeployment has no default pool specified"
 		c.log.Error().Msg(err)
 		errMsgs = append(errMsgs, err)
 	}
-	if c.cdConfig.cephDpl.Spec.External == nil {
+	if !c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
 		for _, node := range c.cdConfig.cephDpl.Spec.Nodes {
 			if node.UseAllDevices != nil && *node.UseAllDevices {
 				errMsg := fmt.Sprintf("detected using 'useAllDevices' for '%s' node item, which is not supported", node.Name)
@@ -180,41 +180,55 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 			c.log.Error().Err(err).Msg("")
 			errMsgs = append(errMsgs, err.Error())
 		}
-	}
-	if err := rbdPeersValidate(c.cdConfig.cephDpl); err != nil {
-		c.log.Error().Err(err).Msg("")
-		errMsgs = append(errMsgs, err.Error())
-	}
-	switch c.cdConfig.cephDpl.Spec.Network.Provider {
-	case "", "host":
-		// if networks section contains 0.0.0.0/0 range or empty string - fail validation
-		nets := map[string]string{
-			"publicNet":  c.cdConfig.cephDpl.Spec.Network.PublicNet,
-			"clusterNet": c.cdConfig.cephDpl.Spec.Network.ClusterNet,
-		}
-		netKeys := []string{"publicNet", "clusterNet"}
-		for _, param := range netKeys {
-			netList := strings.Split(nets[param], ",")
-			for _, netrange := range netList {
-				if netrange = strings.Trim(netrange, " "); netrange == "0.0.0.0/0" || netrange == "" {
-					var err error
-					if netrange == "0.0.0.0/0" {
-						err = errors.Errorf("network %s parameter contains prohibited 0.0.0.0 range", param)
-					} else {
-						err = errors.Errorf("network %s parameter is empty", param)
-					}
+		switch c.cdConfig.cephDpl.Spec.Cluster.Network.Provider {
+		case "", "host", "multus":
+			if c.cdConfig.cephDpl.Spec.Cluster.Network.AddressRanges == nil {
+				err := errors.New("network addressRanges parameter is not specified")
+				c.log.Error().Err(err).Msg("")
+				errMsgs = append(errMsgs, err.Error())
+			} else {
+				if len(c.cdConfig.cephDpl.Spec.Cluster.Network.AddressRanges.Public) == 0 {
+					err := errors.New("network addressRanges public parameter is empty")
 					c.log.Error().Err(err).Msg("")
+					errMsgs = append(errMsgs, err.Error())
+				} else {
+					for _, net := range c.cdConfig.cephDpl.Spec.Cluster.Network.AddressRanges.Public {
+						if string(net) == "" || strings.HasPrefix(string(net), "0.0.0.0") {
+							err := errors.New("network address ranges public parameter should not be empty or contain range 0.0.0.0")
+							c.log.Error().Err(err).Msg("")
+							errMsgs = append(errMsgs, err.Error())
+							break
+						}
+					}
+				}
+				if len(c.cdConfig.cephDpl.Spec.Cluster.Network.AddressRanges.Cluster) == 0 {
+					err := errors.New("network addressRanges cluster parameter is empty")
+					c.log.Error().Err(err).Msg("")
+					errMsgs = append(errMsgs, err.Error())
+				} else {
+					for _, net := range c.cdConfig.cephDpl.Spec.Cluster.Network.AddressRanges.Cluster {
+						if string(net) == "" || strings.HasPrefix(string(net), "0.0.0.0") {
+							err := errors.New("network address ranges cluster parameter should not be empty or contain range 0.0.0.0")
+							c.log.Error().Err(err).Msg("")
+							errMsgs = append(errMsgs, err.Error())
+							break
+						}
+					}
+				}
+			}
+			if c.cdConfig.cephDpl.Spec.Cluster.Network.Provider == "multus" {
+				if c.cdConfig.cephDpl.Spec.Cluster.Network.Selectors[cephv1.CephNetworkPublic] == "" || c.cdConfig.cephDpl.Spec.Cluster.Network.Selectors[cephv1.CephNetworkCluster] == "" {
+					err := errors.New("network.selector public and/or cluster parameters should not be empty for provider 'multus'")
 					errMsgs = append(errMsgs, err.Error())
 				}
 			}
-		}
-	case "multus":
-		if c.cdConfig.cephDpl.Spec.Network.Selector[cephv1.CephNetworkPublic] == "" || c.cdConfig.cephDpl.Spec.Network.Selector[cephv1.CephNetworkCluster] == "" {
-			err := errors.New("network.selector public and/or cluster parameters should not be empty for provider 'multus'")
+		default:
+			err := errors.New("network provider parameter should be empty or equals 'host' or 'multus'")
 			errMsgs = append(errMsgs, err.Error())
 		}
-	default:
-		err := errors.New("network provider parameter should be empty or equals 'host' or 'multus'")
+	}
+	if err := rbdPeersValidate(c.cdConfig.cephDpl); err != nil {
+		c.log.Error().Err(err).Msg("")
 		errMsgs = append(errMsgs, err.Error())
 	}
 	if errs := cephSharedFilesystemValidate(c.cdConfig.cephDpl, c.lcmConfig.RookNamespace, c.cdConfig.nodesListExpanded); len(errs) > 0 {
@@ -276,7 +290,7 @@ func cephSharedFilesystemValidate(cephDpl *cephlcmv1alpha1.CephDeployment, rookN
 				}
 			}
 			// do not count mds roles for external cluster
-			if cephDpl.Spec.External == nil {
+			if !cephDpl.Spec.Cluster.External.Enable {
 				mdsCount := 0
 				for _, node := range nodesListExpanded {
 					if lcmcommon.Contains(node.Roles, "mds") {
@@ -388,7 +402,7 @@ func validateObjectStorage(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExp
 	}
 
 	if cephDpl.Spec.ObjectStorage != nil {
-		if cephDpl.Spec.External != nil {
+		if cephDpl.Spec.Cluster.External.Enable {
 			if cephDpl.Spec.ObjectStorage.Rgw.MetadataPool != nil || cephDpl.Spec.ObjectStorage.Rgw.DataPool != nil {
 				issues = append(issues, "rgw in external mode, pools (metadata and data) specification is not allowed")
 			}

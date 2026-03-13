@@ -49,7 +49,7 @@ func (c *cephDeploymentConfig) ensureCluster() (bool, error) {
 		}
 	}
 	// prepare resources required for external case and pass cephcluster for owner refs
-	if c.cdConfig.cephDpl.Spec.External != nil {
+	if c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
 		var ownerRefs []metav1.OwnerReference
 		if cephClusterFound {
 			ownerRefs, err = lcmcommon.GetObjectOwnerRef(cephCluster, c.api.Scheme)
@@ -68,7 +68,7 @@ func (c *cephDeploymentConfig) ensureCluster() (bool, error) {
 	// already here so we should check rook-ceph-mon-endpoint cm existence separately
 	cephDeployed := isCephDeployed(c.context, *c.log, c.api.Kubeclientset, c.lcmConfig.RookNamespace)
 
-	if c.cdConfig.cephDpl.Spec.External == nil {
+	if !c.cdConfig.cephDpl.Spec.Cluster.External.Enable {
 		configChanged, err := c.ensureCephConfig(cephClusterFound && cephDeployed)
 		if err != nil {
 			return false, errors.Wrapf(err, "failed to ensure ceph config for %s/%s cephcluster", c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Name)
@@ -114,10 +114,11 @@ func (c *cephDeploymentConfig) ensureCluster() (bool, error) {
 		}
 	}
 	if _, ok := cephCluster.Annotations[cephRestartOsdLabel]; ok {
-		generatedClusterSpec.Annotations[cephv1.KeyOSD] = map[string]string{
-			cephRestartOsdLabel:          cephCluster.Annotations[cephRestartOsdLabel],
-			cephRestartOsdTimestampLabel: cephCluster.Annotations[cephRestartOsdTimestampLabel],
+		if _, ok := generatedClusterSpec.Annotations[cephv1.KeyOSD]; !ok {
+			generatedClusterSpec.Annotations[cephv1.KeyOSD] = map[string]string{}
 		}
+		generatedClusterSpec.Annotations[cephv1.KeyOSD][cephRestartOsdLabel] = cephCluster.Annotations[cephRestartOsdLabel]
+		generatedClusterSpec.Annotations[cephv1.KeyOSD][cephRestartOsdTimestampLabel] = cephCluster.Annotations[cephRestartOsdTimestampLabel]
 	}
 
 	if !reflect.DeepEqual(cephCluster.Spec, generatedClusterSpec) {
@@ -217,86 +218,69 @@ func (c *cephDeploymentConfig) healthCluster(cephStatus *cephv1.CephStatus) bool
 }
 
 func generateCephClusterSpec(cephDpl *cephlcmv1alpha1.CephDeployment, image string, nodesExpanded []cephlcmv1alpha1.CephDeploymentNode) cephv1.ClusterSpec {
-	clusterSpec := cephv1.ClusterSpec{}
-	clusterSpec.CephVersion.Image = image
+	clusterSpecTarget := cephDpl.Spec.Cluster.ClusterSpec.DeepCopy()
+	clusterSpecTarget.CephVersion.Image = image
+
+	if clusterSpecTarget.DataDirHostPath == "" {
+		clusterSpecTarget.DataDirHostPath = lcmcommon.DefaultDataDirHostPath
+	}
+
+	if clusterSpecTarget.External.Enable {
+		return *clusterSpecTarget
+	}
+
+	// if config map changed - mark cluster spec annotations for mon and mgr to restart
+	// also control global value, since for that all daemons will be restarted, except osd
+	// and respect user defined annotations if any
+	if clusterSpecTarget.Annotations == nil {
+		clusterSpecTarget.Annotations = map[cephv1.KeyType]cephv1.Annotations{}
+	}
+	monAnnotations := map[string]string{fmt.Sprintf(cephConfigParametersUpdateTimestampLabel, "global"): resourceUpdateTimestamps.cephConfigMap["global"]}
+	if resourceUpdateTimestamps.cephConfigMap["mon"] != "" {
+		monAnnotations[fmt.Sprintf(cephConfigParametersUpdateTimestampLabel, "mon")] = resourceUpdateTimestamps.cephConfigMap["mon"]
+	}
+	mgrAnnotations := map[string]string{fmt.Sprintf(cephConfigParametersUpdateTimestampLabel, "global"): resourceUpdateTimestamps.cephConfigMap["global"]}
+	if resourceUpdateTimestamps.cephConfigMap["mgr"] != "" {
+		mgrAnnotations[fmt.Sprintf(cephConfigParametersUpdateTimestampLabel, "mgr")] = resourceUpdateTimestamps.cephConfigMap["mgr"]
+	}
+	clusterSpecTarget.Annotations[cephv1.KeyMon] = cephv1.GetMonAnnotations(clusterSpecTarget.Annotations).Merge(monAnnotations)
+	clusterSpecTarget.Annotations[cephv1.KeyMgr] = cephv1.GetMgrAnnotations(clusterSpecTarget.Annotations).Merge(mgrAnnotations)
 
 	if len(nodesExpanded) <= 3 {
 		// We need to WA upgrade checks due to Ceph Octopus upgrade failure
 		// the corresponding issue in rook: https://github.com/rook/rook/issues/5337
 		// this is a common issue and could not be fixed
-		clusterSpec.SkipUpgradeChecks = true
-		clusterSpec.ContinueUpgradeAfterChecksEvenIfNotHealthy = true
+		clusterSpecTarget.SkipUpgradeChecks = true
+		clusterSpecTarget.ContinueUpgradeAfterChecksEvenIfNotHealthy = true
 	}
 
-	if cephDpl.Spec.DataDirHostPath == "" {
-		clusterSpec.DataDirHostPath = lcmcommon.DefaultDataDirHostPath
-	} else {
-		clusterSpec.DataDirHostPath = cephDpl.Spec.DataDirHostPath
-	}
-
-	if cephDpl.Spec.External != nil {
-		clusterSpec.External.Enable = true
-		return clusterSpec
-	}
-
-	// if config map changed - mark cluster spec annotations for mon and mgr to restart
-	// also control global value, since for that all daemons will be restarted, except osd
-	clusterSpec.Annotations = map[cephv1.KeyType]cephv1.Annotations{
-		cephv1.KeyMon: map[string]string{
-			fmt.Sprintf(cephConfigParametersUpdateTimestampLabel, "global"): resourceUpdateTimestamps.cephConfigMap["global"],
-		},
-		cephv1.KeyMgr: map[string]string{
-			fmt.Sprintf(cephConfigParametersUpdateTimestampLabel, "global"): resourceUpdateTimestamps.cephConfigMap["global"],
-		},
-	}
-	if resourceUpdateTimestamps.cephConfigMap["mon"] != "" {
-		clusterSpec.Annotations[cephv1.KeyMon][fmt.Sprintf(cephConfigParametersUpdateTimestampLabel, "mon")] = resourceUpdateTimestamps.cephConfigMap["mon"]
-	}
-	if resourceUpdateTimestamps.cephConfigMap["mgr"] != "" {
-		clusterSpec.Annotations[cephv1.KeyMgr][fmt.Sprintf(cephConfigParametersUpdateTimestampLabel, "mgr")] = resourceUpdateTimestamps.cephConfigMap["mgr"]
-	}
-
-	clusterSpec.Mon.Count = 0
-	clusterSpec.Mgr.Count = 0
+	clusterSpecTarget.Mon.Count = 0
+	clusterSpecTarget.Mgr.Count = 0
 	for _, node := range nodesExpanded {
 		if lcmcommon.Contains(node.Roles, "mon") {
-			clusterSpec.Mon.Count = clusterSpec.Mon.Count + 1
+			clusterSpecTarget.Mon.Count = clusterSpecTarget.Mon.Count + 1
 		}
 		// we have to limit mgr count by two, since rook can't have
 		// more than two Mgrs simultaneously
-		if lcmcommon.Contains(node.Roles, "mgr") && clusterSpec.Mgr.Count < 2 {
-			clusterSpec.Mgr.Count = clusterSpec.Mgr.Count + 1
+		if lcmcommon.Contains(node.Roles, "mgr") && clusterSpecTarget.Mgr.Count < 2 {
+			clusterSpecTarget.Mgr.Count = clusterSpecTarget.Mgr.Count + 1
 		}
 	}
 
-	if cephDpl.Spec.DashboardEnabled != nil {
-		clusterSpec.Dashboard.Enabled = *cephDpl.Spec.DashboardEnabled
-	}
-
-	defaultModules := []string{"balancer", "pg_autoscaler"}
-	defaultModulesFound := map[string]bool{
+	defaultModules := map[string]bool{
 		"pg_autoscaler": false,
 		"balancer":      false,
 	}
+	defaultModulesNamesSorted := []string{"balancer", "pg_autoscaler"}
 
-	if cephDpl.Spec.Mgr != nil && cephDpl.Spec.Mgr.MgrModules != nil {
-		for _, module := range cephDpl.Spec.Mgr.MgrModules {
-			cephModule := cephv1.Module{
-				Name:    module.Name,
-				Enabled: module.Enabled,
-			}
-			if module.Settings != nil {
-				cephModule.Settings = cephv1.ModuleSettings{BalancerMode: module.Settings.BalancerMode}
-			}
-			clusterSpec.Mgr.Modules = append(clusterSpec.Mgr.Modules, cephModule)
-			if _, ok := defaultModulesFound[module.Name]; ok {
-				defaultModulesFound[module.Name] = true
-			}
+	for _, module := range clusterSpecTarget.Mgr.Modules {
+		if _, ok := defaultModules[module.Name]; ok {
+			defaultModules[module.Name] = true
 		}
 	}
-	for _, module := range defaultModules {
-		if !defaultModulesFound[module] {
-			clusterSpec.Mgr.Modules = append(clusterSpec.Mgr.Modules, cephv1.Module{
+	for _, module := range defaultModulesNamesSorted {
+		if !defaultModules[module] {
+			clusterSpecTarget.Mgr.Modules = append(clusterSpecTarget.Mgr.Modules, cephv1.Module{
 				Name:    module,
 				Enabled: true,
 			})
@@ -304,27 +288,32 @@ func generateCephClusterSpec(cephDpl *cephlcmv1alpha1.CephDeployment, image stri
 	}
 
 	useAllDevices := false
-	clusterSpec.Storage = cephv1.StorageScopeSpec{
+	clusterSpecTarget.Storage = cephv1.StorageScopeSpec{
 		UseAllNodes: false,
 		Selection: cephv1.Selection{
 			UseAllDevices: &useAllDevices,
 		},
+		Nodes: buildStorageNodes(nodesExpanded),
 	}
 
-	clusterSpec.Storage.Nodes = buildStorageNodes(nodesExpanded)
-	switch cephDpl.Spec.Network.Provider {
-	case "", "host":
-		clusterSpec.Network.Provider = "host"
-	case "multus":
-		clusterSpec.Network.Provider = "multus"
-		clusterSpec.Network.Selectors = cephDpl.Spec.Network.Selector
+	if clusterSpecTarget.Network.Provider == "" {
+		clusterSpecTarget.Network.Provider = "host"
 	}
 
-	if cephDpl.Spec.HyperConverge == nil {
-		cephDpl.Spec.HyperConverge = &cephlcmv1alpha1.CephDeploymentHyperConverge{}
+	// get first placement if specified before override
+	allPlacement := clusterSpecTarget.Placement.All()
+	var monTolerations, mgrTolerations, osdTolerations []v1.Toleration
+	if monPlacement, ok := clusterSpecTarget.Placement[cephv1.KeyMon]; ok {
+		monTolerations = monPlacement.Tolerations
+	}
+	if mgrPlacement, ok := clusterSpecTarget.Placement[cephv1.KeyMgr]; ok {
+		mgrTolerations = mgrPlacement.Tolerations
+	}
+	if osdPlacement, ok := clusterSpecTarget.Placement[cephv1.KeyOSD]; ok {
+		osdTolerations = osdPlacement.Tolerations
 	}
 
-	clusterSpec.Placement = cephv1.PlacementSpec{
+	clusterSpecTarget.Placement = cephv1.PlacementSpec{
 		cephv1.KeyMon: cephv1.Placement{
 			NodeAffinity: &v1.NodeAffinity{
 				RequiredDuringSchedulingIgnoredDuringExecution: &v1.NodeSelector{
@@ -351,7 +340,7 @@ func generateCephClusterSpec(cephDpl *cephlcmv1alpha1.CephDeployment, image stri
 					Operator: "Exists",
 				},
 			},
-				cephDpl.Spec.HyperConverge.Tolerations[string(cephv1.KeyMon)].Rules...),
+				monTolerations...),
 		},
 		cephv1.KeyMgr: cephv1.Placement{
 			NodeAffinity: &v1.NodeAffinity{
@@ -379,53 +368,44 @@ func generateCephClusterSpec(cephDpl *cephlcmv1alpha1.CephDeployment, image stri
 					Operator: "Exists",
 				},
 			},
-				cephDpl.Spec.HyperConverge.Tolerations[string(cephv1.KeyMgr)].Rules...),
+				mgrTolerations...),
 		},
 	}
-	if v, ok := cephDpl.Spec.HyperConverge.Tolerations[string(cephv1.KeyAll)]; ok {
-		clusterSpec.Placement[cephv1.KeyAll] = cephv1.Placement{
-			Tolerations: v.Rules,
+
+	if len(allPlacement.Tolerations) > 0 {
+		clusterSpecTarget.Placement[cephv1.KeyAll] = cephv1.Placement{
+			Tolerations: allPlacement.Tolerations,
 		}
 	}
-	osdTolerations := cephDpl.Spec.HyperConverge.Tolerations[string(cephv1.KeyOSD)].Rules
+
 	if len(osdTolerations) > 0 {
-		clusterSpec.Placement[cephv1.KeyOSD] = cephv1.Placement{
+		clusterSpecTarget.Placement[cephv1.KeyOSD] = cephv1.Placement{
 			Tolerations: osdTolerations,
 		}
 		// We have to set same tolerations which specified for osd, because
 		// it could not be neither prepared nor cleaned otherwise.
-		clusterSpec.Placement[cephv1.KeyOSDPrepare] = cephv1.Placement{
+		clusterSpecTarget.Placement[cephv1.KeyOSDPrepare] = cephv1.Placement{
 			Tolerations: osdTolerations,
 		}
-		clusterSpec.Placement[cephv1.KeyCleanup] = cephv1.Placement{
+		clusterSpecTarget.Placement[cephv1.KeyCleanup] = cephv1.Placement{
 			Tolerations: osdTolerations,
 		}
 	}
 
-	if len(cephDpl.Spec.HyperConverge.Resources) > 0 {
-		clusterSpec.Resources = cephDpl.Spec.HyperConverge.Resources
-	}
-
-	if cephDpl.Spec.HealthCheck != nil {
-		clusterSpec.HealthCheck = cephv1.CephClusterHealthCheckSpec{
-			DaemonHealth:  cephDpl.Spec.HealthCheck.DaemonHealth,
-			LivenessProbe: cephDpl.Spec.HealthCheck.LivenessProbe,
-			StartupProbe:  cephDpl.Spec.HealthCheck.StartupProbe,
-		}
-	}
+	// set default liveness probe if not specified
 	cephDaemons := []cephv1.KeyType{"mgr", "mon", "osd"}
-	if clusterSpec.HealthCheck.LivenessProbe == nil {
-		clusterSpec.HealthCheck.LivenessProbe = map[cephv1.KeyType]*cephv1.ProbeSpec{}
+	if clusterSpecTarget.HealthCheck.LivenessProbe == nil {
+		clusterSpecTarget.HealthCheck.LivenessProbe = map[cephv1.KeyType]*cephv1.ProbeSpec{}
 	}
 	for _, daemon := range cephDaemons {
-		if _, ok := clusterSpec.HealthCheck.LivenessProbe[daemon]; !ok {
-			clusterSpec.HealthCheck.LivenessProbe[daemon] = &cephv1.ProbeSpec{
+		if _, ok := clusterSpecTarget.HealthCheck.LivenessProbe[daemon]; !ok {
+			clusterSpecTarget.HealthCheck.LivenessProbe[daemon] = &cephv1.ProbeSpec{
 				Probe: lcmcommon.DefaultCephProbe,
 			}
 		}
 	}
 
-	return clusterSpec
+	return *clusterSpecTarget
 }
 
 func (c *cephDeploymentConfig) checkStorageSpecIsAligned() (bool, error) {

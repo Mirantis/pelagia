@@ -653,9 +653,8 @@ func TestValidate(t *testing.T) {
 			name: "validate incorrect network section, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.Network = &cephlcmv1alpha1.CephNetworkSpec{
-					PublicNet: "0.0.0.0/0",
-				}
+				cd.Spec.Cluster.Network.AddressRanges.Public[0] = "0.0.0.0/0"
+				cd.Spec.Cluster.Network.AddressRanges.Cluster[0] = ""
 				return cd
 			}(),
 			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),
@@ -663,8 +662,8 @@ func TestValidate(t *testing.T) {
 				Result:                  cephlcmv1alpha1.ValidationFailed,
 				LastValidatedGeneration: 10,
 				Messages: []string{
-					"network publicNet parameter contains prohibited 0.0.0.0 range",
-					"network clusterNet parameter is empty",
+					"network address ranges public parameter should not be empty or contain range 0.0.0.0",
+					"network address ranges cluster parameter should not be empty or contain range 0.0.0.0",
 				},
 			},
 		},
@@ -672,9 +671,7 @@ func TestValidate(t *testing.T) {
 			name: "validate incorrect network provider, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.Network = &cephlcmv1alpha1.CephNetworkSpec{
-					Provider: "local",
-				}
+				cd.Spec.Cluster.Network.Provider = "local"
 				return cd
 			}(),
 			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),
@@ -690,10 +687,7 @@ func TestValidate(t *testing.T) {
 			name: "validate empty multus network params, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.Network = &cephlcmv1alpha1.CephNetworkSpec{
-					Provider: "multus",
-					Selector: map[cephv1.CephNetworkType]string{},
-				}
+				cd.Spec.Cluster.Network.Provider = "multus"
 				return cd
 			}(),
 			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),

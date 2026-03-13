@@ -30,11 +30,15 @@ import (
 var BaseCephDeployment = cephlcmv1alpha1.CephDeployment{
 	ObjectMeta: LcmObjectMeta,
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		DashboardEnabled: &[]bool{false}[0],
-		Network: &cephlcmv1alpha1.CephNetworkSpec{
-			HostNetwork: true,
-			ClusterNet:  "127.0.0.0/16",
-			PublicNet:   "192.168.0.0/16",
+		Cluster: &cephlcmv1alpha1.CephCluster{
+			ClusterSpec: cephv1.ClusterSpec{
+				Network: cephv1.NetworkSpec{
+					AddressRanges: &cephv1.AddressRangesSpec{
+						Public:  []cephv1.CIDR{cephv1.CIDR("192.168.0.0/16")},
+						Cluster: []cephv1.CIDR{cephv1.CIDR("127.0.0.0/16")},
+					},
+				},
+			},
 		},
 		Nodes: CephNodesOk,
 	},
@@ -84,12 +88,10 @@ var BaseCephDeploymentDeleting = func() cephlcmv1alpha1.CephDeployment {
 
 var BaseCephDeploymentMultus = func() cephlcmv1alpha1.CephDeployment {
 	cd := BaseCephDeployment.DeepCopy()
-	cd.Spec.Network = &cephlcmv1alpha1.CephNetworkSpec{
-		Provider: "multus",
-		Selector: map[cephv1.CephNetworkType]string{
-			cephv1.CephNetworkPublic:  "192.168.0.0/16",
-			cephv1.CephNetworkCluster: "127.0.0.0/16",
-		},
+	cd.Spec.Cluster.Network.Provider = "multus"
+	cd.Spec.Cluster.Network.Selectors = map[cephv1.CephNetworkType]string{
+		cephv1.CephNetworkPublic:  "192.168.0.0/16",
+		cephv1.CephNetworkCluster: "127.0.0.0/16",
 	}
 	return *cd
 }()
@@ -181,6 +183,7 @@ var CephDeployWithWrongNodes = cephlcmv1alpha1.CephDeployment{
 		Generation: int64(10),
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
+		Cluster: &cephlcmv1alpha1.CephCluster{},
 		Nodes: []cephlcmv1alpha1.CephDeploymentNode{
 			{
 				Node: cephv1.Node{
@@ -213,10 +216,10 @@ var CephDeployNonMosk = cephlcmv1alpha1.CephDeployment{
 		Generation: int64(10),
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
+		Cluster: BaseCephDeployment.Spec.Cluster,
 		Pools:   []cephlcmv1alpha1.CephPoolOld{CephDeployPoolReplicated},
 		Clients: []cephlcmv1alpha1.CephClient{CephDeployClientTest},
 		Nodes:   CephNodesExtendedOk,
-		Network: BaseCephDeployment.Spec.Network,
 		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
 			Rgw: &CephRgwSpecWithUsersBuckets,
 		},
@@ -257,7 +260,7 @@ var CephDeployMosk = cephlcmv1alpha1.CephDeployment{
 		},
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		Network: BaseCephDeployment.Spec.Network,
+		Cluster: BaseCephDeployment.Spec.Cluster,
 		Pools: []cephlcmv1alpha1.CephPoolOld{
 			CephDeployPoolReplicated,
 			GetCephDeployPool("vms", "vms"),
@@ -330,12 +333,10 @@ var CephDeployExternal = cephlcmv1alpha1.CephDeployment{
 		},
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		Network: &cephlcmv1alpha1.CephNetworkSpec{
-			ClusterNet: "127.0.0.0/32",
-			PublicNet:  "127.0.0.0/32",
+		Cluster: &cephlcmv1alpha1.CephCluster{
+			ClusterSpec: cephv1.ClusterSpec{External: cephv1.ExternalSpec{Enable: true}},
 		},
-		External: &[]bool{true}[0],
-		Pools:    []cephlcmv1alpha1.CephPoolOld{CephDeployPoolReplicated},
+		Pools: []cephlcmv1alpha1.CephPoolOld{CephDeployPoolReplicated},
 	},
 	Status: cephlcmv1alpha1.CephDeploymentStatus{
 		Validation: cephlcmv1alpha1.CephDeploymentValidation{
@@ -469,59 +470,6 @@ var MultisiteRgwWithSyncDaemon = func() cephlcmv1alpha1.CephDeployment {
 }()
 
 // spec fixtures
-
-var HyperConvergeCephDeploy = &cephlcmv1alpha1.CephDeploymentHyperConverge{
-	Resources: cephv1.ResourceSpec{
-		"osd-nvme": v1.ResourceRequirements{
-			Limits: v1.ResourceList{
-				v1.ResourceCPU:    resource.MustParse("100m"),
-				v1.ResourceMemory: resource.MustParse("156Mi"),
-			},
-			Requests: v1.ResourceList{
-				v1.ResourceMemory: resource.MustParse("28Mi"),
-				v1.ResourceCPU:    resource.MustParse("10m"),
-			},
-		},
-	},
-	Tolerations: map[string]cephlcmv1alpha1.CephDeploymentToleration{
-		"all": {
-			Rules: []v1.Toleration{
-				{
-					Key:      "test.kubernetes.io/testkey",
-					Effect:   "Schedule",
-					Operator: "Exists",
-				},
-			},
-		},
-		"mgr": {
-			Rules: []v1.Toleration{
-				{
-					Key:      "test.kubernetes.io/testkey",
-					Effect:   "Schedule",
-					Operator: "Exists",
-				},
-			},
-		},
-		"mon": {
-			Rules: []v1.Toleration{
-				{
-					Key:      "test.kubernetes.io/testkey",
-					Effect:   "Schedule",
-					Operator: "Exists",
-				},
-			},
-		},
-		"osd": {
-			Rules: []v1.Toleration{
-				{
-					Key:      "test.kubernetes.io/testkey",
-					Effect:   "Schedule",
-					Operator: "Exists",
-				},
-			},
-		},
-	},
-}
 
 var HyperConvergeForExtraSVC = &cephlcmv1alpha1.CephDeploymentHyperConverge{
 	Tolerations: map[string]cephlcmv1alpha1.CephDeploymentToleration{

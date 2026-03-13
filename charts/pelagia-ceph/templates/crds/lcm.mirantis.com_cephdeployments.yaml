@@ -231,10 +231,8 @@ spec:
                     type: boolean
                 type: object
               healthCheck:
-                description: |-
-                  Deprecated parameter, cluster.healthCheck should be used instead for mon,osd,mgr daemons,
-                  objectStorage.objectStores.[*].healthCheck for rgw daemon
-                  sharedFilesystem.cephFilesystems.[*].metadataServer.{livenessProbe,startupProbe} for mds daemon
+                description: Deprecated parameter, cluster.healthCheck should be used
+                  instead
                 properties:
                   daemonHealth:
                     description: DaemonHealth contains health check settings for ceph

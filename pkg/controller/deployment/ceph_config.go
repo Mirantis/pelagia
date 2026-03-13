@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -334,12 +335,15 @@ func (c *cephDeploymentConfig) buildCephConfig() (string, map[string]string, map
 			baseCephConfig[getFullKeyWithSection(opt.section, opt.key)] = opt
 		}
 	}
-	if c.cdConfig.cephDpl.Spec.Network.Provider == "" || c.cdConfig.cephDpl.Spec.Network.Provider == "host" {
-		// put network params and do not allow to override it through rook config
-		mergeConfig([]configOption{
-			{static: true, section: "global", key: "cluster_network", value: c.cdConfig.cephDpl.Spec.Network.ClusterNet},
-			{static: true, section: "global", key: "public_network", value: c.cdConfig.cephDpl.Spec.Network.PublicNet},
-		})
+	networkSettings := c.cdConfig.cephDpl.Spec.Cluster.Network
+	if networkSettings.Provider == cephv1.NetworkProviderDefault || networkSettings.Provider == cephv1.NetworkProviderHost {
+		if networkSettings.AddressRanges != nil {
+			// put network params and do not allow to override it through rook config
+			mergeConfig([]configOption{
+				{static: true, section: "global", key: "cluster_network", value: networkSettings.AddressRanges.Cluster.String()},
+				{static: true, section: "global", key: "public_network", value: networkSettings.AddressRanges.Public.String()},
+			})
+		}
 	}
 	mergeConfig(generalConfigOptions)
 	if c.cdConfig.cephDpl.Spec.ObjectStorage != nil {

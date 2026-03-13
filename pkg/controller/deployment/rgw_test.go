@@ -864,7 +864,13 @@ func TestEnsureRgwObject(t *testing.T) {
 			name: "ensure rgw - external rgw spec without external endpoints - create failed",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					External: &[]bool{true}[0],
+					Cluster: &cephlcmv1alpha1.CephCluster{
+						ClusterSpec: cephv1.ClusterSpec{
+							External: cephv1.ExternalSpec{
+								Enable: true,
+							},
+						},
+					},
 					ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
 						Rgw: &cephlcmv1alpha1.CephRGW{Name: "rgw-store"},
 					},
@@ -941,6 +947,7 @@ func TestEnsureRgwObject(t *testing.T) {
 			name: "ensure rgw - multiste rgw failed with unknown zone",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: &cephlcmv1alpha1.CephCluster{},
 					ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
 						Rgw: unitinputs.CephDeployMultisiteMasterRgw.Spec.ObjectStorage.Rgw,
 					},
@@ -955,6 +962,7 @@ func TestEnsureRgwObject(t *testing.T) {
 			name: "ensure rgw - multiste rgw failed with invalid zone",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: &cephlcmv1alpha1.CephCluster{},
 					ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
 						Rgw: unitinputs.CephDeployMultisiteMasterRgw.Spec.ObjectStorage.Rgw,
 						MultiSite: &cephlcmv1alpha1.CephMultiSite{

@@ -96,9 +96,7 @@ type CephDeploymentSpec struct {
 	// sharedFilesystem.cephFilesystems.[*].metadataServer.{placement,resources} for mds daemon
 	// +optional
 	HyperConverge *CephDeploymentHyperConverge `json:"hyperconverge,omitempty"`
-	// Deprecated parameter, cluster.healthCheck should be used instead for mon,osd,mgr daemons,
-	// objectStorage.objectStores.[*].healthCheck for rgw daemon
-	// sharedFilesystem.cephFilesystems.[*].metadataServer.{livenessProbe,startupProbe} for mds daemon
+	// Deprecated parameter, cluster.healthCheck should be used instead
 	// +optional
 	HealthCheck *CephClusterHealthCheckSpec `json:"healthCheck,omitempty"`
 	// Deprecated parameter, blockStorage.pools should be used instead

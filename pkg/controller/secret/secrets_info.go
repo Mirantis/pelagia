@@ -34,7 +34,7 @@ func (c *cephDeploymentSecretConfig) getSecretsStatusInfo() (*cephlcmv1alpha1.Ce
 	secretsInfo := cephlcmv1alpha1.CephDeploymentSecretsInfo{}
 	infoIssues := []string{}
 
-	clientSecrets, issues := c.getClientSecrets(c.secretsConfig.cephDpl.Spec.External != nil)
+	clientSecrets, issues := c.getClientSecrets(c.secretsConfig.cephDpl.Spec.Cluster.External.Enable)
 	if len(clientSecrets) > 0 {
 		secretsInfo.ClientSecrets = clientSecrets
 	}
