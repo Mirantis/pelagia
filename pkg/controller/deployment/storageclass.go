@@ -37,7 +37,7 @@ func getStorageClassNameCephFS(cephFsName string, poolName string) string {
 	return fmt.Sprintf("%s-%s", cephFsName, poolName)
 }
 
-func generateStorageClassPoolBased(clusterid string, pool cephlcmv1alpha1.CephPool, namespace string, isExternal bool) *v1storage.StorageClass {
+func generateStorageClassPoolBased(clusterid string, pool cephlcmv1alpha1.CephPoolOld, namespace string, isExternal bool) *v1storage.StorageClass {
 	poolName := buildPoolName(pool)
 	storageclass := v1storage.StorageClass{
 		ObjectMeta: metav1.ObjectMeta{
@@ -134,7 +134,7 @@ func (c *cephDeploymentConfig) ensureStorageClasses() (bool, error) {
 
 	for _, cephDplPool := range c.cdConfig.cephDpl.Spec.Pools {
 		poolName := buildPoolName(cephDplPool)
-		storageResource := generateStorageClassPoolBased(c.lcmConfig.RookNamespace, cephDplPool, c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Spec.External)
+		storageResource := generateStorageClassPoolBased(c.lcmConfig.RookNamespace, cephDplPool, c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Spec.External != nil)
 		found := false
 		for _, storageClass := range storageClassesList.Items {
 			if poolName == storageClass.Name {
@@ -215,7 +215,7 @@ func (c *cephDeploymentConfig) ensureStorageClasses() (bool, error) {
 	errMsg := make([]error, 0)
 	updated := len(storageClassesToCreate) > 0 || len(storageClassesToUpdate) > 0 || len(storageClassesToDelete) > 0
 
-	err = c.createStorageClasses(storageClassesToCreate, c.cdConfig.cephDpl.Spec.External)
+	err = c.createStorageClasses(storageClassesToCreate, c.cdConfig.cephDpl.Spec.External != nil)
 	if err != nil {
 		c.log.Error().Err(err).Msg("failed to create storageclasses")
 		errMsg = append(errMsg, errors.Wrap(err, "failed to create storageclasses"))

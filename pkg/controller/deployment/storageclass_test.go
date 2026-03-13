@@ -34,7 +34,7 @@ import (
 func TestGenerateStorageClassPoolBased(t *testing.T) {
 	tests := []struct {
 		name        string
-		cephDplPool cephlcmv1alpha1.CephPool
+		cephDplPool cephlcmv1alpha1.CephPoolOld
 		isExternal  bool
 		expected    *v1storage.StorageClass
 	}{
@@ -58,7 +58,7 @@ func TestGenerateStorageClassPoolBased(t *testing.T) {
 		},
 		{
 			name: "generate storageclass - useAsFullName enabled",
-			cephDplPool: func() cephlcmv1alpha1.CephPool {
+			cephDplPool: func() cephlcmv1alpha1.CephPoolOld {
 				cephDplPoolStorageClassUseAsFullName := unitinputs.GetCephDeployPool("pool1", "fake")
 				cephDplPoolStorageClassUseAsFullName.UseAsFullName = true
 				return cephDplPoolStorageClassUseAsFullName
@@ -71,7 +71,7 @@ func TestGenerateStorageClassPoolBased(t *testing.T) {
 		},
 		{
 			name: "generate storageclass - allowVolumeExtensions enabled",
-			cephDplPool: func() cephlcmv1alpha1.CephPool {
+			cephDplPool: func() cephlcmv1alpha1.CephPoolOld {
 				cephDplPoolStorageClassUseAsFullName := unitinputs.GetCephDeployPool("pool1", "fake")
 				cephDplPoolStorageClassUseAsFullName.StorageClassOpts.AllowVolumeExpansion = true
 				return cephDplPoolStorageClassUseAsFullName
@@ -81,7 +81,7 @@ func TestGenerateStorageClassPoolBased(t *testing.T) {
 		},
 		{
 			name: "generate storageclass - rbd options present",
-			cephDplPool: func() cephlcmv1alpha1.CephPool {
+			cephDplPool: func() cephlcmv1alpha1.CephPoolOld {
 				cephDplPoolStorageClassMapOptions := unitinputs.GetCephDeployPool("pool1", "fake")
 				cephDplPoolStorageClassMapOptions.StorageClassOpts.MapOptions = "nocephx_sign_messages,nocephx_require_signatures"
 				cephDplPoolStorageClassMapOptions.StorageClassOpts.UnmapOptions = "force,noudev"
@@ -99,7 +99,7 @@ func TestGenerateStorageClassPoolBased(t *testing.T) {
 		},
 		{
 			name: "generate storageclass - reclaimPolicy present",
-			cephDplPool: func() cephlcmv1alpha1.CephPool {
+			cephDplPool: func() cephlcmv1alpha1.CephPoolOld {
 				mc := unitinputs.GetCephDeployPool("pool1", "fake")
 				mc.StorageClassOpts.ReclaimPolicy = "Retain"
 				return mc

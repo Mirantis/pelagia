@@ -70,49 +70,125 @@ spec:
               Spec defines the desired configuration of resulting Ceph Cluster
               and all corresponding resources
             properties:
+              blockStorage:
+                description: |-
+                  BlockStorage stands for configuration Ceph block storage,
+                  such as rbd pool and rbd mirroring
+                properties:
+                  pools:
+                    description: Pools is a list of Ceph RBD Pools configurations
+                    items:
+                      description: |-
+                        CephPool stands for specified Ceph RBD Pool configuration
+                        Follow https://rook.io/docs/rook/v1.19/CRDs/Block-Storage/ceph-block-pool-crd
+                        for available options
+                      properties:
+                        name:
+                          description: Name represents Ceph RBD pool name
+                          type: string
+                        preserveOnDelete:
+                          description: PreserveOnDelete prevents related CephBlockPool
+                            object removal
+                          type: boolean
+                        role:
+                          description: |-
+                            Role represents pool role. The following values are reserved for
+                            MOS managed clusters: vms, images, backup, volumes
+                          nullable: true
+                          type: string
+                        storageClassOpts:
+                          description: StorageClassOpts represents options to set
+                            on related storage class
+                          properties:
+                            allowVolumeExpansion:
+                              description: AllowVolumeExpansion allows to extend volumes
+                                sizes in pool
+                              type: boolean
+                            default:
+                              description: Default represents whether Ceph Pool's
+                                StorageClass would be default or not
+                              type: boolean
+                            imageFeatures:
+                              description: |-
+                                ImageFeatures is a comma-separated list of RBD image features,
+                                see: https://docs.ceph.com/en/latest/man/8/rbd/#cmdoption-rbd-image-feature
+                                Default is layering.
+                              nullable: true
+                              type: string
+                            mapOptions:
+                              description: MapOptions is a comma-separated list of
+                                kernel RBD map options
+                              nullable: true
+                              type: string
+                            reclaimPolicy:
+                              description: |-
+                                ReclaimPolicy stands for underlying StorageClass reclaimPolicy parameter.
+                                Default is 'Delete' if not set.
+                              nullable: true
+                              type: string
+                            unmapOptions:
+                              description: UnmapOptions is a comma-separated list
+                                of kernel RBD unmap options
+                              nullable: true
+                              type: string
+                          type: object
+                        useAsFullName:
+                          description: UseAsFullName uses Name as a resulting pool
+                            name instead of "<Name>-<DeviceClass>"
+                          type: boolean
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  rbdMirrors:
+                    description: RBDMirrors allows to configure RBD mirroring between
+                      two Ceph Clusters
+                    items:
+                      description: |-
+                        RBDMirrors allows to configure RBD mirroring between two Ceph Clusters
+                        Follow https://rook.io/docs/rook/v1.19/CRDs/Block-Storage/ceph-rbd-mirror-crd/
+                        for available options
+                      properties:
+                        name:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                type: object
               clients:
                 description: |-
                   Clients is a list of Ceph Clients used for Ceph Cluster connection by
                   consumer services
                 items:
-                  properties:
-                    caps:
-                      additionalProperties:
-                        type: string
-                      type: object
-                      x-kubernetes-preserve-unknown-fields: true
-                    name:
-                      type: string
-                    removeSecret:
-                      description: |-
-                        RemoveSecret indicates whether the current secret for this ceph client should be removed or not.
-                        If true, the K8s secret will be deleted, but the cephx keyring will remain until the CR is deleted.
-                      type: boolean
-                    secretName:
-                      description: |-
-                        SecretName is the name of the secret created for this ceph client.
-                        If not specified, the default name is "rook-ceph-client-" as a prefix to the CR name.
-                      type: string
-                  required:
-                  - caps
+                  description: |-
+                    CephClient stands for clients for application connections configuration
+                    https://rook.io/docs/rook/v1.19/CRDs/ceph-client-crd/
+                    for available options
                   type: object
                 type: array
+              cluster:
+                description: |-
+                  Cluster stands for main Ceph cluster configuration
+                  Required to be specified.
+                type: object
               dashboard:
+                description: Deprecated parameter, cluster.dashboard.enabled should
+                  be used instead
                 type: boolean
               dataDirHostPath:
-                description: |-
-                  DataDirHostPath is a default hostPath directory where Rook stores all
-                  valuable info. Equals to '/var/lib/rook' by default
+                description: Deprecated parameter, cluster.dataDirHostPath should
+                  be used instead
                 nullable: true
                 type: string
               external:
-                description: |-
-                  External enables usage of external Ceph Cluster connected to pkg
-                  Container Cloud cluster instead of local Ceph Cluster
+                description: Deprecated parameter, cluster.external.enabled should
+                  be used instead
                 type: boolean
               extraOpts:
-                description: ExtraOpts contains some extra options for managing Ceph
-                  cluster, like devices labels
+                description: |-
+                  ExtraOpts contains some extra options for managing Ceph cluster, like devices labels,
+                  provided by Pelagia controller.
                 properties:
                   customDeviceClasses:
                     description: Custom devices classes different from default classes
@@ -148,11 +224,15 @@ spec:
                       PreventClusterDestroy option is used to avoid occasional cluster remove.
                       Option should be dropped in case of real cluster remove.
                     type: boolean
+                  skipAutoZoneGroupHostnameUpdate:
+                    description: |-
+                      Disable auto update allowed RGW hostnames for zone group
+                      By default is enabled, but ignored for multisite.
+                    type: boolean
                 type: object
               healthCheck:
-                description: |-
-                  HealthCheck provides an ability to configure pkg daemon healthchecks
-                  and liveness probe settings for mon,mgr,osd daemons
+                description: Deprecated parameter, cluster.healthCheck should be used
+                  instead
                 properties:
                   daemonHealth:
                     description: DaemonHealth contains health check settings for ceph
@@ -542,9 +622,9 @@ spec:
                 type: object
               hyperconverge:
                 description: |-
-                  HyperConverge provides an ability to configure resources requests and limitations
-                  for Ceph Daemons. Also provides an ability to spawn those Ceph Daemons on a tainted
-                  nodes
+                  Deprecated parameter, cluster.{placement,resources} should be used instead for mon,osd,mgr daemons,
+                  objectStorage.objectStores.[*].gateway.{placement,resources} for rgw daemon
+                  sharedFilesystem.cephFilesystems.[*].metadataServer.{placement,resources} for mds daemon
                 properties:
                   resources:
                     additionalProperties:
@@ -719,8 +799,7 @@ spec:
                     type: object
                 type: object
               mgr:
-                description: Mgr contains a list of Ceph Manager modules to enable
-                  in Ceph Cluster
+                description: Deprecated parameter, cluster.mgr should be used instead
                 properties:
                   mgrModules:
                     description: MgrModules is a list of Ceph Manager modules names
@@ -750,10 +829,8 @@ spec:
                     type: array
                 type: object
               network:
-                description: |-
-                  Network is a section which defines the specific network range(s)
-                  for Ceph daemons to communicate with each other and the an external
-                  connections
+                description: Deprecated parameter, cluster.network should be used
+                  instead
                 properties:
                   clusterNet:
                     description: ClusterNet defines pkg network for Ceph Daemons intra-communication
@@ -782,8 +859,10 @@ spec:
                 - publicNet
                 type: object
               nodes:
-                description: Nodes contains full cluster nodes configuration to use
-                  as Ceph Nodes
+                description: |-
+                  Nodes contains full cluster nodes configuration to use as Ceph Nodes.
+                  Allow to template and group Ceph nodes and assign required Ceph nodes on them.
+                  Required to be specified for non-external clusters.
                 items:
                   description: CephDeploymentNode contains specific node configuration
                     to use it in Ceph Cluster
@@ -1146,12 +1225,10 @@ spec:
                   type: object
                 type: array
               objectStorage:
-                description: |-
-                  ObjectStorage contains full RadosGW Object Storage configurations: RGW itself
-                  and RGW multisite feature
+                description: ObjectStorage contains full RadosGW Object Storage configurations
                 properties:
                   multiSite:
-                    description: MultiSite represents Ceph RadosGW multisite/multizone
+                    description: CephMultiSite represents Ceph RadosGW multisite/multizone
                       feature settings
                     properties:
                       realms:
@@ -1420,8 +1497,107 @@ spec:
                     - zoneGroups
                     - zones
                     type: object
+                  objectBuckets:
+                    description: ObjectBuckets is a list of buckets to create in object
+                      storage
+                    items:
+                      description: |-
+                        CephObjectBucketClaim stands for creation of new buckets and access to existing buckets.
+                        https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-bucket-claim
+                        for available options
+                      properties:
+                        name:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  objectRealms:
+                    description: |-
+                      ObjectRealms is a list of Ceph Object storage multisite realms.
+                      Currently is possible to specify only 1 realm.
+                    items:
+                      description: |-
+                        CephObjectRealm stands for object store multisite realm creation and configuration.
+                        https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-realm-crd/
+                        for available options
+                      properties:
+                        name:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    maxItems: 1
+                    type: array
+                  objectStoreUsers:
+                    description: |-
+                      ObjectStoreUsers is a list of user to create for object storage
+                      with radosgw-admin
+                    items:
+                      description: |-
+                        CephObjectStoreUser stands for configuration of object store users.
+                        https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-user-crd/
+                        for available options
+                      properties:
+                        name:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  objectStores:
+                    description: |-
+                      ObjectStores represents Ceph RadosGW configurations.
+                      At least one object store required to specify.
+                    items:
+                      description: |-
+                        CephObjectStore stands for configuration of object store.
+                        Follow https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-crd/
+                        for available options
+                      properties:
+                        name:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    minItems: 1
+                    type: array
+                  objectZonegroups:
+                    description: |-
+                      ObjectZonegroups is a list of Ceph Object storage multisite zonegroups.
+                      Currently is possible to specify only 1 zonegroup.
+                    items:
+                      description: |-
+                        CephObjectZonegroup stands for object store multisite zonegroup creation and configuration.
+                        https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zonegroup-crd/
+                        for available options
+                      properties:
+                        name:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    maxItems: 1
+                    type: array
+                  objectZones:
+                    description: |-
+                      ObjectZones is a list of Ceph Object storage multisite zones.
+                      Currently is possible to specify only 1 zone.
+                    items:
+                      description: |-
+                        CephObjectZone stands for object store multisite zone creation and configuration.
+                        https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zone-crd/
+                        for available options
+                      properties:
+                        name:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    maxItems: 1
+                    type: array
                   rgw:
-                    description: Rgw represents Ceph RadosGW settings
+                    description: Deprecated parameters
                     properties:
                       SSLCert:
                         description: SSLCert used for access to RGW Gateway endpoint,
@@ -2314,10 +2490,11 @@ spec:
                     - name
                     type: object
                 required:
-                - rgw
+                - objectStores
                 type: object
               pools:
-                description: Pools is a list of Ceph RBD Pools configurations
+                description: Deprecated parameter, blockStorage.pools should be used
+                  instead
                 items:
                   description: CephPool stands for specified Ceph RBD Pool configuration
                   properties:
@@ -2457,8 +2634,8 @@ spec:
                   type: object
                 type: array
               rbdMirror:
-                description: RBDMirror allows to configure RBD mirroring between two
-                  Ceph Clusters
+                description: Deprecated parameter, blockStorage.rbdMirrors should
+                  be used instead
                 properties:
                   daemonsCount:
                     description: Count of rbd-mirror daemons to spawn
@@ -2494,15 +2671,15 @@ spec:
               rookConfig:
                 additionalProperties:
                   type: string
-                description: RookConfig is a key-value mapping which contains ceph
-                  config keys with a specified values
+                description: |-
+                  RookConfig is a key-value mapping which contains ceph config keys with a specified values
+                  to be applied on Ceph cluster.
                 type: object
               sharedFilesystem:
-                description: SharedFilesystem enables such system as CephFS
+                description: SharedFilesystem stands for configuration CephFilesystem
                 properties:
                   cephFS:
-                    description: CephFS to create. Multiple CephFS available to deploy
-                      for clusters with Ceph Reef or above
+                    description: Deprecated
                     items:
                       properties:
                         dataPools:
@@ -3128,11 +3305,22 @@ spec:
                       - name
                       type: object
                     type: array
+                  cephFilesystems:
+                    description: CephFilesystems to create and configure.
+                    items:
+                      description: |-
+                        CephFilesystem stands for object store multisite zone creation and configuration.
+                        https://rook.io/docs/rook/v1.19/CRDs/Shared-Filesystem/ceph-filesystem-crd/
+                        for available options
+                      properties:
+                        name:
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    minItems: 1
+                    type: array
                 type: object
-            required:
-            - dashboard
-            - network
-            - nodes
             type: object
           status:
             description: Status represents current status of handling Ceph Cluster

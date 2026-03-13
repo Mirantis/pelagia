@@ -45,7 +45,7 @@ func (c *cephDeploymentConfig) ensureCephClients() (bool, error) {
 
 	// If there is any additional OpenStack clients required, add them to clients list
 	cephDplClients := c.cdConfig.cephDpl.Spec.Clients
-	if !c.cdConfig.cephDpl.Spec.External && lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) {
+	if c.cdConfig.cephDpl.Spec.External == nil && lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) {
 		osClients, err := c.calculateOpenStackClients()
 		if err != nil {
 			return false, errors.Wrap(err, "failed to calculate OpenStack CephClients")

@@ -180,7 +180,7 @@ func (c *cephDeploymentConfig) verifyBuiltinPools() (bool, error) {
 				poolSpec = defaultPool
 			}
 			poolSpec.EnableCrushUpdates = &[]bool{true}[0]
-			builtinCephPool := generatePool(cephlcmv1alpha1.CephPool{
+			builtinCephPool := generatePool(cephlcmv1alpha1.CephPoolOld{
 				Name:          cephpool,
 				UseAsFullName: true,
 				CephPoolSpec:  *poolSpec,

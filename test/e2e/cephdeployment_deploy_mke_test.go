@@ -84,12 +84,12 @@ func TestDeployCephDeploymentMKE(t *testing.T) {
 			Namespace: f.TF.ManagedCluster.LcmNamespace,
 		},
 		Spec: cephlcmv1alpha1.CephDeploymentSpec{
-			Network: cephlcmv1alpha1.CephNetworkSpec{
+			Network: &cephlcmv1alpha1.CephNetworkSpec{
 				ClusterNet: testConfig["clusterNet"],
 				PublicNet:  testConfig["publicNet"],
 			},
 			ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
-				Rgw: cephlcmv1alpha1.CephRGW{
+				Rgw: &cephlcmv1alpha1.CephRGW{
 					Name: "rgw-store",
 					Gateway: cephlcmv1alpha1.CephRGWGateway{
 						Instances:  1,
@@ -111,7 +111,7 @@ func TestDeployCephDeploymentMKE(t *testing.T) {
 					},
 				},
 			},
-			Pools: []cephlcmv1alpha1.CephPool{
+			Pools: []cephlcmv1alpha1.CephPoolOld{
 				{
 					Name:             "kubernetes",
 					StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{Default: true},

@@ -27,6 +27,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/pkg/errors"
+	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 
@@ -199,7 +200,7 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	poolsSection := make([]cephlcmv1alpha1.CephPool, len(rbdPoolsForShare))
+	poolsSection := make([]cephlcmv1alpha1.CephPoolOld, len(rbdPoolsForShare))
 	for idx, sharePool := range rbdPoolsForShare {
 		poolFound := false
 		for _, pool := range cd.Spec.Pools {
@@ -266,7 +267,7 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 			osdCaps = append(osdCaps, "allow rw tag cephfs *=*")
 		}
 		client := cephlcmv1alpha1.CephClient{
-			ClientSpec: cephlcmv1alpha1.ClientSpec{
+			ClientSpec: cephv1.ClientSpec{
 				Name: testClientName,
 				Caps: map[string]string{
 					"mgr": "allow r",
@@ -319,11 +320,11 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 			Namespace: externalClusterNamespace,
 		},
 		Spec: cephlcmv1alpha1.CephDeploymentSpec{
-			Network: cephlcmv1alpha1.CephNetworkSpec{
+			Network: &cephlcmv1alpha1.CephNetworkSpec{
 				ClusterNet: cd.Spec.Network.ClusterNet,
 				PublicNet:  cd.Spec.Network.PublicNet,
 			},
-			External:         true,
+			External:         &[]bool{true}[0],
 			Nodes:            []cephlcmv1alpha1.CephDeploymentNode{},
 			Pools:            poolsSection,
 			SharedFilesystem: cephFSSection,

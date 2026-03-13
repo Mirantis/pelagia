@@ -40,7 +40,7 @@ func IsClusterMaintenanceActing(ctx context.Context, cephLcmclientset lcmclient.
 	return cdm.Status != nil && (cdm.Status.State == cephlcmv1alpha1.MaintenanceActing || cdm.Status.State == cephlcmv1alpha1.MaintenanceFailing), nil
 }
 
-func IsOpenStackPoolsPresent(pools []cephlcmv1alpha1.CephPool) bool {
+func IsOpenStackPoolsPresent(pools []cephlcmv1alpha1.CephPoolOld) bool {
 	// since on validation stage we are checking that pools section is correct
 	// we can just simply check any openstack pool existence now
 	expectedRoles := []string{"images", "vms", "backup", "volumes"}

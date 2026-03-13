@@ -40,7 +40,7 @@ func TestCreateCephClient(t *testing.T) {
 		t.Fatal(err)
 	}
 	testClient := cephlcmv1alpha1.CephClient{
-		ClientSpec: cephlcmv1alpha1.ClientSpec{
+		ClientSpec: cephv1.ClientSpec{
 			Name: "test-e2e-client",
 			Caps: map[string]string{"mon": "allow r, allow command \"osd blacklist\""},
 		},

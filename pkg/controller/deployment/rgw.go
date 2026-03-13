@@ -68,7 +68,7 @@ func (c *cephDeploymentConfig) ensureRgw() (bool, error) {
 	rgwConfigurationChanged = rgwConfigurationChanged || changed
 
 	errMsg := make([]error, 0)
-	if !c.cdConfig.cephDpl.Spec.External && rgwStoreExists {
+	if c.cdConfig.cephDpl.Spec.External == nil && rgwStoreExists {
 		// we are not support auto hostname update if:
 		// - version below octopus, that means migration is in progress
 		// - multisite case and hostnames should be updated manually with script
@@ -103,7 +103,7 @@ func (c *cephDeploymentConfig) ensureRgw() (bool, error) {
 	rgwConfigurationChanged = rgwConfigurationChanged || changed
 
 	// if openstack pools are present - create ceilomenter metrics user as well
-	if lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) && !c.cdConfig.cephDpl.Spec.External {
+	if lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) && c.cdConfig.cephDpl.Spec.External == nil {
 		serviceUsers := []cephlcmv1alpha1.CephRGWUser{
 			{
 				Name:        rgwMetricsUser,
@@ -127,7 +127,7 @@ func (c *cephDeploymentConfig) ensureRgw() (bool, error) {
 	}
 	rgwConfigurationChanged = rgwConfigurationChanged || changed
 
-	if !c.cdConfig.cephDpl.Spec.External {
+	if c.cdConfig.cephDpl.Spec.External == nil {
 		// Ensure rgw external service (for openstack keystone integration)
 		c.log.Debug().Msg("ensure rgw external service")
 		changed, err = c.ensureExternalService()
@@ -243,13 +243,13 @@ func (c *cephDeploymentConfig) ensureRgwObject() (bool, error) {
 	cephDplRGW := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw
 	namespace := c.lcmConfig.RookNamespace
 	rgwStores := []*cephv1.CephObjectStore{}
-	if c.cdConfig.cephDpl.Spec.External {
+	if c.cdConfig.cephDpl.Spec.External != nil {
 		// secret is required for RGW external work
 		_, err := c.api.Kubeclientset.CoreV1().Secrets(namespace).Get(c.context, rgwAdminUserSecretName, metav1.GetOptions{})
 		if err != nil {
 			return false, errors.Wrapf(err, "failed to get rgw admin user secret %s/%s", namespace, rgwAdminUserSecretName)
 		}
-		rgwExtResource, err := generateRgwExternal(cephDplRGW, namespace)
+		rgwExtResource, err := generateRgwExternal(*cephDplRGW, namespace)
 		if err != nil {
 			return false, errors.Wrap(err, "failed to generate external rgw")
 		}
@@ -277,11 +277,11 @@ func (c *cephDeploymentConfig) ensureRgwObject() (bool, error) {
 				break
 			}
 		}
-		rgwMainResource := generateRgw(cephDplRGW, namespace, useDedicatedNodes, false, isDefaultRealm, c.cdConfig.cephDpl.Spec.HyperConverge)
+		rgwMainResource := generateRgw(*cephDplRGW, namespace, useDedicatedNodes, false, isDefaultRealm, c.cdConfig.cephDpl.Spec.HyperConverge)
 		rgwStores = append(rgwStores, rgwMainResource)
 		// if multisite requires split traffic for sync - create separate daemon
 		if c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite != nil && cephDplRGW.Gateway.SplitDaemonForMultisiteTrafficSync {
-			rgwSyncResource := generateRgw(cephDplRGW, namespace, useDedicatedNodes, true, isDefaultRealm, c.cdConfig.cephDpl.Spec.HyperConverge)
+			rgwSyncResource := generateRgw(*cephDplRGW, namespace, useDedicatedNodes, true, isDefaultRealm, c.cdConfig.cephDpl.Spec.HyperConverge)
 			rgwStores = append(rgwStores, rgwSyncResource)
 		}
 	}
@@ -896,7 +896,7 @@ func generateRgwExternal(cephDplRGW cephlcmv1alpha1.CephRGW, namespace string) (
 
 func (c *cephDeploymentConfig) ensureRgwInternalSslCert() (bool, error) {
 	publicCacert := ""
-	if !c.cdConfig.cephDpl.Spec.External && c.cdConfig.cephDpl.Spec.IngressConfig != nil {
+	if c.cdConfig.cephDpl.Spec.External == nil && c.cdConfig.cephDpl.Spec.IngressConfig != nil {
 		tlsConfig := getIngressTLS(c.cdConfig.cephDpl)
 		if tlsConfig != nil {
 			if tlsConfig.TLSCerts != nil {

@@ -992,7 +992,7 @@ func TestReconcile(t *testing.T) {
 				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{
 					func() cephlcmv1alpha1.CephDeployment {
 						mc := unitinputs.CephDeployExternal.DeepCopy()
-						mc.Spec.Pools = []cephlcmv1alpha1.CephPool{
+						mc.Spec.Pools = []cephlcmv1alpha1.CephPoolOld{
 							*unitinputs.CephDeployPoolReplicated.DeepCopy(),
 						}
 						mc.Status.ClusterVersion = unitinputs.LatestCephVersionImage
@@ -1038,7 +1038,7 @@ func TestReconcile(t *testing.T) {
 				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{
 					func() cephlcmv1alpha1.CephDeployment {
 						mc := unitinputs.CephDeployExternal.DeepCopy()
-						mc.Spec.Pools = []cephlcmv1alpha1.CephPool{
+						mc.Spec.Pools = []cephlcmv1alpha1.CephPoolOld{
 							*unitinputs.CephDeployPoolReplicated.DeepCopy(),
 						}
 						mc.Status.ClusterVersion = unitinputs.LatestCephVersionImage
@@ -1142,7 +1142,7 @@ func TestReconcile(t *testing.T) {
 				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{
 					func() cephlcmv1alpha1.CephDeployment {
 						mc := unitinputs.CephDeployExternal.DeepCopy()
-						mc.Spec.Pools = []cephlcmv1alpha1.CephPool{
+						mc.Spec.Pools = []cephlcmv1alpha1.CephPoolOld{
 							*unitinputs.CephDeployPoolReplicated.DeepCopy(),
 						}
 						mc.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{
@@ -1344,7 +1344,7 @@ func TestCleanCephDeployment(t *testing.T) {
 	}
 
 	cephDplExternal := unitinputs.CephDeployExternal.DeepCopy()
-	cephDplExternal.Spec.Pools = []cephlcmv1alpha1.CephPool{*unitinputs.CephDeployPoolReplicated.DeepCopy()}
+	cephDplExternal.Spec.Pools = []cephlcmv1alpha1.CephPoolOld{*unitinputs.CephDeployPoolReplicated.DeepCopy()}
 	inputResourcesExternal := map[string]runtime.Object{
 		"cephclusters":               &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.CephClusterExternal.DeepCopy()}},
 		"cephclients":                &cephv1.CephClientList{Items: []cephv1.CephClient{*unitinputs.CephClientGlance.DeepCopy()}},
@@ -1899,7 +1899,7 @@ func TestApplyConfiguration(t *testing.T) {
 	}
 	externalCephDplButWithCommonFields := fullCephDplSpec.DeepCopy()
 	externalCephDplButWithCommonFields.ObjectMeta = unitinputs.CephDeployExternal.ObjectMeta
-	externalCephDplButWithCommonFields.Spec.External = true
+	externalCephDplButWithCommonFields.Spec.External = &[]bool{true}[0]
 	externalCephDplButWithCommonFields.Spec.ObjectStorage = unitinputs.CephDeployExternalRgw.Spec.ObjectStorage.DeepCopy()
 
 	inputResourcesForApply := map[string]runtime.Object{
