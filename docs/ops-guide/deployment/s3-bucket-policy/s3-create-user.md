@@ -34,6 +34,8 @@ configure their S3 credentials.
              user: read
    ```
 
+     {% include "../../../snippets/objStorUserFormat.md" %}
+
 3. Verify that `rgwUserSecrets` are created for both users:
    ```bash
    kubectl -n pelagia get cephdeploymentsecret -o yaml
@@ -63,7 +65,7 @@ configure their S3 credentials.
      Substitute the corresponding `secretNamespace` and `secretName` for both
      users.
 
-5. Obtain Ceph Object Storage public endpoint from the  `CephDeploymentHealth` status:
+5. Obtain Ceph Object Storage public endpoint from the `CephDeploymentHealth` status:
    ```bash
    kubectl -n pelagia get cephdeploymenthealth -o yaml | grep publicEndpoint
    ```

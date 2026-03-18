@@ -29,11 +29,7 @@ For the procedure workflow, see [Creating a Ceph OSD remove task](../../ops-guid
       Defaults to `false`. If set to `true`, the device will not be cleaned up, but
       OSDs running on this device will be removed from the CRUSH map and deleted.
 
-    !!! warning
-
-        We do not recommend using device name or device `by-path` symlink in the `cleanupByDevice` field
-        as these identifiers are not persistent and can change at node boot. Remove
-        Ceph OSDs with device `by-id` symlinks or use `cleanupByOsd` instead.
+    {% include "../../snippets/cleanupByDeviceValue.md" %}
 
 - `cleanupByOsd` - List of Ceph OSD IDs to remove. Mutually exclusive with
   `completeCleanUp` and `cleanupByDevice`. Includes the following parameters:

@@ -35,6 +35,8 @@ For all supported parameters of Ceph Object Storage users, refer to
                maxSize: 10G
      ```
 
+     {% include "../../../snippets/objStorUserFormat.md" %}
+
 2. Wait for the created user to become ready in the `CephDeploymentHealth` status:
    ```bash
    kubectl -n pelagia get cephdeploymenthealth -o yaml

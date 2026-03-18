@@ -27,12 +27,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
     not supported if a device was physically removed from a node. Therefore, use
     `cleanupByOsdId` instead.
 
-!!! warning
-
-     We do not recommend setting device name or device `by-path` symlink in the `cleanupByDevice` field
-     as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with `by-id`
-     symlinks or use `cleanupByOsdId` instead. For details, see
-     [Addressing Ceph storage devices](../../architecture/addressing-ceph-devices.md#addressing-ceph-devices-addressing-ceph-storage-devices).
+{% include "../../snippets/rawDeviceCleanup.md" %}
 
 1. Open the `CephDeployment` CR for editing:
    ```bash
@@ -317,32 +312,17 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
 <a name="replace-ceph-osd-deploy-a-new-device-after-removal-of-a-failed-one"></a>
 ## Deploy a new device after removal of a failed one
 
-!!! note
-
-    You can spawn Ceph OSD on a raw device, but it must be clean and
-    without any data or partitions. If you want to add a device that was in use,
-    also ensure it is raw and clean. To clean up all data and partitions from a
-    device, refer to official
-    [Rook documentation](https://github.com/rook/rook/blob/master/Documentation/Storage-Configuration/ceph-teardown.md#zapping-devices).
-
 1. Manually prepare the replacement device on the existing node.
 
-2. Optional. If you want to add a Ceph OSD on top of a **raw** device that already exists
-   on a node or is **hot-plugged**, add the required device using the following
-   guidelines:
+    {% include "../../snippets/rawDeviceCleanup.md" %}
+    {% include "../../snippets/osdRawDevice.md" %}
 
-    - You can add a raw device to a node during node deployment.
-    - If a node supports adding devices without a node reboot, you can hot plug
-      a raw device to a node.
-    - If a node does not support adding devices without a node reboot, you can
-      hot plug a raw device during node shutdown.
-
-3. Open the `CephDeployment` CR for editing:
+2. Open the `CephDeployment` CR for editing:
    ```bash
    kubectl -n pelagia edit cephdpl
    ```
 
-4. In the `nodes` section, add a new device:
+3. In the `nodes` section, add a new device:
    ```yaml
    spec:
      nodes:
@@ -358,7 +338,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
      Substitute `<nodeName>` with the node name where device `<deviceName>`
      or `<deviceByPath>` is going to be added as a Ceph OSD.
 
-5. Verify that the Ceph OSD on the specified node is successfully deployed. The
+4. Verify that the Ceph OSD on the specified node is successfully deployed. The
    `CephDeploymentHealth` CR `status.healthReport.cephDaemons.cephDaemons` section should not contain any issues.
    ```bash
    kubectl -n pelagia get cephdeploymenthealth -o yaml
@@ -376,7 +356,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
                status: ok
      ```
 
-6. Verify the desired Ceph OSD pod is `Running`:
+5. Verify the desired Ceph OSD pod is `Running`:
    ```bash
    kubectl -n rook-ceph get pod -l app=rook-ceph-osd -o wide | grep <nodeName>
    ```
