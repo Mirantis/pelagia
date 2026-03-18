@@ -44,7 +44,7 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 			c.log.Error().Msg(err)
 			errMsgs = append(errMsgs, err)
 		}
-		if !c.cdConfig.cephDpl.Spec.External && (cephDplPool.ErasureCoded == nil && cephDplPool.Replicated == nil ||
+		if c.cdConfig.cephDpl.Spec.External == nil && (cephDplPool.ErasureCoded == nil && cephDplPool.Replicated == nil ||
 			cephDplPool.ErasureCoded != nil && cephDplPool.Replicated != nil) {
 			err := fmt.Sprintf("CephDeployment pool %s spec should contain either replicated or erasureCoded spec", cephDplPool.Name)
 			c.log.Error().Msg(err)
@@ -62,12 +62,12 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 		}
 	}
 	// do not fail for external case - may only CephFS be specified for usage
-	if !defaultFound && !c.cdConfig.cephDpl.Spec.External {
+	if !defaultFound && c.cdConfig.cephDpl.Spec.External == nil {
 		err := "CephDeployment has no default pool specified"
 		c.log.Error().Msg(err)
 		errMsgs = append(errMsgs, err)
 	}
-	if !c.cdConfig.cephDpl.Spec.External {
+	if c.cdConfig.cephDpl.Spec.External == nil {
 		for _, node := range c.cdConfig.cephDpl.Spec.Nodes {
 			if node.UseAllDevices != nil && *node.UseAllDevices {
 				errMsg := fmt.Sprintf("detected using 'useAllDevices' for '%s' node item, which is not supported", node.Name)
@@ -276,7 +276,7 @@ func cephSharedFilesystemValidate(cephDpl *cephlcmv1alpha1.CephDeployment, rookN
 				}
 			}
 			// do not count mds roles for external cluster
-			if !cephDpl.Spec.External {
+			if cephDpl.Spec.External == nil {
 				mdsCount := 0
 				for _, node := range nodesListExpanded {
 					if lcmcommon.Contains(node.Roles, "mds") {
@@ -388,7 +388,7 @@ func validateObjectStorage(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExp
 	}
 
 	if cephDpl.Spec.ObjectStorage != nil {
-		if cephDpl.Spec.External {
+		if cephDpl.Spec.External != nil {
 			if cephDpl.Spec.ObjectStorage.Rgw.MetadataPool != nil || cephDpl.Spec.ObjectStorage.Rgw.DataPool != nil {
 				issues = append(issues, "rgw in external mode, pools (metadata and data) specification is not allowed")
 			}

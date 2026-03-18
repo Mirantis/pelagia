@@ -653,7 +653,7 @@ func TestValidate(t *testing.T) {
 			name: "validate incorrect network section, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.Network = cephlcmv1alpha1.CephNetworkSpec{
+				cd.Spec.Network = &cephlcmv1alpha1.CephNetworkSpec{
 					PublicNet: "0.0.0.0/0",
 				}
 				return cd
@@ -672,7 +672,7 @@ func TestValidate(t *testing.T) {
 			name: "validate incorrect network provider, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.Network = cephlcmv1alpha1.CephNetworkSpec{
+				cd.Spec.Network = &cephlcmv1alpha1.CephNetworkSpec{
 					Provider: "local",
 				}
 				return cd
@@ -690,7 +690,7 @@ func TestValidate(t *testing.T) {
 			name: "validate empty multus network params, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.Network = cephlcmv1alpha1.CephNetworkSpec{
+				cd.Spec.Network = &cephlcmv1alpha1.CephNetworkSpec{
 					Provider: "multus",
 					Selector: map[cephv1.CephNetworkType]string{},
 				}
@@ -709,7 +709,7 @@ func TestValidate(t *testing.T) {
 			name: "validate correct multus network, success",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.Network = cephlcmv1alpha1.CephNetworkSpec{
+				cd.Spec.Network = &cephlcmv1alpha1.CephNetworkSpec{
 					Provider: "multus",
 					Selector: map[cephv1.CephNetworkType]string{
 						cephv1.CephNetworkPublic:  "127.0.0.1/24",

@@ -49,7 +49,7 @@ func (c *cephDeploymentConfig) ensureCluster() (bool, error) {
 		}
 	}
 	// prepare resources required for external case and pass cephcluster for owner refs
-	if c.cdConfig.cephDpl.Spec.External {
+	if c.cdConfig.cephDpl.Spec.External != nil {
 		var ownerRefs []metav1.OwnerReference
 		if cephClusterFound {
 			ownerRefs, err = lcmcommon.GetObjectOwnerRef(cephCluster, c.api.Scheme)
@@ -68,7 +68,7 @@ func (c *cephDeploymentConfig) ensureCluster() (bool, error) {
 	// already here so we should check rook-ceph-mon-endpoint cm existence separately
 	cephDeployed := isCephDeployed(c.context, *c.log, c.api.Kubeclientset, c.lcmConfig.RookNamespace)
 
-	if !c.cdConfig.cephDpl.Spec.External {
+	if c.cdConfig.cephDpl.Spec.External == nil {
 		configChanged, err := c.ensureCephConfig(cephClusterFound && cephDeployed)
 		if err != nil {
 			return false, errors.Wrapf(err, "failed to ensure ceph config for %s/%s cephcluster", c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Name)
@@ -234,7 +234,7 @@ func generateCephClusterSpec(cephDpl *cephlcmv1alpha1.CephDeployment, image stri
 		clusterSpec.DataDirHostPath = cephDpl.Spec.DataDirHostPath
 	}
 
-	if cephDpl.Spec.External {
+	if cephDpl.Spec.External != nil {
 		clusterSpec.External.Enable = true
 		return clusterSpec
 	}
@@ -269,7 +269,9 @@ func generateCephClusterSpec(cephDpl *cephlcmv1alpha1.CephDeployment, image stri
 		}
 	}
 
-	clusterSpec.Dashboard.Enabled = cephDpl.Spec.DashboardEnabled
+	if cephDpl.Spec.DashboardEnabled != nil {
+		clusterSpec.Dashboard.Enabled = *cephDpl.Spec.DashboardEnabled
+	}
 
 	defaultModules := []string{"balancer", "pg_autoscaler"}
 	defaultModulesFound := map[string]bool{

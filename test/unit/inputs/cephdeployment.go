@@ -30,8 +30,8 @@ import (
 var BaseCephDeployment = cephlcmv1alpha1.CephDeployment{
 	ObjectMeta: LcmObjectMeta,
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		DashboardEnabled: false,
-		Network: cephlcmv1alpha1.CephNetworkSpec{
+		DashboardEnabled: &[]bool{false}[0],
+		Network: &cephlcmv1alpha1.CephNetworkSpec{
 			HostNetwork: true,
 			ClusterNet:  "127.0.0.0/16",
 			PublicNet:   "192.168.0.0/16",
@@ -84,7 +84,7 @@ var BaseCephDeploymentDeleting = func() cephlcmv1alpha1.CephDeployment {
 
 var BaseCephDeploymentMultus = func() cephlcmv1alpha1.CephDeployment {
 	cd := BaseCephDeployment.DeepCopy()
-	cd.Spec.Network = cephlcmv1alpha1.CephNetworkSpec{
+	cd.Spec.Network = &cephlcmv1alpha1.CephNetworkSpec{
 		Provider: "multus",
 		Selector: map[cephv1.CephNetworkType]string{
 			cephv1.CephNetworkPublic:  "192.168.0.0/16",
@@ -330,11 +330,11 @@ var CephDeployExternal = cephlcmv1alpha1.CephDeployment{
 		},
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		Network: cephlcmv1alpha1.CephNetworkSpec{
+		Network: &cephlcmv1alpha1.CephNetworkSpec{
 			ClusterNet: "127.0.0.0/32",
 			PublicNet:  "127.0.0.0/32",
 		},
-		External: true,
+		External: &[]bool{true}[0],
 		Pools:    []cephlcmv1alpha1.CephPool{CephDeployPoolReplicated},
 	},
 	Status: cephlcmv1alpha1.CephDeploymentStatus{
