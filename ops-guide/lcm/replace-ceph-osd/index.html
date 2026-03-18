@@ -2868,12 +2868,12 @@ which node the replacement occurred.</p>
 not supported if a device was physically removed from a node. Therefore, use
 <code>cleanupByOsdId</code> instead.</p>
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>We do not recommend setting device name or device <code>by-path</code> symlink in the <code>cleanupByDevice</code> field
- as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with <code>by-id</code>
- symlinks or use <code>cleanupByOsdId</code> instead. For details, see
- <a href="../../../architecture/addressing-ceph-devices/#addressing-ceph-devices-addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can spawn Ceph OSD on a raw device, but it must be clean and
+without any data or partitions. If you want to add a device that was in use,
+also ensure it is raw and clean. To clean up all data and partitions from a
+device, refer to official <a href="https://github.com/rook/rook/blob/master/Documentation/Storage-Configuration/ceph-teardown.md#zapping-devices">Rook documentation</a>.</p>
 </div>
 <ol>
 <li>
@@ -3147,29 +3147,26 @@ not supported if a device was physically removed from a node. Therefore, use
 </ol>
 <p><a name="replace-ceph-osd-deploy-a-new-device-after-removal-of-a-failed-one"></a></p>
 <h2 id="deploy-a-new-device-after-removal-of-a-failed-one">Deploy a new device after removal of a failed one<a class="headerlink" href="#deploy-a-new-device-after-removal-of-a-failed-one" title="Permanent link">#</a></h2>
+<ol>
+<li>
+<p>Manually prepare the replacement device on the existing node.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>You can spawn Ceph OSD on a raw device, but it must be clean and
 without any data or partitions. If you want to add a device that was in use,
 also ensure it is raw and clean. To clean up all data and partitions from a
-device, refer to official
-<a href="https://github.com/rook/rook/blob/master/Documentation/Storage-Configuration/ceph-teardown.md#zapping-devices">Rook documentation</a>.</p>
+device, refer to official <a href="https://github.com/rook/rook/blob/master/Documentation/Storage-Configuration/ceph-teardown.md#zapping-devices">Rook documentation</a>.</p>
 </div>
-<ol>
-<li>
-<p>Manually prepare the replacement device on the existing node.</p>
-</li>
-<li>
-<p>Optional. If you want to add a Ceph OSD on top of a <strong>raw</strong> device that already exists
-   on a node or is <strong>hot-plugged</strong>, add the required device using the following
-   guidelines:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you want to add a Ceph OSD on top of a <strong>raw</strong> device that already exists
+on a node or is <strong>hot-plugged</strong>, add the required device using the following guidelines:</p>
 <ul>
 <li>You can add a raw device to a node during node deployment.</li>
-<li>If a node supports adding devices without a node reboot, you can hot plug
-  a raw device to a node.</li>
-<li>If a node does not support adding devices without a node reboot, you can
-  hot plug a raw device during node shutdown.</li>
+<li>If a node supports adding devices without a node reboot, you can hot plug a raw device to a node.</li>
+<li>If a node does not support adding devices without a node reboot, you can hot plug a raw device during node shutdown.</li>
 </ul>
+</div>
 </li>
 <li>
 <p>Open the <code>CephDeployment</code> CR for editing:

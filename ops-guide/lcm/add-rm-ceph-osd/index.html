@@ -2853,18 +2853,16 @@ OSDs.</p>
 <ol>
 <li>
 <p>Manually prepare the required devices on the existing node.</p>
-</li>
-<li>
-<p>Optional. If you want to add a Ceph OSD on top of a <strong>raw</strong> device that already exists
-   on a node or is <strong>hot-plugged</strong>, add the required device using the following
-   guidelines:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you want to add a Ceph OSD on top of a <strong>raw</strong> device that already exists
+on a node or is <strong>hot-plugged</strong>, add the required device using the following guidelines:</p>
 <ul>
 <li>You can add a raw device to a node during node deployment.</li>
-<li>If a node supports adding devices without a node reboot, you can hot plug
-   a raw device to a node.</li>
-<li>If a node does not support adding devices without a node reboot, you can
-   hot plug a raw device during node shutdown.</li>
+<li>If a node supports adding devices without a node reboot, you can hot plug a raw device to a node.</li>
+<li>If a node does not support adding devices without a node reboot, you can hot plug a raw device during node shutdown.</li>
 </ul>
+</div>
 </li>
 <li>
 <p>Open the <code>CephDeployment</code> custom resource (CR) for editing:
@@ -2879,9 +2877,8 @@ OSDs.</p>
 <li><code>nodes.&lt;nodeName&gt;.devicePathFilter</code></li>
 </ul>
 <p>For description of parameters, see <a href="../../../architecture/custom-resources/cephdeployment.md#cephdeployment-nodes-parameters">Nodes parameters</a>.</p>
-<details open="open">
-<summary>Example configuration of the <code>nodes</code> section with the new node</summary>
-<div class="highlight"><pre><span></span><code><span class="nt">nodes</span><span class="p">:</span>
+<p>Example configuration of the <code>nodes</code> section with the new node:
+   <div class="highlight"><pre><span></span><code><span class="nt">nodes</span><span class="p">:</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">storage-worker-52</span>
 <span class="w">  </span><span class="nt">roles</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mon</span>
@@ -2893,8 +2890,7 @@ OSDs.</p>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">config</span><span class="p">:</span><span class="w"> </span><span class="c1"># new item</span>
 <span class="w">      </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">    </span><span class="nt">fullPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/disk/by-id/scsi-0ATA_HGST_HUS724040AL_PN1334PEHN1VBC</span>
-</code></pre></div>
-</details>
+</code></pre></div></p>
 </li>
 <li>
 <p>Verify that the Ceph OSD on the specified node is successfully deployed. The
@@ -2923,7 +2919,9 @@ OSDs.</p>
 <p>Ceph OSD removal presupposes usage of a <code>CephOsdRemoveTask</code> CR. For workflow overview, see <a href="../create-task-workflow/#create-task-workflow-creating-a-ceph-osd-remove-task">Creating a Ceph OSD remove task</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>, Ceph OSD removal cannot be performed. The minimum replica size equals a rounded up half of the specified <code>replicated.size</code>.</p>
+<p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>,
+Ceph OSD removal cannot be performed. The minimum replica size equals a rounded
+up half of the specified <code>replicated.size</code>.</p>
 <p>For example, if <code>replicated.size</code> is <code>2</code>, the minimal replica size is
 <code>1</code>, and if <code>replicated.size</code> is <code>3</code>, then the minimal replica size
 is <code>2</code>. The replica size of <code>1</code> allows Ceph having PGs with only one
@@ -2938,9 +2936,8 @@ health warning that blocks Ceph OSD removal. Mirantis recommends setting
 </code></pre></div></p>
 </li>
 <li>
-<p>Remove the required Ceph OSD specification from the
-   <code>spec.nodes.&lt;nodeName&gt;.devices</code> list:</p>
-<p>The example configuration of the <code>nodes</code> section with removing device:
+<p>Remove the required Ceph OSD specification from the <code>spec.nodes.&lt;nodeName&gt;.devices</code> list.</p>
+<p>Example configuration of the <code>nodes</code> section with removing device:
  <div class="highlight"><pre><span></span><code><span class="nt">nodes</span><span class="p">:</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">storage-worker-52</span>
 <span class="w">  </span><span class="nt">roles</span><span class="p">:</span>
@@ -2971,12 +2968,12 @@ health warning that blocks Ceph OSD removal. Mirantis recommends setting
 <span class="w">      </span><span class="nt">cleanupByDevice</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sdb</span>
 </code></pre></div></p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>We do not recommend setting device name or device <code>by-path</code> symlink in the <code>cleanupByDevice</code> field
- as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with <code>by-id</code>
- symlinks or use <code>cleanupByOsdId</code> instead. For details, see
- <a href="../../../architecture/addressing-ceph-devices/#addressing-ceph-devices-addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can spawn Ceph OSD on a raw device, but it must be clean and
+without any data or partitions. If you want to add a device that was in use,
+also ensure it is raw and clean. To clean up all data and partitions from a
+device, refer to official <a href="https://github.com/rook/rook/blob/master/Documentation/Storage-Configuration/ceph-teardown.md#zapping-devices">Rook documentation</a>.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>

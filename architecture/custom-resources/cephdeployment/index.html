@@ -3694,7 +3694,9 @@ defined. Can use only <code>replicated</code> settings. For example:</p>
 multiple nodes.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>, Ceph OSD removal cannot be performed. The minimum replica size equals a rounded up half of the specified <code>replicated.size</code>.</p>
+<p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>,
+Ceph OSD removal cannot be performed. The minimum replica size equals a rounded
+up half of the specified <code>replicated.size</code>.</p>
 <p>For example, if <code>replicated.size</code> is <code>2</code>, the minimal replica size is
 <code>1</code>, and if <code>replicated.size</code> is <code>3</code>, then the minimal replica size
 is <code>2</code>. The replica size of <code>1</code> allows Ceph having PGs with only one
@@ -3984,7 +3986,9 @@ contains the following parameters:</p>
 <p>where <code>replicated.size</code> is the number of full copies of data on multiple nodes.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>, Ceph OSD removal cannot be performed. The minimum replica size equals a rounded up half of the specified <code>replicated.size</code>.</p>
+<p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>,
+Ceph OSD removal cannot be performed. The minimum replica size equals a rounded
+up half of the specified <code>replicated.size</code>.</p>
 <p>For example, if <code>replicated.size</code> is <code>2</code>, the minimal replica size is
 <code>1</code>, and if <code>replicated.size</code> is <code>3</code>, then the minimal replica size
 is <code>2</code>. The replica size of <code>1</code> allows Ceph having PGs with only one

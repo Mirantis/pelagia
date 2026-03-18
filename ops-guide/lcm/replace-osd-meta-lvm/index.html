@@ -2914,10 +2914,12 @@
 <span class="w">      </span><span class="nt">cleanupByOsdId</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;osdID&gt;</span>
 </code></pre></div></p>
-<p>Substitute the following parameters:
- - <code>&lt;nodeName&gt;</code> and <code>&lt;deviceName&gt;</code> with the node and device names
-   from the previous step;
- - <code>&lt;osdID&gt;</code> with the ID of the affected Ceph OSD.</p>
+<p>Substitute the following parameters:</p>
+<ul>
+<li><code>&lt;nodeName&gt;</code> and <code>&lt;deviceName&gt;</code> with the node and device names
+    from the previous step;</li>
+<li><code>&lt;osdID&gt;</code> with the ID of the affected Ceph OSD.</li>
+</ul>
 </li>
 <li>
 <p>Apply the template to the cluster:
@@ -3016,19 +3018,17 @@ without any data or partitions. If you want to add a device that was in use,
 also ensure it is raw and clean. To clean up all data and partitions from a
 device, refer to official <a href="https://github.com/rook/rook/blob/master/Documentation/Storage-Configuration/ceph-teardown.md#zapping-devices">Rook documentation</a>.</p>
 </div>
-<ol>
-<li>
-<p>Optional. If you want to add a Ceph OSD on top of a <strong>raw</strong> device that already exists
-   on a node or is <strong>hot-plugged</strong>, add the required device using the following
-   guidelines:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you want to add a Ceph OSD on top of a <strong>raw</strong> device that already exists
+on a node or is <strong>hot-plugged</strong>, add the required device using the following guidelines:</p>
 <ul>
 <li>You can add a raw device to a node during node deployment.</li>
-<li>If a node supports adding devices without a node reboot, you can hot plug
-  a raw device to a node.</li>
-<li>If a node does not support adding devices without a node reboot, you can
-  hot plug a raw device during node shutdown.</li>
+<li>If a node supports adding devices without a node reboot, you can hot plug a raw device to a node.</li>
+<li>If a node does not support adding devices without a node reboot, you can hot plug a raw device during node shutdown.</li>
 </ul>
-</li>
+</div>
+<ol>
 <li>
 <p>Open the <code>CephDeployment</code> CR for editing:
    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephdpl

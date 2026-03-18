@@ -2897,14 +2897,14 @@ For the procedure workflow, see <a href="../../../ops-guide/lcm/create-task-work
 <p><a name="cephosdremovetask-nodes-parameters"></a></p>
 <h3 id="nodes-parameters">Nodes parameters<a class="headerlink" href="#nodes-parameters" title="Permanent link">#</a></h3>
 <ul>
-<li><code>completeCleanUp</code> - Flag used to clean up an entire node and drop it from the CRUSH map.
+<li><code>completeCleanup</code> - Flag used to clean up an entire node and drop it from the CRUSH map.
   Mutually exclusive with <code>cleanupByDevice</code> and <code>cleanupByOsd</code>.</li>
-<li><code>dropFromCrush</code> - Flag which is the same to CompleteCleanup, but without device cleanup on node
+<li><code>dropFromCrush</code> - Flag which is the same to completeCleanup, but without device cleanup on node
   May be useful when node is going to be reprovisioned and no need to spend time for device cleanup.</li>
 <li>
 <p><code>cleanupByDevice</code> - List that describes devices to clean up by name or device symlink as they
   were specified in Rook <code>CephCluster</code> (or Pelagia <code>CephDeployment</code>). Mutually exclusive with
-  <code>completeCleanUp</code> and <code>cleanupByOsd</code>. Includes the following parameters:</p>
+  <code>completeCleanup</code> and <code>cleanupByOsd</code>. Includes the following parameters:</p>
 <ul>
 <li><code>device</code> - Physical device name, e.g. <code>sdb</code>, <code>/dev/nvme1e0</code>, or
   device symlink (<code>by-path</code> or <code>by-id</code>), e.g. <code>/dev/disk/by-path/pci-0000:00:1c.5</code>
@@ -2915,14 +2915,15 @@ For the procedure workflow, see <a href="../../../ops-guide/lcm/create-task-work
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>We do not recommend using device name or device <code>by-path</code> symlink in the <code>cleanupByDevice</code> field
-as these identifiers are not persistent and can change at node boot. Remove
-Ceph OSDs with device <code>by-id</code> symlinks or use <code>cleanupByOsd</code> instead.</p>
+<p>We do not recommend setting device name or device <code>by-path</code> symlink in the <code>cleanupByDevice</code> field
+as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with <code>by-id</code>
+symlinks or use <code>cleanupByOsdId</code> instead. For details, see
+<a href="../../addressing-ceph-devices/#addressing-ceph-devices-addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
 </div>
 </li>
 <li>
 <p><code>cleanupByOsd</code> - List of Ceph OSD IDs to remove. Mutually exclusive with
-  <code>completeCleanUp</code> and <code>cleanupByDevice</code>. Includes the following parameters:</p>
+  <code>completeCleanup</code> and <code>cleanupByDevice</code>. Includes the following parameters:</p>
 <ul>
 <li><code>id</code> - Ceph OSD ID to remove.</li>
 <li><code>skipDeviceCleanup</code> - Optional. Flag that indicates whether to skip the device cleanup.
@@ -2945,7 +2946,7 @@ Ceph OSDs with device <code>by-id</code> symlinks or use <code>cleanupByOsd</cod
 <span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
 <span class="w">    </span><span class="s">&quot;node-a&quot;</span><span class="p p-Indicator">:</span>
-<span class="w">      </span><span class="nt">completeCleanUp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">completeCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="s">&quot;node-b&quot;</span><span class="p p-Indicator">:</span>
 <span class="w">      </span><span class="nt">cleanupByOsd</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
@@ -3012,7 +3013,7 @@ Ceph OSDs with device <code>by-id</code> symlinks or use <code>cleanupByOsd</cod
 <span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
 <span class="w">      </span><span class="s">&quot;node-a&quot;</span><span class="p p-Indicator">:</span>
-<span class="w">        </span><span class="nt">completeCleanUp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">completeCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">        </span><span class="nt">osdMapping</span><span class="p">:</span>
 <span class="w">          </span><span class="s">&quot;2&quot;</span><span class="p p-Indicator">:</span>
 <span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
@@ -3055,7 +3056,7 @@ Ceph OSDs with device <code>by-id</code> symlinks or use <code>cleanupByOsd</cod
 <span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
 <span class="w">      </span><span class="s">&quot;node-a&quot;</span><span class="p p-Indicator">:</span>
-<span class="w">        </span><span class="nt">completeCleanUp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">completeCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">        </span><span class="nt">osdMapping</span><span class="p">:</span>
 <span class="w">          </span><span class="s">&quot;2&quot;</span><span class="p p-Indicator">:</span>
 <span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
@@ -3152,7 +3153,7 @@ reflects the final map of the Ceph OSDs to remove:</p>
 <span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
 <span class="w">      </span><span class="s">&quot;node-a&quot;</span><span class="p p-Indicator">:</span>
-<span class="w">        </span><span class="nt">completeCleanUp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">completeCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">        </span><span class="nt">hostRemoveStatus</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Removed</span>
 <span class="w">        </span><span class="nt">osdMapping</span><span class="p">:</span>
@@ -3181,7 +3182,7 @@ reflects the final map of the Ceph OSDs to remove:</p>
 <span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
 <span class="w">      </span><span class="s">&quot;node-a&quot;</span><span class="p p-Indicator">:</span>
-<span class="w">        </span><span class="nt">completeCleanUp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">completeCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">        </span><span class="nt">osdMapping</span><span class="p">:</span>
 <span class="w">          </span><span class="s">&quot;2&quot;</span><span class="p p-Indicator">:</span>
 <span class="w">            </span><span class="nt">removeStatus</span><span class="p">:</span>
@@ -3203,7 +3204,7 @@ reflects the final map of the Ceph OSDs to remove:</p>
 <span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
 <span class="w">      </span><span class="s">&quot;node-a&quot;</span><span class="p p-Indicator">:</span>
-<span class="w">        </span><span class="nt">completeCleanUp</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">completeCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">        </span><span class="nt">osdMapping</span><span class="p">:</span>
 <span class="w">          </span><span class="s">&quot;2&quot;</span><span class="p p-Indicator">:</span>
 <span class="w">            </span><span class="nt">removeStatus</span><span class="p">:</span>

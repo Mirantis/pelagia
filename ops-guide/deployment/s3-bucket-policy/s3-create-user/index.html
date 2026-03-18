@@ -2822,6 +2822,7 @@ configure their S3 credentials.</p>
 <span class="w">          </span><span class="nt">bucket</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;*&quot;</span>
 <span class="w">          </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read</span>
 </code></pre></div></p>
+<p>For the user <code>name</code>, apply the UUID format with no capital letters.</p>
 </li>
 <li>
 <p>Verify that <code>rgwUserSecrets</code> are created for both users:
@@ -2850,7 +2851,7 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;user-tCredSecretNam
  users.</p>
 </li>
 <li>
-<p>Obtain Ceph Object Storage public endpoint from the  <code>CephDeploymentHealth</code> status:
+<p>Obtain Ceph Object Storage public endpoint from the <code>CephDeploymentHealth</code> status:
    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephdeploymenthealth<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>publicEndpoint
 </code></pre></div></p>
 <p>Example of a positive system response:
