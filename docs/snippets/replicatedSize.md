@@ -1,6 +1,8 @@
 !!! warning
 
-    When using the non-recommended Ceph pools `replicated.size` of less than `3`, Ceph OSD removal cannot be performed. The minimum replica size equals a rounded up half of the specified `replicated.size`.
+    When using the non-recommended Ceph pools `replicated.size` of less than `3`,
+    Ceph OSD removal cannot be performed. The minimum replica size equals a rounded
+    up half of the specified `replicated.size`.
 
     For example, if `replicated.size` is `2`, the minimal replica size is
     `1`, and if `replicated.size` is `3`, then the minimal replica size
