@@ -84,7 +84,7 @@ func TestDeployCephDeploymentMKE(t *testing.T) {
 			Namespace: f.TF.ManagedCluster.LcmNamespace,
 		},
 		Spec: cephlcmv1alpha1.CephDeploymentSpec{
-			Network: cephlcmv1alpha1.CephNetworkSpec{
+			Network: &cephlcmv1alpha1.CephNetworkSpec{
 				ClusterNet: testConfig["clusterNet"],
 				PublicNet:  testConfig["publicNet"],
 			},

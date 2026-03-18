@@ -864,7 +864,7 @@ func TestEnsureRgwObject(t *testing.T) {
 			name: "ensure rgw - external rgw spec without external endpoints - create failed",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					External: true,
+					External: &[]bool{true}[0],
 					ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
 						Rgw: cephlcmv1alpha1.CephRGW{Name: "rgw-store"},
 					},

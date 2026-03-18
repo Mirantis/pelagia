@@ -4,6 +4,7 @@ import (
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -39,43 +40,21 @@ type CephDeployment struct {
 // CephDeploymentSpec defines the desired configuration of resulting Ceph Cluster
 // and all corresponding resources
 type CephDeploymentSpec struct {
-	DashboardEnabled bool `json:"dashboard"`
+	// Cluster stands for main Ceph cluster configuration
+	// Required to be specified.
+	Cluster *CephCluster `json:"cluster,omitempty"`
 	// Clients is a list of Ceph Clients used for Ceph Cluster connection by
 	// consumer services
 	// +optional
 	Clients []CephClient `json:"clients,omitempty"`
-	// DataDirHostPath is a default hostPath directory where Rook stores all
-	// valuable info. Equals to '/var/lib/rook' by default
-	// +nullable
-	DataDirHostPath string `json:"dataDirHostPath,omitempty"`
-	// External enables usage of external Ceph Cluster connected to pkg
-	// Container Cloud cluster instead of local Ceph Cluster
-	// +optional
-	External bool `json:"external,omitempty"`
 	// ExtraOpts contains some extra options for managing Ceph cluster, like devices labels
 	// +optional
 	ExtraOpts *CephDeploymentExtraOpts `json:"extraOpts,omitempty"`
-	// HealthCheck provides an ability to configure pkg daemon healthchecks
-	// and liveness probe settings for mon,mgr,osd daemons
-	// +optional
-	HealthCheck *CephClusterHealthCheckSpec `json:"healthCheck,omitempty"`
-	// HyperConverge provides an ability to configure resources requests and limitations
-	// for Ceph Daemons. Also provides an ability to spawn those Ceph Daemons on a tainted
-	// nodes
-	// +optional
-	HyperConverge *CephDeploymentHyperConverge `json:"hyperconverge,omitempty"`
 	// IngressConfig provides ability to configure custom ingress rule for an external
 	// access to Ceph Cluster resources, for example, public endpoint
 	// for Ceph Object Store access.
 	// +optional
 	IngressConfig *CephDeploymentIngressConfig `json:"ingressConfig,omitempty"`
-	// Mgr contains a list of Ceph Manager modules to enable in Ceph Cluster
-	// +optional
-	Mgr *Mgr `json:"mgr,omitempty"`
-	// Network is a section which defines the specific network range(s)
-	// for Ceph daemons to communicate with each other and the an external
-	// connections
-	Network CephNetworkSpec `json:"network"`
 	// Nodes contains full cluster nodes configuration to use as Ceph Nodes
 	Nodes []CephDeploymentNode `json:"nodes"`
 	// ObjectStorage contains full RadosGW Object Storage configurations: RGW itself
@@ -94,6 +73,34 @@ type CephDeploymentSpec struct {
 	// SharedFilesystem enables such system as CephFS
 	// +optional
 	SharedFilesystem *CephSharedFilesystem `json:"sharedFilesystem,omitempty"`
+
+	// Deprecated parameter, cluster.dashboard.enabled should be used instead
+	// +optional
+	DashboardEnabled *bool `json:"dashboard,omitempty"`
+	// Deprecated parameter, cluster.dataDirHostPath should be used instead
+	// +nullable
+	DataDirHostPath string `json:"dataDirHostPath,omitempty"`
+	// Deprecated parameter, cluster.external.enabled should be used instead
+	// +optional
+	External *bool `json:"external,omitempty"`
+	// Deprecated parameter, cluster.mgr should be used instead
+	// +optional
+	Mgr *Mgr `json:"mgr,omitempty"`
+	// Deprecated parameter, cluster.network should be used instead
+	// +optional
+	Network *CephNetworkSpec `json:"network,omitempty"`
+	// Deprecated parameter, cluster.{placement,resources} should be used instead for mon,osd,mgr daemons,
+	// objectStorage.objectStores.[*].gateway.{placement,resources} for rgw daemon
+	// sharedFilesystem.cephFilesystems.[*].metadataServer.{placement,resources} for mds daemon
+	// +optional
+	HyperConverge *CephDeploymentHyperConverge `json:"hyperconverge,omitempty"`
+	// Deprecated parameter, cluster.healthCheck should be used instead
+	// +optional
+	HealthCheck *CephClusterHealthCheckSpec `json:"healthCheck,omitempty"`
+}
+
+type CephCluster struct {
+	runtime.RawExtension `json:",inline"`
 }
 
 type CephClient struct {

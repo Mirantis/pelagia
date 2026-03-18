@@ -319,11 +319,11 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 			Namespace: externalClusterNamespace,
 		},
 		Spec: cephlcmv1alpha1.CephDeploymentSpec{
-			Network: cephlcmv1alpha1.CephNetworkSpec{
+			Network: &cephlcmv1alpha1.CephNetworkSpec{
 				ClusterNet: cd.Spec.Network.ClusterNet,
 				PublicNet:  cd.Spec.Network.PublicNet,
 			},
-			External:         true,
+			External:         &[]bool{true}[0],
 			Nodes:            []cephlcmv1alpha1.CephDeploymentNode{},
 			Pools:            poolsSection,
 			SharedFilesystem: cephFSSection,

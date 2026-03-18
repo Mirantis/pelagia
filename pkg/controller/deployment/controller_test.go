@@ -203,7 +203,7 @@ func TestReconcile(t *testing.T) {
 			testclient: faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.CephDeployWithWrongNodes.DeepCopy()).WithObjects(unitinputs.CephDeployWithWrongNodes.DeepCopy()),
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
 				Phase:   cephlcmv1alpha1.PhaseFailed,
-				Message: "failed to expand node list for CephDeployment lcm-namespace/cephcluster",
+				Message: "failed to verify provided data for CephDeployment lcm-namespace/cephcluster",
 				LastRun: "2021-08-15T14:30:15+04:00",
 			},
 			result: requeueAfterInterval,
@@ -1899,7 +1899,7 @@ func TestApplyConfiguration(t *testing.T) {
 	}
 	externalCephDplButWithCommonFields := fullCephDplSpec.DeepCopy()
 	externalCephDplButWithCommonFields.ObjectMeta = unitinputs.CephDeployExternal.ObjectMeta
-	externalCephDplButWithCommonFields.Spec.External = true
+	externalCephDplButWithCommonFields.Spec.External = &[]bool{true}[0]
 	externalCephDplButWithCommonFields.Spec.ObjectStorage = unitinputs.CephDeployExternalRgw.Spec.ObjectStorage.DeepCopy()
 
 	inputResourcesForApply := map[string]runtime.Object{

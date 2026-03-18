@@ -97,18 +97,24 @@ spec:
                   - caps
                   type: object
                 type: array
+              cluster:
+                description: |-
+                  Cluster stands for main Ceph cluster configuration
+                  Required to be specified.
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
               dashboard:
+                description: Deprecated parameter, cluster.dashboard.enabled should
+                  be used instead
                 type: boolean
               dataDirHostPath:
-                description: |-
-                  DataDirHostPath is a default hostPath directory where Rook stores all
-                  valuable info. Equals to '/var/lib/rook' by default
+                description: Deprecated parameter, cluster.dataDirHostPath should
+                  be used instead
                 nullable: true
                 type: string
               external:
-                description: |-
-                  External enables usage of external Ceph Cluster connected to pkg
-                  Container Cloud cluster instead of local Ceph Cluster
+                description: Deprecated parameter, cluster.external.enabled should
+                  be used instead
                 type: boolean
               extraOpts:
                 description: ExtraOpts contains some extra options for managing Ceph
@@ -150,9 +156,8 @@ spec:
                     type: boolean
                 type: object
               healthCheck:
-                description: |-
-                  HealthCheck provides an ability to configure pkg daemon healthchecks
-                  and liveness probe settings for mon,mgr,osd daemons
+                description: Deprecated parameter, cluster.healthCheck should be used
+                  instead
                 properties:
                   daemonHealth:
                     description: DaemonHealth contains health check settings for ceph
@@ -542,9 +547,9 @@ spec:
                 type: object
               hyperconverge:
                 description: |-
-                  HyperConverge provides an ability to configure resources requests and limitations
-                  for Ceph Daemons. Also provides an ability to spawn those Ceph Daemons on a tainted
-                  nodes
+                  Deprecated parameter, cluster.{placement,resources} should be used instead for mon,osd,mgr daemons,
+                  objectStorage.objectStores.[*].gateway.{placement,resources} for rgw daemon
+                  sharedFilesystem.cephFilesystems.[*].metadataServer.{placement,resources} for mds daemon
                 properties:
                   resources:
                     additionalProperties:
@@ -719,8 +724,7 @@ spec:
                     type: object
                 type: object
               mgr:
-                description: Mgr contains a list of Ceph Manager modules to enable
-                  in Ceph Cluster
+                description: Deprecated parameter, cluster.mgr should be used instead
                 properties:
                   mgrModules:
                     description: MgrModules is a list of Ceph Manager modules names
@@ -750,10 +754,8 @@ spec:
                     type: array
                 type: object
               network:
-                description: |-
-                  Network is a section which defines the specific network range(s)
-                  for Ceph daemons to communicate with each other and the an external
-                  connections
+                description: Deprecated parameter, cluster.network should be used
+                  instead
                 properties:
                   clusterNet:
                     description: ClusterNet defines pkg network for Ceph Daemons intra-communication
@@ -3130,8 +3132,6 @@ spec:
                     type: array
                 type: object
             required:
-            - dashboard
-            - network
             - nodes
             type: object
           status:
