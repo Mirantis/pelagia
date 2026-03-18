@@ -14,13 +14,13 @@ For the procedure workflow, see [Creating a Ceph OSD remove task](../../ops-guid
 <a name="cephosdremovetask-nodes-parameters"></a>
 ### Nodes parameters
 
-- `completeCleanUp` - Flag used to clean up an entire node and drop it from the CRUSH map.
+- `completeCleanup` - Flag used to clean up an entire node and drop it from the CRUSH map.
   Mutually exclusive with `cleanupByDevice` and `cleanupByOsd`.
-- `dropFromCrush` - Flag which is the same to CompleteCleanup, but without device cleanup on node
+- `dropFromCrush` - Flag which is the same to completeCleanup, but without device cleanup on node
   May be useful when node is going to be reprovisioned and no need to spend time for device cleanup.
 - `cleanupByDevice` - List that describes devices to clean up by name or device symlink as they
   were specified in Rook `CephCluster` (or Pelagia `CephDeployment`). Mutually exclusive with
-  `completeCleanUp` and `cleanupByOsd`. Includes the following parameters:
+  `completeCleanup` and `cleanupByOsd`. Includes the following parameters:
 
     - `device` - Physical device name, e.g. `sdb`, `/dev/nvme1e0`, or
       device symlink (`by-path` or `by-id`), e.g. `/dev/disk/by-path/pci-0000:00:1c.5`
@@ -32,7 +32,7 @@ For the procedure workflow, see [Creating a Ceph OSD remove task](../../ops-guid
     {% include "../../snippets/cleanupByDeviceValue.md" %}
 
 - `cleanupByOsd` - List of Ceph OSD IDs to remove. Mutually exclusive with
-  `completeCleanUp` and `cleanupByDevice`. Includes the following parameters:
+  `completeCleanup` and `cleanupByDevice`. Includes the following parameters:
 
     - `id` - Ceph OSD ID to remove.
     - `skipDeviceCleanup` - Optional. Flag that indicates whether to skip the device cleanup.
@@ -53,7 +53,7 @@ For the procedure workflow, see [Creating a Ceph OSD remove task](../../ops-guid
     spec:
       nodes:
         "node-a":
-          completeCleanUp: true
+          completeCleanup: true
         "node-b":
           cleanupByOsd:
           - id: 1
@@ -123,7 +123,7 @@ Here are the following **final** phases:
           removeInfo:
             cleanupMap:
               "node-a":
-                completeCleanUp: true
+                completeCleanup: true
                 osdMapping:
                   "2":
                     deviceMapping:
@@ -165,7 +165,7 @@ Here are the following **final** phases:
       removeInfo:
         cleanupMap:
           "node-a":
-            completeCleanUp: true
+            completeCleanup: true
             osdMapping:
               "2":
                 deviceMapping:
@@ -263,7 +263,7 @@ reflects the final map of the Ceph OSDs to remove:
       removeInfo:
         cleanupMap:
           "node-a":
-            completeCleanUp: true
+            completeCleanup: true
             hostRemoveStatus:
               status: Removed
             osdMapping:
@@ -293,7 +293,7 @@ reflects the final map of the Ceph OSDs to remove:
       removeInfo:
         cleanupMap:
           "node-a":
-            completeCleanUp: true
+            completeCleanup: true
             osdMapping:
               "2":
                 removeStatus:
@@ -316,7 +316,7 @@ reflects the final map of the Ceph OSDs to remove:
       removeInfo:
         cleanupMap:
           "node-a":
-            completeCleanUp: true
+            completeCleanup: true
             osdMapping:
               "2":
                 removeStatus:

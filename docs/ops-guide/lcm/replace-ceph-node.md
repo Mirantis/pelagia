@@ -44,7 +44,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
    spec:
      nodes:
        <nodeName>:
-         completeCleanUp: true
+         completeCleanup: true
    ```
 
 5. Apply the template to the cluster:

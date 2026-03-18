@@ -124,7 +124,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
    spec:
      nodes:
        storage-worker-5:
-         completeCleanUp: true
+         completeCleanup: true
    ```
 
 4. Apply the template on the Rockoon cluster:
