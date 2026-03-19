@@ -52,15 +52,14 @@ Pelagia Controllers and Rook objects of a Ceph cluster.
         ```
 
      2. Verify the `CephCluster` configuration:
+        ```bash
+        kubectl get cephcluster -n rook-ceph -o yaml
+        ```
 
         !!! note
 
             In Pelagia, `CephDeployment` manages the `CephCluster` CR. Use the `CephCluster` CR only for verification
             and do not modify it manually.
-
-          ```bash
-          kubectl get cephcluster -n rook-ceph -o yaml
-          ```
 
      For details about the Ceph cluster status and to get access to CLI tools,
      connect to the `pelagia-ceph-toolbox` pod as described in the following step.

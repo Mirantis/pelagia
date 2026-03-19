@@ -157,14 +157,12 @@ Consider the common state of a failed or removed Ceph cluster:
         kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph -s
         ```
 
-        !!! note
-
-            Rook should not start any Ceph OSD daemon because all devices
-            belong to the old cluster that has a different `fsid`. To verify the
-            Ceph OSD daemons, inspect the `osd-prepare` pods logs:
-            ```bash
-            kubectl -n rook-ceph logs -l app=rook-ceph-osd-prepare
-            ```
+        Rook should not start any Ceph OSD daemon because all devices
+        belong to the old cluster that has a different `fsid`. To verify the
+        Ceph OSD daemons, inspect the `osd-prepare` pods logs:
+        ```bash
+        kubectl -n rook-ceph logs -l app=rook-ceph-osd-prepare
+        ```
 
 7. Connect to the terminal of the `rook-ceph-mon-a` pod:
    ```bash
@@ -263,12 +261,10 @@ Consider the common state of a failed or removed Ceph cluster:
     kubectl -n rook-ceph edit secret/rook-ceph-mon
     ```
 
-    !!! note
-
-        The `fsid` is `base64` encoded and must not contain a trailing carriage return. For example:
-        ```bash
-        echo -n a811f99a-d865-46b7-8f2c-f94c064e4356 | base64  # Replace with the fsid from the old cluster.
-        ```
+    The `fsid` is `base64` encoded and must not contain a trailing carriage return. For example:
+    ```bash
+    echo -n a811f99a-d865-46b7-8f2c-f94c064e4356 | base64  # Replace with the fsid from the old cluster.
+    ```
 
 16. Disable authentication:
 

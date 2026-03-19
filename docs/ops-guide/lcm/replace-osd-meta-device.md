@@ -12,6 +12,7 @@ To remove the affected Ceph OSD with a metadata device as a device name, follow 
   `metadataDevice` path to reuse it during re-creation of the Ceph OSD.
 
     Example of the `spec.nodes` section:
+
     ```yaml
     spec:
       nodes:
@@ -29,7 +30,7 @@ To remove the affected Ceph OSD with a metadata device as a device name, follow 
 - During `CephOsdRemoveTask` CR verification of `removeInfo`, capture the `usedPartition` value
   of the metadata device located in the `deviceMapping.<metadataDevice>` section.
 
-      Example of the `removeInfo` section:
+    Example of the `removeInfo` section:
     ```yaml
     removeInfo:
       cleanUpMap:
@@ -53,10 +54,10 @@ To remove the affected Ceph OSD with a metadata device as a device name, follow 
 
     In the example above, capture the following values from the `<metadataDevice>` section:
 
-      - `ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9` - name of the volume group
-        that contains all metadata partitions on the `<metadataDevice>` disk;
-      - `osd-db-ecf64b20-1e07-42ac-a8ee-32ba3c0b7e2f` - name of the logical
-        volume that relates to a failed Ceph OSD.
+    - `ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9` - name of the volume group
+      that contains all metadata partitions on the `<metadataDevice>` disk;
+    - `osd-db-ecf64b20-1e07-42ac-a8ee-32ba3c0b7e2f` - name of the logical
+      volume that relates to a failed Ceph OSD.
 
 <a name="replace-osd-meta-device-re-create-the-partition-on-the-existing-metadata-disk"></a>
 ## Re-create the partition on the existing metadata disk
@@ -70,9 +71,9 @@ lvcreate -l 100%FREE -n meta_1 <vgName>
 
 Substitute `<vgName>` with the name of a volume group captured in the `usedPartiton` parameter.
 
-!!! note
+When you run `lvcreate`, account for shared space on the metadata disk and for any interactive prompt about an existing Bluestore signature:
 
-    If you removed more than one OSD, replace `100%FREE` with the corresponding partition size. For example:
+- If you removed more than one OSD, replace `100%FREE` with the corresponding partition size. For example:
     ```bash
     lvcreate -l <partitionSize> -n meta_1 <vgName>
     ```
@@ -82,20 +83,18 @@ Substitute `<vgName>` with the name of a volume group captured in the `usedParti
     `<partitionSize>`, use the output of the **lvs** command. For example:
     `16G`.
 
-During execution of the `lvcreate` command, the system asks you to wipe the found bluestore label on a metadata device.
-For example:
-```bash
-WARNING: ceph_bluestore signature detected on /dev/ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9/meta_1 at offset 0. Wipe it? [y/n]:
-```
+- During execution of the `lvcreate` command, the system asks you to wipe the found bluestore label on a metadata device. For example:
+    ```bash
+    WARNING: ceph_bluestore signature detected on /dev/ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9/meta_1 at offset 0. Wipe it? [y/n]:
+    ```
 
-Using the interactive shell, answer `n` to keep all metadata partitions
-alive. After answering `n`, the system outputs the following:
+    Using the interactive shell, answer `n` to keep all metadata partitions alive. After answering `n`, the system outputs the following:
 
-```bash
-Aborted wiping of ceph_bluestore.
-1 existing signature left on the device.
-Logical volume "meta_1" created.
-```
+    ```bash
+    Aborted wiping of ceph_bluestore.
+    1 existing signature left on the device.
+    Logical volume "meta_1" created.
+    ```
 
 ## Re-create the Ceph OSD with the re-created metadata partition
 

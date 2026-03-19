@@ -146,37 +146,38 @@ other types of failure domains, migrate pools separately, and so on.
 
 3. Optional. Order buckets as required:
 
-   * Add the first Ceph CRUSH smaller bucket to its respective wider bucket:
-     ```bash
-     kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- bash
-     ceph osd crush move <smallerBucketName> <bucketType>=<widerBucketName>
-     ```
+     1. Add the first Ceph CRUSH smaller bucket to its respective wider bucket:
 
-       !!! warning
+        ```bash
+        kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- bash
+        ceph osd crush move <smallerBucketName> <bucketType>=<widerBucketName>
+        ```
 
-           We highly recommend moving one bucket at a time.
+        !!! warning
 
-           For more details, refer to official Ceph documentation:
-           [CRUHS Maps: Moving a bucket](https://docs.ceph.com/en/latest/rados/operations/crush-map/#moving-a-bucket).
+            We highly recommend moving one bucket at a time.
 
-       Substitute the following parameters:
+            For more details, refer to official Ceph documentation:
+            [CRUHS Maps: Moving a bucket](https://docs.ceph.com/en/latest/rados/operations/crush-map/#moving-a-bucket).
 
-         * `<smallerBucketName>` with the name of the smaller bucket, for example, host name;
-         * `<bucketType>` with the required bucket type, for example, `rack`;
-         * `<widerBucketName>` with the name of the wider bucket, for example, rack name.
+        Substitute the following parameters:
 
-       For example:
-       ```bash
-       ceph osd crush move kaas-node-1 rack=rack-1 root=default
-       ```
+        * `<smallerBucketName>` with the name of the smaller bucket, for example, host name
+        * `<bucketType>` with the required bucket type, for example, `rack`
+        * `<widerBucketName>` with the name of the wider bucket, for example, rack name
 
-   * After the bucket is moved to the new location in the CRUSH hierarchy,
-     verify that no data rebalancing occurs:
-     ```bash
-     ceph -s
-     ```
+        For example:
+        ```bash
+        ceph osd crush move kaas-node-1 rack=rack-1 root=default
+        ```
 
-   * Add the remaining Ceph CRUSH smaller buckets to their respective wider buckets one by one.
+     2. After the bucket is moved to the new location in the CRUSH hierarchy,
+        verify that no data rebalancing occurs:
+        ```bash
+        ceph -s
+        ```
+
+     3. Add the remaining Ceph CRUSH smaller buckets to their respective wider buckets one by one.
 
 4. Scale the Pelagia Controllers and Rook Ceph Operator deployments to `0` replicas:
    ```bash
