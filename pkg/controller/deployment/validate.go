@@ -44,7 +44,7 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 			c.log.Error().Msg(err)
 			errMsgs = append(errMsgs, err)
 		}
-		if !c.cdConfig.cephDpl.Spec.External && (cephDplPool.ErasureCoded == nil && cephDplPool.Replicated == nil ||
+		if !c.cdConfig.clusterSpec.External.Enable && (cephDplPool.ErasureCoded == nil && cephDplPool.Replicated == nil ||
 			cephDplPool.ErasureCoded != nil && cephDplPool.Replicated != nil) {
 			err := fmt.Sprintf("CephDeployment pool %s spec should contain either replicated or erasureCoded spec", cephDplPool.Name)
 			c.log.Error().Msg(err)
@@ -62,12 +62,12 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 		}
 	}
 	// do not fail for external case - may only CephFS be specified for usage
-	if !defaultFound && !c.cdConfig.cephDpl.Spec.External {
+	if !defaultFound && !c.cdConfig.clusterSpec.External.Enable {
 		err := "CephDeployment has no default pool specified"
 		c.log.Error().Msg(err)
 		errMsgs = append(errMsgs, err)
 	}
-	if !c.cdConfig.cephDpl.Spec.External {
+	if !c.cdConfig.clusterSpec.External.Enable {
 		for _, node := range c.cdConfig.cephDpl.Spec.Nodes {
 			if node.UseAllDevices != nil && *node.UseAllDevices {
 				errMsg := fmt.Sprintf("detected using 'useAllDevices' for '%s' node item, which is not supported", node.Name)
@@ -176,8 +176,54 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 			c.log.Error().Err(err).Msg("")
 			errMsgs = append(errMsgs, err.Error())
 		}
-		if err := validateObjectStorage(c.cdConfig.cephDpl, c.cdConfig.nodesListExpanded); err != nil {
+		if err := validateObjectStorage(c.cdConfig.cephDpl, c.cdConfig.nodesListExpanded, c.cdConfig.clusterSpec.External.Enable); err != nil {
 			c.log.Error().Err(err).Msg("")
+			errMsgs = append(errMsgs, err.Error())
+		}
+		switch c.cdConfig.clusterSpec.Network.Provider {
+		case "", "host", "multus":
+			if c.cdConfig.clusterSpec.Network.AddressRanges == nil {
+				err := errors.New("network addressRanges parameter is not specified")
+				c.log.Error().Err(err).Msg("")
+				errMsgs = append(errMsgs, err.Error())
+			} else {
+				if len(c.cdConfig.clusterSpec.Network.AddressRanges.Public) == 0 {
+					err := errors.New("network addressRanges public parameter is empty")
+					c.log.Error().Err(err).Msg("")
+					errMsgs = append(errMsgs, err.Error())
+				} else {
+					for _, net := range c.cdConfig.clusterSpec.Network.AddressRanges.Public {
+						if string(net) == "" || strings.HasPrefix(string(net), "0.0.0.0") {
+							err := errors.New("network address ranges public parameter should not be empty or contain range 0.0.0.0")
+							c.log.Error().Err(err).Msg("")
+							errMsgs = append(errMsgs, err.Error())
+							break
+						}
+					}
+				}
+				if len(c.cdConfig.clusterSpec.Network.AddressRanges.Cluster) == 0 {
+					err := errors.New("network addressRanges cluster parameter is empty")
+					c.log.Error().Err(err).Msg("")
+					errMsgs = append(errMsgs, err.Error())
+				} else {
+					for _, net := range c.cdConfig.clusterSpec.Network.AddressRanges.Cluster {
+						if string(net) == "" || strings.HasPrefix(string(net), "0.0.0.0") {
+							err := errors.New("network address ranges cluster parameter should not be empty or contain range 0.0.0.0")
+							c.log.Error().Err(err).Msg("")
+							errMsgs = append(errMsgs, err.Error())
+							break
+						}
+					}
+				}
+			}
+			if c.cdConfig.clusterSpec.Network.Provider == "multus" {
+				if c.cdConfig.clusterSpec.Network.Selectors[cephv1.CephNetworkPublic] == "" || c.cdConfig.clusterSpec.Network.Selectors[cephv1.CephNetworkCluster] == "" {
+					err := errors.New("network.selector public and/or cluster parameters should not be empty for provider 'multus'")
+					errMsgs = append(errMsgs, err.Error())
+				}
+			}
+		default:
+			err := errors.New("network provider parameter should be empty or equals 'host' or 'multus'")
 			errMsgs = append(errMsgs, err.Error())
 		}
 	}
@@ -185,39 +231,7 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 		c.log.Error().Err(err).Msg("")
 		errMsgs = append(errMsgs, err.Error())
 	}
-	switch c.cdConfig.cephDpl.Spec.Network.Provider {
-	case "", "host":
-		// if networks section contains 0.0.0.0/0 range or empty string - fail validation
-		nets := map[string]string{
-			"publicNet":  c.cdConfig.cephDpl.Spec.Network.PublicNet,
-			"clusterNet": c.cdConfig.cephDpl.Spec.Network.ClusterNet,
-		}
-		netKeys := []string{"publicNet", "clusterNet"}
-		for _, param := range netKeys {
-			netList := strings.Split(nets[param], ",")
-			for _, netrange := range netList {
-				if netrange = strings.Trim(netrange, " "); netrange == "0.0.0.0/0" || netrange == "" {
-					var err error
-					if netrange == "0.0.0.0/0" {
-						err = errors.Errorf("network %s parameter contains prohibited 0.0.0.0 range", param)
-					} else {
-						err = errors.Errorf("network %s parameter is empty", param)
-					}
-					c.log.Error().Err(err).Msg("")
-					errMsgs = append(errMsgs, err.Error())
-				}
-			}
-		}
-	case "multus":
-		if c.cdConfig.cephDpl.Spec.Network.Selector[cephv1.CephNetworkPublic] == "" || c.cdConfig.cephDpl.Spec.Network.Selector[cephv1.CephNetworkCluster] == "" {
-			err := errors.New("network.selector public and/or cluster parameters should not be empty for provider 'multus'")
-			errMsgs = append(errMsgs, err.Error())
-		}
-	default:
-		err := errors.New("network provider parameter should be empty or equals 'host' or 'multus'")
-		errMsgs = append(errMsgs, err.Error())
-	}
-	if errs := cephSharedFilesystemValidate(c.cdConfig.cephDpl, c.lcmConfig.RookNamespace, c.cdConfig.nodesListExpanded); len(errs) > 0 {
+	if errs := cephSharedFilesystemValidate(c.cdConfig.cephDpl, c.lcmConfig.RookNamespace, c.cdConfig.nodesListExpanded, c.cdConfig.clusterSpec.External.Enable); len(errs) > 0 {
 		c.log.Error().Msgf("errors during shared filesystem settings validation: %v", errs)
 		errMsgs = append(errMsgs, errs...)
 	}
@@ -232,7 +246,7 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 	return validationResult
 }
 
-func cephSharedFilesystemValidate(cephDpl *cephlcmv1alpha1.CephDeployment, rookNamespace string, nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode) []string {
+func cephSharedFilesystemValidate(cephDpl *cephlcmv1alpha1.CephDeployment, rookNamespace string, nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode, external bool) []string {
 	fsErrors := make([]string, 0)
 	if cephDpl.Spec.SharedFilesystem != nil {
 		for _, cephFSSpec := range cephDpl.Spec.SharedFilesystem.CephFS {
@@ -276,7 +290,7 @@ func cephSharedFilesystemValidate(cephDpl *cephlcmv1alpha1.CephDeployment, rookN
 				}
 			}
 			// do not count mds roles for external cluster
-			if !cephDpl.Spec.External {
+			if !external {
 				mdsCount := 0
 				for _, node := range nodesListExpanded {
 					if lcmcommon.Contains(node.Roles, "mds") {
@@ -359,7 +373,7 @@ CephDeploymentNodesLoop:
 	return nil
 }
 
-func validateObjectStorage(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode) error {
+func validateObjectStorage(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode, external bool) error {
 	issues := []string{}
 
 	checkRgwPool := func(cephDplPoolSpec cephlcmv1alpha1.CephPoolSpec, poolType, zone string) {
@@ -388,7 +402,7 @@ func validateObjectStorage(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExp
 	}
 
 	if cephDpl.Spec.ObjectStorage != nil {
-		if cephDpl.Spec.External {
+		if external {
 			if cephDpl.Spec.ObjectStorage.Rgw.MetadataPool != nil || cephDpl.Spec.ObjectStorage.Rgw.DataPool != nil {
 				issues = append(issues, "rgw in external mode, pools (metadata and data) specification is not allowed")
 			}

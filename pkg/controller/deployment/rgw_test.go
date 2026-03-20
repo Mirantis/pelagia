@@ -864,7 +864,7 @@ func TestEnsureRgwObject(t *testing.T) {
 			name: "ensure rgw - external rgw spec without external endpoints - create failed",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					External: true,
+					Cluster: unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy(),
 					ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
 						Rgw: cephlcmv1alpha1.CephRGW{Name: "rgw-store"},
 					},
@@ -941,6 +941,7 @@ func TestEnsureRgwObject(t *testing.T) {
 			name: "ensure rgw - multiste rgw failed with unknown zone",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
 						Rgw: unitinputs.CephDeployMultisiteMasterRgw.Spec.ObjectStorage.Rgw,
 					},
@@ -955,6 +956,7 @@ func TestEnsureRgwObject(t *testing.T) {
 			name: "ensure rgw - multiste rgw failed with invalid zone",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
 						Rgw: unitinputs.CephDeployMultisiteMasterRgw.Spec.ObjectStorage.Rgw,
 						MultiSite: &cephlcmv1alpha1.CephMultiSite{
@@ -1092,6 +1094,9 @@ func TestEnsureRgwObject(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephobjectstores"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "create", []string{"cephobjectstores"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "update", []string{"cephobjectstores"}, test.inputResources, test.apiErrors)
@@ -1700,6 +1705,9 @@ func TestEnsureRgw(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
 			lcmcommon.GenerateSelfSignedCert = func(_, _ string, _ []string) (string, string, string, error) {
 				return "fake-key", "fake-crt", "fake-ca", nil
 			}
@@ -2102,6 +2110,9 @@ func TestEnsureRgwInternalSslCert(t *testing.T) {
 	for idx, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, map[string]string{"DEPLOYMENT_MULTISITE_CABUNDLE_SECRET": test.multisiteSecretRef})
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
 			lcmcommon.GenerateSelfSignedCert = func(_, _ string, _ []string) (string, string, string, error) {
 				return "fake-key", "fake-crt", "fake-ca", nil
 			}

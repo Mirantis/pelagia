@@ -203,7 +203,7 @@ func TestReconcile(t *testing.T) {
 			testclient: faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.CephDeployWithWrongNodes.DeepCopy()).WithObjects(unitinputs.CephDeployWithWrongNodes.DeepCopy()),
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
 				Phase:   cephlcmv1alpha1.PhaseFailed,
-				Message: "failed to expand node list for CephDeployment lcm-namespace/cephcluster",
+				Message: "failed to verify provided data for CephDeployment lcm-namespace/cephcluster",
 				LastRun: "2021-08-15T14:30:15+04:00",
 			},
 			result: requeueAfterInterval,
@@ -1186,6 +1186,31 @@ func TestReconcile(t *testing.T) {
 				LastRun: "2021-08-15T14:30:42+04:00",
 			},
 		},
+		{
+			name: "reconcile cephdeployment - failed to update deprecated fields",
+			inputResources: map[string]runtime.Object{
+				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{unitinputs.CephDeploymentDeprecated}},
+				"configmaps":      &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.PelagiaConfig}},
+			},
+			testclient: faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.CephDeploymentDeprecated.DeepCopy()).WithObjects(unitinputs.CephDeploymentDeprecated.DeepCopy()),
+			apiErrors:  map[string]error{"update-cephdeployments": errors.New("update failed")},
+			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
+				Phase:   cephlcmv1alpha1.PhaseFailed,
+				Message: "failed to ensure deprecated fields for CephDeployment lcm-namespace/cephcluster",
+				LastRun: "2021-08-15T14:30:43+04:00",
+			},
+			result: requeueAfterInterval,
+		},
+		{
+			name: "reconcile cephdeployment - update deprecated fields",
+			inputResources: map[string]runtime.Object{
+				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{unitinputs.CephDeploymentDeprecated}},
+				"configmaps":      &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.PelagiaConfig}},
+			},
+			testclient:     faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.CephDeploymentDeprecated.DeepCopy()).WithObjects(unitinputs.CephDeploymentDeprecated.DeepCopy()),
+			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{},
+			result:         noRequeue,
+		},
 	}
 
 	oldTriesLeft := failTriesLeft
@@ -1444,7 +1469,7 @@ func TestCleanCephDeployment(t *testing.T) {
 				"delete-secrets":                    errors.New("failed to delete secret"),
 				"delete-storageclasses":             errors.New("failed to delete storageclass"),
 			},
-			expectedError: "deletion is not completed for CephDeployment: failed to remove CephDeploymentSecret 'lcm-namespace/cephcluster', failed to remove CephDeploymentMaintenance 'lcm-namespace/cephcluster', failed to remove object storage, failed to remove rbd mirror, failed to remove ceph clients, failed to remove storage classes, failed to remove external resources",
+			expectedError: "deletion is not completed for CephDeployment: failed to remove CephDeploymentSecret 'lcm-namespace/cephcluster', failed to remove CephDeploymentMaintenance 'lcm-namespace/cephcluster', failed to remove object storage, failed to remove ceph clients, failed to remove storage classes, failed to remove external resources",
 		},
 		{
 			name:           "external - delete resources is in progress (first step)",
@@ -1485,6 +1510,8 @@ func TestCleanCephDeployment(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, map[string]string{"DEPLOYMENT_NETPOL_ENABLED": "true"})
+			err := c.castExtensions()
+			assert.Nil(t, err)
 			c.cdConfig.currentCephVersion = lcmcommon.LatestRelease
 
 			lcmcommon.RunPodCommandWithValidation = func(e lcmcommon.ExecConfig) (string, string, error) {
@@ -1864,9 +1891,8 @@ func TestCheckLCMStuff(t *testing.T) {
 			faketestclients.FakeReaction(c.api.CephLcmclientset, "list", []string{"cephosdremovetasks"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.CephLcmclientset, "get", []string{"cephdeploymentmaintenances"}, test.inputResources, test.apiErrors)
 
-			nodesList, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
+			err := c.castExtensions()
 			assert.Nil(t, err)
-			c.cdConfig.nodesListExpanded = nodesList
 
 			ready, phase, err := c.checkLcmState()
 			assert.Equal(t, test.expectedLcmActive, ready)
@@ -1899,7 +1925,7 @@ func TestApplyConfiguration(t *testing.T) {
 	}
 	externalCephDplButWithCommonFields := fullCephDplSpec.DeepCopy()
 	externalCephDplButWithCommonFields.ObjectMeta = unitinputs.CephDeployExternal.ObjectMeta
-	externalCephDplButWithCommonFields.Spec.External = true
+	externalCephDplButWithCommonFields.Spec.Cluster = unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
 	externalCephDplButWithCommonFields.Spec.ObjectStorage = unitinputs.CephDeployExternalRgw.Spec.ObjectStorage.DeepCopy()
 
 	inputResourcesForApply := map[string]runtime.Object{
@@ -1973,23 +1999,11 @@ func TestApplyConfiguration(t *testing.T) {
 				*unitinputs.CephRBDMirrorSecret2.DeepCopy(),
 			},
 		},
-		"nodes": &corev1.NodeList{
-			Items: []corev1.Node{
-				unitinputs.GetAvailableNode("node-1"),
-				unitinputs.GetAvailableNode("node-2"),
-				unitinputs.GetAvailableNode("node-3"),
-			},
-		},
 		"storageclasses": &storagev1.StorageClassList{},
 		"cephclients":    &cephv1.CephClientList{},
 		"cephclusters": &cephv1.CephClusterList{
 			Items: []cephv1.CephCluster{
 				*unitinputs.CephClusterExternal.DeepCopy(),
-			},
-		},
-		"cephrbdmirrors": &cephv1.CephRBDMirrorList{
-			Items: []cephv1.CephRBDMirror{
-				*unitinputs.CephRBDMirrorWithStatus(unitinputs.CephRBDMirror, "Ready"),
 			},
 		},
 		"cephobjectstores": &cephv1.CephObjectStoreList{
@@ -2143,27 +2157,14 @@ func TestApplyConfiguration(t *testing.T) {
 				"secrets": &corev1.SecretList{
 					Items: []corev1.Secret{*unitinputs.ExternalConnectionSecretWithAdminAndRgw.DeepCopy()},
 				},
-				"nodes": &corev1.NodeList{
-					Items: []corev1.Node{
-						unitinputs.GetAvailableNode("node-1"),
-						unitinputs.GetAvailableNode("node-2"),
-						unitinputs.GetAvailableNode("node-3"),
-					},
-				},
 				"storageclasses":       &storagev1.StorageClassList{},
 				"cephclients":          &cephv1.CephClientList{},
 				"cephclusters":         &cephv1.CephClusterList{},
-				"cephrbdmirrors":       &cephv1.CephRBDMirrorList{},
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
 				"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{},
-				"networkpolicies": &networkingv1.NetworkPolicyList{
-					Items: []networkingv1.NetworkPolicy{
-						unitinputs.NetworkPolicyMds, unitinputs.NetworkPolicyMgr, unitinputs.NetworkPolicyMon, unitinputs.NetworkPolicyOsd, unitinputs.NetworkPolicyRgw,
-					},
-				},
 			},
 			ccsettingsMap: ccsettingsMap,
-			inProgressMsg: "configuration apply is in progress: cephcluster, storageclasses, ceph object storage, RBD Mirroring",
+			inProgressMsg: "configuration apply is in progress: cephcluster, storageclasses, ceph object storage",
 		},
 		{
 			name:           "apply reconcile cephdeployment external - apply configuration is in progress",
@@ -2285,9 +2286,8 @@ func TestApplyConfiguration(t *testing.T) {
 				return "1675587456"
 			}
 
-			nodesList, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
+			err := c.castExtensions()
 			assert.Nil(t, err)
-			c.cdConfig.nodesListExpanded = nodesList
 
 			applyInProgress, applyErr := c.applyConfiguration()
 			assert.Equal(t, test.inProgressMsg, applyInProgress)

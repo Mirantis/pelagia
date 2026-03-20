@@ -226,7 +226,7 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			name: "generate openstack shared secret - external ceph cluster, ip rgw plain endpoint",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				object := unitinputs.CephDeployMosk.DeepCopy()
-				object.Spec.External = true
+				object.Spec.Cluster = unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
 				object.Spec.ObjectStorage.Rgw.Gateway.SecurePort = 0
 				object.Spec.ObjectStorage.Rgw.Gateway.ExternalRgwEndpoint = &cephv1.EndpointAddress{IP: "172.168.0.15"}
 				return object
@@ -245,7 +245,7 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			name: "generate openstack shared secret - external ceph cluster, hostname secure rgw endpoint",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				object := unitinputs.CephDeployMosk.DeepCopy()
-				object.Spec.External = true
+				object.Spec.Cluster = unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
 				object.Spec.ObjectStorage.Rgw.Gateway.ExternalRgwEndpoint = &cephv1.EndpointAddress{IP: "some-rgw-domain"}
 				return object
 			}(),
@@ -263,7 +263,7 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			name: "generate openstack shared secret - external ceph cluster, ip secure rgw endpoint",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				object := unitinputs.CephDeployMosk.DeepCopy()
-				object.Spec.External = true
+				object.Spec.Cluster = unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
 				object.Spec.ObjectStorage.Rgw.Gateway.ExternalRgwEndpoint = &cephv1.EndpointAddress{IP: "10.0.0.1"}
 				return object
 			}(),
@@ -281,7 +281,7 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			name: "generate openstack shared secret - external ceph cluster, no rgw endpoint provided",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				object := unitinputs.CephDeployMosk.DeepCopy()
-				object.Spec.External = true
+				object.Spec.Cluster = unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
 				return object
 			}(),
 			adminSecret: &unitinputs.RookCephMonSecret,
@@ -298,7 +298,7 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			name: "generate openstack shared secret - external ceph cluster, no rgw",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				object := unitinputs.CephDeployMosk.DeepCopy()
-				object.Spec.External = true
+				object.Spec.Cluster = unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
 				object.Spec.ObjectStorage = nil
 				return object
 			}(),
@@ -309,6 +309,9 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
 			secretData := openstackSecretData{
 				clientKeys: map[string]string{
 					"nova":   "nova",
@@ -600,6 +603,8 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"configmaps", "secrets"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "create", []string{"secrets"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "update", []string{"secrets"}, test.inputResources, test.apiErrors)

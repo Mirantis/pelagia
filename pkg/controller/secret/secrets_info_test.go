@@ -85,7 +85,9 @@ func TestGetSecretsStatusInfo(t *testing.T) {
 			name: "external cluster - secrets status no issues",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployNonMoskForSecret.DeepCopy()
-				mc.Spec.External = true
+				mc.Spec.Cluster.Raw = unitinputs.ConvertStructToRaw(
+					cephv1.ClusterSpec{External: cephv1.ExternalSpec{Enable: true}},
+				)
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{

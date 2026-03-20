@@ -224,6 +224,8 @@ func TestEnsureObjectStorage(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
 			lcmcommon.GetCurrentTimeString = func() string {
 				return "current-time"
 			}
@@ -410,6 +412,9 @@ func TestDeleteObjectStorage(t *testing.T) {
 				test.cephDpl = &unitinputs.BaseCephDeployment
 			}
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
 			lcmcommon.RunPodCommandWithValidation = func(e lcmcommon.ExecConfig) (string, string, error) {
 				if e.Command == "radosgw-admin realm list" {
 					return "{}", "", nil

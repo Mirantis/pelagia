@@ -996,6 +996,8 @@ func TestBuildRookConfig(t *testing.T) {
 				test.currentCephVersion = lcmcommon.LatestRelease
 			}
 			c.cdConfig.currentCephVersion = test.currentCephVersion
+			err := c.castExtensions()
+			assert.Nil(t, err)
 
 			inputResources := map[string]runtime.Object{"secrets": &unitinputs.SecretsListEmpty}
 			if test.openstackSecret != nil {
@@ -1494,6 +1496,8 @@ func TestEnsureCephConfig(t *testing.T) {
 
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
 			c.cdConfig.currentCephVersion = lcmcommon.LatestRelease
+			err := c.castExtensions()
+			assert.Nil(t, err)
 			inputResources := map[string]runtime.Object{
 				"deployments": &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.ToolBoxDeploymentReady}},
 				"secrets":     unitinputs.SecretsListEmpty.DeepCopy(),

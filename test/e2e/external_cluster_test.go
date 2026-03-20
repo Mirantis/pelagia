@@ -27,12 +27,14 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/pkg/errors"
+	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/clientcmd"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
@@ -313,17 +315,21 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 	}
 
 	f.Step(t, "Build and create external Ceph cluster")
+	externalRaw, err := cephlcmv1alpha1.DecodeStructToRaw(
+		cephv1.ClusterSpec{External: cephv1.ExternalSpec{Enable: true}},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
 	externalCephCluster := &cephlcmv1alpha1.CephDeployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "external-ceph",
 			Namespace: externalClusterNamespace,
 		},
 		Spec: cephlcmv1alpha1.CephDeploymentSpec{
-			Network: cephlcmv1alpha1.CephNetworkSpec{
-				ClusterNet: cd.Spec.Network.ClusterNet,
-				PublicNet:  cd.Spec.Network.PublicNet,
+			Cluster: &cephlcmv1alpha1.CephCluster{
+				RawExtension: runtime.RawExtension{Raw: externalRaw},
 			},
-			External:         true,
 			Nodes:            []cephlcmv1alpha1.CephDeploymentNode{},
 			Pools:            poolsSection,
 			SharedFilesystem: cephFSSection,
