@@ -334,11 +334,15 @@ func (c *cephDeploymentConfig) buildCephConfig() (string, map[string]string, map
 			baseCephConfig[getFullKeyWithSection(opt.section, opt.key)] = opt
 		}
 	}
-	if c.cdConfig.cephDpl.Spec.Network.Provider == "" || c.cdConfig.cephDpl.Spec.Network.Provider == "host" {
+	if c.cdConfig.clusterSpec.Network.Provider == "" || c.cdConfig.clusterSpec.Network.Provider == "host" {
+		// will be catched on validation, but double check
+		if c.cdConfig.clusterSpec.Network.AddressRanges == nil {
+			return "", nil, nil, errors.New("network ranges for public and cluster are not provided")
+		}
 		// put network params and do not allow to override it through rook config
 		mergeConfig([]configOption{
-			{static: true, section: "global", key: "cluster_network", value: c.cdConfig.cephDpl.Spec.Network.ClusterNet},
-			{static: true, section: "global", key: "public_network", value: c.cdConfig.cephDpl.Spec.Network.PublicNet},
+			{static: true, section: "global", key: "cluster_network", value: c.cdConfig.clusterSpec.Network.AddressRanges.Cluster.String()},
+			{static: true, section: "global", key: "public_network", value: c.cdConfig.clusterSpec.Network.AddressRanges.Public.String()},
 		})
 	}
 	mergeConfig(generalConfigOptions)

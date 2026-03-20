@@ -301,7 +301,7 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 	}
 
 	var clientAdminSecret []byte
-	if c.cdConfig.cephDpl.Spec.External != nil {
+	if c.cdConfig.clusterSpec.External.Enable {
 		// external cluster is connected with admin key
 		clientAdminSecret = secretData.adminSecret.Data["admin-secret"]
 	} else {
@@ -327,7 +327,7 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 	}
 
 	if c.cdConfig.cephDpl.Spec.ObjectStorage != nil {
-		if c.cdConfig.cephDpl.Spec.External == nil {
+		if !c.cdConfig.clusterSpec.External.Enable {
 			fqdn := fmt.Sprintf("%s.%s.svc", buildRGWName(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name, ""), c.lcmConfig.RookNamespace)
 			if c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.SecurePort != int32(0) {
 				secret.Data["rgw_internal"] = []byte(fmt.Sprintf("https://%s:%d/", fqdn, c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.SecurePort))
@@ -340,7 +340,7 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 		}
 
 		ingressTLS := getIngressTLS(c.cdConfig.cephDpl)
-		if c.cdConfig.cephDpl.Spec.External != nil {
+		if c.cdConfig.clusterSpec.External.Enable {
 			rgwExternal := c.getRgwExternalEndpoint(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw)
 			if rgwExternal != "" {
 				secret.Data["rgw_external"] = []byte(rgwExternal)

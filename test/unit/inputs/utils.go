@@ -20,6 +20,8 @@ import (
 	"fmt"
 
 	"sigs.k8s.io/yaml"
+
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 )
 
 func ConvertJSONToYaml(data []byte) []byte {
@@ -33,6 +35,15 @@ func ConvertJSONToYaml(data []byte) []byte {
 
 func ConvertYamlToJSON(data []byte) []byte {
 	data, err := yaml.YAMLToJSON(data)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil
+	}
+	return data
+}
+
+func ConvertStructToRaw(s any) []byte {
+	data, err := cephlcmv1alpha1.DecodeStructToRaw(s)
 	if err != nil {
 		fmt.Println(err.Error())
 		return nil

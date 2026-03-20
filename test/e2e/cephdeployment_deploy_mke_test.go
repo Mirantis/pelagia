@@ -21,6 +21,7 @@ import (
 
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	f "github.com/Mirantis/pelagia/test/e2e/framework"
@@ -78,15 +79,28 @@ func TestDeployCephDeploymentMKE(t *testing.T) {
 		}
 	}
 
+	rawCluster, err := cephlcmv1alpha1.DecodeStructToRaw(
+		cephv1.ClusterSpec{
+			Network: cephv1.NetworkSpec{
+				AddressRanges: &cephv1.AddressRangesSpec{
+					Public:  []cephv1.CIDR{cephv1.CIDR(testConfig["publicNet"])},
+					Cluster: []cephv1.CIDR{cephv1.CIDR(testConfig["clusterNet"])},
+				},
+			},
+		},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	mkeCD := &cephlcmv1alpha1.CephDeployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "mke-cephcluster",
 			Namespace: f.TF.ManagedCluster.LcmNamespace,
 		},
 		Spec: cephlcmv1alpha1.CephDeploymentSpec{
-			Network: &cephlcmv1alpha1.CephNetworkSpec{
-				ClusterNet: testConfig["clusterNet"],
-				PublicNet:  testConfig["publicNet"],
+			Cluster: &cephlcmv1alpha1.CephCluster{
+				RawExtension: runtime.RawExtension{Raw: rawCluster},
 			},
 			ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
 				Rgw: cephlcmv1alpha1.CephRGW{

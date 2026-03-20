@@ -20,7 +20,7 @@ import (
 	"context"
 	"time"
 
-	//cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
+	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"github.com/rs/zerolog"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
@@ -48,7 +48,7 @@ type deployConfig struct {
 	// cephDpl is a full cephdeployment object pointer
 	cephDpl *cephlcmv1alpha1.CephDeployment
 	// cluster spec casted from cephdeployment cluster RawExtension
-	//clusterSpec *cephv1.ClusterSpec
+	clusterSpec *cephv1.ClusterSpec
 	// expanded node list w/o groups and labels, like it passed to ceph cluster
 	nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode
 	// parsed currentCephVersion for current cephDpl

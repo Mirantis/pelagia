@@ -26,7 +26,9 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"github.com/stretchr/testify/assert"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
@@ -192,8 +194,20 @@ func TestValidationFailure(t *testing.T) {
 
 	f.Step(t, "generate incorrect cluster spec")
 	// network validation
-	cd.Spec.Network.PublicNet = ""
-	cd.Spec.Network.ClusterNet = "0.0.0.0/0"
+	clusterSpec, err := cd.Spec.Cluster.GetSpec()
+	if err != nil {
+		t.Fatal(err)
+	}
+	clusterSpec.Network.AddressRanges.Public = []cephv1.CIDR{cephv1.CIDR("")}
+	clusterSpec.Network.AddressRanges.Cluster = nil
+	clusterNew, err := cephlcmv1alpha1.DecodeStructToRaw(clusterSpec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cd.Spec.Cluster = &cephlcmv1alpha1.CephCluster{
+		RawExtension: runtime.RawExtension{Raw: clusterNew},
+	}
+
 	// pools validation
 	poolName := "test-pool-invalid-" + fmt.Sprintf("%d", time.Now().Unix())
 	cd.Spec.Pools = append(cd.Spec.Pools, cephlcmv1alpha1.CephPool{
@@ -314,8 +328,8 @@ func TestValidationFailure(t *testing.T) {
 		fmt.Sprintf("CephDeployment node spec for node '%s' contains invalid crush topology key 'datcentr'. Valid are: chassis, datacenter, pdu, rack, region, room, row, zone", nodeNameToCheck),
 		fmt.Sprintf("failed to parse config parameter 'osdsPerDevice' for device '%s' from node '%s'", deviceNameToCheck, nodeNameToCheck),
 		fmt.Sprintf("CephDeployment monitors (roles 'mon') count %d is even, but should be odd for a healthy quorum", monCnt),
-		"network clusterNet parameter contains prohibited 0.0.0.0 range",
-		"network publicNet parameter is empty",
+		"network address ranges public parameter should not be empty or contain range 0.0.0.0",
+		"network addressRanges cluster parameter is empty",
 		"metadataPool for CephFS rook-ceph/fake must use replication only",
 		"metadataPool for CephFS rook-ceph/fake has no deviceClass specified (valid options are: [hdd nvme ssd])",
 		"dataPool fake-datapool-1 will be used as default for CephFS rook-ceph/fake and must use replication only",
