@@ -23,12 +23,11 @@ import (
 )
 
 func (c *cephDeploymentConfig) castExtensions() error {
-	// TODO: enable later
-	//castedClusterSpec, err := c.cdConfig.cephDpl.Spec.Cluster.GetSpec()
-	//if err != nil {
-	//	return err
-	//}
-	//c.cdConfig.clusterSpec = &castedClusterSpec
+	castedClusterSpec, err := c.cdConfig.cephDpl.Spec.Cluster.GetSpec()
+	if err != nil {
+		return err
+	}
+	c.cdConfig.clusterSpec = &castedClusterSpec
 
 	expandedNodes, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, c.cdConfig.cephDpl.Spec)
 	if err != nil {

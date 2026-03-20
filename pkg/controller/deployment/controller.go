@@ -27,12 +27,10 @@ import (
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	lcmclient "github.com/Mirantis/pelagia/pkg/client/clientset/versioned"
 
-	"github.com/google/go-cmp/cmp"
 	claimClient "github.com/kube-object-storage/lib-bucket-provisioner/pkg/client/clientset/versioned"
 	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
@@ -93,12 +91,18 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 func cephDplPredicate[T *cephlcmv1alpha1.CephDeployment]() predicate.TypedFuncs[T] {
 	return predicate.TypedFuncs[T]{
 		UpdateFunc: func(e event.TypedUpdateEvent[T]) bool {
-			resourceQtyComparer := cmp.Comparer(func(x, y resource.Quantity) bool { return x.Cmp(y) == 0 })
-
 			oldObject := (*cephlcmv1alpha1.CephDeployment)(e.ObjectOld)
 			newObject := (*cephlcmv1alpha1.CephDeployment)(e.ObjectNew)
 
-			diff := cmp.Diff(oldObject.Spec, newObject.Spec, resourceQtyComparer)
+			// make diff happy with migrations stuff
+			if oldObject.Spec.Cluster == nil && newObject.Spec.Cluster != nil {
+				oldObject.Spec.Cluster = &cephlcmv1alpha1.CephCluster{}
+			}
+			if newObject.Spec.Cluster == nil && oldObject.Spec.Cluster != nil {
+				newObject.Spec.Cluster = &cephlcmv1alpha1.CephCluster{}
+			}
+
+			diff, _ := lcmcommon.GetObjectDiff(oldObject.Spec, newObject.Spec)
 			if diff != "" {
 				log.Info().Str(lcmcommon.LoggerObjectField, fmt.Sprintf("cephdeployment '%s/%s'", oldObject.Namespace, oldObject.Name)).Msgf("spec has changed for %q. diff=%s", newObject.Name, diff)
 				return true
@@ -184,7 +188,7 @@ func (r *ReconcileCephDeployment) Reconcile(ctx context.Context, request reconci
 
 	// check first deprecated fields
 	// and re-run reconcile if we migrated something
-	migrated, err := cephDplConfig.ensureDeprecatedFields(true)
+	migrated, err := cephDplConfig.ensureDeprecatedFields(false)
 	if err != nil {
 		cephDpl.Status.Phase = cephlcmv1alpha1.PhaseFailed
 		cephDpl.Status.Message = fmt.Sprintf("failed to ensure deprecated fields for CephDeployment %s/%s", cephDpl.Namespace, cephDpl.Name)
@@ -518,7 +522,7 @@ func (c *cephDeploymentConfig) verifySetup() error {
 }
 
 func (c *cephDeploymentConfig) checkLcmState() (bool, cephlcmv1alpha1.CephDeploymentPhase, error) {
-	if c.cdConfig.cephDpl.Spec.External == nil {
+	if !c.cdConfig.clusterSpec.External.Enable {
 		c.log.Debug().Msg("ensure CephOsdRemoveTasks")
 		taskList, err := c.api.CephLcmclientset.LcmV1alpha1().CephOsdRemoveTasks(c.cdConfig.cephDpl.Namespace).List(c.context, metav1.ListOptions{})
 		if err != nil {
@@ -597,7 +601,7 @@ func (c *cephDeploymentConfig) applyConfiguration() (string, string) {
 	var err error
 	var changed bool
 
-	if c.cdConfig.cephDpl.Spec.External == nil {
+	if !c.cdConfig.clusterSpec.External.Enable {
 		// Ensure node labels and topology
 		changed, err = c.ensureLabelNodes()
 		handleEnsureResult(changed, err, "label nodes")
@@ -609,7 +613,7 @@ func (c *cephDeploymentConfig) applyConfiguration() (string, string) {
 
 	// ensure network policies
 	netPoolChanged := false
-	if c.cdConfig.cephDpl.Spec.External == nil {
+	if !c.cdConfig.clusterSpec.External.Enable {
 		netPoolChanged, err = c.ensureNetworkPolicy()
 		handleEnsureResult(netPoolChanged, err, "network policies")
 	}
@@ -620,7 +624,7 @@ func (c *cephDeploymentConfig) applyConfiguration() (string, string) {
 		changed, err = c.ensureCluster()
 		handleEnsureResult(changed, err, "cephcluster")
 
-		if c.cdConfig.cephDpl.Spec.External == nil {
+		if !c.cdConfig.clusterSpec.External.Enable {
 			// Ensure ceph block pools processing for non-external cluster
 			changed, err = c.ensurePools()
 			handleEnsureResult(changed, err, "cephblockpools")
@@ -642,11 +646,11 @@ func (c *cephDeploymentConfig) applyConfiguration() (string, string) {
 		changed, err = c.ensureObjectStorage()
 		handleEnsureResult(changed, err, "ceph object storage")
 
-		// Ensure RBD Mirror processing
-		changed, err = c.ensureRBDMirroring()
-		handleEnsureResult(changed, err, "RBD Mirroring")
+		if !c.cdConfig.clusterSpec.External.Enable {
+			// Ensure RBD Mirror processing
+			changed, err = c.ensureRBDMirroring()
+			handleEnsureResult(changed, err, "RBD Mirroring")
 
-		if c.cdConfig.cephDpl.Spec.External == nil {
 			// Ensure openstack shared secret processing for non-external cluster
 			changed, err = c.ensureOpenstackSecret()
 			handleEnsureResult(changed, err, "Openstack secret")
@@ -769,7 +773,7 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 		}
 		return false, err
 	})
-	if c.cdConfig.cephDpl.Spec.External == nil {
+	if !c.cdConfig.clusterSpec.External.Enable {
 		// Delete openstack secret
 		if c.cdConfig.cephDpl.Spec.ExtraOpts != nil && c.cdConfig.cephDpl.Spec.ExtraOpts.DisableOsKeys {
 			c.log.Warn().Msgf("openstack secret %s/%s ensure disabled, skip deleting. Do not forget to remove it manually",
@@ -784,21 +788,23 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 	runRemoveState("object storage", func() (bool, error) {
 		return c.deleteObjectStorage()
 	})
-	if c.cdConfig.cephDpl.Spec.External == nil {
+	if !c.cdConfig.clusterSpec.External.Enable {
 		// Delete ingress proxy
 		runRemoveState("ingress proxy", func() (bool, error) {
 			return c.deleteIngressProxy()
 		})
+
+		// Delete RBD Mirror
+		runRemoveState("rbd mirror", func() (bool, error) {
+			return c.deleteRBDMirroring()
+		})
 	}
-	// Delete RBD Mirror
-	runRemoveState("rbd mirror", func() (bool, error) {
-		return c.deleteRBDMirroring()
-	})
+
 	// Delete ceph clients
 	runRemoveState("ceph clients", func() (bool, error) {
 		return c.deleteCephClients()
 	})
-	if c.cdConfig.cephDpl.Spec.External == nil {
+	if !c.cdConfig.clusterSpec.External.Enable {
 		// Delete ceph block pools
 		runRemoveState("ceph block pools", func() (bool, error) {
 			return c.deletePools()
@@ -813,7 +819,7 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 	runRemoveState("storage classes", func() (bool, error) {
 		return c.deleteStorageClasses()
 	})
-	if c.cdConfig.cephDpl.Spec.External != nil {
+	if c.cdConfig.clusterSpec.External.Enable {
 		runRemoveState("external resources", func() (bool, error) {
 			return c.deleteExternalConnectionSecret()
 		})
@@ -838,7 +844,7 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 			return c.deleteCsiOperatorResources()
 		})
 
-		if c.cdConfig.cephDpl.Spec.External == nil {
+		if !c.cdConfig.clusterSpec.External.Enable {
 			// Delete network policies
 			runRemoveState("network policies", func() (bool, error) {
 				return c.cleanupNetworkPolicy()

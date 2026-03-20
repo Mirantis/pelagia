@@ -36,7 +36,7 @@ func (c *cephDeploymentConfig) ensureObjectStorage() (bool, error) {
 	}
 	c.log.Debug().Msg("ensure object storage")
 	objectStorageChanged := false
-	if c.cdConfig.cephDpl.Spec.External == nil {
+	if !c.cdConfig.clusterSpec.External.Enable {
 		if c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite == nil {
 			c.log.Debug().Msg("no object storage multisite section, skip multisite ensure and cleanup all multisite stuff")
 			removed, err := c.deleteMultiSite()
@@ -88,7 +88,7 @@ func (c *cephDeploymentConfig) deleteObjectStorage() (bool, error) {
 			errorsNumber++
 		}
 		rgwRemoved = certsRemoved
-		if c.cdConfig.cephDpl.Spec.External == nil {
+		if !c.cdConfig.clusterSpec.External.Enable {
 			multisiteRemoved, err := c.deleteMultiSite()
 			if err != nil {
 				c.log.Error().Err(err).Msg("error deleting rgw multisite")

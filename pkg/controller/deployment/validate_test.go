@@ -185,10 +185,10 @@ func TestCephSharedFilesystemValidate(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
-			expanded, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
+			err := c.castExtensions()
 			assert.Nil(t, err)
 
-			errors := cephSharedFilesystemValidate(test.cephDpl, "rook-ceph", expanded)
+			errors := cephSharedFilesystemValidate(test.cephDpl, "rook-ceph", c.cdConfig.nodesListExpanded, c.cdConfig.clusterSpec.External.Enable)
 			assert.Equal(t, test.expectedErrors, errors)
 		})
 	}
@@ -416,10 +416,10 @@ func TestValidateObjectStorage(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
-			expanded, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
+			err := c.castExtensions()
 			assert.Nil(t, err)
 
-			err = validateObjectStorage(test.cephDpl, expanded)
+			err = validateObjectStorage(test.cephDpl, c.cdConfig.nodesListExpanded, c.cdConfig.clusterSpec.External.Enable)
 			if test.expectedError == "" {
 				assert.Nil(t, err)
 			} else {
@@ -650,12 +650,33 @@ func TestValidate(t *testing.T) {
 			},
 		},
 		{
+			name: "validate network section not specified, failed",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cd := unitinputs.CephDeployNonMosk.DeepCopy()
+				cd.Spec.Cluster.Raw = unitinputs.ConvertStructToRaw(cephv1.ClusterSpec{})
+				return cd
+			}(),
+			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),
+			expected: cephlcmv1alpha1.CephDeploymentValidation{
+				Result:                  cephlcmv1alpha1.ValidationFailed,
+				LastValidatedGeneration: 10,
+				Messages:                []string{"network addressRanges parameter is not specified"},
+			},
+		},
+		{
 			name: "validate incorrect network section, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.Network = &cephlcmv1alpha1.CephNetworkSpec{
-					PublicNet: "0.0.0.0/0",
-				}
+				cd.Spec.Cluster.Raw = unitinputs.ConvertStructToRaw(
+					cephv1.ClusterSpec{
+						Network: cephv1.NetworkSpec{
+							AddressRanges: &cephv1.AddressRangesSpec{
+								Public:  []cephv1.CIDR{cephv1.CIDR("0.0.0.0/0")},
+								Cluster: []cephv1.CIDR{cephv1.CIDR("0.0.0.0/0")},
+							},
+						},
+					},
+				)
 				return cd
 			}(),
 			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),
@@ -663,8 +684,31 @@ func TestValidate(t *testing.T) {
 				Result:                  cephlcmv1alpha1.ValidationFailed,
 				LastValidatedGeneration: 10,
 				Messages: []string{
-					"network publicNet parameter contains prohibited 0.0.0.0 range",
-					"network clusterNet parameter is empty",
+					"network address ranges public parameter should not be empty or contain range 0.0.0.0",
+					"network address ranges cluster parameter should not be empty or contain range 0.0.0.0",
+				},
+			},
+		},
+		{
+			name: "validate networks not specified, failed",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cd := unitinputs.CephDeployNonMosk.DeepCopy()
+				cd.Spec.Cluster.Raw = unitinputs.ConvertStructToRaw(
+					cephv1.ClusterSpec{
+						Network: cephv1.NetworkSpec{
+							AddressRanges: &cephv1.AddressRangesSpec{},
+						},
+					},
+				)
+				return cd
+			}(),
+			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),
+			expected: cephlcmv1alpha1.CephDeploymentValidation{
+				Result:                  cephlcmv1alpha1.ValidationFailed,
+				LastValidatedGeneration: 10,
+				Messages: []string{
+					"network addressRanges public parameter is empty",
+					"network addressRanges cluster parameter is empty",
 				},
 			},
 		},
@@ -672,28 +716,37 @@ func TestValidate(t *testing.T) {
 			name: "validate incorrect network provider, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.Network = &cephlcmv1alpha1.CephNetworkSpec{
-					Provider: "local",
-				}
+				cd.Spec.Cluster.Raw = unitinputs.ConvertStructToRaw(
+					cephv1.ClusterSpec{
+						Network: cephv1.NetworkSpec{
+							Provider: "local",
+						},
+					},
+				)
 				return cd
 			}(),
 			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),
 			expected: cephlcmv1alpha1.CephDeploymentValidation{
 				Result:                  cephlcmv1alpha1.ValidationFailed,
 				LastValidatedGeneration: 10,
-				Messages: []string{
-					"network provider parameter should be empty or equals 'host' or 'multus'",
-				},
+				Messages:                []string{"network provider parameter should be empty or equals 'host' or 'multus'"},
 			},
 		},
 		{
 			name: "validate empty multus network params, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.Network = &cephlcmv1alpha1.CephNetworkSpec{
-					Provider: "multus",
-					Selector: map[cephv1.CephNetworkType]string{},
-				}
+				cd.Spec.Cluster.Raw = unitinputs.ConvertStructToRaw(
+					cephv1.ClusterSpec{
+						Network: cephv1.NetworkSpec{
+							Provider: "multus",
+							AddressRanges: &cephv1.AddressRangesSpec{
+								Public:  []cephv1.CIDR{cephv1.CIDR("10.0.0.0/16")},
+								Cluster: []cephv1.CIDR{cephv1.CIDR("10.0.0.0/16")},
+							},
+						},
+					},
+				)
 				return cd
 			}(),
 			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),
@@ -750,9 +803,8 @@ func TestValidate(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "list", []string{"nodes"}, map[string]runtime.Object{"nodes": test.nodeList}, nil)
 
-			expanded, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
+			err := c.castExtensions()
 			assert.Nil(t, err)
-			c.cdConfig.nodesListExpanded = expanded
 
 			actual := c.validate()
 			assert.Equal(t, test.expected, actual)

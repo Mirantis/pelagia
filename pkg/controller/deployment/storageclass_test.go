@@ -453,6 +453,9 @@ func TestEnsureStorageClasses(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
 			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "list", []string{"persistentvolumeclaims"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "list", []string{"persistentvolumes"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "list", []string{"storageclasses"}, test.inputResources, nil)

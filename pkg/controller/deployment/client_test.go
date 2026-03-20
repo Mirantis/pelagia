@@ -695,6 +695,8 @@ func TestEnsureCephClients(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: &test.cephDpl}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
 
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", []string{"cephclients"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephblockpools"}, test.inputResources, test.apiErrors)

@@ -206,15 +206,20 @@ var CephDeploymentMigrated = cephlcmv1alpha1.CephDeployment{
 	},
 }
 
-var CephDeploymentMultusDeprecated = func() cephlcmv1alpha1.CephDeployment {
-	cd := BaseCephDeployment.DeepCopy()
-	cd.Spec.Network.Provider = "multus"
-	cd.Spec.Network.Selector = map[cephv1.CephNetworkType]string{
-		cephv1.CephNetworkPublic:  "192.168.0.0/16",
-		cephv1.CephNetworkCluster: "127.0.0.0/16",
-	}
-	return *cd
-}()
+var CephDeploymentMultusDeprecated = cephlcmv1alpha1.CephDeployment{
+	ObjectMeta: LcmObjectMeta,
+	Spec: cephlcmv1alpha1.CephDeploymentSpec{
+		Network: &cephlcmv1alpha1.CephNetworkSpec{
+			Provider:   "multus",
+			ClusterNet: "127.0.0.0/16",
+			PublicNet:  "192.168.0.0/16",
+			Selector: map[cephv1.CephNetworkType]string{
+				cephv1.CephNetworkPublic:  "192.168.0.0/16",
+				cephv1.CephNetworkCluster: "127.0.0.0/16",
+			},
+		},
+	},
+}
 
 var CephDeploymentSpecClusterMultusYAML = `network:
   addressRanges:
@@ -236,7 +241,6 @@ var CephDeploymentMultusMigrated = cephlcmv1alpha1.CephDeployment{
 				Raw: []byte(CephDeploymentSpecClusterMultusYAML),
 			},
 		},
-		Nodes: CephNodesOk,
 	},
 }
 

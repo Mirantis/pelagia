@@ -79,3 +79,11 @@ func DecodeRawToStruct(rawData []byte, r any) error {
 	}
 	return nil
 }
+
+func DecodeStructToRaw(r any) ([]byte, error) {
+	data, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}

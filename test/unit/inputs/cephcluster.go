@@ -127,11 +127,9 @@ var CephClusterExternal = cephv1.CephCluster{
 		Namespace: RookNamespace,
 	},
 	Spec: cephv1.ClusterSpec{
-		CephVersion: cephv1.CephVersionSpec{Image: PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"]},
-		ContinueUpgradeAfterChecksEvenIfNotHealthy: true,
-		DataDirHostPath:   "/var/lib/rook",
-		SkipUpgradeChecks: true,
-		External:          cephv1.ExternalSpec{Enable: true},
+		CephVersion:     cephv1.CephVersionSpec{Image: PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"]},
+		DataDirHostPath: "/var/lib/rook",
+		External:        cephv1.ExternalSpec{Enable: true},
 	},
 	Status: cephv1.ClusterStatus{
 		Phase: cephv1.ConditionConnected,
@@ -182,6 +180,10 @@ var CephClusterGenerated = cephv1.CephCluster{
 		},
 		Network: cephv1.NetworkSpec{
 			Provider: "host",
+			AddressRanges: &cephv1.AddressRangesSpec{
+				Public:  []cephv1.CIDR{cephv1.CIDR("192.168.0.0/16")},
+				Cluster: []cephv1.CIDR{cephv1.CIDR("127.0.0.0/16")},
+			},
 		},
 		Placement: cephv1.PlacementSpec{
 			cephv1.KeyMon: cephv1.Placement{
