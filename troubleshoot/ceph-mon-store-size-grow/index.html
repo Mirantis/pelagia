@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -2746,14 +2746,11 @@ press <code>ENTER</code>.</p>
 </li>
 <li>
 <p>Restart the remaining Ceph OSDs.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
 <p>Periodically verify the Ceph Monitors <code>store.db</code> size:
-  <div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>pod<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>mon<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>pod<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>mon<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="se">\</span>
 <span class="s1">&#39;{print $1}&#39;</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="nb">printf</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$pod</span><span class="s2">:\n&quot;</span><span class="p">;</span><span class="w"> </span>kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="se">\</span>
 <span class="s2">&quot;</span><span class="nv">$pod</span><span class="s2">&quot;</span><span class="w"> </span>-it<span class="w"> </span>-c<span class="w"> </span>mon<span class="w"> </span>--<span class="w"> </span>du<span class="w"> </span>-cms<span class="w"> </span>/var/lib/ceph/mon/<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
 </code></pre></div></p>
-</div>
 </li>
 </ol>
 </li>

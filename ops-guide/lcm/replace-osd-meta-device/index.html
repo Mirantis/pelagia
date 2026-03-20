@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -2853,7 +2853,7 @@ automatically creates a required metadata logical volume on a desired device.</p
 <li>
 <p>While editing <code>CephDeployment</code> custom resource (CR) in the <code>nodes</code> section, capture the
   <code>metadataDevice</code> path to reuse it during re-creation of the Ceph OSD.</p>
-<p>Example of the <code>spec.nodes</code> section:
+<p>Example of the <code>spec.nodes</code> section:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;nodeName&gt;</span>
@@ -2863,7 +2863,7 @@ automatically creates a required metadata logical volume on a desired device.</p
 <span class="w">      </span><span class="nt">config</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">        </span><span class="nt">metadataDevice</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/nvme0n1</span>
-</code></pre></div></p>
+</code></pre></div>
 <p>In the example above, save the <code>metadataDevice</code> device name <code>/dev/nvme0n1</code>.</p>
 </li>
 <li>
@@ -2892,9 +2892,9 @@ automatically creates a required metadata logical volume on a desired device.</p
 <p>In the example above, capture the following values from the <code>&lt;metadataDevice&gt;</code> section:</p>
 <ul>
 <li><code>ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9</code> - name of the volume group
-    that contains all metadata partitions on the <code>&lt;metadataDevice&gt;</code> disk;</li>
+  that contains all metadata partitions on the <code>&lt;metadataDevice&gt;</code> disk;</li>
 <li><code>osd-db-ecf64b20-1e07-42ac-a8ee-32ba3c0b7e2f</code> - name of the logical
-    volume that relates to a failed Ceph OSD.</li>
+  volume that relates to a failed Ceph OSD.</li>
 </ul>
 </li>
 </ul>
@@ -2905,26 +2905,28 @@ for the metadata partition in an existing volume group on the metadata device:</
 <div class="highlight"><pre><span></span><code>lvcreate<span class="w"> </span>-l<span class="w"> </span><span class="m">100</span>%FREE<span class="w"> </span>-n<span class="w"> </span>meta_1<span class="w"> </span>&lt;vgName&gt;
 </code></pre></div>
 <p>Substitute <code>&lt;vgName&gt;</code> with the name of a volume group captured in the <code>usedPartiton</code> parameter.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+<p>When you run <code>lvcreate</code>, account for shared space on the metadata disk and for any interactive prompt about an existing Bluestore signature:</p>
+<ul>
+<li>
 <p>If you removed more than one OSD, replace <code>100%FREE</code> with the corresponding partition size. For example:
-<div class="highlight"><pre><span></span><code>lvcreate<span class="w"> </span>-l<span class="w"> </span>&lt;partitionSize&gt;<span class="w"> </span>-n<span class="w"> </span>meta_1<span class="w"> </span>&lt;vgName&gt;
+    <div class="highlight"><pre><span></span><code>lvcreate<span class="w"> </span>-l<span class="w"> </span>&lt;partitionSize&gt;<span class="w"> </span>-n<span class="w"> </span>meta_1<span class="w"> </span>&lt;vgName&gt;
 </code></pre></div></p>
 <p>Substitute <code>&lt;partitionSize&gt;</code> with the corresponding value that matches the
 size of other partitions placed on the affected metadata drive. To obtain
 <code>&lt;partitionSize&gt;</code>, use the output of the <strong>lvs</strong> command. For example:
 <code>16G</code>.</p>
-</div>
-<p>During execution of the <code>lvcreate</code> command, the system asks you to wipe the found bluestore label on a metadata device.
-For example:
-<div class="highlight"><pre><span></span><code>WARNING:<span class="w"> </span>ceph_bluestore<span class="w"> </span>signature<span class="w"> </span>detected<span class="w"> </span>on<span class="w"> </span>/dev/ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9/meta_1<span class="w"> </span>at<span class="w"> </span>offset<span class="w"> </span><span class="m">0</span>.<span class="w"> </span>Wipe<span class="w"> </span>it?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span>:
+</li>
+<li>
+<p>During execution of the <code>lvcreate</code> command, the system asks you to wipe the found bluestore label on a metadata device. For example:
+    <div class="highlight"><pre><span></span><code>WARNING:<span class="w"> </span>ceph_bluestore<span class="w"> </span>signature<span class="w"> </span>detected<span class="w"> </span>on<span class="w"> </span>/dev/ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9/meta_1<span class="w"> </span>at<span class="w"> </span>offset<span class="w"> </span><span class="m">0</span>.<span class="w"> </span>Wipe<span class="w"> </span>it?<span class="w"> </span><span class="o">[</span>y/n<span class="o">]</span>:
 </code></pre></div></p>
-<p>Using the interactive shell, answer <code>n</code> to keep all metadata partitions
-alive. After answering <code>n</code>, the system outputs the following:</p>
+<p>Using the interactive shell, answer <code>n</code> to keep all metadata partitions alive. After answering <code>n</code>, the system outputs the following:</p>
 <div class="highlight"><pre><span></span><code>Aborted<span class="w"> </span>wiping<span class="w"> </span>of<span class="w"> </span>ceph_bluestore.
 <span class="m">1</span><span class="w"> </span>existing<span class="w"> </span>signature<span class="w"> </span>left<span class="w"> </span>on<span class="w"> </span>the<span class="w"> </span>device.
 Logical<span class="w"> </span>volume<span class="w"> </span><span class="s2">&quot;meta_1&quot;</span><span class="w"> </span>created.
 </code></pre></div>
+</li>
+</ul>
 <h2 id="re-create-the-ceph-osd-with-the-re-created-metadata-partition">Re-create the Ceph OSD with the re-created metadata partition<a class="headerlink" href="#re-create-the-ceph-osd-with-the-re-created-metadata-partition" title="Permanent link">#</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>

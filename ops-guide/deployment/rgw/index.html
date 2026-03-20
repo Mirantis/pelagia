@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#enable-ceph-rgw-object-storage" class="md-skip">
+        <a href="#enable-ceph-rados-gateway-object-storage" class="md-skip">
           Skip to content
         </a>
       
@@ -1345,10 +1345,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#to-enable-the-rgw-object-storage" class="md-nav__link">
+  <a href="#enable-ceph-rgw-object-storage" class="md-nav__link">
     <span class="md-ellipsis">
       
-        To enable the RGW Object Storage:
+        Enable Ceph RGW Object Storage
       
     </span>
   </a>
@@ -2697,10 +2697,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#to-enable-the-rgw-object-storage" class="md-nav__link">
+  <a href="#enable-ceph-rgw-object-storage" class="md-nav__link">
     <span class="md-ellipsis">
       
-        To enable the RGW Object Storage:
+        Enable Ceph RGW Object Storage
       
     </span>
   </a>
@@ -2794,7 +2794,7 @@
 
 
 <p><a id="rgw-enable-ceph-rgw-object-storage"></a></p>
-<h1 id="enable-ceph-rgw-object-storage">Enable Ceph RGW Object Storage<a class="headerlink" href="#enable-ceph-rgw-object-storage" title="Permanent link">#</a></h1>
+<h1 id="enable-ceph-rados-gateway-object-storage">Enable Ceph RADOS Gateway Object Storage<a class="headerlink" href="#enable-ceph-rados-gateway-object-storage" title="Permanent link">#</a></h1>
 <p>Pelagia enables you to deploy Ceph RADOS Gateway (RGW) Object Storage
 instances and automatically manage its resources such as users and buckets.</p>
 <p>Pelagia has an integration for Ceph Object Storage with OpenStack Object Storage (<code>Swift</code>) provided by Rockoon.</p>
@@ -3007,34 +3007,32 @@ items:</p>
 </code></pre></div>
 </li>
 <li>
-<p><code>SSLCertInRef</code> - Optional. Flag to determine that a TLS
-    certificate for accessing the Ceph RGW endpoint is used but not exposed
-    in <code>spec</code>. For example:</p>
+<p><code>SSLCertInRef</code> - Optional. Flag to determine that a TLS certificate for accessing the Ceph RGW endpoint is used but not exposed in <code>spec</code>. For example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">SSLCertInRef</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 <p>The operator must manually provide TLS configuration using the
-  <code>rgw-ssl-certificate</code> secret in the <code>rook-ceph</code> namespace of the
-  managed cluster. The secret object must have the following structure:</p>
+<code>rgw-ssl-certificate</code> secret in the <code>rook-ceph</code> namespace of the
+managed cluster. The secret object must have the following structure:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">data</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">cacert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64encodedCaCertificate&gt;</span>
 <span class="w">  </span><span class="nt">cert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64encodedCertificate&gt;</span>
 </code></pre></div>
 <p>When removing an already existing <code>SSLCert</code> block, no additional actions
-  are required, because this block uses the same <code>rgw-ssl-certificate</code> secret
-  in the <code>rook-ceph</code> namespace.</p>
+are required, because this block uses the same <code>rgw-ssl-certificate</code> secret
+in the <code>rook-ceph</code> namespace.</p>
 <p>When adding a new secret directly without exposing it in <code>spec</code>, the following
-  rules apply:</p>
+rules apply:</p>
 <ul>
 <li><code>cert</code> - base64 representation of a file with the server TLS key,
-    server TLS cert, and CA certificate.</li>
+  server TLS cert, and CA certificate.</li>
 <li><code>cacert</code> - base64 representation of a CA certificate only.</li>
 </ul>
 </li>
 </ul>
-<h2 id="to-enable-the-rgw-object-storage">To enable the RGW Object Storage:<a class="headerlink" href="#to-enable-the-rgw-object-storage" title="Permanent link">#</a></h2>
+<h2 id="enable-ceph-rgw-object-storage">Enable Ceph RGW Object Storage<a class="headerlink" href="#enable-ceph-rgw-object-storage" title="Permanent link">#</a></h2>
 <ol>
 <li>Open the <code>CephDeployment</code> resource for editing:
    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephdpl<span class="w"> </span>&lt;name&gt;

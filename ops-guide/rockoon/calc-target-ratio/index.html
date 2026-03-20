@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -2843,14 +2843,14 @@ upper bounds for <code>dataPool</code>.</p>
 <ol>
 <li>
 <p>Calculate pools' fit factor using the
-  <strong>(total raw capacity) / (pools' summary capacity)</strong> formula. For example:
-  <div class="highlight"><pre><span></span><code><span class="na">pools fit factor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">189440 / 188196 = 1.0066</span>
+   <strong>(total raw capacity) / (pools' summary capacity)</strong> formula. For example:
+   <div class="highlight"><pre><span></span><code><span class="na">pools fit factor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">189440 / 188196 = 1.0066</span>
 </code></pre></div></p>
 </li>
 <li>
 <p>Calculate pools' upper bounds size using the
-  <strong>(pool upper bounds) * (pools fit factor)</strong> formula. For example:
-  <div class="highlight"><pre><span></span><code><span class="na">kubernetes-hdd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2048 GB * 1.0066   = 2061.5168 GB</span>
+   <strong>(pool upper bounds) * (pools fit factor)</strong> formula. For example:
+   <div class="highlight"><pre><span></span><code><span class="na">kubernetes-hdd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2048 GB * 1.0066   = 2061.5168 GB</span>
 <span class="na">images-hdd</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">2048 GB * 1.0066   = 2061.5168 GB</span>
 <span class="na">volumes-hdd</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">30600 GB * 1.0066  = 30801.96 GB</span>
 <span class="na">backup-hdd</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">153000 GB * 1.0066 = 154009.8 GB</span>
@@ -2859,9 +2859,8 @@ upper bounds for <code>dataPool</code>.</p>
 </li>
 <li>
 <p>Calculate pools' target ratio using the
-  <strong>(pool upper bounds) * 100 / (total raw capacity)</strong> formula. For
-  example:
-  <div class="highlight"><pre><span></span><code><span class="na">kubernetes-hdd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2061.5168 GB * 100 / 189440 GB = 1.088</span>
+   <strong>(pool upper bounds) * 100 / (total raw capacity)</strong> formula. For example:
+   <div class="highlight"><pre><span></span><code><span class="na">kubernetes-hdd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">2061.5168 GB * 100 / 189440 GB = 1.088</span>
 <span class="na">images-hdd</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">2061.5168 GB * 100 / 189440 GB = 1.088</span>
 <span class="na">volumes-hdd</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="s">30801.96 GB * 100 / 189440 GB  = 16.259</span>
 <span class="na">backup-hdd</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="s">154009.8 GB * 100 / 189440 GB  = 81.297</span>
@@ -2945,23 +2944,22 @@ upper bounds for <code>dataPool</code>.</p>
 </li>
 <li>
 <p>In the <code>pools</code> section, specify the calculated relatives as
-   <code>parameters.target_size_ratio</code> for each considered erasure-coded pool. For
-   example:</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The <code>parameters</code> section is a key-value mapping where the value is of the string type and should be quoted.</p>
-</div>
-<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+   <code>parameters.target_size_ratio</code> for each considered erasure-coded pool. For example:
+    <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">pools</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ec-pool</span>
 <span class="w">    </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">    </span><span class="nt">parameters</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;relative&gt;&quot;</span>
-</code></pre></div>
+</code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code>parameters</code> section is a key-value mapping where the value is of the string type and should be quoted.</p>
+</div>
 <p>If Ceph Object Store <code>dataPool</code> is <code>erasure-coded</code> and a proper value
- is calculated, also specify it:
- <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+is calculated, also specify it:
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store</span>

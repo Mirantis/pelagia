@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -3247,7 +3247,7 @@ advanced configuration.</p>
 <li><code>pools</code> - Specifies the list of Ceph pools. For details, the <strong>Pools parameters</strong> section below.</li>
 <li><code>clients</code> - List of Ceph clients. For details, see the <strong>Clients parameters</strong> section below.</li>
 <li><code>objectStorage</code> - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage. Also specifies the RADOS Gateway Multisite configuration. For details, <strong>RADOS Gateway parameters</strong> and <strong>Multisite parameters</strong> sections below.</li>
-<li><code>ingressConfig</code> - Enables a custom ingress rule for public access on Ceph services, for example, Ceph RADOS Gateway. For details, see <a href="https://mirantis.github.io/pelagia/ops-guide/deployment/rgw-tls">Configure Ceph Object Gateway TLS</a>.</li>
+<li><code>ingressConfig</code> - Enables a custom ingress rule for public access on Ceph services, for example, Ceph RADOS Gateway. For details, see <a href="../../../ops-guide/deployment/rgw-tls/#rgw-tls-configure-ceph-object-gateway-tls">Configure Ceph Object Gateway TLS</a>.</li>
 <li><code>sharedFilesystem</code> - Enables Ceph Filesystem. For details, the <strong>CephFS parameters</strong> section below.</li>
 <li><code>rookConfig</code> - String key-value parameter that allows overriding Ceph configuration options. For details, see the <strong>RookConfig parameters</strong> section below.</li>
 <li><code>healthCheck</code> - Configures health checks and liveness probe settings for Ceph daemons. For details, the <strong>HealthCheck parameters</strong> section below.</li>
@@ -3859,29 +3859,27 @@ items:</p>
 </code></pre></div>
 </li>
 <li>
-<p><code>SSLCertInRef</code> - Optional. Flag to determine that a TLS
-    certificate for accessing the Ceph RGW endpoint is used but not exposed
-    in <code>spec</code>. For example:</p>
+<p><code>SSLCertInRef</code> - Optional. Flag to determine that a TLS certificate for accessing the Ceph RGW endpoint is used but not exposed in <code>spec</code>. For example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">SSLCertInRef</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 <p>The operator must manually provide TLS configuration using the
-  <code>rgw-ssl-certificate</code> secret in the <code>rook-ceph</code> namespace of the
-  managed cluster. The secret object must have the following structure:</p>
+<code>rgw-ssl-certificate</code> secret in the <code>rook-ceph</code> namespace of the
+managed cluster. The secret object must have the following structure:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">data</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">cacert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64encodedCaCertificate&gt;</span>
 <span class="w">  </span><span class="nt">cert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64encodedCertificate&gt;</span>
 </code></pre></div>
 <p>When removing an already existing <code>SSLCert</code> block, no additional actions
-  are required, because this block uses the same <code>rgw-ssl-certificate</code> secret
-  in the <code>rook-ceph</code> namespace.</p>
+are required, because this block uses the same <code>rgw-ssl-certificate</code> secret
+in the <code>rook-ceph</code> namespace.</p>
 <p>When adding a new secret directly without exposing it in <code>spec</code>, the following
-  rules apply:</p>
+rules apply:</p>
 <ul>
 <li><code>cert</code> - base64 representation of a file with the server TLS key,
-    server TLS cert, and CA certificate.</li>
+  server TLS cert, and CA certificate.</li>
 <li><code>cacert</code> - base64 representation of a CA certificate only.</li>
 </ul>
 </li>

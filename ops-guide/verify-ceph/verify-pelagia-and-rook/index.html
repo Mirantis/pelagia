@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -2825,14 +2825,14 @@ Pelagia Controllers and Rook objects of a Ceph cluster.</p>
 </code></pre></div></p>
 </li>
 <li>
-<p>Verify the <code>CephCluster</code> configuration:</p>
+<p>Verify the <code>CephCluster</code> configuration:
+    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>cephcluster<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>-o<span class="w"> </span>yaml
+</code></pre></div></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>In Pelagia, <code>CephDeployment</code> manages the <code>CephCluster</code> CR. Use the <code>CephCluster</code> CR only for verification
 and do not modify it manually.</p>
 </div>
-<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>cephcluster<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>-o<span class="w"> </span>yaml
-</code></pre></div>
 </li>
 </ol>
 <p>For details about the Ceph cluster status and to get access to CLI tools,
