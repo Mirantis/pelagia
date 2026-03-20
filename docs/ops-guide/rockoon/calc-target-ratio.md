@@ -78,31 +78,30 @@ For details, see [Ceph Documentation: Autoscaling Placement Groups](https://docs
      ```
 
     1. Calculate pools' fit factor using the
-      **(total raw capacity) / (pools' summary capacity)** formula. For example:
-      ```ini
-      pools fit factor = 189440 / 188196 = 1.0066
-      ```
+       **(total raw capacity) / (pools' summary capacity)** formula. For example:
+       ```ini
+       pools fit factor = 189440 / 188196 = 1.0066
+       ```
 
     2. Calculate pools' upper bounds size using the
-      **(pool upper bounds) \* (pools fit factor)** formula. For example:
-      ```ini
-      kubernetes-hdd = 2048 GB * 1.0066   = 2061.5168 GB
-      images-hdd     = 2048 GB * 1.0066   = 2061.5168 GB
-      volumes-hdd    = 30600 GB * 1.0066  = 30801.96 GB
-      backup-hdd     = 153000 GB * 1.0066 = 154009.8 GB
-      vms-hdd        = 500 GB * 1.0066    = 503.3 GB
-      ```
+       **(pool upper bounds) \* (pools fit factor)** formula. For example:
+       ```ini
+       kubernetes-hdd = 2048 GB * 1.0066   = 2061.5168 GB
+       images-hdd     = 2048 GB * 1.0066   = 2061.5168 GB
+       volumes-hdd    = 30600 GB * 1.0066  = 30801.96 GB
+       backup-hdd     = 153000 GB * 1.0066 = 154009.8 GB
+       vms-hdd        = 500 GB * 1.0066    = 503.3 GB
+       ```
 
     3. Calculate pools' target ratio using the
-      **(pool upper bounds) \* 100 / (total raw capacity)** formula. For
-      example:
-      ```ini
-      kubernetes-hdd = 2061.5168 GB * 100 / 189440 GB = 1.088
-      images-hdd     = 2061.5168 GB * 100 / 189440 GB = 1.088
-      volumes-hdd    = 30801.96 GB * 100 / 189440 GB  = 16.259
-      backup-hdd     = 154009.8 GB * 100 / 189440 GB  = 81.297
-      vms-hdd        = 503.3 GB * 100 / 189440 GB     = 0.266
-      ```
+       **(pool upper bounds) \* 100 / (total raw capacity)** formula. For example:
+       ```ini
+       kubernetes-hdd = 2061.5168 GB * 100 / 189440 GB = 1.088
+       images-hdd     = 2061.5168 GB * 100 / 189440 GB = 1.088
+       volumes-hdd    = 30801.96 GB * 100 / 189440 GB  = 16.259
+       backup-hdd     = 154009.8 GB * 100 / 189440 GB  = 81.297
+       vms-hdd        = 503.3 GB * 100 / 189440 GB     = 0.266
+       ```
 
 4. If required, calculate the target ratio for erasure-coded pools.
 
@@ -180,37 +179,35 @@ For details, see [Ceph Documentation: Autoscaling Placement Groups](https://docs
      ```
 
 7. In the `pools` section, specify the calculated relatives as
-   `parameters.target_size_ratio` for each considered erasure-coded pool. For
-   example:
+   `parameters.target_size_ratio` for each considered erasure-coded pool. For example:
+    ```yaml
+    spec:
+      pools:
+      - name: ec-pool
+        deviceClass: hdd
+        ...
+        parameters:
+          target_size_ratio: "<relative>"
+    ```
 
     !!! note
 
         The `parameters` section is a key-value mapping where the value is of the string type and should be quoted.
 
-     ```yaml
-     spec:
-       pools:
-       - name: ec-pool
-         deviceClass: hdd
-         ...
-         parameters:
-           target_size_ratio: "<relative>"
-     ```
-
-     If Ceph Object Store `dataPool` is `erasure-coded` and a proper value
-     is calculated, also specify it:
-     ```yaml
-     spec:
-       objectStorage:
-         rgw:
-           name: rgw-store
-           ...
-           dataPool:
-             deviceClass: hdd
-             ...
-             parameters:
-               target_size_ratio: "<relative>"
-     ```
+    If Ceph Object Store `dataPool` is `erasure-coded` and a proper value
+    is calculated, also specify it:
+    ```yaml
+    spec:
+      objectStorage:
+        rgw:
+          name: rgw-store
+          ...
+          dataPool:
+            deviceClass: hdd
+            ...
+            parameters:
+              target_size_ratio: "<relative>"
+    ```
 
 8. Verify that all target ratios have been successfully applied to the Ceph cluster:
    ```bash

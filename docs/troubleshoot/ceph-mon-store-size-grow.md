@@ -62,14 +62,12 @@ perform the steps described below to resolve the issue.
 
      3. Restart the remaining Ceph OSDs.
 
-        !!! note
-
-              Periodically verify the Ceph Monitors `store.db` size:
-              ```bash
-              for pod in $(kubectl get pods -n rook-ceph | grep mon | awk \
-              '{print $1}'); do printf "$pod:\n"; kubectl exec -n rook-ceph \
-              "$pod" -it -c mon -- du -cms /var/lib/ceph/mon/ ; done
-              ```
+        Periodically verify the Ceph Monitors `store.db` size:
+        ```bash
+        for pod in $(kubectl get pods -n rook-ceph | grep mon | awk \
+        '{print $1}'); do printf "$pod:\n"; kubectl exec -n rook-ceph \
+        "$pod" -it -c mon -- du -cms /var/lib/ceph/mon/ ; done
+        ```
 
 After some of the affected Ceph OSDs restart, Ceph Monitors will start
 decreasing the `store.db` size to the original 100–300 MB. However,

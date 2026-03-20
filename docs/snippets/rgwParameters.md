@@ -151,17 +151,17 @@
     Includes the `name` parameter that must be set to one of the `zones`
     items:
 
-      ```yaml
-      spec:
-        objectStorage:
-          multisite:
-            zones:
-            - name: master-zone
-              ...
-          rgw:
-            zone:
-              name: master-zone
-      ```
+    ```yaml
+    spec:
+      objectStorage:
+        multisite:
+          zones:
+          - name: master-zone
+            ...
+        rgw:
+          zone:
+            name: master-zone
+    ```
 
 - `SSLCert` - Optional. Custom TLS certificate parameters used to access the Ceph RGW endpoint. If not specified, a self-signed certificate will be generated.
 
@@ -184,34 +184,32 @@
               -----END RSA PRIVATE KEY-----
     ```
 
-- `SSLCertInRef` - Optional. Flag to determine that a TLS
-    certificate for accessing the Ceph RGW endpoint is used but not exposed
-    in `spec`. For example:
+- `SSLCertInRef` - Optional. Flag to determine that a TLS certificate for accessing the Ceph RGW endpoint is used but not exposed in `spec`. For example:
 
-      ```yaml
-      spec:
-        objectStorage:
-          rgw:
-            SSLCertInRef: true
-      ```
+    ```yaml
+    spec:
+      objectStorage:
+        rgw:
+          SSLCertInRef: true
+    ```
 
-      The operator must manually provide TLS configuration using the
-      `rgw-ssl-certificate` secret in the `rook-ceph` namespace of the
-      managed cluster. The secret object must have the following structure:
+    The operator must manually provide TLS configuration using the
+    `rgw-ssl-certificate` secret in the `rook-ceph` namespace of the
+    managed cluster. The secret object must have the following structure:
 
-      ```yaml
-      data:
-        cacert: <base64encodedCaCertificate>
-        cert: <base64encodedCertificate>
-      ```
+    ```yaml
+    data:
+      cacert: <base64encodedCaCertificate>
+      cert: <base64encodedCertificate>
+    ```
 
-      When removing an already existing `SSLCert` block, no additional actions
-      are required, because this block uses the same `rgw-ssl-certificate` secret
-      in the `rook-ceph` namespace.
+    When removing an already existing `SSLCert` block, no additional actions
+    are required, because this block uses the same `rgw-ssl-certificate` secret
+    in the `rook-ceph` namespace.
 
-      When adding a new secret directly without exposing it in `spec`, the following
-      rules apply:
+    When adding a new secret directly without exposing it in `spec`, the following
+    rules apply:
 
-      - `cert` - base64 representation of a file with the server TLS key,
-        server TLS cert, and CA certificate.
-      - `cacert` - base64 representation of a CA certificate only.
+    - `cert` - base64 representation of a file with the server TLS key,
+      server TLS cert, and CA certificate.
+    - `cacert` - base64 representation of a CA certificate only.
