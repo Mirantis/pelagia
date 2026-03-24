@@ -103,6 +103,9 @@ type CephDeploymentSpec struct {
 	Pools []CephPoolOld `json:"pools,omitempty"`
 }
 
+// CephCluster represents cluster specification
+// Follow https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/
+// for available options
 type CephCluster struct {
 	runtime.RawExtension `json:",inline"`
 }
@@ -136,24 +139,11 @@ type CephPool struct {
 	PoolSpec runtime.RawExtension `json:"spec"`
 }
 
+// CephClient represents client specification
+// Follow https://rook.io/docs/rook/v1.19/CRDs/ceph-client-crd/
+// for available options
 type CephClient struct {
-	ClientSpec `json:",inline"`
-}
-
-type ClientSpec struct {
-	// +optional
-	Name string `json:"name,omitempty"`
-	// SecretName is the name of the secret created for this ceph client.
-	// If not specified, the default name is "rook-ceph-client-" as a prefix to the CR name.
-	// +optional
-	SecretName string `json:"secretName,omitempty"`
-
-	// RemoveSecret indicates whether the current secret for this ceph client should be removed or not.
-	// If true, the K8s secret will be deleted, but the cephx keyring will remain until the CR is deleted.
-	// +optional
-	RemoveSecret bool `json:"removeSecret,omitempty"`
-	// +kubebuilder:pruning:PreserveUnknownFields
-	Caps map[string]string `json:"caps"`
+	runtime.RawExtension `json:",inline"`
 }
 
 type LabeledDevices map[string]string

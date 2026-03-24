@@ -540,53 +540,73 @@ var HyperConvergeForExtraSVC = &cephlcmv1alpha1.CephDeploymentHyperConverge{
 }
 
 var CephDeployClientTest = cephlcmv1alpha1.CephClient{
-	ClientSpec: cephlcmv1alpha1.ClientSpec{
-		Name: "test",
-		Caps: map[string]string{
-			"osd": "custom-caps",
-		},
+	RawExtension: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.ClientSpec{
+				Name: "test",
+				Caps: map[string]string{
+					"osd": "custom-caps",
+				},
+			},
+		),
 	},
 }
 
 var CephDeployClientCinder = cephlcmv1alpha1.CephClient{
-	ClientSpec: cephlcmv1alpha1.ClientSpec{
-		Name: "cinder",
-		Caps: map[string]string{
-			"mon": "allow profile rbd",
-			"osd": "profile rbd pool=volumes-hdd, profile rbd-read-only pool=images-hdd, profile rbd pool=backup-hdd",
-		},
+	RawExtension: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.ClientSpec{
+				Name: "cinder",
+				Caps: map[string]string{
+					"mon": "allow profile rbd",
+					"osd": "profile rbd pool=volumes-hdd, profile rbd-read-only pool=images-hdd, profile rbd pool=backup-hdd",
+				},
+			},
+		),
 	},
 }
 
 var CephDeployClientGlance = cephlcmv1alpha1.CephClient{
-	ClientSpec: cephlcmv1alpha1.ClientSpec{
-		Name: "glance",
-		Caps: map[string]string{
-			"mon": "allow profile rbd",
-			"osd": "profile rbd pool=images-hdd",
-		},
+	RawExtension: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.ClientSpec{
+				Name: "glance",
+				Caps: map[string]string{
+					"mon": "allow profile rbd",
+					"osd": "profile rbd pool=images-hdd",
+				},
+			},
+		),
 	},
 }
 
 var CephDeployClientNova = cephlcmv1alpha1.CephClient{
-	ClientSpec: cephlcmv1alpha1.ClientSpec{
-		Name: "nova",
-		Caps: map[string]string{
-			"mon": "allow profile rbd",
-			"osd": "profile rbd pool=vms-hdd, profile rbd pool=images-hdd, profile rbd pool=volumes-hdd",
-		},
+	RawExtension: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.ClientSpec{
+				Name: "nova",
+				Caps: map[string]string{
+					"mon": "allow profile rbd",
+					"osd": "profile rbd pool=vms-hdd, profile rbd pool=images-hdd, profile rbd pool=volumes-hdd",
+				},
+			},
+		),
 	},
 }
 
 var CephDeployClientManila = cephlcmv1alpha1.CephClient{
-	ClientSpec: cephlcmv1alpha1.ClientSpec{
-		Name: "manila",
-		Caps: map[string]string{
-			"mds": "allow rw",
-			"mgr": "allow rw",
-			"osd": "allow rw tag cephfs *=*",
-			"mon": `allow r, allow command "auth del", allow command "auth caps", allow command "auth get", allow command "auth get-or-create"`,
-		},
+	RawExtension: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.ClientSpec{
+				Name: "manila",
+				Caps: map[string]string{
+					"mds": "allow rw",
+					"mgr": "allow rw",
+					"osd": "allow rw tag cephfs *=*",
+					"mon": `allow r, allow command "auth del", allow command "auth caps", allow command "auth get", allow command "auth get-or-create"`,
+				},
+			},
+		),
 	},
 }
 

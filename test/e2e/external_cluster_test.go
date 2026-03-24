@@ -268,19 +268,19 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 		if len(cephfsPoolsForShare) > 0 {
 			osdCaps = append(osdCaps, "allow rw tag cephfs *=*")
 		}
-		client := cephlcmv1alpha1.CephClient{
-			ClientSpec: cephlcmv1alpha1.ClientSpec{
-				Name: testClientName,
-				Caps: map[string]string{
-					"mgr": "allow r",
-					"mon": "allow r, profile role-definer",
-					"osd": strings.Join(osdCaps, ", "),
-				},
+		clientSpec := cephv1.ClientSpec{
+			Name: testClientName,
+			Caps: map[string]string{
+				"mgr": "allow r",
+				"mon": "allow r, profile role-definer",
+				"osd": strings.Join(osdCaps, ", "),
 			},
 		}
 		if len(cephfsPoolsForShare) > 0 {
-			client.Caps["mds"] = "allow rw"
+			clientSpec.Caps["mds"] = "allow rw"
 		}
+		clientRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(clientSpec)
+		client := cephlcmv1alpha1.CephClient{RawExtension: runtime.RawExtension{Raw: clientRaw}}
 		if len(cd.Spec.Clients) > 0 {
 			cd.Spec.Clients = append(cd.Spec.Clients, client)
 		} else {

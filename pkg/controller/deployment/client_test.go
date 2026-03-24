@@ -150,7 +150,7 @@ func TestGenerateOpenStackClient(t *testing.T) {
 		cephDpl            cephlcmv1alpha1.CephDeployment
 		clientName         string
 		poolsList          *cephv1.CephBlockPoolList
-		expectedCephClient cephlcmv1alpha1.CephClient
+		expectedCephClient cephv1.ClientSpec
 		expectedError      string
 	}{
 		{
@@ -158,17 +158,17 @@ func TestGenerateOpenStackClient(t *testing.T) {
 			clientName:         "cinder",
 			cephDpl:            cephDplClients,
 			poolsList:          &unitinputs.OpenstackCephBlockPoolsList,
-			expectedCephClient: unitinputs.CephDeployClientCinder,
+			expectedCephClient: unitinputs.CephClientCinder.Spec,
 		},
 		{
 			name:       "cephclient cinder with volumes-backend pools - success",
 			clientName: "cinder",
 			cephDpl:    cephDplClientExtraVolumes,
 			poolsList:  blockPoolsExtra,
-			expectedCephClient: func() cephlcmv1alpha1.CephClient {
-				cinderClient := unitinputs.CephDeployClientCinder.DeepCopy()
-				cinderClient.Caps["osd"] = "profile rbd pool=volumes-hdd, profile rbd pool=volumes-backend-1-hdd, profile rbd pool=volumes-2-hdd, profile rbd-read-only pool=images-hdd, profile rbd pool=backup-hdd"
-				return *cinderClient
+			expectedCephClient: func() cephv1.ClientSpec {
+				cinderClient := unitinputs.CephClientCinder.DeepCopy()
+				cinderClient.Spec.Caps["osd"] = "profile rbd pool=volumes-hdd, profile rbd pool=volumes-backend-1-hdd, profile rbd pool=volumes-2-hdd, profile rbd-read-only pool=images-hdd, profile rbd pool=backup-hdd"
+				return cinderClient.Spec
 			}(),
 		},
 		{
@@ -194,7 +194,7 @@ func TestGenerateOpenStackClient(t *testing.T) {
 			clientName:         "glance",
 			cephDpl:            cephDplClients,
 			poolsList:          &unitinputs.OpenstackCephBlockPoolsList,
-			expectedCephClient: unitinputs.CephDeployClientGlance,
+			expectedCephClient: unitinputs.CephClientGlance.Spec,
 		},
 		{
 			name:       "cephclient glance required pool missing in spec - failed",
@@ -220,17 +220,17 @@ func TestGenerateOpenStackClient(t *testing.T) {
 			clientName:         "nova",
 			cephDpl:            cephDplClients,
 			poolsList:          &unitinputs.OpenstackCephBlockPoolsList,
-			expectedCephClient: unitinputs.CephDeployClientNova,
+			expectedCephClient: unitinputs.CephClientNova.Spec,
 		},
 		{
 			name:       "cephclient nova with volumes-backend pools - success",
 			clientName: "nova",
 			cephDpl:    cephDplClientExtraVolumes,
 			poolsList:  blockPoolsExtra,
-			expectedCephClient: func() cephlcmv1alpha1.CephClient {
-				novaClient := unitinputs.CephDeployClientNova.DeepCopy()
-				novaClient.Caps["osd"] = "profile rbd pool=vms-hdd, profile rbd pool=images-hdd, profile rbd pool=volumes-hdd, profile rbd pool=volumes-backend-1-hdd, profile rbd pool=volumes-2-hdd"
-				return *novaClient
+			expectedCephClient: func() cephv1.ClientSpec {
+				novaClient := unitinputs.CephClientNova.DeepCopy()
+				novaClient.Spec.Caps["osd"] = "profile rbd pool=vms-hdd, profile rbd pool=images-hdd, profile rbd pool=volumes-hdd, profile rbd pool=volumes-backend-1-hdd, profile rbd pool=volumes-2-hdd"
+				return novaClient.Spec
 			}(),
 		},
 		{
@@ -293,7 +293,7 @@ func TestCalculateOpenstackClients(t *testing.T) {
 		name                string
 		cephDpl             cephlcmv1alpha1.CephDeployment
 		poolsList           *cephv1.CephBlockPoolList
-		expectedCephClients []cephlcmv1alpha1.CephClient
+		expectedCephClients []cephv1.ClientSpec
 		expectedError       string
 	}{
 		{
@@ -305,8 +305,8 @@ func TestCalculateOpenstackClients(t *testing.T) {
 						Pools: basePoolsForSpec}},
 			},
 			poolsList: &unitinputs.OpenstackCephBlockPoolsList,
-			expectedCephClients: []cephlcmv1alpha1.CephClient{
-				unitinputs.CephDeployClientCinder, unitinputs.CephDeployClientGlance, unitinputs.CephDeployClientNova,
+			expectedCephClients: []cephv1.ClientSpec{
+				unitinputs.CephClientCinder.Spec, unitinputs.CephClientGlance.Spec, unitinputs.CephClientNova.Spec,
 			},
 		},
 		{
@@ -319,8 +319,8 @@ func TestCalculateOpenstackClients(t *testing.T) {
 				},
 			},
 			poolsList: &unitinputs.OpenstackCephBlockPoolsList,
-			expectedCephClients: []cephlcmv1alpha1.CephClient{
-				unitinputs.CephDeployClientGlance, unitinputs.CephDeployClientNova,
+			expectedCephClients: []cephv1.ClientSpec{
+				unitinputs.CephClientGlance.Spec, unitinputs.CephClientNova.Spec,
 			},
 		},
 		{
@@ -335,8 +335,8 @@ func TestCalculateOpenstackClients(t *testing.T) {
 				},
 			},
 			poolsList: &unitinputs.OpenstackCephBlockPoolsList,
-			expectedCephClients: []cephlcmv1alpha1.CephClient{
-				unitinputs.CephDeployClientGlance,
+			expectedCephClients: []cephv1.ClientSpec{
+				unitinputs.CephClientGlance.Spec,
 			},
 		},
 		{
@@ -351,7 +351,7 @@ func TestCalculateOpenstackClients(t *testing.T) {
 				},
 			},
 			poolsList:           &unitinputs.OpenstackCephBlockPoolsList,
-			expectedCephClients: []cephlcmv1alpha1.CephClient{},
+			expectedCephClients: []cephv1.ClientSpec{},
 		},
 		{
 			name: "manila not in spec, cephfs deployed - success",
@@ -365,8 +365,8 @@ func TestCalculateOpenstackClients(t *testing.T) {
 				},
 			},
 			poolsList: &unitinputs.OpenstackCephBlockPoolsList,
-			expectedCephClients: []cephlcmv1alpha1.CephClient{
-				unitinputs.CephDeployClientCinder, unitinputs.CephDeployClientGlance, unitinputs.CephDeployClientNova, unitinputs.CephDeployClientManila,
+			expectedCephClients: []cephv1.ClientSpec{
+				unitinputs.CephClientCinder.Spec, unitinputs.CephClientGlance.Spec, unitinputs.CephClientNova.Spec, unitinputs.CephClientManila.Spec,
 			},
 		},
 		{
@@ -381,7 +381,7 @@ func TestCalculateOpenstackClients(t *testing.T) {
 				},
 			},
 			poolsList:           &unitinputs.OpenstackCephBlockPoolsList,
-			expectedCephClients: []cephlcmv1alpha1.CephClient{},
+			expectedCephClients: []cephv1.ClientSpec{},
 		},
 		{
 			name: "no openstack clients in spec and backup pool missing in spec - fail",
@@ -514,7 +514,11 @@ func TestCalculateOpenstackClients(t *testing.T) {
 			inputResources := map[string]runtime.Object{"cephblockpools": test.poolsList}
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephblockpools"}, inputResources, nil)
 
-			actualCephClients, err := c.calculateOpenStackClients()
+			cephDplClients := make([]cephv1.ClientSpec, len(test.cephDpl.Spec.Clients))
+			for idx, cephDplClient := range test.cephDpl.Spec.Clients {
+				cephDplClients[idx], _ = cephDplClient.GetSpec()
+			}
+			actualCephClients, err := c.calculateOpenStackClients(cephDplClients)
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())

@@ -151,27 +151,12 @@ spec:
                   Clients is a list of Ceph Clients used for Ceph Cluster connection by
                   consumer services
                 items:
-                  properties:
-                    caps:
-                      additionalProperties:
-                        type: string
-                      type: object
-                      x-kubernetes-preserve-unknown-fields: true
-                    name:
-                      type: string
-                    removeSecret:
-                      description: |-
-                        RemoveSecret indicates whether the current secret for this ceph client should be removed or not.
-                        If true, the K8s secret will be deleted, but the cephx keyring will remain until the CR is deleted.
-                      type: boolean
-                    secretName:
-                      description: |-
-                        SecretName is the name of the secret created for this ceph client.
-                        If not specified, the default name is "rook-ceph-client-" as a prefix to the CR name.
-                      type: string
-                  required:
-                  - caps
+                  description: |-
+                    CephClient represents client specification
+                    Follow https://rook.io/docs/rook/v1.19/CRDs/ceph-client-crd/
+                    for available options
                   type: object
+                  x-kubernetes-preserve-unknown-fields: true
                 type: array
               cluster:
                 description: |-

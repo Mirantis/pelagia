@@ -69,6 +69,26 @@ func (p CephPool) GetSpec() (cephv1.PoolSpec, error) {
 	return pool.Spec.PoolSpec, nil
 }
 
+func (c CephClient) GetSpec() (cephv1.ClientSpec, error) {
+	var clientSpec cephv1.ClientSpec
+	if c.Raw == nil && c.Object == nil {
+		return clientSpec, errors.New("spec: client spec no any data provided")
+	}
+
+	if c.Raw != nil {
+		if err := DecodeRawToStruct(c.Raw, &clientSpec); err != nil {
+			return clientSpec, errors.Wrap(err, "spec: client spec has failed to decode to Rook ClientSpec struct")
+		}
+		return clientSpec, nil
+	}
+
+	client, ok := c.Object.(*cephv1.CephClient)
+	if !ok {
+		return clientSpec, errors.New("spec: client field has failed to convert to Rook CephClient object")
+	}
+	return client.Spec, nil
+}
+
 // Method SetRawSpec is used to directly put Raw spec in related
 // fields to avoid full struct define after JSON marshaling
 // Caution: will override present Raw data fully!

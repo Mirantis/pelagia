@@ -26,7 +26,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
 )
 
@@ -44,9 +43,12 @@ func (c *cephDeploymentConfig) ensureCephClients() (bool, error) {
 	errMsg := make([]error, 0)
 
 	// If there is any additional OpenStack clients required, add them to clients list
-	cephDplClients := c.cdConfig.cephDpl.Spec.Clients
+	cephDplClients := make([]cephv1.ClientSpec, len(c.cdConfig.cephDpl.Spec.Clients))
+	for idx, cephDplClient := range c.cdConfig.cephDpl.Spec.Clients {
+		cephDplClients[idx], _ = cephDplClient.GetSpec()
+	}
 	if !c.cdConfig.clusterSpec.External.Enable && c.cdConfig.openstackSetup {
-		osClients, err := c.calculateOpenStackClients()
+		osClients, err := c.calculateOpenStackClients(cephDplClients)
 		if err != nil {
 			return false, errors.Wrap(err, "failed to calculate OpenStack CephClients")
 		}
@@ -54,8 +56,8 @@ func (c *cephDeploymentConfig) ensureCephClients() (bool, error) {
 	}
 
 	clientsChanged := false
-	for _, cephDplClient := range cephDplClients {
-		newClient := generateClient(c.lcmConfig.RookNamespace, cephDplClient.Name, cephDplClient.Caps)
+	for _, cephDplClientSpec := range cephDplClients {
+		newClient := generateClient(c.lcmConfig.RookNamespace, cephDplClientSpec)
 		if presentClient, ok := presentClients[newClient.Name]; ok {
 			if presentClient.Status == nil || !isTypeReadyToUpdate(presentClient.Status.Phase) {
 				err := fmt.Sprintf("found not ready CephClient %s/%s, waiting for readiness", c.lcmConfig.RookNamespace, presentClient.Name)
@@ -143,10 +145,10 @@ func (c *cephDeploymentConfig) processCephClients(process objectProcess, client 
 	return nil
 }
 
-func (c *cephDeploymentConfig) calculateOpenStackClients() ([]cephlcmv1alpha1.CephClient, error) {
+func (c *cephDeploymentConfig) calculateOpenStackClients(clientSpecs []cephv1.ClientSpec) ([]cephv1.ClientSpec, error) {
 	notUsed := map[string]bool{"cinder": true, "glance": true, "nova": true, "manila": true}
-	for _, cephDplClient := range c.cdConfig.cephDpl.Spec.Clients {
-		switch cephDplClient.Name {
+	for _, clientSpec := range clientSpecs {
+		switch clientSpec.Name {
 		case "cinder":
 			notUsed["cinder"] = false
 		case "glance":
@@ -158,11 +160,11 @@ func (c *cephDeploymentConfig) calculateOpenStackClients() ([]cephlcmv1alpha1.Ce
 		}
 	}
 
-	clients := make([]cephlcmv1alpha1.CephClient, 0)
+	clients := make([]cephv1.ClientSpec, 0)
 	for client, notUsedStatus := range notUsed {
 		if notUsedStatus {
 			// do not generate manila client if there is no cephfs enabled
-			if client == "manila" && c.cdConfig.cephDpl.Spec.SharedFilesystem == nil {
+			if client == "manila" && (c.cdConfig.cephDpl.Spec.SharedFilesystem == nil || len(c.cdConfig.cephDpl.Spec.SharedFilesystem.CephFS) == 0) {
 				continue
 			}
 			osClient, err := c.generateOpenStackClient(client)
@@ -176,10 +178,9 @@ func (c *cephDeploymentConfig) calculateOpenStackClients() ([]cephlcmv1alpha1.Ce
 	return clients, nil
 }
 
-func (c *cephDeploymentConfig) generateOpenStackClient(name string) (cephlcmv1alpha1.CephClient, error) {
-	client := cephlcmv1alpha1.CephClient{}
+func (c *cephDeploymentConfig) generateOpenStackClient(name string) (cephv1.ClientSpec, error) {
+	client := cephv1.ClientSpec{}
 	pools := map[string][]string{"vms": nil, "volumes": nil, "images": nil, "backup": nil}
-	c.log.Info().Msgf("%#v", c.cdConfig.pools)
 	for idx, pool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
 		poolName := c.cdConfig.pools[idx]
 
@@ -264,15 +265,12 @@ func (c *cephDeploymentConfig) generateOpenStackClient(name string) (cephlcmv1al
 	return client, errors.Errorf("failed to find pool type for '%s' client", name)
 }
 
-func generateClient(namespace string, name string, caps map[string]string) cephv1.CephClient {
+func generateClient(namespace string, clientSpec cephv1.ClientSpec) cephv1.CephClient {
 	return cephv1.CephClient{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
+			Name:      strings.ReplaceAll(clientSpec.Name, ".", "-"),
 			Namespace: namespace,
 		},
-		Spec: cephv1.ClientSpec{
-			Caps: caps,
-			Name: name,
-		},
+		Spec: clientSpec,
 	}
 }
