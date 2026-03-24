@@ -750,7 +750,7 @@ func TestEnsureZones(t *testing.T) {
 			name: "failed to check ingress proxy setup",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.Pools = unitinputs.CephDeployMosk.Spec.Pools
+				mc.Spec.BlockStorage = unitinputs.CephDeployMosk.Spec.BlockStorage.DeepCopy()
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -1026,6 +1026,9 @@ func TestEnsureZones(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.lcmConfig)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", []string{"cephobjectstores", "cephobjectzones"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "create", []string{"cephobjectzones"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "update", []string{"cephobjectzones"}, test.inputResources, test.apiErrors)

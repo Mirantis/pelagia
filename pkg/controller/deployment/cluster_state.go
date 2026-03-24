@@ -135,20 +135,10 @@ func (c *cephDeploymentConfig) verifyBuiltinPools() (bool, error) {
 	changed := false
 	errMsgs := []string{}
 
-	// default pool spec for rbd builtin pools
-	var defaultPool *cephlcmv1alpha1.CephPoolSpec
-	for _, cephDplPool := range c.cdConfig.cephDpl.Spec.Pools {
-		if cephDplPool.StorageClassOpts.Default {
-			defaultPool = &cephDplPool.CephPoolSpec
-			break
-		}
-	}
-
 	// Build cephblockpool spec only for builtin pools exist in ceph cluster
 	builtinPoolsToProcess := []cephv1.CephBlockPool{}
 	for _, cephpool := range cephPools {
 		if lcmcommon.Contains(builtinCephPools, cephpool) {
-			var poolSpec *cephlcmv1alpha1.CephPoolSpec
 			if cephpool == ".rgw.root" {
 				// skip processing .rgw.root pool if there is no rgw metadata pool defined
 				// in a cluster because we cannot predict what .rgw.root we are observing
@@ -157,6 +147,7 @@ func (c *cephDeploymentConfig) verifyBuiltinPools() (bool, error) {
 					c.log.Warn().Msgf("set manually device class in crush rule for pool '%s' if needed", cephpool)
 					continue
 				}
+				var poolSpec *cephlcmv1alpha1.CephPoolSpec
 				if c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite != nil {
 					usedZone := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Zone.Name
 					for _, zone := range c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite.Zones {
@@ -168,24 +159,40 @@ func (c *cephDeploymentConfig) verifyBuiltinPools() (bool, error) {
 				} else {
 					poolSpec = c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.MetadataPool
 				}
+				poolSpec.EnableCrushUpdates = &[]bool{true}[0]
+				builtinCephPool := generatePoolOld(cephlcmv1alpha1.CephPoolOld{
+					Name:          cephpool,
+					UseAsFullName: true,
+					CephPoolSpec:  *poolSpec,
+				}, c.lcmConfig.RookNamespace)
+				builtinPoolsToProcess = append(builtinPoolsToProcess, *builtinCephPool)
 			} else {
+				foundDefault := false
+				if c.cdConfig.cephDpl.Spec.BlockStorage != nil {
+					for _, cephDplPool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
+						if cephDplPool.StorageClassOpts.Default {
+							foundDefault = true
+
+							builtinCephPool := generatePool(cephlcmv1alpha1.CephPool{
+								Name:          cephpool,
+								UseAsFullName: true,
+								PoolSpec:      cephDplPool.PoolSpec,
+							}, c.lcmConfig.RookNamespace)
+
+							builtinCephPool.Spec.EnableCrushUpdates = &foundDefault
+							builtinPoolsToProcess = append(builtinPoolsToProcess, *builtinCephPool)
+							break
+						}
+					}
+				}
 				// skip processing builtin rbd pools if there is no default pool found
 				// because we cannot rely on random pool if no default pool exists
 				// then operator should manually fix the issue (set required device class)
-				if defaultPool == nil {
+				if !foundDefault {
 					c.log.Warn().Msgf("builtin pool '%s' found, but no default rbd pool defined in spec, skipping", cephpool)
 					c.log.Warn().Msgf("set manually device class in crush rule for pool '%s' if needed", cephpool)
-					continue
 				}
-				poolSpec = defaultPool
 			}
-			poolSpec.EnableCrushUpdates = &[]bool{true}[0]
-			builtinCephPool := generatePool(cephlcmv1alpha1.CephPool{
-				Name:          cephpool,
-				UseAsFullName: true,
-				CephPoolSpec:  *poolSpec,
-			}, c.lcmConfig.RookNamespace)
-			builtinPoolsToProcess = append(builtinPoolsToProcess, *builtinCephPool)
 		}
 	}
 

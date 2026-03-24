@@ -52,7 +52,7 @@ func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
 		return false, nil
 	}
 	// Skip OpenStack secret ensure if there is no OpenStack pools
-	if !lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) {
+	if !c.cdConfig.openstackSetup {
 		c.log.Debug().Msg("required Openstack pools are not specified in spec, skipping Openstack secret ensure")
 		return false, nil
 	}
@@ -60,10 +60,10 @@ func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
 	cephFSDeployed := c.cdConfig.cephDpl.Spec.SharedFilesystem != nil
 
 	notReadyOpenStackPools := []string{}
-	for _, pool := range c.cdConfig.cephDpl.Spec.Pools {
+	for idx, pool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
 		switch pool.Role {
 		case "images", "vms", "backup", "volumes":
-			poolName := buildPoolName(pool)
+			poolName := c.cdConfig.pools[idx]
 			if !isCephPoolReady(c.context, *c.log, c.api.Rookclientset, c.lcmConfig.RookNamespace, poolName) {
 				notReadyOpenStackPools = append(notReadyOpenStackPools, poolName)
 			}
@@ -273,30 +273,32 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 	sort.Strings(monIPs)
 	monmapString = strings.Join(monIPs, ",")
 
-	buildPoolDescription := func(pool cephlcmv1alpha1.CephPool) string {
-		return fmt.Sprintf("%s:%s:%s", buildPoolName(pool), pool.Role, pool.DeviceClass)
+	buildPoolDescription := func(fullPoolName string, pool cephlcmv1alpha1.CephPool) string {
+		castedPool, _ := pool.GetSpec()
+		return fmt.Sprintf("%s:%s:%s", fullPoolName, pool.Role, castedPool.DeviceClass)
 	}
 
 	glance := "client.glance;" + secretData.clientKeys["glance"] + "\n"
 	nova := "client.nova;" + secretData.clientKeys["nova"] + "\n"
 	cinder := "client.cinder;" + secretData.clientKeys["cinder"] + "\n"
-	for _, pool := range c.cdConfig.cephDpl.Spec.Pools {
+	for idx, pool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
+		// set basic volumes role
+		if pool.Role == "volumes-backend" {
+			pool.Role = "volumes"
+		}
+		poolDescription := buildPoolDescription(c.cdConfig.pools[idx], pool)
 		switch role := pool.Role; role {
-		case "volumes", "volumes-backend":
-			// set basic volumes role
-			if pool.Role == "volumes-backend" {
-				pool.Role = "volumes"
-			}
-			nova = nova + ";" + buildPoolDescription(pool)
-			cinder = cinder + ";" + buildPoolDescription(pool)
+		case "volumes":
+			nova = nova + ";" + poolDescription
+			cinder = cinder + ";" + poolDescription
 		case "vms":
-			nova = nova + ";" + buildPoolDescription(pool)
+			nova = nova + ";" + poolDescription
 		case "images":
-			nova = nova + ";" + buildPoolDescription(pool)
-			glance = glance + ";" + buildPoolDescription(pool)
-			cinder = cinder + ";" + buildPoolDescription(pool)
+			nova = nova + ";" + poolDescription
+			glance = glance + ";" + poolDescription
+			cinder = cinder + ";" + poolDescription
 		case "backup":
-			cinder = cinder + ";" + buildPoolDescription(pool)
+			cinder = cinder + ";" + poolDescription
 		}
 	}
 

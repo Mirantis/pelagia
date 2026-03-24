@@ -204,8 +204,9 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 	poolsSection := make([]cephlcmv1alpha1.CephPool, len(rbdPoolsForShare))
 	for idx, sharePool := range rbdPoolsForShare {
 		poolFound := false
-		for _, pool := range cd.Spec.Pools {
-			if pool.Name == sharePool && pool.UseAsFullName || fmt.Sprintf("%s-%s", pool.Name, pool.DeviceClass) == sharePool {
+		for _, pool := range cd.Spec.BlockStorage.Pools {
+			castedPool, _ := pool.GetSpec()
+			if pool.Name == sharePool && pool.UseAsFullName || fmt.Sprintf("%s-%s", pool.Name, castedPool.DeviceClass) == sharePool {
 				poolFound = true
 				poolsSection[idx] = pool
 				break
@@ -330,8 +331,10 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 			Cluster: &cephlcmv1alpha1.CephCluster{
 				RawExtension: runtime.RawExtension{Raw: externalRaw},
 			},
+			BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+				Pools: poolsSection,
+			},
 			Nodes:            []cephlcmv1alpha1.CephDeploymentNode{},
-			Pools:            poolsSection,
 			SharedFilesystem: cephFSSection,
 		},
 	}

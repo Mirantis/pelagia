@@ -168,13 +168,15 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			name: "generate openstack shared secret with multiple volumes pools - success",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMosk.DeepCopy()
-				mc.Spec.Pools = []cephlcmv1alpha1.CephPool{
-					unitinputs.GetCephDeployPool("vms", "vms"),
-					unitinputs.GetCephDeployPool("images", "images"),
-					unitinputs.GetCephDeployPool("volumes", "volumes"),
-					unitinputs.GetCephDeployPool("volumes-2", "volumes"),
-					unitinputs.GetCephDeployPool("volumes-backend-1", "volumes-backend"),
-					unitinputs.GetCephDeployPool("backup", "backup"),
+				mc.Spec.BlockStorage = &cephlcmv1alpha1.CephBlockStorage{
+					Pools: []cephlcmv1alpha1.CephPool{
+						unitinputs.GetCephDeployPool("vms", "vms"),
+						unitinputs.GetCephDeployPool("images", "images"),
+						unitinputs.GetCephDeployPool("volumes", "volumes"),
+						unitinputs.GetCephDeployPool("volumes-2", "volumes"),
+						unitinputs.GetCephDeployPool("volumes-backend-1", "volumes-backend"),
+						unitinputs.GetCephDeployPool("backup", "backup"),
+					},
 				}
 				return mc
 			}(),

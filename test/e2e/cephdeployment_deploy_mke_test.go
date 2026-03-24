@@ -92,6 +92,15 @@ func TestDeployCephDeploymentMKE(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	rawPool, err := cephlcmv1alpha1.DecodeStructToRaw(
+		cephv1.PoolSpec{
+			DeviceClass: "hdd",
+			Replicated:  cephv1.ReplicatedSpec{Size: 3},
+		},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	mkeCD := &cephlcmv1alpha1.CephDeployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -101,6 +110,16 @@ func TestDeployCephDeploymentMKE(t *testing.T) {
 		Spec: cephlcmv1alpha1.CephDeploymentSpec{
 			Cluster: &cephlcmv1alpha1.CephCluster{
 				RawExtension: runtime.RawExtension{Raw: rawCluster},
+			},
+			BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+				Pools: []cephlcmv1alpha1.CephPool{
+					{
+						Name:             "kubernetes",
+						StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{Default: true},
+						Role:             "kubernetes",
+						PoolSpec:         runtime.RawExtension{Raw: rawPool},
+					},
+				},
 			},
 			ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
 				Rgw: cephlcmv1alpha1.CephRGW{
@@ -121,19 +140,6 @@ func TestDeployCephDeploymentMKE(t *testing.T) {
 						ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
 							CodingChunks: 1,
 							DataChunks:   2,
-						},
-					},
-				},
-			},
-			Pools: []cephlcmv1alpha1.CephPool{
-				{
-					Name:             "kubernetes",
-					StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{Default: true},
-					Role:             "kubernetes",
-					CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-						DeviceClass: "hdd",
-						Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-							Size: 3,
 						},
 					},
 				},

@@ -34,12 +34,12 @@ func ConvertJSONToYaml(data []byte) []byte {
 }
 
 func ConvertYamlToJSON(data []byte) []byte {
-	data, err := yaml.YAMLToJSON(data)
+	jsonData, err := yaml.YAMLToJSON(data)
 	if err != nil {
 		fmt.Println(err.Error())
 		return nil
 	}
-	return data
+	return jsonData
 }
 
 func ConvertStructToRaw(s any) []byte {

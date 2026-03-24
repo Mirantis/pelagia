@@ -37,13 +37,12 @@ func getStorageClassNameCephFS(cephFsName string, poolName string) string {
 	return fmt.Sprintf("%s-%s", cephFsName, poolName)
 }
 
-func generateStorageClassPoolBased(clusterid string, pool cephlcmv1alpha1.CephPool, namespace string, isExternal bool) *v1storage.StorageClass {
-	poolName := buildPoolName(pool)
+func generateStorageClassPoolBased(clusterid, poolName string, storageOpts cephlcmv1alpha1.CephStorageClassSpec, namespace string, isExternal bool) *v1storage.StorageClass {
 	storageclass := v1storage.StorageClass{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        poolName,
 			Labels:      map[string]string{rookStorageClassLabelKey: "true"},
-			Annotations: map[string]string{rookDefaultSCAnnotationKey: fmt.Sprintf("%v", pool.StorageClassOpts.Default)},
+			Annotations: map[string]string{rookDefaultSCAnnotationKey: fmt.Sprintf("%v", storageOpts.Default)},
 		},
 		Provisioner: rookRBDProvisionerName,
 		Parameters: map[string]string{
@@ -57,7 +56,7 @@ func generateStorageClassPoolBased(clusterid string, pool cephlcmv1alpha1.CephPo
 		},
 	}
 
-	volumeExpansion := pool.StorageClassOpts.AllowVolumeExpansion || isExternal
+	volumeExpansion := storageOpts.AllowVolumeExpansion || isExternal
 	if volumeExpansion {
 		storageclass.AllowVolumeExpansion = &volumeExpansion
 		storageclass.Parameters["csi.storage.k8s.io/controller-expand-secret-name"] = "rook-csi-rbd-provisioner"
@@ -65,20 +64,20 @@ func generateStorageClassPoolBased(clusterid string, pool cephlcmv1alpha1.CephPo
 		storageclass.Parameters["csi.storage.k8s.io/fstype"] = "ext4"
 	}
 
-	if pool.StorageClassOpts.MapOptions != "" {
-		storageclass.Parameters["mapOptions"] = pool.StorageClassOpts.MapOptions
+	if storageOpts.MapOptions != "" {
+		storageclass.Parameters["mapOptions"] = storageOpts.MapOptions
 	}
-	if pool.StorageClassOpts.UnmapOptions != "" {
-		storageclass.Parameters["unmapOptions"] = pool.StorageClassOpts.UnmapOptions
+	if storageOpts.UnmapOptions != "" {
+		storageclass.Parameters["unmapOptions"] = storageOpts.UnmapOptions
 	}
-	if pool.StorageClassOpts.ImageFeatures != "" {
-		storageclass.Parameters["imageFeatures"] = pool.StorageClassOpts.ImageFeatures
+	if storageOpts.ImageFeatures != "" {
+		storageclass.Parameters["imageFeatures"] = storageOpts.ImageFeatures
 	} else {
 		storageclass.Parameters["imageFeatures"] = "layering"
 	}
 
-	if pool.StorageClassOpts.ReclaimPolicy != "" {
-		reclaimPolicy := v1core.PersistentVolumeReclaimPolicy(pool.StorageClassOpts.ReclaimPolicy)
+	if storageOpts.ReclaimPolicy != "" {
+		reclaimPolicy := v1core.PersistentVolumeReclaimPolicy(storageOpts.ReclaimPolicy)
 		storageclass.ReclaimPolicy = &reclaimPolicy
 	}
 
@@ -132,44 +131,46 @@ func (c *cephDeploymentConfig) ensureStorageClasses() (bool, error) {
 		}
 	}
 
-	for _, cephDplPool := range c.cdConfig.cephDpl.Spec.Pools {
-		poolName := buildPoolName(cephDplPool)
-		storageResource := generateStorageClassPoolBased(c.lcmConfig.RookNamespace, cephDplPool, c.lcmConfig.RookNamespace, c.cdConfig.clusterSpec.External.Enable)
-		found := false
-		for _, storageClass := range storageClassesList.Items {
-			if poolName == storageClass.Name {
-				found = true
-				delete(storageClassesToDelete, storageClass.Name)
-				updatedStorageClass := storageClass
-				updated := false
-				if updatedStorageClass.Labels == nil {
-					updatedStorageClass.SetLabels(map[string]string{})
-				}
-				if updatedStorageClass.Annotations == nil {
-					updatedStorageClass.SetAnnotations(map[string]string{})
-				}
-				if updatedStorageClass.Labels[rookStorageClassLabelKey] != "true" {
-					updatedStorageClass.Labels[rookStorageClassLabelKey] = "true"
-					c.log.Info().Msgf("setting label '%s=%s' for storage class %s", rookStorageClassLabelKey, updatedStorageClass.Labels[rookStorageClassLabelKey], updatedStorageClass.Name)
-					updated = true
-				}
-				if updatedStorageClass.Annotations[rookDefaultSCAnnotationKey] != fmt.Sprintf("%v", cephDplPool.StorageClassOpts.Default) {
-					c.log.Info().Msgf("setting annotation '%s=%s' for storage class %s", rookDefaultSCAnnotationKey, fmt.Sprintf("%v", cephDplPool.StorageClassOpts.Default), updatedStorageClass.Name)
-					updatedStorageClass.Annotations[rookDefaultSCAnnotationKey] = fmt.Sprintf("%v", cephDplPool.StorageClassOpts.Default)
-					updated = true
-				}
-				if !reflect.DeepEqual(updatedStorageClass.Parameters, storageResource.Parameters) {
-					lcmcommon.ShowObjectDiff(*c.log, updatedStorageClass.Parameters, storageResource.Parameters)
-					c.log.Warn().Msgf("storageclass parameters update won't be applied for storage class '%[1]s', since parameters section is immutable,"+
-						" need to recreate storage class '%[1]s' to apply new parameters", updatedStorageClass.Name)
-				}
-				if updated {
-					storageClassesToUpdate = append(storageClassesToUpdate, &updatedStorageClass)
+	if c.cdConfig.cephDpl.Spec.BlockStorage != nil {
+		for idx, cephDplPool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
+			poolName := c.cdConfig.pools[idx]
+			storageResource := generateStorageClassPoolBased(c.lcmConfig.RookNamespace, poolName, cephDplPool.StorageClassOpts, c.lcmConfig.RookNamespace, c.cdConfig.clusterSpec.External.Enable)
+			found := false
+			for _, storageClass := range storageClassesList.Items {
+				if poolName == storageClass.Name {
+					found = true
+					delete(storageClassesToDelete, storageClass.Name)
+					updatedStorageClass := storageClass
+					updated := false
+					if updatedStorageClass.Labels == nil {
+						updatedStorageClass.SetLabels(map[string]string{})
+					}
+					if updatedStorageClass.Annotations == nil {
+						updatedStorageClass.SetAnnotations(map[string]string{})
+					}
+					if updatedStorageClass.Labels[rookStorageClassLabelKey] != "true" {
+						updatedStorageClass.Labels[rookStorageClassLabelKey] = "true"
+						c.log.Info().Msgf("setting label '%s=%s' for storage class %s", rookStorageClassLabelKey, updatedStorageClass.Labels[rookStorageClassLabelKey], updatedStorageClass.Name)
+						updated = true
+					}
+					if updatedStorageClass.Annotations[rookDefaultSCAnnotationKey] != fmt.Sprintf("%v", cephDplPool.StorageClassOpts.Default) {
+						c.log.Info().Msgf("setting annotation '%s=%s' for storage class %s", rookDefaultSCAnnotationKey, fmt.Sprintf("%v", cephDplPool.StorageClassOpts.Default), updatedStorageClass.Name)
+						updatedStorageClass.Annotations[rookDefaultSCAnnotationKey] = fmt.Sprintf("%v", cephDplPool.StorageClassOpts.Default)
+						updated = true
+					}
+					if !reflect.DeepEqual(updatedStorageClass.Parameters, storageResource.Parameters) {
+						lcmcommon.ShowObjectDiff(*c.log, updatedStorageClass.Parameters, storageResource.Parameters)
+						c.log.Warn().Msgf("storageclass parameters update won't be applied for storage class '%[1]s', since parameters section is immutable,"+
+							" need to recreate storage class '%[1]s' to apply new parameters", updatedStorageClass.Name)
+					}
+					if updated {
+						storageClassesToUpdate = append(storageClassesToUpdate, &updatedStorageClass)
+					}
 				}
 			}
-		}
-		if !found {
-			storageClassesToCreate = append(storageClassesToCreate, storageResource)
+			if !found {
+				storageClassesToCreate = append(storageClassesToCreate, storageResource)
+			}
 		}
 	}
 

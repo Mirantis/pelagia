@@ -363,7 +363,7 @@ func (c *cephDeploymentConfig) buildCephConfig() (string, map[string]string, map
 		}
 		rgwSectionName := rgwConfigSectionName(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name)
 		mergeConfig(defaultRgwConfigOptions(rgwSectionName))
-		if lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) && c.lcmConfig.DeployParams.OpenstackCephSharedNamespace != "" {
+		if c.cdConfig.openstackSetup && c.lcmConfig.DeployParams.OpenstackCephSharedNamespace != "" {
 			openstackSecrets, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
 			if err != nil {
 				if !apierrors.IsNotFound(err) {

@@ -26,6 +26,7 @@ import (
 	rookv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 
 	cephlcmv1alpha "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 )
@@ -113,21 +114,17 @@ func GetNewPool(name string, useAsfullName, volumeExpansion bool, size int, role
 	if role == "" {
 		role = "e2e-tests"
 	}
+	rawPoolData := fmt.Sprintf(`{"replicated": {"size": %d}, "deviceClass": "%s"}`, size, deviceClass)
 	return cephlcmv1alpha.CephPool{
-		Name: name,
-		Role: role,
+		Name:          name,
+		Role:          role,
+		UseAsFullName: useAsfullName,
 		StorageClassOpts: cephlcmv1alpha.CephStorageClassSpec{
 			Default:              false,
 			MapOptions:           mapOptions,
 			AllowVolumeExpansion: volumeExpansion,
 		},
-		CephPoolSpec: cephlcmv1alpha.CephPoolSpec{
-			Replicated: &cephlcmv1alpha.CephPoolReplicatedSpec{
-				Size: uint(size),
-			},
-			DeviceClass: deviceClass,
-		},
-		UseAsFullName: useAsfullName,
+		PoolSpec: runtime.RawExtension{Raw: []byte(rawPoolData)},
 	}
 }
 

@@ -23,11 +23,22 @@ import (
 )
 
 func (c *cephDeploymentConfig) castExtensions() error {
+	c.log.Debug().Msg("casting cephdeployment spec fields")
 	castedClusterSpec, err := c.cdConfig.cephDpl.Spec.Cluster.GetSpec()
 	if err != nil {
+		c.log.Error().Err(err).Msg("failed to cast cephdeployment fields to Rook API")
 		return err
 	}
 	c.cdConfig.clusterSpec = &castedClusterSpec
+
+	if c.cdConfig.cephDpl.Spec.BlockStorage != nil {
+		c.cdConfig.openstackSetup = lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.BlockStorage.Pools)
+
+		c.cdConfig.pools = make([]string, len(c.cdConfig.cephDpl.Spec.BlockStorage.Pools))
+		for idx, pool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
+			c.cdConfig.pools[idx] = buildPoolName(pool)
+		}
+	}
 
 	expandedNodes, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, c.cdConfig.cephDpl.Spec)
 	if err != nil {

@@ -115,7 +115,8 @@ func TestGenerateStorageClassPoolBased(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			actual := generateStorageClassPoolBased("rook-ceph", test.cephDplPool, "rook-ceph", test.isExternal)
+			poolName := buildPoolName(test.cephDplPool)
+			actual := generateStorageClassPoolBased("rook-ceph", poolName, test.cephDplPool.StorageClassOpts, "rook-ceph", test.isExternal)
 			assert.Equal(t, test.expected, actual)
 		})
 	}
@@ -321,7 +322,7 @@ func TestEnsureStorageClasses(t *testing.T) {
 			name: "ensure storage classes - update available fields only, success",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cephDpl := unitinputs.CephDeployNonMosk.DeepCopy()
-				cephDpl.Spec.Pools[0].StorageClassOpts.MapOptions = "some-opts"
+				cephDpl.Spec.BlockStorage.Pools[0].StorageClassOpts.MapOptions = "some-opts"
 				return cephDpl
 			}(),
 			inputResources: map[string]runtime.Object{

@@ -45,7 +45,7 @@ func (c *cephDeploymentConfig) ensureCephClients() (bool, error) {
 
 	// If there is any additional OpenStack clients required, add them to clients list
 	cephDplClients := c.cdConfig.cephDpl.Spec.Clients
-	if !c.cdConfig.clusterSpec.External.Enable && lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) {
+	if !c.cdConfig.clusterSpec.External.Enable && c.cdConfig.openstackSetup {
 		osClients, err := c.calculateOpenStackClients()
 		if err != nil {
 			return false, errors.Wrap(err, "failed to calculate OpenStack CephClients")
@@ -177,21 +177,25 @@ func (c *cephDeploymentConfig) calculateOpenStackClients() ([]cephlcmv1alpha1.Ce
 }
 
 func (c *cephDeploymentConfig) generateOpenStackClient(name string) (cephlcmv1alpha1.CephClient, error) {
+	client := cephlcmv1alpha1.CephClient{}
 	pools := map[string][]string{"vms": nil, "volumes": nil, "images": nil, "backup": nil}
-	for _, pool := range c.cdConfig.cephDpl.Spec.Pools {
+	c.log.Info().Msgf("%#v", c.cdConfig.pools)
+	for idx, pool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
+		poolName := c.cdConfig.pools[idx]
+
 		switch pool.Role {
 		case "images":
-			pools["images"] = []string{buildPoolName(pool)}
+			pools["images"] = []string{poolName}
 		case "vms":
-			pools["vms"] = []string{buildPoolName(pool)}
+			pools["vms"] = []string{poolName}
 		case "backup":
-			pools["backup"] = []string{buildPoolName(pool)}
+			pools["backup"] = []string{poolName}
 		case "volumes":
-			pools["volumes"] = append(pools["volumes"], buildPoolName(pool))
+			pools["volumes"] = append(pools["volumes"], poolName)
 		case "volumes-backend":
 			// set basic volumes role
 			pool.Role = "volumes"
-			pools["volumes"] = append(pools["volumes"], buildPoolName(pool))
+			pools["volumes"] = append(pools["volumes"], poolName)
 		}
 	}
 
@@ -216,7 +220,6 @@ func (c *cephDeploymentConfig) generateOpenStackClient(name string) (cephlcmv1al
 	}
 	volumeBackendsProfile := strings.Join(volumeBackendsProfiles, ", ")
 
-	client := cephlcmv1alpha1.CephClient{}
 	switch name {
 	case "cinder":
 		if err := checkPoolsFn(name, []string{"volumes", "images", "backup"}); err != nil {

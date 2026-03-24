@@ -32,33 +32,36 @@ import (
 func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidation {
 	errMsgs := make([]string, 0)
 	defaultFound := false
-	for _, cephDplPool := range c.cdConfig.cephDpl.Spec.Pools {
-		if defaultFound && cephDplPool.StorageClassOpts.Default {
-			err := "CephDeployment has multiple default pools specified"
-			c.log.Error().Msg(err)
-			errMsgs = append(errMsgs, err)
-		}
-		defaultFound = defaultFound || cephDplPool.StorageClassOpts.Default
-		if err := validateDeviceClassName(cephDplPool.DeviceClass, c.cdConfig.cephDpl.Spec.ExtraOpts); err != nil {
-			err := fmt.Sprintf("CephDeployment pool %s has %s", cephDplPool.Name, err.Error())
-			c.log.Error().Msg(err)
-			errMsgs = append(errMsgs, err)
-		}
-		if !c.cdConfig.clusterSpec.External.Enable && (cephDplPool.ErasureCoded == nil && cephDplPool.Replicated == nil ||
-			cephDplPool.ErasureCoded != nil && cephDplPool.Replicated != nil) {
-			err := fmt.Sprintf("CephDeployment pool %s spec should contain either replicated or erasureCoded spec", cephDplPool.Name)
-			c.log.Error().Msg(err)
-			errMsgs = append(errMsgs, err)
-		}
-		if cephDplPool.StorageClassOpts.ReclaimPolicy != "" && !lcmcommon.Contains([]string{"Retain", "Delete"}, cephDplPool.StorageClassOpts.ReclaimPolicy) {
-			err := fmt.Sprintf("CephDeployment pool %s spec contains invalid reclaimPolicy '%s', valid are: %v", cephDplPool.Name, cephDplPool.StorageClassOpts.ReclaimPolicy, []string{"Retain", "Delete"})
-			c.log.Error().Msg(err)
-			errMsgs = append(errMsgs, err)
-		}
-		if cephDplPool.FailureDomain == "osd" && len(c.cdConfig.nodesListExpanded) > 1 {
-			err := fmt.Sprintf("CephDeployment pool %s spec contains prohibited 'osd' failureDomain", cephDplPool.Name)
-			c.log.Error().Msg(err)
-			errMsgs = append(errMsgs, err)
+	if c.cdConfig.cephDpl.Spec.BlockStorage != nil {
+		for _, cephDplPool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
+			if defaultFound && cephDplPool.StorageClassOpts.Default {
+				err := "CephDeployment has multiple default pools specified"
+				c.log.Error().Msg(err)
+				errMsgs = append(errMsgs, err)
+			}
+			defaultFound = defaultFound || cephDplPool.StorageClassOpts.Default
+			castedPool, _ := cephDplPool.GetSpec()
+			if err := validateDeviceClassName(castedPool.DeviceClass, c.cdConfig.cephDpl.Spec.ExtraOpts); err != nil {
+				err := fmt.Sprintf("CephDeployment pool %s has %s", cephDplPool.Name, err.Error())
+				c.log.Error().Msg(err)
+				errMsgs = append(errMsgs, err)
+			}
+			if !c.cdConfig.clusterSpec.External.Enable && ((castedPool.ErasureCoded.CodingChunks == 0 && castedPool.ErasureCoded.DataChunks == 0 && castedPool.Replicated.Size == 0) ||
+				(castedPool.ErasureCoded.CodingChunks != 0 && castedPool.ErasureCoded.DataChunks != 0 && castedPool.Replicated.Size != 0)) {
+				err := fmt.Sprintf("CephDeployment pool %s spec should contain either replicated or erasureCoded spec", cephDplPool.Name)
+				c.log.Error().Msg(err)
+				errMsgs = append(errMsgs, err)
+			}
+			if cephDplPool.StorageClassOpts.ReclaimPolicy != "" && !lcmcommon.Contains([]string{"Retain", "Delete"}, cephDplPool.StorageClassOpts.ReclaimPolicy) {
+				err := fmt.Sprintf("CephDeployment pool %s spec contains invalid reclaimPolicy '%s', valid are: %v", cephDplPool.Name, cephDplPool.StorageClassOpts.ReclaimPolicy, []string{"Retain", "Delete"})
+				c.log.Error().Msg(err)
+				errMsgs = append(errMsgs, err)
+			}
+			if castedPool.FailureDomain == "osd" && len(c.cdConfig.nodesListExpanded) > 1 {
+				err := fmt.Sprintf("CephDeployment pool %s spec contains prohibited 'osd' failureDomain", cephDplPool.Name)
+				c.log.Error().Msg(err)
+				errMsgs = append(errMsgs, err)
+			}
 		}
 	}
 	// do not fail for external case - may only CephFS be specified for usage
@@ -317,12 +320,14 @@ func openstackPoolsValidate(cephDpl *cephlcmv1alpha1.CephDeployment) error {
 	}
 	anyRolesFound := false
 	extraRolesSpecified := []string{}
-	for _, pool := range cephDpl.Spec.Pools {
-		if lcmcommon.Contains(expectedRoles, pool.Role) {
-			anyRolesFound = true
-			foundRoles[pool.Role]++
-			if foundRoles[pool.Role] > 1 && pool.Role != "volumes" {
-				extraRolesSpecified = append(extraRolesSpecified, pool.Role)
+	if cephDpl.Spec.BlockStorage != nil {
+		for _, pool := range cephDpl.Spec.BlockStorage.Pools {
+			if lcmcommon.Contains(expectedRoles, pool.Role) {
+				anyRolesFound = true
+				foundRoles[pool.Role]++
+				if foundRoles[pool.Role] > 1 && pool.Role != "volumes" {
+					extraRolesSpecified = append(extraRolesSpecified, pool.Role)
+				}
 			}
 		}
 	}

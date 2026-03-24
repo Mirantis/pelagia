@@ -133,8 +133,9 @@ func (c *cephDeploymentConfig) ensureRBDSecrets() (bool, error) {
 	for _, peer := range c.cdConfig.cephDpl.Spec.RBDMirror.Peers {
 		for _, pool := range peer.Pools {
 			// check if mirroring is enabled on pool
-			for _, poolDef := range c.cdConfig.cephDpl.Spec.Pools {
-				if pool == buildPoolName(poolDef) && poolDef.Mirroring == nil {
+			for _, poolDef := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
+				castedPool, _ := poolDef.GetSpec()
+				if pool == buildPoolName(poolDef) && !castedPool.Mirroring.Enabled {
 					c.log.Warn().Msgf("Adds a secret for %v pool in which mirroring is disabled", pool)
 				}
 			}

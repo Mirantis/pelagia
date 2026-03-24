@@ -58,7 +58,7 @@ func (c *cephDeploymentConfig) canDeployIngressProxy() (bool, string, error) {
 		}
 	}
 	// if no TLS configuration for default class then probably need to get default one from openstack?
-	if lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) {
+	if c.cdConfig.openstackSetup {
 		if c.lcmConfig.DeployParams.OpenstackCephSharedNamespace == "" {
 			return false, "no required TLS configuration provided, Openstack pools present, no Openstack Ceph shared namespace (with default Openstack TLS) set", nil
 		}
@@ -124,7 +124,7 @@ func (c *cephDeploymentConfig) ensureIngressProxy() (bool, error) {
 		ingressConfig.Annotations = defaultAnnotations
 	}
 	// since we already checked possibility - just check do we need to take default TLS or not
-	if lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) {
+	if c.cdConfig.openstackSetup {
 		// handle case when no certs in ingress spec and no secret by ref, try to get default openstack certs
 		if ingressConfig.TLSConfig == nil || (ingressConfig.TLSConfig.TLSCerts == nil && ingressConfig.TLSConfig.TLSSecretRefName == "") {
 			osSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})

@@ -105,15 +105,33 @@ func (c *cephDeploymentConfig) ensureDeprecatedFields(skip bool) (bool, error) {
 	}
 	paramsCantMigrate = append(paramsCantMigrate, clusterParamsCantMigrate...)
 
+	if len(c.cdConfig.cephDpl.Spec.Pools) > 0 {
+		if c.cdConfig.cephDpl.Spec.BlockStorage != nil && len(c.cdConfig.cephDpl.Spec.BlockStorage.Pools) > 0 {
+			c.log.Error().Msgf(errMsgTmpl, "pools", "blockStorage.pools")
+			paramsCantMigrate = append(paramsCantMigrate, "spec.pools")
+		} else {
+			if c.cdConfig.cephDpl.Spec.BlockStorage == nil {
+				c.cdConfig.cephDpl.Spec.BlockStorage = &cephlcmv1alpha1.CephBlockStorage{}
+			}
+			c.log.Warn().Msgf(msgTmpl, "pools", "blockStorage.pools")
+			newPools, err := c.convertPoolsParams()
+			if err != nil {
+				return false, errors.Wrap(err, "failed to migrate deprecated pools section")
+			}
+			c.cdConfig.cephDpl.Spec.BlockStorage.Pools = newPools
+			c.cdConfig.cephDpl.Spec.Pools = nil
+		}
+	}
+
 	if len(paramsCantMigrate) > 0 {
-		return false, errors.Errorf("found deprecated params which can't be automatically migrated: %s", strings.Join(paramsCantMigrate, ","))
+		return false, errors.Errorf("found deprecated params which can't be automatically migrated: [ %s ]", strings.Join(paramsCantMigrate, " "))
 	}
 
 	if len(clusterData) > 0 {
 		newCluster := &cephlcmv1alpha1.CephCluster{}
 		err = cephlcmv1alpha1.SetRawSpec(&newCluster.RawExtension, clusterData, &cephv1.ClusterSpec{})
 		if err != nil {
-			return false, errors.New("failed to migrate deprecated cluster parameters")
+			return false, errors.Wrap(err, "failed to migrate deprecated cluster sections")
 		}
 		c.cdConfig.cephDpl.Spec.Cluster = newCluster
 	}
@@ -284,4 +302,27 @@ func (c *cephDeploymentConfig) convertClusterRelatedParams() ([]byte, []string, 
 	sort.Strings(paramsCantMigrate)
 
 	return data, paramsCantMigrate, nil
+}
+
+func (c *cephDeploymentConfig) convertPoolsParams() ([]cephlcmv1alpha1.CephPool, error) {
+	newPools := make([]cephlcmv1alpha1.CephPool, len(c.cdConfig.cephDpl.Spec.Pools))
+	for idx, oldPool := range c.cdConfig.cephDpl.Spec.Pools {
+		newPool := cephlcmv1alpha1.CephPool{
+			Name:             oldPool.Name,
+			UseAsFullName:    oldPool.UseAsFullName,
+			Role:             oldPool.Role,
+			PreserveOnDelete: oldPool.PreserveOnDelete,
+			StorageClassOpts: oldPool.StorageClassOpts,
+		}
+		poolData, err := json.Marshal(oldPool.CephPoolSpec)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to convert to JSON pool %s", oldPool.Name)
+		}
+		err = cephlcmv1alpha1.SetRawSpec(&newPool.PoolSpec, []byte(poolData), &cephv1.PoolSpec{})
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to migrate pool %s from deprecated section", oldPool.Name)
+		}
+		newPools[idx] = newPool
+	}
+	return newPools, nil
 }

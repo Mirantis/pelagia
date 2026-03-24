@@ -212,7 +212,8 @@ func TestEnsureClusterState(t *testing.T) {
 			changed: true,
 		},
 		{
-			name: "builtin pools verify: no default pool in spec and no rgw, nothing to do",
+			name:    "builtin pools verify: no default pool in spec and no rgw, nothing to do",
+			cephDpl: unitinputs.BaseCephDeployment.DeepCopy(),
 			inputResources: map[string]runtime.Object{
 				"configmaps":     &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints}},
 				"cephblockpools": &cephv1.CephBlockPoolList{},
@@ -335,6 +336,9 @@ func TestEnsureClusterState(t *testing.T) {
 				test.cephDpl = unitinputs.BaseCephDeployment.DeepCopy()
 			}
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
 			c.cdConfig.currentCephVersion = lcmcommon.LatestRelease
 			lcmcommon.RunPodCommandWithValidation = func(e lcmcommon.ExecConfig) (string, string, error) {
 				if output, ok := test.cliOutputs[e.Command]; ok {

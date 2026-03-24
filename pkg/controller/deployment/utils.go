@@ -68,7 +68,8 @@ func getCephPoolName(pool cephlcmv1alpha1.CephPool) string {
 	if pool.UseAsFullName {
 		return pool.Name
 	}
-	return fmt.Sprintf("%s-%s", pool.Name, pool.DeviceClass)
+	castedPool, _ := pool.GetSpec()
+	return fmt.Sprintf("%s-%s", pool.Name, castedPool.DeviceClass)
 }
 
 func getBuiltinPoolName(name string) string {

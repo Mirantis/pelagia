@@ -70,6 +70,82 @@ spec:
               Spec defines the desired configuration of resulting Ceph Cluster
               and all corresponding resources
             properties:
+              blockStorage:
+                description: |-
+                  BlockStorage stands for configuration Ceph block storage,
+                  such as rbd pool and rbd mirroring
+                properties:
+                  pools:
+                    description: Pools is a list of Ceph RBD Pools configurations
+                    items:
+                      description: CephPool stands for specified Ceph RBD Pool configuration
+                      properties:
+                        name:
+                          description: Name represents Ceph RBD pool name
+                          type: string
+                        preserveOnDelete:
+                          description: PreserveOnDelete prevents related CephBlockPool
+                            object removal
+                          type: boolean
+                        role:
+                          description: |-
+                            Role represents pool role. The following values are reserved for
+                            MOS managed clusters: vms, images, backup, volumes
+                          nullable: true
+                          type: string
+                        spec:
+                          description: |-
+                            PoolSpec represents pool specification
+                            Follow https://rook.io/docs/rook/v1.19/CRDs/Block-Storage/ceph-block-pool-crd
+                            for available options
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                        storageClassOpts:
+                          description: StorageClassOpts represents options to set
+                            on related storage class
+                          properties:
+                            allowVolumeExpansion:
+                              description: AllowVolumeExpansion allows to extend volumes
+                                sizes in pool
+                              type: boolean
+                            default:
+                              description: Default represents whether Ceph Pool's
+                                StorageClass would be default or not
+                              type: boolean
+                            imageFeatures:
+                              description: |-
+                                ImageFeatures is a comma-separated list of RBD image features,
+                                see: https://docs.ceph.com/en/latest/man/8/rbd/#cmdoption-rbd-image-feature
+                                Default is layering.
+                              nullable: true
+                              type: string
+                            mapOptions:
+                              description: MapOptions is a comma-separated list of
+                                kernel RBD map options
+                              nullable: true
+                              type: string
+                            reclaimPolicy:
+                              description: |-
+                                ReclaimPolicy stands for underlying StorageClass reclaimPolicy parameter.
+                                Default is 'Delete' if not set.
+                              nullable: true
+                              type: string
+                            unmapOptions:
+                              description: UnmapOptions is a comma-separated list
+                                of kernel RBD unmap options
+                              nullable: true
+                              type: string
+                          type: object
+                        useAsFullName:
+                          description: UseAsFullName uses Name as a resulting pool
+                            name instead of "<Name>-<DeviceClass>"
+                          type: boolean
+                      required:
+                      - name
+                      - spec
+                      type: object
+                    type: array
+                type: object
               clients:
                 description: |-
                   Clients is a list of Ceph Clients used for Ceph Cluster connection by
@@ -2319,7 +2395,8 @@ spec:
                 - rgw
                 type: object
               pools:
-                description: Pools is a list of Ceph RBD Pools configurations
+                description: Deprecated parameter, blockStorage.pools should be used
+                  instead
                 items:
                   description: CephPool stands for specified Ceph RBD Pool configuration
                   properties:

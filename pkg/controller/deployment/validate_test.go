@@ -196,10 +196,10 @@ func TestCephSharedFilesystemValidate(t *testing.T) {
 
 func TestOpenstackPoolsValidate(t *testing.T) {
 	cephDplMissedPools := unitinputs.CephDeployMosk.DeepCopy()
-	newPools := cephDplMissedPools.Spec.Pools[:len(cephDplMissedPools.Spec.Pools)-1]
-	cephDplMissedPools.Spec.Pools = newPools
+	newPools := cephDplMissedPools.Spec.BlockStorage.Pools[:len(cephDplMissedPools.Spec.BlockStorage.Pools)-1]
+	cephDplMissedPools.Spec.BlockStorage.Pools = newPools
 	cephDplExtraPools := unitinputs.CephDeployMosk.DeepCopy()
-	cephDplExtraPools.Spec.Pools = append(cephDplExtraPools.Spec.Pools, cephDplExtraPools.Spec.Pools...)
+	cephDplExtraPools.Spec.BlockStorage.Pools = append(cephDplExtraPools.Spec.BlockStorage.Pools, cephDplExtraPools.Spec.BlockStorage.Pools...)
 
 	tests := []struct {
 		name          string
@@ -476,8 +476,10 @@ func TestValidate(t *testing.T) {
 			name: "validate pool has no deviceClass and no default, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.Pools[0].DeviceClass = ""
-				cd.Spec.Pools[0].StorageClassOpts.Default = false
+				castedSpec, _ := cd.Spec.BlockStorage.Pools[0].GetSpec()
+				castedSpec.DeviceClass = ""
+				cd.Spec.BlockStorage.Pools[0].PoolSpec.Raw = unitinputs.ConvertStructToRaw(castedSpec)
+				cd.Spec.BlockStorage.Pools[0].StorageClassOpts.Default = false
 				return cd
 			}(),
 			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),
@@ -494,7 +496,9 @@ func TestValidate(t *testing.T) {
 			name: "validate pool has custom deviceClass",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.Pools[0].DeviceClass = "some-custom-class"
+				castedSpec, _ := cd.Spec.BlockStorage.Pools[0].GetSpec()
+				castedSpec.DeviceClass = "some-custom-class"
+				cd.Spec.BlockStorage.Pools[0].PoolSpec.Raw = unitinputs.ConvertStructToRaw(castedSpec)
 				cd.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{CustomDeviceClasses: []string{"some-custom-class"}}
 				return cd
 			}(),
@@ -508,8 +512,7 @@ func TestValidate(t *testing.T) {
 			name: "validate pool has neither replicated nor erasure coded, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.Pools[0].Replicated = nil
-				cd.Spec.Pools[0].ErasureCoded = nil
+				cd.Spec.BlockStorage.Pools[0].PoolSpec.Raw = unitinputs.ConvertStructToRaw(cephv1.PoolSpec{DeviceClass: "hdd"})
 				return cd
 			}(),
 			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),
@@ -525,7 +528,7 @@ func TestValidate(t *testing.T) {
 			name: "validate pool has incorrect reclaimPolicy, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.Pools[0].StorageClassOpts.ReclaimPolicy = "Fake"
+				cd.Spec.BlockStorage.Pools[0].StorageClassOpts.ReclaimPolicy = "Fake"
 				return cd
 			}(),
 			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),
@@ -541,7 +544,9 @@ func TestValidate(t *testing.T) {
 			name: "validate pool has osd failureDomain, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.Pools[0].FailureDomain = "osd"
+				castedSpec, _ := cd.Spec.BlockStorage.Pools[0].GetSpec()
+				castedSpec.FailureDomain = "osd"
+				cd.Spec.BlockStorage.Pools[0].PoolSpec.Raw = unitinputs.ConvertStructToRaw(castedSpec)
 				return cd
 			}(),
 			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),
@@ -559,8 +564,12 @@ func TestValidate(t *testing.T) {
 				cd := unitinputs.BaseCephDeployment.DeepCopy()
 				pool := unitinputs.CephDeployPoolReplicated.DeepCopy()
 				cd.Spec.Nodes = []cephlcmv1alpha1.CephDeploymentNode{cd.Spec.Nodes[0]}
-				pool.FailureDomain = "osd"
-				cd.Spec.Pools = []cephlcmv1alpha1.CephPool{*pool}
+				castedSpec, _ := pool.GetSpec()
+				castedSpec.FailureDomain = "osd"
+				pool.PoolSpec.Raw = unitinputs.ConvertStructToRaw(castedSpec)
+				cd.Spec.BlockStorage = &cephlcmv1alpha1.CephBlockStorage{
+					Pools: []cephlcmv1alpha1.CephPool{*pool},
+				}
 				cd.Generation = int64(10)
 				return cd
 			}(),
@@ -574,7 +583,7 @@ func TestValidate(t *testing.T) {
 			name: "validate incorrect nodes spec, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.Pools = append(cd.Spec.Pools, cd.Spec.Pools[0])
+				cd.Spec.BlockStorage.Pools = append(cd.Spec.BlockStorage.Pools, cd.Spec.BlockStorage.Pools[0])
 				cd.Spec.Nodes = unitinputs.CephNodesExtendedInvalid
 				cd.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{CustomDeviceClasses: []string{"some-custom-class"}}
 				return cd
@@ -603,7 +612,7 @@ func TestValidate(t *testing.T) {
 			name: "validate insufficient number of openstack pools, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployMosk.DeepCopy()
-				cd.Spec.Pools = cd.Spec.Pools[:len(cd.Spec.Pools)-1]
+				cd.Spec.BlockStorage.Pools = cd.Spec.BlockStorage.Pools[:len(cd.Spec.BlockStorage.Pools)-1]
 				return cd
 			}(),
 			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),

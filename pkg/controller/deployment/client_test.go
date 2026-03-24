@@ -114,23 +114,29 @@ func TestProcessCephClients(t *testing.T) {
 func TestGenerateOpenStackClient(t *testing.T) {
 	cephDplClients := cephlcmv1alpha1.CephDeployment{
 		Spec: cephlcmv1alpha1.CephDeploymentSpec{
-			Pools: []cephlcmv1alpha1.CephPool{
-				unitinputs.GetCephDeployPool("vms", "vms"),
-				unitinputs.GetCephDeployPool("images", "images"),
-				unitinputs.GetCephDeployPool("volumes", "volumes"),
-				unitinputs.GetCephDeployPool("backup", "backup"),
+			Cluster: unitinputs.CephDeployMosk.Spec.Cluster.DeepCopy(),
+			BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+				Pools: []cephlcmv1alpha1.CephPool{
+					unitinputs.GetCephDeployPool("vms", "vms"),
+					unitinputs.GetCephDeployPool("images", "images"),
+					unitinputs.GetCephDeployPool("volumes", "volumes"),
+					unitinputs.GetCephDeployPool("backup", "backup"),
+				},
 			},
 		},
 	}
 	cephDplClientExtraVolumes := cephlcmv1alpha1.CephDeployment{
 		Spec: cephlcmv1alpha1.CephDeploymentSpec{
-			Pools: []cephlcmv1alpha1.CephPool{
-				unitinputs.GetCephDeployPool("vms", "vms"),
-				unitinputs.GetCephDeployPool("images", "images"),
-				unitinputs.GetCephDeployPool("volumes", "volumes"),
-				unitinputs.GetCephDeployPool("backup", "backup"),
-				unitinputs.GetCephDeployPool("volumes-backend-1", "volumes-backend"),
-				unitinputs.GetCephDeployPool("volumes-2", "volumes"),
+			Cluster: unitinputs.CephDeployMosk.Spec.Cluster.DeepCopy(),
+			BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+				Pools: []cephlcmv1alpha1.CephPool{
+					unitinputs.GetCephDeployPool("vms", "vms"),
+					unitinputs.GetCephDeployPool("images", "images"),
+					unitinputs.GetCephDeployPool("volumes", "volumes"),
+					unitinputs.GetCephDeployPool("backup", "backup"),
+					unitinputs.GetCephDeployPool("volumes-backend-1", "volumes-backend"),
+					unitinputs.GetCephDeployPool("volumes-2", "volumes"),
+				},
 			},
 		},
 	}
@@ -169,7 +175,9 @@ func TestGenerateOpenStackClient(t *testing.T) {
 			name:       "cephclient cinder required pool missing in spec - failed",
 			clientName: "cinder",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
-				Spec: cephlcmv1alpha1.CephDeploymentSpec{Pools: []cephlcmv1alpha1.CephPool{unitinputs.GetCephDeployPool("images", "images")}},
+				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster:      unitinputs.CephDeployMosk.Spec.Cluster.DeepCopy(),
+					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: []cephlcmv1alpha1.CephPool{unitinputs.GetCephDeployPool("images", "images")}}},
 			},
 			poolsList:     &unitinputs.OpenstackCephBlockPoolsList,
 			expectedError: "ceph block pool with role volumes not found in pools",
@@ -192,7 +200,10 @@ func TestGenerateOpenStackClient(t *testing.T) {
 			name:       "cephclient glance required pool missing in spec - failed",
 			clientName: "glance",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
-				Spec: cephlcmv1alpha1.CephDeploymentSpec{Pools: []cephlcmv1alpha1.CephPool{unitinputs.GetCephDeployPool("volumes", "volumes")}},
+				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: unitinputs.CephDeployMosk.Spec.Cluster.DeepCopy(),
+					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+						Pools: []cephlcmv1alpha1.CephPool{unitinputs.GetCephDeployPool("volumes", "volumes")}}},
 			},
 			poolsList:     &unitinputs.OpenstackCephBlockPoolsList,
 			expectedError: "ceph block pool with role images not found in pools",
@@ -226,7 +237,10 @@ func TestGenerateOpenStackClient(t *testing.T) {
 			name:       "cephclient nova required pool missing in spec - failed",
 			clientName: "nova",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
-				Spec: cephlcmv1alpha1.CephDeploymentSpec{Pools: []cephlcmv1alpha1.CephPool{unitinputs.GetCephDeployPool("volumes", "volumes")}},
+				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: unitinputs.CephDeployMosk.Spec.Cluster.DeepCopy(),
+					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+						Pools: []cephlcmv1alpha1.CephPool{unitinputs.GetCephDeployPool("volumes", "volumes")}}},
 			},
 			poolsList:     &unitinputs.OpenstackCephBlockPoolsList,
 			expectedError: "ceph block pool with role vms not found in pools",
@@ -249,6 +263,9 @@ func TestGenerateOpenStackClient(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: &test.cephDpl}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
 			inputResources := map[string]runtime.Object{"cephblockpools": test.poolsList}
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephblockpools"}, inputResources, nil)
 
@@ -282,7 +299,10 @@ func TestCalculateOpenstackClients(t *testing.T) {
 		{
 			name: "no openstack clients in spec - success",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
-				Spec: cephlcmv1alpha1.CephDeploymentSpec{Pools: basePoolsForSpec},
+				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+						Pools: basePoolsForSpec}},
 			},
 			poolsList: &unitinputs.OpenstackCephBlockPoolsList,
 			expectedCephClients: []cephlcmv1alpha1.CephClient{
@@ -293,8 +313,9 @@ func TestCalculateOpenstackClients(t *testing.T) {
 			name: "openstack cinder client in spec - success",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Clients: []cephlcmv1alpha1.CephClient{unitinputs.CephDeployClientCinder},
-					Pools:   basePoolsForSpec,
+					Cluster:      unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Clients:      []cephlcmv1alpha1.CephClient{unitinputs.CephDeployClientCinder},
+					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: basePoolsForSpec},
 				},
 			},
 			poolsList: &unitinputs.OpenstackCephBlockPoolsList,
@@ -306,10 +327,11 @@ func TestCalculateOpenstackClients(t *testing.T) {
 			name: "openstack cinder and nova client in spec - success",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Clients: []cephlcmv1alpha1.CephClient{
 						unitinputs.CephDeployClientCinder, unitinputs.CephDeployClientNova,
 					},
-					Pools: basePoolsForSpec,
+					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: basePoolsForSpec},
 				},
 			},
 			poolsList: &unitinputs.OpenstackCephBlockPoolsList,
@@ -321,10 +343,11 @@ func TestCalculateOpenstackClients(t *testing.T) {
 			name: "all openstack clients in spec - success",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Clients: []cephlcmv1alpha1.CephClient{
 						unitinputs.CephDeployClientCinder, unitinputs.CephDeployClientGlance, unitinputs.CephDeployClientNova,
 					},
-					Pools: basePoolsForSpec,
+					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: basePoolsForSpec},
 				},
 			},
 			poolsList:           &unitinputs.OpenstackCephBlockPoolsList,
@@ -334,7 +357,8 @@ func TestCalculateOpenstackClients(t *testing.T) {
 			name: "manila not in spec, cephfs deployed - success",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Pools: basePoolsForSpec,
+					Cluster:      unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: basePoolsForSpec},
 					SharedFilesystem: &cephlcmv1alpha1.CephSharedFilesystem{
 						CephFS: []cephlcmv1alpha1.CephFS{{Name: "cephfs"}},
 					},
@@ -349,10 +373,11 @@ func TestCalculateOpenstackClients(t *testing.T) {
 			name: "manila in spec, cephfs deployed - success",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Clients: []cephlcmv1alpha1.CephClient{
 						unitinputs.CephDeployClientCinder, unitinputs.CephDeployClientGlance, unitinputs.CephDeployClientNova, unitinputs.CephDeployClientManila,
 					},
-					Pools: basePoolsForSpec,
+					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: basePoolsForSpec},
 				},
 			},
 			poolsList:           &unitinputs.OpenstackCephBlockPoolsList,
@@ -362,10 +387,13 @@ func TestCalculateOpenstackClients(t *testing.T) {
 			name: "no openstack clients in spec and backup pool missing in spec - fail",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Pools: []cephlcmv1alpha1.CephPool{
-						unitinputs.GetCephDeployPool("images", "images"),
-						unitinputs.GetCephDeployPool("volumes", "volumes"),
-						unitinputs.GetCephDeployPool("vms", "vms"),
+					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+						Pools: []cephlcmv1alpha1.CephPool{
+							unitinputs.GetCephDeployPool("images", "images"),
+							unitinputs.GetCephDeployPool("volumes", "volumes"),
+							unitinputs.GetCephDeployPool("vms", "vms"),
+						},
 					},
 				},
 			},
@@ -376,10 +404,13 @@ func TestCalculateOpenstackClients(t *testing.T) {
 			name: "no openstack clients in spec and vms pool missing in spec - fail",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Pools: []cephlcmv1alpha1.CephPool{
-						unitinputs.GetCephDeployPool("images", "images"),
-						unitinputs.GetCephDeployPool("volumes", "volumes"),
-						unitinputs.GetCephDeployPool("backup", "backup"),
+					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+						Pools: []cephlcmv1alpha1.CephPool{
+							unitinputs.GetCephDeployPool("images", "images"),
+							unitinputs.GetCephDeployPool("volumes", "volumes"),
+							unitinputs.GetCephDeployPool("backup", "backup"),
+						},
 					},
 				},
 			},
@@ -390,14 +421,17 @@ func TestCalculateOpenstackClients(t *testing.T) {
 			name: "no cinder client in spec and volumes pool missing in spec - fail",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Clients: []cephlcmv1alpha1.CephClient{
 						unitinputs.CephDeployClientGlance,
 						unitinputs.CephDeployClientNova,
 					},
-					Pools: []cephlcmv1alpha1.CephPool{
-						unitinputs.GetCephDeployPool("images", "images"),
-						unitinputs.GetCephDeployPool("backup", "backup"),
-						unitinputs.GetCephDeployPool("vms", "vms"),
+					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+						Pools: []cephlcmv1alpha1.CephPool{
+							unitinputs.GetCephDeployPool("images", "images"),
+							unitinputs.GetCephDeployPool("backup", "backup"),
+							unitinputs.GetCephDeployPool("vms", "vms"),
+						},
 					},
 				},
 			},
@@ -408,14 +442,17 @@ func TestCalculateOpenstackClients(t *testing.T) {
 			name: "no glance client in spec and images pool missing in spec - failed",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Clients: []cephlcmv1alpha1.CephClient{
 						unitinputs.CephDeployClientCinder,
 						unitinputs.CephDeployClientNova,
 					},
-					Pools: []cephlcmv1alpha1.CephPool{
-						unitinputs.GetCephDeployPool("volumes", "volumes"),
-						unitinputs.GetCephDeployPool("backup", "backup"),
-						unitinputs.GetCephDeployPool("vms", "vms"),
+					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+						Pools: []cephlcmv1alpha1.CephPool{
+							unitinputs.GetCephDeployPool("volumes", "volumes"),
+							unitinputs.GetCephDeployPool("backup", "backup"),
+							unitinputs.GetCephDeployPool("vms", "vms"),
+						},
 					},
 				},
 			},
@@ -426,11 +463,12 @@ func TestCalculateOpenstackClients(t *testing.T) {
 			name: "no glance client in spec and images pool raises error - failed",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Clients: []cephlcmv1alpha1.CephClient{
 						unitinputs.CephDeployClientCinder,
 						unitinputs.CephDeployClientNova,
 					},
-					Pools: basePoolsForSpec,
+					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: basePoolsForSpec},
 				},
 			},
 			poolsList:     &unitinputs.CephBlockPoolListEmpty,
@@ -440,11 +478,12 @@ func TestCalculateOpenstackClients(t *testing.T) {
 			name: "no cinder client in spec and volumes pool raises error - failed",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Clients: []cephlcmv1alpha1.CephClient{
 						unitinputs.CephDeployClientGlance,
 						unitinputs.CephDeployClientNova,
 					},
-					Pools: basePoolsForSpec,
+					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: basePoolsForSpec},
 				},
 			},
 			poolsList:     &unitinputs.CephBlockPoolListEmpty,
@@ -454,11 +493,12 @@ func TestCalculateOpenstackClients(t *testing.T) {
 			name: "no nova client in spec and vms pool raises error - failed",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Clients: []cephlcmv1alpha1.CephClient{
 						unitinputs.CephDeployClientGlance,
 						unitinputs.CephDeployClientCinder,
 					},
-					Pools: basePoolsForSpec,
+					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: basePoolsForSpec},
 				},
 			},
 			poolsList:     &unitinputs.CephBlockPoolListEmpty,
@@ -468,6 +508,9 @@ func TestCalculateOpenstackClients(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: &test.cephDpl}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
 			inputResources := map[string]runtime.Object{"cephblockpools": test.poolsList}
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephblockpools"}, inputResources, nil)
 

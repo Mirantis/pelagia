@@ -124,82 +124,79 @@ var CephDeploymentDeprecated = cephlcmv1alpha1.CephDeployment{
 			ClusterNet: "127.0.0.0/16",
 			PublicNet:  "192.168.0.0/16",
 		},
+		Pools: []cephlcmv1alpha1.CephPoolOld{
+			{
+				Name: "pool1",
+				Role: "fake",
+				StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{
+					Default: true,
+				},
+				CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
+					DeviceClass:   "hdd",
+					CrushRoot:     "default",
+					FailureDomain: "host",
+					Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
+						Size:            3,
+						TargetSizeRatio: 0.1,
+					},
+					Mirroring: &cephlcmv1alpha1.CephPoolMirrorSpec{
+						Mode: "peer",
+					},
+				},
+			},
+			{
+				Name: "pool2",
+				Role: "custom",
+				CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
+					DeviceClass:   "hdd",
+					FailureDomain: "host",
+					ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
+						CodingChunks: 1,
+						DataChunks:   2,
+						Algorithm:    "custom",
+					},
+					Parameters: map[string]string{
+						"custom-pool-param": "custom-pool-value",
+					},
+					EnableCrushUpdates: &[]bool{true}[0],
+				},
+			},
+		},
 		Nodes: CephNodesOk,
 	},
 }
 
-var CephDeploymentSpecClusterYAML = `dashboard:
-  enabled: true
-dataDirHostPath: /var/lib/custom-path
-healthCheck:
-  daemonHealth:
-    mon:
-      timeout: 60s
-    osd:
-      timeout: 60s
-    status:
-      disabled: true
-  livenessProbe:
-    osd:
-      probe:
-        failureThreshold: 10
-        timeoutSeconds: 10
-  startupProbe:
-    osd:
-      probe:
-        failureThreshold: 5
-        timeoutSeconds: 5
-mgr:
-  modules:
-  - enabled: true
-    name: balancer
-    settings:
-      balancerMode: upmap
-  - enabled: true
-    name: fake
-network:
-  addressRanges:
-    cluster:
-    - 127.0.0.0/16
-    public:
-    - 192.168.0.0/16
-placement:
-  all:
-    tolerations:
-    - effect: Schedule
-      key: test.kubernetes.io/testkey
-      operator: Exists
-  mgr:
-    tolerations:
-    - effect: Schedule
-      key: test.kubernetes.io/testkey-mgr
-      operator: Exists
-  mon:
-    tolerations:
-    - effect: Schedule
-      key: test.kubernetes.io/testkey-mon
-      operator: Exists
-  osd:
-    tolerations:
-    - effect: Schedule
-      key: test.kubernetes.io/testkey-osd
-      operator: Exists
-resources:
-  osd-nvme:
-    limits:
-      cpu: 100m
-      memory: 156Mi
-    requests:
-      cpu: 10m
-      memory: 28Mi
-`
+var CephDeploymentSpecClusterJSON = `{"dashboard":{"enabled":true},"dataDirHostPath":"/var/lib/custom-path","healthCheck":{"daemonHealth":{"status":{"disabled":true},"mon":{"timeout":"60s"},"osd":{"timeout":"60s"}},"livenessProbe":{"osd":{"probe":{"timeoutSeconds":10,"failureThreshold":10}}},"startupProbe":{"osd":{"probe":{"timeoutSeconds":5,"failureThreshold":5}}}},"mgr":{"modules":[{"name":"balancer","enabled":true,"settings":{"balancerMode":"upmap"}},{"name":"fake","enabled":true}]},"network":{"addressRanges":{"cluster":["127.0.0.0/16"],"public":["192.168.0.0/16"]}},"placement":{"all":{"tolerations":[{"key":"test.kubernetes.io/testkey","operator":"Exists","effect":"Schedule"}]},"mgr":{"tolerations":[{"key":"test.kubernetes.io/testkey-mgr","operator":"Exists","effect":"Schedule"}]},"mon":{"tolerations":[{"key":"test.kubernetes.io/testkey-mon","operator":"Exists","effect":"Schedule"}]},"osd":{"tolerations":[{"key":"test.kubernetes.io/testkey-osd","operator":"Exists","effect":"Schedule"}]}},"resources":{"osd-nvme":{"limits":{"cpu":"100m","memory":"156Mi"},"requests":{"cpu":"10m","memory":"28Mi"}}}}`
+var CephPoolSpec1MigratedJSON = `{"replicated":{"size":3,"targetSizeRatio":0.1},"failureDomain":"host","crushRoot":"default","deviceClass":"hdd","mirroring":{"mode":"peer"}}`
+var CephPoolSpec2MigratedJSON = `{"failureDomain":"host","deviceClass":"hdd","erasureCoded":{"codingChunks":1,"dataChunks":2,"algorithm":"custom"},"parameters":{"custom-pool-param":"custom-pool-value"},"enableCrushUpdates":true}`
 
 var CephDeploymentMigrated = cephlcmv1alpha1.CephDeployment{
 	ObjectMeta: LcmObjectMeta,
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
 		Cluster: &cephlcmv1alpha1.CephCluster{
 			RawExtension: runtime.RawExtension{
-				Raw: []byte(CephDeploymentSpecClusterYAML),
+				Raw: []byte(CephDeploymentSpecClusterJSON),
+			},
+		},
+		BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+			Pools: []cephlcmv1alpha1.CephPool{
+				{
+					Name: "pool1",
+					Role: "fake",
+					StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{
+						Default: true,
+					},
+					PoolSpec: runtime.RawExtension{
+						Raw: []byte(CephPoolSpec1MigratedJSON),
+					},
+				},
+				{
+					Name: "pool2",
+					Role: "custom",
+					PoolSpec: runtime.RawExtension{
+						Raw: []byte(CephPoolSpec2MigratedJSON),
+					},
+				},
 			},
 		},
 		Nodes: CephNodesOk,
@@ -221,24 +218,14 @@ var CephDeploymentMultusDeprecated = cephlcmv1alpha1.CephDeployment{
 	},
 }
 
-var CephDeploymentSpecClusterMultusYAML = `network:
-  addressRanges:
-    cluster:
-    - 127.0.0.0/16
-    public:
-    - 192.168.0.0/16
-  provider: multus
-  selectors:
-    cluster: 127.0.0.0/16
-    public: 192.168.0.0/16
-`
+var CephDeploymentSpecClusterMultusJSON = `{"network":{"addressRanges":{"cluster":["127.0.0.0/16"],"public":["192.168.0.0/16"]},"provider":"multus","selectors":{"cluster":"127.0.0.0/16","public":"192.168.0.0/16"}}}`
 
 var CephDeploymentMultusMigrated = cephlcmv1alpha1.CephDeployment{
 	ObjectMeta: LcmObjectMeta,
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
 		Cluster: &cephlcmv1alpha1.CephCluster{
 			RawExtension: runtime.RawExtension{
-				Raw: []byte(CephDeploymentSpecClusterMultusYAML),
+				Raw: []byte(CephDeploymentSpecClusterMultusJSON),
 			},
 		},
 	},
@@ -255,16 +242,14 @@ var CephDeployExternalDeprecated = cephlcmv1alpha1.CephDeployment{
 	},
 }
 
-var CephDeploymentSpecClusterExternalYAML = `external:
-  enable: true
-`
+var CephDeploymentSpecClusterExternalJSON = `{"external":{"enable":true}}`
 
 var CephDeployExternalMigrated = cephlcmv1alpha1.CephDeployment{
 	ObjectMeta: LcmObjectMeta,
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
 		Cluster: &cephlcmv1alpha1.CephCluster{
 			RawExtension: runtime.RawExtension{
-				Raw: []byte(CephDeploymentSpecClusterExternalYAML),
+				Raw: []byte(CephDeploymentSpecClusterExternalJSON),
 			},
 		},
 	},

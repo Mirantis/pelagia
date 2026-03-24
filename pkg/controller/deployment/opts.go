@@ -49,6 +49,10 @@ type deployConfig struct {
 	cephDpl *cephlcmv1alpha1.CephDeployment
 	// cluster spec casted from cephdeployment cluster RawExtension
 	clusterSpec *cephv1.ClusterSpec
+	// is openstack setup
+	openstackSetup bool
+	// full pool names
+	pools []string
 	// expanded node list w/o groups and labels, like it passed to ceph cluster
 	nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode
 	// parsed currentCephVersion for current cephDpl

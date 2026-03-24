@@ -103,7 +103,7 @@ func TestRgwUserCreateAccess(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if lcmcommon.IsOpenStackPoolsPresent(cd.Spec.Pools) {
+	if cd.Spec.BlockStorage != nil && lcmcommon.IsOpenStackPoolsPresent(cd.Spec.BlockStorage.Pools) {
 		f.Step(t, "check Openstack Ceilometer user access")
 		runRgwAccessTest(t, "", "", "", "rgw-ceilometer", false)
 	} else {
@@ -121,7 +121,7 @@ func TestRgwAccessPublicDomainRockoon(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !lcmcommon.IsOpenStackPoolsPresent(cd.Spec.Pools) {
+	if cd.Spec.BlockStorage == nil || !lcmcommon.IsOpenStackPoolsPresent(cd.Spec.BlockStorage.Pools) {
 		t.Skip("There are no openstack pools therefore could not proceed the test")
 	}
 
@@ -237,7 +237,7 @@ func TestRgwAccessPublicTlsByRefAndCustomHostnameRockoon(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !lcmcommon.IsOpenStackPoolsPresent(cd.Spec.Pools) {
+	if cd.Spec.BlockStorage == nil || !lcmcommon.IsOpenStackPoolsPresent(cd.Spec.BlockStorage.Pools) {
 		t.Skip("There are no openstack pools therefore could not proceed the test")
 	}
 

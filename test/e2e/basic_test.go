@@ -210,7 +210,10 @@ func TestValidationFailure(t *testing.T) {
 
 	// pools validation
 	poolName := "test-pool-invalid-" + fmt.Sprintf("%d", time.Now().Unix())
-	cd.Spec.Pools = append(cd.Spec.Pools, cephlcmv1alpha1.CephPool{
+	if cd.Spec.BlockStorage == nil {
+		cd.Spec.BlockStorage = &cephlcmv1alpha1.CephBlockStorage{}
+	}
+	cd.Spec.BlockStorage.Pools = append(cd.Spec.BlockStorage.Pools, cephlcmv1alpha1.CephPool{
 		Name: poolName,
 		StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{
 			ReclaimPolicy: "Fake",

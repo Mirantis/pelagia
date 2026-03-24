@@ -1076,6 +1076,8 @@ func TestEnsureIngressProxy(t *testing.T) {
 	for idx, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.lcmConfigParams)
+			err := c.castExtensions()
+			assert.Nil(t, err)
 
 			lcmcommon.GetCurrentUnixTimeString = func() string {
 				return fmt.Sprintf("%d", idx)

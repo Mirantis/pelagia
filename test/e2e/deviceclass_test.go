@@ -78,7 +78,10 @@ func TestVerifyCustomDeviceClass(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cd.Spec.Pools = append(cd.Spec.Pools, newPool)
+	if cd.Spec.BlockStorage == nil {
+		cd.Spec.BlockStorage = &cephlcmv1alpha1.CephBlockStorage{}
+	}
+	cd.Spec.BlockStorage.Pools = append(cd.Spec.BlockStorage.Pools, newPool)
 	err = f.UpdateCephDeploymentSpec(cd, true)
 	if err != nil {
 		t.Fatal(err)

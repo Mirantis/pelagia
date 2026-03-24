@@ -49,6 +49,26 @@ func (cl *CephCluster) GetSpec() (cephv1.ClusterSpec, error) {
 	return cluster.Spec, nil
 }
 
+func (p CephPool) GetSpec() (cephv1.PoolSpec, error) {
+	var cephPool cephv1.PoolSpec
+	if p.PoolSpec.Raw == nil && p.PoolSpec.Object == nil {
+		return cephPool, errors.New("spec: pool spec no any data provided")
+	}
+
+	if p.PoolSpec.Raw != nil {
+		if err := DecodeRawToStruct(p.PoolSpec.Raw, &cephPool); err != nil {
+			return cephPool, errors.Wrap(err, "spec: pool spec has failed to decode to Rook PoolSpec struct")
+		}
+		return cephPool, nil
+	}
+
+	pool, ok := p.PoolSpec.Object.(*cephv1.CephBlockPool)
+	if !ok {
+		return cephPool, errors.New("spec: pool field has failed to convert to Rook CephBlockPool object")
+	}
+	return pool.Spec.PoolSpec, nil
+}
+
 // Method SetRawSpec is used to directly put Raw spec in related
 // fields to avoid full struct define after JSON marshaling
 // Caution: will override present Raw data fully!

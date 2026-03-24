@@ -150,7 +150,9 @@ var CephDeployEnsureRbdMirror = func() cephlcmv1alpha1.CephDeployment {
 			},
 		},
 	}
-	cd.Spec.Pools = []cephlcmv1alpha1.CephPool{CephDeployPoolReplicated}
+	cd.Spec.BlockStorage = &cephlcmv1alpha1.CephBlockStorage{
+		Pools: []cephlcmv1alpha1.CephPool{CephDeployPoolReplicated},
+	}
 	return *cd
 }()
 
@@ -231,7 +233,9 @@ var CephDeployNonMosk = cephlcmv1alpha1.CephDeployment{
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
 		Cluster: BaseCephDeployment.Spec.Cluster.DeepCopy(),
-		Pools:   []cephlcmv1alpha1.CephPool{CephDeployPoolReplicated},
+		BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+			Pools: []cephlcmv1alpha1.CephPool{CephDeployPoolReplicated},
+		},
 		Clients: []cephlcmv1alpha1.CephClient{CephDeployClientTest},
 		Nodes:   CephNodesExtendedOk,
 		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
@@ -275,12 +279,14 @@ var CephDeployMosk = cephlcmv1alpha1.CephDeployment{
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
 		Cluster: BaseCephDeployment.Spec.Cluster.DeepCopy(),
-		Pools: []cephlcmv1alpha1.CephPool{
-			CephDeployPoolReplicated,
-			GetCephDeployPool("vms", "vms"),
-			GetCephDeployPool("volumes", "volumes"),
-			GetCephDeployPool("images", "images"),
-			GetCephDeployPool("backup", "backup"),
+		BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+			Pools: []cephlcmv1alpha1.CephPool{
+				CephDeployPoolReplicated,
+				GetCephDeployPool("vms", "vms"),
+				GetCephDeployPool("volumes", "volumes"),
+				GetCephDeployPool("images", "images"),
+				GetCephDeployPool("backup", "backup"),
+			},
 		},
 		Nodes: CephNodesExtendedOk,
 		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
@@ -356,7 +362,9 @@ var CephDeployExternal = cephlcmv1alpha1.CephDeployment{
 				),
 			},
 		},
-		Pools: []cephlcmv1alpha1.CephPool{CephDeployPoolReplicated},
+		BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+			Pools: []cephlcmv1alpha1.CephPool{CephDeployPoolReplicated},
+		},
 	},
 	Status: cephlcmv1alpha1.CephDeploymentStatus{
 		Validation: cephlcmv1alpha1.CephDeploymentValidation{
@@ -588,44 +596,57 @@ var CephDeployPoolReplicated = cephlcmv1alpha1.CephPool{
 	StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{
 		Default: true,
 	},
-	CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-		DeviceClass:   "hdd",
-		CrushRoot:     "default",
-		FailureDomain: "host",
-		Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-			Size: 3,
-		},
+	PoolSpec: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.PoolSpec{
+				DeviceClass:   "hdd",
+				CrushRoot:     "default",
+				FailureDomain: "host",
+				Replicated: cephv1.ReplicatedSpec{
+					Size: 3,
+				},
+			},
+		),
 	},
 }
 
 var CephDeployPoolErasureCoded = cephlcmv1alpha1.CephPool{
 	Name: "pool1",
 	Role: "fake",
-	CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-		DeviceClass:   "hdd",
-		CrushRoot:     "default",
-		FailureDomain: "host",
-		ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
-			CodingChunks: 1,
-			DataChunks:   2,
-			Algorithm:    "fake",
-		},
+	PoolSpec: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.PoolSpec{
+				DeviceClass:   "hdd",
+				CrushRoot:     "default",
+				FailureDomain: "host",
+				ErasureCoded: cephv1.ErasureCodedSpec{
+					CodingChunks: 1,
+					DataChunks:   2,
+					Algorithm:    "fake",
+				},
+			},
+		),
 	},
 }
 
 var CephDeployPoolMirroring = cephlcmv1alpha1.CephPool{
 	Name: "pool1",
 	Role: "fake",
-	CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-		DeviceClass:   "hdd",
-		CrushRoot:     "default",
-		FailureDomain: "host",
-		Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-			Size: 3,
-		},
-		Mirroring: &cephlcmv1alpha1.CephPoolMirrorSpec{
-			Mode: "pool",
-		},
+	PoolSpec: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.PoolSpec{
+				DeviceClass:   "hdd",
+				CrushRoot:     "default",
+				FailureDomain: "host",
+				Replicated: cephv1.ReplicatedSpec{
+					Size: 3,
+				},
+				Mirroring: cephv1.MirroringSpec{
+					Enabled: true,
+					Mode:    "pool",
+				},
+			},
+		),
 	},
 }
 
@@ -633,13 +654,17 @@ func GetCephDeployPool(name string, role string) cephlcmv1alpha1.CephPool {
 	return cephlcmv1alpha1.CephPool{
 		Name: name,
 		Role: role,
-		CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-			DeviceClass:   "hdd",
-			CrushRoot:     "default",
-			FailureDomain: "host",
-			Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-				Size: 3,
-			},
+		PoolSpec: runtime.RawExtension{
+			Raw: ConvertStructToRaw(
+				cephv1.PoolSpec{
+					DeviceClass:   "hdd",
+					CrushRoot:     "default",
+					FailureDomain: "host",
+					Replicated: cephv1.ReplicatedSpec{
+						Size: 3,
+					},
+				},
+			),
 		},
 	}
 }

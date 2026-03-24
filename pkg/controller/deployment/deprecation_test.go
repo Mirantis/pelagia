@@ -28,6 +28,10 @@ import (
 )
 
 func TestEnsureDeprecatedFields(t *testing.T) {
+	cephDeplConflicted := unitinputs.CephDeploymentDeprecated.DeepCopy()
+	cephDeplConflicted.Spec.Cluster = unitinputs.CephDeploymentMigrated.Spec.Cluster.DeepCopy()
+	cephDeplConflicted.Spec.BlockStorage = unitinputs.CephDeploymentMigrated.Spec.BlockStorage.DeepCopy()
+
 	tests := []struct {
 		name            string
 		cephDpl         *cephlcmv1alpha1.CephDeployment
@@ -36,19 +40,10 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 		migrated        bool
 	}{
 		{
-			name: "cant migrate deprecated fields due to conflicts",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cephDeplConflicted := unitinputs.CephDeploymentDeprecated.DeepCopy()
-				cephDeplConflicted.Spec.Cluster = unitinputs.CephDeploymentMigrated.Spec.Cluster.DeepCopy()
-				cephDeplConflicted.Spec.Cluster.Raw = unitinputs.ConvertYamlToJSON(cephDeplConflicted.Spec.Cluster.Raw)
-				return cephDeplConflicted
-			}(),
-			expectedCephDpl: func() cephlcmv1alpha1.CephDeployment {
-				cephDeplConflicted := unitinputs.CephDeploymentDeprecated.DeepCopy()
-				cephDeplConflicted.Spec.Cluster = unitinputs.CephDeploymentMigrated.Spec.Cluster.DeepCopy()
-				return *cephDeplConflicted
-			}(),
-			expectedError: "found deprecated params which can't be automatically migrated: spec.dashboard,spec.dataDirHostPath,spec.healthCheck,spec.hyperconverge.resources,spec.hyperconverge.tolerations[all],spec.hyperconverge.tolerations[mgr],spec.hyperconverge.tolerations[mon],spec.hyperconverge.tolerations[osd],spec.mgr,spec.network",
+			name:            "cant migrate deprecated fields due to conflicts",
+			cephDpl:         cephDeplConflicted.DeepCopy(),
+			expectedCephDpl: *cephDeplConflicted,
+			expectedError:   "found deprecated params which can't be automatically migrated: [ spec.dashboard spec.dataDirHostPath spec.healthCheck spec.hyperconverge.resources spec.hyperconverge.tolerations[all] spec.hyperconverge.tolerations[mgr] spec.hyperconverge.tolerations[mon] spec.hyperconverge.tolerations[osd] spec.mgr spec.network spec.pools ]",
 		},
 		{
 			name:            "migrated deprecated fields",
@@ -88,9 +83,6 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
 			assert.Equal(t, test.migrated, migrated)
-			// convert spec to yaml for better UX with inputs
-			cephDeploy := inputResources["cephdeployments"].(*cephlcmv1alpha1.CephDeploymentList).Items[0].Spec.Cluster.Raw
-			inputResources["cephdeployments"].(*cephlcmv1alpha1.CephDeploymentList).Items[0].Spec.Cluster.Raw = unitinputs.ConvertJSONToYaml(cephDeploy)
 			assert.Equal(t, expectedResources, inputResources)
 			faketestclients.CleanupFakeClientReactions(c.api.CephLcmclientset)
 		})

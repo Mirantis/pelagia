@@ -54,7 +54,7 @@ func TestAddRemovePool(t *testing.T) {
 	f.Step(t, "Adding new Ceph Pool")
 	poolName := "test-pool-new-" + fmt.Sprintf("%d", time.Now().Unix())
 	newPool := f.GetNewPool(poolName, false, false, 2, "", "", poolDefaultClass)
-	cd.Spec.Pools = append(cd.Spec.Pools, newPool)
+	cd.Spec.BlockStorage.Pools = append(cd.Spec.BlockStorage.Pools, newPool)
 	err = f.UpdateCephDeploymentSpec(cd, true)
 	if err != nil {
 		t.Fatal(err)
@@ -73,9 +73,9 @@ func TestAddRemovePool(t *testing.T) {
 		t.Fatal(err)
 	}
 	f.Step(t, "Removing newly added pool")
-	for idx, pool := range cd.Spec.Pools {
+	for idx, pool := range cd.Spec.BlockStorage.Pools {
 		if pool.Name == poolName {
-			cd.Spec.Pools = append(cd.Spec.Pools[:idx], cd.Spec.Pools[idx+1:]...)
+			cd.Spec.BlockStorage.Pools = append(cd.Spec.BlockStorage.Pools[:idx], cd.Spec.BlockStorage.Pools[idx+1:]...)
 			break
 		}
 	}
@@ -102,12 +102,12 @@ func TestVolumesBackendPool(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !lcmcommon.IsOpenStackPoolsPresent(cd.Spec.Pools) {
-		t.Skip("There are no openstack pools therefore could not proceed the test")
-	}
 	poolDefaultClass := f.GetDefaultPoolDeviceClass(cd)
 	if poolDefaultClass == "" {
 		t.Fatal("failed to find default pool")
+	}
+	if !lcmcommon.IsOpenStackPoolsPresent(cd.Spec.BlockStorage.Pools) {
+		t.Skip("There are no openstack pools therefore could not proceed the test")
 	}
 
 	f.Step(t, "Build volumes-backend role pool spec")
@@ -120,7 +120,7 @@ func TestVolumesBackendPool(t *testing.T) {
 	}
 	curGeneration := cinderVolumeSts.Generation
 
-	cd.Spec.Pools = append(cd.Spec.Pools, newPool)
+	cd.Spec.BlockStorage.Pools = append(cd.Spec.BlockStorage.Pools, newPool)
 	f.Step(t, "Create Ceph Pool with volumes-backend role")
 	err = f.UpdateCephDeploymentSpec(cd, true)
 	if err != nil {
@@ -299,7 +299,7 @@ func TestVolumeExpansionPool(t *testing.T) {
 		t.Fatal("failed to find default pool")
 	}
 	newPool := f.GetNewPool(name, true, true, 2, "", "", poolDefaultClass)
-	cd.Spec.Pools = append(cd.Spec.Pools, newPool)
+	cd.Spec.BlockStorage.Pools = append(cd.Spec.BlockStorage.Pools, newPool)
 	f.Step(t, "Create new pool %s", name)
 	err = f.UpdateCephDeploymentSpec(cd, true)
 	if err != nil {

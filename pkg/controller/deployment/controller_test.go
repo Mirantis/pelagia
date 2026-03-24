@@ -992,8 +992,8 @@ func TestReconcile(t *testing.T) {
 				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{
 					func() cephlcmv1alpha1.CephDeployment {
 						mc := unitinputs.CephDeployExternal.DeepCopy()
-						mc.Spec.Pools = []cephlcmv1alpha1.CephPool{
-							*unitinputs.CephDeployPoolReplicated.DeepCopy(),
+						mc.Spec.BlockStorage = &cephlcmv1alpha1.CephBlockStorage{
+							Pools: []cephlcmv1alpha1.CephPool{*unitinputs.CephDeployPoolReplicated.DeepCopy()},
 						}
 						mc.Status.ClusterVersion = unitinputs.LatestCephVersionImage
 						return *mc
@@ -1038,8 +1038,8 @@ func TestReconcile(t *testing.T) {
 				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{
 					func() cephlcmv1alpha1.CephDeployment {
 						mc := unitinputs.CephDeployExternal.DeepCopy()
-						mc.Spec.Pools = []cephlcmv1alpha1.CephPool{
-							*unitinputs.CephDeployPoolReplicated.DeepCopy(),
+						mc.Spec.BlockStorage = &cephlcmv1alpha1.CephBlockStorage{
+							Pools: []cephlcmv1alpha1.CephPool{*unitinputs.CephDeployPoolReplicated.DeepCopy()},
 						}
 						mc.Status.ClusterVersion = unitinputs.LatestCephVersionImage
 						return *mc
@@ -1142,8 +1142,8 @@ func TestReconcile(t *testing.T) {
 				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{
 					func() cephlcmv1alpha1.CephDeployment {
 						mc := unitinputs.CephDeployExternal.DeepCopy()
-						mc.Spec.Pools = []cephlcmv1alpha1.CephPool{
-							*unitinputs.CephDeployPoolReplicated.DeepCopy(),
+						mc.Spec.BlockStorage = &cephlcmv1alpha1.CephBlockStorage{
+							Pools: []cephlcmv1alpha1.CephPool{*unitinputs.CephDeployPoolReplicated.DeepCopy()},
 						}
 						mc.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{
 							CephFS: []cephlcmv1alpha1.CephFS{
@@ -1369,7 +1369,9 @@ func TestCleanCephDeployment(t *testing.T) {
 	}
 
 	cephDplExternal := unitinputs.CephDeployExternal.DeepCopy()
-	cephDplExternal.Spec.Pools = []cephlcmv1alpha1.CephPool{*unitinputs.CephDeployPoolReplicated.DeepCopy()}
+	cephDplExternal.Spec.BlockStorage = &cephlcmv1alpha1.CephBlockStorage{
+		Pools: []cephlcmv1alpha1.CephPool{*unitinputs.CephDeployPoolReplicated.DeepCopy()},
+	}
 	inputResourcesExternal := map[string]runtime.Object{
 		"cephclusters":               &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.CephClusterExternal.DeepCopy()}},
 		"cephclients":                &cephv1.CephClientList{Items: []cephv1.CephClient{*unitinputs.CephClientGlance.DeepCopy()}},

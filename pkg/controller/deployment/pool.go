@@ -29,6 +29,7 @@ import (
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
 )
 
+// TODO: to be removed, once RGW/MDS are migrated
 func generatePoolSpec(poolSpec *cephlcmv1alpha1.CephPoolSpec, role string) (newpool *cephv1.PoolSpec) {
 	poolSpecResource := cephv1.PoolSpec{
 		FailureDomain: poolSpec.FailureDomain,
@@ -68,6 +69,23 @@ func generatePoolSpec(poolSpec *cephlcmv1alpha1.CephPoolSpec, role string) (newp
 	return &poolSpecResource
 }
 
+func generatePoolOld(pool cephlcmv1alpha1.CephPoolOld, namespace string) (newpool *cephv1.CephBlockPool) {
+	cephpool := cephv1.CephBlockPool{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      getBuiltinPoolName(pool.Name),
+			Namespace: namespace,
+		},
+	}
+	cephpool.Spec = cephv1.NamedBlockPoolSpec{PoolSpec: *generatePoolSpec(&pool.CephPoolSpec, pool.Role)}
+	if lcmcommon.Contains(builtinCephPools, pool.Name) {
+		cephpool.Spec.Name = pool.Name
+	}
+	if pool.PreserveOnDelete {
+		cephpool.Annotations = map[string]string{poolPreserveOnDeleteAnnotation: "true"}
+	}
+	return &cephpool
+}
+
 func generatePool(pool cephlcmv1alpha1.CephPool, namespace string) (newpool *cephv1.CephBlockPool) {
 	cephpool := cephv1.CephBlockPool{
 		ObjectMeta: metav1.ObjectMeta{
@@ -75,7 +93,15 @@ func generatePool(pool cephlcmv1alpha1.CephPool, namespace string) (newpool *cep
 			Namespace: namespace,
 		},
 	}
-	cephpool.Spec = cephv1.NamedBlockPoolSpec{PoolSpec: *generatePoolSpec(&pool.CephPoolSpec, pool.Role)}
+	// skip check, since validation handles it
+	castedPoolSpec, _ := pool.GetSpec()
+	if castedPoolSpec.Replicated.Size > 0 {
+		if castedPoolSpec.Replicated.TargetSizeRatio == 0 {
+			castedPoolSpec.Replicated.TargetSizeRatio = poolsDefaultTargetSizeRatioByRole(pool.Role)
+		}
+	}
+
+	cephpool.Spec = cephv1.NamedBlockPoolSpec{PoolSpec: castedPoolSpec}
 	if lcmcommon.Contains(builtinCephPools, pool.Name) {
 		cephpool.Spec.Name = pool.Name
 	}
@@ -101,32 +127,34 @@ func (c *cephDeploymentConfig) ensurePools() (bool, error) {
 	}
 	errMsg := make([]error, 0)
 	poolsChanged := false
-	for _, cephDplPool := range c.cdConfig.cephDpl.Spec.Pools {
-		newPool := generatePool(cephDplPool, c.lcmConfig.RookNamespace)
-		if presentPool, ok := presentPools[newPool.Name]; ok {
-			if presentPool.Status == nil || !isTypeReadyToUpdate(presentPool.Status.Phase) {
-				err := fmt.Sprintf("found not ready CephBlockPool %s/%s, waiting for readiness", c.lcmConfig.RookNamespace, presentPool.Name)
-				if presentPool.Status != nil {
-					err = fmt.Sprintf("%s (current phase is %v)", err, presentPool.Status.Phase)
-				}
-				c.log.Error().Msg(err)
-				errMsg = append(errMsg, errors.New(err))
-			} else {
-				if !reflect.DeepEqual(newPool.Spec, presentPool.Spec) {
-					lcmcommon.ShowObjectDiff(*c.log, presentPool.Spec, newPool.Spec)
-					presentPool.Spec = newPool.Spec
-					if err := c.processBlockPools(objectUpdate, presentPool); err != nil {
-						errMsg = append(errMsg, err)
+	if c.cdConfig.cephDpl.Spec.BlockStorage != nil {
+		for _, cephDplPool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
+			newPool := generatePool(cephDplPool, c.lcmConfig.RookNamespace)
+			if presentPool, ok := presentPools[newPool.Name]; ok {
+				if presentPool.Status == nil || !isTypeReadyToUpdate(presentPool.Status.Phase) {
+					err := fmt.Sprintf("found not ready CephBlockPool %s/%s, waiting for readiness", c.lcmConfig.RookNamespace, presentPool.Name)
+					if presentPool.Status != nil {
+						err = fmt.Sprintf("%s (current phase is %v)", err, presentPool.Status.Phase)
 					}
-					poolsChanged = true
+					c.log.Error().Msg(err)
+					errMsg = append(errMsg, errors.New(err))
+				} else {
+					if !reflect.DeepEqual(newPool.Spec, presentPool.Spec) {
+						lcmcommon.ShowObjectDiff(*c.log, presentPool.Spec, newPool.Spec)
+						presentPool.Spec = newPool.Spec
+						if err := c.processBlockPools(objectUpdate, presentPool); err != nil {
+							errMsg = append(errMsg, err)
+						}
+						poolsChanged = true
+					}
 				}
+				delete(presentPools, newPool.Name)
+			} else {
+				if err := c.processBlockPools(objectCreate, newPool); err != nil {
+					errMsg = append(errMsg, err)
+				}
+				poolsChanged = true
 			}
-			delete(presentPools, newPool.Name)
-		} else {
-			if err := c.processBlockPools(objectCreate, newPool); err != nil {
-				errMsg = append(errMsg, err)
-			}
-			poolsChanged = true
 		}
 	}
 

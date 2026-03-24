@@ -43,6 +43,10 @@ type CephDeploymentSpec struct {
 	// Cluster stands for main Ceph cluster configuration
 	// Required to be specified.
 	Cluster *CephCluster `json:"cluster,omitempty"`
+	// BlockStorage stands for configuration Ceph block storage,
+	// such as rbd pool and rbd mirroring
+	// +optional
+	BlockStorage *CephBlockStorage `json:"blockStorage,omitempty"`
 	// Clients is a list of Ceph Clients used for Ceph Cluster connection by
 	// consumer services
 	// +optional
@@ -61,9 +65,6 @@ type CephDeploymentSpec struct {
 	// and RGW multisite feature
 	// +optional
 	ObjectStorage *CephObjectStorage `json:"objectStorage,omitempty"`
-	// Pools is a list of Ceph RBD Pools configurations
-	// +optional
-	Pools []CephPool `json:"pools,omitempty"`
 	// RBDMirror allows to configure RBD mirroring between two Ceph Clusters
 	// +optional
 	RBDMirror *CephRBDMirrorSpec `json:"rbdMirror,omitempty"`
@@ -97,10 +98,42 @@ type CephDeploymentSpec struct {
 	// Deprecated parameter, cluster.healthCheck should be used instead
 	// +optional
 	HealthCheck *CephClusterHealthCheckSpec `json:"healthCheck,omitempty"`
+	// Deprecated parameter, blockStorage.pools should be used instead
+	// +optional
+	Pools []CephPoolOld `json:"pools,omitempty"`
 }
 
 type CephCluster struct {
 	runtime.RawExtension `json:",inline"`
+}
+
+type CephBlockStorage struct {
+	// Pools is a list of Ceph RBD Pools configurations
+	// +optional
+	Pools []CephPool `json:"pools,omitempty"`
+}
+
+// CephPool stands for specified Ceph RBD Pool configuration
+type CephPool struct {
+	// Name represents Ceph RBD pool name
+	Name string `json:"name"`
+	// UseAsFullName uses Name as a resulting pool name instead of "<Name>-<DeviceClass>"
+	// +optional
+	UseAsFullName bool `json:"useAsFullName,omitempty"`
+	// Role represents pool role. The following values are reserved for
+	// MOS managed clusters: vms, images, backup, volumes
+	// +nullable
+	Role string `json:"role,omitempty"`
+	// PreserveOnDelete prevents related CephBlockPool object removal
+	// +optional
+	PreserveOnDelete bool `json:"preserveOnDelete,omitempty"`
+	// StorageClassOpts represents options to set on related storage class
+	// +optional
+	StorageClassOpts CephStorageClassSpec `json:"storageClassOpts,omitempty"`
+	// PoolSpec represents pool specification
+	// Follow https://rook.io/docs/rook/v1.19/CRDs/Block-Storage/ceph-block-pool-crd
+	// for available options
+	PoolSpec runtime.RawExtension `json:"spec"`
 }
 
 type CephClient struct {
@@ -151,35 +184,6 @@ type CephDeploymentExtraOpts struct {
 	DisableOsKeys bool `json:"disableOsSharedKeys,omitempty"`
 }
 
-type CephClusterHealthCheckSpec struct {
-	// DaemonHealth contains health check settings for ceph daemons
-	// +optional
-	DaemonHealth cephv1.DaemonHealthSpec `json:"daemonHealth,omitempty"`
-	// LivenessProbe allows changing the livenessProbe configuration for ceph daemons
-	// +optional
-	LivenessProbe map[cephv1.KeyType]*cephv1.ProbeSpec `json:"livenessProbe,omitempty"`
-	// StartupProbe allows changing the startupProbe configuration for ceph daemons
-	// +optional
-	StartupProbe map[cephv1.KeyType]*cephv1.ProbeSpec `json:"startupProbe,omitempty"`
-}
-
-// CephDeploymentHyperConverge represents hyperconverge parameters for Ceph daemons
-type CephDeploymentHyperConverge struct {
-	// Resources requirements for ceph daemons, such as: mon, mgr, mds, rgw, osd, osd-hdd, osd-ssd, osd-nvme, prepareosd
-	// +optional
-	Resources cephv1.ResourceSpec `json:"resources,omitempty"`
-	// Tolerations rules for ceph daemons: osd, mon, mgr.
-	// +optional
-	Tolerations map[string]CephDeploymentToleration `json:"tolerations,omitempty"`
-}
-
-// CephDeploymentToleration represents kubernetes toleration rules
-type CephDeploymentToleration struct {
-	// Rules is a list of kubernetes tolerations defined for some
-	// Ceph daemon
-	Rules []v1.Toleration `json:"rules"`
-}
-
 type CephDeploymentIngressConfig struct {
 	// Annotations is an extra annotations set to proxy
 	// +optional
@@ -215,51 +219,6 @@ type CephDeploymentCert struct {
 	TLSCert string `json:"tlsCert"`
 	// TLSKey represents SSL secret key used for TLSCert generate
 	TLSKey string `json:"tlsKey"`
-}
-
-// Mgr contains a list of Ceph Manager modules to enable in Ceph Cluster
-type Mgr struct {
-	// MgrModules is a list of Ceph Manager modules names to enable in Ceph
-	// +optional
-	MgrModules []CephMgrModule `json:"mgrModules,omitempty"`
-}
-
-// CephMgrModule represents mgr modules that the user wants to enable or disable
-type CephMgrModule struct {
-	// Name is the name of the ceph manager module
-	// +nullable
-	Name string `json:"name,omitempty"`
-	// Enabled determines whether a module should be enabled or not
-	// +optional
-	Enabled bool `json:"enabled,omitempty"`
-	// Settings reflects mgr module settings if required
-	// +optional
-	Settings *CephMgrModuleSettings `json:"settings,omitempty"`
-}
-
-// CephMgrModuleSettings represents mgr modules settings
-type CephMgrModuleSettings struct {
-	// BalancerMode sets the `balancer` module with different modes like `upmap`, `crush-compact` etc
-	BalancerMode string `json:"balancerMode,omitempty"`
-}
-
-// CephNetworkSpec is a section which defines the specific network range(s)
-// for Ceph daemons to communicate with each other and the an external
-// connections
-type CephNetworkSpec struct {
-	// ClusterNet defines pkg network for Ceph Daemons intra-communication
-	ClusterNet string `json:"clusterNet"`
-	// ClusterNet defines public network for an external access to Ceph Cluster
-	PublicNet string `json:"publicNet"`
-	// Provider specifies the network provider that will be used to connect the network interface
-	// +nullable
-	Provider string `json:"provider,omitempty"`
-	// Selector is used for multus provider only. Select NetworkAttachmentDefinitions to use for Ceph networks
-	// +optional
-	Selector map[cephv1.CephNetworkType]string `json:"selector,omitempty"`
-	// HostNetwork is deprecated field, always true to have persistan mons ips
-	// +optional
-	HostNetwork bool `json:"hostNetwork,omitempty"`
 }
 
 // CephDeploymentNode contains specific node configuration to use it in Ceph Cluster
@@ -457,58 +416,6 @@ type CephRGWZone struct {
 	EndpointsForZone []string `json:"endpointsForZone,omitempty"`
 }
 
-// CephPool stands for specified Ceph RBD Pool configuration
-type CephPool struct {
-	// Name represents Ceph RBD pool name
-	Name string `json:"name"`
-	// UseAsFullName uses Name as a resulting pool name instead of "<Name>-<DeviceClass>"
-	// +optional
-	UseAsFullName bool `json:"useAsFullName,omitempty"`
-	// Role represents pool role. The following values are reserved for
-	// MOS managed clusters: vms, images, backup, volumes
-	// +nullable
-	Role string `json:"role,omitempty"`
-	// PreserveOnDelete prevents related CephBlockPool object removal
-	// +optional
-	PreserveOnDelete bool `json:"preserveOnDelete,omitempty"`
-	// StorageClassOpts represents options to set on related storage class
-	// +optional
-	StorageClassOpts CephStorageClassSpec `json:"storageClassOpts,omitempty"`
-
-	CephPoolSpec `json:",inline"`
-}
-
-type CephPoolSpec struct {
-	// Replicated represents Ceph Pool's replica settings
-	// +optional
-	Replicated *CephPoolReplicatedSpec `json:"replicated,omitempty"`
-	// FailureDomain represents level of cluster fault-tolerance.
-	// Possible values are: osd, host, region or zone if available;
-	// technically also any type in the crush map
-	// +nullable
-	FailureDomain string `json:"failureDomain,omitempty"`
-	// CrushRoot is the root of the crush hierarchy utilized by the pool
-	// +nullable
-	CrushRoot string `json:"crushRoot,omitempty"`
-	// DeviceClass is the device class the OSD should set to (options are: hdd, ssd, or nvme)
-	DeviceClass string `json:"deviceClass"`
-	// ErasureCoded represents Ceph Pool's erasure coding settings
-	// +optional
-	ErasureCoded *CephPoolErasureCodedSpec `json:"erasureCoded,omitempty"`
-	// Mirroring allows to enable RBD mirroring feature in modes: pool, image
-	// +optional
-	Mirroring *CephPoolMirrorSpec `json:"mirroring,omitempty"`
-	// Parameters is a key-value mapping of all supported ceph pool parameters such
-	// as pg_num, compression_mode etc.
-	// +optional
-	Parameters map[string]string `json:"parameters,omitempty"`
-	// EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
-	// Can cause data remapping if crush rule changes, Defaults to false.
-	// +optional
-	// +nullable
-	EnableCrushUpdates *bool `json:"enableCrushUpdates,omitempty"`
-}
-
 type CephStorageClassSpec struct {
 	// Default represents whether Ceph Pool's StorageClass would be default or not
 	// +optional
@@ -531,35 +438,6 @@ type CephStorageClassSpec struct {
 	// AllowVolumeExpansion allows to extend volumes sizes in pool
 	// +optional
 	AllowVolumeExpansion bool `json:"allowVolumeExpansion,omitempty"`
-}
-
-// CephPoolErasureCodedSpec represents the spec for erasure code in a pool
-type CephPoolErasureCodedSpec struct {
-	// CodingChunks is a number of coding chunks per object
-	// in an erasure coded storage pool (required for erasure-coded pool type)
-	CodingChunks uint `json:"codingChunks"`
-	// DataChunks is a number of data chunks per object
-	// in an erasure coded storage pool (required for erasure-coded pool type)
-	DataChunks uint `json:"dataChunks"`
-	// Algorithm represents the algorithm for erasure coding
-	// +nullable
-	Algorithm string `json:"algorithm,omitempty"`
-}
-
-// CephPoolReplicatedSpec represents the spec for replication in a pool
-type CephPoolReplicatedSpec struct {
-	// Size - Number of copies per object in a replicated storage pool, including the object itself (required for replicated pool type)
-	Size uint `json:"size"`
-	// TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity
-	// +optional
-	TargetSizeRatio float64 `json:"targetSizeRatio,omitempty"`
-}
-
-// CephPoolMirrorSpec spec represents RBD mirroring
-// settings for a specific Ceph RBD Pool
-type CephPoolMirrorSpec struct {
-	// Mode - mirroring mode to run
-	Mode string `json:"mode"`
 }
 
 // CephRBDMirrorSpec allows to configure RBD mirroring between two Ceph Clusters
@@ -736,4 +614,161 @@ type CephDeploymentList struct {
 
 func init() {
 	SchemeBuilder.Register(&CephDeployment{}, &CephDeploymentList{})
+}
+
+// Deprecated params which will be remove in future
+
+// Mgr contains a list of Ceph Manager modules to enable in Ceph Cluster
+type Mgr struct {
+	// MgrModules is a list of Ceph Manager modules names to enable in Ceph
+	// +optional
+	MgrModules []CephMgrModule `json:"mgrModules,omitempty"`
+}
+
+// CephMgrModule represents mgr modules that the user wants to enable or disable
+type CephMgrModule struct {
+	// Name is the name of the ceph manager module
+	// +nullable
+	Name string `json:"name,omitempty"`
+	// Enabled determines whether a module should be enabled or not
+	// +optional
+	Enabled bool `json:"enabled,omitempty"`
+	// Settings reflects mgr module settings if required
+	// +optional
+	Settings *CephMgrModuleSettings `json:"settings,omitempty"`
+}
+
+// CephMgrModuleSettings represents mgr modules settings
+type CephMgrModuleSettings struct {
+	// BalancerMode sets the `balancer` module with different modes like `upmap`, `crush-compact` etc
+	BalancerMode string `json:"balancerMode,omitempty"`
+}
+
+// CephNetworkSpec is a section which defines the specific network range(s)
+// for Ceph daemons to communicate with each other and the an external
+// connections
+type CephNetworkSpec struct {
+	// ClusterNet defines pkg network for Ceph Daemons intra-communication
+	ClusterNet string `json:"clusterNet"`
+	// ClusterNet defines public network for an external access to Ceph Cluster
+	PublicNet string `json:"publicNet"`
+	// Provider specifies the network provider that will be used to connect the network interface
+	// +nullable
+	Provider string `json:"provider,omitempty"`
+	// Selector is used for multus provider only. Select NetworkAttachmentDefinitions to use for Ceph networks
+	// +optional
+	Selector map[cephv1.CephNetworkType]string `json:"selector,omitempty"`
+	// HostNetwork is deprecated field, always true to have persistan mons ips
+	// +optional
+	HostNetwork bool `json:"hostNetwork,omitempty"`
+}
+
+type CephClusterHealthCheckSpec struct {
+	// DaemonHealth contains health check settings for ceph daemons
+	// +optional
+	DaemonHealth cephv1.DaemonHealthSpec `json:"daemonHealth,omitempty"`
+	// LivenessProbe allows changing the livenessProbe configuration for ceph daemons
+	// +optional
+	LivenessProbe map[cephv1.KeyType]*cephv1.ProbeSpec `json:"livenessProbe,omitempty"`
+	// StartupProbe allows changing the startupProbe configuration for ceph daemons
+	// +optional
+	StartupProbe map[cephv1.KeyType]*cephv1.ProbeSpec `json:"startupProbe,omitempty"`
+}
+
+// CephDeploymentHyperConverge represents hyperconverge parameters for Ceph daemons
+type CephDeploymentHyperConverge struct {
+	// Resources requirements for ceph daemons, such as: mon, mgr, mds, rgw, osd, osd-hdd, osd-ssd, osd-nvme, prepareosd
+	// +optional
+	Resources cephv1.ResourceSpec `json:"resources,omitempty"`
+	// Tolerations rules for ceph daemons: osd, mon, mgr.
+	// +optional
+	Tolerations map[string]CephDeploymentToleration `json:"tolerations,omitempty"`
+}
+
+// CephDeploymentToleration represents kubernetes toleration rules
+type CephDeploymentToleration struct {
+	// Rules is a list of kubernetes tolerations defined for some
+	// Ceph daemon
+	Rules []v1.Toleration `json:"rules"`
+}
+
+// CephPool stands for specified Ceph RBD Pool configuration
+type CephPoolOld struct {
+	// Name represents Ceph RBD pool name
+	Name string `json:"name"`
+	// UseAsFullName uses Name as a resulting pool name instead of "<Name>-<DeviceClass>"
+	// +optional
+	UseAsFullName bool `json:"useAsFullName,omitempty"`
+	// Role represents pool role. The following values are reserved for
+	// MOS managed clusters: vms, images, backup, volumes
+	// +nullable
+	Role string `json:"role,omitempty"`
+	// PreserveOnDelete prevents related CephBlockPool object removal
+	// +optional
+	PreserveOnDelete bool `json:"preserveOnDelete,omitempty"`
+	// StorageClassOpts represents options to set on related storage class
+	// +optional
+	StorageClassOpts CephStorageClassSpec `json:"storageClassOpts,omitempty"`
+
+	CephPoolSpec `json:",inline"`
+}
+
+type CephPoolSpec struct {
+	// Replicated represents Ceph Pool's replica settings
+	// +optional
+	Replicated *CephPoolReplicatedSpec `json:"replicated,omitempty"`
+	// FailureDomain represents level of cluster fault-tolerance.
+	// Possible values are: osd, host, region or zone if available;
+	// technically also any type in the crush map
+	// +nullable
+	FailureDomain string `json:"failureDomain,omitempty"`
+	// CrushRoot is the root of the crush hierarchy utilized by the pool
+	// +nullable
+	CrushRoot string `json:"crushRoot,omitempty"`
+	// DeviceClass is the device class the OSD should set to (options are: hdd, ssd, or nvme)
+	DeviceClass string `json:"deviceClass"`
+	// ErasureCoded represents Ceph Pool's erasure coding settings
+	// +optional
+	ErasureCoded *CephPoolErasureCodedSpec `json:"erasureCoded,omitempty"`
+	// Mirroring allows to enable RBD mirroring feature in modes: pool, image
+	// +optional
+	Mirroring *CephPoolMirrorSpec `json:"mirroring,omitempty"`
+	// Parameters is a key-value mapping of all supported ceph pool parameters such
+	// as pg_num, compression_mode etc.
+	// +optional
+	Parameters map[string]string `json:"parameters,omitempty"`
+	// EnableCrushUpdates enables rook to update the pool crush rule using Pool Spec.
+	// Can cause data remapping if crush rule changes, Defaults to false.
+	// +optional
+	// +nullable
+	EnableCrushUpdates *bool `json:"enableCrushUpdates,omitempty"`
+}
+
+// CephPoolErasureCodedSpec represents the spec for erasure code in a pool
+type CephPoolErasureCodedSpec struct {
+	// CodingChunks is a number of coding chunks per object
+	// in an erasure coded storage pool (required for erasure-coded pool type)
+	CodingChunks uint `json:"codingChunks"`
+	// DataChunks is a number of data chunks per object
+	// in an erasure coded storage pool (required for erasure-coded pool type)
+	DataChunks uint `json:"dataChunks"`
+	// Algorithm represents the algorithm for erasure coding
+	// +nullable
+	Algorithm string `json:"algorithm,omitempty"`
+}
+
+// CephPoolReplicatedSpec represents the spec for replication in a pool
+type CephPoolReplicatedSpec struct {
+	// Size - Number of copies per object in a replicated storage pool, including the object itself (required for replicated pool type)
+	Size uint `json:"size"`
+	// TargetSizeRatio gives a hint (%) to Ceph in terms of expected consumption of the total cluster capacity
+	// +optional
+	TargetSizeRatio float64 `json:"targetSizeRatio,omitempty"`
+}
+
+// CephPoolMirrorSpec spec represents RBD mirroring
+// settings for a specific Ceph RBD Pool
+type CephPoolMirrorSpec struct {
+	// Mode - mirroring mode to run
+	Mode string `json:"mode"`
 }
