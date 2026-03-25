@@ -1146,9 +1146,7 @@ func TestReconcile(t *testing.T) {
 							Pools: []cephlcmv1alpha1.CephPool{*unitinputs.CephDeployPoolReplicated.DeepCopy()},
 						}
 						mc.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{
-							CephFS: []cephlcmv1alpha1.CephFS{
-								unitinputs.CephFSNewOk,
-							},
+							Filesystems: []cephlcmv1alpha1.CephFilesystem{unitinputs.CephFSNewOk},
 						}
 						mc.Spec.Nodes = unitinputs.CephNodesOk
 						mc.Spec.IngressConfig = &unitinputs.CephIngressConfig

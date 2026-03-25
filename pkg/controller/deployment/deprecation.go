@@ -33,7 +33,8 @@ func (c *cephDeploymentConfig) isMigrationRequired() bool {
 	return c.cdConfig.cephDpl.Spec.DashboardEnabled != nil || c.cdConfig.cephDpl.Spec.DataDirHostPath != "" ||
 		c.cdConfig.cephDpl.Spec.Network != nil || c.cdConfig.cephDpl.Spec.External != nil ||
 		c.cdConfig.cephDpl.Spec.Mgr != nil || c.cdConfig.cephDpl.Spec.HealthCheck != nil ||
-		c.cdConfig.cephDpl.Spec.HyperConverge != nil
+		c.cdConfig.cephDpl.Spec.HyperConverge != nil || len(c.cdConfig.cephDpl.Spec.Pools) > 0 ||
+		(c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.OldCephFS) > 0)
 }
 
 var (
@@ -62,7 +63,7 @@ func (c *cephDeploymentConfig) ensureDeprecatedFields(skip bool) (bool, error) {
 				delete(c.cdConfig.cephDpl.Spec.HyperConverge.Resources, "rgw")
 			}
 			if mds, ok := c.cdConfig.cephDpl.Spec.HyperConverge.Resources["mds"]; ok {
-				if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.CephFS) > 0 {
+				if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.OldCephFS) > 0 {
 					extraResources["mds"] = mds
 				} else {
 					c.log.Warn().Msg("found deprecated field spec.hyperconverge.resources['mds'], but no spec.sharedFilesystem.cephFS present, will be removed")
@@ -82,7 +83,7 @@ func (c *cephDeploymentConfig) ensureDeprecatedFields(skip bool) (bool, error) {
 				delete(c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations, "rgw")
 			}
 			if mds, ok := c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations["mds"]; ok && len(mds.Rules) > 0 {
-				if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.CephFS) > 0 {
+				if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.OldCephFS) > 0 {
 					extraPlacement["mds"] = cephv1.Placement{
 						Tolerations: mds.Rules,
 					}
@@ -120,6 +121,21 @@ func (c *cephDeploymentConfig) ensureDeprecatedFields(skip bool) (bool, error) {
 			}
 			c.cdConfig.cephDpl.Spec.BlockStorage.Pools = newPools
 			c.cdConfig.cephDpl.Spec.Pools = nil
+		}
+	}
+
+	if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.OldCephFS) > 0 {
+		if len(c.cdConfig.cephDpl.Spec.SharedFilesystem.Filesystems) > 0 {
+			c.log.Error().Msgf(errMsgTmpl, "sharedFilesystem.cephFS", "sharedFilesystem.cephFilesystems")
+			paramsCantMigrate = append(paramsCantMigrate, "spec.sharedFilesystem.cephFS")
+		} else {
+			c.log.Warn().Msgf(msgTmpl, "sharedFilesystem.cephFS", "sharedFilesystem.cephFilesystems")
+			newFs, err := c.convertCephFsParams(extraPlacement, extraResources)
+			if err != nil {
+				return false, errors.Wrap(err, "failed to migrate deprecated ceph filesystems section")
+			}
+			c.cdConfig.cephDpl.Spec.SharedFilesystem.Filesystems = newFs
+			c.cdConfig.cephDpl.Spec.SharedFilesystem.OldCephFS = nil
 		}
 	}
 
@@ -325,4 +341,50 @@ func (c *cephDeploymentConfig) convertPoolsParams() ([]cephlcmv1alpha1.CephPool,
 		newPools[idx] = newPool
 	}
 	return newPools, nil
+}
+
+func (c *cephDeploymentConfig) convertCephFsParams(hyperConvergePlacement cephv1.PlacementSpec, hyperConvergeResources cephv1.ResourceSpec) ([]cephlcmv1alpha1.CephFilesystem, error) {
+	newFs := make([]cephlcmv1alpha1.CephFilesystem, len(c.cdConfig.cephDpl.Spec.SharedFilesystem.OldCephFS))
+	for idx, oldCephFs := range c.cdConfig.cephDpl.Spec.SharedFilesystem.OldCephFS {
+		metadataServerParams := map[string]interface{}{
+			"activeCount":   oldCephFs.MetadataServer.ActiveCount,
+			"activeStandby": oldCephFs.MetadataServer.ActiveStandby,
+		}
+		if tol, ok := hyperConvergePlacement["mds"]; ok {
+			metadataServerParams["placement"] = map[string]interface{}{
+				"tolerations": tol.Tolerations,
+			}
+		}
+		if res, ok := hyperConvergeResources["mds"]; ok {
+			metadataServerParams["resources"] = res
+		}
+		if oldCephFs.MetadataServer.Resources != nil {
+			metadataServerParams["resources"] = *oldCephFs.MetadataServer.Resources
+		}
+		if oldCephFs.MetadataServer.HealthCheck != nil {
+			if oldCephFs.MetadataServer.HealthCheck.LivenessProbe != nil {
+				metadataServerParams["livenessProbe"] = oldCephFs.MetadataServer.HealthCheck.LivenessProbe
+			}
+			if oldCephFs.MetadataServer.HealthCheck.StartupProbe != nil {
+				metadataServerParams["startupProbe"] = oldCephFs.MetadataServer.HealthCheck.StartupProbe
+			}
+		}
+		cephFsSpec := map[string]interface{}{
+			"preserveFilesystemOnDelete": oldCephFs.PreserveFilesystemOnDelete,
+			"metadataPool":               oldCephFs.MetadataPool,
+			"dataPools":                  oldCephFs.DataPools,
+			"metadataServer":             metadataServerParams,
+		}
+		fsData, err := json.Marshal(cephFsSpec)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to convert to JSON cephfilesystem %s", oldCephFs.Name)
+		}
+		cephFilesystem := cephlcmv1alpha1.CephFilesystem{Name: oldCephFs.Name}
+		err = cephlcmv1alpha1.SetRawSpec(&cephFilesystem.FsSpec, []byte(fsData), &cephv1.FilesystemSpec{})
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to migrate cephfilesystem %s from deprecated section", oldCephFs.Name)
+		}
+		newFs[idx] = cephFilesystem
+	}
+	return newFs, nil
 }

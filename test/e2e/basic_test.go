@@ -218,6 +218,9 @@ func TestValidationFailure(t *testing.T) {
 		StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{
 			ReclaimPolicy: "Fake",
 		},
+		PoolSpec: runtime.RawExtension{
+			Raw: []byte("{}"),
+		},
 	})
 	// nodes validation
 	monCnt := 0
@@ -271,29 +274,35 @@ func TestValidationFailure(t *testing.T) {
 		t.Fatal("failed to find default pool")
 	}
 	// cephfs validation
-	cd.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{
-		CephFS: []cephlcmv1alpha1.CephFS{
+	cephfsRaw := cephv1.FilesystemSpec{
+		DataPools: []cephv1.NamedPoolSpec{
 			{
-				Name:         "fake",
-				MetadataPool: cephlcmv1alpha1.CephPoolSpec{},
-				DataPools: []cephlcmv1alpha1.CephFSPool{
-					{
-						Name: "fake-datapool-1",
-						CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-							DeviceClass: poolDefaultClass,
-							ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
-								CodingChunks: 2,
-								DataChunks:   1,
-							},
-						},
-					},
-					{
-						Name: "fake-datapool-2",
-						CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-							DeviceClass: poolDefaultClass,
-						},
+				Name: "fake-datapool-1",
+				PoolSpec: cephv1.PoolSpec{
+					DeviceClass: poolDefaultClass,
+					ErasureCoded: cephv1.ErasureCodedSpec{
+						CodingChunks: 2,
+						DataChunks:   1,
 					},
 				},
+			},
+			{
+				Name: "fake-datapool-2",
+				PoolSpec: cephv1.PoolSpec{
+					DeviceClass: poolDefaultClass,
+				},
+			},
+		},
+	}
+	fsRaw, err := cephlcmv1alpha1.DecodeStructToRaw(cephfsRaw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cd.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{
+		Filesystems: []cephlcmv1alpha1.CephFilesystem{
+			{
+				Name:   "fake",
+				FsSpec: runtime.RawExtension{Raw: fsRaw},
 			},
 		},
 	}

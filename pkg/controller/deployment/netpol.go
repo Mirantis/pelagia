@@ -124,7 +124,7 @@ func (c *cephDeploymentConfig) getPortsForPolicies() map[string][]networkingv1.N
 	} else {
 		portsMap["rook-ceph-rgw"] = nil
 	}
-	if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.CephFS) > 0 {
+	if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.Filesystems) > 0 {
 		portsMap["rook-ceph-mds"] = []networkingv1.NetworkPolicyPort{
 			{
 				Port:     getPort(int32(6800)),

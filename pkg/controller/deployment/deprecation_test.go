@@ -31,6 +31,7 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 	cephDeplConflicted := unitinputs.CephDeploymentDeprecated.DeepCopy()
 	cephDeplConflicted.Spec.Cluster = unitinputs.CephDeploymentMigrated.Spec.Cluster.DeepCopy()
 	cephDeplConflicted.Spec.BlockStorage = unitinputs.CephDeploymentMigrated.Spec.BlockStorage.DeepCopy()
+	cephDeplConflicted.Spec.SharedFilesystem.Filesystems = unitinputs.CephDeploymentMigrated.Spec.SharedFilesystem.DeepCopy().Filesystems
 
 	tests := []struct {
 		name            string
@@ -43,7 +44,7 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 			name:            "cant migrate deprecated fields due to conflicts",
 			cephDpl:         cephDeplConflicted.DeepCopy(),
 			expectedCephDpl: *cephDeplConflicted,
-			expectedError:   "found deprecated params which can't be automatically migrated: [ spec.dashboard spec.dataDirHostPath spec.healthCheck spec.hyperconverge.resources spec.hyperconverge.tolerations[all] spec.hyperconverge.tolerations[mgr] spec.hyperconverge.tolerations[mon] spec.hyperconverge.tolerations[osd] spec.mgr spec.network spec.pools ]",
+			expectedError:   "found deprecated params which can't be automatically migrated: [ spec.dashboard spec.dataDirHostPath spec.healthCheck spec.hyperconverge.resources spec.hyperconverge.tolerations[all] spec.hyperconverge.tolerations[mgr] spec.hyperconverge.tolerations[mon] spec.hyperconverge.tolerations[osd] spec.mgr spec.network spec.pools spec.sharedFilesystem.cephFS ]",
 		},
 		{
 			name:            "migrated deprecated fields",
@@ -71,7 +72,7 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl.DeepCopy()}, nil)
 			inputResources := map[string]runtime.Object{"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{*test.cephDpl}}}
 			expectedResources := map[string]runtime.Object{"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{test.expectedCephDpl}}}
 			faketestclients.FakeReaction(c.api.CephLcmclientset, "update", []string{"cephdeployments"}, inputResources, nil)

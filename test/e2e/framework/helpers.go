@@ -65,8 +65,12 @@ func ReadSharedFilesystemConfig(sharedFilesystemConfigString string) ([]string, 
 	if err != nil {
 		return nil, nil, err
 	}
-	for _, cephFS := range sharedFS.CephFS {
-		storageClasses = append(storageClasses, fmt.Sprintf("%s-%s", cephFS.Name, cephFS.DataPools[0].Name))
+	for _, cephFS := range sharedFS.Filesystems {
+		castedSpec, err := cephFS.GetSpec()
+		if err != nil {
+			return nil, nil, errors.Wrapf(err, "failed to cast %s ceph filesystem", cephFS.Name)
+		}
+		storageClasses = append(storageClasses, fmt.Sprintf("%s-%s", cephFS.Name, castedSpec.DataPools[0].Name))
 	}
 	return storageClasses, &sharedFS, nil
 }
@@ -161,10 +165,13 @@ func GetRgwPublicEndpoint(cdhName string) (string, error) {
 
 func GetDefaultPoolDeviceClass(cd *cephlcmv1alpha.CephDeployment) string {
 	poolDefaultClass := ""
-	for _, pool := range cd.Spec.Pools {
-		if pool.StorageClassOpts.Default {
-			poolDefaultClass = pool.DeviceClass
-			break
+	if cd.Spec.BlockStorage != nil {
+		for _, pool := range cd.Spec.BlockStorage.Pools {
+			if pool.StorageClassOpts.Default {
+				poolSpec, _ := pool.GetSpec()
+				poolDefaultClass = poolSpec.DeviceClass
+				break
+			}
 		}
 	}
 	return poolDefaultClass

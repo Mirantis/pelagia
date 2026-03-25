@@ -65,6 +65,12 @@ var CephDeploymentDeprecated = cephlcmv1alpha1.CephDeployment{
 						v1.ResourceCPU:    resource.MustParse("10m"),
 					},
 				},
+				"mds": v1.ResourceRequirements{
+					Limits: v1.ResourceList{
+						v1.ResourceCPU:    resource.MustParse("100m"),
+						v1.ResourceMemory: resource.MustParse("156Mi"),
+					},
+				},
 			},
 			Tolerations: map[string]cephlcmv1alpha1.CephDeploymentToleration{
 				"all": {
@@ -98,6 +104,15 @@ var CephDeploymentDeprecated = cephlcmv1alpha1.CephDeployment{
 					Rules: []v1.Toleration{
 						{
 							Key:      "test.kubernetes.io/testkey-osd",
+							Effect:   "Schedule",
+							Operator: "Exists",
+						},
+					},
+				},
+				"mds": {
+					Rules: []v1.Toleration{
+						{
+							Key:      "test.kubernetes.io/testkey-mds",
 							Effect:   "Schedule",
 							Operator: "Exists",
 						},
@@ -162,6 +177,49 @@ var CephDeploymentDeprecated = cephlcmv1alpha1.CephDeployment{
 				},
 			},
 		},
+		SharedFilesystem: &cephlcmv1alpha1.CephSharedFilesystem{
+			OldCephFS: []cephlcmv1alpha1.CephFS{
+				{
+					Name: "test-cephfs",
+					MetadataPool: cephlcmv1alpha1.CephPoolSpec{
+						DeviceClass: "hdd",
+						Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
+							Size: 3,
+						},
+					},
+					PreserveFilesystemOnDelete: false,
+					DataPools: []cephlcmv1alpha1.CephFSPool{
+						{
+							Name: "some-pool-name",
+							CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
+								DeviceClass: "hdd",
+								Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
+									Size: 3,
+								},
+							},
+						},
+						{
+							Name: "second-pool-name",
+							CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
+								DeviceClass: "hdd",
+								ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
+									CodingChunks: 1,
+									DataChunks:   2,
+								},
+							},
+						},
+					},
+					MetadataServer: cephlcmv1alpha1.CephMetadataServer{
+						ActiveCount:   1,
+						ActiveStandby: true,
+						HealthCheck: &cephlcmv1alpha1.CephMdsHealthCheck{
+							LivenessProbe: &cephv1.ProbeSpec{Disabled: true},
+							StartupProbe:  &cephv1.ProbeSpec{Disabled: true},
+						},
+					},
+				},
+			},
+		},
 		Nodes: CephNodesOk,
 	},
 }
@@ -169,6 +227,7 @@ var CephDeploymentDeprecated = cephlcmv1alpha1.CephDeployment{
 var CephDeploymentSpecClusterJSON = `{"dashboard":{"enabled":true},"dataDirHostPath":"/var/lib/custom-path","healthCheck":{"daemonHealth":{"status":{"disabled":true},"mon":{"timeout":"60s"},"osd":{"timeout":"60s"}},"livenessProbe":{"osd":{"probe":{"timeoutSeconds":10,"failureThreshold":10}}},"startupProbe":{"osd":{"probe":{"timeoutSeconds":5,"failureThreshold":5}}}},"mgr":{"modules":[{"name":"balancer","enabled":true,"settings":{"balancerMode":"upmap"}},{"name":"fake","enabled":true}]},"network":{"addressRanges":{"cluster":["127.0.0.0/16"],"public":["192.168.0.0/16"]}},"placement":{"all":{"tolerations":[{"key":"test.kubernetes.io/testkey","operator":"Exists","effect":"Schedule"}]},"mgr":{"tolerations":[{"key":"test.kubernetes.io/testkey-mgr","operator":"Exists","effect":"Schedule"}]},"mon":{"tolerations":[{"key":"test.kubernetes.io/testkey-mon","operator":"Exists","effect":"Schedule"}]},"osd":{"tolerations":[{"key":"test.kubernetes.io/testkey-osd","operator":"Exists","effect":"Schedule"}]}},"resources":{"osd-nvme":{"limits":{"cpu":"100m","memory":"156Mi"},"requests":{"cpu":"10m","memory":"28Mi"}}}}`
 var CephPoolSpec1MigratedJSON = `{"replicated":{"size":3,"targetSizeRatio":0.1},"failureDomain":"host","crushRoot":"default","deviceClass":"hdd","mirroring":{"mode":"peer"}}`
 var CephPoolSpec2MigratedJSON = `{"failureDomain":"host","deviceClass":"hdd","erasureCoded":{"codingChunks":1,"dataChunks":2,"algorithm":"custom"},"parameters":{"custom-pool-param":"custom-pool-value"},"enableCrushUpdates":true}`
+var CephFsSpecMigratedJSON = `{"dataPools":[{"name":"some-pool-name","replicated":{"size":3},"deviceClass":"hdd"},{"name":"second-pool-name","deviceClass":"hdd","erasureCoded":{"codingChunks":1,"dataChunks":2}}],"metadataPool":{"replicated":{"size":3},"deviceClass":"hdd"},"metadataServer":{"activeCount":1,"activeStandby":true,"livenessProbe":{"disabled":true},"placement":{"tolerations":[{"key":"test.kubernetes.io/testkey-mds","operator":"Exists","effect":"Schedule"}]},"resources":{"limits":{"cpu":"100m","memory":"156Mi"}},"startupProbe":{"disabled":true}},"preserveFilesystemOnDelete":false}`
 
 var CephDeploymentMigrated = cephlcmv1alpha1.CephDeployment{
 	ObjectMeta: LcmObjectMeta,
@@ -195,6 +254,16 @@ var CephDeploymentMigrated = cephlcmv1alpha1.CephDeployment{
 					Role: "custom",
 					PoolSpec: runtime.RawExtension{
 						Raw: []byte(CephPoolSpec2MigratedJSON),
+					},
+				},
+			},
+		},
+		SharedFilesystem: &cephlcmv1alpha1.CephSharedFilesystem{
+			Filesystems: []cephlcmv1alpha1.CephFilesystem{
+				{
+					Name: "test-cephfs",
+					FsSpec: runtime.RawExtension{
+						Raw: []byte(CephFsSpecMigratedJSON),
 					},
 				},
 			},

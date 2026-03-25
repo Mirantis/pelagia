@@ -89,6 +89,26 @@ func (c CephClient) GetSpec() (cephv1.ClientSpec, error) {
 	return client.Spec, nil
 }
 
+func (fs CephFilesystem) GetSpec() (cephv1.FilesystemSpec, error) {
+	var fsSpec cephv1.FilesystemSpec
+	if fs.FsSpec.Raw == nil && fs.FsSpec.Object == nil {
+		return fsSpec, errors.New("spec: filesystem spec no any data provided")
+	}
+
+	if fs.FsSpec.Raw != nil {
+		if err := DecodeRawToStruct(fs.FsSpec.Raw, &fsSpec); err != nil {
+			return fsSpec, errors.Wrap(err, "spec: filesystem spec has failed to decode to Rook FilesystemSpec struct")
+		}
+		return fsSpec, nil
+	}
+
+	fsObj, ok := fs.FsSpec.Object.(*cephv1.CephFilesystem)
+	if !ok {
+		return fsSpec, errors.New("spec: filesystem field has failed to convert to Rook CephFilesystem object")
+	}
+	return fsObj.Spec, nil
+}
+
 // Method SetRawSpec is used to directly put Raw spec in related
 // fields to avoid full struct define after JSON marshaling
 // Caution: will override present Raw data fully!

@@ -90,50 +90,57 @@ func TestCephSharedFilesystemValidate(t *testing.T) {
 	cephDplOkMultipleCephFs.Spec.SharedFilesystem = unitinputs.CephSharedFileSystemMultiple
 	cephDplNotOk1 := unitinputs.BaseCephDeployment.DeepCopy()
 	cephDplNotOk1.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{
-		CephFS: []cephlcmv1alpha1.CephFS{
+		Filesystems: []cephlcmv1alpha1.CephFilesystem{
 			{
-				Name:         "test-cephfs",
-				MetadataPool: cephlcmv1alpha1.CephPoolSpec{FailureDomain: "osd"},
-				DataPools: []cephlcmv1alpha1.CephFSPool{
-					{
-						Name: "some-pool-name",
-						CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-							DeviceClass:   "some-custom-device-class",
-							FailureDomain: "osd",
-							ErasureCoded:  &cephlcmv1alpha1.CephPoolErasureCodedSpec{},
+				Name: "test-cephfs",
+				FsSpec: runtime.RawExtension{
+					Raw: unitinputs.ConvertStructToRaw(
+						cephv1.FilesystemSpec{
+							MetadataPool: cephv1.NamedPoolSpec{
+								PoolSpec: cephv1.PoolSpec{FailureDomain: "osd"},
+							},
+							DataPools: []cephv1.NamedPoolSpec{
+								{
+									Name: "some-pool-name",
+									PoolSpec: cephv1.PoolSpec{
+										DeviceClass:   "some-custom-device-class",
+										FailureDomain: "osd",
+									},
+								},
+								{
+									Name: "some-pool-name-2",
+								},
+							},
+							MetadataServer: cephv1.MetadataServerSpec{
+								ActiveCount:   1,
+								ActiveStandby: true,
+							},
 						},
-					},
-					{
-						Name: "some-pool-name-2",
-					},
-				},
-				MetadataServer: cephlcmv1alpha1.CephMetadataServer{
-					ActiveCount:   1,
-					ActiveStandby: true,
+					),
 				},
 			},
 		},
 	}
 	cephDplNotOk2 := cephDplOk.DeepCopy()
 	cephDplNotOk2.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{
-		CephFS: []cephlcmv1alpha1.CephFS{
+		Filesystems: []cephlcmv1alpha1.CephFilesystem{
 			{
 				Name: "test-cephfs",
-				MetadataPool: cephlcmv1alpha1.CephPoolSpec{
-					Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{},
+				FsSpec: runtime.RawExtension{
+					Raw: []byte(string("{}")),
 				},
-				DataPools: []cephlcmv1alpha1.CephFSPool{},
 			},
 		},
 	}
 	cephDplOkWithExtraClasses := cephDplOk.DeepCopy()
 	cephDplOkWithExtraClasses.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{CustomDeviceClasses: []string{"some-custom-class"}}
-	cephfs := cephDplOkWithExtraClasses.Spec.SharedFilesystem.CephFS[0]
-	cephfs.MetadataPool.DeviceClass = "some-custom-class"
-	dataPool := cephfs.DataPools[0]
+	cephfs := cephDplOkWithExtraClasses.Spec.SharedFilesystem.Filesystems[0]
+	castedFsSpec, _ := cephfs.GetSpec()
+	dataPool := castedFsSpec.DataPools[0].DeepCopy()
 	dataPool.DeviceClass = "some-custom-class"
-	cephfs.DataPools[0] = dataPool
-	cephDplOkWithExtraClasses.Spec.SharedFilesystem.CephFS[0] = cephfs
+	dataPool.Name = "custom-pool"
+	castedFsSpec.DataPools = append(castedFsSpec.DataPools, *dataPool)
+	cephDplOkWithExtraClasses.Spec.SharedFilesystem.Filesystems[0].FsSpec.Raw = unitinputs.ConvertStructToRaw(castedFsSpec)
 
 	tests := []struct {
 		name           string
@@ -171,9 +178,12 @@ func TestCephSharedFilesystemValidate(t *testing.T) {
 			},
 		},
 		{
-			name:           "validation failed - no datapools in spec",
-			cephDpl:        cephDplNotOk2,
-			expectedErrors: []string{"dataPools sections for CephFS rook-ceph/test-cephfs has no data pools defined"},
+			name:    "validation failed - pools in spec",
+			cephDpl: cephDplNotOk2,
+			expectedErrors: []string{
+				"metadataPool for CephFS rook-ceph/test-cephfs must use replication only",
+				"dataPools sections for CephFS rook-ceph/test-cephfs has no data pools defined",
+			},
 		},
 		{
 			name:           "validation ok with insufficient number of 'mds' roles for external cluster",
@@ -646,7 +656,9 @@ func TestValidate(t *testing.T) {
 			name: "validate incorrect cephfs, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.SharedFilesystem.CephFS[0].DataPools = nil
+				fsCasted, _ := cd.Spec.SharedFilesystem.Filesystems[0].GetSpec()
+				fsCasted.DataPools = nil
+				cd.Spec.SharedFilesystem.Filesystems[0].FsSpec.Raw = unitinputs.ConvertStructToRaw(fsCasted)
 				return cd
 			}(),
 			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),

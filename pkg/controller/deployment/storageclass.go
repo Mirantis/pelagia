@@ -175,16 +175,16 @@ func (c *cephDeploymentConfig) ensureStorageClasses() (bool, error) {
 	}
 
 	if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil {
-		for _, cephFS := range c.cdConfig.cephDpl.Spec.SharedFilesystem.CephFS {
-			cephFsDataPoolNames := make([]string, len(cephFS.DataPools))
-			for idx, dataPool := range cephFS.DataPools {
+		for _, cephFS := range c.cdConfig.cephDpl.Spec.SharedFilesystem.Filesystems {
+			castedSpec, _ := cephFS.GetSpec()
+			cephFsDataPoolNames := make([]string, len(castedSpec.DataPools))
+			for idx, dataPool := range castedSpec.DataPools {
 				cephFsDataPoolNames[idx] = dataPool.Name
 			}
 			for _, dataPoolName := range cephFsDataPoolNames {
 				newStorageClass := true
 				storageClassName := getStorageClassNameCephFS(cephFS.Name, dataPoolName)
-				storageResource := generateStorageClassCephFSBased(
-					c.lcmConfig.RookNamespace, cephFS.Name, dataPoolName, c.lcmConfig.RookNamespace, cephFS.PreserveFilesystemOnDelete)
+				storageResource := generateStorageClassCephFSBased(c.lcmConfig.RookNamespace, cephFS.Name, dataPoolName, c.lcmConfig.RookNamespace, castedSpec.PreserveFilesystemOnDelete)
 				delete(storageClassesToDelete, storageClassName)
 				for _, storageClass := range storageClassesList.Items {
 					if storageClass.Name == storageClassName {

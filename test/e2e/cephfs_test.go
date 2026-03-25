@@ -26,11 +26,13 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"github.com/stretchr/testify/assert"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
@@ -208,37 +210,54 @@ func TestCephFS(t *testing.T) {
 		t.Fatal(err)
 	}
 	toUpdate := false
-	if cd.Spec.SharedFilesystem != nil {
-		for _, newCephFS := range sharedFS.CephFS {
-			found := false
-			for idx, cephFS := range cd.Spec.SharedFilesystem.CephFS {
-				if cephFS.Name == newCephFS.Name {
-					f.TF.Log.Warn().Msgf("found present CephFS with the same name as for e2e test: %s", cephFS.Name)
-					found = true
-					// check data pools required for tests present
-					for _, dataPool := range newCephFS.DataPools {
-						foundPool := false
-						for _, presentDataPool := range cephFS.DataPools {
-							if dataPool.Name == presentDataPool.Name {
-								foundPool = true
-							}
-						}
-						if !foundPool {
-							toUpdate = true
-							cd.Spec.SharedFilesystem.CephFS[idx].DataPools = append(cd.Spec.SharedFilesystem.CephFS[idx].DataPools, dataPool)
+	if cd.Spec.SharedFilesystem == nil {
+		cd.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{}
+	}
+	for _, newCephFS := range sharedFS.Filesystems {
+		newFsSpecCasted, err := newCephFS.GetSpec()
+		if err != nil {
+			t.Fatal(err)
+		}
+		found := false
+		for idx, cephFS := range cd.Spec.SharedFilesystem.Filesystems {
+			if cephFS.Name == newCephFS.Name {
+				f.TF.Log.Warn().Msgf("found present CephFS with the same name as for e2e test: %s", cephFS.Name)
+				found = true
+				fsSpecCasted, _ := cephFS.GetSpec()
+				// check data pools required for tests present
+				for _, dataPool := range newFsSpecCasted.DataPools {
+					foundPool := false
+					for _, presentDataPool := range fsSpecCasted.DataPools {
+						if dataPool.Name == presentDataPool.Name {
+							foundPool = true
 						}
 					}
-					break
+					if !foundPool {
+						toUpdate = true
+						fsSpecCasted.DataPools = append(fsSpecCasted.DataPools, dataPool)
+						newFsSpec, err := cephlcmv1alpha1.DecodeStructToRaw(fsSpecCasted)
+						if err != nil {
+							t.Fatal(err)
+						}
+						cd.Spec.SharedFilesystem.Filesystems[idx].FsSpec.Raw = newFsSpec
+					}
 				}
-			}
-			if !found {
-				toUpdate = true
-				cd.Spec.SharedFilesystem.CephFS = append(cd.Spec.SharedFilesystem.CephFS, newCephFS)
+				break
 			}
 		}
-	} else {
-		cd.Spec.SharedFilesystem = sharedFS
-		toUpdate = true
+		if !found {
+			toUpdate = true
+			castedClusterSpec, _ := cd.Spec.Cluster.GetSpec()
+			if p, ok := castedClusterSpec.Placement["mon"]; ok && len(p.Tolerations) > 0 {
+				newFsSpecCasted.MetadataServer.Placement.Tolerations = p.Tolerations
+				newFsSpec, err := cephlcmv1alpha1.DecodeStructToRaw(newFsSpecCasted)
+				if err != nil {
+					t.Fatal(err)
+				}
+				newCephFS.FsSpec.Raw = newFsSpec
+			}
+			cd.Spec.SharedFilesystem.Filesystems = append(cd.Spec.SharedFilesystem.Filesystems, newCephFS)
+		}
 	}
 	for idx := range cd.Spec.Nodes {
 		if lcmcommon.Contains(cd.Spec.Nodes[idx].Roles, "mon") && !lcmcommon.Contains(cd.Spec.Nodes[idx].Roles, "mds") {
@@ -513,35 +532,38 @@ func TestCephFSManila(t *testing.T) {
 		t.Fatal("failed to find default pool")
 	}
 	cephFSName := fmt.Sprintf("shared-cephfs-%d", time.Now().Unix())
-	cephFS := cephlcmv1alpha1.CephFS{
-		Name: cephFSName,
-		DataPools: []cephlcmv1alpha1.CephFSPool{
+	cephFsSpec := cephv1.FilesystemSpec{
+		DataPools: []cephv1.NamedPoolSpec{
 			{
 				Name: "data-pool",
-				CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
+				PoolSpec: cephv1.PoolSpec{
 					DeviceClass:   poolDefaultClass,
 					FailureDomain: "host",
-					Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-						Size: 2,
-					},
+					Replicated:    cephv1.ReplicatedSpec{Size: 2},
 				},
 			},
 		},
-		MetadataPool: cephlcmv1alpha1.CephPoolSpec{
-			DeviceClass:   poolDefaultClass,
-			FailureDomain: "host",
-			Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-				Size: 2,
+		MetadataPool: cephv1.NamedPoolSpec{
+			PoolSpec: cephv1.PoolSpec{
+				DeviceClass:   poolDefaultClass,
+				FailureDomain: "host",
+				Replicated:    cephv1.ReplicatedSpec{Size: 2},
 			},
 		},
-		MetadataServer: cephlcmv1alpha1.CephMetadataServer{
-			ActiveCount: 1,
-		},
+		MetadataServer: cephv1.MetadataServerSpec{ActiveCount: 1},
 	}
-	if cd.Spec.SharedFilesystem != nil && len(cd.Spec.SharedFilesystem.CephFS) > 0 {
-		cd.Spec.SharedFilesystem.CephFS = append(cd.Spec.SharedFilesystem.CephFS, cephFS)
+	fsSpecRaw, err := cephlcmv1alpha1.DecodeStructToRaw(cephFsSpec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cephFS := cephlcmv1alpha1.CephFilesystem{
+		Name:   cephFSName,
+		FsSpec: runtime.RawExtension{Raw: fsSpecRaw},
+	}
+	if cd.Spec.SharedFilesystem != nil && len(cd.Spec.SharedFilesystem.Filesystems) > 0 {
+		cd.Spec.SharedFilesystem.Filesystems = append(cd.Spec.SharedFilesystem.Filesystems, cephFS)
 	} else {
-		cd.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{CephFS: []cephlcmv1alpha1.CephFS{cephFS}}
+		cd.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{Filesystems: []cephlcmv1alpha1.CephFilesystem{cephFS}}
 	}
 	f.Step(t, "update CephDeployment with Manila CephFS changes")
 	err = f.UpdateCephDeploymentSpec(cd, true)

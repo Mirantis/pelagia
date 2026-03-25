@@ -453,87 +453,22 @@ type CephRBDMirrorSecret struct {
 }
 
 type CephSharedFilesystem struct {
-	// CephFS to create. Multiple CephFS available to deploy for clusters with Ceph Reef or above
+	// CephFilesystems to create and configure
 	// +optional
-	CephFS []CephFS `json:"cephFS,omitempty"`
+	Filesystems []CephFilesystem `json:"cephFilesystems,omitempty"`
+	// deprecated, use cephFilesystems instead
+	// +optional
+	OldCephFS []CephFS `json:"cephFS,omitempty"`
 }
 
-type CephFS struct {
-	// CephFS name
+// CephFilesystem stands for object store multisite zone creation and configuration.
+type CephFilesystem struct {
+	// CephFilesystem name
 	Name string `json:"name"`
-	// The settings used to create the filesystem metadata pool. Must use replication.
-	MetadataPool CephPoolSpec `json:"metadataPool"`
-	// The settings to create the filesystem data pools. Must use replication.
-	// +optional
-	DataPools []CephFSPool `json:"dataPools,omitempty"`
-	// When set to ‘true’ the filesystem will remain when the CephFilesystem resource is deleted
-	// This is a security measure to avoid loss of data if the CephFilesystem resource is deleted accidentally.
-	// +optional
-	PreserveFilesystemOnDelete bool `json:"preserveFilesystemOnDelete,omitempty"`
-	// Metadata server settings correspond to the MDS daemon settings
-	MetadataServer CephMetadataServer `json:"metadataServer"`
-}
-
-// CephFSPool stands for specified CephFS Pool configuration
-type CephFSPool struct {
-	// Name represents CephFS pool name
-	Name string `json:"name"`
-
-	CephPoolSpec `json:",inline"`
-}
-
-type CephMetadataServer struct {
-	// The number of active MDS instances. As load increases, CephFS will automatically
-	// partition the filesystem across the MDS instances. Rook will create double the
-	// number of MDS instances as requested by the active count. The extra instances will
-	// be in standby mode for failover
-	ActiveCount int32 `json:"activeCount"`
-	// If true, the extra MDS instances will be in active standby mode and will keep
-	// a warm cache of the filesystem metadata for faster failover. The instances will
-	// be assigned by CephFS in failover pairs. If false, the extra MDS instances will
-	// all be on passive standby mode and will not maintain a warm cache of the metadata.
-	// +optional
-	ActiveStandby bool `json:"activeStandby,omitempty"`
-	// Resources represents kubernetes resource requirements for mds instances
-	// +optional
-	Resources *v1.ResourceRequirements `json:"resources,omitempty"`
-	// HealthCheck provides an ability to configure mds daemon healthchecks
-	// +optional
-	HealthCheck *CephMdsHealthCheck `json:"healthCheck,omitempty"`
-}
-
-type CephMdsHealthCheck struct {
-	// LivenessProbe allows changing the livenessProbe configuration for ceph mds daemon
-	// +optional
-	LivenessProbe *cephv1.ProbeSpec `json:"livenessProbe,omitempty"`
-	// StartupProbe allows changing the startupProbe configuration for ceph mds daemon
-	// +optional
-	StartupProbe *cephv1.ProbeSpec `json:"startupProbe,omitempty"`
-}
-
-// MiraIngress provides an ability to configure custom ingress rule for an external
-// access to Ceph Cluster resources, for example, public endpoint
-// for Ceph Object Store access
-type MiraIngress struct {
-	// Domain is a public domain used for ingress public endpoint
-	Domain string `json:"publicDomain"`
-
-	CephDeploymentCert `json:",inline"`
-
-	// CustomIngress represents Extra/Custom Ingress configuration
-	// +optional
-	CustomIngress *CephDeploymentCustomIngress `json:"customIngress,omitempty"`
-}
-
-// CephDeploymentCustomIngress represents custom Ingress Controller configuration
-type CephDeploymentCustomIngress struct {
-	// ClassName is a name of Ingress Controller class. Default for
-	// MOS cloud is 'openstack-ingress-nginx'
-	// +nullable
-	ClassName string `json:"className,omitempty"`
-	// Annotations is an extra annotations set to proxy
-	// +optional
-	Annotations map[string]string `json:"annotations,omitempty"`
+	// FsSpec represents CephFilesystem configuration
+	// https://rook.io/docs/rook/v1.19/CRDs/Shared-Filesystem/ceph-filesystem-crd/
+	// for available options
+	FsSpec runtime.RawExtension `json:"spec"`
 }
 
 type CephDeploymentPhase string
@@ -761,4 +696,57 @@ type CephPoolReplicatedSpec struct {
 type CephPoolMirrorSpec struct {
 	// Mode - mirroring mode to run
 	Mode string `json:"mode"`
+}
+
+type CephFS struct {
+	// CephFS name
+	Name string `json:"name"`
+	// The settings used to create the filesystem metadata pool. Must use replication.
+	MetadataPool CephPoolSpec `json:"metadataPool"`
+	// The settings to create the filesystem data pools. Must use replication.
+	// +optional
+	DataPools []CephFSPool `json:"dataPools,omitempty"`
+	// When set to ‘true’ the filesystem will remain when the CephFilesystem resource is deleted
+	// This is a security measure to avoid loss of data if the CephFilesystem resource is deleted accidentally.
+	// +optional
+	PreserveFilesystemOnDelete bool `json:"preserveFilesystemOnDelete,omitempty"`
+	// Metadata server settings correspond to the MDS daemon settings
+	MetadataServer CephMetadataServer `json:"metadataServer"`
+}
+
+// CephFSPool stands for specified CephFS Pool configuration
+type CephFSPool struct {
+	// Name represents CephFS pool name
+	Name string `json:"name"`
+
+	CephPoolSpec `json:",inline"`
+}
+
+type CephMetadataServer struct {
+	// The number of active MDS instances. As load increases, CephFS will automatically
+	// partition the filesystem across the MDS instances. Rook will create double the
+	// number of MDS instances as requested by the active count. The extra instances will
+	// be in standby mode for failover
+	ActiveCount int32 `json:"activeCount"`
+	// If true, the extra MDS instances will be in active standby mode and will keep
+	// a warm cache of the filesystem metadata for faster failover. The instances will
+	// be assigned by CephFS in failover pairs. If false, the extra MDS instances will
+	// all be on passive standby mode and will not maintain a warm cache of the metadata.
+	// +optional
+	ActiveStandby bool `json:"activeStandby,omitempty"`
+	// Resources represents kubernetes resource requirements for mds instances
+	// +optional
+	Resources *v1.ResourceRequirements `json:"resources,omitempty"`
+	// HealthCheck provides an ability to configure mds daemon healthchecks
+	// +optional
+	HealthCheck *CephMdsHealthCheck `json:"healthCheck,omitempty"`
+}
+
+type CephMdsHealthCheck struct {
+	// LivenessProbe allows changing the livenessProbe configuration for ceph mds daemon
+	// +optional
+	LivenessProbe *cephv1.ProbeSpec `json:"livenessProbe,omitempty"`
+	// StartupProbe allows changing the startupProbe configuration for ceph mds daemon
+	// +optional
+	StartupProbe *cephv1.ProbeSpec `json:"startupProbe,omitempty"`
 }

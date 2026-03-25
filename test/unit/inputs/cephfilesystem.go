@@ -141,14 +141,14 @@ var TestCephFsWithTolerationsAndResources = func() cephv1.CephFilesystem {
 	})
 	fs.Spec.MetadataServer.Resources = corev1.ResourceRequirements{
 		Limits: corev1.ResourceList{
-			corev1.ResourceCPU:    resource.MustParse("100m"),
-			corev1.ResourceMemory: resource.MustParse("156Mi"),
+			corev1.ResourceCPU: resource.MustParse("120m"),
 		},
 		Requests: corev1.ResourceList{
-			corev1.ResourceMemory: resource.MustParse("28Mi"),
-			corev1.ResourceCPU:    resource.MustParse("10m"),
+			corev1.ResourceCPU: resource.MustParse("10m"),
 		},
 	}
+	fs.Spec.MetadataServer.LivenessProbe = &cephv1.ProbeSpec{Disabled: true}
+	fs.Spec.MetadataServer.StartupProbe = &cephv1.ProbeSpec{Disabled: true}
 	return *fs
 }()
 

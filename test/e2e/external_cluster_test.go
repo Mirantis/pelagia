@@ -217,7 +217,7 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 		}
 	}
 	cephFSSection := &cephlcmv1alpha1.CephSharedFilesystem{
-		CephFS: []cephlcmv1alpha1.CephFS{},
+		Filesystems: []cephlcmv1alpha1.CephFilesystem{},
 	}
 	if len(cephfsPoolsForShare) > 0 {
 		if cd.Spec.SharedFilesystem == nil {
@@ -225,22 +225,35 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 		}
 		for _, shareCephFsPool := range cephfsPoolsForShare {
 			poolFound := false
-			for _, cephFS := range cd.Spec.SharedFilesystem.CephFS {
-				for _, dataPool := range cephFS.DataPools {
+			for _, cephFS := range cd.Spec.SharedFilesystem.Filesystems {
+				castedFsSpec, _ := cephFS.GetSpec()
+				for _, dataPool := range castedFsSpec.DataPools {
 					if fmt.Sprintf("%s-%s", cephFS.Name, dataPool.Name) == shareCephFsPool {
 						poolFound = true
 						added := false
-						for idx, externalCephFs := range cephFSSection.CephFS {
+						for idx, externalCephFs := range cephFSSection.Filesystems {
 							if cephFS.Name == externalCephFs.Name {
 								added = true
-								cephFSSection.CephFS[idx].DataPools = append(cephFSSection.CephFS[idx].DataPools, dataPool)
+								castedExternalFs, _ := externalCephFs.GetSpec()
+								castedExternalFs.DataPools = append(castedExternalFs.DataPools, dataPool)
+								fsSpecRaw, err := cephlcmv1alpha1.DecodeStructToRaw(castedExternalFs)
+								if err != nil {
+									t.Fatal(err)
+								}
+								cephFSSection.Filesystems[idx].FsSpec.Raw = fsSpecRaw
 								break
 							}
 						}
 						if !added {
 							copyCephFs := cephFS.DeepCopy()
-							copyCephFs.DataPools = []cephlcmv1alpha1.CephFSPool{dataPool}
-							cephFSSection.CephFS = append(cephFSSection.CephFS, *copyCephFs)
+							casted, _ := copyCephFs.GetSpec()
+							casted.DataPools = []cephv1.NamedPoolSpec{dataPool}
+							fsSpecRaw, err := cephlcmv1alpha1.DecodeStructToRaw(casted)
+							if err != nil {
+								t.Fatal(err)
+							}
+							copyCephFs.FsSpec.Raw = fsSpecRaw
+							cephFSSection.Filesystems = append(cephFSSection.Filesystems, *copyCephFs)
 						}
 						break
 					}

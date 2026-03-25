@@ -164,7 +164,7 @@ func (c *cephDeploymentConfig) calculateOpenStackClients(clientSpecs []cephv1.Cl
 	for client, notUsedStatus := range notUsed {
 		if notUsedStatus {
 			// do not generate manila client if there is no cephfs enabled
-			if client == "manila" && (c.cdConfig.cephDpl.Spec.SharedFilesystem == nil || len(c.cdConfig.cephDpl.Spec.SharedFilesystem.CephFS) == 0) {
+			if client == "manila" && (c.cdConfig.cephDpl.Spec.SharedFilesystem == nil || len(c.cdConfig.cephDpl.Spec.SharedFilesystem.Filesystems) == 0) {
 				continue
 			}
 			osClient, err := c.generateOpenStackClient(client)

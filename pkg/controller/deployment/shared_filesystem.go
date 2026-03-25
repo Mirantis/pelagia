@@ -69,10 +69,10 @@ func (c *cephDeploymentConfig) ensureCephFS() (bool, error) {
 	}
 	fsErrors := make([]error, 0)
 	changed := false
-	for _, cephDplCephFS := range c.cdConfig.cephDpl.Spec.SharedFilesystem.CephFS {
+	for _, cephDplCephFS := range c.cdConfig.cephDpl.Spec.SharedFilesystem.Filesystems {
 		delete(dropFS, cephDplCephFS.Name)
 		createInProgress := false
-		cephFsResource := generateCephFS(cephDplCephFS, c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Spec.HyperConverge)
+		cephFsResource := generateCephFS(cephDplCephFS, c.lcmConfig.RookNamespace)
 		cephFs, err := c.api.Rookclientset.CephV1().CephFilesystems(c.lcmConfig.RookNamespace).Get(c.context, cephDplCephFS.Name, metav1.GetOptions{})
 		if err != nil {
 			if !apierrors.IsNotFound(err) {
@@ -204,7 +204,7 @@ func (c *cephDeploymentConfig) deleteSharedFilesystems() (bool, error) {
 	return false, nil
 }
 
-func generateCephFS(cephDplCephFS cephlcmv1alpha1.CephFS, namespace string, hyperconverge *cephlcmv1alpha1.CephDeploymentHyperConverge) *cephv1.CephFilesystem {
+func generateCephFS(cephDplCephFS cephlcmv1alpha1.CephFilesystem, namespace string) *cephv1.CephFilesystem {
 	label := lcmcommon.CephNodeLabels["mds"]
 	cephFS := &cephv1.CephFilesystem{
 		ObjectMeta: metav1.ObjectMeta{
@@ -212,93 +212,67 @@ func generateCephFS(cephDplCephFS cephlcmv1alpha1.CephFS, namespace string, hype
 			Namespace: namespace,
 		},
 	}
-	cephFS.Spec.MetadataPool = cephv1.NamedPoolSpec{
-		PoolSpec: *generatePoolSpec(&cephDplCephFS.MetadataPool, "mds metadata"),
-	}
-	cephFsDataPools := make([]cephv1.NamedPoolSpec, len(cephDplCephFS.DataPools))
-	for idx, dataPool := range cephDplCephFS.DataPools {
-		cephFsDataPools[idx] = cephv1.NamedPoolSpec{
-			Name:     dataPool.Name,
-			PoolSpec: *generatePoolSpec(&dataPool.CephPoolSpec, "mds data"),
-		}
-	}
-	cephFS.Spec.DataPools = cephFsDataPools
-	cephFS.Spec.PreserveFilesystemOnDelete = cephDplCephFS.PreserveFilesystemOnDelete
-	cephFS.Spec.MetadataServer = cephv1.MetadataServerSpec{
-		ActiveCount:   cephDplCephFS.MetadataServer.ActiveCount,
-		ActiveStandby: cephDplCephFS.MetadataServer.ActiveStandby,
-		Placement: cephv1.Placement{
-			NodeAffinity: &v1.NodeAffinity{
-				RequiredDuringSchedulingIgnoredDuringExecution: &v1.NodeSelector{
-					NodeSelectorTerms: []v1.NodeSelectorTerm{
-						{
-							MatchExpressions: []v1.NodeSelectorRequirement{
-								{
-									Key:      label,
-									Operator: "In",
-									Values: []string{
-										"true",
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			PodAntiAffinity: &v1.PodAntiAffinity{
-				RequiredDuringSchedulingIgnoredDuringExecution: []v1.PodAffinityTerm{
-					{
-						LabelSelector: &metav1.LabelSelector{
-							MatchExpressions: []metav1.LabelSelectorRequirement{
-								{
-									Key:      "rook_file_system",
-									Operator: "In",
-									Values: []string{
-										cephDplCephFS.Name,
-									},
-								},
-							},
-						},
-						TopologyKey: "kubernetes.io/hostname",
-					},
-				},
-			},
-			Tolerations: []v1.Toleration{
+	castedSpec, _ := cephDplCephFS.GetSpec()
+
+	// override NodeAffinity and PodAntiAffinity based on our node labes
+	castedSpec.MetadataServer.Placement.NodeAffinity = &v1.NodeAffinity{
+		RequiredDuringSchedulingIgnoredDuringExecution: &v1.NodeSelector{
+			NodeSelectorTerms: []v1.NodeSelectorTerm{
 				{
-					Key:      label,
-					Operator: "Exists",
+					MatchExpressions: []v1.NodeSelectorRequirement{
+						{
+							Key:      label,
+							Operator: "In",
+							Values: []string{
+								"true",
+							},
+						},
+					},
 				},
 			},
 		},
 	}
-	if hyperconverge != nil {
-		if v, ok := hyperconverge.Tolerations["mds"]; ok {
-			cephFS.Spec.MetadataServer.Placement.Tolerations = append(cephFS.Spec.MetadataServer.Placement.Tolerations, v.Rules...)
-		}
-		if res, ok := hyperconverge.Resources["mds"]; ok {
-			cephFS.Spec.MetadataServer.Resources = res
-		}
+	castedSpec.MetadataServer.Placement.PodAntiAffinity = &v1.PodAntiAffinity{
+		RequiredDuringSchedulingIgnoredDuringExecution: []v1.PodAffinityTerm{
+			{
+				LabelSelector: &metav1.LabelSelector{
+					MatchExpressions: []metav1.LabelSelectorRequirement{
+						{
+							Key:      "rook_file_system",
+							Operator: "In",
+							Values: []string{
+								cephDplCephFS.Name,
+							},
+						},
+					},
+				},
+				TopologyKey: "kubernetes.io/hostname",
+			},
+		},
 	}
-	if cephDplCephFS.MetadataServer.Resources != nil {
-		cephFS.Spec.MetadataServer.Resources = *cephDplCephFS.MetadataServer.Resources
+	castedSpec.MetadataServer.Placement.Tolerations = append([]v1.Toleration{
+		{
+			Key:      label,
+			Operator: "Exists",
+		},
+	}, castedSpec.MetadataServer.Placement.Tolerations...)
+
+	if castedSpec.MetadataServer.LivenessProbe == nil {
+		castedSpec.MetadataServer.LivenessProbe = &cephv1.ProbeSpec{Probe: lcmcommon.DefaultCephProbe}
 	}
-	if cephDplCephFS.MetadataServer.HealthCheck != nil {
-		cephFS.Spec.MetadataServer.LivenessProbe = cephDplCephFS.MetadataServer.HealthCheck.LivenessProbe
-		cephFS.Spec.MetadataServer.StartupProbe = cephDplCephFS.MetadataServer.HealthCheck.StartupProbe
-	}
-	if cephFS.Spec.MetadataServer.LivenessProbe == nil {
-		cephFS.Spec.MetadataServer.LivenessProbe = &cephv1.ProbeSpec{Probe: lcmcommon.DefaultCephProbe}
-	}
+
 	// if config is updated, need to restart mds daemons, since config may have some changes to cephfs
-	cephFS.Spec.MetadataServer.Annotations = map[string]string{
-		fmt.Sprintf(cephConfigParametersUpdateTimestampLabel, "global"): resourceUpdateTimestamps.cephConfigMap["global"],
+	if castedSpec.MetadataServer.Annotations == nil {
+		castedSpec.MetadataServer.Annotations = map[string]string{}
 	}
+	castedSpec.MetadataServer.Annotations[fmt.Sprintf(cephConfigParametersUpdateTimestampLabel, "global")] = resourceUpdateTimestamps.cephConfigMap["global"]
 	if resourceUpdateTimestamps.cephConfigMap["mds"] != "" {
-		cephFS.Spec.MetadataServer.Annotations[fmt.Sprintf(cephConfigParametersUpdateTimestampLabel, "mds")] = resourceUpdateTimestamps.cephConfigMap["mds"]
+		castedSpec.MetadataServer.Annotations[fmt.Sprintf(cephConfigParametersUpdateTimestampLabel, "mds")] = resourceUpdateTimestamps.cephConfigMap["mds"]
 	}
 	mdsDaemon := fmt.Sprintf("mds.%s", cephDplCephFS.Name)
 	if resourceUpdateTimestamps.cephConfigMap[mdsDaemon] != "" {
-		cephFS.Spec.MetadataServer.Annotations[fmt.Sprintf(cephConfigParametersUpdateTimestampLabel, mdsDaemon)] = resourceUpdateTimestamps.cephConfigMap[mdsDaemon]
+		castedSpec.MetadataServer.Annotations[fmt.Sprintf(cephConfigParametersUpdateTimestampLabel, mdsDaemon)] = resourceUpdateTimestamps.cephConfigMap[mdsDaemon]
 	}
+	cephFS.Spec = castedSpec
 	return cephFS
 }

@@ -2565,8 +2565,7 @@ spec:
                 description: SharedFilesystem enables such system as CephFS
                 properties:
                   cephFS:
-                    description: CephFS to create. Multiple CephFS available to deploy
-                      for clusters with Ceph Reef or above
+                    description: deprecated, use cephFilesystems instead
                     items:
                       properties:
                         dataPools:
@@ -3190,6 +3189,27 @@ spec:
                       - metadataPool
                       - metadataServer
                       - name
+                      type: object
+                    type: array
+                  cephFilesystems:
+                    description: CephFilesystems to create and configure
+                    items:
+                      description: CephFilesystem stands for object store multisite
+                        zone creation and configuration.
+                      properties:
+                        name:
+                          description: CephFilesystem name
+                          type: string
+                        spec:
+                          description: |-
+                            FsSpec represents CephFilesystem configuration
+                            https://rook.io/docs/rook/v1.19/CRDs/Shared-Filesystem/ceph-filesystem-crd/
+                            for available options
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      required:
+                      - name
+                      - spec
                       type: object
                     type: array
                 type: object

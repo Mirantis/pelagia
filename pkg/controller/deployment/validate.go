@@ -252,26 +252,27 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 func cephSharedFilesystemValidate(cephDpl *cephlcmv1alpha1.CephDeployment, rookNamespace string, nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode, external bool) []string {
 	fsErrors := make([]string, 0)
 	if cephDpl.Spec.SharedFilesystem != nil {
-		for _, cephFSSpec := range cephDpl.Spec.SharedFilesystem.CephFS {
-			if cephFSSpec.MetadataPool.Replicated == nil || cephFSSpec.MetadataPool.ErasureCoded != nil {
+		for _, cephFSSpec := range cephDpl.Spec.SharedFilesystem.Filesystems {
+			cephSpecCasted, _ := cephFSSpec.GetSpec()
+			if cephSpecCasted.MetadataPool.Replicated.Size == 0 {
 				msg := fmt.Sprintf("metadataPool for CephFS %s/%s must use replication only", rookNamespace, cephFSSpec.Name)
 				fsErrors = append(fsErrors, msg)
 			}
-			if len(cephFSSpec.DataPools) == 0 {
+			if len(cephSpecCasted.DataPools) == 0 {
 				msg := fmt.Sprintf("dataPools sections for CephFS %s/%s has no data pools defined", rookNamespace, cephFSSpec.Name)
 				fsErrors = append(fsErrors, msg)
 				continue
 			}
 			// for cephfs allowed do not specify deviceClass at all
-			if err := validateDeviceClassName(cephFSSpec.MetadataPool.DeviceClass, cephDpl.Spec.ExtraOpts); err != nil {
+			if err := validateDeviceClassName(cephSpecCasted.MetadataPool.DeviceClass, cephDpl.Spec.ExtraOpts); err != nil {
 				msg := fmt.Sprintf("metadataPool for CephFS %s/%s has %s", rookNamespace, cephFSSpec.Name, err.Error())
 				fsErrors = append(fsErrors, msg)
 			}
-			if cephFSSpec.MetadataPool.FailureDomain == "osd" && len(nodesListExpanded) > 1 {
+			if cephSpecCasted.MetadataPool.FailureDomain == "osd" && len(nodesListExpanded) > 1 {
 				msg := fmt.Sprintf("metadataPool for CephFS %s/%s contains prohibited 'osd' failureDomain", rookNamespace, cephFSSpec.Name)
 				fsErrors = append(fsErrors, msg)
 			}
-			for idx, dataPool := range cephFSSpec.DataPools {
+			for idx, dataPool := range cephSpecCasted.DataPools {
 				if err := validateDeviceClassName(dataPool.DeviceClass, cephDpl.Spec.ExtraOpts); err != nil {
 					msg := fmt.Sprintf("dataPool %s for CephFS %s/%s has %s", dataPool.Name, rookNamespace, cephFSSpec.Name, err.Error())
 					fsErrors = append(fsErrors, msg)
@@ -281,13 +282,13 @@ func cephSharedFilesystemValidate(cephDpl *cephlcmv1alpha1.CephDeployment, rookN
 					fsErrors = append(fsErrors, msg)
 				}
 				if idx == 0 {
-					if dataPool.ErasureCoded != nil || dataPool.Replicated == nil {
+					if dataPool.Replicated.Size == 0 {
 						msg := fmt.Sprintf("dataPool %s will be used as default for CephFS %s/%s and must use replication only", dataPool.Name, rookNamespace, cephFSSpec.Name)
 						fsErrors = append(fsErrors, msg)
 					}
 					continue
 				}
-				if dataPool.Replicated == nil && dataPool.ErasureCoded == nil {
+				if (dataPool.ErasureCoded.CodingChunks == 0 && dataPool.ErasureCoded.DataChunks == 0) && dataPool.Replicated.Size == 0 {
 					msg := fmt.Sprintf("dataPool %s for CephFS %s/%s has no neither replication or erasureCoded sections specified", dataPool.Name, rookNamespace, cephFSSpec.Name)
 					fsErrors = append(fsErrors, msg)
 				}
@@ -300,9 +301,9 @@ func cephSharedFilesystemValidate(cephDpl *cephlcmv1alpha1.CephDeployment, rookN
 						mdsCount = mdsCount + 1
 					}
 				}
-				if int(cephFSSpec.MetadataServer.ActiveCount) > mdsCount {
+				if int(cephSpecCasted.MetadataServer.ActiveCount) > mdsCount {
 					fsErrors = append(fsErrors, fmt.Sprintf("not enough 'mds' roles specified in nodes spec, CephFS %s/%s requires at least %d",
-						rookNamespace, cephFSSpec.Name, cephFSSpec.MetadataServer.ActiveCount))
+						rookNamespace, cephFSSpec.Name, cephSpecCasted.MetadataServer.ActiveCount))
 				}
 			}
 		}

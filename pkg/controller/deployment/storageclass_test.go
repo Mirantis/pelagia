@@ -123,11 +123,10 @@ func TestGenerateStorageClassPoolBased(t *testing.T) {
 }
 
 func TestGenerateStorageClassForCephFS(t *testing.T) {
+	rawSpec, _ := unitinputs.CephSharedFileSystemOk.Filesystems[0].GetSpec()
 	actual := generateStorageClassCephFSBased(
-		"rook-ceph",
-		unitinputs.CephSharedFileSystemOk.CephFS[0].Name,
-		unitinputs.CephSharedFileSystemOk.CephFS[0].DataPools[0].Name,
-		"rook-ceph", unitinputs.CephSharedFileSystemOk.CephFS[0].PreserveFilesystemOnDelete)
+		"rook-ceph", unitinputs.CephSharedFileSystemOk.Filesystems[0].Name,
+		rawSpec.DataPools[0].Name, "rook-ceph", rawSpec.PreserveFilesystemOnDelete)
 	expected := &unitinputs.CephFSStorageClass
 	assert.Equal(t, expected, actual)
 }

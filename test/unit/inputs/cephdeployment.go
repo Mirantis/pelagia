@@ -501,15 +501,6 @@ var MultisiteRgwWithSyncDaemon = func() cephlcmv1alpha1.CephDeployment {
 
 var HyperConvergeForExtraSVC = &cephlcmv1alpha1.CephDeploymentHyperConverge{
 	Tolerations: map[string]cephlcmv1alpha1.CephDeploymentToleration{
-		"mds": {
-			Rules: []v1.Toleration{
-				{
-					Key:      "test.kubernetes.io/testkey",
-					Effect:   "Schedule",
-					Operator: "Exists",
-				},
-			},
-		},
 		"rgw": {
 			Rules: []v1.Toleration{
 				{
@@ -520,14 +511,6 @@ var HyperConvergeForExtraSVC = &cephlcmv1alpha1.CephDeploymentHyperConverge{
 		},
 	},
 	Resources: cephv1.ResourceSpec{
-		"mds": v1.ResourceRequirements{
-			Limits: v1.ResourceList{
-				v1.ResourceCPU: resource.MustParse("120m"),
-			},
-			Requests: v1.ResourceList{
-				v1.ResourceCPU: resource.MustParse("10m"),
-			},
-		},
 		"rgw": v1.ResourceRequirements{
 			Limits: v1.ResourceList{
 				v1.ResourceCPU: resource.MustParse("50m"),
@@ -884,56 +867,43 @@ var CephNodesExtendedInvalid = []cephlcmv1alpha1.CephDeploymentNode{
 	},
 }
 
-var CephFSNewOk = cephlcmv1alpha1.CephFS{
+var CephFSNewOk = cephlcmv1alpha1.CephFilesystem{
 	Name: "test-cephfs",
-	MetadataPool: cephlcmv1alpha1.CephPoolSpec{
-		DeviceClass: "hdd",
-		Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-			Size: 3,
-		},
-	},
-	DataPools: []cephlcmv1alpha1.CephFSPool{
-		{
-			Name: "some-pool-name",
-			CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-				DeviceClass: "hdd",
-				Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-					Size: 3,
+	FsSpec: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.FilesystemSpec{
+				MetadataPool: cephv1.NamedPoolSpec{
+					PoolSpec: cephv1.PoolSpec{
+						DeviceClass: "hdd",
+						Replicated:  cephv1.ReplicatedSpec{Size: 3},
+					},
+				},
+				DataPools: []cephv1.NamedPoolSpec{
+					{
+						Name: "some-pool-name",
+						PoolSpec: cephv1.PoolSpec{
+							DeviceClass: "hdd",
+							Replicated:  cephv1.ReplicatedSpec{Size: 3},
+						},
+					},
+				},
+				MetadataServer: cephv1.MetadataServerSpec{
+					ActiveCount:   1,
+					ActiveStandby: true,
 				},
 			},
-		},
-	},
-	MetadataServer: cephlcmv1alpha1.CephMetadataServer{
-		ActiveCount:   1,
-		ActiveStandby: true,
+		),
 	},
 }
 
-var CephFSOkWithResources = func() cephlcmv1alpha1.CephFS {
-	fs := CephFSNewOk.DeepCopy()
-	fs.MetadataServer.Resources = &v1.ResourceRequirements{
-		Limits: v1.ResourceList{
-			v1.ResourceCPU:    resource.MustParse("100m"),
-			v1.ResourceMemory: resource.MustParse("156Mi"),
-		},
-		Requests: v1.ResourceList{
-			v1.ResourceMemory: resource.MustParse("28Mi"),
-			v1.ResourceCPU:    resource.MustParse("10m"),
-		},
-	}
-	return *fs
-}()
-
 var CephSharedFileSystemOk = &cephlcmv1alpha1.CephSharedFilesystem{
-	CephFS: []cephlcmv1alpha1.CephFS{
-		CephFSNewOk,
-	},
+	Filesystems: []cephlcmv1alpha1.CephFilesystem{CephFSNewOk},
 }
 
 var CephSharedFileSystemMultiple = &cephlcmv1alpha1.CephSharedFilesystem{
-	CephFS: []cephlcmv1alpha1.CephFS{
+	Filesystems: []cephlcmv1alpha1.CephFilesystem{
 		CephFSNewOk,
-		func() cephlcmv1alpha1.CephFS {
+		func() cephlcmv1alpha1.CephFilesystem {
 			newCephFS := CephFSNewOk.DeepCopy()
 			newCephFS.Name = "second-test-cephfs"
 			return *newCephFS

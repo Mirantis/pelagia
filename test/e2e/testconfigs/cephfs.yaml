@@ -5,23 +5,25 @@ testSettings:
     config:
       cephFsConfig: |-
         {
-          "cephFS": [
+          "cephFilesystems": [
             {
               "name": "cephfs-store",
-              "dataPools": [{
-                "name": "cephfs-pool",
-                "failureDomain": "host",
-                "deviceClass": "hdd",
-                "replicated": {"size": 2 }
-              }],
-              "metadataPool": {
-                "failureDomain": "host",
-                "deviceClass": "hdd",
-                "replicated": {"size": 2 }
-              },
-              "metadataServer": {
-                "activeCount": 1,
-                "activeStandby": true
+              "spec": {
+                "dataPools": [{
+                  "name": "cephfs-pool",
+                  "failureDomain": "host",
+                  "deviceClass": "hdd",
+                  "replicated": {"size": 2 }
+                }],
+                "metadataPool": {
+                  "failureDomain": "host",
+                  "deviceClass": "hdd",
+                  "replicated": {"size": 2 }
+                },
+                "metadataServer": {
+                  "activeCount": 1,
+                  "activeStandby": true
+                }
               }
             }
           ]
