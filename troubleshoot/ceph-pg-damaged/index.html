@@ -11,28 +11,26 @@
       
       
       
-        <link rel="prev" href="../default-ceph-conf/">
+        <link rel="prev" href="../stuck-maintenance/">
       
-      
-        <link rel="next" href="../multinetworking/">
       
       
         
       
       
-      <link rel="icon" href="../../../assets/favicon.ico">
+      <link rel="icon" href="../../assets/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Rook Daemons Placement - Pelagia Controller for Rook Ceph management</title>
+        <title>Ceph reports PG_DAMAGED - Pelagia Controller for Rook Ceph management</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,9 +49,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#specify-rook-daemons-placement" class="md-skip">
+        <a href="#ceph-health-reports-pg_damaged-after-a-failed-disk-or-node-replacement" class="md-skip">
           Skip to content
         </a>
       
@@ -94,9 +92,9 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Pelagia Controller for Rook Ceph management" class="md-header__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
+    <a href="../.." title="Pelagia Controller for Rook Ceph management" class="md-header__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
       
-  <img src="../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
+  <img src="../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -113,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Rook Daemons Placement
+              Ceph reports PG_DAMAGED
             
           </span>
         </div>
@@ -231,9 +229,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Pelagia Controller for Rook Ceph management" class="md-nav__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
+    <a href="../.." title="Pelagia Controller for Rook Ceph management" class="md-nav__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
       
-  <img src="../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
+  <img src="../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
 
     </a>
     Pelagia Controller for Rook Ceph management
@@ -260,7 +258,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -334,7 +332,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/overview/" class="md-nav__link">
+      <a href="../../architecture/overview/" class="md-nav__link">
         
   
   
@@ -362,7 +360,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/limitations/" class="md-nav__link">
+      <a href="../../architecture/limitations/" class="md-nav__link">
         
   
   
@@ -390,7 +388,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/addressing-ceph-devices/" class="md-nav__link">
+      <a href="../../architecture/addressing-ceph-devices/" class="md-nav__link">
         
   
   
@@ -418,7 +416,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/rockoon-integration/" class="md-nav__link">
+      <a href="../../architecture/rockoon-integration/" class="md-nav__link">
         
   
   
@@ -493,7 +491,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/custom-resources/cephdeployment/" class="md-nav__link">
+      <a href="../../architecture/custom-resources/cephdeployment/" class="md-nav__link">
         
   
   
@@ -521,7 +519,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/custom-resources/cephdeploymenthealth/" class="md-nav__link">
+      <a href="../../architecture/custom-resources/cephdeploymenthealth/" class="md-nav__link">
         
   
   
@@ -549,7 +547,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/custom-resources/cephdeploymentsecret/" class="md-nav__link">
+      <a href="../../architecture/custom-resources/cephdeploymentsecret/" class="md-nav__link">
         
   
   
@@ -577,7 +575,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/custom-resources/cephosdremovetask/" class="md-nav__link">
+      <a href="../../architecture/custom-resources/cephosdremovetask/" class="md-nav__link">
         
   
   
@@ -667,7 +665,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../quick-start/installation/" class="md-nav__link">
+      <a href="../../quick-start/installation/" class="md-nav__link">
         
   
   
@@ -695,7 +693,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../quick-start/lcm-installation/" class="md-nav__link">
+      <a href="../../quick-start/lcm-installation/" class="md-nav__link">
         
   
   
@@ -723,7 +721,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../quick-start/upgrade/" class="md-nav__link">
+      <a href="../../quick-start/upgrade/" class="md-nav__link">
         
   
   
@@ -758,7 +756,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../developer/" class="md-nav__link">
+      <a href="../../developer/" class="md-nav__link">
         
   
   
@@ -782,20 +780,18 @@
       
   
   
-    
   
   
-  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
@@ -816,7 +812,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -834,7 +830,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../default-ceph-conf/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/default-ceph-conf/" class="md-nav__link">
         
   
   
@@ -859,37 +855,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Rook Daemons Placement
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../ops-guide/deployment/rook-daemon-place/" class="md-nav__link">
         
   
   
@@ -905,59 +874,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#specify-rook-ceph-operator-placement" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Specify rook-ceph-operator placement
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#specify-ceph-csi-pods-placement" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Specify Ceph CSI pods placement
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#specify-rook-discover-placement" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Specify rook-discover placement
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -970,7 +886,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../multinetworking/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/multinetworking/" class="md-nav__link">
         
   
   
@@ -998,7 +914,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rbd-mirror/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/rbd-mirror/" class="md-nav__link">
         
   
   
@@ -1026,7 +942,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cephfs/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/cephfs/" class="md-nav__link">
         
   
   
@@ -1054,7 +970,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../move-failure-domain/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/move-failure-domain/" class="md-nav__link">
         
   
   
@@ -1082,7 +998,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../move-mon-daemon/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/move-mon-daemon/" class="md-nav__link">
         
   
   
@@ -1110,7 +1026,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../move-mon-node-replace/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/move-mon-node-replace/" class="md-nav__link">
         
   
   
@@ -1138,7 +1054,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../external-ceph/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/external-ceph/" class="md-nav__link">
         
   
   
@@ -1213,7 +1129,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rockoon/rockoon-integration/" class="md-nav__link">
+      <a href="../../ops-guide/rockoon/rockoon-integration/" class="md-nav__link">
         
   
   
@@ -1241,7 +1157,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rockoon/cinder-multi-backend/" class="md-nav__link">
+      <a href="../../ops-guide/rockoon/cinder-multi-backend/" class="md-nav__link">
         
   
   
@@ -1269,7 +1185,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rockoon/calc-target-ratio/" class="md-nav__link">
+      <a href="../../ops-guide/rockoon/calc-target-ratio/" class="md-nav__link">
         
   
   
@@ -1352,7 +1268,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rgw/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/rgw/" class="md-nav__link">
         
   
   
@@ -1380,7 +1296,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rgw-tls/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/rgw-tls/" class="md-nav__link">
         
   
   
@@ -1408,7 +1324,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rgw-multisite/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/rgw-multisite/" class="md-nav__link">
         
   
   
@@ -1436,7 +1352,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rgw-sse/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/rgw-sse/" class="md-nav__link">
         
   
   
@@ -1511,7 +1427,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../s3-bucket-policy/s3-create-user/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/s3-bucket-policy/s3-create-user/" class="md-nav__link">
         
   
   
@@ -1539,7 +1455,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../s3-bucket-policy/bucket-policy-s3/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/s3-bucket-policy/bucket-policy-s3/" class="md-nav__link">
         
   
   
@@ -1567,7 +1483,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../s3-bucket-policy/bucket-policy-rockoon/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/s3-bucket-policy/bucket-policy-rockoon/" class="md-nav__link">
         
   
   
@@ -1658,7 +1574,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ceph-user-creds/ceph-client/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/ceph-user-creds/ceph-client/" class="md-nav__link">
         
   
   
@@ -1686,7 +1602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
         
   
   
@@ -1769,7 +1685,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ceph-resource-mgmt/enable-resource-mgmt/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt/" class="md-nav__link">
         
   
   
@@ -1797,7 +1713,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ceph-resource-mgmt/verify-resource-mgmt/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/ceph-resource-mgmt/verify-resource-mgmt/" class="md-nav__link">
         
   
   
@@ -1927,7 +1843,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/create-task-workflow/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/create-task-workflow/" class="md-nav__link">
         
   
   
@@ -1955,7 +1871,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/add-rm-ceph-osd/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/add-rm-ceph-osd/" class="md-nav__link">
         
   
   
@@ -1983,7 +1899,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/add-rm-ceph-osd-with-meta/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/add-rm-ceph-osd-with-meta/" class="md-nav__link">
         
   
   
@@ -2011,7 +1927,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/add-rm-ceph-node/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/add-rm-ceph-node/" class="md-nav__link">
         
   
   
@@ -2039,7 +1955,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/replace-ceph-osd/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/replace-ceph-osd/" class="md-nav__link">
         
   
   
@@ -2067,7 +1983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/replace-osd-meta-lvm/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/replace-osd-meta-lvm/" class="md-nav__link">
         
   
   
@@ -2095,7 +2011,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/replace-osd-meta-device/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/replace-osd-meta-device/" class="md-nav__link">
         
   
   
@@ -2123,7 +2039,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/replace-ceph-node/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/replace-ceph-node/" class="md-nav__link">
         
   
   
@@ -2151,7 +2067,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/replace-meta/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/replace-meta/" class="md-nav__link">
         
   
   
@@ -2187,7 +2103,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/increase-storage-size/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/increase-storage-size/" class="md-nav__link">
         
   
   
@@ -2215,7 +2131,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/manual-osd-remove/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/manual-osd-remove/" class="md-nav__link">
         
   
   
@@ -2298,7 +2214,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../verify-ceph/verify-cephdeploymenthealth/" class="md-nav__link">
+      <a href="../../ops-guide/verify-ceph/verify-cephdeploymenthealth/" class="md-nav__link">
         
   
   
@@ -2326,7 +2242,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../verify-ceph/verify-ceph-core/" class="md-nav__link">
+      <a href="../../ops-guide/verify-ceph/verify-ceph-core/" class="md-nav__link">
         
   
   
@@ -2354,7 +2270,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../verify-ceph/verify-pelagia-and-rook/" class="md-nav__link">
+      <a href="../../ops-guide/verify-ceph/verify-pelagia-and-rook/" class="md-nav__link">
         
   
   
@@ -2382,7 +2298,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../verify-ceph/verify-rook-discover/" class="md-nav__link">
+      <a href="../../ops-guide/verify-ceph/verify-rook-discover/" class="md-nav__link">
         
   
   
@@ -2422,18 +2338,20 @@
       
   
   
+    
   
   
+  
     
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -2454,7 +2372,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2472,7 +2390,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../troubleshoot/cephosdremovetask-timeout/" class="md-nav__link">
+      <a href="../cephosdremovetask-timeout/" class="md-nav__link">
         
   
   
@@ -2500,7 +2418,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../troubleshoot/ceph-osd-auth-failed/" class="md-nav__link">
+      <a href="../ceph-osd-auth-failed/" class="md-nav__link">
         
   
   
@@ -2528,7 +2446,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../troubleshoot/ceph-exporter-crash/" class="md-nav__link">
+      <a href="../ceph-exporter-crash/" class="md-nav__link">
         
   
   
@@ -2556,7 +2474,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../troubleshoot/ceph-mon-store-size-grow/" class="md-nav__link">
+      <a href="../ceph-mon-store-size-grow/" class="md-nav__link">
         
   
   
@@ -2584,7 +2502,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../troubleshoot/ceph-mon-recover/" class="md-nav__link">
+      <a href="../ceph-mon-recover/" class="md-nav__link">
         
   
   
@@ -2612,7 +2530,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../troubleshoot/ceph-disaster-recover/" class="md-nav__link">
+      <a href="../ceph-disaster-recover/" class="md-nav__link">
         
   
   
@@ -2640,7 +2558,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../troubleshoot/stuck-maintenance/" class="md-nav__link">
+      <a href="../stuck-maintenance/" class="md-nav__link">
         
   
   
@@ -2665,10 +2583,19 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../../troubleshoot/ceph-pg-damaged/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -2684,6 +2611,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -2716,47 +2644,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#specify-rook-ceph-operator-placement" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Specify rook-ceph-operator placement
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#specify-ceph-csi-pods-placement" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Specify Ceph CSI pods placement
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#specify-rook-discover-placement" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Specify rook-discover placement
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -2780,7 +2667,7 @@
   
   
     <li class="md-path__item">
-      <a href="../../.." class="md-path__link">
+      <a href="../.." class="md-path__link">
         
   <span class="md-ellipsis">
     Welcome to Pelagia
@@ -2798,10 +2685,10 @@
     
     
       <li class="md-path__item">
-        <a href="../default-ceph-conf/" class="md-path__link">
+        <a href="../cephosdremovetask-timeout/" class="md-path__link">
           
   <span class="md-ellipsis">
-    Operations Guide
+    Troubleshoot
   </span>
 
         </a>
@@ -2823,86 +2710,55 @@
   
 
 
-<p><a id="rook-daemon-place-specify-rook-daemons-placement"></a></p>
-<h1 id="specify-rook-daemons-placement">Specify Rook daemons placement<a class="headerlink" href="#specify-rook-daemons-placement" title="Permanent link">#</a></h1>
-<p>If you need to configure the placement of Rook daemons on nodes, you can set
-extra values to Pelagia Helm chart release.</p>
-<p>The procedures in this section describe how to specify the placement of
-<code>rook-ceph-operator</code>, <code>rook-discover</code>, and Ceph CSI pods such as <code>csi-rbdplugin</code>, <code>csi-cephfsplugin</code>,
-<code>csi-rbdplugin-provisioner</code> and <code>csi-cephfsplugin-provisioner</code>.</p>
-<h2 id="specify-rook-ceph-operator-placement">Specify rook-ceph-operator placement<a class="headerlink" href="#specify-rook-ceph-operator-placement" title="Permanent link">#</a></h2>
-<p>Use the following Pelagia Helm chart values to specify <code>rook-ceph-operator</code> placement:</p>
-<ul>
-<li><code>rookConfig.rookOperatorPlacement.affinity</code> is a key-value mapping that contains
-  a valid Kubernetes <code>affinity</code> specification.</li>
-<li><code>rookConfig.rookOperatorPlacement.nodeSelector</code> is a key-value mapping that contains
-  a valid Kubernetes <code>nodeSelector</code> specification.</li>
-<li><code>rookConfig.rookOperatorPlacement.tolerations</code> is a list that contains valid Kubernetes <code>toleration</code> items.</li>
-</ul>
-<p>Upgrade Pelagia Helm release with the desired placement values by setting them directly to release:
-<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.0.0<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--set<span class="w"> </span>rookConfig.rookOperatorPlacement.affinity<span class="o">=</span>&lt;rookOperatorAffinity&gt;,<span class="se">\</span>
-<span class="w">        </span>rookConfig.rookOperatorPlacement.nodeSelector<span class="o">=</span>&lt;rookOperatorNodeSelector&gt;,<span class="se">\</span>
-<span class="w">        </span>rookConfig.rookOperatorPlacement.tolerations<span class="o">=</span>&lt;rookOperatorTolerations&gt;
-</code></pre></div></p>
-<p>After upgrading Pelagia Helm release, wait for some time and verify that the changes have applied:
-<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>deploy<span class="w"> </span>rook-ceph-operator<span class="w"> </span>-o<span class="w"> </span>yaml
-</code></pre></div></p>
-<h2 id="specify-ceph-csi-pods-placement">Specify Ceph CSI pods placement<a class="headerlink" href="#specify-ceph-csi-pods-placement" title="Permanent link">#</a></h2>
-<p>Use the following Pelagia Helm chart values to specify Ceph CSI pods placement:</p>
-<ul>
-<li><code>rookConfig.csiPlacement.nodeAffinity.csiprovisioner</code> is a valid Kubernetes label selector expression.</li>
-<li><code>rookConfig.csiPlacement.nodeAffinity.csiplugin</code> is a valid Kubernetes label selector expression. Default is
-  <code>ceph-daemonset-available-node=true</code>.</li>
+<p><a id="ceph-pg-damaged-ceph-health-reports-pg_damaged_after-a-failed-disk-or-node-replacement"></a></p>
+<h1 id="ceph-health-reports-pg_damaged-after-a-failed-disk-or-node-replacement">Ceph health reports <em>PG_DAMAGED</em> after a failed disk or node replacement<a class="headerlink" href="#ceph-health-reports-pg_damaged-after-a-failed-disk-or-node-replacement" title="Permanent link">#</a></h1>
+<p>After adding a new OSD node on a compact cluster, Ceph health may report
+<code>HEALTH_ERR</code> with the <code>ceph health detail</code> command output containing
+<code>PG_DAMAGED</code> and <code>OSD_SCRUB_ERRORS</code> messages. For example:</p>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>ceph<span class="w"> </span>-s
+
+cluster:
+<span class="w"> </span>id:<span class="w">     </span>8bca9dfb-df99-4920-bba0-e5bca59876b4
+<span class="w"> </span>health:<span class="w"> </span>HEALTH_ERR
+<span class="w">         </span><span class="m">1</span><span class="w"> </span>scrub<span class="w"> </span>errors
+<span class="w">         </span>Possible<span class="w"> </span>data<span class="w"> </span>damage:<span class="w"> </span><span class="m">1</span><span class="w"> </span>pg<span class="w"> </span>inconsistent
+
+services:
+<span class="w"> </span>mon:<span class="w"> </span><span class="m">3</span><span class="w"> </span>daemons,<span class="w"> </span>quorum<span class="w"> </span>a,b,c<span class="w"> </span><span class="o">(</span>age<span class="w"> </span>3h<span class="o">)</span>
+<span class="w"> </span>mgr:<span class="w"> </span>a<span class="o">(</span>active,<span class="w"> </span>since<span class="w"> </span>3h<span class="o">)</span>,<span class="w"> </span>standbys:<span class="w"> </span>b
+<span class="w"> </span>osd:<span class="w"> </span><span class="m">4</span><span class="w"> </span>osds:<span class="w"> </span><span class="m">4</span><span class="w"> </span>up<span class="w"> </span><span class="o">(</span>since<span class="w"> </span>109m<span class="o">)</span>,<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">(</span>since<span class="w"> </span>110m<span class="o">)</span>
+<span class="w"> </span>rgw:<span class="w"> </span><span class="m">2</span><span class="w"> </span>daemons<span class="w"> </span>active<span class="w"> </span><span class="o">(</span><span class="m">2</span><span class="w"> </span>hosts,<span class="w"> </span><span class="m">1</span><span class="w"> </span>zones<span class="o">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>ceph<span class="w"> </span>health<span class="w"> </span>detail
+
+HEALTH_ERR<span class="w"> </span><span class="m">1</span><span class="w"> </span>scrub<span class="w"> </span>errors<span class="p">;</span><span class="w"> </span>Possible<span class="w"> </span>data<span class="w"> </span>damage:<span class="w"> </span><span class="m">1</span><span class="w"> </span>pg<span class="w"> </span>inconsistent
+<span class="o">[</span>ERR<span class="o">]</span><span class="w"> </span>OSD_SCRUB_ERRORS:<span class="w"> </span><span class="m">1</span><span class="w"> </span>scrub<span class="w"> </span>errors
+<span class="o">[</span>ERR<span class="o">]</span><span class="w"> </span>PG_DAMAGED:<span class="w"> </span>Possible<span class="w"> </span>data<span class="w"> </span>damage:<span class="w"> </span><span class="m">1</span><span class="w"> </span>pg<span class="w"> </span>inconsistent
+<span class="w">    </span>pg<span class="w"> </span><span class="m">11</span>.2a<span class="w"> </span>is<span class="w"> </span>active+clean+inconsistent,<span class="w"> </span>acting<span class="w"> </span><span class="o">[</span><span class="m">3</span>,1<span class="o">]</span>
+</code></pre></div>
+<p><strong>To fix the PG_DAMAGED health error:</strong></p>
+<ol>
 <li>
-<p><code>rookConfig.csiPlacement.csiplugin.tolerations</code> is a string which contains a valid list of Kubernetes <code>toleration</code>
-  items. For example:
-  <div class="highlight"><pre><span></span><code><span class="nt">csiplugin</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">  </span><span class="no">- effect: NoSchedule</span>
-<span class="w">    </span><span class="no">key: node-role.kubernetes.io/controlplane</span>
-<span class="w">    </span><span class="no">operator: Exists</span>
+<p>Obtain the damaged placement group (PG) ID:
+   <div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>health<span class="w"> </span>detail
 </code></pre></div></p>
+<p>Example of system response:
+ <div class="highlight"><pre><span></span><code>HEALTH_ERR<span class="w"> </span><span class="m">1</span><span class="w"> </span>scrub<span class="w"> </span>errors<span class="p">;</span><span class="w"> </span>Possible<span class="w"> </span>data<span class="w"> </span>damage:<span class="w"> </span><span class="m">1</span><span class="w"> </span>pg<span class="w"> </span>inconsistent
+<span class="o">[</span>ERR<span class="o">]</span><span class="w"> </span>OSD_SCRUB_ERRORS:<span class="w"> </span><span class="m">1</span><span class="w"> </span>scrub<span class="w"> </span>errors
+<span class="o">[</span>ERR<span class="o">]</span><span class="w"> </span>PG_DAMAGED:<span class="w"> </span>Possible<span class="w"> </span>data<span class="w"> </span>damage:<span class="w"> </span><span class="m">1</span><span class="w"> </span>pg<span class="w"> </span>inconsistent
+<span class="w">    </span>pg<span class="w"> </span><span class="m">11</span>.2a<span class="w"> </span>is<span class="w"> </span>active+clean+inconsistent,<span class="w"> </span>acting<span class="w"> </span><span class="o">[</span><span class="m">3</span>,1<span class="o">]</span>
+</code></pre></div></p>
+<p>In the example above, <code>11.2a</code> is the required PG ID.</p>
 </li>
 <li>
-<p><code>rookConfig.csiPlacement.csiprovisioner.tolerations</code> is a string which contains a valid list of Kubernetes
-  <code>toleration</code> items. For example:
-  <div class="highlight"><pre><span></span><code><span class="nt">csiprovisioner</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">  </span><span class="no">- effect: NoSchedule</span>
-<span class="w">    </span><span class="no">key: node-role.kubernetes.io/controlplane</span>
-<span class="w">    </span><span class="no">operator: Exists</span>
+<p>Repair the damaged PG:
+   <div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>pg<span class="w"> </span>repair<span class="w"> </span>&lt;pgid&gt;
+</code></pre></div></p>
+<p>Substitute <code>&lt;pgid&gt;</code> with a damaged PG ID. For example:
+ <div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>pg<span class="w"> </span>repair<span class="w"> </span><span class="m">11</span>.2a
 </code></pre></div></p>
 </li>
-</ul>
-<p>Upgrade Pelagia Helm release with the desired placement values by setting them directly to release:
-<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.0.0<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--set<span class="w"> </span>rookConfig.csiPlacement.nodeAffinity.csiprovisioner<span class="o">=</span><span class="s2">&quot;&lt;nodeAffinityLabelSelector&gt;&quot;</span>
-</code></pre></div></p>
-<p>After upgrading Pelagia Helm release, wait for some time and verify that the changes have applied:
-<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>ds<span class="w"> </span>csi-rbdplugin<span class="w"> </span>-o<span class="w"> </span>yaml
-kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>ds<span class="w"> </span>csi-cephfsplugin<span class="w"> </span>-o<span class="w"> </span>yaml
-kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>deploy<span class="w"> </span>csi-rbdplugin-provisioner<span class="w"> </span>-o<span class="w"> </span>yaml
-kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>deploy<span class="w"> </span>csi-cephfsplugin-provisioner<span class="w"> </span>-o<span class="w"> </span>yaml
-</code></pre></div></p>
-<h2 id="specify-rook-discover-placement">Specify rook-discover placement<a class="headerlink" href="#specify-rook-discover-placement" title="Permanent link">#</a></h2>
-<p>Use the following Pelagia Helm chart values to specify <code>rook-discover</code> placement:</p>
-<ul>
-<li><code>rookConfig.rookDiscoverPlacement.nodeAffinity</code> is a valid Kubernetes label selector expression. Default is
-  <code>ceph-daemonset-available-node=true;ceph_role_osd=true</code>.</li>
-<li><code>rookConfig.rookDiscoverPlacement.tolerations</code> is a string which contains a valid list of Kubernetes <code>toleration</code>
-  items. For example:
-  <div class="highlight"><pre><span></span><code><span class="nt">tolerations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">  </span><span class="no">- effect: NoSchedule</span>
-<span class="w">    </span><span class="no">key: node-role.kubernetes.io/controlplane</span>
-<span class="w">    </span><span class="no">operator: Exists</span>
-</code></pre></div></li>
-</ul>
-<p>Upgrade Pelagia Helm release with the desired placement values by setting them directly to release:
-<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.0.0<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--set<span class="w"> </span>rookConfig.rookDiscoverPlacement.nodeAffinity<span class="o">=</span><span class="s2">&quot;&lt;nodeAffinityLabelSelector&gt;&quot;</span>
-</code></pre></div></p>
-<p>After upgrading Pelagia Helm release, wait for some time and verify that the changes have applied:
-<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>ds<span class="w"> </span>rook-discover<span class="w"> </span>-o<span class="w"> </span>yaml
-</code></pre></div></p>
+</ol>
 
 
 
@@ -2938,7 +2794,7 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../default-ceph-conf/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Ceph default configuration options">
+          <a href="../stuck-maintenance/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Maintenance stuck on a compact Ceph cluster">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -2948,27 +2804,11 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
                 Previous
               </span>
               <div class="md-ellipsis">
-                Ceph default configuration options
+                Maintenance stuck on a compact Ceph cluster
               </div>
             </div>
           </a>
         
-        
-          
-          <a href="../multinetworking/" class="md-footer__link md-footer__link--next" aria-label="Next: Enable Ceph Multinetwork">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              <div class="md-ellipsis">
-                Enable Ceph Multinetwork
-              </div>
-            </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
-            </div>
-          </a>
         
       </nav>
     
@@ -3002,10 +2842,10 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>
