@@ -145,6 +145,7 @@ nav:
     - Ceph Monitor disaster recovery: troubleshoot/ceph-mon-recover.md
     - Ceph Cluster disaster recovery: troubleshoot/ceph-disaster-recover.md
     - Maintenance stuck on a compact Ceph cluster: troubleshoot/stuck-maintenance.md
+    - Ceph reports PG_DAMAGED: troubleshoot/ceph-pg-damaged.md
 #  - Operations Guide:
 #      - Upgrade OpenStack: ops/openstack/upgrade.md
 #      - Run tempest: ops/openstack/tempest.md
