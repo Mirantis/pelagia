@@ -2,8 +2,7 @@
 
 The integration between Pelagia and Rockoon OpenStack Controller
 is implemented through the shared Kubernetes `openstack-ceph-shared` namespace. Both
-controllers have access to this namespace to read and write the Kubernetes
-`kind: Secret` objects.
+controllers have access to this namespace to read and write the Kubernetes `kind: Secret` objects.
 
 ![Pelagia Rockoon Integration](../../assets/pelagia-rockoon-integration.svg)
 
