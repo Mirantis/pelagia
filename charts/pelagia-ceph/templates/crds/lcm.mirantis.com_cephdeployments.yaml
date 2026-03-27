@@ -1214,7 +1214,7 @@ spec:
                   and RGW multisite feature
                 properties:
                   multiSite:
-                    description: MultiSite represents Ceph RadosGW multisite/multizone
+                    description: Deprecated. MultiSite represents Ceph RadosGW multisite/multizone
                       feature settings
                     properties:
                       realms:
@@ -1483,6 +1483,29 @@ spec:
                     - zoneGroups
                     - zones
                     type: object
+                  realms:
+                    description: |-
+                      ObjectRealms is a list of Ceph Object storage multisite realms.
+                      Currently is possible to specify only 1 realm.
+                    items:
+                      description: CephObjectRealm stands for object store multisite
+                        realm creation and configuration.
+                      properties:
+                        name:
+                          description: Name of realm
+                          type: string
+                        spec:
+                          description: |-
+                            Spec stands for realm configuration.
+                            see https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-realm-crd/
+                            for available options
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      required:
+                      - name
+                      type: object
+                    maxItems: 1
+                    type: array
                   rgw:
                     description: Rgw represents Ceph RadosGW settings
                     properties:
@@ -2376,6 +2399,54 @@ spec:
                     - gateway
                     - name
                     type: object
+                  zonegroups:
+                    description: |-
+                      ObjectZonegroups is a list of Ceph Object storage multisite zonegroups.
+                      Currently is possible to specify only 1 zonegroup.
+                    items:
+                      description: CephObjectZonegroup stands for object store multisite
+                        zonegroup creation and configuration.
+                      properties:
+                        name:
+                          description: Name of zonegroup
+                          type: string
+                        spec:
+                          description: |-
+                            Spec stands for zonegroup configuration.
+                            https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zonegroup-crd/
+                            for available options
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      required:
+                      - name
+                      - spec
+                      type: object
+                    maxItems: 1
+                    type: array
+                  zones:
+                    description: |-
+                      ObjectZones is a list of Ceph Object storage multisite zones.
+                      Currently is possible to specify only 1 zone.
+                    items:
+                      description: CephObjectZone stands for object store multisite
+                        zone creation and configuration.
+                      properties:
+                        name:
+                          description: Name of zone
+                          type: string
+                        spec:
+                          description: |-
+                            Spec stands for zone configuration.
+                            https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zone-crd/
+                            for available options
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      required:
+                      - name
+                      - spec
+                      type: object
+                    maxItems: 1
+                    type: array
                 required:
                 - rgw
                 type: object

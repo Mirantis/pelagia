@@ -109,6 +109,67 @@ func (fs CephFilesystem) GetSpec() (cephv1.FilesystemSpec, error) {
 	return fsObj.Spec, nil
 }
 
+func (r CephObjectRealm) GetSpec() (cephv1.ObjectRealmSpec, error) {
+	var realmSpec cephv1.ObjectRealmSpec
+	// since empty spec is allowed - return empty spec
+	if r.Spec.Raw == nil && r.Spec.Object == nil {
+		return realmSpec, nil
+	}
+
+	if r.Spec.Raw != nil {
+		if err := DecodeRawToStruct(r.Spec.Raw, &realmSpec); err != nil {
+			return realmSpec, errors.Wrap(err, "spec: realm spec has failed to decode to Rook ObjectRealmSpec struct")
+		}
+		return realmSpec, nil
+	}
+
+	realmObj, ok := r.Spec.Object.(*cephv1.CephObjectRealm)
+	if !ok {
+		return realmSpec, errors.New("spec: realm field has failed to convert to Rook CephObjectRealm object")
+	}
+	return realmObj.Spec, nil
+}
+
+func (zg CephObjectZonegroup) GetSpec() (cephv1.ObjectZoneGroupSpec, error) {
+	var zgSpec cephv1.ObjectZoneGroupSpec
+	if zg.Spec.Raw == nil && zg.Spec.Object == nil {
+		return zgSpec, errors.New("spec: zonegroup spec no any data provided")
+	}
+
+	if zg.Spec.Raw != nil {
+		if err := DecodeRawToStruct(zg.Spec.Raw, &zgSpec); err != nil {
+			return zgSpec, errors.Wrap(err, "spec: zonegroup spec has failed to decode to Rook ObjectZoneGroupSpec struct")
+		}
+		return zgSpec, nil
+	}
+
+	zgObj, ok := zg.Spec.Object.(*cephv1.CephObjectZoneGroup)
+	if !ok {
+		return zgSpec, errors.New("spec: zonegroup field has failed to convert to Rook CephObjectZoneGroup object")
+	}
+	return zgObj.Spec, nil
+}
+
+func (z CephObjectZone) GetSpec() (cephv1.ObjectZoneSpec, error) {
+	var zSpec cephv1.ObjectZoneSpec
+	if z.Spec.Raw == nil && z.Spec.Object == nil {
+		return zSpec, errors.New("spec: zone spec no any data provided")
+	}
+
+	if z.Spec.Raw != nil {
+		if err := DecodeRawToStruct(z.Spec.Raw, &zSpec); err != nil {
+			return zSpec, errors.Wrap(err, "spec: zone spec has failed to decode to Rook ObjectZoneSpec struct")
+		}
+		return zSpec, nil
+	}
+
+	zObj, ok := z.Spec.Object.(*cephv1.CephObjectZone)
+	if !ok {
+		return zSpec, errors.New("spec: zone field has failed to convert to Rook CephObjectZone object")
+	}
+	return zObj.Spec, nil
+}
+
 // Method SetRawSpec is used to directly put Raw spec in related
 // fields to avoid full struct define after JSON marshaling
 // Caution: will override present Raw data fully!

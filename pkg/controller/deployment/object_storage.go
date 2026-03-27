@@ -17,8 +17,6 @@ limitations under the License.
 package deployment
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 )
 
@@ -37,24 +35,13 @@ func (c *cephDeploymentConfig) ensureObjectStorage() (bool, error) {
 	c.log.Debug().Msg("ensure object storage")
 	objectStorageChanged := false
 	if !c.cdConfig.clusterSpec.External.Enable {
-		if c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite == nil {
-			c.log.Debug().Msg("no object storage multisite section, skip multisite ensure and cleanup all multisite stuff")
-			removed, err := c.deleteMultiSite()
-			if err != nil {
-				msg := fmt.Sprintf("failed to cleanup object storage multisite: %v", err)
-				c.log.Error().Err(err).Msg(msg)
-				errCollector = append(errCollector, errors.New(msg))
-			}
-			objectStorageChanged = !removed
-		} else {
-			// Ensure ceph rgw multisite processing
-			changed, err := c.ensureRgwMultiSite()
-			if err != nil {
-				c.log.Error().Err(err).Msg("failed to ensure object storage multisite")
-				errCollector = append(errCollector, errors.Wrap(err, "failed to ensure ceph object storage multisite"))
-			}
-			objectStorageChanged = changed
+		// Ensure ceph rgw multisite processing
+		changed, err := c.ensureRgwMultiSite()
+		if err != nil {
+			c.log.Error().Err(err).Msg("failed to ensure object storage multisite")
+			errCollector = append(errCollector, errors.Wrap(err, "failed to ensure ceph object storage multisite"))
 		}
+		objectStorageChanged = changed
 	}
 
 	// Ensure ceph rgw processing

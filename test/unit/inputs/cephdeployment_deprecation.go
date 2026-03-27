@@ -224,6 +224,54 @@ var CephDeploymentDeprecated = cephlcmv1alpha1.CephDeployment{
 	},
 }
 
+var CephDeploymentMultisiteDeprecated = func() cephlcmv1alpha1.CephDeployment {
+	cd := BaseCephDeployment.DeepCopy()
+	cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
+		OldMultiSite: &cephlcmv1alpha1.CephMultiSite{
+			Realms: []cephlcmv1alpha1.CephRGWRealm{
+				{
+					Name: "realm1",
+				},
+			},
+			ZoneGroups: []cephlcmv1alpha1.CephRGWZoneGroup{
+				{
+					Name:  "zonegroup1",
+					Realm: "realm1",
+				},
+			},
+			Zones: []cephlcmv1alpha1.CephRGWZone{
+				{
+					Name:      "zone1",
+					ZoneGroup: "zonegroup1",
+					DataPool: cephlcmv1alpha1.CephPoolSpec{
+						DeviceClass:   "hdd",
+						FailureDomain: "host",
+						ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
+							CodingChunks: 2,
+							DataChunks:   1,
+						},
+					},
+					MetadataPool: cephlcmv1alpha1.CephPoolSpec{
+						DeviceClass:   "hdd",
+						FailureDomain: "host",
+						Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
+							Size: 3,
+						},
+					},
+				},
+			},
+		},
+		Rgw: cephlcmv1alpha1.CephRGW{
+			Name:    "rgw-store",
+			Gateway: CephRgwBaseSpec.Gateway,
+			Zone: &cephv1.ZoneSpec{
+				Name: "zone1",
+			},
+		},
+	}
+	return *cd
+}()
+
 var CephDeploymentSpecClusterJSON = `{"dashboard":{"enabled":true},"dataDirHostPath":"/var/lib/custom-path","healthCheck":{"daemonHealth":{"status":{"disabled":true},"mon":{"timeout":"60s"},"osd":{"timeout":"60s"}},"livenessProbe":{"osd":{"probe":{"timeoutSeconds":10,"failureThreshold":10}}},"startupProbe":{"osd":{"probe":{"timeoutSeconds":5,"failureThreshold":5}}}},"mgr":{"modules":[{"name":"balancer","enabled":true,"settings":{"balancerMode":"upmap"}},{"name":"fake","enabled":true}]},"network":{"addressRanges":{"cluster":["127.0.0.0/16"],"public":["192.168.0.0/16"]}},"placement":{"all":{"tolerations":[{"key":"test.kubernetes.io/testkey","operator":"Exists","effect":"Schedule"}]},"mgr":{"tolerations":[{"key":"test.kubernetes.io/testkey-mgr","operator":"Exists","effect":"Schedule"}]},"mon":{"tolerations":[{"key":"test.kubernetes.io/testkey-mon","operator":"Exists","effect":"Schedule"}]},"osd":{"tolerations":[{"key":"test.kubernetes.io/testkey-osd","operator":"Exists","effect":"Schedule"}]}},"resources":{"osd-nvme":{"limits":{"cpu":"100m","memory":"156Mi"},"requests":{"cpu":"10m","memory":"28Mi"}}}}`
 var CephPoolSpec1MigratedJSON = `{"replicated":{"size":3,"targetSizeRatio":0.1},"failureDomain":"host","crushRoot":"default","deviceClass":"hdd","mirroring":{"mode":"peer"}}`
 var CephPoolSpec2MigratedJSON = `{"failureDomain":"host","deviceClass":"hdd","erasureCoded":{"codingChunks":1,"dataChunks":2,"algorithm":"custom"},"parameters":{"custom-pool-param":"custom-pool-value"},"enableCrushUpdates":true}`
@@ -265,6 +313,49 @@ var CephDeploymentMigrated = cephlcmv1alpha1.CephDeployment{
 					FsSpec: runtime.RawExtension{
 						Raw: []byte(CephFsSpecMigratedJSON),
 					},
+				},
+			},
+		},
+		Nodes: CephNodesOk,
+	},
+}
+
+var CephDeploymentZoneJSON = `{"dataPool":{"failureDomain":"host","deviceClass":"hdd","erasureCoded":{"codingChunks":2,"dataChunks":1}},"metadataPool":{"replicated":{"size":3},"failureDomain":"host","deviceClass":"hdd"},"zoneGroup":"zonegroup1"}`
+
+var CephDeploymentMultisiteMigrated = cephlcmv1alpha1.CephDeployment{
+	ObjectMeta: LcmObjectMeta,
+	Spec: cephlcmv1alpha1.CephDeploymentSpec{
+		Cluster: BaseCephDeployment.Spec.Cluster.DeepCopy(),
+		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
+			Realms: []cephlcmv1alpha1.CephObjectRealm{
+				{
+					Name: "realm1",
+					Spec: runtime.RawExtension{
+						Raw: []byte(`{"defaultRealm":false}`),
+					},
+				},
+			},
+			Zonegroups: []cephlcmv1alpha1.CephObjectZonegroup{
+				{
+					Name: "zonegroup1",
+					Spec: runtime.RawExtension{
+						Raw: []byte(`{"realm":"realm1"}`),
+					},
+				},
+			},
+			Zones: []cephlcmv1alpha1.CephObjectZone{
+				{
+					Name: "zone1",
+					Spec: runtime.RawExtension{
+						Raw: []byte(CephDeploymentZoneJSON),
+					},
+				},
+			},
+			Rgw: cephlcmv1alpha1.CephRGW{
+				Name:    "rgw-store",
+				Gateway: CephRgwBaseSpec.Gateway,
+				Zone: &cephv1.ZoneSpec{
+					Name: "zone1",
 				},
 			},
 		},

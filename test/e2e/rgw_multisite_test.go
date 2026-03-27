@@ -27,6 +27,7 @@ import (
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
@@ -78,36 +79,41 @@ func TestMultisiteRgw(t *testing.T) {
 		t.Logf("#### e2e test: deploying new RGW Multisite master zone")
 		realmName = "rgw-storerealm"
 		zonegroupName = "rgw-storezonegroup"
+		rawZone, _ := cephlcmv1alpha1.DecodeStructToRaw(
+			cephv1.ObjectZoneSpec{
+				ZoneGroup: zonegroupName,
+				MetadataPool: cephv1.PoolSpec{
+					DeviceClass: poolDefaultClass,
+					Replicated:  cephv1.ReplicatedSpec{Size: 3},
+				},
+				DataPool: cephv1.PoolSpec{
+					DeviceClass: poolDefaultClass,
+					ErasureCoded: cephv1.ErasureCodedSpec{
+						CodingChunks: 2,
+						DataChunks:   1,
+					},
+				},
+			},
+		)
 		cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
-			MultiSite: &cephlcmv1alpha1.CephMultiSite{
-				Realms: []cephlcmv1alpha1.CephRGWRealm{
-					{
-						Name: realmName,
+			Realms: []cephlcmv1alpha1.CephObjectRealm{
+				{
+					Name: realmName,
+				},
+			},
+			Zonegroups: []cephlcmv1alpha1.CephObjectZonegroup{
+				{
+					Name: zonegroupName,
+					Spec: runtime.RawExtension{
+						Raw: []byte(fmt.Sprintf(`{"realm": %s}`, realmName)),
 					},
 				},
-				ZoneGroups: []cephlcmv1alpha1.CephRGWZoneGroup{
-					{
-						Name:  zonegroupName,
-						Realm: realmName,
-					},
-				},
-				Zones: []cephlcmv1alpha1.CephRGWZone{
-					{
-						Name: "rgw-storezone",
-						MetadataPool: cephlcmv1alpha1.CephPoolSpec{
-							DeviceClass: poolDefaultClass,
-							Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-								Size: 3,
-							},
-						},
-						DataPool: cephlcmv1alpha1.CephPoolSpec{
-							DeviceClass: poolDefaultClass,
-							ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
-								CodingChunks: 1,
-								DataChunks:   2,
-							},
-						},
-						ZoneGroup: zonegroupName,
+			},
+			Zones: []cephlcmv1alpha1.CephObjectZone{
+				{
+					Name: "rgw-storezone",
+					Spec: runtime.RawExtension{
+						Raw: rawZone,
 					},
 				},
 			},
@@ -122,44 +128,58 @@ func TestMultisiteRgw(t *testing.T) {
 			},
 		}
 	} else {
-		if cd.Spec.ObjectStorage.MultiSite == nil {
+		if cd.Spec.ObjectStorage.Rgw.Zone == nil {
 			realmName = cd.Spec.ObjectStorage.Rgw.Name
 			zonegroupName = cd.Spec.ObjectStorage.Rgw.Name
 			t.Logf("#### e2e test: reconfigure existing RGW to RGW Multisite master mode")
-			multisite := &cephlcmv1alpha1.CephMultiSite{
-				Realms: []cephlcmv1alpha1.CephRGWRealm{
-					{
-						Name: cd.Spec.ObjectStorage.Rgw.Name,
-					},
-				},
-				ZoneGroups: []cephlcmv1alpha1.CephRGWZoneGroup{
-					{
-						Name:  cd.Spec.ObjectStorage.Rgw.Name,
-						Realm: cd.Spec.ObjectStorage.Rgw.Name,
-					},
-				},
-				Zones: []cephlcmv1alpha1.CephRGWZone{
-					{
-						Name:         cd.Spec.ObjectStorage.Rgw.Name,
-						MetadataPool: *cd.Spec.ObjectStorage.Rgw.MetadataPool.DeepCopy(),
-						DataPool:     *cd.Spec.ObjectStorage.Rgw.DataPool.DeepCopy(),
-						ZoneGroup:    cd.Spec.ObjectStorage.Rgw.Name,
-					},
-				},
-			}
 			newRgw := cd.Spec.ObjectStorage.Rgw.DeepCopy()
 			newRgw.DataPool = nil
 			newRgw.MetadataPool = nil
 			newRgw.Zone = &cephv1.ZoneSpec{Name: cd.Spec.ObjectStorage.Rgw.Name}
+			rawZone, _ := cephlcmv1alpha1.DecodeStructToRaw(
+				cephv1.ObjectZoneSpec{
+					ZoneGroup: cd.Spec.ObjectStorage.Rgw.Name,
+					// TODO: full copy from rgw metadatapool
+					MetadataPool: cephv1.PoolSpec{
+						DeviceClass: cd.Spec.ObjectStorage.Rgw.MetadataPool.DeviceClass,
+						Replicated:  cephv1.ReplicatedSpec{Size: cd.Spec.ObjectStorage.Rgw.MetadataPool.Replicated.Size},
+					},
+					// TODO: full copy from rgw datapool
+					DataPool: cephv1.PoolSpec{
+						DeviceClass: poolDefaultClass,
+						Replicated:  cephv1.ReplicatedSpec{Size: cd.Spec.ObjectStorage.Rgw.DataPool.Replicated.Size},
+					},
+				},
+			)
 			cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
-				MultiSite: multisite,
-				Rgw:       *newRgw,
+				Realms: []cephlcmv1alpha1.CephObjectRealm{
+					{
+						Name: cd.Spec.ObjectStorage.Rgw.Name,
+					},
+				},
+				Zonegroups: []cephlcmv1alpha1.CephObjectZonegroup{
+					{
+						Name: cd.Spec.ObjectStorage.Rgw.Name,
+						Spec: runtime.RawExtension{
+							Raw: []byte(fmt.Sprintf(`{"realm": %s}`, cd.Spec.ObjectStorage.Rgw.Name)),
+						},
+					},
+				},
+				Zones: []cephlcmv1alpha1.CephObjectZone{
+					{
+						Name: cd.Spec.ObjectStorage.Rgw.Name,
+						Spec: runtime.RawExtension{
+							Raw: rawZone,
+						},
+					},
+				},
+				Rgw: *newRgw,
 			}
 		} else {
 			t.Logf("#### e2e test: RGW Multisite master zone is already configured")
 			changed = false
-			realmName = cd.Spec.ObjectStorage.MultiSite.Realms[0].Name
-			zonegroupName = cd.Spec.ObjectStorage.MultiSite.ZoneGroups[0].Name
+			realmName = cd.Spec.ObjectStorage.Realms[0].Name
+			zonegroupName = cd.Spec.ObjectStorage.Zonegroups[0].Name
 		}
 	}
 	if changed {
@@ -210,43 +230,60 @@ func TestMultisiteRgw(t *testing.T) {
 	}
 
 	f.Step(t, "Configuring RGW multisite for backup zone")
+	secretRealm := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-keys", realmName),
+			Namespace: backupCluster.LcmConfig.RookNamespace,
+		},
+		Data: map[string][]byte{
+			"access-key": []byte(accessKey),
+			"secret-key": []byte(secretKey),
+		},
+	}
+	err = backupCluster.CreateSecret(secretRealm)
+	if err != nil {
+		t.Fatalf("failed to create secret for realm with user keys: %v", err)
+	}
 	t.Logf("#### e2e test: deploying RGW Multisite backup zone")
 	zoneName := "rgw-zone-backup"
+	zoneRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(
+		cephv1.ObjectZoneSpec{
+			ZoneGroup: zonegroupName,
+			MetadataPool: cephv1.PoolSpec{
+				DeviceClass: poolDefaultClass,
+				Replicated:  cephv1.ReplicatedSpec{Size: 3},
+			},
+			DataPool: cephv1.PoolSpec{
+				DeviceClass: poolDefaultClass,
+				ErasureCoded: cephv1.ErasureCodedSpec{
+					CodingChunks: 1,
+					DataChunks:   2,
+				},
+			},
+		},
+	)
 	cdBackup.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
-		MultiSite: &cephlcmv1alpha1.CephMultiSite{
-			Realms: []cephlcmv1alpha1.CephRGWRealm{
-				{
-					Name: realmName,
-					Pull: &cephlcmv1alpha1.CephRGWRealmPull{
-						AccessKey: accessKey,
-						SecretKey: secretKey,
-						Endpoint:  rgwMasterPublicEndpoint,
-					},
+		Realms: []cephlcmv1alpha1.CephObjectRealm{
+			{
+				Name: realmName,
+				Spec: runtime.RawExtension{
+					Raw: []byte(fmt.Sprintf(`{"pull":{"endpoint": "%s"}}`, rgwMasterPublicEndpoint)),
 				},
 			},
-			ZoneGroups: []cephlcmv1alpha1.CephRGWZoneGroup{
-				{
-					Name:  zonegroupName,
-					Realm: realmName,
+		},
+		Zonegroups: []cephlcmv1alpha1.CephObjectZonegroup{
+			{
+				Name: zonegroupName,
+				Spec: runtime.RawExtension{
+					Raw: []byte(fmt.Sprintf(`{"realm": "%s"}`, realmName)),
 				},
 			},
-			Zones: []cephlcmv1alpha1.CephRGWZone{
-				{
-					Name: zoneName,
-					MetadataPool: cephlcmv1alpha1.CephPoolSpec{
-						DeviceClass: poolDefaultClass,
-						Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-							Size: 3,
-						},
-					},
-					DataPool: cephlcmv1alpha1.CephPoolSpec{
-						DeviceClass: poolDefaultClass,
-						ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
-							CodingChunks: 1,
-							DataChunks:   2,
-						},
-					},
-					ZoneGroup: zonegroupName,
+		},
+		Zones: []cephlcmv1alpha1.CephObjectZone{
+			{
+				Name: zoneName,
+				Spec: runtime.RawExtension{
+					Raw: []byte(zoneRaw),
 				},
 			},
 		},

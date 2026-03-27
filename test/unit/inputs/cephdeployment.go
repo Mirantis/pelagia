@@ -391,37 +391,41 @@ var CephDeployExternalCephFS = func() cephlcmv1alpha1.CephDeployment {
 var CephDeployMultisiteMasterRgw = func() cephlcmv1alpha1.CephDeployment {
 	cd := BaseCephDeployment.DeepCopy()
 	cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
-		MultiSite: &cephlcmv1alpha1.CephMultiSite{
-			Realms: []cephlcmv1alpha1.CephRGWRealm{
-				{
-					Name: "realm1",
+		Realms: []cephlcmv1alpha1.CephObjectRealm{
+			{
+				Name: "realm1",
+			},
+		},
+		Zonegroups: []cephlcmv1alpha1.CephObjectZonegroup{
+			{
+				Name: "zonegroup1",
+				Spec: runtime.RawExtension{
+					Raw: []byte(`{"realm": "realm1"}`),
 				},
 			},
-			ZoneGroups: []cephlcmv1alpha1.CephRGWZoneGroup{
-				{
-					Name:  "zonegroup1",
-					Realm: "realm1",
-				},
-			},
-			Zones: []cephlcmv1alpha1.CephRGWZone{
-				{
-					Name:      "zone1",
-					ZoneGroup: "zonegroup1",
-					DataPool: cephlcmv1alpha1.CephPoolSpec{
-						DeviceClass:   "hdd",
-						FailureDomain: "host",
-						ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
-							CodingChunks: 2,
-							DataChunks:   1,
+		},
+		Zones: []cephlcmv1alpha1.CephObjectZone{
+			{
+				Name: "zone1",
+				Spec: runtime.RawExtension{
+					Raw: ConvertStructToRaw(
+						cephv1.ObjectZoneSpec{
+							ZoneGroup: "zonegroup1",
+							MetadataPool: cephv1.PoolSpec{
+								DeviceClass:   "hdd",
+								FailureDomain: "host",
+								Replicated:    cephv1.ReplicatedSpec{Size: 3},
+							},
+							DataPool: cephv1.PoolSpec{
+								DeviceClass:   "hdd",
+								FailureDomain: "host",
+								ErasureCoded: cephv1.ErasureCodedSpec{
+									CodingChunks: 2,
+									DataChunks:   1,
+								},
+							},
 						},
-					},
-					MetadataPool: cephlcmv1alpha1.CephPoolSpec{
-						DeviceClass:   "hdd",
-						FailureDomain: "host",
-						Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-							Size: 3,
-						},
-					},
+					),
 				},
 			},
 		},
@@ -439,44 +443,46 @@ var CephDeployMultisiteMasterRgw = func() cephlcmv1alpha1.CephDeployment {
 var CephDeployMultisiteRgw = func() cephlcmv1alpha1.CephDeployment {
 	cd := BaseCephDeployment.DeepCopy()
 	cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
-		MultiSite: &cephlcmv1alpha1.CephMultiSite{
-			Realms: []cephlcmv1alpha1.CephRGWRealm{
-				{
-					Name: "realm1",
-					Pull: &cephlcmv1alpha1.CephRGWRealmPull{
-						Endpoint:  "http://10.10.0.1",
-						AccessKey: "fakekey",
-						SecretKey: "fakesecret",
-					},
+		Realms: []cephlcmv1alpha1.CephObjectRealm{
+			{
+				Name: "realm1",
+				Spec: runtime.RawExtension{
+					Raw: []byte(`{"pull": {"endpoint": "http://10.10.0.1"}}`),
 				},
 			},
-			ZoneGroups: []cephlcmv1alpha1.CephRGWZoneGroup{
-				{
-					Name:  "zonegroup1",
-					Realm: "realm1",
+		},
+		Zonegroups: []cephlcmv1alpha1.CephObjectZonegroup{
+			{
+				Name: "zonegroup1",
+				Spec: runtime.RawExtension{
+					Raw: []byte(`{"realm": "realm1"}`),
 				},
 			},
-			Zones: []cephlcmv1alpha1.CephRGWZone{
-				{
-					Name:      "secondary-zone1",
-					ZoneGroup: "zonegroup1",
-					DataPool: cephlcmv1alpha1.CephPoolSpec{
-						DeviceClass:   "hdd",
-						CrushRoot:     "default",
-						FailureDomain: "host",
-						ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
-							CodingChunks: 2,
-							DataChunks:   1,
+		},
+		Zones: []cephlcmv1alpha1.CephObjectZone{
+			{
+				Name: "secondary-zone1",
+				Spec: runtime.RawExtension{
+					Raw: ConvertStructToRaw(
+						cephv1.ObjectZoneSpec{
+							ZoneGroup: "zonegroup1",
+							MetadataPool: cephv1.PoolSpec{
+								DeviceClass:   "hdd",
+								CrushRoot:     "default",
+								FailureDomain: "host",
+								Replicated:    cephv1.ReplicatedSpec{Size: 3},
+							},
+							DataPool: cephv1.PoolSpec{
+								DeviceClass:   "hdd",
+								CrushRoot:     "default",
+								FailureDomain: "host",
+								ErasureCoded: cephv1.ErasureCodedSpec{
+									CodingChunks: 1,
+									DataChunks:   2,
+								},
+							},
 						},
-					},
-					MetadataPool: cephlcmv1alpha1.CephPoolSpec{
-						DeviceClass:   "hdd",
-						CrushRoot:     "default",
-						FailureDomain: "host",
-						Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-							Size: 3,
-						},
-					},
+					),
 				},
 			},
 		},

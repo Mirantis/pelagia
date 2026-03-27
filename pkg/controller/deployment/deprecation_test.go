@@ -33,6 +33,9 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 	cephDeplConflicted.Spec.BlockStorage = unitinputs.CephDeploymentMigrated.Spec.BlockStorage.DeepCopy()
 	cephDeplConflicted.Spec.SharedFilesystem.Filesystems = unitinputs.CephDeploymentMigrated.Spec.SharedFilesystem.DeepCopy().Filesystems
 
+	cephDeplMultisiteConflicted := unitinputs.CephDeploymentMultisiteMigrated.DeepCopy()
+	cephDeplMultisiteConflicted.Spec.ObjectStorage.OldMultiSite = unitinputs.CephDeploymentMultisiteDeprecated.Spec.ObjectStorage.OldMultiSite.DeepCopy()
+
 	tests := []struct {
 		name            string
 		cephDpl         *cephlcmv1alpha1.CephDeployment
@@ -47,6 +50,12 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 			expectedError:   "found deprecated params which can't be automatically migrated: [ spec.dashboard spec.dataDirHostPath spec.healthCheck spec.hyperconverge.resources spec.hyperconverge.tolerations[all] spec.hyperconverge.tolerations[mgr] spec.hyperconverge.tolerations[mon] spec.hyperconverge.tolerations[osd] spec.mgr spec.network spec.pools spec.sharedFilesystem.cephFS ]",
 		},
 		{
+			name:            "cant migrate deprecated multisite fields due to conflicts",
+			cephDpl:         cephDeplMultisiteConflicted.DeepCopy(),
+			expectedCephDpl: *cephDeplMultisiteConflicted,
+			expectedError:   "found deprecated params which can't be automatically migrated: [ spec.objectStorage.multiSite.realms spec.objectStorage.multiSite.zoneGroups spec.objectStorage.multiSite.zones ]",
+		},
+		{
 			name:            "migrated deprecated fields",
 			cephDpl:         unitinputs.CephDeploymentDeprecated.DeepCopy(),
 			expectedCephDpl: unitinputs.CephDeploymentMigrated,
@@ -57,6 +66,30 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 			cephDpl:         unitinputs.CephDeploymentMultusDeprecated.DeepCopy(),
 			expectedCephDpl: unitinputs.CephDeploymentMultusMigrated,
 			migrated:        true,
+		},
+		{
+			name:            "migrated deprecated multisite fields",
+			cephDpl:         unitinputs.CephDeploymentMultisiteDeprecated.DeepCopy(),
+			expectedCephDpl: unitinputs.CephDeploymentMultisiteMigrated,
+			migrated:        true,
+		},
+		{
+			name: "migrated deprecated multisite with pull realm fields",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cdpl := unitinputs.CephDeploymentMultisiteDeprecated.DeepCopy()
+				cdpl.Spec.ObjectStorage.OldMultiSite.Realms[0].Pull = &cephlcmv1alpha1.CephRGWRealmPull{
+					Endpoint:  "http://custom",
+					AccessKey: "accesskey",
+					SecretKey: "secretkey",
+				}
+				return cdpl
+			}(),
+			expectedCephDpl: func() cephlcmv1alpha1.CephDeployment {
+				cdpl := unitinputs.CephDeploymentMultisiteMigrated.DeepCopy()
+				cdpl.Spec.ObjectStorage.Realms[0].Spec.Raw = []byte(`{"defaultRealm":false,"pull":{"endpoint":"http://custom"}}`)
+				return *cdpl
+			}(),
+			migrated: true,
 		},
 		{
 			name:            "migrated external deprecated fields",

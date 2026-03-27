@@ -506,9 +506,6 @@ var RgwMultisiteMasterRealm1 = cephv1.CephObjectRealm{
 		Name:      "realm1",
 		Namespace: "rook-ceph",
 	},
-	Spec: cephv1.ObjectRealmSpec{
-		DefaultRealm: true,
-	},
 }
 
 var RgwMultisiteMasterPullRealm1 = cephv1.CephObjectRealm{
@@ -517,7 +514,6 @@ var RgwMultisiteMasterPullRealm1 = cephv1.CephObjectRealm{
 		Namespace: "rook-ceph",
 	},
 	Spec: cephv1.ObjectRealmSpec{
-		DefaultRealm: true,
 		Pull: cephv1.PullSpec{
 			Endpoint: "http://10.10.0.1",
 		},
@@ -602,8 +598,8 @@ var RgwMultisiteMasterZone1 = cephv1.CephObjectZone{
 			DeviceClass:   "hdd",
 			FailureDomain: "host",
 			ErasureCoded: cephv1.ErasureCodedSpec{
-				CodingChunks: 2,
-				DataChunks:   1,
+				CodingChunks: 1,
+				DataChunks:   2,
 			},
 		},
 		MetadataPool: cephv1.PoolSpec{
@@ -627,8 +623,8 @@ var RgwMultisiteSecondaryZone1 = cephv1.CephObjectZone{
 			DeviceClass:   "hdd",
 			FailureDomain: "host",
 			ErasureCoded: cephv1.ErasureCodedSpec{
-				CodingChunks: 2,
-				DataChunks:   1,
+				CodingChunks: 1,
+				DataChunks:   2,
 			},
 		},
 		MetadataPool: cephv1.PoolSpec{

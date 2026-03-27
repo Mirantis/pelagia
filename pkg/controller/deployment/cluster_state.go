@@ -24,6 +24,7 @@ import (
 	"github.com/pkg/errors"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
@@ -147,25 +148,39 @@ func (c *cephDeploymentConfig) verifyBuiltinPools() (bool, error) {
 					c.log.Warn().Msgf("set manually device class in crush rule for pool '%s' if needed", cephpool)
 					continue
 				}
-				var poolSpec *cephlcmv1alpha1.CephPoolSpec
-				if c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite != nil {
+				if c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Zone != nil {
 					usedZone := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Zone.Name
-					for _, zone := range c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite.Zones {
+					for _, zone := range c.cdConfig.cephDpl.Spec.ObjectStorage.Zones {
 						if zone.Name == usedZone {
-							poolSpec = &zone.MetadataPool
+							zoneCasted, err := zone.GetSpec()
+							if err != nil {
+								return false, err
+							}
+							poolData, err := cephlcmv1alpha1.DecodeStructToRaw(zoneCasted.MetadataPool)
+							if err != nil {
+								return false, err
+							}
+
+							builtinCephPool := generatePool(cephlcmv1alpha1.CephPool{
+								Name:          cephpool,
+								UseAsFullName: true,
+								PoolSpec:      runtime.RawExtension{Raw: poolData},
+							}, c.lcmConfig.RookNamespace)
+							builtinCephPool.Spec.EnableCrushUpdates = &[]bool{true}[0]
+							builtinPoolsToProcess = append(builtinPoolsToProcess, *builtinCephPool)
 							break
 						}
 					}
 				} else {
-					poolSpec = c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.MetadataPool
+					poolSpec := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.MetadataPool
+					poolSpec.EnableCrushUpdates = &[]bool{true}[0]
+					builtinCephPool := generatePoolOld(cephlcmv1alpha1.CephPoolOld{
+						Name:          cephpool,
+						UseAsFullName: true,
+						CephPoolSpec:  *poolSpec,
+					}, c.lcmConfig.RookNamespace)
+					builtinPoolsToProcess = append(builtinPoolsToProcess, *builtinCephPool)
 				}
-				poolSpec.EnableCrushUpdates = &[]bool{true}[0]
-				builtinCephPool := generatePoolOld(cephlcmv1alpha1.CephPoolOld{
-					Name:          cephpool,
-					UseAsFullName: true,
-					CephPoolSpec:  *poolSpec,
-				}, c.lcmConfig.RookNamespace)
-				builtinPoolsToProcess = append(builtinPoolsToProcess, *builtinCephPool)
 			} else {
 				foundDefault := false
 				if c.cdConfig.cephDpl.Spec.BlockStorage != nil {

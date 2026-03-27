@@ -413,48 +413,49 @@ func validateObjectStorage(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExp
 				issues = append(issues, "rgw in external mode, pools (metadata and data) specification is not allowed")
 			}
 		} else {
-			if cephDpl.Spec.ObjectStorage.Rgw.Zone != nil && cephDpl.Spec.ObjectStorage.MultiSite == nil {
-				issues = append(issues, "rgw has specified zone name, but it is allowed only for multisite configuration, which is not present")
-			} else if (cephDpl.Spec.ObjectStorage.Rgw.Zone == nil || cephDpl.Spec.ObjectStorage.Rgw.Zone.Name == "") && cephDpl.Spec.ObjectStorage.MultiSite != nil {
-				issues = append(issues, "rgw has no specified zone name, but multisite configuration is present")
+			if cephDpl.Spec.ObjectStorage.Rgw.Zone != nil && len(cephDpl.Spec.ObjectStorage.Zones) == 0 {
+				issues = append(issues, "rgw has specified zone name, but related zone is not present in spec")
 			} else {
-				if cephDpl.Spec.ObjectStorage.MultiSite != nil {
+				if cephDpl.Spec.ObjectStorage.Rgw.Zone != nil {
 					zoneFound := false
 					// TODO (degorenko): limit realms,zones,zonegroups to only 1 per cluster for now
-					if len(cephDpl.Spec.ObjectStorage.MultiSite.Zones) > 1 {
+					if len(cephDpl.Spec.ObjectStorage.Zones) > 1 {
 						issues = append(issues, "more than one zone specified, but currently supported only one zone per cluster")
 					}
-					if len(cephDpl.Spec.ObjectStorage.MultiSite.ZoneGroups) > 1 {
+					if len(cephDpl.Spec.ObjectStorage.Zonegroups) > 1 {
 						issues = append(issues, "more than one zonegroup specified, but currently supported only one zonegroup per cluster")
 					}
-					if len(cephDpl.Spec.ObjectStorage.MultiSite.Realms) > 1 {
+					if len(cephDpl.Spec.ObjectStorage.Realms) > 1 {
 						issues = append(issues, "more than one realm specified, but currently supported only one realm per cluster")
 					}
-					for _, zone := range cephDpl.Spec.ObjectStorage.MultiSite.Zones {
+					for _, zone := range cephDpl.Spec.ObjectStorage.Zones {
 						if zone.Name == cephDpl.Spec.ObjectStorage.Rgw.Zone.Name {
 							zoneFound = true
+							zoneCasted, _ := zone.GetSpec()
 							zonegroupFound := false
-							for _, zoneGroup := range cephDpl.Spec.ObjectStorage.MultiSite.ZoneGroups {
-								if zoneGroup.Name == zone.ZoneGroup {
+							for _, zoneGroup := range cephDpl.Spec.ObjectStorage.Zonegroups {
+								if zoneGroup.Name == zoneCasted.ZoneGroup {
 									zonegroupFound = true
+									zoneGroupCasted, _ := zoneGroup.GetSpec()
 									realmFound := false
-									for _, realm := range cephDpl.Spec.ObjectStorage.MultiSite.Realms {
-										if realm.Name == zoneGroup.Realm {
+									for _, realm := range cephDpl.Spec.ObjectStorage.Realms {
+										if realm.Name == zoneGroupCasted.Realm {
 											realmFound = true
 											break
 										}
 									}
 									if !realmFound {
-										issues = append(issues, fmt.Sprintf("incorrect multisite configuration, specified realm '%s' is not found", zoneGroup.Realm))
+										issues = append(issues, fmt.Sprintf("incorrect multisite configuration, specified realm '%s' is not found", zoneGroupCasted.Realm))
 									}
 									break
 								}
 							}
 							if !zonegroupFound {
-								issues = append(issues, fmt.Sprintf("incorrect multisite configuration, specified zonegroup '%s' is not found", zone.ZoneGroup))
+								issues = append(issues, fmt.Sprintf("incorrect multisite configuration, specified zonegroup '%s' is not found", zoneCasted.ZoneGroup))
 							} else {
-								checkRgwPool(zone.MetadataPool, "metadata", zone.Name)
-								checkRgwPool(zone.DataPool, "data", zone.Name)
+								t := "zone '%s' %s"
+								issues = append(issues, validatePoolSpec(zoneCasted.MetadataPool, true, fmt.Sprintf(t, zone.Name, "metadata"), len(nodesListExpanded), cephDpl.Spec.ExtraOpts)...)
+								issues = append(issues, validatePoolSpec(zoneCasted.DataPool, false, fmt.Sprintf(t, zone.Name, "data"), len(nodesListExpanded), cephDpl.Spec.ExtraOpts)...)
 							}
 							break
 						}
@@ -493,4 +494,36 @@ func validateObjectStorage(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExp
 		}
 	}
 	return nil
+}
+
+func validatePoolSpec(spec cephv1.PoolSpec, metapool bool, poolName string, nodesCount int, extraOpts *cephlcmv1alpha1.CephDeploymentExtraOpts) []string {
+	if metapool {
+		if spec.Replicated.Size == 0 || (spec.ErasureCoded.DataChunks != 0 || spec.ErasureCoded.CodingChunks != 0) {
+			return []string{fmt.Sprintf("%s pool must be only replicated", poolName)}
+		}
+	}
+
+	if (spec.Replicated.Size == 0 && spec.ErasureCoded.DataChunks == 0 && spec.ErasureCoded.CodingChunks == 0) ||
+		(spec.Replicated.Size > 0 && (spec.ErasureCoded.DataChunks > 0 || spec.ErasureCoded.CodingChunks > 0)) {
+		return []string{fmt.Sprintf("%s pool should be either replicated or erasureCoded", poolName)}
+	}
+
+	issues := []string{}
+	if spec.ErasureCoded.DataChunks > 0 || spec.ErasureCoded.CodingChunks > 0 {
+		if spec.ErasureCoded.DataChunks < 2 {
+			issues = append(issues, fmt.Sprintf("erasureCoded %s pool needs dataChunks set to at least 2", poolName))
+		}
+		if spec.ErasureCoded.CodingChunks < 1 {
+			issues = append(issues, fmt.Sprintf("erasureCoded %s pool needs dataChunks set to at least 1", poolName))
+		}
+	}
+
+	if err := validateDeviceClassName(spec.DeviceClass, extraOpts); err != nil {
+		issues = append(issues, fmt.Sprintf("%s pool has %s", poolName, err.Error()))
+	}
+	if spec.FailureDomain == "osd" && nodesCount > 1 {
+		issues = append(issues, fmt.Sprintf("%s pool contains prohibited 'osd' failureDomain", poolName))
+	}
+
+	return issues
 }

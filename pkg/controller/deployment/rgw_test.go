@@ -959,11 +959,9 @@ func TestEnsureRgwObject(t *testing.T) {
 					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
 						Rgw: unitinputs.CephDeployMultisiteMasterRgw.Spec.ObjectStorage.Rgw,
-						MultiSite: &cephlcmv1alpha1.CephMultiSite{
-							Zones: []cephlcmv1alpha1.CephRGWZone{
-								{
-									Name: "zone2",
-								},
+						Zones: []cephlcmv1alpha1.CephObjectZone{
+							{
+								Name: "zone2",
 							},
 						},
 					},

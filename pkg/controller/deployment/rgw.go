@@ -257,19 +257,17 @@ func (c *cephDeploymentConfig) ensureRgwObject() (bool, error) {
 	} else {
 		zoneDefined := false
 		if cephDplRGW.Zone != nil && cephDplRGW.Zone.Name != "" {
-			if c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite != nil {
-				for _, zone := range c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite.Zones {
-					if zone.Name == cephDplRGW.Zone.Name {
-						zoneDefined = true
-						break
-					}
+			for _, zone := range c.cdConfig.cephDpl.Spec.ObjectStorage.Zones {
+				if zone.Name == cephDplRGW.Zone.Name {
+					zoneDefined = true
+					break
 				}
 			}
 			if !zoneDefined {
 				return false, errors.Errorf("failed to generate rgw with unknown %s zone", cephDplRGW.Zone.Name)
 			}
 		}
-		isDefaultRealm := c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite == nil
+		isDefaultRealm := cephDplRGW.Zone == nil
 		useDedicatedNodes := false
 		for _, node := range c.cdConfig.cephDpl.Spec.Nodes {
 			if lcmcommon.Contains(node.Roles, "rgw") {
@@ -280,7 +278,7 @@ func (c *cephDeploymentConfig) ensureRgwObject() (bool, error) {
 		rgwMainResource := generateRgw(cephDplRGW, namespace, useDedicatedNodes, false, isDefaultRealm, c.cdConfig.cephDpl.Spec.HyperConverge)
 		rgwStores = append(rgwStores, rgwMainResource)
 		// if multisite requires split traffic for sync - create separate daemon
-		if c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite != nil && cephDplRGW.Gateway.SplitDaemonForMultisiteTrafficSync {
+		if cephDplRGW.Zone != nil && cephDplRGW.Gateway.SplitDaemonForMultisiteTrafficSync {
 			rgwSyncResource := generateRgw(cephDplRGW, namespace, useDedicatedNodes, true, isDefaultRealm, c.cdConfig.cephDpl.Spec.HyperConverge)
 			rgwStores = append(rgwStores, rgwSyncResource)
 		}
@@ -655,7 +653,7 @@ func (c *cephDeploymentConfig) ensureRgwConsistence() error {
 		return errors.Wrap(err, "failed to list rgw object store")
 	}
 
-	syncStorePresent := c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite != nil && c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.SplitDaemonForMultisiteTrafficSync
+	syncStorePresent := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Zone != nil && c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.SplitDaemonForMultisiteTrafficSync
 
 	cleanupRedundant := false
 	for _, rgw := range rgwList.Items {

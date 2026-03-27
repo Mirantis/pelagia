@@ -30,11 +30,41 @@ import (
 )
 
 func (c *cephDeploymentConfig) isMigrationRequired() bool {
-	return c.cdConfig.cephDpl.Spec.DashboardEnabled != nil || c.cdConfig.cephDpl.Spec.DataDirHostPath != "" ||
+	return c.deprecatedClusterParams() || len(c.cdConfig.cephDpl.Spec.Pools) > 0 ||
+		(c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.OldCephFS) > 0) ||
+		(c.cdConfig.cephDpl.Spec.ObjectStorage != nil && c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite != nil)
+}
+
+func (c *cephDeploymentConfig) deprecatedClusterParams() bool {
+	required := c.cdConfig.cephDpl.Spec.DashboardEnabled != nil || c.cdConfig.cephDpl.Spec.DataDirHostPath != "" ||
 		c.cdConfig.cephDpl.Spec.Network != nil || c.cdConfig.cephDpl.Spec.External != nil ||
-		c.cdConfig.cephDpl.Spec.Mgr != nil || c.cdConfig.cephDpl.Spec.HealthCheck != nil ||
-		c.cdConfig.cephDpl.Spec.HyperConverge != nil || len(c.cdConfig.cephDpl.Spec.Pools) > 0 ||
-		(c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.OldCephFS) > 0)
+		c.cdConfig.cephDpl.Spec.Mgr != nil || c.cdConfig.cephDpl.Spec.HealthCheck != nil
+
+	// check that provided hyperconverge is really related to cluster params
+	if c.cdConfig.cephDpl.Spec.HyperConverge != nil {
+		if len(c.cdConfig.cephDpl.Spec.HyperConverge.Resources) > 0 {
+			extraSvc := 0
+			if _, ok := c.cdConfig.cephDpl.Spec.HyperConverge.Resources["rgw"]; ok {
+				extraSvc++
+			}
+			if _, ok := c.cdConfig.cephDpl.Spec.HyperConverge.Resources["mds"]; ok {
+				extraSvc++
+			}
+			required = required || len(c.cdConfig.cephDpl.Spec.HyperConverge.Resources) > extraSvc
+		}
+
+		if len(c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations) > 0 {
+			extraSvc := 0
+			if _, ok := c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations["rgw"]; ok {
+				extraSvc++
+			}
+			if _, ok := c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations["mds"]; ok {
+				extraSvc++
+			}
+			required = required || len(c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations) > extraSvc
+		}
+	}
+	return required
 }
 
 var (
@@ -139,6 +169,40 @@ func (c *cephDeploymentConfig) ensureDeprecatedFields(skip bool) (bool, error) {
 		}
 	}
 
+	if c.cdConfig.cephDpl.Spec.ObjectStorage != nil {
+		if c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite != nil {
+			canMove := true
+			if len(c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite.Realms) > 0 && len(c.cdConfig.cephDpl.Spec.ObjectStorage.Realms) > 0 {
+				c.log.Error().Msgf(errMsgTmpl, "objectStorage.multiSite.realms", "objectStorage.realms")
+				paramsCantMigrate = append(paramsCantMigrate, "spec.objectStorage.multiSite.realms")
+				canMove = false
+			}
+			if len(c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite.ZoneGroups) > 0 && len(c.cdConfig.cephDpl.Spec.ObjectStorage.Zonegroups) > 0 {
+				c.log.Error().Msgf(errMsgTmpl, "objectStorage.multiSite.zoneGroups", "objectStorage.zoneGroups")
+				paramsCantMigrate = append(paramsCantMigrate, "spec.objectStorage.multiSite.zoneGroups")
+				canMove = false
+			}
+			if len(c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite.Zones) > 0 && len(c.cdConfig.cephDpl.Spec.ObjectStorage.Zones) > 0 {
+				c.log.Error().Msgf(errMsgTmpl, "objectStorage.multiSite.zones", "objectStorage.zones")
+				paramsCantMigrate = append(paramsCantMigrate, "spec.objectStorage.multiSite.zones")
+				canMove = false
+			}
+			if canMove {
+				c.log.Warn().Msgf(msgTmpl, "objectStorage.multiSite.realms", "objectStorage.realms")
+				c.log.Warn().Msgf(msgTmpl, "objectStorage.multiSite.zoneGroups", "objectStorage.zoneGroups")
+				c.log.Warn().Msgf(msgTmpl, "objectStorage.multiSite.zones", "objectStorage.zones")
+				realms, zonegroups, zones, err := c.convertMultisiteParams()
+				if err != nil {
+					return false, errors.Wrap(err, "failed to migrate deprecated objectstore multisite section")
+				}
+				c.cdConfig.cephDpl.Spec.ObjectStorage.Realms = realms
+				c.cdConfig.cephDpl.Spec.ObjectStorage.Zonegroups = zonegroups
+				c.cdConfig.cephDpl.Spec.ObjectStorage.Zones = zones
+				c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite = nil
+			}
+		}
+	}
+
 	if len(paramsCantMigrate) > 0 {
 		return false, errors.Errorf("found deprecated params which can't be automatically migrated: [ %s ]", strings.Join(paramsCantMigrate, " "))
 	}
@@ -163,6 +227,11 @@ func (c *cephDeploymentConfig) ensureDeprecatedFields(skip bool) (bool, error) {
 func (c *cephDeploymentConfig) convertClusterRelatedParams() ([]byte, []string, error) {
 	clusterParams := map[string]interface{}{}
 	paramsCantMigrate := []string{}
+
+	// in case if not a cluster section passed as deprecated, no need to read it
+	if !c.deprecatedClusterParams() {
+		return nil, nil, nil
+	}
 
 	if c.cdConfig.cephDpl.Spec.Cluster != nil {
 		err := cephlcmv1alpha1.DecodeRawToStruct(c.cdConfig.cephDpl.Spec.Cluster.Raw, &clusterParams)
@@ -387,4 +456,68 @@ func (c *cephDeploymentConfig) convertCephFsParams(hyperConvergePlacement cephv1
 		newFs[idx] = cephFilesystem
 	}
 	return newFs, nil
+}
+
+func (c *cephDeploymentConfig) convertMultisiteParams() ([]cephlcmv1alpha1.CephObjectRealm, []cephlcmv1alpha1.CephObjectZonegroup, []cephlcmv1alpha1.CephObjectZone, error) {
+	newRealms := make([]cephlcmv1alpha1.CephObjectRealm, len(c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite.Realms))
+	for idx, realm := range c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite.Realms {
+		newRealm := cephlcmv1alpha1.CephObjectRealm{Name: realm.Name}
+		realmSpec := map[string]interface{}{
+			"defaultRealm": realm.DefaultRealm,
+		}
+		if realm.Pull != nil {
+			msg := "found deprecated parameters spec.objectStorage.multiSite[0].pullEndpoint.accessKey and spec.objectStorage.multiSite[0].pullEndpoint.secretKey, which contains user creds, removing from spec"
+			c.log.Warn().Msg(msg)
+			realmSpec["pull"] = map[string]interface{}{
+				"endpoint": realm.Pull.Endpoint,
+			}
+		}
+		realmData, err := json.Marshal(realmSpec)
+		if err != nil {
+			return nil, nil, nil, errors.Wrapf(err, "failed to convert to JSON realm %s", realm.Name)
+		}
+		err = cephlcmv1alpha1.SetRawSpec(&newRealm.Spec, realmData, &cephv1.ObjectRealmSpec{})
+		if err != nil {
+			return nil, nil, nil, errors.Wrap(err, "failed to migrate deprecated realm section")
+		}
+		newRealms[idx] = newRealm
+	}
+
+	newZonegroups := make([]cephlcmv1alpha1.CephObjectZonegroup, len(c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite.ZoneGroups))
+	for idx, zonegroup := range c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite.ZoneGroups {
+		newZonegroup := cephlcmv1alpha1.CephObjectZonegroup{Name: zonegroup.Name}
+		zonegroupData, err := json.Marshal(cephv1.ObjectZoneGroupSpec{Realm: zonegroup.Realm})
+		if err != nil {
+			return nil, nil, nil, errors.Wrapf(err, "failed to convert to JSON zonegroup %s", zonegroup.Name)
+		}
+		err = cephlcmv1alpha1.SetRawSpec(&newZonegroup.Spec, zonegroupData, nil)
+		if err != nil {
+			return nil, nil, nil, errors.Wrap(err, "failed to migrate deprecated zoneGroups section")
+		}
+		newZonegroups[idx] = newZonegroup
+	}
+
+	newZones := make([]cephlcmv1alpha1.CephObjectZone, len(c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite.Zones))
+	for idx, zone := range c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite.Zones {
+		newZone := cephlcmv1alpha1.CephObjectZone{Name: zone.Name}
+		zoneSpec := map[string]interface{}{
+			"zoneGroup":    zone.ZoneGroup,
+			"metadataPool": zone.MetadataPool,
+			"dataPool":     zone.DataPool,
+		}
+		if len(zone.EndpointsForZone) > 0 {
+			zoneSpec["customEndpoints"] = zone.EndpointsForZone
+		}
+		zoneData, err := json.Marshal(zoneSpec)
+		if err != nil {
+			return nil, nil, nil, errors.Wrapf(err, "failed to convert to JSON zone %s", newZone.Name)
+		}
+		err = cephlcmv1alpha1.SetRawSpec(&newZone.Spec, zoneData, &cephv1.ObjectZoneSpec{})
+		if err != nil {
+			return nil, nil, nil, errors.Wrap(err, "failed to migrate deprecated zone section")
+		}
+		newZones[idx] = newZone
+	}
+
+	return newRealms, newZonegroups, newZones, nil
 }

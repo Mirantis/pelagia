@@ -83,16 +83,6 @@ func TestEnsureObjectStorage(t *testing.T) {
 			},
 		},
 		{
-			name:    "object storage section present, no multisite, cleanup failed",
-			cephDpl: unitinputs.CephDeployMosk.DeepCopy(),
-			inputResources: map[string]runtime.Object{
-				"secrets":          &corev1.SecretList{},
-				"storageclasses":   &storagev1.StorageClassList{},
-				"cephobjectstores": &cephv1.CephObjectStoreList{},
-			},
-			expectedError: "failed to cleanup object storage multisite: failed to get list CephObjectZones in 'rook-ceph' namespace: failed to list cephobjectzones",
-		},
-		{
 			name:    "object storage section present, no multisite ok, rgw changed",
 			cephDpl: unitinputs.CephDeployMosk.DeepCopy(),
 			inputResources: map[string]runtime.Object{

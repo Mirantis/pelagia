@@ -334,22 +334,15 @@ func TestValidateObjectStorage(t *testing.T) {
 			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
 		},
 		{
-			name: "multiste is specified, but rgw has no zone",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cd := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				cd.Spec.ObjectStorage.Rgw.Zone = nil
-				return cd
-			}(),
-			expectedError: "ObjectStorage section is incorrect: rgw has no specified zone name, but multisite configuration is present",
-		},
-		{
 			name: "multiste is not specified, but rgw has a zone",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				cd.Spec.ObjectStorage.MultiSite = nil
+				cd.Spec.ObjectStorage.Zones = nil
+				cd.Spec.ObjectStorage.Zonegroups = nil
+				cd.Spec.ObjectStorage.Realms = nil
 				return cd
 			}(),
-			expectedError: "ObjectStorage section is incorrect: rgw has specified zone name, but it is allowed only for multisite configuration, which is not present",
+			expectedError: "ObjectStorage section is incorrect: rgw has specified zone name, but related zone is not present in spec",
 		},
 		{
 			name: "multiste is specified, but rgw has a wrong zone",
@@ -364,9 +357,9 @@ func TestValidateObjectStorage(t *testing.T) {
 			name: "multiste is specified, but rgw has a wrong zonegroup",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				zone := cd.Spec.ObjectStorage.MultiSite.Zones[0]
-				zone.ZoneGroup = "fake"
-				cd.Spec.ObjectStorage.MultiSite.Zones[0] = zone
+				zoneCasted, _ := cd.Spec.ObjectStorage.Zones[0].GetSpec()
+				zoneCasted.ZoneGroup = "fake"
+				cd.Spec.ObjectStorage.Zones[0].Spec.Raw = unitinputs.ConvertStructToRaw(zoneCasted)
 				return cd
 			}(),
 			expectedError: "ObjectStorage section is incorrect: incorrect multisite configuration, specified zonegroup 'fake' is not found",
@@ -375,9 +368,9 @@ func TestValidateObjectStorage(t *testing.T) {
 			name: "multiste is specified, but rgw has a wrong realm",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				zoneGroup := cd.Spec.ObjectStorage.MultiSite.ZoneGroups[0]
-				zoneGroup.Realm = "fake"
-				cd.Spec.ObjectStorage.MultiSite.ZoneGroups[0] = zoneGroup
+				zoneGroupCasted, _ := cd.Spec.ObjectStorage.Zonegroups[0].GetSpec()
+				zoneGroupCasted.Realm = "fake"
+				cd.Spec.ObjectStorage.Zonegroups[0].Spec.Raw = unitinputs.ConvertStructToRaw(zoneGroupCasted)
 				return cd
 			}(),
 			expectedError: "ObjectStorage section is incorrect: incorrect multisite configuration, specified realm 'fake' is not found",
@@ -386,27 +379,28 @@ func TestValidateObjectStorage(t *testing.T) {
 			name: "multiste is specified, but rgw has a wrong zone pools config",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				zone := cd.Spec.ObjectStorage.MultiSite.Zones[0]
-				zone.DataPool.ErasureCoded = nil
-				zone.MetadataPool.Replicated = nil
-				cd.Spec.ObjectStorage.MultiSite.Zones[0] = zone
+				zoneCasted, _ := cd.Spec.ObjectStorage.Zones[0].GetSpec()
+				zoneCasted.DataPool.ErasureCoded.CodingChunks = 0
+				zoneCasted.DataPool.ErasureCoded.DataChunks = 0
+				zoneCasted.MetadataPool.Replicated.Size = 0
+				cd.Spec.ObjectStorage.Zones[0].Spec.Raw = unitinputs.ConvertStructToRaw(zoneCasted)
 				return cd
 			}(),
-			expectedError: "ObjectStorage section is incorrect: rgw metadata pool in zone secondary-zone1 must be only replicated,rgw data pool in zone secondary-zone1 has no pool type specified",
+			expectedError: "ObjectStorage section is incorrect: zone 'secondary-zone1' metadata pool must be only replicated,zone 'secondary-zone1' data pool should be either replicated or erasureCoded",
 		},
 		{
 			name: "multiste is specified, but multiple zones, realms, zonegroups",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				zone2 := cd.Spec.ObjectStorage.MultiSite.Zones[0].DeepCopy()
+				zone2 := cd.Spec.ObjectStorage.Zones[0].DeepCopy()
 				zone2.Name = "zone2"
-				zonegroup2 := cd.Spec.ObjectStorage.MultiSite.ZoneGroups[0].DeepCopy()
+				zonegroup2 := cd.Spec.ObjectStorage.Zonegroups[0].DeepCopy()
 				zonegroup2.Name = "zonegroup2"
-				realm2 := cd.Spec.ObjectStorage.MultiSite.Realms[0].DeepCopy()
+				realm2 := cd.Spec.ObjectStorage.Realms[0].DeepCopy()
 				realm2.Name = "realm2"
-				cd.Spec.ObjectStorage.MultiSite.Zones = append(cd.Spec.ObjectStorage.MultiSite.Zones, *zone2)
-				cd.Spec.ObjectStorage.MultiSite.ZoneGroups = append(cd.Spec.ObjectStorage.MultiSite.ZoneGroups, *zonegroup2)
-				cd.Spec.ObjectStorage.MultiSite.Realms = append(cd.Spec.ObjectStorage.MultiSite.Realms, *realm2)
+				cd.Spec.ObjectStorage.Zones = append(cd.Spec.ObjectStorage.Zones, *zone2)
+				cd.Spec.ObjectStorage.Zonegroups = append(cd.Spec.ObjectStorage.Zonegroups, *zonegroup2)
+				cd.Spec.ObjectStorage.Realms = append(cd.Spec.ObjectStorage.Realms, *realm2)
 				return cd
 			}(),
 			expectedError: "ObjectStorage section is incorrect: more than one zone specified, but currently supported only one zone per cluster,more than one zonegroup specified, but currently supported only one zonegroup per cluster,more than one realm specified, but currently supported only one realm per cluster",

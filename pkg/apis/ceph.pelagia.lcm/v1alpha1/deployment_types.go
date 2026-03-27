@@ -241,11 +241,57 @@ type CephDeploymentNode struct {
 // CephObjectStorage contains full RadosGW Object Storage configurations:
 // RGW itself and RGW multisite feature
 type CephObjectStorage struct {
+	// ObjectRealms is a list of Ceph Object storage multisite realms.
+	// Currently is possible to specify only 1 realm.
+	// +kubebuilder:validation:MaxItems:=1
+	// +optional
+	Realms []CephObjectRealm `json:"realms,omitempty"`
+	// ObjectZonegroups is a list of Ceph Object storage multisite zonegroups.
+	// Currently is possible to specify only 1 zonegroup.
+	// +kubebuilder:validation:MaxItems:=1
+	// +optional
+	Zonegroups []CephObjectZonegroup `json:"zonegroups,omitempty"`
+	// ObjectZones is a list of Ceph Object storage multisite zones.
+	// Currently is possible to specify only 1 zone.
+	// +kubebuilder:validation:MaxItems:=1
+	// +optional
+	Zones []CephObjectZone `json:"zones,omitempty"`
+
 	// Rgw represents Ceph RadosGW settings
 	Rgw CephRGW `json:"rgw"`
-	// MultiSite represents Ceph RadosGW multisite/multizone feature settings
+	// Deprecated. MultiSite represents Ceph RadosGW multisite/multizone feature settings
 	// +optional
-	MultiSite *CephMultiSite `json:"multiSite,omitempty"`
+	OldMultiSite *CephMultiSite `json:"multiSite,omitempty"`
+}
+
+// CephObjectRealm stands for object store multisite realm creation and configuration.
+type CephObjectRealm struct {
+	// Name of realm
+	Name string `json:"name"`
+	// Spec stands for realm configuration.
+	// see https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-realm-crd/
+	// for available options
+	Spec runtime.RawExtension `json:"spec,omitempty"`
+}
+
+// CephObjectZonegroup stands for object store multisite zonegroup creation and configuration.
+type CephObjectZonegroup struct {
+	// Name of zonegroup
+	Name string `json:"name"`
+	// Spec stands for zonegroup configuration.
+	// https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zonegroup-crd/
+	// for available options
+	Spec runtime.RawExtension `json:"spec"`
+}
+
+// CephObjectZone stands for object store multisite zone creation and configuration.
+type CephObjectZone struct {
+	// Name of zone
+	Name string `json:"name"`
+	// Spec stands for zone configuration.
+	// https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zone-crd/
+	// for available options
+	Spec runtime.RawExtension `json:"spec"`
 }
 
 // CephRGW represents Ceph RadosGW settings
@@ -345,65 +391,6 @@ type CephRGWGateway struct {
 	// Has effect only for external cluster setup.
 	// +optional
 	ExternalRgwEndpoint *cephv1.EndpointAddress `json:"externalRgwEndpoint,omitempty"`
-}
-
-// CephMultiSite represents Ceph RadosGW multisite/multizone feature settings
-type CephMultiSite struct {
-	// Realms is a list of Ceph Object storage multisite realms
-	Realms []CephRGWRealm `json:"realms"`
-	// ZoneGroups is a list of Ceph Object storage multisite zonegroups
-	ZoneGroups []CephRGWZoneGroup `json:"zoneGroups"`
-	// Zones is a list of Ceph Object storage multisite zones
-	Zones []CephRGWZone `json:"zones"`
-}
-
-// CephRGWRealm represents RGW multisite realm namespace
-type CephRGWRealm struct {
-	// Name represents realm's name
-	Name string `json:"name"`
-	// Pull stands for the Endpoint, the access key and the system key
-	// of the system user from the realm being pulled from
-	// +optional
-	Pull *CephRGWRealmPull `json:"pullEndpoint,omitempty"`
-	// Set this realm as the default in Ceph. Only one realm should be default.
-	// +optional
-	DefaultRealm bool `json:"defaultRealm,omitempty"`
-}
-
-// CephRGWRealmPull stands for the Endpoint, the access key and the system key
-// of the system user from the realm being pulled from
-type CephRGWRealmPull struct {
-	// Endpoint represents an endpoint from the master zone in the master zone group
-	Endpoint string `json:"endpoint"`
-	// AccessKey is an access key of the system user from the realm being pulled from
-	AccessKey string `json:"accessKey"`
-	// SecretKey is a system key of the system user from the realm being pulled from
-	SecretKey string `json:"secretKey"`
-}
-
-// CephRGWZoneGroup represents multisite zone group
-type CephRGWZoneGroup struct {
-	// Name represents zone group's name
-	Name string `json:"name"`
-	// Realm is a name of the realm for which zone group belongs to
-	Realm string `json:"realmName"`
-}
-
-// CephRGWZone represents multisite zone
-type CephRGWZone struct {
-	// Name represents zone's name
-	Name string `json:"name"`
-	// MetadataPool represents Ceph Pool's setting which contains
-	// RGW zone metadata
-	MetadataPool CephPoolSpec `json:"metadataPool"`
-	// DataPool represents Ceph Pool's setting which contains
-	// RGW zone data
-	DataPool CephPoolSpec `json:"dataPool"`
-	// ZoneGroup is a name of the zone group for which zone belongs to
-	ZoneGroup string `json:"zoneGroupName"`
-	// Custom endpoints for zone, which should be used in zone config
-	// +optional
-	EndpointsForZone []string `json:"endpointsForZone,omitempty"`
 }
 
 type CephStorageClassSpec struct {
@@ -749,4 +736,63 @@ type CephMdsHealthCheck struct {
 	// StartupProbe allows changing the startupProbe configuration for ceph mds daemon
 	// +optional
 	StartupProbe *cephv1.ProbeSpec `json:"startupProbe,omitempty"`
+}
+
+// CephMultiSite represents Ceph RadosGW multisite/multizone feature settings
+type CephMultiSite struct {
+	// Realms is a list of Ceph Object storage multisite realms
+	Realms []CephRGWRealm `json:"realms"`
+	// ZoneGroups is a list of Ceph Object storage multisite zonegroups
+	ZoneGroups []CephRGWZoneGroup `json:"zoneGroups"`
+	// Zones is a list of Ceph Object storage multisite zones
+	Zones []CephRGWZone `json:"zones"`
+}
+
+// CephRGWRealm represents RGW multisite realm namespace
+type CephRGWRealm struct {
+	// Name represents realm's name
+	Name string `json:"name"`
+	// Pull stands for the Endpoint, the access key and the system key
+	// of the system user from the realm being pulled from
+	// +optional
+	Pull *CephRGWRealmPull `json:"pullEndpoint,omitempty"`
+	// Set this realm as the default in Ceph. Only one realm should be default.
+	// +optional
+	DefaultRealm bool `json:"defaultRealm,omitempty"`
+}
+
+// CephRGWRealmPull stands for the Endpoint, the access key and the system key
+// of the system user from the realm being pulled from
+type CephRGWRealmPull struct {
+	// Endpoint represents an endpoint from the master zone in the master zone group
+	Endpoint string `json:"endpoint"`
+	// AccessKey is an access key of the system user from the realm being pulled from
+	AccessKey string `json:"accessKey"`
+	// SecretKey is a system key of the system user from the realm being pulled from
+	SecretKey string `json:"secretKey"`
+}
+
+// CephRGWZoneGroup represents multisite zone group
+type CephRGWZoneGroup struct {
+	// Name represents zone group's name
+	Name string `json:"name"`
+	// Realm is a name of the realm for which zone group belongs to
+	Realm string `json:"realmName"`
+}
+
+// CephRGWZone represents multisite zone
+type CephRGWZone struct {
+	// Name represents zone's name
+	Name string `json:"name"`
+	// MetadataPool represents Ceph Pool's setting which contains
+	// RGW zone metadata
+	MetadataPool CephPoolSpec `json:"metadataPool"`
+	// DataPool represents Ceph Pool's setting which contains
+	// RGW zone data
+	DataPool CephPoolSpec `json:"dataPool"`
+	// ZoneGroup is a name of the zone group for which zone belongs to
+	ZoneGroup string `json:"zoneGroupName"`
+	// Custom endpoints for zone, which should be used in zone config
+	// +optional
+	EndpointsForZone []string `json:"endpointsForZone,omitempty"`
 }

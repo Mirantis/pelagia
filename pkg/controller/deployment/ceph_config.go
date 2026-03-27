@@ -388,7 +388,7 @@ func (c *cephDeploymentConfig) buildCephConfig() (string, map[string]string, map
 		// when sync thread is disabled for rgw serving clients
 		// there another rgw daemon which fully operational and hidden from user
 		// but we need to keep defaults for it
-		if c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite != nil && c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.SplitDaemonForMultisiteTrafficSync {
+		if len(c.cdConfig.cephDpl.Spec.ObjectStorage.Zones) > 0 && c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.SplitDaemonForMultisiteTrafficSync {
 			syncDaemonSection := rgwConfigSectionName(rgwSyncDaemonName(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name))
 			mergeConfig(defaultRgwConfigOptions(syncDaemonSection))
 		}
