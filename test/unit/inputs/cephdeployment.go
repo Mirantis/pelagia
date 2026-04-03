@@ -21,7 +21,6 @@ import (
 
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
@@ -132,7 +131,7 @@ var CephDeployRookConfigNoRuntimeOsdParams = func() cephlcmv1alpha1.CephDeployme
 var CephDeployObjectStorageCeph = func() cephlcmv1alpha1.CephDeployment {
 	cd := BaseCephDeployment.DeepCopy()
 	cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
-		Rgw: CephRgwBaseSpec,
+		Rgws: []cephlcmv1alpha1.CephObjectStore{CephRgwBaseSpec},
 	}
 	return *cd
 }()
@@ -239,7 +238,29 @@ var CephDeployNonMosk = cephlcmv1alpha1.CephDeployment{
 		Clients: []cephlcmv1alpha1.CephClient{CephDeployClientTest},
 		Nodes:   CephNodesExtendedOk,
 		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
-			Rgw: CephRgwSpecWithUsersBuckets,
+			Rgws: []cephlcmv1alpha1.CephObjectStore{CephRgwBaseSpec},
+			Users: []cephlcmv1alpha1.CephObjectStoreUser{
+				{
+					Name: "fake-user-1",
+					Spec: runtime.RawExtension{
+						Raw: ConvertStructToRaw(
+							cephv1.ObjectStoreUserSpec{
+								Store: "rgw-store",
+							},
+						),
+					},
+				},
+				{
+					Name: "fake-user-2",
+					Spec: runtime.RawExtension{
+						Raw: ConvertStructToRaw(
+							cephv1.ObjectStoreUserSpec{
+								Store: "rgw-store",
+							},
+						),
+					},
+				},
+			},
 		},
 		SharedFilesystem: CephSharedFileSystemOk,
 	},
@@ -259,13 +280,13 @@ var CephDeployNonMoskWithIngress = func() cephlcmv1alpha1.CephDeployment {
 			Domain: "example.com",
 		},
 	}
+	cd.Spec.ObjectStorage.Rgws[0].ServedByIngress = true
 	return *cd
 }()
 
 var CephDeployNonMoskForSecret = func() cephlcmv1alpha1.CephDeployment {
 	cd := CephDeployNonMosk.DeepCopy()
-	cd.Spec.ObjectStorage.Rgw.ObjectUsers = []cephlcmv1alpha1.CephRGWUser{{Name: "test-user"}}
-	cd.Spec.ObjectStorage.Rgw.Buckets = []string{"test-bucket"}
+	cd.Spec.ObjectStorage.Users = []cephlcmv1alpha1.CephObjectStoreUser{{Name: "test-user"}}
 	return *cd
 }()
 
@@ -290,7 +311,13 @@ var CephDeployMosk = cephlcmv1alpha1.CephDeployment{
 		},
 		Nodes: CephNodesExtendedOk,
 		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
-			Rgw: CephRgwBaseSpec,
+			Rgws: []cephlcmv1alpha1.CephObjectStore{
+				func() cephlcmv1alpha1.CephObjectStore {
+					rgw := CephRgwBaseSpec.DeepCopy()
+					rgw.UsedByRockoon = true
+					return *rgw
+				}(),
+			},
 		},
 		IngressConfig: &CephIngressConfig,
 	},
@@ -377,7 +404,7 @@ var CephDeployExternal = cephlcmv1alpha1.CephDeployment{
 var CephDeployExternalRgw = func() cephlcmv1alpha1.CephDeployment {
 	cd := CephDeployExternal.DeepCopy()
 	cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
-		Rgw: RgwExternalSslEnabled,
+		Rgws: []cephlcmv1alpha1.CephObjectStore{CephRgwExternal},
 	}
 	return *cd
 }()
@@ -429,11 +456,23 @@ var CephDeployMultisiteMasterRgw = func() cephlcmv1alpha1.CephDeployment {
 				},
 			},
 		},
-		Rgw: cephlcmv1alpha1.CephRGW{
-			Name:    "rgw-store",
-			Gateway: CephRgwBaseSpec.Gateway,
-			Zone: &cephv1.ZoneSpec{
-				Name: "zone1",
+		Rgws: []cephlcmv1alpha1.CephObjectStore{
+			{
+				Name: "rgw-store",
+				Spec: runtime.RawExtension{
+					Raw: ConvertStructToRaw(
+						cephv1.ObjectStoreSpec{
+							Gateway: cephv1.GatewaySpec{
+								Instances:  2,
+								Port:       80,
+								SecurePort: 8443,
+							},
+							Zone: cephv1.ZoneSpec{
+								Name: "zone1",
+							},
+						},
+					),
+				},
 			},
 		},
 	}
@@ -486,11 +525,23 @@ var CephDeployMultisiteRgw = func() cephlcmv1alpha1.CephDeployment {
 				},
 			},
 		},
-		Rgw: cephlcmv1alpha1.CephRGW{
-			Name:    "rgw-store",
-			Gateway: CephRgwBaseSpec.Gateway,
-			Zone: &cephv1.ZoneSpec{
-				Name: "secondary-zone1",
+		Rgws: []cephlcmv1alpha1.CephObjectStore{
+			{
+				Name: "rgw-store",
+				Spec: runtime.RawExtension{
+					Raw: ConvertStructToRaw(
+						cephv1.ObjectStoreSpec{
+							Gateway: cephv1.GatewaySpec{
+								Instances:  2,
+								Port:       80,
+								SecurePort: 8443,
+							},
+							Zone: cephv1.ZoneSpec{
+								Name: "secondary-zone1",
+							},
+						},
+					),
+				},
 			},
 		},
 	}
@@ -499,34 +550,45 @@ var CephDeployMultisiteRgw = func() cephlcmv1alpha1.CephDeployment {
 
 var MultisiteRgwWithSyncDaemon = func() cephlcmv1alpha1.CephDeployment {
 	cd := CephDeployMultisiteRgw.DeepCopy()
-	cd.Spec.ObjectStorage.Rgw.Gateway.SplitDaemonForMultisiteTrafficSync = true
+	cd.Spec.ObjectStorage.Rgws = []cephlcmv1alpha1.CephObjectStore{
+		{
+			Name: "rgw-store",
+			Spec: runtime.RawExtension{
+				Raw: ConvertStructToRaw(cephv1.ObjectStoreSpec{
+					Gateway: cephv1.GatewaySpec{
+						Instances:                   2,
+						Port:                        80,
+						SecurePort:                  8443,
+						DisableMultisiteSyncTraffic: true,
+					},
+					Zone: cephv1.ZoneSpec{
+						Name: "secondary-zone1",
+					},
+				}),
+			},
+		},
+		{
+			Name:             "rgw-store-sync",
+			AuxiliaryService: true,
+			Spec: runtime.RawExtension{
+				Raw: ConvertStructToRaw(cephv1.ObjectStoreSpec{
+					Gateway: cephv1.GatewaySpec{
+						Port:                        8340,
+						Instances:                   1,
+						CaBundleRef:                 "multisite-rgw-secret",
+						DisableMultisiteSyncTraffic: false,
+					},
+					Zone: cephv1.ZoneSpec{
+						Name: "secondary-zone1",
+					},
+				}),
+			},
+		},
+	}
 	return *cd
 }()
 
 // spec fixtures
-
-var HyperConvergeForExtraSVC = &cephlcmv1alpha1.CephDeploymentHyperConverge{
-	Tolerations: map[string]cephlcmv1alpha1.CephDeploymentToleration{
-		"rgw": {
-			Rules: []v1.Toleration{
-				{
-					Key:      "rgw-toleration",
-					Operator: "Exists",
-				},
-			},
-		},
-	},
-	Resources: cephv1.ResourceSpec{
-		"rgw": v1.ResourceRequirements{
-			Limits: v1.ResourceList{
-				v1.ResourceCPU: resource.MustParse("50m"),
-			},
-			Requests: v1.ResourceList{
-				v1.ResourceCPU: resource.MustParse("20m"),
-			},
-		},
-	},
-}
 
 var CephDeployClientTest = cephlcmv1alpha1.CephClient{
 	RawExtension: runtime.RawExtension{
@@ -932,47 +994,48 @@ var CephIngressConfig = cephlcmv1alpha1.CephDeploymentIngressConfig{
 	ControllerClassName: "fake-class-name",
 }
 
-var CephRgwBaseSpec = cephlcmv1alpha1.CephRGW{
-	Name:                  "rgw-store",
-	PreservePoolsOnDelete: false,
-	DataPool: &cephlcmv1alpha1.CephPoolSpec{
-		DeviceClass: "hdd",
-		ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
-			CodingChunks: 2,
-			DataChunks:   1,
-		},
-	},
-	MetadataPool: &cephlcmv1alpha1.CephPoolSpec{
-		DeviceClass: "hdd",
-		Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-			Size: 3,
-		},
-	},
-	Gateway: cephlcmv1alpha1.CephRGWGateway{
-		Instances:  2,
-		Port:       80,
-		SecurePort: 8443,
+var CephRgwBaseSpec = cephlcmv1alpha1.CephObjectStore{
+	Name: "rgw-store",
+	Spec: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.ObjectStoreSpec{
+				PreservePoolsOnDelete: false,
+				DataPool: cephv1.PoolSpec{
+					DeviceClass: "hdd",
+					ErasureCoded: cephv1.ErasureCodedSpec{
+						CodingChunks: 1,
+						DataChunks:   2,
+					},
+				},
+				MetadataPool: cephv1.PoolSpec{
+					DeviceClass: "hdd",
+					Replicated:  cephv1.ReplicatedSpec{Size: 3},
+				},
+				Gateway: cephv1.GatewaySpec{
+					Instances:  2,
+					Port:       80,
+					SecurePort: 8443,
+				},
+			},
+		),
 	},
 }
 
-var CephRgwSpecWithUsersBuckets = func() cephlcmv1alpha1.CephRGW {
-	rgw := CephRgwBaseSpec.DeepCopy()
-	rgw.ObjectUsers = []cephlcmv1alpha1.CephRGWUser{
-		{Name: "fake-user-1"}, {Name: "fake-user-2"},
-	}
-	rgw.Buckets = []string{"fake-bucket-1", "fake-bucket-2"}
-	return *rgw
-}()
-
-var RgwExternalSslEnabled = cephlcmv1alpha1.CephRGW{
+var CephRgwExternal = cephlcmv1alpha1.CephObjectStore{
 	Name: "rgw-store",
-	Gateway: cephlcmv1alpha1.CephRGWGateway{
-		Instances:  2,
-		Port:       80,
-		SecurePort: 8443,
-		ExternalRgwEndpoint: &cephv1.EndpointAddress{
-			IP:       "127.0.0.1",
-			Hostname: "fake-1",
-		},
+	Spec: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.ObjectStoreSpec{
+				Gateway: cephv1.GatewaySpec{
+					Port: 8080,
+					ExternalRgwEndpoints: []cephv1.EndpointAddress{
+						{
+							IP:       "127.0.0.1",
+							Hostname: "fake-1",
+						},
+					},
+				},
+			},
+		),
 	},
 }

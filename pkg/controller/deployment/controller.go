@@ -188,7 +188,7 @@ func (r *ReconcileCephDeployment) Reconcile(ctx context.Context, request reconci
 
 	// check first deprecated fields
 	// and re-run reconcile if we migrated something
-	migrated, err := cephDplConfig.ensureDeprecatedFields(false)
+	migrated, err := cephDplConfig.ensureDeprecatedFields()
 	if err != nil {
 		cephDpl.Status.Phase = cephlcmv1alpha1.PhaseFailed
 		cephDpl.Status.Message = fmt.Sprintf("failed to ensure deprecated fields for CephDeployment %s/%s", cephDpl.Namespace, cephDpl.Name)

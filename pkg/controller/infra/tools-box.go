@@ -283,8 +283,11 @@ func (c *cephDeploymentInfraConfig) generateToolBox() (*apps.Deployment, error) 
 				return nil, errors.Wrapf(err, "failed to get secret '%s/%s' with cabundle for CephObjectStore '%s/%s'",
 					c.lcmConfig.RookNamespace, store.Spec.Gateway.CaBundleRef, store.Namespace, store.Name)
 			}
-			secrets = append(secrets, store.Spec.Gateway.CaBundleRef)
-			toolBox.Spec.Template.Annotations[fmt.Sprintf("%s/sha256", store.Spec.Gateway.CaBundleRef)] = lcmcommon.GetStringSha256(string(secret.Data["cabundle"]))
+			keyName := fmt.Sprintf("%s/sha256", store.Spec.Gateway.CaBundleRef)
+			if _, ok := toolBox.Spec.Template.Annotations[keyName]; !ok {
+				secrets = append(secrets, store.Spec.Gateway.CaBundleRef)
+				toolBox.Spec.Template.Annotations[keyName] = lcmcommon.GetStringSha256(string(secret.Data["cabundle"]))
+			}
 		}
 	}
 	// mount rgw related cabundles for rgw api direct access from tools

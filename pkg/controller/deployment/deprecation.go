@@ -27,12 +27,14 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
 )
 
 func (c *cephDeploymentConfig) isMigrationRequired() bool {
 	return c.deprecatedClusterParams() || len(c.cdConfig.cephDpl.Spec.Pools) > 0 ||
 		(c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.OldCephFS) > 0) ||
-		(c.cdConfig.cephDpl.Spec.ObjectStorage != nil && c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite != nil)
+		(c.cdConfig.cephDpl.Spec.ObjectStorage != nil && (c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite != nil ||
+			c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw != nil))
 }
 
 func (c *cephDeploymentConfig) deprecatedClusterParams() bool {
@@ -72,10 +74,8 @@ var (
 	errMsgTmpl = "found deprecated field spec.%s, but conflicts with spec.%s. Keep correct and remove not needed fields manually"
 )
 
-func (c *cephDeploymentConfig) ensureDeprecatedFields(skip bool) (bool, error) {
-	// check do we need migration at all, before proceed to avoid not needed casts
-	// TODO: force skip for now from controller to avoid huge diff
-	if skip || !c.isMigrationRequired() {
+func (c *cephDeploymentConfig) ensureDeprecatedFields() (bool, error) {
+	if !c.isMigrationRequired() {
 		return false, nil
 	}
 
@@ -199,6 +199,38 @@ func (c *cephDeploymentConfig) ensureDeprecatedFields(skip bool) (bool, error) {
 				c.cdConfig.cephDpl.Spec.ObjectStorage.Zonegroups = zonegroups
 				c.cdConfig.cephDpl.Spec.ObjectStorage.Zones = zones
 				c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite = nil
+			}
+		}
+
+		if c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw != nil {
+			canMove := true
+			if len(c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.ObjectUsers) > 0 && len(c.cdConfig.cephDpl.Spec.ObjectStorage.Users) > 0 {
+				c.log.Error().Msgf(errMsgTmpl, "objectStorage.rgw.objectUsers", "objectStorage.users")
+				paramsCantMigrate = append(paramsCantMigrate, "spec.objectStorage.rgw.objectUsers")
+				canMove = false
+			}
+			if len(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws) > 0 {
+				c.log.Error().Msgf(errMsgTmpl, "objectStorage.rgw", "objectStorage.rgws")
+				paramsCantMigrate = append(paramsCantMigrate, "spec.objectStorage.rgw")
+				canMove = false
+			}
+			if canMove {
+				c.log.Warn().Msgf(msgTmpl, "objectStorage.rgw", "objectStorage.rgw")
+				if len(c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.ObjectUsers) > 0 {
+					c.log.Warn().Msgf(msgTmpl, "objectStorage.rgw.objectUsers", "objectStorage.users")
+				}
+				if len(c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Buckets) > 0 {
+					c.log.Warn().Msgf(msgTmpl, "objectStorage.rgw.buckets", "objectStorage.buckets")
+				}
+				rgws, users, err := c.convertRgwParams(extraPlacement, extraResources)
+				if err != nil {
+					return false, errors.Wrap(err, "failed to migrate deprecated objectstore multisite section")
+				}
+				c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws = rgws
+				if len(users) > 0 {
+					c.cdConfig.cephDpl.Spec.ObjectStorage.Users = users
+				}
+				c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw = nil
 			}
 		}
 	}
@@ -520,4 +552,129 @@ func (c *cephDeploymentConfig) convertMultisiteParams() ([]cephlcmv1alpha1.CephO
 	}
 
 	return newRealms, newZonegroups, newZones, nil
+}
+
+func (c *cephDeploymentConfig) convertRgwParams(hyperConvergePlacement cephv1.PlacementSpec, hyperConvergeResources cephv1.ResourceSpec) (
+	[]cephlcmv1alpha1.CephObjectStore, []cephlcmv1alpha1.CephObjectStoreUser, error) {
+	var newUsers []cephlcmv1alpha1.CephObjectStoreUser
+	if len(c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.ObjectUsers) > 0 {
+		newUsers = make([]cephlcmv1alpha1.CephObjectStoreUser, len(c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.ObjectUsers))
+		for idx, user := range c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.ObjectUsers {
+			newUser := cephlcmv1alpha1.CephObjectStoreUser{Name: user.Name}
+			newUserParams := map[string]interface{}{
+				"store": c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Name,
+			}
+			if user.DisplayName != "" {
+				newUserParams["displayName"] = user.DisplayName
+			}
+			if user.Capabilities != nil {
+				newUserParams["capabilities"] = user.Capabilities
+			}
+			if user.Quotas != nil {
+				newUserParams["quotas"] = user.Quotas
+			}
+			if len(newUserParams) > 0 {
+				userData, err := json.Marshal(newUserParams)
+				if err != nil {
+					return nil, nil, errors.Wrapf(err, "failed to convert to JSON user %s", user.Name)
+				}
+				err = cephlcmv1alpha1.SetRawSpec(&newUser.Spec, userData, &cephv1.ObjectStoreUserSpec{})
+				if err != nil {
+					return nil, nil, errors.Wrapf(err, "failed to migrate deprecated user %s", user.Name)
+				}
+			}
+			newUsers[idx] = newUser
+		}
+	}
+
+	newRgw := cephlcmv1alpha1.CephObjectStore{
+		Name:            c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Name,
+		ServedByIngress: c.cdConfig.cephDpl.Spec.IngressConfig != nil,
+	}
+	if c.cdConfig.cephDpl.Spec.BlockStorage != nil {
+		newRgw.UsedByRockoon = lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.BlockStorage.Pools)
+	}
+	rgwParams := map[string]interface{}{}
+	if c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.HealthCheck != nil {
+		rgwParams["healthCheck"] = c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.HealthCheck
+	}
+	if c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Gateway.ExternalRgwEndpoint == nil {
+		if c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Zone == nil {
+			rgwParams["metadataPool"] = c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.MetadataPool
+			rgwParams["dataPool"] = c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.DataPool
+			rgwParams["preservePoolsOnDelete"] = c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.PreservePoolsOnDelete
+		} else {
+			rgwParams["zone"] = c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Zone
+		}
+	}
+	gatewayParams := map[string]interface{}{
+		"port":       c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Gateway.Port,
+		"securePort": c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Gateway.SecurePort,
+	}
+	// if no ssl certs provided - self signed backend cert
+	if c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.SSLCert != nil {
+		gatewayParams["sslCertificateRef"] = rgwSslCertSecretName
+	}
+
+	if c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Gateway.ExternalRgwEndpoint == nil {
+		gatewayParams["instances"] = c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Gateway.Instances
+		if c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.RgwUseHostNetwork != nil {
+			gatewayParams["hostNetwork"] = c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.RgwUseHostNetwork
+		}
+		if pl, ok := hyperConvergePlacement["rgw"]; ok {
+			gatewayParams["placement"] = map[string]interface{}{"tolerations": pl.Tolerations}
+		}
+		if res, ok := hyperConvergeResources["rgw"]; ok {
+			gatewayParams["resources"] = res
+		}
+		if c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Gateway.Resources != nil {
+			gatewayParams["resources"] = c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Gateway.Resources
+		}
+		if c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Gateway.SplitDaemonForMultisiteTrafficSync {
+			gatewayParams["disableMultisiteSyncTraffic"] = true
+		}
+	} else {
+		gatewayParams["externalRgwEndpoints"] = []interface{}{c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Gateway.ExternalRgwEndpoint}
+	}
+	rgwParams["gateway"] = gatewayParams
+
+	rgwData, err := json.Marshal(rgwParams)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to convert to JSON rgw")
+	}
+	err = cephlcmv1alpha1.SetRawSpec(&newRgw.Spec, rgwData, &cephv1.ObjectStoreSpec{})
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to migrate rgw section")
+	}
+	rgws := []cephlcmv1alpha1.CephObjectStore{newRgw}
+
+	if c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Gateway.SplitDaemonForMultisiteTrafficSync {
+		delete(gatewayParams, "securePort")
+		gatewayParams["instances"] = 1
+		gatewayParams["disableMultisiteSyncTraffic"] = false
+		if c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Gateway.RgwSyncPort != 0 {
+			gatewayParams["port"] = c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Gateway.RgwSyncPort
+		} else {
+			gatewayParams["port"] = 8380
+		}
+		if c.lcmConfig.DeployParams.MultisiteCabundleSecretRef != "" {
+			rgwParams["caBundleRef"] = c.lcmConfig.DeployParams.MultisiteCabundleSecretRef
+		}
+		rgwParams["gateway"] = gatewayParams
+		rgwSyncData, err := json.Marshal(rgwParams)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "failed to convert to JSON rgw for multisite synchronization")
+		}
+		syncRgw := cephlcmv1alpha1.CephObjectStore{
+			Name:             rgwSyncDaemonName(c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Name),
+			AuxiliaryService: true,
+		}
+		err = cephlcmv1alpha1.SetRawSpec(&syncRgw.Spec, rgwSyncData, &cephv1.ObjectStoreSpec{})
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "failed to migrate rgw section")
+		}
+		rgws = append(rgws, syncRgw)
+	}
+
+	return rgws, newUsers, nil
 }

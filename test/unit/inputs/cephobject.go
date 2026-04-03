@@ -35,7 +35,7 @@ var CephObjectStoreReady = cephv1.CephObjectStore{
 	Spec: cephv1.ObjectStoreSpec{
 		Gateway: cephv1.GatewaySpec{
 			Instances:   2,
-			CaBundleRef: "rgw-ssl-certificate",
+			CaBundleRef: "rgw-store-ssl-cert",
 		},
 	},
 	Status: &cephv1.ObjectStoreStatus{Phase: cephv1.ConditionReady},
@@ -118,8 +118,8 @@ var CephObjectStoreBase = &cephv1.CephObjectStore{
 		DataPool: cephv1.PoolSpec{
 			DeviceClass: "hdd",
 			ErasureCoded: cephv1.ErasureCodedSpec{
-				CodingChunks: 2,
-				DataChunks:   1,
+				CodingChunks: 1,
+				DataChunks:   2,
 			},
 		},
 		MetadataPool: cephv1.PoolSpec{
@@ -134,8 +134,8 @@ var CephObjectStoreBase = &cephv1.CephObjectStore{
 				"cephdeployment.lcm.mirantis.com/ssl-cert-generated":                    "some-time",
 				"cephdeployment.lcm.mirantis.com/config-client.rgw.rgw.store.a-updated": "some-time",
 			},
-			SSLCertificateRef: "rgw-ssl-certificate",
-			CaBundleRef:       "rgw-ssl-certificate",
+			SSLCertificateRef: "rgw-store-ssl-cert",
+			CaBundleRef:       "rgw-store-ssl-cert",
 			Instances:         2,
 			Port:              80,
 			SecurePort:        8443,
@@ -184,8 +184,8 @@ var CephObjectStoreWithZone = &cephv1.CephObjectStore{
 				"cephdeployment.lcm.mirantis.com/ssl-cert-generated":                    "some-time",
 				"cephdeployment.lcm.mirantis.com/config-client.rgw.rgw.store.a-updated": "some-time",
 			},
-			SSLCertificateRef: "rgw-ssl-certificate",
-			CaBundleRef:       "rgw-ssl-certificate",
+			SSLCertificateRef: "rgw-store-ssl-cert",
+			CaBundleRef:       "rgw-store-ssl-cert",
 			Instances:         2,
 			Port:              80,
 			SecurePort:        8443,
@@ -223,12 +223,14 @@ var CephObjectStoreWithSyncDaemon = func() *cephv1.CephObjectStore {
 	store.Name = "rgw-store-sync"
 	store.Spec.Zone.Name = "secondary-zone1"
 	delete(store.Spec.Gateway.Annotations, "cephdeployment.lcm.mirantis.com/config-client.rgw.rgw.store.a-updated")
+	delete(store.Spec.Gateway.Annotations, "cephdeployment.lcm.mirantis.com/ssl-cert-generated")
 	store.Spec.Gateway.Annotations["cephdeployment.lcm.mirantis.com/config-client.rgw.rgw.store.sync.a-updated"] = "some-time-sync"
 	store.Spec.Gateway.DisableMultisiteSyncTraffic = false
 	store.Spec.Gateway.Instances = 1
 	store.Spec.Gateway.SecurePort = 0
-	store.Spec.Gateway.Port = 8380
+	store.Spec.Gateway.Port = 8340
 	store.Spec.Gateway.SSLCertificateRef = ""
+	store.Spec.Gateway.CaBundleRef = "multisite-rgw-secret"
 	return store
 }()
 
@@ -239,13 +241,7 @@ var CephObjectStoreExternal = &cephv1.CephObjectStore{
 	},
 	Spec: cephv1.ObjectStoreSpec{
 		Gateway: cephv1.GatewaySpec{
-			Annotations: map[string]string{
-				"cephdeployment.lcm.mirantis.com/ssl-cert-generated": "some-time",
-			},
-			Port:              80,
-			SecurePort:        8443,
-			SSLCertificateRef: "rgw-ssl-certificate",
-			CaBundleRef:       "rgw-ssl-certificate",
+			Port: 8080,
 			ExternalRgwEndpoints: []cephv1.EndpointAddress{
 				{
 					IP:       "127.0.0.1",

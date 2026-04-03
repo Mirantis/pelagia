@@ -170,6 +170,46 @@ func (z CephObjectZone) GetSpec() (cephv1.ObjectZoneSpec, error) {
 	return zObj.Spec, nil
 }
 
+func (rgw CephObjectStore) GetSpec() (cephv1.ObjectStoreSpec, error) {
+	var rgwSpec cephv1.ObjectStoreSpec
+	if rgw.Spec.Raw == nil && rgw.Spec.Object == nil {
+		return rgwSpec, errors.New("spec: rgw store spec no any data provided")
+	}
+
+	if rgw.Spec.Raw != nil {
+		if err := DecodeRawToStruct(rgw.Spec.Raw, &rgwSpec); err != nil {
+			return rgwSpec, errors.Wrap(err, "spec: rgw store spec has failed to decode to Rook ObjectStoreSpec struct")
+		}
+		return rgwSpec, nil
+	}
+
+	rgwObj, ok := rgw.Spec.Object.(*cephv1.CephObjectStore)
+	if !ok {
+		return rgwSpec, errors.New("spec: rgw store field has failed to convert to Rook CephObjectStore object")
+	}
+	return rgwObj.Spec, nil
+}
+
+func (user CephObjectStoreUser) GetSpec() (cephv1.ObjectStoreUserSpec, error) {
+	var userSpec cephv1.ObjectStoreUserSpec
+	if user.Spec.Raw == nil && user.Spec.Object == nil {
+		return userSpec, errors.New("spec: rgw user spec no any data provided")
+	}
+
+	if user.Spec.Raw != nil {
+		if err := DecodeRawToStruct(user.Spec.Raw, &userSpec); err != nil {
+			return userSpec, errors.Wrap(err, "spec: rgw user spec has failed to decode to Rook ObjectStoreUserSpec struct")
+		}
+		return userSpec, nil
+	}
+
+	rgwObj, ok := user.Spec.Object.(*cephv1.CephObjectStoreUser)
+	if !ok {
+		return userSpec, errors.New("spec: rgw user field has failed to convert to Rook CephObjectStoreUser object")
+	}
+	return rgwObj.Spec, nil
+}
+
 // Method SetRawSpec is used to directly put Raw spec in related
 // fields to avoid full struct define after JSON marshaling
 // Caution: will override present Raw data fully!

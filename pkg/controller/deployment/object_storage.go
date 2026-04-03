@@ -17,29 +17,27 @@ limitations under the License.
 package deployment
 
 import (
+	"strings"
+
 	"github.com/pkg/errors"
+
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 )
 
 func (c *cephDeploymentConfig) ensureObjectStorage() (bool, error) {
-	errCollector := make([]error, 0)
-	// Delete all object storage stuff if there is no objectstore section
+	errCollector := make([]string, 0)
+	// if no obj section specified, set it to empty to allow check no resources exist
 	if c.cdConfig.cephDpl.Spec.ObjectStorage == nil {
-		c.log.Debug().Msg("no objectStorage section, skip rgw/multisite ensure and cleanup all object storage stuff if present")
-		removed, err := c.deleteObjectStorage()
-		if err != nil {
-			c.log.Error().Err(err).Msg("error deleting object storage object")
-			return false, err
-		}
-		return !removed, nil
+		c.cdConfig.cephDpl.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{}
 	}
-	c.log.Debug().Msg("ensure object storage")
 	objectStorageChanged := false
 	if !c.cdConfig.clusterSpec.External.Enable {
 		// Ensure ceph rgw multisite processing
 		changed, err := c.ensureRgwMultiSite()
 		if err != nil {
-			c.log.Error().Err(err).Msg("failed to ensure object storage multisite")
-			errCollector = append(errCollector, errors.Wrap(err, "failed to ensure ceph object storage multisite"))
+			msg := "failed to ensure object storage multisite"
+			c.log.Error().Err(err).Msg(msg)
+			errCollector = append(errCollector, msg)
 		}
 		objectStorageChanged = changed
 	}
@@ -47,34 +45,59 @@ func (c *cephDeploymentConfig) ensureObjectStorage() (bool, error) {
 	// Ensure ceph rgw processing
 	changed, err := c.ensureRgw()
 	if err != nil {
-		c.log.Error().Err(err).Msg("failed to ensure ceph rgw")
-		errCollector = append(errCollector, errors.Wrap(err, "failed to ensure ceph rgw"))
+		msg := "failed to ensure ceph rgw"
+		c.log.Error().Err(err).Msg(msg)
+		errCollector = append(errCollector, msg)
 	}
 	objectStorageChanged = objectStorageChanged || changed
 
+	// if we dont have obj storage - cleanup not needed resources
+	// once no any pre-req exists
+	if len(errCollector) == 0 && !objectStorageChanged {
+		if c.cdConfig.clusterSpec.External.Enable {
+			if len(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws) == 0 {
+				keysRemoved, err := c.deleteRgwAdminOpsSecret()
+				if err != nil {
+					msg := "failed to delete external rgw admin ops secret"
+					c.log.Error().Err(err).Msg(msg)
+					errCollector = append(errCollector, msg)
+				}
+				objectStorageChanged = objectStorageChanged || !keysRemoved
+			}
+		} else {
+			if len(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws) == 0 && len(c.cdConfig.cephDpl.Spec.ObjectStorage.Zones) == 0 {
+				builtInPoolRemoved, err := c.deleteRgwBuiltInPool()
+				if err != nil {
+					msg := "failed to delete builtin .rgw.root pool"
+					c.log.Error().Err(err).Msg(msg)
+					errCollector = append(errCollector, msg)
+				}
+				objectStorageChanged = objectStorageChanged || !builtInPoolRemoved
+			}
+		}
+	}
+
 	// Return error if exists
-	if len(errCollector) == 1 {
-		return false, errCollector[0]
-	} else if len(errCollector) > 1 {
-		return false, errors.New("multiple errors during object storage ensure")
+	if len(errCollector) > 0 {
+		return false, errors.Errorf("error(s) during object storage ensure: %s", strings.Join(errCollector, ", "))
 	}
 	return objectStorageChanged, nil
 }
 
 func (c *cephDeploymentConfig) deleteObjectStorage() (bool, error) {
 	errorsNumber := 0
-	rgwRemoved, err := c.deleteRgw("", false)
+	rgwRemoved, err := c.deleteRgw("")
 	if err != nil {
 		c.log.Error().Err(err).Msg("error deleting rgw")
 		errorsNumber++
 	}
 	if rgwRemoved {
-		certsRemoved, err := c.deleteRgwInternalSslCert()
+		certsRemoved, err := c.deleteSelfSignedCerts(nil)
 		if err != nil {
-			c.log.Error().Err(err).Msg("error deleting rgw ssl cert")
+			c.log.Error().Err(err).Msg("failed to cleanup odd rgw secrets")
 			errorsNumber++
 		}
-		rgwRemoved = certsRemoved
+		rgwRemoved = rgwRemoved && certsRemoved
 		if !c.cdConfig.clusterSpec.External.Enable {
 			multisiteRemoved, err := c.deleteMultiSite()
 			if err != nil {

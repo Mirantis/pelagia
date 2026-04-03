@@ -1364,6 +1364,7 @@ func TestCleanCephDeployment(t *testing.T) {
 		"secrets":                    &corev1.SecretList{Items: []corev1.Secret{unitinputs.OpenstackSecretGenerated, unitinputs.RgwSSLCertSecret, unitinputs.IngressRuleSecret, unitinputs.CephRBDMirrorSecret1, unitinputs.CephRBDMirrorSecret2}},
 		"storageclasses":             &storagev1.StorageClassList{Items: []storagev1.StorageClass{*unitinputs.GetNamedStorageClass("vms-hdd", false)}},
 		"daemonsets":                 &appsv1.DaemonSetList{Items: []appsv1.DaemonSet{*unitinputs.RookDiscover.DeepCopy()}},
+		"services":                   &corev1.ServiceList{Items: []corev1.Service{}},
 	}
 
 	cephDplExternal := unitinputs.CephDeployExternal.DeepCopy()
@@ -1412,6 +1413,7 @@ func TestCleanCephDeployment(t *testing.T) {
 				"delete-collection-secrets":         errors.New("failed to delete secret"),
 				"delete-storageclasses":             errors.New("failed to delete storageclass"),
 				"delete-daemonsets":                 errors.New("failed to delete daemonset"),
+				"delete-services":                   errors.New("failed to delete service"),
 			},
 			expectedError: "deletion is not completed for CephDeployment: failed to remove CephDeploymentSecret 'lcm-namespace/cephcluster', failed to remove CephDeploymentMaintenance 'lcm-namespace/cephcluster', failed to remove openstack shared secret, failed to remove object storage, failed to remove ingress proxy, failed to remove rbd mirror, failed to remove ceph clients, failed to remove ceph block pools, failed to remove ceph shared filesystem, failed to remove storage classes",
 		},
@@ -1533,7 +1535,7 @@ func TestCleanCephDeployment(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Kubeclientset.NetworkingV1(), "list", []string{"ingresses", "networkpolicies"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"nodes"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "update", []string{"nodes"}, test.inputResources, test.apiErrors)
-			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "delete", []string{"configmaps", "secrets"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "delete", []string{"configmaps", "secrets", "services"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "delete-collection", []string{"secrets"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.NetworkingV1(), "delete", []string{"ingresses", "networkpolicies"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.AppsV1(), "delete", []string{"daemonsets", "deployments"}, test.inputResources, test.apiErrors)
@@ -1553,7 +1555,7 @@ func TestCleanCephDeployment(t *testing.T) {
 			}
 			assert.Equal(t, test.cleanupDone, deleted)
 			if test.cleanupDone {
-				assert.Equal(t, updateTimestamps{cephConfigMap: map[string]string{}}, resourceUpdateTimestamps)
+				assert.Equal(t, updateTimestamps{cephConfigMap: map[string]string{}, rgwSSLCert: map[string]string{}}, resourceUpdateTimestamps)
 			}
 			// clean reactions
 			faketestclients.CleanupFakeClientReactions(c.api.CephLcmclientset)
@@ -2171,7 +2173,7 @@ func TestApplyConfiguration(t *testing.T) {
 			cephDpl:        externalCephDplButWithCommonFields.DeepCopy(),
 			inputResources: inputResourcesForExternalApply,
 			ccsettingsMap:  ccsettingsMap,
-			inProgressMsg:  "configuration apply is in progress: cephcluster, storageclasses, ceph object storage",
+			inProgressMsg:  "configuration apply is in progress: cephcluster, storageclasses",
 		},
 		{
 			name:           "apply reconcile cephdeployment external - apply configuration has no changes",

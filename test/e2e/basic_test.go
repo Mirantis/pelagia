@@ -71,7 +71,7 @@ func TestGetCluster(t *testing.T) {
 	}
 
 	err = wait.PollUntilContextTimeout(f.TF.ManagedCluster.Context, 10*time.Second, 5*time.Minute, true, func(_ context.Context) (bool, error) {
-		nodes, err := f.TF.ManagedCluster.ListNodes()
+		nodes, err := f.TF.ManagedCluster.ListNodes("")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -260,14 +260,17 @@ func TestValidationFailure(t *testing.T) {
 		t.Skip("failed to update cephdeployment nodes section incorrectly - not all required nodes items found")
 	}
 	// rgw validation
-	if cd.Spec.ObjectStorage != nil {
-		if cd.Spec.ObjectStorage.Rgw.DataPool.Replicated != nil {
-			cd.Spec.ObjectStorage.Rgw.DataPool.ErasureCoded = &cephlcmv1alpha1.CephPoolErasureCodedSpec{}
-		} else if cd.Spec.ObjectStorage.Rgw.DataPool.ErasureCoded != nil {
-			cd.Spec.ObjectStorage.Rgw.DataPool.Replicated = &cephlcmv1alpha1.CephPoolReplicatedSpec{}
+	if cd.Spec.ObjectStorage != nil && len(cd.Spec.ObjectStorage.Rgws) > 0 {
+		rgwCasted, _ := cd.Spec.ObjectStorage.Rgws[0].GetSpec()
+		rgwCasted.MetadataPool.Replicated.Size = 0
+		rgwCasted.DataPool.Replicated.Size = 0
+		rgwCasted.DataPool.ErasureCoded.DataChunks = 0
+		rgwCasted.DataPool.ErasureCoded.CodingChunks = 0
+		rawRgw, err := cephlcmv1alpha1.DecodeStructToRaw(rgwCasted)
+		if err != nil {
+			t.Fatal(err)
 		}
-		cd.Spec.ObjectStorage.Rgw.MetadataPool.Replicated = nil
-		cd.Spec.ObjectStorage.Rgw.MetadataPool.ErasureCoded = nil
+		cd.Spec.ObjectStorage.Rgws[0].Spec.Raw = rawRgw
 	}
 	poolDefaultClass := f.GetDefaultPoolDeviceClass(cd)
 	if poolDefaultClass == "" {
@@ -348,7 +351,7 @@ func TestValidationFailure(t *testing.T) {
 		"dataPool fake-datapool-2 for CephFS rook-ceph/fake has no neither replication or erasureCoded sections specified",
 	}
 	if cd.Spec.ObjectStorage != nil {
-		expectedMsg = append(expectedMsg, "ObjectStorage section is incorrect: rgw metadata pool must be only replicated,rgw data pool must have only one pool type specified")
+		expectedMsg = append(expectedMsg, "ObjectStorage section is incorrect: rgw metadata pool must be only replicated,rgw data pool should be either replicated or erasureCoded")
 	}
 	for _, expected := range expectedMsg {
 		found := false

@@ -201,6 +201,10 @@ func setupFramework(fc *TestConfig) (*Framework, error) {
 	f.ManagedCluster = managedCluster
 
 	f.E2eImage = os.Getenv("CEPH_E2E_IMAGE")
+	// since e2e image is used mostly for AWS cli - if not provided use latest AWS cli image
+	if f.E2eImage == "" {
+		f.E2eImage = "amazon/aws-cli:latest"
+	}
 	return f, nil
 }
 

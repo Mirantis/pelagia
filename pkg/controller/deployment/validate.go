@@ -382,41 +382,21 @@ CephDeploymentNodesLoop:
 func validateObjectStorage(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode, external bool) error {
 	issues := []string{}
 
-	checkRgwPool := func(cephDplPoolSpec cephlcmv1alpha1.CephPoolSpec, poolType, zone string) {
-		issueTmlp := fmt.Sprintf("rgw %s pool", poolType)
-		if zone != "" {
-			issueTmlp = fmt.Sprintf("%s in zone %s", issueTmlp, zone)
-		}
-		if poolType == "metadata" {
-			if cephDplPoolSpec.Replicated == nil || cephDplPoolSpec.ErasureCoded != nil {
-				issues = append(issues, fmt.Sprintf("%s must be only replicated", issueTmlp))
-			}
-		} else {
-			if cephDplPoolSpec.Replicated == nil && cephDplPoolSpec.ErasureCoded == nil {
-				issues = append(issues, fmt.Sprintf("%s has no pool type specified", issueTmlp))
-			}
-			if cephDplPoolSpec.Replicated != nil && cephDplPoolSpec.ErasureCoded != nil {
-				issues = append(issues, fmt.Sprintf("%s must have only one pool type specified", issueTmlp))
-			}
-		}
-		if err := validateDeviceClassName(cephDplPoolSpec.DeviceClass, cephDpl.Spec.ExtraOpts); err != nil {
-			issues = append(issues, fmt.Sprintf("%s has %s", issueTmlp, err.Error()))
-		}
-		if cephDplPoolSpec.FailureDomain == "osd" && len(nodesListExpanded) > 1 {
-			issues = append(issues, fmt.Sprintf("%s contains prohibited 'osd' failureDomain", issueTmlp))
-		}
-	}
-
 	if cephDpl.Spec.ObjectStorage != nil {
-		if external {
-			if cephDpl.Spec.ObjectStorage.Rgw.MetadataPool != nil || cephDpl.Spec.ObjectStorage.Rgw.DataPool != nil {
-				issues = append(issues, "rgw in external mode, pools (metadata and data) specification is not allowed")
-			}
-		} else {
-			if cephDpl.Spec.ObjectStorage.Rgw.Zone != nil && len(cephDpl.Spec.ObjectStorage.Zones) == 0 {
-				issues = append(issues, "rgw has specified zone name, but related zone is not present in spec")
+		rgwInstancesDesired := int32(0)
+		for _, rgw := range cephDpl.Spec.ObjectStorage.Rgws {
+			rgwCasted, _ := rgw.GetSpec()
+			if external {
+				if rgwCasted.MetadataPool.Replicated.Size != 0 || rgwCasted.MetadataPool.ErasureCoded.DataChunks != 0 || rgwCasted.MetadataPool.ErasureCoded.CodingChunks != 0 ||
+					rgwCasted.DataPool.Replicated.Size != 0 || rgwCasted.DataPool.ErasureCoded.DataChunks != 0 || rgwCasted.DataPool.ErasureCoded.CodingChunks != 0 {
+					issues = append(issues, "rgw in external mode, pools (metadata and data) specification is not allowed")
+				}
 			} else {
-				if cephDpl.Spec.ObjectStorage.Rgw.Zone != nil {
+				// find max instances required
+				if rgwCasted.Gateway.Instances > rgwInstancesDesired {
+					rgwInstancesDesired = rgwCasted.Gateway.Instances
+				}
+				if rgwCasted.Zone.Name != "" {
 					zoneFound := false
 					// TODO (degorenko): limit realms,zones,zonegroups to only 1 per cluster for now
 					if len(cephDpl.Spec.ObjectStorage.Zones) > 1 {
@@ -429,7 +409,7 @@ func validateObjectStorage(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExp
 						issues = append(issues, "more than one realm specified, but currently supported only one realm per cluster")
 					}
 					for _, zone := range cephDpl.Spec.ObjectStorage.Zones {
-						if zone.Name == cephDpl.Spec.ObjectStorage.Rgw.Zone.Name {
+						if zone.Name == rgwCasted.Zone.Name {
 							zoneFound = true
 							zoneCasted, _ := zone.GetSpec()
 							zonegroupFound := false
@@ -445,13 +425,13 @@ func validateObjectStorage(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExp
 										}
 									}
 									if !realmFound {
-										issues = append(issues, fmt.Sprintf("incorrect multisite configuration, specified realm '%s' is not found", zoneGroupCasted.Realm))
+										issues = append(issues, fmt.Sprintf("incorrect zonegroup configuration, specified realm '%s' is not found", zoneGroupCasted.Realm))
 									}
 									break
 								}
 							}
 							if !zonegroupFound {
-								issues = append(issues, fmt.Sprintf("incorrect multisite configuration, specified zonegroup '%s' is not found", zoneCasted.ZoneGroup))
+								issues = append(issues, fmt.Sprintf("incorrect zone configuration, specified zonegroup '%s' is not found", zoneCasted.ZoneGroup))
 							} else {
 								t := "zone '%s' %s"
 								issues = append(issues, validatePoolSpec(zoneCasted.MetadataPool, true, fmt.Sprintf(t, zone.Name, "metadata"), len(nodesListExpanded), cephDpl.Spec.ExtraOpts)...)
@@ -461,37 +441,33 @@ func validateObjectStorage(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExp
 						}
 					}
 					if !zoneFound {
-						issues = append(issues, fmt.Sprintf("incorrect multisite configuration, specified zone '%s' is not found", cephDpl.Spec.ObjectStorage.Rgw.Zone.Name))
+						issues = append(issues, fmt.Sprintf("incorrect rgw configuration, specified zone '%s' is not found", rgwCasted.Zone.Name))
 					}
 				} else {
-					if cephDpl.Spec.ObjectStorage.Rgw.MetadataPool == nil || cephDpl.Spec.ObjectStorage.Rgw.DataPool == nil {
-						issues = append(issues, "no rgw metadata/data pool(s) specified")
-					} else {
-						checkRgwPool(*cephDpl.Spec.ObjectStorage.Rgw.MetadataPool, "metadata", "")
-						checkRgwPool(*cephDpl.Spec.ObjectStorage.Rgw.DataPool, "data", "")
-					}
+					issues = append(issues, validatePoolSpec(rgwCasted.MetadataPool, true, "rgw metadata", len(nodesListExpanded), cephDpl.Spec.ExtraOpts)...)
+					issues = append(issues, validatePoolSpec(rgwCasted.DataPool, false, "rgw data", len(nodesListExpanded), cephDpl.Spec.ExtraOpts)...)
 				}
+			}
+		}
+		if !external {
+			monCount := int32(0)
+			rgwCount := int32(0)
+			for _, node := range nodesListExpanded {
+				if lcmcommon.Contains(node.Roles, "mon") {
+					monCount = monCount + 1
+				}
+				if lcmcommon.Contains(node.Roles, "rgw") {
+					rgwCount = rgwCount + 1
+				}
+			}
+			if (rgwCount > 0 && rgwInstancesDesired > rgwCount) ||
+				(rgwCount == 0 && rgwInstancesDesired > monCount) {
+				return fmt.Errorf("not enough 'rgw' roles specified in nodes spec, ObjectStorage section requires at least %d", rgwInstancesDesired)
 			}
 		}
 	}
 	if len(issues) > 0 {
 		return fmt.Errorf("ObjectStorage section is incorrect: %s", strings.Join(issues, ","))
-	}
-	if cephDpl.Spec.ObjectStorage != nil {
-		monCount := 0
-		rgwCount := 0
-		for _, node := range nodesListExpanded {
-			if lcmcommon.Contains(node.Roles, "mon") {
-				monCount = monCount + 1
-			}
-			if lcmcommon.Contains(node.Roles, "rgw") {
-				rgwCount = rgwCount + 1
-			}
-		}
-		if (rgwCount > 0 && int(cephDpl.Spec.ObjectStorage.Rgw.Gateway.Instances) > rgwCount) ||
-			(rgwCount == 0 && int(cephDpl.Spec.ObjectStorage.Rgw.Gateway.Instances) > monCount) {
-			return fmt.Errorf("not enough 'rgw' roles specified in nodes spec, ObjectStorage requires at least %d", cephDpl.Spec.ObjectStorage.Rgw.Gateway.Instances)
-		}
 	}
 	return nil
 }

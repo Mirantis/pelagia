@@ -29,63 +29,6 @@ import (
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
 )
 
-// TODO: to be removed, once RGW/MDS are migrated
-func generatePoolSpec(poolSpec *cephlcmv1alpha1.CephPoolSpec, role string) (newpool *cephv1.PoolSpec) {
-	poolSpecResource := cephv1.PoolSpec{
-		FailureDomain: poolSpec.FailureDomain,
-		CrushRoot:     poolSpec.CrushRoot,
-		DeviceClass:   poolSpec.DeviceClass,
-	}
-	if poolSpec.Replicated != nil {
-		poolSpecResource.Replicated = cephv1.ReplicatedSpec{
-			Size: poolSpec.Replicated.Size,
-		}
-		if poolSpec.Replicated.TargetSizeRatio == 0 {
-			poolSpecResource.Replicated.TargetSizeRatio = poolsDefaultTargetSizeRatioByRole(role)
-		} else {
-			poolSpecResource.Replicated.TargetSizeRatio = poolSpec.Replicated.TargetSizeRatio
-		}
-	}
-	if poolSpec.ErasureCoded != nil {
-		poolSpecResource.ErasureCoded = cephv1.ErasureCodedSpec{
-			CodingChunks: poolSpec.ErasureCoded.CodingChunks,
-			DataChunks:   poolSpec.ErasureCoded.DataChunks,
-			Algorithm:    poolSpec.ErasureCoded.Algorithm,
-		}
-	}
-	if poolSpec.Mirroring != nil {
-		switch poolSpec.Mirroring.Mode {
-		case "pool", "image":
-			poolSpecResource.Mirroring = cephv1.MirroringSpec{
-				Enabled: true,
-				Mode:    poolSpec.Mirroring.Mode,
-			}
-		}
-	}
-	if len(poolSpec.Parameters) > 0 {
-		poolSpecResource.Parameters = poolSpec.Parameters
-	}
-	poolSpecResource.EnableCrushUpdates = poolSpec.EnableCrushUpdates
-	return &poolSpecResource
-}
-
-func generatePoolOld(pool cephlcmv1alpha1.CephPoolOld, namespace string) (newpool *cephv1.CephBlockPool) {
-	cephpool := cephv1.CephBlockPool{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      getBuiltinPoolName(pool.Name),
-			Namespace: namespace,
-		},
-	}
-	cephpool.Spec = cephv1.NamedBlockPoolSpec{PoolSpec: *generatePoolSpec(&pool.CephPoolSpec, pool.Role)}
-	if lcmcommon.Contains(builtinCephPools, pool.Name) {
-		cephpool.Spec.Name = pool.Name
-	}
-	if pool.PreserveOnDelete {
-		cephpool.Annotations = map[string]string{poolPreserveOnDeleteAnnotation: "true"}
-	}
-	return &cephpool
-}
-
 func generatePool(pool cephlcmv1alpha1.CephPool, namespace string) (newpool *cephv1.CephBlockPool) {
 	cephpool := cephv1.CephBlockPool{
 		ObjectMeta: metav1.ObjectMeta{

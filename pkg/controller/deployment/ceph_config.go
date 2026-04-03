@@ -347,50 +347,53 @@ func (c *cephDeploymentConfig) buildCephConfig() (string, map[string]string, map
 	}
 	mergeConfig(generalConfigOptions)
 	if c.cdConfig.cephDpl.Spec.ObjectStorage != nil {
-		// rgw dns name parameter has next priority (from higher to lower):
-		// 1. rook override config in spec if present
-		// 2. ingress domain if present
-		// 3. openstack domain if present
-		// 4. default pkg svc
-		rgwDNSNameValue := fmt.Sprintf("%s.%s.svc", buildRGWName(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name, ""), c.lcmConfig.RookNamespace)
-		ingressTLS := getIngressTLS(c.cdConfig.cephDpl)
-		if ingressTLS != nil {
-			if ingressTLS.Hostname != "" {
-				rgwDNSNameValue = fmt.Sprintf("%s.%s", ingressTLS.Hostname, ingressTLS.Domain)
-			} else {
-				rgwDNSNameValue = fmt.Sprintf("%s.%s", c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name, ingressTLS.Domain)
+		for _, rgwStore := range c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws {
+			rgwSectionName := rgwConfigSectionName(rgwStore.Name)
+			mergeConfig(defaultRgwConfigOptions(rgwSectionName))
+			// rgw dns name parameter has next priority (from higher to lower):
+			// 1. rook override config in spec if present
+			// 2. ingress domain if present
+			// 3. openstack domain if present
+			// 4. default pkg svc
+			rgwDNSNameValues := []string{fmt.Sprintf("%s.%s.svc", buildRGWName(rgwStore.Name, ""), c.lcmConfig.RookNamespace)}
+			if rgwStore.ServedByIngress || rgwStore.UsedByRockoon {
+				ingressTLS := getIngressTLS(c.cdConfig.cephDpl)
+				if ingressTLS != nil {
+					if ingressTLS.Hostname != "" {
+						rgwDNSNameValues = append(rgwDNSNameValues, fmt.Sprintf("%s.%s", ingressTLS.Hostname, ingressTLS.Domain))
+					} else {
+						rgwDNSNameValues = append(rgwDNSNameValues, fmt.Sprintf("%s.%s", rgwStore.Name, ingressTLS.Domain))
+					}
+				}
+				if rgwStore.UsedByRockoon {
+					if c.lcmConfig.DeployParams.OpenstackCephSharedNamespace == "" {
+						return "", nil, nil, errors.New("RGW Rockoon setup is set, but variable 'DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE' is not set in Pelagia config")
+					}
+					openstackSecrets, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
+					if err != nil {
+						if !apierrors.IsNotFound(err) {
+							return "", nil, nil, err
+						}
+					} else {
+						secretConfig := map[string]string{}
+						for key, val := range openstackSecrets.Data {
+							secretConfig[key] = string(val)
+						}
+						if domain, ok := secretConfig["public_domain"]; ok && ingressTLS == nil {
+							rgwDNSNameValues = append(rgwDNSNameValues, fmt.Sprintf("%s.%s", rgwStore.Name, domain))
+						}
+						mergeConfig(getDefaultRgwOpenStackConfig(rgwSectionName))
+						mergeConfig(getDefaultRgwKeystoneConfig(rgwSectionName, secretConfig))
+						if _, barbicanURLPresent := secretConfig["barbican_url"]; barbicanURLPresent {
+							mergeConfig(getDefaultRgwBarbicanConfig(rgwSectionName, secretConfig))
+						}
+					}
+				}
 			}
-		}
-		rgwSectionName := rgwConfigSectionName(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name)
-		mergeConfig(defaultRgwConfigOptions(rgwSectionName))
-		if c.cdConfig.openstackSetup && c.lcmConfig.DeployParams.OpenstackCephSharedNamespace != "" {
-			openstackSecrets, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
-			if err != nil {
-				if !apierrors.IsNotFound(err) {
-					return "", nil, nil, err
-				}
-			} else {
-				secretConfig := map[string]string{}
-				for key, val := range openstackSecrets.Data {
-					secretConfig[key] = string(val)
-				}
-				if domain, ok := secretConfig["public_domain"]; ok && ingressTLS == nil {
-					rgwDNSNameValue = fmt.Sprintf("%s.%s", c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name, domain)
-				}
-				mergeConfig(getDefaultRgwOpenStackConfig(rgwSectionName))
-				mergeConfig(getDefaultRgwKeystoneConfig(rgwSectionName, secretConfig))
-				if _, barbicanURLPresent := secretConfig["barbican_url"]; barbicanURLPresent {
-					mergeConfig(getDefaultRgwBarbicanConfig(rgwSectionName, secretConfig))
-				}
+			rgwCasted, _ := rgwStore.GetSpec()
+			if rgwCasted.Gateway.SecurePort != int32(0) {
+				mergeConfig([]configOption{{key: "rgw_dns_name", value: strings.Join(rgwDNSNameValues, ","), section: rgwSectionName}})
 			}
-		}
-		mergeConfig([]configOption{{key: "rgw_dns_name", value: rgwDNSNameValue, section: rgwSectionName}})
-		// when sync thread is disabled for rgw serving clients
-		// there another rgw daemon which fully operational and hidden from user
-		// but we need to keep defaults for it
-		if len(c.cdConfig.cephDpl.Spec.ObjectStorage.Zones) > 0 && c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.SplitDaemonForMultisiteTrafficSync {
-			syncDaemonSection := rgwConfigSectionName(rgwSyncDaemonName(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name))
-			mergeConfig(defaultRgwConfigOptions(syncDaemonSection))
 		}
 	}
 	configMap, runtimeParams := c.getTargetConfigAndRuntime(c.cdConfig.cephDpl.Spec.RookConfig, baseCephConfig)

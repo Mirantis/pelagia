@@ -305,7 +305,7 @@ mon_warn_on_insecure_global_id_reclaim_allowed = false
 [client.rgw.rgw.store.a]
 rgw_bucket_quota_ttl = 30
 rgw_data_log_backing = omap
-rgw_dns_name = rgw-store.example.com
+rgw_dns_name = rook-ceph-rgw-rgw-store.rook-ceph.svc,rgw-store.example.com
 rgw_max_attr_name_len = 64
 rgw_max_attr_size = 1024
 rgw_max_attrs_num_in_req = 32
@@ -357,7 +357,7 @@ mon_warn_on_insecure_global_id_reclaim_allowed = false
 [client.rgw.rgw.store.a]
 rgw_bucket_quota_ttl = 30
 rgw_data_log_backing = omap
-rgw_dns_name = rgw-store.openstack.com
+rgw_dns_name = rook-ceph-rgw-rgw-store.rook-ceph.svc,rgw-store.openstack.com
 rgw_enable_usage_log = true
 rgw_enforce_swift_acls = true
 rgw_keystone_accepted_admin_roles = 'admin, service'
@@ -400,7 +400,7 @@ mon_warn_on_insecure_global_id_reclaim_allowed = false
 [client.rgw.rgw.store.a]
 rgw_bucket_quota_ttl = 30
 rgw_data_log_backing = omap
-rgw_dns_name = rgw-store.test
+rgw_dns_name = rook-ceph-rgw-rgw-store.rook-ceph.svc,rgw-store.test
 rgw_enable_usage_log = true
 rgw_enforce_swift_acls = true
 rgw_keystone_accepted_admin_roles = 'admin, service'
@@ -445,7 +445,7 @@ rgw_barbican_url = https://barbican.openstack.com
 rgw_bucket_quota_ttl = 30
 rgw_crypt_s3_kms_backend = barbican
 rgw_data_log_backing = omap
-rgw_dns_name = rgw-store.openstack.com
+rgw_dns_name = rook-ceph-rgw-rgw-store.rook-ceph.svc,rgw-store.openstack.com
 rgw_enable_usage_log = true
 rgw_enforce_swift_acls = true
 rgw_keystone_accepted_admin_roles = 'admin, service'
@@ -539,7 +539,7 @@ mon_warn_on_insecure_global_id_reclaim_allowed = false
 [client.rgw.rgw.store.a]
 rgw_bucket_quota_ttl = 30
 rgw_data_log_backing = omap
-rgw_dns_name = rgw-store.openstack.com
+rgw_dns_name = rook-ceph-rgw-rgw-store.rook-ceph.svc,rgw-store.openstack.com
 rgw_enable_usage_log = true
 rgw_enforce_swift_acls = true
 rgw_keystone_accepted_admin_roles = 'admin, service'
@@ -582,7 +582,7 @@ mon_warn_on_insecure_global_id_reclaim_allowed = false
 [client.rgw.rgw.store.a]
 rgw_bucket_quota_ttl = 30
 rgw_data_log_backing = omap
-rgw_dns_name = rgw-store.openstack.com
+rgw_dns_name = rook-ceph-rgw-rgw-store.rook-ceph.svc,rgw-store.openstack.com
 rgw_enable_usage_log = true
 rgw_enforce_swift_acls = true
 rgw_keystone_accepted_admin_roles = 'admin, service'
@@ -743,7 +743,7 @@ func TestBuildRookConfig(t *testing.T) {
 			expectedHashConfig: map[string]string{
 				"global":                 "95b401f9fc7db148cf2cc3bbcbbe09f7722b2060acf714c142fdf07ee249f0bb",
 				"mon":                    "52235ccf3c9f953de0fc2b8e2928f8119e1be19c14a4cf300c55e8498ec81fa2",
-				"client.rgw.rgw.store.a": "a679a435d1e3735cd6342e565bc8ff631c451bc8935ecea8f4aac8f3b8f26609",
+				"client.rgw.rgw.store.a": "5886c9263c5f9ce7943f14b9f7a96216725a6d4cd9c89900fc8df83df75f82bc",
 			},
 		},
 		{
@@ -759,7 +759,7 @@ func TestBuildRookConfig(t *testing.T) {
 			expectedHashConfig: map[string]string{
 				"global":                 "95b401f9fc7db148cf2cc3bbcbbe09f7722b2060acf714c142fdf07ee249f0bb",
 				"mon":                    "52235ccf3c9f953de0fc2b8e2928f8119e1be19c14a4cf300c55e8498ec81fa2",
-				"client.rgw.rgw.store.a": "276b0a7ed8707af0401d7d82ea286890151c50cb0d018ca45cf1a8115248c672",
+				"client.rgw.rgw.store.a": "c8761bc0ae63593c4bdeb9309fea60abf6dea624f92b18d2dd398c742bdd1750",
 			},
 		},
 		{
@@ -775,7 +775,7 @@ func TestBuildRookConfig(t *testing.T) {
 			expectedHashConfig: map[string]string{
 				"global":                 "95b401f9fc7db148cf2cc3bbcbbe09f7722b2060acf714c142fdf07ee249f0bb",
 				"mon":                    "52235ccf3c9f953de0fc2b8e2928f8119e1be19c14a4cf300c55e8498ec81fa2",
-				"client.rgw.rgw.store.a": "2406df5a40ecde057ab292f40370a4e17d78cd1670ae22d624586dcc558194b6",
+				"client.rgw.rgw.store.a": "cadf19b7068d5f8617afdaa245abfded89e5447609f4e1a2dbedb2e39920bf7f",
 			},
 		},
 		{
@@ -795,7 +795,7 @@ func TestBuildRookConfig(t *testing.T) {
 			expectedHashConfig: map[string]string{
 				"global":                 "95b401f9fc7db148cf2cc3bbcbbe09f7722b2060acf714c142fdf07ee249f0bb",
 				"mon":                    "52235ccf3c9f953de0fc2b8e2928f8119e1be19c14a4cf300c55e8498ec81fa2",
-				"client.rgw.rgw.store.a": "f655900eaf80fc46710d6c02f93c2dd7f9cc7d6f605316015f7a3f269a694d3f",
+				"client.rgw.rgw.store.a": "548f83be57955378a1382d9e92d3f6a3618773a1e36a7b71b239d3cc8c935fe3",
 			},
 		},
 		{
@@ -815,7 +815,7 @@ func TestBuildRookConfig(t *testing.T) {
 			expectedHashConfig: map[string]string{
 				"global":                 "95b401f9fc7db148cf2cc3bbcbbe09f7722b2060acf714c142fdf07ee249f0bb",
 				"mon":                    "52235ccf3c9f953de0fc2b8e2928f8119e1be19c14a4cf300c55e8498ec81fa2",
-				"client.rgw.rgw.store.a": "2406df5a40ecde057ab292f40370a4e17d78cd1670ae22d624586dcc558194b6",
+				"client.rgw.rgw.store.a": "cadf19b7068d5f8617afdaa245abfded89e5447609f4e1a2dbedb2e39920bf7f",
 			},
 		},
 		{
@@ -835,7 +835,7 @@ func TestBuildRookConfig(t *testing.T) {
 			expectedHashConfig: map[string]string{
 				"global":                 "95b401f9fc7db148cf2cc3bbcbbe09f7722b2060acf714c142fdf07ee249f0bb",
 				"mon":                    "52235ccf3c9f953de0fc2b8e2928f8119e1be19c14a4cf300c55e8498ec81fa2",
-				"client.rgw.rgw.store.a": "2406df5a40ecde057ab292f40370a4e17d78cd1670ae22d624586dcc558194b6",
+				"client.rgw.rgw.store.a": "cadf19b7068d5f8617afdaa245abfded89e5447609f4e1a2dbedb2e39920bf7f",
 			},
 		},
 		{
@@ -856,7 +856,7 @@ func TestBuildRookConfig(t *testing.T) {
 			expectedHashConfig: map[string]string{
 				"global":                 "95b401f9fc7db148cf2cc3bbcbbe09f7722b2060acf714c142fdf07ee249f0bb",
 				"mon":                    "52235ccf3c9f953de0fc2b8e2928f8119e1be19c14a4cf300c55e8498ec81fa2",
-				"client.rgw.rgw.store.a": "00fb4fce0c80136200d5ed9f9ec82384b71ef2e6cfd8d8b584f89c497aecb864",
+				"client.rgw.rgw.store.a": "d992ea068e9a24b1d680f89bacd5d86576e370ade1e0c8ee544691c90074eb78",
 			},
 		},
 		{
@@ -895,27 +895,11 @@ func TestBuildRookConfig(t *testing.T) {
 			expectedHashConfig: map[string]string{
 				"global":                 "95b401f9fc7db148cf2cc3bbcbbe09f7722b2060acf714c142fdf07ee249f0bb",
 				"mon":                    "52235ccf3c9f953de0fc2b8e2928f8119e1be19c14a4cf300c55e8498ec81fa2",
-				"client.rgw.rgw.store.a": "50d901b60f46f8a30260335d3e41b8982706ae18c324608167290a51e392a36a",
+				"client.rgw.rgw.store.a": "83eca24c1295f47dbb0f730b77be2e5f5726e5245dcb8e2fcb2b21054048fa84",
 			},
 		},
 		{
-			name: "base rgw ingress config - overriden from spec",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cephDpl := unitinputs.CephDeployObjectStorageCeph.DeepCopy()
-				cephDpl.Spec.IngressConfig = unitinputs.CephIngressConfig.DeepCopy()
-				cephDpl.Spec.RookConfig = map[string]string{"rgw_dns_name": "rgw-store.fromspec.com"}
-				return cephDpl
-			}(),
-			expectedRookConfig:    rookConfigRgwIngressNoOpenstackOverride,
-			expectedRuntimeConfig: defaultRuntimeConfig,
-			expectedHashConfig: map[string]string{
-				"global":                 "95b401f9fc7db148cf2cc3bbcbbe09f7722b2060acf714c142fdf07ee249f0bb",
-				"mon":                    "52235ccf3c9f953de0fc2b8e2928f8119e1be19c14a4cf300c55e8498ec81fa2",
-				"client.rgw.rgw.store.a": "3e52118e763b4846e65e4e28132acd95a91875e94c5f708118e653ba7d455e10",
-			},
-		},
-		{
-			name: "base rgw ingress new config - overriden from spec",
+			name: "base rgw ingress config - rgw dns overriden from spec",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cephDpl := unitinputs.CephDeployObjectStorageCeph.DeepCopy()
 				cephDpl.Spec.IngressConfig = unitinputs.CephIngressConfig.DeepCopy()
@@ -973,6 +957,7 @@ func TestBuildRookConfig(t *testing.T) {
 			name: "rook rgw openstack - custom ingress hostname",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cephDpl := unitinputs.CephDeployObjectStorageCeph.DeepCopy()
+				cephDpl.Spec.ObjectStorage.Rgws[0].ServedByIngress = true
 				cephDpl.Spec.IngressConfig = unitinputs.CephIngressConfig.DeepCopy()
 				cephDpl.Spec.IngressConfig.TLSConfig.Domain = "fromspec.com"
 				cephDpl.Spec.IngressConfig.TLSConfig.Hostname = "rgw-store"
@@ -980,12 +965,12 @@ func TestBuildRookConfig(t *testing.T) {
 				cephDpl.Spec.IngressConfig.ControllerClassName = ""
 				return cephDpl
 			}(),
-			expectedRookConfig:    rookConfigRgwIngressNoOpenstackOverride,
+			expectedRookConfig:    strings.Replace(rookConfigRgwIngressNoOpenstackOverride, "rgw-store.fromspec.com", "rook-ceph-rgw-rgw-store.rook-ceph.svc,rgw-store.fromspec.com", 1),
 			expectedRuntimeConfig: defaultRuntimeConfig,
 			expectedHashConfig: map[string]string{
 				"global":                 "95b401f9fc7db148cf2cc3bbcbbe09f7722b2060acf714c142fdf07ee249f0bb",
 				"mon":                    "52235ccf3c9f953de0fc2b8e2928f8119e1be19c14a4cf300c55e8498ec81fa2",
-				"client.rgw.rgw.store.a": "3e52118e763b4846e65e4e28132acd95a91875e94c5f708118e653ba7d455e10",
+				"client.rgw.rgw.store.a": "48b157b9809da6aba9e3ea19654389307385bd8edb954ae7a4f2189897392433",
 			},
 		},
 	}
@@ -1042,6 +1027,7 @@ func TestEnsureCephConfig(t *testing.T) {
 			expectedError: "failed to prepare ceph config map: failed to get openstack rgw secret",
 			expectedTimestamps: updateTimestamps{
 				cephConfigMap: map[string]string{},
+				rgwSSLCert:    map[string]string{},
 			},
 		},
 		{
@@ -1051,6 +1037,7 @@ func TestEnsureCephConfig(t *testing.T) {
 			expectedError: "failed to get configmap rook-config-override",
 			expectedTimestamps: updateTimestamps{
 				cephConfigMap: map[string]string{},
+				rgwSSLCert:    map[string]string{},
 			},
 		},
 		{
@@ -1060,6 +1047,7 @@ func TestEnsureCephConfig(t *testing.T) {
 			expectedError: "failed to create configmap rook-config-override",
 			expectedTimestamps: updateTimestamps{
 				cephConfigMap: map[string]string{},
+				rgwSSLCert:    map[string]string{},
 			},
 		},
 		{
@@ -1070,6 +1058,7 @@ func TestEnsureCephConfig(t *testing.T) {
 					"global": "time-3",
 					"mon":    "time-3",
 				},
+				rgwSSLCert: map[string]string{},
 			},
 			expectedResources: map[string]runtime.Object{
 				"configmaps": &v1.ConfigMapList{
@@ -1103,6 +1092,7 @@ func TestEnsureCephConfig(t *testing.T) {
 					"global": "time-3",
 					"mon":    "time-3",
 				},
+				rgwSSLCert: map[string]string{},
 			},
 		},
 		{
@@ -1125,6 +1115,7 @@ func TestEnsureCephConfig(t *testing.T) {
 					"global": "some-time",
 					"mon":    "some-time",
 				},
+				rgwSSLCert:       map[string]string{},
 				rgwRuntimeParams: "some-rgw-time",
 				osdRuntimeParams: "some-osd-time",
 			},
@@ -1140,6 +1131,7 @@ func TestEnsureCephConfig(t *testing.T) {
 					"global": "some-time",
 					"mon":    "some-time",
 				},
+				rgwSSLCert:       map[string]string{},
 				rgwRuntimeParams: "some-rgw-time",
 				osdRuntimeParams: "some-osd-time",
 			},
@@ -1158,6 +1150,7 @@ func TestEnsureCephConfig(t *testing.T) {
 					"global": "time-7",
 					"mon":    "time-7",
 				},
+				rgwSSLCert:       map[string]string{},
 				rgwRuntimeParams: "some-rgw-time",
 				osdRuntimeParams: "some-osd-time",
 			},
@@ -1201,6 +1194,7 @@ func TestEnsureCephConfig(t *testing.T) {
 					"global": "time-8",
 					"mon":    "time-7",
 				},
+				rgwSSLCert:       map[string]string{},
 				rgwRuntimeParams: "some-rgw-time",
 				osdRuntimeParams: "time-8",
 			},
@@ -1245,6 +1239,7 @@ func TestEnsureCephConfig(t *testing.T) {
 					"mon":                    "time-7",
 					"client.rgw.rgw.store.a": "time-9",
 				},
+				rgwSSLCert:       map[string]string{},
 				rgwRuntimeParams: "time-9",
 				osdRuntimeParams: "time-8",
 			},
@@ -1261,7 +1256,7 @@ func TestEnsureCephConfig(t *testing.T) {
 						newCM.Annotations[cephRuntimeRgwParametersUpdateTimestampLabel] = "time-9"
 						newCM.Annotations[cephRuntimeOsdParametersUpdateTimestampLabel] = "time-8"
 						newCM.Annotations["cephdeployment.lcm.mirantis.com/config-client.rgw.rgw.store.a-updated"] = "time-9"
-						newCM.Annotations["cephdeployment.lcm.mirantis.com/config-client.rgw.rgw.store.a-hash"] = "276b0a7ed8707af0401d7d82ea286890151c50cb0d018ca45cf1a8115248c672"
+						newCM.Annotations["cephdeployment.lcm.mirantis.com/config-client.rgw.rgw.store.a-hash"] = "c8761bc0ae63593c4bdeb9309fea60abf6dea624f92b18d2dd398c742bdd1750"
 						return *newCM
 					}(),
 				}},
@@ -1280,7 +1275,7 @@ func TestEnsureCephConfig(t *testing.T) {
 				newCM.Annotations[cephRuntimeRgwParametersUpdateTimestampLabel] = "time-9"
 				newCM.Annotations[cephRuntimeOsdParametersUpdateTimestampLabel] = "time-8"
 				newCM.Annotations["cephdeployment.lcm.mirantis.com/config-client.rgw.rgw.store.a-updated"] = "time-9"
-				newCM.Annotations["cephdeployment.lcm.mirantis.com/config-client.rgw.rgw.store.a-hash"] = "276b0a7ed8707af0401d7d82ea286890151c50cb0d018ca45cf1a8115248c672"
+				newCM.Annotations["cephdeployment.lcm.mirantis.com/config-client.rgw.rgw.store.a-hash"] = "c8761bc0ae63593c4bdeb9309fea60abf6dea624f92b18d2dd398c742bdd1750"
 				return newCM
 			}(),
 			configDump:     unitinputs.CephConfigDumpOverrideWithRgw,
@@ -1300,6 +1295,7 @@ func TestEnsureCephConfig(t *testing.T) {
 					"mon":                    "time-7",
 					"client.rgw.rgw.store.a": "time-9",
 				},
+				rgwSSLCert:       map[string]string{},
 				rgwRuntimeParams: "time-10",
 				osdRuntimeParams: "time-8",
 			},
@@ -1316,7 +1312,7 @@ func TestEnsureCephConfig(t *testing.T) {
 						newCM.Annotations[cephRuntimeRgwParametersUpdateTimestampLabel] = "time-10"
 						newCM.Annotations[cephRuntimeOsdParametersUpdateTimestampLabel] = "time-8"
 						newCM.Annotations["cephdeployment.lcm.mirantis.com/config-client.rgw.rgw.store.a-updated"] = "time-9"
-						newCM.Annotations["cephdeployment.lcm.mirantis.com/config-client.rgw.rgw.store.a-hash"] = "276b0a7ed8707af0401d7d82ea286890151c50cb0d018ca45cf1a8115248c672"
+						newCM.Annotations["cephdeployment.lcm.mirantis.com/config-client.rgw.rgw.store.a-hash"] = "c8761bc0ae63593c4bdeb9309fea60abf6dea624f92b18d2dd398c742bdd1750"
 						return *newCM
 					}(),
 				}},
@@ -1350,6 +1346,7 @@ func TestEnsureCephConfig(t *testing.T) {
 					"global": "time-11",
 					"mon":    "time-7",
 				},
+				rgwSSLCert:       map[string]string{},
 				rgwRuntimeParams: "time-11",
 				osdRuntimeParams: "time-11",
 			},
@@ -1404,6 +1401,7 @@ func TestEnsureCephConfig(t *testing.T) {
 					"mds.testfs":  "time-12",
 					"mds.testfs2": "time-12",
 				},
+				rgwSSLCert:       map[string]string{},
 				rgwRuntimeParams: "time-11",
 				osdRuntimeParams: "time-11",
 			},
@@ -1459,6 +1457,7 @@ func TestEnsureCephConfig(t *testing.T) {
 					"global": "time-11",
 					"mon":    "time-7",
 				},
+				rgwSSLCert:       map[string]string{},
 				rgwRuntimeParams: "time-11",
 				osdRuntimeParams: "time-11",
 			},

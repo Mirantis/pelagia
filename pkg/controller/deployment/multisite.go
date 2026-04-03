@@ -290,6 +290,12 @@ func (c *cephDeploymentConfig) ensureZones() (bool, error) {
 			},
 			Spec: zoneSpecCasted,
 		}
+		if zoneResource.Spec.DataPool.Replicated.Size > 0 {
+			if zoneResource.Spec.DataPool.Replicated.TargetSizeRatio == 0 {
+				zoneResource.Spec.DataPool.Replicated.TargetSizeRatio = poolsDefaultTargetSizeRatioByRole("rgw data")
+			}
+		}
+
 		if len(zoneResource.Spec.CustomEndpoints) == 0 && zonesInUse[zone.Name] != "" {
 			// if no endpoints specified - put default external lb ip and port as endpoint
 			// in case of using ingress - no default, user has to add endpoints manually
@@ -298,16 +304,18 @@ func (c *cephDeploymentConfig) ensureZones() (bool, error) {
 				if proxyDeployed {
 					c.log.Warn().Msgf("detected ingress proxy usage, but zone '%s' has no endpoints specified", zone.Name)
 				} else {
-					externalSvcName := buildRGWName(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name, "external")
-					externalSvc, err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).Get(c.context, externalSvcName, metav1.GetOptions{})
+					externalSvcs, err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{LabelSelector: c.lcmConfig.DeployParams.RgwPublicAccessLabel})
 					if err != nil {
-						if !apierrors.IsNotFound(err) {
-							c.log.Error().Err(err).Msgf("failed to get ip of external service %q", externalSvcName)
-							return false, errors.Wrap(err, "failed to get ip of external service")
-						}
-						c.log.Warn().Msgf("zone '%s' has no endpoints specified, service '%s' is not created yet, leaving empty", zone.Name, externalSvcName)
+						msg := fmt.Sprintf("failed to find external service for zone %s", zone.Name)
+						c.log.Error().Err(err).Msg(msg)
+						return false, errors.Wrap(err, msg)
+					}
+					if len(externalSvcs.Items) == 0 {
+						c.log.Warn().Msgf("zone '%s' has no endpoints specified, no services with '%s' label found, leaving empty", zone.Name, c.lcmConfig.DeployParams.RgwPublicAccessLabel)
 					} else {
-						c.log.Warn().Msgf("zone '%s' has no endpoints specified, using service '%s' external ip address and http port as endpoint if available", zone.Name, externalSvcName)
+						externalSvc := externalSvcs.Items[0]
+						c.log.Warn().Msgf("zone '%s' has no endpoints specified, found service(s) with '%s' label, using service '%s' external ip address and http port as endpoint as default if available",
+							zone.Name, c.lcmConfig.DeployParams.RgwPublicAccessLabel, externalSvc.Name)
 						if len(externalSvc.Status.LoadBalancer.Ingress) > 0 {
 							zoneResource.Spec.CustomEndpoints = []string{fmt.Sprintf("http://%s:80", externalSvc.Status.LoadBalancer.Ingress[0].IP)}
 						}

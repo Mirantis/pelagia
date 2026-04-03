@@ -692,6 +692,7 @@ func TestEnsureZones(t *testing.T) {
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
 				mc.Spec.BlockStorage = unitinputs.CephDeployMosk.Spec.BlockStorage.DeepCopy()
+				mc.Spec.ObjectStorage.Rgws[0].UsedByRockoon = true
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -866,6 +867,7 @@ func TestEnsureZones(t *testing.T) {
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
 				mc.Spec.IngressConfig = unitinputs.CephIngressConfig.DeepCopy()
+				mc.Spec.ObjectStorage.Rgws[0].ServedByIngress = true
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -881,7 +883,7 @@ func TestEnsureZones(t *testing.T) {
 			},
 		},
 		{
-			name:    "failed to get external svc - no endpoints",
+			name:    "failed to get external svcs - no endpoints",
 			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
 			inputResources: map[string]runtime.Object{
 				"cephobjectzones": &cephv1.CephObjectZoneList{
@@ -890,15 +892,11 @@ func TestEnsureZones(t *testing.T) {
 				"cephobjectstores": &cephv1.CephObjectStoreList{
 					Items: []cephv1.CephObjectStore{*objectStore},
 				},
-				"services": &corev1.ServiceList{},
 			},
 			expectedZones: &cephv1.CephObjectZoneList{
 				Items: []cephv1.CephObjectZone{*correctZone.DeepCopy()},
 			},
-			apiErrors: map[string]error{
-				"get-services": errors.New("failed to get external service"),
-			},
-			expectedError: "failed to get ip of external service: failed to get external service",
+			expectedError: "failed to find external service for zone secondary-zone1: failed to list services",
 		},
 		{
 			name:    "nothing to do - no endpoints, no rgw external service",
@@ -974,7 +972,8 @@ func TestEnsureZones(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Rookclientset, "create", []string{"cephobjectzones"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "update", []string{"cephobjectzones"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "delete", []string{"cephobjectzones"}, test.inputResources, test.apiErrors)
-			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"services", "secrets"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"secrets"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "list", []string{"services"}, test.inputResources, nil)
 
 			stateChanged, err := c.ensureZones()
 			if test.expectedError != "" {

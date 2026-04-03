@@ -250,25 +250,29 @@ func TestOpenstackPoolsValidate(t *testing.T) {
 
 func TestValidateObjectStorage(t *testing.T) {
 	cephDplRgwEmptyPoolTypes := unitinputs.CephDeployNonMosk.DeepCopy()
-	cephDplRgwEmptyPoolTypes.Spec.ObjectStorage.Rgw.DataPool.Replicated = nil
-	cephDplRgwEmptyPoolTypes.Spec.ObjectStorage.Rgw.DataPool.ErasureCoded = nil
-	cephDplRgwEmptyPoolTypes.Spec.ObjectStorage.Rgw.MetadataPool.Replicated = nil
-	cephDplRgwEmptyPoolTypes.Spec.ObjectStorage.Rgw.MetadataPool.ErasureCoded = nil
+	rgwCastedEmpty, _ := cephDplRgwEmptyPoolTypes.Spec.ObjectStorage.Rgws[0].GetSpec()
+	rgwCastedEmpty.DataPool.Replicated.Size = 0
+	rgwCastedEmpty.DataPool.ErasureCoded.CodingChunks = 0
+	rgwCastedEmpty.DataPool.ErasureCoded.DataChunks = 0
+	rgwCastedEmpty.MetadataPool.Replicated.Size = 0
+	rgwCastedEmpty.MetadataPool.ErasureCoded.CodingChunks = 0
+	rgwCastedEmpty.MetadataPool.ErasureCoded.DataChunks = 0
+	cephDplRgwEmptyPoolTypes.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCastedEmpty)
 
 	cephDplRgwWrongPoolTypes := unitinputs.CephDeployNonMosk.DeepCopy()
-	cephDplRgwWrongPoolTypes.Spec.ObjectStorage.Rgw.DataPool = &cephlcmv1alpha1.CephPoolSpec{
-		ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{},
-		Replicated:   &cephlcmv1alpha1.CephPoolReplicatedSpec{},
-	}
-	cephDplRgwWrongPoolTypes.Spec.ObjectStorage.Rgw.MetadataPool = &cephlcmv1alpha1.CephPoolSpec{
-		ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{},
-		Replicated:   &cephlcmv1alpha1.CephPoolReplicatedSpec{},
-	}
+	rgwCastedWrong, _ := cephDplRgwWrongPoolTypes.Spec.ObjectStorage.Rgws[0].GetSpec()
+	rgwCastedWrong.DataPool.ErasureCoded.CodingChunks = 0
+	rgwCastedWrong.DataPool.ErasureCoded.DataChunks = 1
+	rgwCastedWrong.MetadataPool.Replicated.Size = 1
+	rgwCastedWrong.MetadataPool.DeviceClass = ""
+	cephDplRgwWrongPoolTypes.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCastedWrong)
 
 	cephDplWithExtraOpts := unitinputs.CephDeployNonMosk.DeepCopy()
+	rgwCastedCustomClass, _ := cephDplWithExtraOpts.Spec.ObjectStorage.Rgws[0].GetSpec()
 	cephDplWithExtraOpts.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{CustomDeviceClasses: []string{"some-custom-class"}}
-	cephDplWithExtraOpts.Spec.ObjectStorage.Rgw.DataPool.DeviceClass = "some-custom-class"
-	cephDplWithExtraOpts.Spec.ObjectStorage.Rgw.MetadataPool.DeviceClass = "some-custom-class"
+	rgwCastedCustomClass.DataPool.DeviceClass = "some-custom-class"
+	rgwCastedCustomClass.MetadataPool.DeviceClass = "some-custom-class"
+	cephDplWithExtraOpts.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCastedCustomClass)
 	node := cephDplWithExtraOpts.Spec.Nodes[0]
 	node.Roles = append(node.Roles, "rgw")
 	cephDplWithExtraOpts.Spec.Nodes[0] = node
@@ -297,64 +301,47 @@ func TestValidateObjectStorage(t *testing.T) {
 		{
 			name:          "no pool type for data pool and for metadata pool",
 			cephDpl:       cephDplRgwEmptyPoolTypes,
-			expectedError: "ObjectStorage section is incorrect: rgw metadata pool must be only replicated,rgw data pool has no pool type specified",
+			expectedError: "ObjectStorage section is incorrect: rgw metadata pool must be only replicated,rgw data pool should be either replicated or erasureCoded",
 		},
 		{
-			name:          "both pool types for data pool and wrong for metadata pool has no device class provided",
+			name:          "incorrect ec params for data pool and metadata pool has no device class provided",
 			cephDpl:       cephDplRgwWrongPoolTypes,
-			expectedError: "ObjectStorage section is incorrect: rgw metadata pool must be only replicated,rgw metadata pool has no deviceClass specified (valid options are: [hdd nvme ssd]),rgw data pool must have only one pool type specified,rgw data pool has no deviceClass specified (valid options are: [hdd nvme ssd])",
+			expectedError: "ObjectStorage section is incorrect: rgw metadata pool has no deviceClass specified (valid options are: [hdd nvme ssd]),erasureCoded rgw data pool needs dataChunks set to at least 2,erasureCoded rgw data pool needs dataChunks set to at least 1",
 		},
 		{
 			name:          "not enough rgw roles",
 			cephDpl:       cephDplWithRgwRoles,
-			expectedError: "not enough 'rgw' roles specified in nodes spec, ObjectStorage requires at least 2",
+			expectedError: "not enough 'rgw' roles specified in nodes spec, ObjectStorage section requires at least 2",
 		},
 		{
 			name: "osd failure domain, failure",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.ObjectStorage.Rgw.DataPool.FailureDomain = "osd"
-				cd.Spec.ObjectStorage.Rgw.MetadataPool.FailureDomain = "osd"
+				rgwCasted, _ := cd.Spec.ObjectStorage.Rgws[0].GetSpec()
+				rgwCasted.DataPool.FailureDomain = "osd"
+				rgwCasted.MetadataPool.FailureDomain = "osd"
+				cd.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCasted)
 				return cd
 			}(),
 			expectedError: "ObjectStorage section is incorrect: rgw metadata pool contains prohibited 'osd' failureDomain,rgw data pool contains prohibited 'osd' failureDomain",
-		},
-		{
-			name: "no metadata and datapool specified",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.ObjectStorage.Rgw.DataPool = nil
-				cd.Spec.ObjectStorage.Rgw.MetadataPool = nil
-				return cd
-			}(),
-			expectedError: "ObjectStorage section is incorrect: no rgw metadata/data pool(s) specified",
 		},
 		{
 			name:    "multisite rgw correct",
 			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
 		},
 		{
-			name: "multiste is not specified, but rgw has a zone",
+			name: "rgw has a wrong zone",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				cd.Spec.ObjectStorage.Zones = nil
-				cd.Spec.ObjectStorage.Zonegroups = nil
-				cd.Spec.ObjectStorage.Realms = nil
+				rgwCasted, _ := cd.Spec.ObjectStorage.Rgws[0].GetSpec()
+				rgwCasted.Zone.Name = "fake"
+				cd.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCasted)
 				return cd
 			}(),
-			expectedError: "ObjectStorage section is incorrect: rgw has specified zone name, but related zone is not present in spec",
+			expectedError: "ObjectStorage section is incorrect: incorrect rgw configuration, specified zone 'fake' is not found",
 		},
 		{
-			name: "multiste is specified, but rgw has a wrong zone",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cd := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				cd.Spec.ObjectStorage.Rgw.Zone.Name = "fake"
-				return cd
-			}(),
-			expectedError: "ObjectStorage section is incorrect: incorrect multisite configuration, specified zone 'fake' is not found",
-		},
-		{
-			name: "multiste is specified, but rgw has a wrong zonegroup",
+			name: "rgw zone has a wrong zonegroup",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployMultisiteRgw.DeepCopy()
 				zoneCasted, _ := cd.Spec.ObjectStorage.Zones[0].GetSpec()
@@ -362,10 +349,10 @@ func TestValidateObjectStorage(t *testing.T) {
 				cd.Spec.ObjectStorage.Zones[0].Spec.Raw = unitinputs.ConvertStructToRaw(zoneCasted)
 				return cd
 			}(),
-			expectedError: "ObjectStorage section is incorrect: incorrect multisite configuration, specified zonegroup 'fake' is not found",
+			expectedError: "ObjectStorage section is incorrect: incorrect zone configuration, specified zonegroup 'fake' is not found",
 		},
 		{
-			name: "multiste is specified, but rgw has a wrong realm",
+			name: "rgw zonegroup has a wrong realm",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployMultisiteRgw.DeepCopy()
 				zoneGroupCasted, _ := cd.Spec.ObjectStorage.Zonegroups[0].GetSpec()
@@ -373,10 +360,10 @@ func TestValidateObjectStorage(t *testing.T) {
 				cd.Spec.ObjectStorage.Zonegroups[0].Spec.Raw = unitinputs.ConvertStructToRaw(zoneGroupCasted)
 				return cd
 			}(),
-			expectedError: "ObjectStorage section is incorrect: incorrect multisite configuration, specified realm 'fake' is not found",
+			expectedError: "ObjectStorage section is incorrect: incorrect zonegroup configuration, specified realm 'fake' is not found",
 		},
 		{
-			name: "multiste is specified, but rgw has a wrong zone pools config",
+			name: "rgw has a wrong zone pools config",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployMultisiteRgw.DeepCopy()
 				zoneCasted, _ := cd.Spec.ObjectStorage.Zones[0].GetSpec()
@@ -389,7 +376,7 @@ func TestValidateObjectStorage(t *testing.T) {
 			expectedError: "ObjectStorage section is incorrect: zone 'secondary-zone1' metadata pool must be only replicated,zone 'secondary-zone1' data pool should be either replicated or erasureCoded",
 		},
 		{
-			name: "multiste is specified, but multiple zones, realms, zonegroups",
+			name: "multiple zones, realms, zonegroups",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployMultisiteRgw.DeepCopy()
 				zone2 := cd.Spec.ObjectStorage.Zones[0].DeepCopy()
@@ -409,8 +396,10 @@ func TestValidateObjectStorage(t *testing.T) {
 			name: "external rgw, but contains rgw pools specs",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployExternalRgw.DeepCopy()
-				cd.Spec.ObjectStorage.Rgw.DataPool = &cephlcmv1alpha1.CephPoolSpec{}
-				cd.Spec.ObjectStorage.Rgw.MetadataPool = &cephlcmv1alpha1.CephPoolSpec{}
+				rgwCasted, _ := cd.Spec.ObjectStorage.Rgws[0].GetSpec()
+				rgwCasted.DataPool.Replicated.Size = 1
+				rgwCasted.MetadataPool.Replicated.Size = 1
+				cd.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCasted)
 				return cd
 			}(),
 			expectedError: "ObjectStorage section is incorrect: rgw in external mode, pools (metadata and data) specification is not allowed",
@@ -632,18 +621,16 @@ func TestValidate(t *testing.T) {
 			name: "validate incorrect object storage, failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.ObjectStorage.Rgw.DataPool.Replicated = &cephlcmv1alpha1.CephPoolReplicatedSpec{
-					Size: 3,
-				}
+				rgwCasted, _ := cd.Spec.ObjectStorage.Rgws[0].GetSpec()
+				rgwCasted.DataPool.Replicated = cephv1.ReplicatedSpec{Size: 3}
+				cd.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCasted)
 				return cd
 			}(),
 			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),
 			expected: cephlcmv1alpha1.CephDeploymentValidation{
 				Result:                  cephlcmv1alpha1.ValidationFailed,
 				LastValidatedGeneration: 10,
-				Messages: []string{
-					"ObjectStorage section is incorrect: rgw data pool must have only one pool type specified",
-				},
+				Messages:                []string{"ObjectStorage section is incorrect: rgw data pool should be either replicated or erasureCoded"},
 			},
 		},
 		{

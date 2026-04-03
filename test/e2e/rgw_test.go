@@ -29,6 +29,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
@@ -97,7 +98,7 @@ func TestRgwUserCreateAccess(t *testing.T) {
 		t.Fatal("There are several CephObjectStore created in current Ceph Cluster, which is invalid")
 	}
 
-	runRgwAccessTest(t, "", "", "", "", true)
+	runRgwAccessTest(t, "", "", "", "", "", true)
 
 	cd, err := f.TF.ManagedCluster.FindCephDeployment()
 	if err != nil {
@@ -105,7 +106,7 @@ func TestRgwUserCreateAccess(t *testing.T) {
 	}
 	if cd.Spec.BlockStorage != nil && lcmcommon.IsOpenStackPoolsPresent(cd.Spec.BlockStorage.Pools) {
 		f.Step(t, "check Openstack Ceilometer user access")
-		runRgwAccessTest(t, "", "", "", "rgw-ceilometer", false)
+		runRgwAccessTest(t, "", "", "", "", "rgw-ceilometer", false)
 	} else {
 		t.Log("There is no Rockoon installed, skipping step")
 	}
@@ -140,7 +141,7 @@ func TestRgwAccessPublicDomainRockoon(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	runRgwAccessTest(t, endpoint, "", "", "", true)
+	runRgwAccessTest(t, endpoint, "", "", "", "", true)
 
 	t.Log("Test successfully passed")
 }
@@ -187,6 +188,11 @@ func TestRgwAccessPublicDomainCustom(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	rgwStoreName := testConfig["rgwServedByIngress"]
+	if rgwStoreName == "" {
+		rgwStoreName = cd.Spec.ObjectStorage.Rgws[0].Name
+	}
+
 	cd.Spec.IngressConfig = &cephlcmv1alpha1.CephDeploymentIngressConfig{
 		Annotations: map[string]string{
 			"nginx.ingress.kubernetes.io/proxy-body-size": "0",
@@ -202,6 +208,12 @@ func TestRgwAccessPublicDomainCustom(t *testing.T) {
 			},
 			Domain: publicDomain,
 		},
+	}
+	for idx, rgw := range cd.Spec.ObjectStorage.Rgws {
+		if rgw.Name == rgwStoreName {
+			cd.Spec.ObjectStorage.Rgws[idx].ServedByIngress = true
+			break
+		}
 	}
 	err = f.UpdateCephDeploymentSpec(cd, true)
 	if err != nil {
@@ -224,7 +236,7 @@ func TestRgwAccessPublicDomainCustom(t *testing.T) {
 	}
 	ingressIP := ingressSvc.Status.LoadBalancer.Ingress[0].IP
 
-	runRgwAccessTest(t, endpoint, ingressIP, fqdn, "", true)
+	runRgwAccessTest(t, endpoint, ingressIP, fqdn, rgwStoreName, "", true)
 
 	t.Log("Test successfully passed")
 }
@@ -308,52 +320,55 @@ func TestRgwAccessPublicTlsByRefAndCustomHostnameRockoon(t *testing.T) {
 	}
 	ingressIP := ingressSvc.Status.LoadBalancer.Ingress[0].IP
 
-	runRgwAccessTest(t, endpoint, ingressIP, fmt.Sprintf("%v.%v", cd.Spec.IngressConfig.TLSConfig.Hostname, cd.Spec.IngressConfig.TLSConfig.Domain), "", true)
+	runRgwAccessTest(t, endpoint, ingressIP, fmt.Sprintf("%v.%v", cd.Spec.IngressConfig.TLSConfig.Hostname, cd.Spec.IngressConfig.TLSConfig.Domain), "", "", true)
 
 	t.Log("Test successfully passed")
 }
 
-func runRgwAccessTest(t *testing.T, endpoint, ingressIP, domain, rgwUserName string, checkOverQuota bool) {
+func runRgwAccessTest(t *testing.T, endpoint, ingressIP, domain, rgwStoreName, rgwUserName string, checkOverQuota bool) {
 	awscliName := fmt.Sprintf("awscli-%d", time.Now().Unix())
 	customUserCmName := fmt.Sprintf("custom-rgw-user-creds-%d", time.Now().Unix())
 	testNamespace := f.TF.ManagedCluster.LcmConfig.RookNamespace
 
 	f.Step(t, "Get test deployment image from Rook Ceph Operator")
-	testImage := f.TF.E2eImage
-	if testImage == "" {
-		rco, err := f.TF.ManagedCluster.GetDeployment("rook-ceph-operator", f.TF.ManagedCluster.LcmConfig.RookNamespace)
-		if err != nil {
-			t.Fatal(errors.Wrapf(err, "failed to get deployment %s/rook-ceph-operator", f.TF.ManagedCluster.LcmConfig.RookNamespace))
-		}
-		testImage = rco.Spec.Template.Spec.Containers[0].Image
-	}
-
 	cd, err := f.TF.ManagedCluster.FindCephDeployment()
 	if err != nil {
 		t.Fatal(err)
+	}
+	if rgwStoreName == "" {
+		rgwStoreName = cd.Spec.ObjectStorage.Rgws[0].Name
 	}
 	if rgwUserName == "" {
 		f.Step(t, "Create custom rgw user through spec")
 		rgwUserName = fmt.Sprintf("rgw-test-user-%d", time.Now().Unix())
 		bucketQuota := 1
 		objQuota := int64(1)
-		rgwUser := cephlcmv1alpha1.CephRGWUser{
-			Name:        rgwUserName,
-			DisplayName: rgwUserName,
-			Capabilities: &cephv1.ObjectUserCapSpec{
-				Bucket:   "*",
-				User:     "read",
-				MetaData: "read",
+		rgwUserRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(
+			cephv1.ObjectStoreUserSpec{
+				Store:       rgwStoreName,
+				DisplayName: rgwUserName,
+				Capabilities: &cephv1.ObjectUserCapSpec{
+					Bucket:   "*",
+					User:     "read",
+					MetaData: "read",
+				},
+				Quotas: &cephv1.ObjectUserQuotaSpec{
+					MaxBuckets: &bucketQuota,
+					MaxObjects: &objQuota,
+				},
 			},
-			Quotas: &cephv1.ObjectUserQuotaSpec{
-				MaxBuckets: &bucketQuota,
-				MaxObjects: &objQuota,
+		)
+		rgwUser := cephlcmv1alpha1.CephObjectStoreUser{
+			Name: rgwUserName,
+			Spec: runtime.RawExtension{
+				Raw: rgwUserRaw,
 			},
 		}
-		if len(cd.Spec.ObjectStorage.Rgw.ObjectUsers) > 0 {
-			cd.Spec.ObjectStorage.Rgw.ObjectUsers = append(cd.Spec.ObjectStorage.Rgw.ObjectUsers, rgwUser)
+
+		if len(cd.Spec.ObjectStorage.Users) > 0 {
+			cd.Spec.ObjectStorage.Users = append(cd.Spec.ObjectStorage.Users, rgwUser)
 		} else {
-			cd.Spec.ObjectStorage.Rgw.ObjectUsers = []cephlcmv1alpha1.CephRGWUser{rgwUser}
+			cd.Spec.ObjectStorage.Users = []cephlcmv1alpha1.CephObjectStoreUser{rgwUser}
 		}
 		err = f.UpdateCephDeploymentSpec(cd, true)
 		if err != nil {
@@ -411,7 +426,7 @@ aws_secret_access_key = %s`, customAccessKey, customSecretKey),
 	}()
 
 	f.Step(t, "Create awscli pod to verify public endpoint accessibility")
-	_, err = f.TF.ManagedCluster.CreateAWSCliDeployment(awscliName, "", testImage, customUserCmName, "rgw-ssl-certificate", ingressIP, domain)
+	_, err = f.TF.ManagedCluster.CreateAWSCliDeployment(awscliName, "", f.TF.E2eImage, customUserCmName, fmt.Sprintf("%s-ssl-cert", rgwStoreName), ingressIP, domain)
 	if err != nil {
 		t.Fatalf("failed to create and configure awscli for custom rgw user: %v", err)
 	}

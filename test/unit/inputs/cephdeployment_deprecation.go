@@ -71,6 +71,12 @@ var CephDeploymentDeprecated = cephlcmv1alpha1.CephDeployment{
 						v1.ResourceMemory: resource.MustParse("156Mi"),
 					},
 				},
+				"rgw": {
+					Requests: v1.ResourceList{
+						v1.ResourceMemory: resource.MustParse("28Mi"),
+						v1.ResourceCPU:    resource.MustParse("10m"),
+					},
+				},
 			},
 			Tolerations: map[string]cephlcmv1alpha1.CephDeploymentToleration{
 				"all": {
@@ -113,6 +119,15 @@ var CephDeploymentDeprecated = cephlcmv1alpha1.CephDeployment{
 					Rules: []v1.Toleration{
 						{
 							Key:      "test.kubernetes.io/testkey-mds",
+							Effect:   "Schedule",
+							Operator: "Exists",
+						},
+					},
+				},
+				"rgw": {
+					Rules: []v1.Toleration{
+						{
+							Key:      "test.kubernetes.io/testkey-rgw",
 							Effect:   "Schedule",
 							Operator: "Exists",
 						},
@@ -220,6 +235,47 @@ var CephDeploymentDeprecated = cephlcmv1alpha1.CephDeployment{
 				},
 			},
 		},
+		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
+			OldRgw: &cephlcmv1alpha1.CephRGW{
+				Name: "rgw-store",
+				ObjectUsers: []cephlcmv1alpha1.CephRGWUser{
+					{
+						Name:         "custom-user",
+						DisplayName:  "custom-user-for-app",
+						Capabilities: &cephv1.ObjectUserCapSpec{User: "read"},
+						Quotas:       &cephv1.ObjectUserQuotaSpec{MaxBuckets: &[]int{1}[0]},
+					},
+					{
+						Name: "base-user",
+					},
+				},
+				Buckets:               []string{"bucket-1", "bucket-2"},
+				PreservePoolsOnDelete: false,
+				DataPool: &cephlcmv1alpha1.CephPoolSpec{
+					DeviceClass: "hdd",
+					ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
+						CodingChunks: 1,
+						DataChunks:   2,
+					},
+				},
+				MetadataPool: &cephlcmv1alpha1.CephPoolSpec{
+					DeviceClass: "hdd",
+					Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
+						Size: 3,
+					},
+				},
+				Gateway: cephlcmv1alpha1.CephRGWGateway{
+					Instances:  2,
+					Port:       80,
+					SecurePort: 8443,
+				},
+				SSLCert: &cephlcmv1alpha1.CephDeploymentCert{
+					Cacert:  "fake",
+					TLSCert: "fake",
+					TLSKey:  "fake",
+				},
+			},
+		},
 		Nodes: CephNodesOk,
 	},
 }
@@ -247,8 +303,8 @@ var CephDeploymentMultisiteDeprecated = func() cephlcmv1alpha1.CephDeployment {
 						DeviceClass:   "hdd",
 						FailureDomain: "host",
 						ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
-							CodingChunks: 2,
-							DataChunks:   1,
+							CodingChunks: 1,
+							DataChunks:   2,
 						},
 					},
 					MetadataPool: cephlcmv1alpha1.CephPoolSpec{
@@ -261,9 +317,13 @@ var CephDeploymentMultisiteDeprecated = func() cephlcmv1alpha1.CephDeployment {
 				},
 			},
 		},
-		Rgw: cephlcmv1alpha1.CephRGW{
-			Name:    "rgw-store",
-			Gateway: CephRgwBaseSpec.Gateway,
+		OldRgw: &cephlcmv1alpha1.CephRGW{
+			Name: "rgw-store",
+			Gateway: cephlcmv1alpha1.CephRGWGateway{
+				Instances:  2,
+				Port:       80,
+				SecurePort: 8443,
+			},
 			Zone: &cephv1.ZoneSpec{
 				Name: "zone1",
 			},
@@ -276,6 +336,7 @@ var CephDeploymentSpecClusterJSON = `{"dashboard":{"enabled":true},"dataDirHostP
 var CephPoolSpec1MigratedJSON = `{"replicated":{"size":3,"targetSizeRatio":0.1},"failureDomain":"host","crushRoot":"default","deviceClass":"hdd","mirroring":{"mode":"peer"}}`
 var CephPoolSpec2MigratedJSON = `{"failureDomain":"host","deviceClass":"hdd","erasureCoded":{"codingChunks":1,"dataChunks":2,"algorithm":"custom"},"parameters":{"custom-pool-param":"custom-pool-value"},"enableCrushUpdates":true}`
 var CephFsSpecMigratedJSON = `{"dataPools":[{"name":"some-pool-name","replicated":{"size":3},"deviceClass":"hdd"},{"name":"second-pool-name","deviceClass":"hdd","erasureCoded":{"codingChunks":1,"dataChunks":2}}],"metadataPool":{"replicated":{"size":3},"deviceClass":"hdd"},"metadataServer":{"activeCount":1,"activeStandby":true,"livenessProbe":{"disabled":true},"placement":{"tolerations":[{"key":"test.kubernetes.io/testkey-mds","operator":"Exists","effect":"Schedule"}]},"resources":{"limits":{"cpu":"100m","memory":"156Mi"}},"startupProbe":{"disabled":true}},"preserveFilesystemOnDelete":false}`
+var CephDeploymentRgwJSON = `{"dataPool":{"deviceClass":"hdd","erasureCoded":{"codingChunks":1,"dataChunks":2}},"gateway":{"instances":2,"placement":{"tolerations":[{"key":"test.kubernetes.io/testkey-rgw","operator":"Exists","effect":"Schedule"}]},"port":80,"resources":{"requests":{"cpu":"10m","memory":"28Mi"}},"securePort":8443,"sslCertificateRef":"rgw-ssl-certificate"},"metadataPool":{"replicated":{"size":3},"deviceClass":"hdd"},"preservePoolsOnDelete":false}`
 
 var CephDeploymentMigrated = cephlcmv1alpha1.CephDeployment{
 	ObjectMeta: LcmObjectMeta,
@@ -316,17 +377,50 @@ var CephDeploymentMigrated = cephlcmv1alpha1.CephDeployment{
 				},
 			},
 		},
+		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
+			Rgws: []cephlcmv1alpha1.CephObjectStore{
+				{
+					Name: "rgw-store",
+					Spec: runtime.RawExtension{
+						Raw: []byte(CephDeploymentRgwJSON),
+					},
+				},
+			},
+			Users: []cephlcmv1alpha1.CephObjectStoreUser{
+				{
+					Name: "custom-user",
+					Spec: runtime.RawExtension{
+						Raw: []byte(`{"capabilities":{"user":"read"},"displayName":"custom-user-for-app","quotas":{"maxBuckets":1},"store":"rgw-store"}`),
+					},
+				},
+				{
+					Name: "base-user",
+					Spec: runtime.RawExtension{
+						Raw: []byte(`{"store":"rgw-store"}`),
+					},
+				},
+			},
+		},
 		Nodes: CephNodesOk,
 	},
 }
 
-var CephDeploymentZoneJSON = `{"dataPool":{"failureDomain":"host","deviceClass":"hdd","erasureCoded":{"codingChunks":2,"dataChunks":1}},"metadataPool":{"replicated":{"size":3},"failureDomain":"host","deviceClass":"hdd"},"zoneGroup":"zonegroup1"}`
+var CephDeploymentZoneJSON = `{"dataPool":{"failureDomain":"host","deviceClass":"hdd","erasureCoded":{"codingChunks":1,"dataChunks":2}},"metadataPool":{"replicated":{"size":3},"failureDomain":"host","deviceClass":"hdd"},"zoneGroup":"zonegroup1"}`
+var CephDeploymentRgwMultisiteJSON = `{"gateway":{"instances":2,"port":80,"securePort":8443},"zone":{"name":"zone1"}}`
 
 var CephDeploymentMultisiteMigrated = cephlcmv1alpha1.CephDeployment{
 	ObjectMeta: LcmObjectMeta,
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
 		Cluster: BaseCephDeployment.Spec.Cluster.DeepCopy(),
 		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
+			Rgws: []cephlcmv1alpha1.CephObjectStore{
+				{
+					Name: "rgw-store",
+					Spec: runtime.RawExtension{
+						Raw: []byte(CephDeploymentRgwMultisiteJSON),
+					},
+				},
+			},
 			Realms: []cephlcmv1alpha1.CephObjectRealm{
 				{
 					Name: "realm1",
@@ -349,13 +443,6 @@ var CephDeploymentMultisiteMigrated = cephlcmv1alpha1.CephDeployment{
 					Spec: runtime.RawExtension{
 						Raw: []byte(CephDeploymentZoneJSON),
 					},
-				},
-			},
-			Rgw: cephlcmv1alpha1.CephRGW{
-				Name:    "rgw-store",
-				Gateway: CephRgwBaseSpec.Gateway,
-				Zone: &cephv1.ZoneSpec{
-					Name: "zone1",
 				},
 			},
 		},
@@ -399,6 +486,19 @@ var CephDeployExternalDeprecated = cephlcmv1alpha1.CephDeployment{
 			PublicNet:  "127.0.0.0/32",
 		},
 		External: &[]bool{true}[0],
+		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
+			OldRgw: &cephlcmv1alpha1.CephRGW{
+				Name: "external-rgw",
+				Gateway: cephlcmv1alpha1.CephRGWGateway{
+					Port:       8080,
+					SecurePort: 8443,
+					ExternalRgwEndpoint: &cephv1.EndpointAddress{
+						IP:       "127.0.0.1",
+						Hostname: "fake-1",
+					},
+				},
+			},
+		},
 	},
 }
 
@@ -410,6 +510,16 @@ var CephDeployExternalMigrated = cephlcmv1alpha1.CephDeployment{
 		Cluster: &cephlcmv1alpha1.CephCluster{
 			RawExtension: runtime.RawExtension{
 				Raw: []byte(CephDeploymentSpecClusterExternalJSON),
+			},
+		},
+		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
+			Rgws: []cephlcmv1alpha1.CephObjectStore{
+				{
+					Name: "external-rgw",
+					Spec: runtime.RawExtension{
+						Raw: []byte(`{"gateway":{"externalRgwEndpoints":[{"ip":"127.0.0.1","hostname":"fake-1"}],"port":8080,"securePort":8443}}`),
+					},
+				},
 			},
 		},
 	},

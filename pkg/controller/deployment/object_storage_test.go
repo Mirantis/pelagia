@@ -34,7 +34,9 @@ import (
 
 func TestEnsureObjectStorage(t *testing.T) {
 	resourceUpdateTimestamps = updateTimestamps{
-		rgwSSLCert: "some-time",
+		rgwSSLCert: map[string]string{
+			"rgw-store": "some-time",
+		},
 		cephConfigMap: map[string]string{
 			"global": "some-time",
 		},
@@ -51,17 +53,17 @@ func TestEnsureObjectStorage(t *testing.T) {
 			name:           "no object storage section, cleanup failed",
 			cephDpl:        &unitinputs.BaseCephDeployment,
 			inputResources: map[string]runtime.Object{},
-			expectedError:  "failed to cleanup object storage",
+			expectedError:  "error(s) during object storage ensure: failed to ensure object storage multisite, failed to ensure ceph rgw",
 		},
 		{
 			name:    "no object storage section, cleanup in progress",
 			cephDpl: &unitinputs.BaseCephDeployment,
 			inputResources: map[string]runtime.Object{
-				"secrets": &corev1.SecretList{
-					Items: []corev1.Secret{*unitinputs.RgwSSLCertSecret.DeepCopy()},
+				"secrets":        &corev1.SecretList{},
+				"storageclasses": &storagev1.StorageClassList{},
+				"cephblockpools": &cephv1.CephBlockPoolList{
+					Items: []cephv1.CephBlockPool{*unitinputs.BuiltinRgwRootPool},
 				},
-				"storageclasses":       &storagev1.StorageClassList{},
-				"cephblockpools":       &cephv1.CephBlockPoolList{},
 				"cephobjectzones":      &cephv1.CephObjectZoneList{},
 				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{},
 				"cephobjectrealms":     &cephv1.CephObjectRealmList{},
@@ -105,15 +107,7 @@ func TestEnsureObjectStorage(t *testing.T) {
 				},
 				"storageclasses": &storagev1.StorageClassList{},
 				"cephobjectstores": &cephv1.CephObjectStoreList{
-					Items: []cephv1.CephObjectStore{
-						func() cephv1.CephObjectStore {
-							store := unitinputs.CephObjectStoreExternal.DeepCopy()
-							store.Spec.Gateway.Annotations = map[string]string{
-								"cephdeployment.lcm.mirantis.com/ssl-cert-generated": "current-time",
-							}
-							return *store
-						}(),
-					},
+					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreExternal.DeepCopy()},
 				},
 			},
 		},
@@ -126,7 +120,7 @@ func TestEnsureObjectStorage(t *testing.T) {
 				},
 				"storageclasses": &storagev1.StorageClassList{},
 			},
-			expectedError: "failed to ensure ceph rgw: failed to list rgw object store: failed to list cephobjectstores",
+			expectedError: "error(s) during object storage ensure: failed to ensure ceph rgw",
 		},
 		{
 			name:    "object storage section present, multisite apply failed, rgw changed",
@@ -139,7 +133,7 @@ func TestEnsureObjectStorage(t *testing.T) {
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
 				"services":             &corev1.ServiceList{},
 			},
-			expectedError: "failed to ensure ceph object storage multisite: failed to ensure zone groups: failed to get list CephObjectZones in 'rook-ceph' namespace: failed to list cephobjectzones",
+			expectedError: "error(s) during object storage ensure: failed to ensure object storage multisite",
 		},
 		{
 			name:    "object storage section present, multisite apply in progress, rgw changed",
@@ -198,7 +192,7 @@ func TestEnsureObjectStorage(t *testing.T) {
 							store.Spec.DefaultRealm = false
 							store.Spec.Gateway.Annotations = map[string]string{
 								"cephdeployment.lcm.mirantis.com/config-global-updated":                 "some-time",
-								"cephdeployment.lcm.mirantis.com/ssl-cert-generated":                    "current-time",
+								"cephdeployment.lcm.mirantis.com/ssl-cert-generated":                    "",
 								"cephdeployment.lcm.mirantis.com/config-client.rgw.rgw.store.a-updated": "",
 							}
 							return *store
@@ -266,6 +260,7 @@ func TestDeleteObjectStorage(t *testing.T) {
 				"cephobjectstores": &cephv1.CephObjectStoreList{
 					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreBase.DeepCopy()},
 				},
+				"services": &corev1.ServiceList{},
 			},
 			apiErrors: map[string]error{
 				"delete-cephobjectstores": errors.New("failed to delete CephObjectStore"),
@@ -279,6 +274,8 @@ func TestDeleteObjectStorage(t *testing.T) {
 				"cephobjectstores": &cephv1.CephObjectStoreList{
 					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreBase.DeepCopy()},
 				},
+				"secrets":  &corev1.SecretList{},
+				"services": &corev1.ServiceList{},
 			},
 		},
 		{
@@ -412,7 +409,7 @@ func TestDeleteObjectStorage(t *testing.T) {
 				return "", "", errors.New("unexpected command call: " + e.Command)
 			}
 			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "delete", []string{"storageclasses"}, test.inputResources, test.apiErrors)
-			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "delete", []string{"secrets"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "delete", []string{"secrets", "services"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", rookRes, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "delete", rookRes, test.inputResources, test.apiErrors)
 

@@ -462,7 +462,7 @@ func TestVolumeExpansionPool(t *testing.T) {
 	}
 
 	f.Step(t, "Create Deployment %s/%s with volume expansion PVC bound", volExpDeploy.Namespace, volExpDeploy.Name)
-	nodes, err := f.TF.ManagedCluster.ListNodes()
+	nodes, err := f.TF.ManagedCluster.ListNodes("")
 	if err != nil {
 		t.Fatalf("failed to list nodes to label for test deployment: %v", err)
 	}

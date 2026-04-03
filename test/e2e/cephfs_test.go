@@ -442,7 +442,7 @@ func TestCephFSManila(t *testing.T) {
 	}
 	// find vs node
 	vsIP := ""
-	nodes, err := f.TF.ManagedCluster.ListNodes()
+	nodes, err := f.TF.ManagedCluster.ListNodes("")
 	if err != nil {
 		t.Fatalf("failed to list nodes for vs node: %v", err)
 	}

@@ -30,6 +30,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
@@ -147,14 +148,6 @@ func TestRgwSSERockoon(t *testing.T) {
 	}()
 
 	f.Step(t, "Get test deployment image")
-	testImage := f.TF.E2eImage
-	if testImage == "" {
-		rco, err := f.TF.ManagedCluster.GetDeployment("rook-ceph-operator", f.TF.ManagedCluster.LcmConfig.RookNamespace)
-		if err != nil {
-			t.Fatal(errors.Wrapf(err, "failed to get deployment %s/rook-ceph-operator", f.TF.ManagedCluster.LcmConfig.RookNamespace))
-		}
-		testImage = rco.Spec.Template.Spec.Containers[0].Image
-	}
 	rgwUserName := fmt.Sprintf("rgw-test-user-%d", time.Now().Unix())
 
 	f.Step(t, "Create custom rgw user through spec")
@@ -164,23 +157,31 @@ func TestRgwSSERockoon(t *testing.T) {
 	}
 	bucketQuota := 1
 	objQuota := int64(1)
-	rgwUser := cephlcmv1alpha1.CephRGWUser{
-		Name:        rgwUserName,
-		DisplayName: rgwUserName,
-		Capabilities: &cephv1.ObjectUserCapSpec{
-			Bucket:   "*",
-			User:     "read",
-			MetaData: "read",
+	rgwUserRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(
+		cephv1.ObjectStoreUserSpec{
+			DisplayName: rgwUserName,
+			Capabilities: &cephv1.ObjectUserCapSpec{
+				Bucket:   "*",
+				User:     "read",
+				MetaData: "read",
+			},
+			Quotas: &cephv1.ObjectUserQuotaSpec{
+				MaxBuckets: &bucketQuota,
+				MaxObjects: &objQuota,
+			},
 		},
-		Quotas: &cephv1.ObjectUserQuotaSpec{
-			MaxBuckets: &bucketQuota,
-			MaxObjects: &objQuota,
+	)
+	rgwUser := cephlcmv1alpha1.CephObjectStoreUser{
+		Name: rgwUserName,
+		Spec: runtime.RawExtension{
+			Raw: rgwUserRaw,
 		},
 	}
-	if len(cd.Spec.ObjectStorage.Rgw.ObjectUsers) > 0 {
-		cd.Spec.ObjectStorage.Rgw.ObjectUsers = append(cd.Spec.ObjectStorage.Rgw.ObjectUsers, rgwUser)
+
+	if len(cd.Spec.ObjectStorage.Users) > 0 {
+		cd.Spec.ObjectStorage.Users = append(cd.Spec.ObjectStorage.Users, rgwUser)
 	} else {
-		cd.Spec.ObjectStorage.Rgw.ObjectUsers = []cephlcmv1alpha1.CephRGWUser{rgwUser}
+		cd.Spec.ObjectStorage.Users = []cephlcmv1alpha1.CephObjectStoreUser{rgwUser}
 	}
 	err = f.UpdateCephDeploymentSpec(cd, true)
 	if err != nil {
@@ -235,7 +236,7 @@ aws_secret_access_key = %s`, customAccessKey, customSecretKey),
 	f.Step(t, "Create awscli pod to verify custom rgw users access")
 	awscliName := fmt.Sprintf("awscli-%d", time.Now().Unix())
 	awscliLabel := "awscli-custom"
-	awscli, err := f.TF.ManagedCluster.CreateAWSCliDeployment(awscliName, awscliLabel, testImage, "custom-rgw-user-creds", "rgw-ssl-certificate", "", "")
+	awscli, err := f.TF.ManagedCluster.CreateAWSCliDeployment(awscliName, awscliLabel, f.TF.E2eImage, "custom-rgw-user-creds", fmt.Sprintf("%s-ssl-cert", cd.Spec.ObjectStorage.Rgws[0].Name), "", "")
 	if err != nil {
 		t.Fatalf("failed to create and configure awscli for custom rgw user: %v", err)
 	}
@@ -299,7 +300,7 @@ aws_secret_access_key = %s`, customAccessKey, customSecretKey),
 
 	f.Step(t, "Verify file is uploaded and encrypted")
 	t.Log("#### e2e test: download and check test file with rados cli")
-	rgwDataPool := fmt.Sprintf("%s.rgw.buckets.data", f.TF.PreviousClusterState.CephDeployment.Spec.ObjectStorage.Rgw.Name)
+	rgwDataPool := fmt.Sprintf("%s.rgw.buckets.data", f.TF.PreviousClusterState.CephDeployment.Spec.ObjectStorage.Rgws[0].Name)
 	radosLs := fmt.Sprintf("rados ls -p %s", rgwDataPool)
 	radosLsOutput, err := f.TF.ManagedCluster.RunCephToolsCommand(radosLs)
 	if err != nil {

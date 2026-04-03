@@ -148,7 +148,7 @@ func TestEnsureToolBox(t *testing.T) {
 						*unitinputs.RookDeploymentLatestVersion,
 						func() appsv1.Deployment {
 							dp := unitinputs.ToolBoxDeploymentWithRgwSecret.DeepCopy()
-							dp.Spec.Template.Annotations["rgw-ssl-certificate/sha256"] = "fake-sha"
+							dp.Spec.Template.Annotations["rgw-store-ssl-cert/sha256"] = "fake-sha"
 							return *dp
 						}(),
 					},
@@ -257,7 +257,7 @@ func TestGenerateToolBox(t *testing.T) {
 				"cephobjectstores": &unitinputs.CephObjectStoreListReady,
 				"secrets":          &unitinputs.SecretsListEmpty,
 			},
-			expectedError: "failed to get secret 'rook-ceph/rgw-ssl-certificate' with cabundle for CephObjectStore 'rook-ceph/rgw-store': secrets \"rgw-ssl-certificate\" not found",
+			expectedError: "failed to get secret 'rook-ceph/rgw-store-ssl-cert' with cabundle for CephObjectStore 'rook-ceph/rgw-store': secrets \"rgw-store-ssl-cert\" not found",
 		},
 		{
 			name: "generate toolbox one objectstore",
@@ -303,11 +303,11 @@ func TestGenerateToolBox(t *testing.T) {
 					Sources: []corev1.VolumeProjection{
 						{
 							Secret: &corev1.SecretProjection{
-								LocalObjectReference: corev1.LocalObjectReference{Name: "rgw-ssl-certificate"},
+								LocalObjectReference: corev1.LocalObjectReference{Name: "rgw-store-ssl-cert"},
 								Items: []corev1.KeyToPath{
 									{
 										Key:  "cabundle",
-										Path: "rgw-ssl-certificate.crt",
+										Path: "rgw-store-ssl-cert.crt",
 										Mode: &[]int32{256}[0],
 									},
 								},

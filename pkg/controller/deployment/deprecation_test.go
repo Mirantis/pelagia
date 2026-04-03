@@ -32,6 +32,8 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 	cephDeplConflicted.Spec.Cluster = unitinputs.CephDeploymentMigrated.Spec.Cluster.DeepCopy()
 	cephDeplConflicted.Spec.BlockStorage = unitinputs.CephDeploymentMigrated.Spec.BlockStorage.DeepCopy()
 	cephDeplConflicted.Spec.SharedFilesystem.Filesystems = unitinputs.CephDeploymentMigrated.Spec.SharedFilesystem.DeepCopy().Filesystems
+	cephDeplConflicted.Spec.ObjectStorage = unitinputs.CephDeploymentMigrated.Spec.ObjectStorage.DeepCopy()
+	cephDeplConflicted.Spec.ObjectStorage.OldRgw = unitinputs.CephDeploymentDeprecated.Spec.ObjectStorage.OldRgw.DeepCopy()
 
 	cephDeplMultisiteConflicted := unitinputs.CephDeploymentMultisiteMigrated.DeepCopy()
 	cephDeplMultisiteConflicted.Spec.ObjectStorage.OldMultiSite = unitinputs.CephDeploymentMultisiteDeprecated.Spec.ObjectStorage.OldMultiSite.DeepCopy()
@@ -47,7 +49,7 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 			name:            "cant migrate deprecated fields due to conflicts",
 			cephDpl:         cephDeplConflicted.DeepCopy(),
 			expectedCephDpl: *cephDeplConflicted,
-			expectedError:   "found deprecated params which can't be automatically migrated: [ spec.dashboard spec.dataDirHostPath spec.healthCheck spec.hyperconverge.resources spec.hyperconverge.tolerations[all] spec.hyperconverge.tolerations[mgr] spec.hyperconverge.tolerations[mon] spec.hyperconverge.tolerations[osd] spec.mgr spec.network spec.pools spec.sharedFilesystem.cephFS ]",
+			expectedError:   "found deprecated params which can't be automatically migrated: [ spec.dashboard spec.dataDirHostPath spec.healthCheck spec.hyperconverge.resources spec.hyperconverge.tolerations[all] spec.hyperconverge.tolerations[mgr] spec.hyperconverge.tolerations[mon] spec.hyperconverge.tolerations[osd] spec.mgr spec.network spec.pools spec.sharedFilesystem.cephFS spec.objectStorage.rgw.objectUsers spec.objectStorage.rgw ]",
 		},
 		{
 			name:            "cant migrate deprecated multisite fields due to conflicts",
@@ -56,10 +58,27 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 			expectedError:   "found deprecated params which can't be automatically migrated: [ spec.objectStorage.multiSite.realms spec.objectStorage.multiSite.zoneGroups spec.objectStorage.multiSite.zones ]",
 		},
 		{
-			name:            "migrated deprecated fields",
+			name:            "migrated non-mosk deprecated fields",
 			cephDpl:         unitinputs.CephDeploymentDeprecated.DeepCopy(),
 			expectedCephDpl: unitinputs.CephDeploymentMigrated,
 			migrated:        true,
+		},
+		{
+			name: "migrated mosk deprecated fields",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cephDpl := unitinputs.CephDeployMosk.DeepCopy()
+				cephDpl.Spec.ObjectStorage = unitinputs.CephDeploymentDeprecated.Spec.ObjectStorage.DeepCopy()
+				return cephDpl
+			}(),
+			expectedCephDpl: func() cephlcmv1alpha1.CephDeployment {
+				cephDpl := unitinputs.CephDeployMosk.DeepCopy()
+				cephDpl.Spec.ObjectStorage = unitinputs.CephDeploymentMigrated.Spec.ObjectStorage.DeepCopy()
+				cephDpl.Spec.ObjectStorage.Rgws[0].UsedByRockoon = true
+				cephDpl.Spec.ObjectStorage.Rgws[0].ServedByIngress = true
+				cephDpl.Spec.ObjectStorage.Rgws[0].Spec.Raw = []byte(`{"dataPool":{"deviceClass":"hdd","erasureCoded":{"codingChunks":1,"dataChunks":2}},"gateway":{"instances":2,"port":80,"securePort":8443,"sslCertificateRef":"rgw-ssl-certificate"},"metadataPool":{"replicated":{"size":3},"deviceClass":"hdd"},"preservePoolsOnDelete":false}`)
+				return *cephDpl
+			}(),
+			migrated: true,
 		},
 		{
 			name:            "migrated multus deprecated fields",
@@ -82,11 +101,19 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 					AccessKey: "accesskey",
 					SecretKey: "secretkey",
 				}
+				cdpl.Spec.ObjectStorage.OldRgw.Gateway.SplitDaemonForMultisiteTrafficSync = true
 				return cdpl
 			}(),
 			expectedCephDpl: func() cephlcmv1alpha1.CephDeployment {
 				cdpl := unitinputs.CephDeploymentMultisiteMigrated.DeepCopy()
 				cdpl.Spec.ObjectStorage.Realms[0].Spec.Raw = []byte(`{"defaultRealm":false,"pull":{"endpoint":"http://custom"}}`)
+				syncRgw := cephlcmv1alpha1.CephObjectStore{
+					Name:             "rgw-store-sync",
+					AuxiliaryService: true,
+					Spec:             runtime.RawExtension{Raw: []byte(`{"gateway":{"disableMultisiteSyncTraffic":false,"instances":1,"port":8380},"zone":{"name":"zone1"}}`)},
+				}
+				cdpl.Spec.ObjectStorage.Rgws[0].Spec.Raw = []byte(`{"gateway":{"disableMultisiteSyncTraffic":true,"instances":2,"port":80,"securePort":8443},"zone":{"name":"zone1"}}`)
+				cdpl.Spec.ObjectStorage.Rgws = append(cdpl.Spec.ObjectStorage.Rgws, syncRgw)
 				return *cdpl
 			}(),
 			migrated: true,
@@ -110,7 +137,7 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 			expectedResources := map[string]runtime.Object{"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{test.expectedCephDpl}}}
 			faketestclients.FakeReaction(c.api.CephLcmclientset, "update", []string{"cephdeployments"}, inputResources, nil)
 
-			migrated, err := c.ensureDeprecatedFields(false)
+			migrated, err := c.ensureDeprecatedFields()
 			if test.expectedError == "" {
 				assert.Nil(t, err)
 			} else {

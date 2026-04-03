@@ -241,27 +241,63 @@ type CephDeploymentNode struct {
 // CephObjectStorage contains full RadosGW Object Storage configurations:
 // RGW itself and RGW multisite feature
 type CephObjectStorage struct {
-	// ObjectRealms is a list of Ceph Object storage multisite realms.
+	// Rgws is a list of Ceph object stores, representing Ceph RadosGW
+	// with its configuration
+	// +optional
+	Rgws []CephObjectStore `json:"objectStores,omitempty"`
+	// Users is a list of user to create for object storage with radosgw-admin
+	// +optional
+	Users []CephObjectStoreUser `json:"users,omitempty"`
+	// Realms is a list of Ceph Object storage multisite realms.
 	// Currently is possible to specify only 1 realm.
 	// +kubebuilder:validation:MaxItems:=1
 	// +optional
 	Realms []CephObjectRealm `json:"realms,omitempty"`
-	// ObjectZonegroups is a list of Ceph Object storage multisite zonegroups.
+	// Zonegroups is a list of Ceph Object storage multisite zonegroups.
 	// Currently is possible to specify only 1 zonegroup.
 	// +kubebuilder:validation:MaxItems:=1
 	// +optional
 	Zonegroups []CephObjectZonegroup `json:"zonegroups,omitempty"`
-	// ObjectZones is a list of Ceph Object storage multisite zones.
+	// Zones is a list of Ceph Object storage multisite zones.
 	// Currently is possible to specify only 1 zone.
 	// +kubebuilder:validation:MaxItems:=1
 	// +optional
 	Zones []CephObjectZone `json:"zones,omitempty"`
 
-	// Rgw represents Ceph RadosGW settings
-	Rgw CephRGW `json:"rgw"`
+	// Deprecated. Rgw represents Ceph RadosGW settings
+	// +optional
+	OldRgw *CephRGW `json:"rgw,omitempty"`
 	// Deprecated. MultiSite represents Ceph RadosGW multisite/multizone feature settings
 	// +optional
 	OldMultiSite *CephMultiSite `json:"multiSite,omitempty"`
+}
+
+// CephObjectStore stands for configuration of object store.
+type CephObjectStore struct {
+	Name string `json:"name"`
+	// Related ingress configuration exists.
+	// +optional
+	ServedByIngress bool `json:"servedByIngress,omitempty"`
+	// ObjectStore will be used for Rockoon/Openstack setup.
+	// +optional
+	UsedByRockoon bool `json:"usedByRockoon,omitempty"`
+	// AuxiliaryService stands for marking object store as non-client serving.
+	// Storage class and external service will not be created.
+	// +optional
+	AuxiliaryService bool `json:"auxiliaryService,omitempty"`
+	// Spec represents CephObjectStore configuration
+	// Follow https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-crd/
+	// for available options
+	Spec runtime.RawExtension `json:"spec"`
+}
+
+// CephObjectStoreUser stands for configuration of object store users.
+type CephObjectStoreUser struct {
+	Name string `json:"name"`
+	// Spec represents CephObjectStoreUser configuration
+	// https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-user-crd/
+	// for available options
+	Spec runtime.RawExtension `json:"spec"`
 }
 
 // CephObjectRealm stands for object store multisite realm creation and configuration.
@@ -292,105 +328,6 @@ type CephObjectZone struct {
 	// https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zone-crd/
 	// for available options
 	Spec runtime.RawExtension `json:"spec"`
-}
-
-// CephRGW represents Ceph RadosGW settings
-type CephRGW struct {
-	// Name represents the name of specified object storage
-	// +kubebuilder:validation:MaxLength:=25
-	Name string `json:"name"`
-	// Users is a list of user names to create for object storage
-	// with radosgw-admin
-	// +optional
-	ObjectUsers []CephRGWUser `json:"objectUsers,omitempty"`
-	// Buckets is a list of initial buckets to create in object storage
-	// with radosgw-admin
-	// +optional
-	Buckets []string `json:"buckets,omitempty"`
-	// Replicas is a number of replicas for each Ceph RadosGW instance.
-	// Not used in a product currently
-	// +optional
-	Replicas *int `json:"replicas,omitempty"`
-	// Whether host networking is enabled for the rgw daemon.
-	// If not set, the network settings from the cluster CR will be applied.
-	// +optional
-	// +nullable
-	RgwUseHostNetwork *bool `json:"rgwUseHostNetwork,omitempty"`
-	// MetadataPool represents Ceph Pool's settings which stores RGW metadata.
-	// Mutually exclusive with Zone
-	// +optional
-	MetadataPool *CephPoolSpec `json:"metadataPool,omitempty"`
-	// DataPool represents Ceph Pool's settings which stores RGW data.
-	// Mutually exclusive with Zone
-	// +optional
-	DataPool *CephPoolSpec `json:"dataPool,omitempty"`
-	// PreservePoolsOnDelete is a flag whether keep RGW metadata/data pools
-	// on RGW delete or not
-	// +optional
-	PreservePoolsOnDelete bool `json:"preservePoolsOnDelete"`
-	// Gateway represents Ceph RGW daemons settings
-	Gateway CephRGWGateway `json:"gateway"`
-	// Disable auto update allowed hostnames for zone group
-	// By default is enabled, but ignored for multisite.
-	// +optional
-	SkipAutoZoneGroupHostnameUpdate bool `json:"skipAutoZoneGroupHostnameUpdate,omitempty"`
-	// SSLCert used for access to RGW Gateway endpoint, if not specified will be generated self-signed
-	// +optional
-	SSLCert *CephDeploymentCert `json:"SSLCert,omitempty"`
-	// SSLCertInRef is a flag, whether RGW SSL certs are provided internally,
-	// without exposing in spec in base default 'rgw-ssl-certificate' secret.
-	// +optional
-	SSLCertInRef bool `json:"SSLCertInRef,omitempty"`
-	// Zone represents RGW zone if multisite feature enabled
-	// +optional
-	Zone *cephv1.ZoneSpec `json:"zone,omitempty"`
-	// HealthCheck represents Ceph RGW daemons healthchecks
-	// +optional
-	HealthCheck *cephv1.ObjectHealthCheckSpec `json:"healthCheck,omitempty"`
-}
-
-// CephRGWUser represents Ceph RadosGW user
-type CephRGWUser struct {
-	// Represent a user name
-	Name string `json:"name"`
-	// The display name for the user
-	// +nullable
-	DisplayName string `json:"displayName,omitempty"`
-	// User capabilities
-	// +optional
-	Capabilities *cephv1.ObjectUserCapSpec `json:"capabilities,omitempty"`
-	// User quotas
-	// +optional
-	Quotas *cephv1.ObjectUserQuotaSpec `json:"quotas,omitempty"`
-}
-
-// CephRGWGateway represents Ceph RGW daemon settings
-type CephRGWGateway struct {
-	// Port the rgw service will be listening on (http)
-	Port int32 `json:"port"`
-	// SecurePort the rgw service will be listening on (https)
-	SecurePort int32 `json:"securePort"`
-	// Instances is the number of pods in the rgw replicaset.
-	// If AllNodes is specified, a daemonset will be created.
-	Instances int32 `json:"instances"`
-	// AllNodes is a flag whether the rgw pods should be
-	// started as a daemonset on all nodes
-	AllNodes bool `json:"allNodes"`
-	// SplitDaemonForMultisiteTrafficSync is a flag for multisite, which allows
-	// to split daemon responsible for sync between zones and daemon for serving clients requests
-	// +optional
-	SplitDaemonForMultisiteTrafficSync bool `json:"splitDaemonForMultisiteTrafficSync,omitempty"`
-	// Port the rgw multisite traffic service will be listening on (http). Optional.
-	// Has effect only for multisite configuration.
-	// +optional
-	RgwSyncPort int32 `json:"rgwSyncPort,omitempty"`
-	// Resources requirements for RGW instances
-	// +optional
-	Resources *v1.ResourceRequirements `json:"resources,omitempty"`
-	// ExternalRgwEndpoint represents external RGW Endpoint to use, when external Ceph cluster is used.
-	// Has effect only for external cluster setup.
-	// +optional
-	ExternalRgwEndpoint *cephv1.EndpointAddress `json:"externalRgwEndpoint,omitempty"`
 }
 
 type CephStorageClassSpec struct {
@@ -795,4 +732,103 @@ type CephRGWZone struct {
 	// Custom endpoints for zone, which should be used in zone config
 	// +optional
 	EndpointsForZone []string `json:"endpointsForZone,omitempty"`
+}
+
+// CephRGW represents Ceph RadosGW settings
+type CephRGW struct {
+	// Name represents the name of specified object storage
+	// +kubebuilder:validation:MaxLength:=25
+	Name string `json:"name"`
+	// Users is a list of user names to create for object storage
+	// with radosgw-admin
+	// +optional
+	ObjectUsers []CephRGWUser `json:"objectUsers,omitempty"`
+	// Buckets is a list of initial buckets to create in object storage
+	// with radosgw-admin
+	// +optional
+	Buckets []string `json:"buckets,omitempty"`
+	// Replicas is a number of replicas for each Ceph RadosGW instance.
+	// Not used in a product currently
+	// +optional
+	Replicas *int `json:"replicas,omitempty"`
+	// Whether host networking is enabled for the rgw daemon.
+	// If not set, the network settings from the cluster CR will be applied.
+	// +optional
+	// +nullable
+	RgwUseHostNetwork *bool `json:"rgwUseHostNetwork,omitempty"`
+	// MetadataPool represents Ceph Pool's settings which stores RGW metadata.
+	// Mutually exclusive with Zone
+	// +optional
+	MetadataPool *CephPoolSpec `json:"metadataPool,omitempty"`
+	// DataPool represents Ceph Pool's settings which stores RGW data.
+	// Mutually exclusive with Zone
+	// +optional
+	DataPool *CephPoolSpec `json:"dataPool,omitempty"`
+	// PreservePoolsOnDelete is a flag whether keep RGW metadata/data pools
+	// on RGW delete or not
+	// +optional
+	PreservePoolsOnDelete bool `json:"preservePoolsOnDelete"`
+	// Gateway represents Ceph RGW daemons settings
+	Gateway CephRGWGateway `json:"gateway"`
+	// Disable auto update allowed hostnames for zone group
+	// By default is enabled, but ignored for multisite.
+	// +optional
+	SkipAutoZoneGroupHostnameUpdate bool `json:"skipAutoZoneGroupHostnameUpdate,omitempty"`
+	// SSLCert used for access to RGW Gateway endpoint, if not specified will be generated self-signed
+	// +optional
+	SSLCert *CephDeploymentCert `json:"SSLCert,omitempty"`
+	// SSLCertInRef is a flag, whether RGW SSL certs are provided internally,
+	// without exposing in spec in base default 'rgw-ssl-certificate' secret.
+	// +optional
+	SSLCertInRef bool `json:"SSLCertInRef,omitempty"`
+	// Zone represents RGW zone if multisite feature enabled
+	// +optional
+	Zone *cephv1.ZoneSpec `json:"zone,omitempty"`
+	// HealthCheck represents Ceph RGW daemons healthchecks
+	// +optional
+	HealthCheck *cephv1.ObjectHealthCheckSpec `json:"healthCheck,omitempty"`
+}
+
+// CephRGWUser represents Ceph RadosGW user
+type CephRGWUser struct {
+	// Represent a user name
+	Name string `json:"name"`
+	// The display name for the user
+	// +nullable
+	DisplayName string `json:"displayName,omitempty"`
+	// User capabilities
+	// +optional
+	Capabilities *cephv1.ObjectUserCapSpec `json:"capabilities,omitempty"`
+	// User quotas
+	// +optional
+	Quotas *cephv1.ObjectUserQuotaSpec `json:"quotas,omitempty"`
+}
+
+// CephRGWGateway represents Ceph RGW daemon settings
+type CephRGWGateway struct {
+	// Port the rgw service will be listening on (http)
+	Port int32 `json:"port"`
+	// SecurePort the rgw service will be listening on (https)
+	SecurePort int32 `json:"securePort"`
+	// Instances is the number of pods in the rgw replicaset.
+	// If AllNodes is specified, a daemonset will be created.
+	Instances int32 `json:"instances"`
+	// AllNodes is a flag whether the rgw pods should be
+	// started as a daemonset on all nodes
+	AllNodes bool `json:"allNodes"`
+	// SplitDaemonForMultisiteTrafficSync is a flag for multisite, which allows
+	// to split daemon responsible for sync between zones and daemon for serving clients requests
+	// +optional
+	SplitDaemonForMultisiteTrafficSync bool `json:"splitDaemonForMultisiteTrafficSync,omitempty"`
+	// Port the rgw multisite traffic service will be listening on (http). Optional.
+	// Has effect only for multisite configuration.
+	// +optional
+	RgwSyncPort int32 `json:"rgwSyncPort,omitempty"`
+	// Resources requirements for RGW instances
+	// +optional
+	Resources *v1.ResourceRequirements `json:"resources,omitempty"`
+	// ExternalRgwEndpoint represents external RGW Endpoint to use, when external Ceph cluster is used.
+	// Has effect only for external cluster setup.
+	// +optional
+	ExternalRgwEndpoint *cephv1.EndpointAddress `json:"externalRgwEndpoint,omitempty"`
 }

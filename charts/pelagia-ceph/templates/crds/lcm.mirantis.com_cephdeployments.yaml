@@ -1483,9 +1483,43 @@ spec:
                     - zoneGroups
                     - zones
                     type: object
+                  objectStores:
+                    description: |-
+                      Rgws is a list of Ceph object stores, representing Ceph RadosGW
+                      with its configuration
+                    items:
+                      description: CephObjectStore stands for configuration of object
+                        store.
+                      properties:
+                        auxiliaryService:
+                          description: |-
+                            AuxiliaryService stands for marking object store as non-client serving.
+                            Storage class and external service will not be created.
+                          type: boolean
+                        name:
+                          type: string
+                        servedByIngress:
+                          description: Related ingress configuration exists.
+                          type: boolean
+                        spec:
+                          description: |-
+                            Spec represents CephObjectStore configuration
+                            Follow https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-crd/
+                            for available options
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                        usedByRockoon:
+                          description: ObjectStore will be used for Rockoon/Openstack
+                            setup.
+                          type: boolean
+                      required:
+                      - name
+                      - spec
+                      type: object
+                    type: array
                   realms:
                     description: |-
-                      ObjectRealms is a list of Ceph Object storage multisite realms.
+                      Realms is a list of Ceph Object storage multisite realms.
                       Currently is possible to specify only 1 realm.
                     items:
                       description: CephObjectRealm stands for object store multisite
@@ -1507,7 +1541,7 @@ spec:
                     maxItems: 1
                     type: array
                   rgw:
-                    description: Rgw represents Ceph RadosGW settings
+                    description: Deprecated. Rgw represents Ceph RadosGW settings
                     properties:
                       SSLCert:
                         description: SSLCert used for access to RGW Gateway endpoint,
@@ -2399,9 +2433,30 @@ spec:
                     - gateway
                     - name
                     type: object
+                  users:
+                    description: Users is a list of user to create for object storage
+                      with radosgw-admin
+                    items:
+                      description: CephObjectStoreUser stands for configuration of
+                        object store users.
+                      properties:
+                        name:
+                          type: string
+                        spec:
+                          description: |-
+                            Spec represents CephObjectStoreUser configuration
+                            https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-user-crd/
+                            for available options
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      required:
+                      - name
+                      - spec
+                      type: object
+                    type: array
                   zonegroups:
                     description: |-
-                      ObjectZonegroups is a list of Ceph Object storage multisite zonegroups.
+                      Zonegroups is a list of Ceph Object storage multisite zonegroups.
                       Currently is possible to specify only 1 zonegroup.
                     items:
                       description: CephObjectZonegroup stands for object store multisite
@@ -2425,7 +2480,7 @@ spec:
                     type: array
                   zones:
                     description: |-
-                      ObjectZones is a list of Ceph Object storage multisite zones.
+                      Zones is a list of Ceph Object storage multisite zones.
                       Currently is possible to specify only 1 zone.
                     items:
                       description: CephObjectZone stands for object store multisite
@@ -2447,8 +2502,6 @@ spec:
                       type: object
                     maxItems: 1
                     type: array
-                required:
-                - rgw
                 type: object
               pools:
                 description: Deprecated parameter, blockStorage.pools should be used

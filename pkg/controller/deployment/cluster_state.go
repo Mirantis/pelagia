@@ -143,44 +143,40 @@ func (c *cephDeploymentConfig) verifyBuiltinPools() (bool, error) {
 			if cephpool == ".rgw.root" {
 				// skip processing .rgw.root pool if there is no rgw metadata pool defined
 				// in a cluster because we cannot predict what .rgw.root we are observing
-				if c.cdConfig.cephDpl.Spec.ObjectStorage == nil {
+				if c.cdConfig.cephDpl.Spec.ObjectStorage == nil || len(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws) == 0 {
 					c.log.Warn().Msgf("builtin pool '%s' found, but no object storage RGW defined in spec, skipping", cephpool)
 					c.log.Warn().Msgf("set manually device class in crush rule for pool '%s' if needed", cephpool)
 					continue
 				}
-				if c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Zone != nil {
-					usedZone := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Zone.Name
+				rgwCasted, _ := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws[0].GetSpec()
+				var poolSpec cephv1.PoolSpec
+				if rgwCasted.Zone.Name != "" {
+					usedZone := rgwCasted.Zone.Name
 					for _, zone := range c.cdConfig.cephDpl.Spec.ObjectStorage.Zones {
 						if zone.Name == usedZone {
 							zoneCasted, err := zone.GetSpec()
 							if err != nil {
 								return false, err
 							}
-							poolData, err := cephlcmv1alpha1.DecodeStructToRaw(zoneCasted.MetadataPool)
-							if err != nil {
-								return false, err
-							}
-
-							builtinCephPool := generatePool(cephlcmv1alpha1.CephPool{
-								Name:          cephpool,
-								UseAsFullName: true,
-								PoolSpec:      runtime.RawExtension{Raw: poolData},
-							}, c.lcmConfig.RookNamespace)
-							builtinCephPool.Spec.EnableCrushUpdates = &[]bool{true}[0]
-							builtinPoolsToProcess = append(builtinPoolsToProcess, *builtinCephPool)
+							poolSpec = zoneCasted.MetadataPool
 							break
 						}
 					}
 				} else {
-					poolSpec := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.MetadataPool
-					poolSpec.EnableCrushUpdates = &[]bool{true}[0]
-					builtinCephPool := generatePoolOld(cephlcmv1alpha1.CephPoolOld{
-						Name:          cephpool,
-						UseAsFullName: true,
-						CephPoolSpec:  *poolSpec,
-					}, c.lcmConfig.RookNamespace)
-					builtinPoolsToProcess = append(builtinPoolsToProcess, *builtinCephPool)
+					poolSpec = rgwCasted.MetadataPool
 				}
+				poolData, err := cephlcmv1alpha1.DecodeStructToRaw(poolSpec)
+				if err != nil {
+					return false, err
+				}
+
+				builtinCephPool := generatePool(cephlcmv1alpha1.CephPool{
+					Name:          cephpool,
+					UseAsFullName: true,
+					PoolSpec:      runtime.RawExtension{Raw: poolData},
+				}, c.lcmConfig.RookNamespace)
+				builtinCephPool.Spec.EnableCrushUpdates = &[]bool{true}[0]
+				builtinPoolsToProcess = append(builtinPoolsToProcess, *builtinCephPool)
 			} else {
 				foundDefault := false
 				if c.cdConfig.cephDpl.Spec.BlockStorage != nil {
