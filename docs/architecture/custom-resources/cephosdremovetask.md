@@ -2,7 +2,7 @@
 # CephOsdRemoveTask custom resource
 
 This section describes the `CephOsdRemoveTask` custom resource specification.
-For the procedure workflow, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
+For the procedure workflow, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/auto-lcm/create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
 
 <a name="cephosdremovetask-spec-parameters"></a>
 ## Spec parameters
@@ -92,7 +92,7 @@ The example above includes the following actions:
 
 `CephOsdRemoveTask` phases are moving in the following order:
 
-![System Flow](../../../assets/remove-task-phase-flow.svg)
+![System Flow](../../assets/remove-task-phase-flow.svg)
 
 Here are the following **final** phases:
 

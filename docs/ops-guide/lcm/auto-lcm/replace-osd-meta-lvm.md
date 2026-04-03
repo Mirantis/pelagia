@@ -195,8 +195,8 @@ You can apply the below procedure in the following cases:
 
 ## Re-create a Ceph OSD with the same metadata partition
 
-{% include "../../snippets/rawDeviceCleanup.md" %}
-{% include "../../snippets/osdRawDevice.md" %}
+{% include "../../../snippets/rawDeviceCleanup.md" %}
+{% include "../../../snippets/osdRawDevice.md" %}
 
 1. Open the `CephDeployment` CR for editing:
    ```bash

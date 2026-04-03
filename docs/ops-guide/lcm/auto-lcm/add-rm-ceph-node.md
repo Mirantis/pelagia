@@ -92,11 +92,11 @@ nodes.
 <a name="add-rm-ceph-node-remove-a-ceph-node"></a>
 ## Remove a Ceph node
 
-Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](./create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
 
 !!! note
 
-    To remove a Ceph node with a `mon` role, first move the Ceph Monitor to another node and remove the `mon` role from the Ceph node as described in [Move a Ceph Monitor daemon to another node](../../ops-guide/deployment/move-mon-daemon.md#move-mon-daemon-move-a-ceph-monitor-daemon-to-another-node).
+    To remove a Ceph node with a `mon` role, first move the Ceph Monitor to another node and remove the `mon` role from the Ceph node as described in [Move a Ceph Monitor daemon to another node](../../deployment/move-mon-daemon.md#move-mon-daemon-move-a-ceph-monitor-daemon-to-another-node).
 
 1. Open the `CephDeployment` CR for editing:
    ```bash

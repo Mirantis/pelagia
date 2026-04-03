@@ -10,7 +10,7 @@ follows:
    OSD ID.
 2. Add a new Ceph OSD on the new disk to the Ceph cluster.
 
-Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](./create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
 
 <a name="replace-ceph-osd-remove-a-failed-ceph-osd-by-device-name-path-or-id"></a>
 ## Remove a failed Ceph OSD by device name, path, or ID
@@ -27,7 +27,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
     not supported if a device was physically removed from a node. Therefore, use
     `cleanupByOsdId` instead.
 
-{% include "../../snippets/rawDeviceCleanup.md" %}
+{% include "../../../snippets/rawDeviceCleanup.md" %}
 
 1. Open the `CephDeployment` CR for editing:
    ```bash
@@ -314,8 +314,8 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
 
 1. Manually prepare the replacement device on the existing node.
 
-    {% include "../../snippets/rawDeviceCleanup.md" %}
-    {% include "../../snippets/osdRawDevice.md" %}
+    {% include "../../../snippets/rawDeviceCleanup.md" %}
+    {% include "../../../snippets/osdRawDevice.md" %}
 
 2. Open the `CephDeployment` CR for editing:
    ```bash

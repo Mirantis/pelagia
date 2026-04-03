@@ -80,9 +80,10 @@ nav:
       - Architecture: architecture/index.md
       - Pelagia overview: architecture/overview.md
       - Pelagia limitations: architecture/limitations.md
-      - Addressing Ceph Devices: architecture/addressing-ceph-devices.md
+      - Addressing Ceph devices: architecture/addressing-ceph-devices.md
       - Rockoon integration: architecture/rockoon-integration.md
       - Custom resources:
+          - Custom resources: architecture/custom-resources/index.md
           - CephDeployment: architecture/custom-resources/cephdeployment.md
           - CephDeploymentHealth: architecture/custom-resources/cephdeploymenthealth.md
           - CephDeploymentSecret: architecture/custom-resources/cephdeploymentsecret.md
@@ -96,59 +97,67 @@ nav:
   - Operations Guide:
       - Operations Guide: ops-guide/index.md
       - Ceph default configuration options: ops-guide/deployment/default-ceph-conf.md
-      - Rook Daemons Placement: ops-guide/deployment/rook-daemon-place.md
-      - Enable Ceph Multinetwork: ops-guide/deployment/multinetworking.md
+      - Rook daemons placement: ops-guide/deployment/rook-daemon-place.md
+      - Enable Ceph multinetwork: ops-guide/deployment/multinetworking.md
       - Enable Ceph RBD mirroring: ops-guide/deployment/rbd-mirror.md
-      - Enable Ceph Filesystem: ops-guide/deployment/cephfs.md
-      - Change Ceph Pools Failure Domain: ops-guide/deployment/move-failure-domain.md
+      - Enable Ceph File System: ops-guide/deployment/cephfs.md
+      - Change Ceph pools failure domain: ops-guide/deployment/move-failure-domain.md
       - Change Ceph Monitor node: ops-guide/deployment/move-mon-daemon.md
       - Replace failed Ceph Monitor node: ops-guide/deployment/move-mon-node-replace.md
       - External Ceph cluster: ops-guide/deployment/external-ceph.md
       - Rockoon integration:
+        - Rockoon integration: ops-guide/rockoon/index.md
         - Integrate Pelagia with Rockoon: ops-guide/rockoon/rockoon-integration.md
         - Configure Ceph pools for Cinder multi-backend: ops-guide/rockoon/cinder-multi-backend.md
         - Calculate target ratios for Rockoon: ops-guide/rockoon/calc-target-ratio.md
       - Ceph Object Storage:
+        - Ceph Object Storage: ops-guide/deployment/index.md
         - Enable Ceph RGW Object Storage: ops-guide/deployment/rgw.md
         - Configure Ceph Object Gateway TLS: ops-guide/deployment/rgw-tls.md
-        - Enable Multisite for Ceph Object Storage: ops-guide/deployment/rgw-multisite.md
+        - Enable multisite for Ceph Object Storage: ops-guide/deployment/rgw-multisite.md
         - Configure Ceph Object Storage SSE: ops-guide/deployment/rgw-sse.md
-        - RADOS Gateway Bucket Policy:
-          - Create Ceph Object Storage User: ops-guide/deployment/s3-bucket-policy/s3-create-user.md
-          - Bucket Policy for Ceph Object User: ops-guide/deployment/s3-bucket-policy/bucket-policy-s3.md
-          - Bucket Policy for Rockoon OpenStack User: ops-guide/deployment/s3-bucket-policy/bucket-policy-rockoon.md
-      - Ceph User Credentials:
-        - Enable Ceph RBD/CephFS Client: ops-guide/deployment/ceph-user-creds/ceph-client.md
-        - Enable Ceph Object Storage User: ops-guide/deployment/ceph-user-creds/ceph-rgw-user.md
-      - Ceph resources Management:
-        - Enable Ceph resources Management: ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md
-        - Verify Ceph resources Management: ops-guide/deployment/ceph-resource-mgmt/verify-resource-mgmt.md
-      - Ceph Cluster Lifecycle Management:
-        - Automated Lifecycle Management:
-          - Create Ceph OSD remove Task: ops-guide/lcm/create-task-workflow.md
-          - Ceph OSD Lifecycle Management: ops-guide/lcm/add-rm-ceph-osd.md
-          - Ceph OSD with metadata Lifecycle Management: ops-guide/lcm/add-rm-ceph-osd-with-meta.md
-          - Ceph Node Lifecycle Management: ops-guide/lcm/add-rm-ceph-node.md
-          - Replace failed Ceph OSD: ops-guide/lcm/replace-ceph-osd.md
-          - Replace failed Ceph OSD with metadata LVM: ops-guide/lcm/replace-osd-meta-lvm.md
-          - Replace failed Ceph OSD with metadata device: ops-guide/lcm/replace-osd-meta-device.md
-          - Replace failed Ceph Node: ops-guide/lcm/replace-ceph-node.md
-          - Replace failed metadata device: ops-guide/lcm/replace-meta.md
-        - Increase Ceph Cluster storage size: ops-guide/lcm/increase-storage-size.md
+        - RADOS Gateway bucket policy:
+          - RADOS Gateway bucket policy: ops-guide/deployment/s3-bucket-policy/index.md
+          - Create Ceph Object Storage user: ops-guide/deployment/s3-bucket-policy/s3-create-user.md
+          - Bucket policy for Ceph Object Storage user: ops-guide/deployment/s3-bucket-policy/bucket-policy-s3.md
+          - Bucket policy for Rockoon OpenStack user: ops-guide/deployment/s3-bucket-policy/bucket-policy-rockoon.md
+      - Ceph user credentials:
+        - Ceph user credentials: ops-guide/deployment/ceph-user-creds/index.md
+        - Enable Ceph RBD/CephFS client: ops-guide/deployment/ceph-user-creds/ceph-client.md
+        - Enable Ceph Object Storage user: ops-guide/deployment/ceph-user-creds/ceph-rgw-user.md
+      - Ceph resources management:
+        - Ceph resources management: ops-guide/deployment/ceph-resource-mgmt/index.md
+        - Enable Ceph resources management: ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md
+        - Verify Ceph resources management: ops-guide/deployment/ceph-resource-mgmt/verify-resource-mgmt.md
+      - Ceph cluster lifecycle management:
+        - Ceph cluster lifecycle management: ops-guide/lcm/index.md
+        - Automated lifecycle management:
+          - Automated lifecycle management: ops-guide/lcm/auto-lcm/index.md
+          - Create Ceph OSD remove task: ops-guide/lcm/auto-lcm/create-task-workflow.md
+          - Ceph OSD lifecycle management: ops-guide/lcm/auto-lcm/add-rm-ceph-osd.md
+          - Ceph OSD with metadata lifecycle management: ops-guide/lcm/auto-lcm/add-rm-ceph-osd-with-meta.md
+          - Ceph node lifecycle management: ops-guide/lcm/auto-lcm/add-rm-ceph-node.md
+          - Replace failed Ceph OSD: ops-guide/lcm/auto-lcm/replace-ceph-osd.md
+          - Replace failed Ceph OSD with metadata LVM: ops-guide/lcm/auto-lcm/replace-osd-meta-lvm.md
+          - Replace failed Ceph OSD with metadata device: ops-guide/lcm/auto-lcm/replace-osd-meta-device.md
+          - Replace failed Ceph node: ops-guide/lcm/auto-lcm/replace-ceph-node.md
+          - Replace failed metadata device: ops-guide/lcm/auto-lcm/replace-meta.md
+        - Increase Ceph cluster storage size: ops-guide/lcm/increase-storage-size.md
         - Remove Ceph OSD manually: ops-guide/lcm/manual-osd-remove.md
-      - Verify Ceph Cluster:
+      - Verify Ceph cluster:
+        - Verify Ceph cluster: ops-guide/verify-ceph/index.md
         - Verify CephDeployment Health: ops-guide/verify-ceph/verify-cephdeploymenthealth.md
-        - Verify Ceph Cluster services: ops-guide/verify-ceph/verify-ceph-core.md
+        - Verify Ceph cluster services: ops-guide/verify-ceph/verify-ceph-core.md
         - Verify Pelagia and Rook: ops-guide/verify-ceph/verify-pelagia-and-rook.md
         - Verify Rook Discover: ops-guide/verify-ceph/verify-rook-discover.md
   - Troubleshoot:
     - Troubleshoot: troubleshoot/index.md
     - CephOsdRemoveTask rebalance timeout: troubleshoot/cephosdremovetask-timeout.md
-    - Ceph OSD auth failed: troubleshoot/ceph-osd-auth-failed.md
+    - Ceph OSD authorization failed: troubleshoot/ceph-osd-auth-failed.md
     - Rook Ceph exporter crash: troubleshoot/ceph-exporter-crash.md
     - Ceph Monitor size rapidly grows: troubleshoot/ceph-mon-store-size-grow.md
     - Ceph Monitor disaster recovery: troubleshoot/ceph-mon-recover.md
-    - Ceph Cluster disaster recovery: troubleshoot/ceph-disaster-recover.md
+    - Ceph cluster disaster recovery: troubleshoot/ceph-disaster-recover.md
     - Maintenance stuck on a compact Ceph cluster: troubleshoot/stuck-maintenance.md
     - Ceph reports PG_DAMAGED: troubleshoot/ceph-pg-damaged.md
 #  - Operations Guide:

@@ -258,7 +258,7 @@ As a result, the replaced metadata device will have N LVM paths, for example,
 
 ## Re-create a Ceph OSD on the replaced metadata device
 
-{% include "../../snippets/rawDeviceCleanup.md" %}
+{% include "../../../snippets/rawDeviceCleanup.md" %}
 
 1. Open the `CephDeployment` CR for editing:
    ```bash
