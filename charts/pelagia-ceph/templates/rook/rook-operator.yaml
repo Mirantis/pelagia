@@ -304,7 +304,7 @@ spec:
       - name: cabundle-update
         image: {{ template "rook.image" . }}
         args:
-        - /usr/bin/update-ca-trust extract; cp -rf /etc/pki/ca-trust/extracted//* /tmp/new-ca-bundle/
+        - /usr/bin/update-ca-trust extract -o /tmp/new-ca-bundle/
         command:
         - /bin/bash
         - -c
@@ -316,8 +316,9 @@ spec:
         - mountPath: /tmp/new-ca-bundle/
           name: rook-ceph-ca-bundle-updated
         securityContext:
-          runAsUser: 0
-          runAsGroup: 0
+          runAsUser: 2016
+          runAsGroup: 2016
+          runAsNonRoot: true
           privileged: false
           allowPrivilegeEscalation: false
           capabilities:
