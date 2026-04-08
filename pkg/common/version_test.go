@@ -103,7 +103,7 @@ func TestCheckExpectedCephVersion(t *testing.T) {
 				MajorVersion:    "v20.2",
 				MinorVersion:    "0",
 				Order:           20,
-				SupportedMinors: []string{"0"},
+				SupportedMinors: []string{"0", "1"},
 			},
 		},
 		{
@@ -120,13 +120,13 @@ func TestCheckExpectedCephVersion(t *testing.T) {
 		},
 		{
 			name:      "check ceph version - latest image version passed and no release",
-			cephImage: "ceph/ceph:v20.2.0",
+			cephImage: "ceph/ceph:v20.2.1",
 			expectedVersion: &CephVersion{
 				Name:            "Tentacle",
 				MajorVersion:    "v20.2",
-				MinorVersion:    "0",
+				MinorVersion:    "1",
 				Order:           20,
-				SupportedMinors: []string{"0"},
+				SupportedMinors: []string{"0", "1"},
 			},
 		},
 	}
