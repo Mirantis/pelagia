@@ -9,7 +9,7 @@ follows:
 1. Remove the obsolete Ceph node from the Ceph cluster.
 2. Add a new Ceph node with the same configuration to the Ceph cluster.
 
-Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](./create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
 
 <a name="replace-ceph-node-remove-a-failed-ceph-node"></a>
 ## Remove a failed Ceph node
@@ -138,7 +138,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
 <a name="replace-ceph-node-deploy-a-new-ceph-node-after-removal-of-a-failed-one"></a>
 ## Deploy a new Ceph node after removal of a failed one
 
-{% include "../../snippets/rawDeviceCleanup.md" %}
+{% include "../../../snippets/rawDeviceCleanup.md" %}
 
 1. Open the `CephDeployment` CR for editing:
    ```bash

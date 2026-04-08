@@ -10,7 +10,7 @@ OSDs.
 
 1. Manually prepare the required devices on the existing node.
 
-    {% include "../../snippets/osdRawDevice.md" %}
+    {% include "../../../snippets/osdRawDevice.md" %}
 
 2. Open the `CephDeployment` custom resource (CR) for editing:
    ```bash
@@ -67,9 +67,9 @@ OSDs.
 <a name="add-rm-ceph-osd-remove-a-ceph-osd"></a>
 ## Remove a Ceph OSD
 
-Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](./create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
 
-{% include "../../snippets/replicatedSize.md" %}
+{% include "../../../snippets/replicatedSize.md" %}
 
 1. Open the `CephDeployment` CR on for editing:
    ```bash
@@ -110,7 +110,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
              - device: sdb
        ```
 
-        {% include "../../snippets/rawDeviceCleanup.md" %}
+        {% include "../../../snippets/rawDeviceCleanup.md" %}
 
         !!! note
 

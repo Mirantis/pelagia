@@ -6,7 +6,7 @@ automatically creates a required metadata logical volume on a desired device.
 
 ## Remove a Ceph OSD with a metadata device as a disk name
 
-To remove the affected Ceph OSD with a metadata device as a device name, follow the [Remove a failed Ceph OSD by ID with a defined metadata device](../../ops-guide/lcm/replace-osd-meta-lvm.md#replace-osd-meta-lvm-remove-a-failed-ceph-osd-by-id-with-a-defined-metadata-device) procedure and capture the following details:
+To remove the affected Ceph OSD with a metadata device as a device name, follow the [Remove a failed Ceph OSD by ID with a defined metadata device](./replace-osd-meta-lvm.md#replace-osd-meta-lvm-remove-a-failed-ceph-osd-by-id-with-a-defined-metadata-device) procedure and capture the following details:
 
 - While editing `CephDeployment` custom resource (CR) in the `nodes` section, capture the
   `metadataDevice` path to reuse it during re-creation of the Ceph OSD.
@@ -98,9 +98,9 @@ When you run `lvcreate`, account for shared space on the metadata disk and for a
 
 ## Re-create the Ceph OSD with the re-created metadata partition
 
-{% include "../../snippets/rawDeviceCleanup.md" %}
+{% include "../../../snippets/rawDeviceCleanup.md" %}
 
-{% include "../../snippets/osdRawDevice.md" %}
+{% include "../../../snippets/osdRawDevice.md" %}
 
 1. Open the `CephDeployment` CR for editing:
    ```bash

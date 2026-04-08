@@ -16,7 +16,7 @@ OSDs with a separate metadata device.
         If you add a new disk after node provisioning, manually prepare the required node devices using
         Logical Volume Manager (LVM) 2 on the existing node.
 
-    {% include "../../snippets/osdRawDevice.md" %}
+    {% include "../../../snippets/osdRawDevice.md" %}
 
 2. Open the `CephDeployment` custom resource (CR) for editing:
    ```bash
@@ -79,9 +79,9 @@ OSDs with a separate metadata device.
 <a name="add-rm-ceph-osd-with-meta-remove-a-ceph-osd-with-a-metadata-device"></a>
 ## Remove a Ceph OSD with a metadata device
 
-Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](./create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
 
-{% include "../../snippets/replicatedSize.md" %}
+{% include "../../../snippets/replicatedSize.md" %}
 
 1. Open the `CephDeployment` object for editing:
    ```bash
@@ -124,7 +124,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
             - device: sdc
       ```
 
-        {% include "../../snippets/rawDeviceCleanup.md" %}
+        {% include "../../../snippets/rawDeviceCleanup.md" %}
 
         !!! note
 
