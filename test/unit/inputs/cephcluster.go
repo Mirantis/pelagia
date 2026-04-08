@@ -31,8 +31,8 @@ var CephClusterListNotReady = cephv1.CephClusterList{Items: []cephv1.CephCluster
 var CephClusterListHealthIssues = cephv1.CephClusterList{Items: []cephv1.CephCluster{CephClusterHasHealthIssues}}
 var CephClusterListExternal = cephv1.CephClusterList{Items: []cephv1.CephCluster{CephClusterExternal}}
 
-var cephClusterVersion = "20.2.0-0"
-var cephClusterImage = "some-registry.com/ceph:v20.2.0"
+var cephClusterVersion = "20.2.1-0"
+var cephClusterImage = "some-registry.com/ceph:v20.2.1"
 
 func BuildBaseCephCluster(name, namespace string) cephv1.CephCluster {
 	cephcluster := cephv1.CephCluster{
