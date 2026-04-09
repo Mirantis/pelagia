@@ -6,8 +6,8 @@ Once you enable Ceph Object Gateway (`radosgw`) as described in [Enable Ceph RGW
 
 !!! note
 
-    For clusters integrated with Rockoon, Pelagia has an ability to use domain and certificates, defined in Rockoon configuration. Pelagia prioritize `ingressConfig` data over Rockoon ingress data but if `ingressConfig` section is not configured, Pelagia will use Rockoon domain and certificates.
-    Mirantis recommends not defining `ingressConfig` section, if Rockoon has `tls-proxy` enabled. In that case, common certificates are applied to all ingresses from the `OpenStackDeployment` object. This implies that Pelagia will use the public domain and the common certificate from the `OpenStackDeployment` object.
+    For clusters integrated with Rockoon, Pelagia can use domain and certificates defined in the Rockoon configuration. Pelagia prioritizes `ingressConfig` data over Rockoon ingress data but if the `ingressConfig` section is not configured, Pelagia will use Rockoon domain and certificates.
+    Mirantis recommends not defining the `ingressConfig` section if Rockoon has `tls-proxy` enabled. In that case, common certificates are applied to all ingresses from the `OpenStackDeployment` object. This implies that Pelagia will use the public domain and the common certificate from the `OpenStackDeployment` object.
 
 This section describes how to specify a custom public endpoint for the Ceph Object Storage.
 
