@@ -48,7 +48,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-controller-manager
-    namespace: {{ template "release.namespace" . }}
+    namespace: {{ .Values.rookConfig.rookNamespace }}
 ---
 # required for MKE https://mirantis.jira.com/browse/MKE-7825
 apiVersion: rbac.authorization.k8s.io/v1
