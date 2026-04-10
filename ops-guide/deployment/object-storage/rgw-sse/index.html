@@ -11,28 +11,28 @@
       
       
       
-        <link rel="prev" href="../cephfs/">
+        <link rel="prev" href="../rgw-multisite/">
       
       
-        <link rel="next" href="../external-ceph/">
+        <link rel="next" href="../s3-bucket-policy/">
       
       
         
       
       
-      <link rel="icon" href="../../../assets/favicon.ico">
+      <link rel="icon" href="../../../../assets/favicon.ico">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Ceph default configuration options - Pelagia Controller for Rook Ceph management</title>
+        <title>Configure Ceph Object Storage SSE - Pelagia Controller for Rook Ceph management</title>
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -51,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#ceph-default-configuration" class="md-skip">
+        <a href="#configure-ceph-object-storage-server-side-encryption" class="md-skip">
           Skip to content
         </a>
       
@@ -94,9 +94,9 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../.." title="Pelagia Controller for Rook Ceph management" class="md-header__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
+    <a href="../../../.." title="Pelagia Controller for Rook Ceph management" class="md-header__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
       
-  <img src="../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
+  <img src="../../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -113,7 +113,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Ceph default configuration options
+              Configure Ceph Object Storage SSE
             
           </span>
         </div>
@@ -231,9 +231,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../.." title="Pelagia Controller for Rook Ceph management" class="md-nav__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
+    <a href="../../../.." title="Pelagia Controller for Rook Ceph management" class="md-nav__button md-logo" aria-label="Pelagia Controller for Rook Ceph management" data-md-component="logo">
       
-  <img src="../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
+  <img src="../../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
 
     </a>
     Pelagia Controller for Rook Ceph management
@@ -260,7 +260,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../.." class="md-nav__link">
+      <a href="../../../.." class="md-nav__link">
         
   
   
@@ -315,7 +315,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../architecture/" class="md-nav__link ">
+            <a href="../../../../architecture/" class="md-nav__link ">
               
   
   
@@ -359,7 +359,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/overview/" class="md-nav__link">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
         
   
   
@@ -387,7 +387,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/limitations/" class="md-nav__link">
+      <a href="../../../../architecture/limitations/" class="md-nav__link">
         
   
   
@@ -415,7 +415,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/addressing-ceph-devices/" class="md-nav__link">
+      <a href="../../../../architecture/addressing-ceph-devices/" class="md-nav__link">
         
   
   
@@ -443,7 +443,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/rockoon-integration/" class="md-nav__link">
+      <a href="../../../../architecture/rockoon-integration/" class="md-nav__link">
         
   
   
@@ -497,7 +497,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../architecture/custom-resources/" class="md-nav__link ">
+            <a href="../../../../architecture/custom-resources/" class="md-nav__link ">
               
   
   
@@ -541,7 +541,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/custom-resources/cephdeployment/" class="md-nav__link">
+      <a href="../../../../architecture/custom-resources/cephdeployment/" class="md-nav__link">
         
   
   
@@ -569,7 +569,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/custom-resources/cephdeploymenthealth/" class="md-nav__link">
+      <a href="../../../../architecture/custom-resources/cephdeploymenthealth/" class="md-nav__link">
         
   
   
@@ -597,7 +597,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/custom-resources/cephdeploymentsecret/" class="md-nav__link">
+      <a href="../../../../architecture/custom-resources/cephdeploymentsecret/" class="md-nav__link">
         
   
   
@@ -625,7 +625,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../architecture/custom-resources/cephosdremovetask/" class="md-nav__link">
+      <a href="../../../../architecture/custom-resources/cephosdremovetask/" class="md-nav__link">
         
   
   
@@ -692,7 +692,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../quick-start/" class="md-nav__link ">
+            <a href="../../../../quick-start/" class="md-nav__link ">
               
   
   
@@ -736,7 +736,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../quick-start/installation/" class="md-nav__link">
+      <a href="../../../../quick-start/installation/" class="md-nav__link">
         
   
   
@@ -764,7 +764,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../quick-start/lcm-installation/" class="md-nav__link">
+      <a href="../../../../quick-start/lcm-installation/" class="md-nav__link">
         
   
   
@@ -792,7 +792,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../quick-start/upgrade/" class="md-nav__link">
+      <a href="../../../../quick-start/upgrade/" class="md-nav__link">
         
   
   
@@ -827,7 +827,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../developer/" class="md-nav__link">
+      <a href="../../../../developer/" class="md-nav__link">
         
   
   
@@ -882,7 +882,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../" class="md-nav__link ">
+            <a href="../../../" class="md-nav__link ">
               
   
   
@@ -970,7 +970,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../" class="md-nav__link ">
               
   
   
@@ -1036,7 +1036,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../ceph-resource-mgmt/" class="md-nav__link ">
+            <a href="../../ceph-resource-mgmt/" class="md-nav__link ">
               
   
   
@@ -1080,7 +1080,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ceph-resource-mgmt/enable-resource-mgmt/" class="md-nav__link">
+      <a href="../../ceph-resource-mgmt/enable-resource-mgmt/" class="md-nav__link">
         
   
   
@@ -1108,7 +1108,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ceph-resource-mgmt/verify-resource-mgmt/" class="md-nav__link">
+      <a href="../../ceph-resource-mgmt/verify-resource-mgmt/" class="md-nav__link">
         
   
   
@@ -1166,7 +1166,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../ceph-user-creds/" class="md-nav__link ">
+            <a href="../../ceph-user-creds/" class="md-nav__link ">
               
   
   
@@ -1210,7 +1210,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ceph-user-creds/ceph-client/" class="md-nav__link">
+      <a href="../../ceph-user-creds/ceph-client/" class="md-nav__link">
         
   
   
@@ -1238,7 +1238,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
+      <a href="../../ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
         
   
   
@@ -1274,7 +1274,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cephfs/" class="md-nav__link">
+      <a href="../../cephfs/" class="md-nav__link">
         
   
   
@@ -1282,6 +1282,388 @@
     
   
     Enable Ceph File System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../default-ceph-conf/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ceph default configuration options
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../external-ceph/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    External Ceph cluster
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../move-failure-domain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Change Ceph pools failure domain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../move-mon-daemon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Change Ceph Monitor node
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../move-mon-node-replace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Replace failed Ceph Monitor node
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../multinetworking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enable Ceph multinetwork
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rbd-mirror/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enable Ceph RBD mirroring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rook-daemon-place/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rook daemons placement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_13" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ceph Object Storage
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_2_13" id="__nav_5_2_13_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_2_13_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_2_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Ceph Object Storage
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rgw/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enable Ceph RGW Object Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rgw-tls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configure Ceph Object Gateway TLS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rgw-multisite/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enable multisite for Ceph Object Storage
   
 
     
@@ -1311,447 +1693,7 @@
         
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ceph default configuration options
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ceph default configuration options
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#default-configuration-options" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Default configuration options
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rockoon-related-default-configuration-options" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rockoon-related default configuration options
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../external-ceph/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    External Ceph cluster
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../move-failure-domain/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Change Ceph pools failure domain
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../move-mon-daemon/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Change Ceph Monitor node
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../move-mon-node-replace/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Replace failed Ceph Monitor node
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../multinetworking/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Enable Ceph multinetwork
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../rbd-mirror/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Enable Ceph RBD mirroring
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../rook-daemon-place/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Rook daemons placement
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_13" >
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../object-storage/" class="md-nav__link ">
-              
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ceph Object Storage
-  
-
-    
-  </span>
-  
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_5_2_13" id="__nav_5_2_13_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_2_13_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_2_13">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Ceph Object Storage
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../object-storage/rgw/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Enable Ceph RGW Object Storage
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../object-storage/rgw-tls/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Configure Ceph Object Gateway TLS
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../object-storage/rgw-multisite/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Enable multisite for Ceph Object Storage
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../object-storage/rgw-sse/" class="md-nav__link">
         
   
   
@@ -1767,6 +1709,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -1803,7 +1746,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../object-storage/s3-bucket-policy/" class="md-nav__link ">
+            <a href="../s3-bucket-policy/" class="md-nav__link ">
               
   
   
@@ -1847,7 +1790,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../object-storage/s3-bucket-policy/s3-create-user/" class="md-nav__link">
+      <a href="../s3-bucket-policy/s3-create-user/" class="md-nav__link">
         
   
   
@@ -1875,7 +1818,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../object-storage/s3-bucket-policy/bucket-policy-s3/" class="md-nav__link">
+      <a href="../s3-bucket-policy/bucket-policy-s3/" class="md-nav__link">
         
   
   
@@ -1903,7 +1846,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../object-storage/s3-bucket-policy/bucket-policy-rockoon/" class="md-nav__link">
+      <a href="../s3-bucket-policy/bucket-policy-rockoon/" class="md-nav__link">
         
   
   
@@ -1979,7 +1922,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../rockoon/" class="md-nav__link ">
+            <a href="../../../rockoon/" class="md-nav__link ">
               
   
   
@@ -2023,7 +1966,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rockoon/rockoon-integration/" class="md-nav__link">
+      <a href="../../../rockoon/rockoon-integration/" class="md-nav__link">
         
   
   
@@ -2051,7 +1994,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rockoon/cinder-multi-backend/" class="md-nav__link">
+      <a href="../../../rockoon/cinder-multi-backend/" class="md-nav__link">
         
   
   
@@ -2079,7 +2022,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rockoon/calc-target-ratio/" class="md-nav__link">
+      <a href="../../../rockoon/calc-target-ratio/" class="md-nav__link">
         
   
   
@@ -2139,7 +2082,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../lcm/" class="md-nav__link ">
+            <a href="../../../lcm/" class="md-nav__link ">
               
   
   
@@ -2219,7 +2162,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../lcm/auto-lcm/" class="md-nav__link ">
+            <a href="../../../lcm/auto-lcm/" class="md-nav__link ">
               
   
   
@@ -2263,7 +2206,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/auto-lcm/create-task-workflow/" class="md-nav__link">
+      <a href="../../../lcm/auto-lcm/create-task-workflow/" class="md-nav__link">
         
   
   
@@ -2291,7 +2234,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/auto-lcm/add-rm-ceph-osd/" class="md-nav__link">
+      <a href="../../../lcm/auto-lcm/add-rm-ceph-osd/" class="md-nav__link">
         
   
   
@@ -2319,7 +2262,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/auto-lcm/add-rm-ceph-osd-with-meta/" class="md-nav__link">
+      <a href="../../../lcm/auto-lcm/add-rm-ceph-osd-with-meta/" class="md-nav__link">
         
   
   
@@ -2347,7 +2290,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/auto-lcm/add-rm-ceph-node/" class="md-nav__link">
+      <a href="../../../lcm/auto-lcm/add-rm-ceph-node/" class="md-nav__link">
         
   
   
@@ -2375,7 +2318,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/auto-lcm/replace-ceph-osd/" class="md-nav__link">
+      <a href="../../../lcm/auto-lcm/replace-ceph-osd/" class="md-nav__link">
         
   
   
@@ -2403,7 +2346,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/auto-lcm/replace-osd-meta-lvm/" class="md-nav__link">
+      <a href="../../../lcm/auto-lcm/replace-osd-meta-lvm/" class="md-nav__link">
         
   
   
@@ -2431,7 +2374,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/auto-lcm/replace-osd-meta-device/" class="md-nav__link">
+      <a href="../../../lcm/auto-lcm/replace-osd-meta-device/" class="md-nav__link">
         
   
   
@@ -2459,7 +2402,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/auto-lcm/replace-ceph-node/" class="md-nav__link">
+      <a href="../../../lcm/auto-lcm/replace-ceph-node/" class="md-nav__link">
         
   
   
@@ -2487,7 +2430,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/auto-lcm/replace-meta/" class="md-nav__link">
+      <a href="../../../lcm/auto-lcm/replace-meta/" class="md-nav__link">
         
   
   
@@ -2523,7 +2466,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/increase-storage-size/" class="md-nav__link">
+      <a href="../../../lcm/increase-storage-size/" class="md-nav__link">
         
   
   
@@ -2551,7 +2494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../lcm/manual-osd-remove/" class="md-nav__link">
+      <a href="../../../lcm/manual-osd-remove/" class="md-nav__link">
         
   
   
@@ -2613,7 +2556,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../verify-ceph/" class="md-nav__link ">
+            <a href="../../../verify-ceph/" class="md-nav__link ">
               
   
   
@@ -2657,7 +2600,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../verify-ceph/verify-cephdeploymenthealth/" class="md-nav__link">
+      <a href="../../../verify-ceph/verify-cephdeploymenthealth/" class="md-nav__link">
         
   
   
@@ -2685,7 +2628,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../verify-ceph/verify-ceph-core/" class="md-nav__link">
+      <a href="../../../verify-ceph/verify-ceph-core/" class="md-nav__link">
         
   
   
@@ -2713,7 +2656,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../verify-ceph/verify-pelagia-and-rook/" class="md-nav__link">
+      <a href="../../../verify-ceph/verify-pelagia-and-rook/" class="md-nav__link">
         
   
   
@@ -2741,7 +2684,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../verify-ceph/verify-rook-discover/" class="md-nav__link">
+      <a href="../../../verify-ceph/verify-rook-discover/" class="md-nav__link">
         
   
   
@@ -2818,7 +2761,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../troubleshoot/" class="md-nav__link ">
+            <a href="../../../../troubleshoot/" class="md-nav__link ">
               
   
   
@@ -2862,7 +2805,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../troubleshoot/cephosdremovetask-timeout/" class="md-nav__link">
+      <a href="../../../../troubleshoot/cephosdremovetask-timeout/" class="md-nav__link">
         
   
   
@@ -2890,7 +2833,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../troubleshoot/ceph-osd-auth-failed/" class="md-nav__link">
+      <a href="../../../../troubleshoot/ceph-osd-auth-failed/" class="md-nav__link">
         
   
   
@@ -2918,7 +2861,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../troubleshoot/ceph-exporter-crash/" class="md-nav__link">
+      <a href="../../../../troubleshoot/ceph-exporter-crash/" class="md-nav__link">
         
   
   
@@ -2946,7 +2889,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../troubleshoot/ceph-mon-store-size-grow/" class="md-nav__link">
+      <a href="../../../../troubleshoot/ceph-mon-store-size-grow/" class="md-nav__link">
         
   
   
@@ -2974,7 +2917,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../troubleshoot/ceph-mon-recover/" class="md-nav__link">
+      <a href="../../../../troubleshoot/ceph-mon-recover/" class="md-nav__link">
         
   
   
@@ -3002,7 +2945,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../troubleshoot/ceph-disaster-recover/" class="md-nav__link">
+      <a href="../../../../troubleshoot/ceph-disaster-recover/" class="md-nav__link">
         
   
   
@@ -3030,7 +2973,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../troubleshoot/stuck-maintenance/" class="md-nav__link">
+      <a href="../../../../troubleshoot/stuck-maintenance/" class="md-nav__link">
         
   
   
@@ -3058,7 +3001,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../troubleshoot/ceph-pg-damaged/" class="md-nav__link">
+      <a href="../../../../troubleshoot/ceph-pg-damaged/" class="md-nav__link">
         
   
   
@@ -3106,36 +3049,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#default-configuration-options" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Default configuration options
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rockoon-related-default-configuration-options" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Rockoon-related default configuration options
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -3159,7 +3072,7 @@
   
   
     <li class="md-path__item">
-      <a href="../../.." class="md-path__link">
+      <a href="../../../.." class="md-path__link">
         
   <span class="md-ellipsis">
     Welcome to Pelagia
@@ -3177,7 +3090,7 @@
     
     
       <li class="md-path__item">
-        <a href="../../" class="md-path__link">
+        <a href="../../../" class="md-path__link">
           
   <span class="md-ellipsis">
     Operations Guide
@@ -3195,10 +3108,28 @@
     
     
       <li class="md-path__item">
-        <a href="../" class="md-path__link">
+        <a href="../../" class="md-path__link">
           
   <span class="md-ellipsis">
     CephDeployment operations
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Ceph Object Storage
   </span>
 
         </a>
@@ -3220,81 +3151,138 @@
   
 
 
-<p><a id="default-ceph-conf-ceph-default-configuration"></a></p>
-<h1 id="ceph-default-configuration">Ceph default configuration<a class="headerlink" href="#ceph-default-configuration" title="Permanent link">#</a></h1>
-<p>Pelagia Deployment Controller provides the capability to specify configuration options for
-the Ceph cluster through the <code>rookConfig</code> key-value section of the
-<code>CephDeployment</code> CR as if they were set in a usual <code>ceph.conf</code> file.</p>
-<h2 id="default-configuration-options">Default configuration options<a class="headerlink" href="#default-configuration-options" title="Permanent link">#</a></h2>
-<p>However, if <code>rookConfig</code> is empty, Pelagia Deployment Controller still specifies the
-following default configuration options for each Ceph cluster:</p>
-<ul>
-<li>Required network parameters that you can change through the <code>network</code>
-  section:
-  <div class="highlight"><pre><span></span><code><span class="k">[global]</span>
-<span class="na">cluster network</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;spec.network.clusterNet&gt;</span>
-<span class="na">public network</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;spec.network.publicNet&gt;</span>
-</code></pre></div></li>
-<li>General default configuration options that you can override using the
-  <code>rookConfig</code> parameter:
-  <div class="highlight"><pre><span></span><code><span class="k">[global]</span>
-<span class="na">mon_max_pg_per_osd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">300</span>
-<span class="na">mon_target_pg_per_osd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">100</span>
-
-<span class="k">[mon]</span>
-<span class="na">mon_warn_on_insecure_global_id_reclaim</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
-<span class="na">mon_warn_on_insecure_global_id_reclaim_allowed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">false</span>
-
-<span class="k">[osd]</span>
-<span class="na">osd_class_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/usr/lib64/rados-classes</span>
-</code></pre></div></li>
-<li>If <code>rookConfig</code> is empty but the <code>objectStore.rgw</code> section is defined, Pelagia
-  specifies the following Ceph RADOS Gateway default configuration options:
-  <div class="highlight"><pre><span></span><code><span class="k">[client.rgw.rgw.store.a]</span>
-<span class="na">rgw_bucket_quota_ttl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30</span>
-<span class="na">rgw_data_log_backing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">omap</span>
-<span class="na">rgw_dns_name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">rook-ceph-rgw-rgw-store.rook-ceph.svc</span>
-<span class="na">rgw_max_attr_name_len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">64</span>
-<span class="na">rgw_max_attr_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1024</span>
-<span class="na">rgw_max_attrs_num_in_req</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32</span>
-<span class="na">rgw_thread_pool_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">256</span>
-<span class="na">rgw_trust_forwarded_https</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
-<span class="na">rgw_user_quota_bucket_sync_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30</span>
-<span class="na">rgw_user_quota_sync_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30</span>
-</code></pre></div></li>
-</ul>
-<h2 id="rockoon-related-default-configuration-options">Rockoon-related default configuration options<a class="headerlink" href="#rockoon-related-default-configuration-options" title="Permanent link">#</a></h2>
-<p>If Pelagia is integrated with Rockoon and <code>objectStore.rgw</code> section is defined in the <code>CephDeployment</code> custom resource, Pelagia Deployment Controller specifies the OpenStack-related default configuration options for each Ceph cluster:</p>
-<ul>
-<li>Ceph Object Gateway options that you can override using the <code>rookConfig</code> parameter:
-  <div class="highlight"><pre><span></span><code><span class="k">[client.rgw.rgw.store.a]</span>
-<span class="na">rgw swift account in url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
-<span class="na">rgw keystone accepted roles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;_member_, Member, member, swiftoperator&#39;</span>
-<span class="na">rgw keystone accepted admin roles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">admin</span>
-<span class="na">rgw keystone implicit tenants</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
-<span class="na">rgw swift versioning enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
-<span class="na">rgw enforce swift acls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
-<span class="na">rgw_max_attr_name_len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">64</span>
-<span class="na">rgw_max_attrs_num_in_req</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32</span>
-<span class="na">rgw_max_attr_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1024</span>
-<span class="na">rgw_bucket_quota_ttl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
-<span class="na">rgw_user_quota_bucket_sync_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30</span>
-<span class="na">rgw_user_quota_sync_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30</span>
-<span class="na">rgw s3 auth use keystone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
-</code></pre></div></li>
-<li>Additional parameters for the Keystone integration provided by Rockoon in shared secret:
-  <div class="highlight"><pre><span></span><code><span class="na">rgw keystone api version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3</span>
-<span class="na">rgw keystone url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneAuthURL&gt;</span>
-<span class="na">rgw keystone admin user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneUser&gt;</span>
-<span class="na">rgw keystone admin password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystonePassword&gt;</span>
-<span class="na">rgw keystone admin domain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneProjectDomain&gt;</span>
-<span class="na">rgw keystone admin project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneProjectName&gt;</span>
-</code></pre></div></li>
-</ul>
-<div class="admonition info">
-<p class="admonition-title">See also</p>
-<p><a href="../../../architecture/custom-resources/cephdeployment/#cephdeployment-cephdeployment-custom-resource">CephDeployment custom resource</a></p>
+<p><a id="rgw-sse-configure-ceph-object-storage-server-side-encryption"></a></p>
+<h1 id="configure-ceph-object-storage-server-side-encryption">Configure Ceph Object Storage server-side encryption<a class="headerlink" href="#configure-ceph-object-storage-server-side-encryption" title="Permanent link">#</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This feature is in Technical Preview, use it at your own risk.</p>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Pelagia supports Ceph Object Storage storage-side encryption for the clusters
+with Rockoon installed because Pelagia uses OpenStack Barbican KMS. Other KMS types
+are not supported yet.</p>
+</div>
+<p>When you use Ceph Object Storage server-side encryption (SSE),
+unencrypted data sent over HTTPS is stored encrypted by the Ceph Object Gateway
+in the Ceph cluster. The current implementation integrates OpenStack Barbican as a key
+management service.</p>
+<p>The Object Storage SSE feature is enabled by default in Pelagia with OpenStack Barbican.
+To use object storage SSE, the AWS CLI S3 client is used.</p>
+<p><strong>To use object storage server-side encryption:</strong></p>
+<ol>
+<li>
+<p>Create Amazon Elastic Compute Cloud (EC2) credentials:
+   <div class="highlight"><pre><span></span><code>openstack<span class="w"> </span>ec2<span class="w"> </span>credentials<span class="w"> </span>create
+</code></pre></div></p>
+</li>
+<li>
+<p>Configure AWS CLI with <code>access</code> and <code>secret</code> created in the previous
+   step:
+   <div class="highlight"><pre><span></span><code>aws<span class="w"> </span>configure
+</code></pre></div></p>
+</li>
+<li>
+<p>Create a secret key in OpenStack Barbican KMS:
+   <div class="highlight"><pre><span></span><code>openstack<span class="w"> </span>secret<span class="w"> </span>order<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>&lt;name&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--algorithm<span class="w"> </span>&lt;algorithm&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--mode<span class="w"> </span>&lt;mode&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--bit-length<span class="w"> </span><span class="m">256</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--payload-content-type<span class="o">=</span>&lt;payload-content-type&gt;<span class="w"> </span>key
+</code></pre></div></p>
+<p>Substitute the parameters enclosed in angle brackets:</p>
+<ul>
+<li><code>&lt;name&gt;</code> - human-friendly name.</li>
+<li><code>&lt;algorithm&gt;</code> - algorithm to use with the requested key. For example,
+   <code>aes</code>.</li>
+<li><code>&lt;mode&gt;</code> - algorithm mode to use with the requested key. For example,
+   <code>ctr</code>.</li>
+<li><code>&lt;payload-content-type&gt;</code> - type/format of the secret to generate. For
+   example, <code>application/octet-stream</code>.</li>
+</ul>
+</li>
+<li>
+<p>Verify that the key has been created:
+   <div class="highlight"><pre><span></span><code>openstack<span class="w"> </span>secret<span class="w"> </span>order<span class="w"> </span>get<span class="w"> </span>&lt;order-href&gt;
+</code></pre></div></p>
+<p>Substitute <code>&lt;order-href&gt;</code> with the corresponding value from the output of the previous command.</p>
+</li>
+<li>
+<p>Specify the <code>ceph-rgw</code> user in the Barbican secret Access Control List (ACL):</p>
+<ol>
+<li>
+<p>Obtain the list of <code>ceph-rgw</code> users:
+    <div class="highlight"><pre><span></span><code>openstack<span class="w"> </span>user<span class="w"> </span>list<span class="w"> </span>--domain<span class="w"> </span>service<span class="w">  </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>ceph-rgw
+</code></pre></div></p>
+<p>Example output:
+  <div class="highlight"><pre><span></span><code><span class="p">|</span><span class="w"> </span>c63b70134e0845a2b13c3f947880f66a<span class="w"> </span><span class="p">|</span><span class="w"> </span>ceph-rgwZ6ycK3dY<span class="w">         </span><span class="p">|</span>
+</code></pre></div></p>
+<p>In the output, capture the first value as the <code>&lt;user-id&gt;</code>,
+  which is <code>c63b70134e0845a2b13c3f947880f66a</code> in the above
+  example.</p>
+</li>
+<li>
+<p>Specify the <code>ceph-rgw</code> user in the Barbican ACL:
+    <div class="highlight"><pre><span></span><code>openstack<span class="w"> </span>acl<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>--user<span class="w"> </span>&lt;user-id&gt;<span class="w"> </span>&lt;secret-href&gt;
+</code></pre></div></p>
+<p>Substitute <code>&lt;user-id&gt;</code> with the corresponding value from the output of
+  the previous command and <code>&lt;secret-href&gt;</code> with the corresponding value
+  obtained in step 3.</p>
+</li>
+</ol>
+</li>
+<li>
+<p>Create an S3 bucket:
+   <div class="highlight"><pre><span></span><code>aws<span class="w"> </span>--endpoint-url<span class="w"> </span>&lt;rgw-endpoint-url&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--ca-bundle<span class="w"> </span>&lt;ca-bundle&gt;<span class="w"> </span>s3api<span class="w"> </span>create-bucket<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--bucket<span class="w"> </span>&lt;bucket-name&gt;
+</code></pre></div></p>
+<p>Substitute the parameters enclosed in angle brackets:</p>
+<ul>
+<li><code>&lt;rgw-endpoint-url&gt;</code> - Ceph Object Gateway endpoint DNS name</li>
+<li><code>&lt;ca-bundle&gt;</code> - CA Certificate Bundle</li>
+<li><code>&lt;bucket-name&gt;</code> - human-friendly bucket name</li>
+</ul>
+</li>
+<li>
+<p>Upload a file using object storage SSE:
+   <div class="highlight"><pre><span></span><code>aws<span class="w"> </span>--endpoint-url<span class="w"> </span>&lt;rgw-endpoint-url&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--ca-bundle<span class="w"> </span>&lt;ca-bundle&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>s3<span class="w"> </span>cp<span class="w"> </span>&lt;path-to-file&gt;<span class="w"> </span><span class="s2">&quot;s3://&lt;bucket-name&gt;/&lt;filename&gt;&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sse<span class="w"> </span>aws:kms<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sse-kms-key-id<span class="w"> </span>&lt;key-id&gt;
+</code></pre></div></p>
+<p>Substitute the parameters enclosed in angle brackets:</p>
+<ul>
+<li><code>&lt;path-to-file&gt;</code> - path to the file that you want to upload</li>
+<li><code>&lt;filename&gt;</code> - name under which the uploaded file will be stored
+   in the bucket</li>
+<li><code>&lt;key-id&gt;</code> - Barbican secret key ID</li>
+</ul>
+</li>
+<li>
+<p>Select one of the following options to download the file:</p>
+<ul>
+<li>
+<p>Download the file using a key:
+   <div class="highlight"><pre><span></span><code>aws<span class="w"> </span>--endpoint-url<span class="w"> </span>&lt;rgw-endpoint-url&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--ca-bundle<span class="w"> </span>&lt;ca-bundle&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>s3<span class="w"> </span>cp<span class="w"> </span><span class="s2">&quot;s3://&lt;bucket-name&gt;/&lt;filename&gt;&quot;</span><span class="w"> </span>&lt;path-to-output-file&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sse<span class="w"> </span>aws:kms<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--sse-kms-key-id<span class="w"> </span>&lt;key-id&gt;
+</code></pre></div></p>
+<p>Substitute <code>&lt;path-to-output-file&gt;</code> with the path to the file you want to download.</p>
+</li>
+<li>
+<p>Download the file without a key:
+   <div class="highlight"><pre><span></span><code>aws<span class="w"> </span>--endpoint-url<span class="w"> </span>&lt;rgw-endpoint-url&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--ca-bundle<span class="w"> </span>&lt;ca-bundle&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>s3<span class="w"> </span>cp<span class="w"> </span><span class="s2">&quot;s3://&lt;bucket-name&gt;/&lt;filename&gt;&quot;</span><span class="w"> </span>&lt;output-filename&gt;
+</code></pre></div></p>
+</li>
+</ul>
+</li>
+</ol>
 
 
 
@@ -3330,7 +3318,7 @@ following default configuration options for each Ceph cluster:</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../cephfs/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Enable Ceph File System">
+          <a href="../rgw-multisite/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Enable multisite for Ceph Object Storage">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3340,20 +3328,20 @@ following default configuration options for each Ceph cluster:</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Enable Ceph File System
+                Enable multisite for Ceph Object Storage
               </div>
             </div>
           </a>
         
         
           
-          <a href="../external-ceph/" class="md-footer__link md-footer__link--next" aria-label="Next: External Ceph cluster">
+          <a href="../s3-bucket-policy/" class="md-footer__link md-footer__link--next" aria-label="Next: RADOS Gateway bucket policy">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                External Ceph cluster
+                RADOS Gateway bucket policy
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -3394,10 +3382,10 @@ following default configuration options for each Ceph cluster:</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

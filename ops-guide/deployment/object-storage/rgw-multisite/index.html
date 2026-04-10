@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../s3-create-user/">
+        <link rel="prev" href="../rgw-tls/">
       
       
-        <link rel="next" href="../bucket-policy-rockoon/">
+        <link rel="next" href="../rgw-sse/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Bucket policy for Ceph Object Storage user - Pelagia Controller for Rook Ceph management</title>
+        <title>Enable multisite for Ceph Object Storage - Pelagia Controller for Rook Ceph management</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#set-a-bucket-policy-for-a-ceph-object-storage-user" class="md-skip">
+        <a href="#enable-multisite-for-ceph-object-storage" class="md-skip">
           Skip to content
         </a>
       
@@ -113,7 +113,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Bucket policy for Ceph Object Storage user
+              Enable multisite for Ceph Object Storage
             
           </span>
         </div>
@@ -870,28 +870,6 @@
       
         
       
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
     
     
     
@@ -945,6 +923,382 @@
                 
   
   
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CephDeployment operations
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CephDeployment operations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../ceph-resource-mgmt/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ceph resources management
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_2_2" id="__nav_5_2_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Ceph resources management
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ceph-resource-mgmt/enable-resource-mgmt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enable Ceph resources management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ceph-resource-mgmt/verify-resource-mgmt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Verify Ceph resources management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../ceph-user-creds/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ceph user credentials
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_2_3" id="__nav_5_2_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Ceph user credentials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ceph-user-creds/ceph-client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enable Ceph RBD/CephFS client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enable Ceph Object Storage user
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cephfs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enable Ceph File System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
   
   
     <li class="md-nav__item">
@@ -976,98 +1330,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rook-daemon-place/" class="md-nav__link">
+      <a href="../../external-ceph/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Rook daemons placement
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../multinetworking/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Enable Ceph multinetwork
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../rbd-mirror/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Enable Ceph RBD mirroring
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../cephfs/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Enable Ceph File System
+    External Ceph cluster
   
 
     
@@ -1172,14 +1442,364 @@
   
   
     <li class="md-nav__item">
-      <a href="../../external-ceph/" class="md-nav__link">
+      <a href="../../multinetworking/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    External Ceph cluster
+    Enable Ceph multinetwork
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rbd-mirror/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enable Ceph RBD mirroring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rook-daemon-place/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Rook daemons placement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_13" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ceph Object Storage
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_2_13" id="__nav_5_2_13_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_2_13_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_2_13">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Ceph Object Storage
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rgw/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enable Ceph RGW Object Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rgw-tls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configure Ceph Object Gateway TLS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enable multisite for Ceph Object Storage
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enable multisite for Ceph Object Storage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#multisite-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multisite parameters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enable-the-multisite-rgw-object-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enable the multisite RGW Object Storage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Enable the multisite RGW Object Storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-master-zone-for-rgw-object-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring master zone for RGW Object Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-replication-zone-for-rgw-object-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring replication zone for RGW Object Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-and-clean-up-a-multisite-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure and clean up a multisite configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rgw-sse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configure Ceph Object Storage SSE
   
 
     
@@ -1220,7 +1840,183 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_11" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_13_6" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../s3-bucket-policy/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RADOS Gateway bucket policy
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5_2_13_6" id="__nav_5_2_13_6_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_5_2_13_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2_13_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    RADOS Gateway bucket policy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s3-bucket-policy/s3-create-user/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Create Ceph Object Storage user
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s3-bucket-policy/bucket-policy-s3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bucket policy for Ceph Object Storage user
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../s3-bucket-policy/bucket-policy-rockoon/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bucket policy for Rockoon OpenStack user
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_3" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -1242,14 +2038,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_11" id="__nav_5_11_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_11_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_11">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1357,691 +2153,6 @@
                 
   
   
-    
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_12" checked>
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../" class="md-nav__link ">
-              
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ceph Object Storage
-  
-
-    
-  </span>
-  
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_5_12" id="__nav_5_12_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_12_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5_12">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Ceph Object Storage
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../rgw/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Enable Ceph RGW Object Storage
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../rgw-tls/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Configure Ceph Object Gateway TLS
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../rgw-multisite/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Enable multisite for Ceph Object Storage
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../rgw-sse/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Configure Ceph Object Storage SSE
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_12_6" checked>
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
-              
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    RADOS Gateway bucket policy
-  
-
-    
-  </span>
-  
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_5_12_6" id="__nav_5_12_6_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_12_6_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5_12_6">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    RADOS Gateway bucket policy
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../s3-create-user/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Create Ceph Object Storage user
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Bucket policy for Ceph Object Storage user
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Bucket policy for Ceph Object Storage user
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#configure-s3cmd-command-line-tool" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configure s3cmd command-line tool
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#configure-an-amazon-s3-bucket-policy" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configure an Amazon S3 bucket policy
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../bucket-policy-rockoon/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Bucket policy for Rockoon OpenStack user
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-        
-      
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_13" >
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../ceph-user-creds/" class="md-nav__link ">
-              
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ceph user credentials
-  
-
-    
-  </span>
-  
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_5_13" id="__nav_5_13_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_13_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_13">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Ceph user credentials
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../ceph-user-creds/ceph-client/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Enable Ceph RBD/CephFS client
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Enable Ceph Object Storage user
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-        
-      
-    
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_14" >
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../ceph-resource-mgmt/" class="md-nav__link ">
-              
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ceph resources management
-  
-
-    
-  </span>
-  
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_5_14" id="__nav_5_14_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_14_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_14">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Ceph resources management
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../ceph-resource-mgmt/enable-resource-mgmt/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Enable Ceph resources management
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../ceph-resource-mgmt/verify-resource-mgmt/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Verify Ceph resources management
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
   
   
     
@@ -2065,7 +2176,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_15" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -2087,14 +2198,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_15" id="__nav_5_15_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_15_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_15">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2145,7 +2256,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_15_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4_2" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -2167,14 +2278,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_15_2" id="__nav_5_15_2_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_5_4_2" id="__nav_5_4_2_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_15_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_15_2">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2539,7 +2650,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_16" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -2561,14 +2672,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_16" id="__nav_5_16_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_16_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_16">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -3043,10 +3154,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#configure-s3cmd-command-line-tool" class="md-nav__link">
+  <a href="#multisite-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configure s3cmd command-line tool
+        Multisite parameters
       
     </span>
   </a>
@@ -3054,10 +3165,49 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configure-an-amazon-s3-bucket-policy" class="md-nav__link">
+  <a href="#enable-the-multisite-rgw-object-storage" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configure an Amazon S3 bucket policy
+        Enable the multisite RGW Object Storage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Enable the multisite RGW Object Storage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-master-zone-for-rgw-object-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring master zone for RGW Object Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuring-replication-zone-for-rgw-object-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring replication zone for RGW Object Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configure-and-clean-up-a-multisite-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configure and clean up a multisite configuration
       
     </span>
   </a>
@@ -3128,7 +3278,7 @@
         <a href="../../" class="md-path__link">
           
   <span class="md-ellipsis">
-    Ceph Object Storage
+    CephDeployment operations
   </span>
 
         </a>
@@ -3146,7 +3296,7 @@
         <a href="../" class="md-path__link">
           
   <span class="md-ellipsis">
-    RADOS Gateway bucket policy
+    Ceph Object Storage
   </span>
 
         </a>
@@ -3168,158 +3318,303 @@
   
 
 
-<p><a id="bucket-policy-s3-set-a-bucket-policy-for-a-ceph-object-storage-user"></a></p>
-<h1 id="set-a-bucket-policy-for-a-ceph-object-storage-user">Set a bucket policy for a Ceph Object Storage user<a class="headerlink" href="#set-a-bucket-policy-for-a-ceph-object-storage-user" title="Permanent link">#</a></h1>
-<p>Amazon S3 is an object storage service with different access policies. A bucket
-policy is a resource-based policy that grants permissions to a bucket and
-objects in it. For more details, see
-<a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-policies.html">Amazon S3 documentation: Using bucket policies</a>.</p>
-<p>The following procedure illustrates the process of setting a bucket policy for
-a bucket (<code>test01</code>) stored in a Ceph Object Storage. The bucket policy
-requires at least two users: a bucket owner (<code>user-a</code>) and a bucket user
-(<code>user-t</code>). The bucket owner creates the bucket and sets the policy that
-regulates access for the bucket user.
-The procedure uses the <code>s3cmd</code> command-line tool.</p>
-<p><a name="bucket-policy-s3-configure-s3cmd-command-line-tool"></a></p>
-<h2 id="configure-s3cmd-command-line-tool">Configure <code>s3cmd</code> command-line tool<a class="headerlink" href="#configure-s3cmd-command-line-tool" title="Permanent link">#</a></h2>
+<p><a id="rgw-multisite-enable-multisite-for-ceph-object-storage"></a></p>
+<h1 id="enable-multisite-for-ceph-object-storage">Enable Multisite for Ceph Object Storage<a class="headerlink" href="#enable-multisite-for-ceph-object-storage" title="Permanent link">#</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This feature is in Technical Preview, use it at your own risk.</p>
+</div>
+<p>The Ceph Object Storage Multisite feature allows object storage to replicate its data over multiple Ceph clusters.
+Using multisite, such object storage is independent and isolated from another object storage in the cluster.
+Only the multi-zone multisite setup is currently supported. For more details, see
+<a href="https://docs.ceph.com/en/latest/radosgw/multisite">Ceph documentation: Multisite</a>.</p>
+<p><a name="rgw-multisite-multisite-parameters"></a></p>
+<h2 id="multisite-parameters">Multisite parameters<a class="headerlink" href="#multisite-parameters" title="Permanent link">#</a></h2>
+<ul>
+<li>
+<p><code>realms</code> - Required. List of realms to use, represents the realm namespaces. Includes the following parameters:</p>
+<ul>
+<li><code>name</code> - required, the realm name.</li>
+<li>
+<p><code>pullEndpoint</code> - optional, required only when the master zone is in
+  a different storage cluster. The endpoint, access key, and system key
+  of the system user from the realm to pull from. Includes the
+  following parameters:</p>
+<ul>
+<li><code>endpoint</code> - the endpoint of the master zone in the master zone group.</li>
+<li><code>accessKey</code> - the access key of the system user from the realm to pull from.</li>
+<li><code>secretKey</code> - the system key of the system user from the realm to pull from.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code>zoneGroups</code> - Required. The list of zone groups for realms. Includes the following parameters:</p>
+<ul>
+<li><code>name</code> - required, the zone group name.</li>
+<li><code>realmName</code> - required, the realm namespace name to which
+  the zone group belongs to.</li>
+</ul>
+</li>
+<li>
+<p><code>zones</code> - Required. The list of zones used within one zone group. Includes the following parameters:</p>
+<ul>
+<li><code>name</code> - required, the zone name.</li>
+<li><code>metadataPool</code> - required, the settings used to create the Object Storage metadata pools. Must use replication. For details, see description of the Pool parameters.</li>
+<li><code>dataPool</code> - required, the settings used to create the Object Storage data pool. Can use replication or erasure coding. For details, see the Pool parameters.</li>
+<li><code>zoneGroupName</code> - required, the zone group name.</li>
+<li><code>endpointsForZone</code> - optional. The list of all endpoints in the zone group.
+  If you use ingress proxy for RGW, the list of endpoints must contain that FQDN/IP address to access RGW.
+  By default, if no ingress proxy is used, the list of endpoints is set to the IP address of the RGW external service. Endpoints must follow the HTTP URL format.</li>
+</ul>
+</li>
+</ul>
+<p><a name="rgw-multisite-enable-the-multisite-rgw-object-storage"></a></p>
+<h2 id="enable-the-multisite-rgw-object-storage">Enable the multisite RGW Object Storage<a class="headerlink" href="#enable-the-multisite-rgw-object-storage" title="Permanent link">#</a></h2>
+<ol>
+<li>Open the <code>CephDeployment</code> custom resource for editing:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephdpl<span class="w"> </span>&lt;name&gt;
+</code></pre></div></li>
+<li>Update the <code>spec.objectStorage.multiSite</code> section specification as required using the configuration
+   references for master or replication zones below.</li>
+<li>
+<p>Configure the <code>zone</code> RGW parameter and leave <code>dataPool</code>
+   and <code>metadataPool</code> empty. These parameters are ignored because
+   the <code>zone</code> section in the multisite configuration specifies the pool parameters.</p>
+<p>Also, you can split the RGW daemon on daemons serving clients and daemons
+ running synchronization. To enable this option, specify
+ <code>splitDaemonForMultisiteTrafficSync</code> in the <code>gateway</code> section.</p>
+<p>For example:
+ <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">multiSite</span><span class="p">:</span>
+<span class="w">       </span><span class="nt">realms</span><span class="p">:</span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">         </span><span class="nt">pullEndpoint</span><span class="p">:</span>
+<span class="w">           </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://10.11.0.75:8080</span>
+<span class="w">           </span><span class="nt">accessKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DRND5J2SVC9O6FQGEJJF</span>
+<span class="w">           </span><span class="nt">secretKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qpjIjY4lRFOWh5IAnbrgL5O6RTA1rigvmsqRGSJk</span>
+<span class="w">       </span><span class="nt">zoneGroups</span><span class="p">:</span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">         </span><span class="nt">realmName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">       </span><span class="nt">zones</span><span class="p">:</span>
+<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store-backup</span>
+<span class="w">         </span><span class="nt">zoneGroupName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">         </span><span class="nt">metadataPool</span><span class="p">:</span>
+<span class="w">           </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">           </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">             </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">         </span><span class="nt">dataPool</span><span class="p">:</span>
+<span class="w">           </span><span class="nt">erasureCoded</span><span class="p">:</span>
+<span class="w">             </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">             </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">           </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">dataPool</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">      </span><span class="nt">gateway</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">allNodes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">instances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">        </span><span class="nt">splitDaemonForMultisiteTrafficSync</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">        </span><span class="nt">securePort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span>
+<span class="w">      </span><span class="nt">healthCheck</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">      </span><span class="nt">metadataPool</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store-backup</span>
+<span class="w">      </span><span class="nt">preservePoolsOnDelete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">      </span><span class="nt">zone</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store-backup</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Verify the multisite status:
+   <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>sync<span class="w"> </span>status
+</code></pre></div></p>
+</li>
+</ol>
+<p>Once done, Pelagia Deployment Controller will create the required resources and Rook will
+handle the multisite configuration. For details, see: <a href="https://rook.io/docs/rook/latest/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/">Rook documentation: Object Multisite</a>.</p>
+<p><a name="rgw-multisite-configuring-master-zone-for-rgw-object-storage"></a></p>
+<h3 id="configuring-master-zone-for-rgw-object-storage">Configuring master zone for RGW Object Storage<a class="headerlink" href="#configuring-master-zone-for-rgw-object-storage" title="Permanent link">#</a></h3>
+<p>If you do not need to replicate data from a different storage cluster,
+and the current cluster represents the master zone, modify the current
+<code>objectStorage</code> section to use the multisite mode:</p>
+<ol>
+<li>
+<p>Configure the <code>zone</code> RADOS Gateway (RGW) parameter by setting it to
+   the RGW Object Storage name.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The s3cmd is a free command-line tool and client for uploading,
-retrieving, and managing data in Amazon S3 and other cloud storage service
-providers that use the S3 protocol. You can download the s3cmd CLI tool from
-<a href="https://s3tools.org/download">Amazon S3 tools: Download s3cmd</a>.</p>
+<p>Leave <code>dataPool</code> and <code>metadataPool</code> empty. These
+parameters are ignored because the <code>zone</code> block in the multisite
+configuration specifies the pools parameters. Other RGW parameters
+do not require changes.</p>
 </div>
-<p>Configure the s3cmd client with some s3 credentials, you need to run:
-<div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>--configure<span class="w"> </span>--ca-certs<span class="o">=</span>ca.crt
-</code></pre></div></p>
-<p>where <code>ca.crt</code> is a CA certificate signs Ceph Object Storage public endpoint.</p>
-<p>The command will ask to specify the following bucket access parameters:</p>
+<p>For example:
+<code>yaml
+  spec:
+    objectStorage:
+      rgw:
+        gateway:
+          allNodes: false
+          instances: 2
+          port: 80
+          securePort: 8443
+        name: openstack-store
+        preservePoolsOnDelete: false
+        zone:
+          name: openstack-store</code></p>
+</li>
+<li>
+<p>Create the <code>multiSite</code> section where the names of realm, zone group,
+   and zone must match the current RGW name.</p>
+<p>Specify the <code>endpointsForZone</code> parameter according to your
+configuration:</p>
 <ul>
-<li><code>Access Key</code> - Public part of access credentials. Specify a user access key.</li>
-<li><code>Secret Key</code> - Secret part of access credentials. Specify a user secret key.</li>
-<li><code>Default Region</code> - Region of AWS servers where requests are sent by default. Use the default value.</li>
-<li><code>S3 Endpoint</code> - Connection point to the Ceph Object Storage. Specify the Ceph Object Storage public endpoint.</li>
-<li><code>DNS-style bucket+hostname:port template for accessing a bucket</code> - Bucket location. Specify the Ceph Object Storage public endpoint.</li>
-<li><code>Path to GPG program</code> - Path to the GNU Privacy Guard encryption suite. Use the default value.</li>
-<li><code>Use HTTPS protocol</code> - HTTPS protocol switch. Specify <code>Yes</code>.</li>
-<li><code>HTTP Proxy server name</code> - HTTP Proxy server name. Skip this parameter.</li>
+<li>If you use ingress proxy, which is defined in the <code>spec.ingressConfig</code>
+    section, add the FQDN endpoint.</li>
+<li>If you do not use any ingress proxy and access the RGW API using the
+    default RGW external service, add the IP address of the external
+    service or leave this parameter empty.</li>
 </ul>
-<p>When configured correctly, the <code>s3cmd</code> tool connects to the Ceph Object Storage.
-Save new settings when prompted by the system.</p>
-<h2 id="configure-an-amazon-s3-bucket-policy">Configure an Amazon S3 bucket policy<a class="headerlink" href="#configure-an-amazon-s3-bucket-policy" title="Permanent link">#</a></h2>
+<p>The following example illustrates a complete <code>objectStorage</code> section:
+<div class="highlight"><pre><span></span><code><span class="nt">objectStorage</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">multiSite</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">realms</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">    </span><span class="nt">zoneGroups</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">      </span><span class="nt">realmName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">    </span><span class="nt">zones</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">      </span><span class="nt">zoneGroupName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">      </span><span class="nt">endpointsForZone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://10.11.0.75:8080</span>
+<span class="w">      </span><span class="nt">metadataPool</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">replicated</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">      </span><span class="nt">dataPool</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">erasureCoded</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">          </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">  </span><span class="nt">rgw</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gateway</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">allNodes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">      </span><span class="nt">instances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">      </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">      </span><span class="nt">securePort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">    </span><span class="nt">preservePoolsOnDelete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">zone</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+</code></pre></div></p>
+</li>
+</ol>
+<p><a name="rgw-multisite-configuring-replication-zone-for-rgw-object-storage"></a></p>
+<h3 id="configuring-replication-zone-for-rgw-object-storage">Configuring replication zone for RGW Object Storage<a class="headerlink" href="#configuring-replication-zone-for-rgw-object-storage" title="Permanent link">#</a></h3>
+<p>If you use a different storage cluster, and its object storage data must
+be replicated, specify the realm and zone group names along with the
+<code>pullEndpoint</code> parameter. Additionally, specify the endpoint, access
+key, and system keys of the system user of the realm from which you need
+to replicate data. For details, see step 2 of this procedure.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>All commands below should be executed inside <code>pelagia-ceph-toolbox</code> pod.</p>
+</div>
 <ol>
-<li>Configure the <code>s3cmd</code> client with the <code>user-a</code> credentials <code>AccessKey</code> and <code>SecretKey</code>.</li>
+<li>To obtain the endpoint of the cluster zone that must be replicated, run
+   the following command by specifying the zone group name of the required
+   master zone on the master zone side:
+   <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>zonegroup<span class="w"> </span>get<span class="w"> </span>--rgw-zonegroup<span class="o">=</span>&lt;ZONE_GROUP_NAME&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.endpoints&#39;</span>
+</code></pre></div></li>
+</ol>
+<p>The endpoint is located in the <code>endpoints</code> field.</p>
+<ol>
 <li>
-<p>As <code>user-a</code>, create a new bucket <code>test01</code>:
-   <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>mb<span class="w"> </span>s3://test01
-</code></pre></div></p>
-<p>Example of a positive system response:
- <div class="highlight"><pre><span></span><code>Bucket<span class="w"> </span><span class="s1">&#39;s3://test01/&#39;</span><span class="w"> </span>created
+<p>To obtain the access key and the secret key of the system user, run
+   the following command on the required Ceph cluster:
+   <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>user<span class="w"> </span>list
 </code></pre></div></p>
 </li>
 <li>
-<p>Upload an object to the bucket:
-   <div class="highlight"><pre><span></span><code>touch<span class="w"> </span>test.txt
-s3cmd<span class="w"> </span>put<span class="w"> </span>test.txt<span class="w"> </span>s3://test01
+<p>To obtain the system user name, which has your RGW <code>ObjectStorage</code>
+   name as prefix:
+   <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>user<span class="w"> </span>info<span class="w"> </span>--uid<span class="o">=</span><span class="s2">&quot;&lt;USER_NAME&gt;&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.keys&#39;</span>
 </code></pre></div></p>
-<p>Example of a positive system response:
- <div class="highlight"><pre><span></span><code>upload:<span class="w"> </span><span class="s1">&#39;test.txt&#39;</span><span class="w"> </span>-&gt;<span class="w"> </span><span class="s1">&#39;s3://test01/test.txt&#39;</span><span class="w">  </span><span class="o">[</span><span class="m">1</span><span class="w"> </span>of<span class="w"> </span><span class="m">1</span><span class="o">]</span>
-<span class="m">0</span><span class="w"> </span>of<span class="w"> </span><span class="m">0</span><span class="w">     </span><span class="m">0</span>%<span class="w"> </span><span class="k">in</span><span class="w">    </span>0s<span class="w">     </span><span class="m">0</span>.00<span class="w"> </span>B/s<span class="w">  </span><span class="k">done</span>
+</li>
+</ol>
+<p>For example:
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">multiSite</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">realms</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">        </span><span class="nt">pullEndpoint</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://10.11.0.75:8080</span>
+<span class="w">          </span><span class="nt">accessKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">DRND5J2SVC9O6FQGEJJF</span>
+<span class="w">          </span><span class="nt">secretKey</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">qpjIjY4lRFOWh5IAnbrgL5O6RTA1rigvmsqRGSJk</span>
+<span class="w">      </span><span class="nt">zoneGroups</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">        </span><span class="nt">realmName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">      </span><span class="nt">zones</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store-backup</span>
+<span class="w">        </span><span class="nt">zoneGroupName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
+<span class="w">        </span><span class="nt">metadataPool</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">          </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">        </span><span class="nt">dataPool</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">erasureCoded</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">            </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">          </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+</code></pre></div></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We recommend using the same <code>metadataPool</code> and <code>dataPool</code> settings as you use in the master zone.</p>
+</div>
+<h2 id="configure-and-clean-up-a-multisite-configuration">Configure and clean up a multisite configuration<a class="headerlink" href="#configure-and-clean-up-a-multisite-configuration" title="Permanent link">#</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Rook does not handle multisite configuration changes and cleanup.
+Therefore, once you enable multisite for Ceph RGW Object Storage, perform
+these operations manually in the <code>pelagia-ceph-toolbox</code> pod. For details, see
+<a href="https://rook.io/docs/rook/latest/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/?h=multisite#multisite-cleanup">Rook documentation: Multisite cleanup</a>.</p>
+</div>
+<p>Automatic update of zonegroup hostnames is disabled in <code>CephDeployment</code> CR if RADOS Gateway Multisite is enabled or
+External Ceph cluster mode is enabled, therefore, manually specify all
+required hostnames and update the zone group. In the <code>pelagia-ceph-toolbox</code> pod, run
+the following script:</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The script is actual for Rook resources deployed by Pelagia Helm chart. If you're
+using Rook which is not deployed by Pelagia Helm chart, update zonegroup configuration
+manually.</p>
+</div>
+<div class="highlight"><pre><span></span><code>/usr/local/bin/zonegroup_hostnames_update.sh<span class="w"> </span>--rgw-zonegroup<span class="w"> </span>&lt;ZONEGROUP_NAME&gt;<span class="w"> </span>--hostnames<span class="w"> </span>fqdn1<span class="o">[</span>,fqdn2<span class="o">]</span>
+</code></pre></div>
+<p>If the multisite setup is completely cleaned up, manually execute the following
+steps on the <code>pelagia-ceph-toolbox</code> pod:</p>
+<ol>
+<li>
+<p>Due to the <a href="https://github.com/rook/rook/issues/16328">Rook issue #16328</a>, verify that <code>.rgw.root</code> pool is removed:</p>
+<ul>
+<li>
+<p>Verify <code>.rgw.root</code> pool does not exist:
+   <div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>osd<span class="w"> </span>pool<span class="w"> </span>ls<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>.rgw.root
 </code></pre></div></p>
 </li>
 <li>
-<p>Verify that the object is in the <code>test01</code> bucket:
-   <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>ls<span class="w"> </span>s3://test01
+<p>If the pool <code>.rgw.root</code> is not removed, remove it manually:
+   <div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>osd<span class="w"> </span>pool<span class="w"> </span>rm<span class="w"> </span>.rgw.root<span class="w"> </span>.rgw.root<span class="w"> </span>--yes-i-really-really-mean-it
 </code></pre></div></p>
-<p>Example of a positive system response:
- <div class="highlight"><pre><span></span><code><span class="m">2022</span>-09-02<span class="w"> </span><span class="m">13</span>:06<span class="w">            </span><span class="m">0</span><span class="w">  </span>s3://test01/test.txt
-</code></pre></div></p>
+<p>Some other RGW pools may also require a removal after cleanup.</p>
+</li>
+</ul>
 </li>
 <li>
-<p>Create the bucket policy file and add bucket CRUD permissions
-   for <code>user-t</code>:
-   <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;Version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;Id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;S3Policy1&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;Statement&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">    </span><span class="p">{</span>
-<span class="w">     </span><span class="nt">&quot;Sid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BucketAllow&quot;</span><span class="p">,</span>
-<span class="w">     </span><span class="nt">&quot;Effect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
-<span class="w">     </span><span class="nt">&quot;Principal&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">       </span><span class="nt">&quot;AWS&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;arn:aws:iam:::user/user-t&quot;</span><span class="p">]</span>
-<span class="w">     </span><span class="p">},</span>
-<span class="w">     </span><span class="nt">&quot;Action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">       </span><span class="s2">&quot;s3:ListBucket&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;s3:PutObject&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;s3:GetObject&quot;</span>
-<span class="w">     </span><span class="p">],</span>
-<span class="w">     </span><span class="nt">&quot;Resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">       </span><span class="s2">&quot;arn:aws:s3:::test01&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;arn:aws:s3:::test01/*&quot;</span>
-<span class="w">     </span><span class="p">]</span>
-<span class="w">    </span><span class="p">}</span>
-<span class="w">  </span><span class="p">]</span>
-<span class="p">}</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>Set the bucket policy for the <code>test01</code> bucket:
-   <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>setpolicy<span class="w"> </span>policy.json<span class="w"> </span>s3://test01
-</code></pre></div></p>
-<p>Example of a positive system response:
- <div class="highlight"><pre><span></span><code>s3://test01/:<span class="w"> </span>Policy<span class="w"> </span>updated
-</code></pre></div></p>
-</li>
-<li>
-<p>Verify that the <code>user-t</code> has access for the <code>test01</code> bucket by
-   reconfiguring the <code>s3cmd</code> client with the <code>user-t</code> credentials <code>AccessKey</code> and <code>SecretKey</code>.
-   Verify that the <code>user-t</code> can read the bucket <code>test01</code> content:
-   <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>ls<span class="w"> </span>s3://test01
-</code></pre></div></p>
-<p>Example of a positive system response:
- <div class="highlight"><pre><span></span><code><span class="m">2022</span>-09-02<span class="w"> </span><span class="m">13</span>:06<span class="w">            </span><span class="m">0</span><span class="w">  </span>s3://test01/test.txt
-</code></pre></div></p>
-</li>
-<li>
-<p>Download the object from the <code>test01</code> bucket:
-   <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>get<span class="w"> </span>s3://test01/test.txt<span class="w"> </span>check.txt
-</code></pre></div></p>
-<p>Example of a positive system response:
- <div class="highlight"><pre><span></span><code>download:<span class="w"> </span><span class="s1">&#39;s3://test01/test.txt&#39;</span><span class="w"> </span>-&gt;<span class="w"> </span><span class="s1">&#39;check.txt&#39;</span><span class="w">  </span><span class="o">[</span><span class="m">1</span><span class="w"> </span>of<span class="w"> </span><span class="m">1</span><span class="o">]</span>
-<span class="w"> </span><span class="m">0</span><span class="w"> </span>of<span class="w"> </span><span class="m">0</span><span class="w">     </span><span class="m">0</span>%<span class="w"> </span><span class="k">in</span><span class="w">    </span>0s<span class="w">     </span><span class="m">0</span>.00<span class="w"> </span>B/s<span class="w">  </span><span class="k">done</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>Upload a new object to the <code>test01</code> bucket:
-   <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>put<span class="w"> </span>check.txt<span class="w"> </span>s3://test01
-</code></pre></div></p>
-<p>Example of a positive system response:
- <div class="highlight"><pre><span></span><code>upload:<span class="w"> </span><span class="s1">&#39;check.txt&#39;</span><span class="w"> </span>-&gt;<span class="w"> </span><span class="s1">&#39;s3://test01/check.txt&#39;</span><span class="w">  </span><span class="o">[</span><span class="m">1</span><span class="w"> </span>of<span class="w"> </span><span class="m">1</span><span class="o">]</span>
-<span class="w"> </span><span class="m">0</span><span class="w"> </span>of<span class="w"> </span><span class="m">0</span><span class="w">     </span><span class="m">0</span>%<span class="w"> </span><span class="k">in</span><span class="w">    </span>0s<span class="w">     </span><span class="m">0</span>.00<span class="w"> </span>B/s<span class="w">  </span><span class="k">done</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>Verify that the object is in the <code>test01</code> bucket:
-    <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>ls<span class="w"> </span>s3://test01
-</code></pre></div></p>
-<p>Example of a positive system response:
-  <div class="highlight"><pre><span></span><code><span class="m">2022</span>-09-02<span class="w"> </span><span class="m">14</span>:41<span class="w">            </span><span class="m">0</span><span class="w">  </span>s3://test01/check.txt
-<span class="m">2022</span>-09-02<span class="w"> </span><span class="m">13</span>:06<span class="w">            </span><span class="m">0</span><span class="w">  </span>s3://test01/test.txt
-</code></pre></div></p>
-</li>
-<li>
-<p>Verify the new object by reconfiguring the <code>s3cmd</code> client with the
-    <code>user-a</code> credentials:
-    <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>--configure<span class="w"> </span>--ca-certs<span class="o">=</span>ca.crt
-</code></pre></div></p>
-</li>
-<li>
-<p>List <code>test01</code> bucket objects:
-    <div class="highlight"><pre><span></span><code>s3cmd<span class="w"> </span>ls<span class="w"> </span>s3://test01
-</code></pre></div></p>
-<p>Example of a positive system response:
-  <div class="highlight"><pre><span></span><code><span class="m">2022</span>-09-02<span class="w"> </span><span class="m">14</span>:41<span class="w">            </span><span class="m">0</span><span class="w">  </span>s3://test01/check.txt
-<span class="m">2022</span>-09-02<span class="w"> </span><span class="m">13</span>:06<span class="w">            </span><span class="m">0</span><span class="w">  </span>s3://test01/test.txt
+<p>Remove the related RGW crush rules:
+   <div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>osd<span class="w"> </span>crush<span class="w"> </span>rule<span class="w"> </span>ls<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>rgw<span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>-I%<span class="w"> </span>ceph<span class="w"> </span>osd<span class="w"> </span>crush<span class="w"> </span>rule<span class="w"> </span>rm<span class="w"> </span>%
 </code></pre></div></p>
 </li>
 </ol>
@@ -3358,7 +3653,7 @@ s3cmd<span class="w"> </span>put<span class="w"> </span>test.txt<span class="w">
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../s3-create-user/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Create Ceph Object Storage user">
+          <a href="../rgw-tls/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Configure Ceph Object Gateway TLS">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3368,20 +3663,20 @@ s3cmd<span class="w"> </span>put<span class="w"> </span>test.txt<span class="w">
                 Previous
               </span>
               <div class="md-ellipsis">
-                Create Ceph Object Storage user
+                Configure Ceph Object Gateway TLS
               </div>
             </div>
           </a>
         
         
           
-          <a href="../bucket-policy-rockoon/" class="md-footer__link md-footer__link--next" aria-label="Next: Bucket policy for Rockoon OpenStack user">
+          <a href="../rgw-sse/" class="md-footer__link md-footer__link--next" aria-label="Next: Configure Ceph Object Storage SSE">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Bucket policy for Rockoon OpenStack user
+                Configure Ceph Object Storage SSE
               </div>
             </div>
             <div class="md-footer__button md-icon">
