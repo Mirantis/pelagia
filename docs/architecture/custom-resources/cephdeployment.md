@@ -132,7 +132,7 @@ advanced configuration.
 - `pools` - Specifies the list of Ceph pools. For details, the **Pools parameters** section below.
 - `clients` - List of Ceph clients. For details, see the **Clients parameters** section below.
 - `objectStorage` - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage. Also specifies the RADOS Gateway Multisite configuration. For details, **RADOS Gateway parameters** and **Multisite parameters** sections below.
-- `ingressConfig` - Enables a custom ingress rule for public access on Ceph services, for example, Ceph RADOS Gateway. For details, see [Configure Ceph Object Gateway TLS](../../ops-guide/deployment/rgw-tls.md#rgw-tls-configure-ceph-object-gateway-tls).
+- `ingressConfig` - Enables a custom ingress rule for public access on Ceph services, for example, Ceph RADOS Gateway. For details, see [Configure Ceph Object Gateway TLS](../../ops-guide/deployment/object-storage/rgw-tls.md#rgw-tls-configure-ceph-object-gateway-tls).
 - `sharedFilesystem` - Enables Ceph Filesystem. For details, the **CephFS parameters** section below.
 - `rookConfig` - String key-value parameter that allows overriding Ceph configuration options. For details, see the **RookConfig parameters** section below.
 - `healthCheck` - Configures health checks and liveness probe settings for Ceph daemons. For details, the **HealthCheck parameters** section below.
@@ -560,7 +560,7 @@ To configure additional required pools for Rockoon, see
 
 {% include "../../snippets/multisiteParameters.md" %}
 
-For configuration example, see [Enable Multisite for Ceph Object Storage](../../ops-guide/deployment/rgw-multisite.md#rgw-multisite-enable-multisite-for-ceph-object-storage).
+For configuration example, see [Enable Multisite for Ceph Object Storage](../../ops-guide/deployment/object-storage/rgw-multisite.md#rgw-multisite-enable-multisite-for-ceph-object-storage).
 
 <a name="cephdeployment-cephfs-parameters"></a>
 ### CephFS parameters

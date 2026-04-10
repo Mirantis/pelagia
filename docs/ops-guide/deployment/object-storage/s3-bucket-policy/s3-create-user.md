@@ -34,7 +34,7 @@ configure their S3 credentials.
              user: read
    ```
 
-     {% include "../../../snippets/objStorUserFormat.md" %}
+     {% include "../../../../snippets/objStorUserFormat.md" %}
 
 3. Verify that `rgwUserSecrets` are created for both users:
    ```bash

@@ -1,3 +1,5 @@
+<a id="replace-osd-meta-device-replace-a-failed-ceph-osd-with-a-metadata-device-as-a-device-name"></a>
+
 # Replace a failed Ceph OSD disk with a metadata device as a device name
 
 You can apply the below procedure if a Ceph OSD failed with data disk outage

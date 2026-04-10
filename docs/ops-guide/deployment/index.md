@@ -1,5 +1,5 @@
-<a id="index-ceph-object-storage"></a>
+<a id="index-cephdeployment-operations"></a>
 
-# Ceph Object Storage
+# CephDeployment operations
 
-This section provides procedures for Ceph Object Storage.
+This section describes operations with `CephDeployment` custom resources.
