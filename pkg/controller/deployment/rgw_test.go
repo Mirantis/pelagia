@@ -910,6 +910,7 @@ func TestEnsureRgwObject(t *testing.T) {
 						Zones: []cephlcmv1alpha1.CephObjectZone{
 							{
 								Name: "zone2",
+								Spec: runtime.RawExtension{Raw: []byte(`{}`)},
 							},
 						},
 					},

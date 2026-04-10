@@ -360,7 +360,12 @@ func TestCalculateOpenstackClients(t *testing.T) {
 					Cluster:      unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: basePoolsForSpec},
 					SharedFilesystem: &cephlcmv1alpha1.CephSharedFilesystem{
-						Filesystems: []cephlcmv1alpha1.CephFilesystem{{Name: "cephfs"}},
+						Filesystems: []cephlcmv1alpha1.CephFilesystem{
+							{
+								Name:   "cephfs",
+								FsSpec: runtime.RawExtension{Raw: []byte(`{}`)},
+							},
+						},
 					},
 				},
 			},

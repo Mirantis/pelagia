@@ -77,30 +77,30 @@ type CephDeploymentSpec struct {
 
 	// Deprecated parameter, cluster.dashboard.enabled should be used instead
 	// +optional
-	DashboardEnabled *bool `json:"dashboard,omitempty"`
+	OldDashboardEnabled *bool `json:"dashboard,omitempty"`
 	// Deprecated parameter, cluster.dataDirHostPath should be used instead
 	// +nullable
-	DataDirHostPath string `json:"dataDirHostPath,omitempty"`
+	OldDataDirHostPath string `json:"dataDirHostPath,omitempty"`
 	// Deprecated parameter, cluster.external.enabled should be used instead
 	// +optional
-	External *bool `json:"external,omitempty"`
+	OldExternal *bool `json:"external,omitempty"`
 	// Deprecated parameter, cluster.mgr should be used instead
 	// +optional
-	Mgr *Mgr `json:"mgr,omitempty"`
+	OldMgr *Mgr `json:"mgr,omitempty"`
 	// Deprecated parameter, cluster.network should be used instead
 	// +optional
-	Network *CephNetworkSpec `json:"network,omitempty"`
+	OldNetwork *CephNetworkSpec `json:"network,omitempty"`
 	// Deprecated parameter, cluster.{placement,resources} should be used instead for mon,osd,mgr daemons,
 	// objectStorage.objectStores.[*].gateway.{placement,resources} for rgw daemon
 	// sharedFilesystem.cephFilesystems.[*].metadataServer.{placement,resources} for mds daemon
 	// +optional
-	HyperConverge *CephDeploymentHyperConverge `json:"hyperconverge,omitempty"`
+	OldHyperConverge *CephDeploymentHyperConverge `json:"hyperconverge,omitempty"`
 	// Deprecated parameter, cluster.healthCheck should be used instead
 	// +optional
-	HealthCheck *CephClusterHealthCheckSpec `json:"healthCheck,omitempty"`
+	OldHealthCheck *CephClusterHealthCheckSpec `json:"healthCheck,omitempty"`
 	// Deprecated parameter, blockStorage.pools should be used instead
 	// +optional
-	Pools []CephPoolOld `json:"pools,omitempty"`
+	OldPools []CephPoolOld `json:"pools,omitempty"`
 }
 
 // CephCluster represents cluster specification

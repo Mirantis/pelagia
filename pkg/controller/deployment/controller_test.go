@@ -228,8 +228,8 @@ func TestReconcile(t *testing.T) {
 					Result:                  cephlcmv1alpha1.ValidationFailed,
 					LastValidatedGeneration: int64(0),
 					Messages: []string{
-						"CephDeployment has no default pool specified",
-						"The following nodes are present in CephDeployment spec but not present in k8s cluster node list: node-1,node-2,node-3",
+						"found nodes present in spec, but not exist among k8s cluster nodes: node-1,node-2,node-3",
+						"no block storage pools provided, required at least one",
 					},
 				},
 				LastRun: "2021-08-15T14:30:16+04:00",
@@ -398,8 +398,8 @@ func TestReconcile(t *testing.T) {
 					Result:                  cephlcmv1alpha1.ValidationFailed,
 					LastValidatedGeneration: int64(0),
 					Messages: []string{
-						"CephDeployment has no default pool specified",
-						"The following nodes are present in CephDeployment spec but not present in k8s cluster node list: node-1,node-2,node-3",
+						"found nodes present in spec, but not exist among k8s cluster nodes: node-1,node-2,node-3",
+						"no block storage pools provided, required at least one",
 					},
 				},
 				LastRun: "2021-08-15T14:30:24+04:00",

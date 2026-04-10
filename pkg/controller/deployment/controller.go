@@ -256,7 +256,7 @@ func (r *ReconcileCephDeployment) Reconcile(ctx context.Context, request reconci
 
 	// run spec validation every time and requeue reconcile if updated
 	sublog.Debug().Msgf("running validation of CephDeployment '%s/%s' spec", cephDpl.Namespace, cephDpl.Name)
-	validationResult := cephDplConfig.validate()
+	validationResult := cephDplConfig.validateSpec()
 	if !reflect.DeepEqual(cephDpl.Status.Validation, validationResult) {
 		cephDpl.Status.Validation = validationResult
 		if validationResult.Result == cephlcmv1alpha1.ValidationFailed {

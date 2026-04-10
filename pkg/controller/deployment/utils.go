@@ -158,23 +158,6 @@ func isCephFsReady(ctx context.Context, log zerolog.Logger, client rookclient.In
 	return false
 }
 
-func validateDeviceClassName(deviceClass string, extraOpts *cephlcmv1alpha1.CephDeploymentExtraOpts) error {
-	customDeviceClasses := make([]string, 0)
-	if extraOpts != nil && len(extraOpts.CustomDeviceClasses) > 0 {
-		customDeviceClasses = extraOpts.CustomDeviceClasses
-	}
-	validNames := append([]string{"hdd", "nvme", "ssd"}, customDeviceClasses...)
-	if deviceClass == "" {
-		return fmt.Errorf("no deviceClass specified (valid options are: %v)", validNames)
-	}
-	for _, className := range validNames {
-		if className == deviceClass {
-			return nil
-		}
-	}
-	return fmt.Errorf("unknown deviceClass '%s' (valid options are: %v)", deviceClass, validNames)
-}
-
 // CLI utils
 
 type cephConfigOptionDump struct {

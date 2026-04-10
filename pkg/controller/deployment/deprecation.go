@@ -31,39 +31,39 @@ import (
 )
 
 func (c *cephDeploymentConfig) isMigrationRequired() bool {
-	return c.deprecatedClusterParams() || len(c.cdConfig.cephDpl.Spec.Pools) > 0 ||
+	return c.deprecatedClusterParams() || len(c.cdConfig.cephDpl.Spec.OldPools) > 0 ||
 		(c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.OldCephFS) > 0) ||
 		(c.cdConfig.cephDpl.Spec.ObjectStorage != nil && (c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite != nil ||
 			c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw != nil))
 }
 
 func (c *cephDeploymentConfig) deprecatedClusterParams() bool {
-	required := c.cdConfig.cephDpl.Spec.DashboardEnabled != nil || c.cdConfig.cephDpl.Spec.DataDirHostPath != "" ||
-		c.cdConfig.cephDpl.Spec.Network != nil || c.cdConfig.cephDpl.Spec.External != nil ||
-		c.cdConfig.cephDpl.Spec.Mgr != nil || c.cdConfig.cephDpl.Spec.HealthCheck != nil
+	required := c.cdConfig.cephDpl.Spec.OldDashboardEnabled != nil || c.cdConfig.cephDpl.Spec.OldDataDirHostPath != "" ||
+		c.cdConfig.cephDpl.Spec.OldNetwork != nil || c.cdConfig.cephDpl.Spec.OldExternal != nil ||
+		c.cdConfig.cephDpl.Spec.OldMgr != nil || c.cdConfig.cephDpl.Spec.OldHealthCheck != nil
 
 	// check that provided hyperconverge is really related to cluster params
-	if c.cdConfig.cephDpl.Spec.HyperConverge != nil {
-		if len(c.cdConfig.cephDpl.Spec.HyperConverge.Resources) > 0 {
+	if c.cdConfig.cephDpl.Spec.OldHyperConverge != nil {
+		if len(c.cdConfig.cephDpl.Spec.OldHyperConverge.Resources) > 0 {
 			extraSvc := 0
-			if _, ok := c.cdConfig.cephDpl.Spec.HyperConverge.Resources["rgw"]; ok {
+			if _, ok := c.cdConfig.cephDpl.Spec.OldHyperConverge.Resources["rgw"]; ok {
 				extraSvc++
 			}
-			if _, ok := c.cdConfig.cephDpl.Spec.HyperConverge.Resources["mds"]; ok {
+			if _, ok := c.cdConfig.cephDpl.Spec.OldHyperConverge.Resources["mds"]; ok {
 				extraSvc++
 			}
-			required = required || len(c.cdConfig.cephDpl.Spec.HyperConverge.Resources) > extraSvc
+			required = required || len(c.cdConfig.cephDpl.Spec.OldHyperConverge.Resources) > extraSvc
 		}
 
-		if len(c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations) > 0 {
+		if len(c.cdConfig.cephDpl.Spec.OldHyperConverge.Tolerations) > 0 {
 			extraSvc := 0
-			if _, ok := c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations["rgw"]; ok {
+			if _, ok := c.cdConfig.cephDpl.Spec.OldHyperConverge.Tolerations["rgw"]; ok {
 				extraSvc++
 			}
-			if _, ok := c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations["mds"]; ok {
+			if _, ok := c.cdConfig.cephDpl.Spec.OldHyperConverge.Tolerations["mds"]; ok {
 				extraSvc++
 			}
-			required = required || len(c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations) > extraSvc
+			required = required || len(c.cdConfig.cephDpl.Spec.OldHyperConverge.Tolerations) > extraSvc
 		}
 	}
 	return required
@@ -82,27 +82,27 @@ func (c *cephDeploymentConfig) ensureDeprecatedFields() (bool, error) {
 	extraPlacement := cephv1.PlacementSpec{}
 	extraResources := cephv1.ResourceSpec{}
 	// since currently all specified under one section, but for cluster and extra svc need to be separated
-	if c.cdConfig.cephDpl.Spec.HyperConverge != nil {
-		if len(c.cdConfig.cephDpl.Spec.HyperConverge.Resources) > 0 {
-			if rgw, ok := c.cdConfig.cephDpl.Spec.HyperConverge.Resources["rgw"]; ok {
+	if c.cdConfig.cephDpl.Spec.OldHyperConverge != nil {
+		if len(c.cdConfig.cephDpl.Spec.OldHyperConverge.Resources) > 0 {
+			if rgw, ok := c.cdConfig.cephDpl.Spec.OldHyperConverge.Resources["rgw"]; ok {
 				if c.cdConfig.cephDpl.Spec.ObjectStorage != nil {
 					extraResources["rgw"] = rgw
 				} else {
 					c.log.Warn().Msg("found deprecated field spec.hyperconverge.resources['rgw'], but no spec.objectStorage present, will be removed")
 				}
-				delete(c.cdConfig.cephDpl.Spec.HyperConverge.Resources, "rgw")
+				delete(c.cdConfig.cephDpl.Spec.OldHyperConverge.Resources, "rgw")
 			}
-			if mds, ok := c.cdConfig.cephDpl.Spec.HyperConverge.Resources["mds"]; ok {
+			if mds, ok := c.cdConfig.cephDpl.Spec.OldHyperConverge.Resources["mds"]; ok {
 				if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.OldCephFS) > 0 {
 					extraResources["mds"] = mds
 				} else {
 					c.log.Warn().Msg("found deprecated field spec.hyperconverge.resources['mds'], but no spec.sharedFilesystem.cephFS present, will be removed")
 				}
-				delete(c.cdConfig.cephDpl.Spec.HyperConverge.Resources, "mds")
+				delete(c.cdConfig.cephDpl.Spec.OldHyperConverge.Resources, "mds")
 			}
 		}
-		if len(c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations) > 0 {
-			if rgw, ok := c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations["rgw"]; ok && len(rgw.Rules) > 0 {
+		if len(c.cdConfig.cephDpl.Spec.OldHyperConverge.Tolerations) > 0 {
+			if rgw, ok := c.cdConfig.cephDpl.Spec.OldHyperConverge.Tolerations["rgw"]; ok && len(rgw.Rules) > 0 {
 				if c.cdConfig.cephDpl.Spec.ObjectStorage != nil {
 					extraPlacement["rgw"] = cephv1.Placement{
 						Tolerations: rgw.Rules,
@@ -110,9 +110,9 @@ func (c *cephDeploymentConfig) ensureDeprecatedFields() (bool, error) {
 				} else {
 					c.log.Warn().Msg("found deprecated field spec.hyperconverge.tolerations['rgw'], but no spec.objectStorage present, will be removed")
 				}
-				delete(c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations, "rgw")
+				delete(c.cdConfig.cephDpl.Spec.OldHyperConverge.Tolerations, "rgw")
 			}
-			if mds, ok := c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations["mds"]; ok && len(mds.Rules) > 0 {
+			if mds, ok := c.cdConfig.cephDpl.Spec.OldHyperConverge.Tolerations["mds"]; ok && len(mds.Rules) > 0 {
 				if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.OldCephFS) > 0 {
 					extraPlacement["mds"] = cephv1.Placement{
 						Tolerations: mds.Rules,
@@ -120,7 +120,7 @@ func (c *cephDeploymentConfig) ensureDeprecatedFields() (bool, error) {
 				} else {
 					c.log.Warn().Msg("found deprecated field spec.hyperconverge.tolerations['mds'], but no spec.sharedFilesystem.cephFS present, will be removed")
 				}
-				delete(c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations, "mds")
+				delete(c.cdConfig.cephDpl.Spec.OldHyperConverge.Tolerations, "mds")
 			}
 		}
 	}
@@ -136,7 +136,7 @@ func (c *cephDeploymentConfig) ensureDeprecatedFields() (bool, error) {
 	}
 	paramsCantMigrate = append(paramsCantMigrate, clusterParamsCantMigrate...)
 
-	if len(c.cdConfig.cephDpl.Spec.Pools) > 0 {
+	if len(c.cdConfig.cephDpl.Spec.OldPools) > 0 {
 		if c.cdConfig.cephDpl.Spec.BlockStorage != nil && len(c.cdConfig.cephDpl.Spec.BlockStorage.Pools) > 0 {
 			c.log.Error().Msgf(errMsgTmpl, "pools", "blockStorage.pools")
 			paramsCantMigrate = append(paramsCantMigrate, "spec.pools")
@@ -150,7 +150,7 @@ func (c *cephDeploymentConfig) ensureDeprecatedFields() (bool, error) {
 				return false, errors.Wrap(err, "failed to migrate deprecated pools section")
 			}
 			c.cdConfig.cephDpl.Spec.BlockStorage.Pools = newPools
-			c.cdConfig.cephDpl.Spec.Pools = nil
+			c.cdConfig.cephDpl.Spec.OldPools = nil
 		}
 	}
 
@@ -272,50 +272,50 @@ func (c *cephDeploymentConfig) convertClusterRelatedParams() ([]byte, []string, 
 		}
 	}
 
-	if c.cdConfig.cephDpl.Spec.DashboardEnabled != nil {
+	if c.cdConfig.cephDpl.Spec.OldDashboardEnabled != nil {
 		if _, ok := clusterParams["dashboard"]; ok {
 			c.log.Error().Msgf(errMsgTmpl, "dashboard", "cluster.dashboard")
 			paramsCantMigrate = append(paramsCantMigrate, "spec.dashboard")
 		} else {
-			if *c.cdConfig.cephDpl.Spec.DashboardEnabled {
+			if *c.cdConfig.cephDpl.Spec.OldDashboardEnabled {
 				c.log.Warn().Msgf(msgTmpl, "dashboard", "cluster.dashboard")
 				clusterParams["dashboard"] = map[string]interface{}{
 					"enabled": true,
 				}
 			}
-			c.cdConfig.cephDpl.Spec.DashboardEnabled = nil
+			c.cdConfig.cephDpl.Spec.OldDashboardEnabled = nil
 		}
 	}
 
-	if c.cdConfig.cephDpl.Spec.DataDirHostPath != "" {
+	if c.cdConfig.cephDpl.Spec.OldDataDirHostPath != "" {
 		if _, ok := clusterParams["dataDirHostPath"]; ok {
 			c.log.Error().Msgf(errMsgTmpl, "dataDirHostPath", "cluster.dataDirHostPath")
 			paramsCantMigrate = append(paramsCantMigrate, "spec.dataDirHostPath")
 		} else {
 			c.log.Warn().Msgf(msgTmpl, "dataDirHostPath", "cluster.dataDirHostPath")
-			clusterParams["dataDirHostPath"] = c.cdConfig.cephDpl.Spec.DataDirHostPath
-			c.cdConfig.cephDpl.Spec.DataDirHostPath = ""
+			clusterParams["dataDirHostPath"] = c.cdConfig.cephDpl.Spec.OldDataDirHostPath
+			c.cdConfig.cephDpl.Spec.OldDataDirHostPath = ""
 		}
 	}
 
 	external := false
-	if c.cdConfig.cephDpl.Spec.External != nil {
+	if c.cdConfig.cephDpl.Spec.OldExternal != nil {
 		if _, ok := clusterParams["external"]; ok {
 			c.log.Error().Msgf(errMsgTmpl, "external", "cluster.external")
 			paramsCantMigrate = append(paramsCantMigrate, "spec.external")
 		} else {
 			c.log.Warn().Msgf(msgTmpl, "external", "cluster.external")
-			if *c.cdConfig.cephDpl.Spec.External {
+			if *c.cdConfig.cephDpl.Spec.OldExternal {
 				clusterParams["external"] = map[string]interface{}{
 					"enable": true,
 				}
 				external = true
 			}
-			c.cdConfig.cephDpl.Spec.External = nil
+			c.cdConfig.cephDpl.Spec.OldExternal = nil
 		}
 	}
 
-	if c.cdConfig.cephDpl.Spec.Network != nil {
+	if c.cdConfig.cephDpl.Spec.OldNetwork != nil {
 		if _, ok := clusterParams["network"]; ok {
 			c.log.Error().Msgf(errMsgTmpl, "network", "cluster.network")
 			paramsCantMigrate = append(paramsCantMigrate, "spec.network")
@@ -326,59 +326,59 @@ func (c *cephDeploymentConfig) convertClusterRelatedParams() ([]byte, []string, 
 				c.log.Warn().Msgf(msgTmpl, "network", "cluster.network")
 				network := map[string]interface{}{
 					"addressRanges": map[string]interface{}{
-						"public":  strings.Split(c.cdConfig.cephDpl.Spec.Network.PublicNet, ","),
-						"cluster": strings.Split(c.cdConfig.cephDpl.Spec.Network.ClusterNet, ","),
+						"public":  strings.Split(c.cdConfig.cephDpl.Spec.OldNetwork.PublicNet, ","),
+						"cluster": strings.Split(c.cdConfig.cephDpl.Spec.OldNetwork.ClusterNet, ","),
 					},
 				}
-				if c.cdConfig.cephDpl.Spec.Network.Provider != "" {
-					network["provider"] = c.cdConfig.cephDpl.Spec.Network.Provider
+				if c.cdConfig.cephDpl.Spec.OldNetwork.Provider != "" {
+					network["provider"] = c.cdConfig.cephDpl.Spec.OldNetwork.Provider
 				}
-				if c.cdConfig.cephDpl.Spec.Network.Selector != nil {
-					network["selectors"] = c.cdConfig.cephDpl.Spec.Network.Selector
+				if c.cdConfig.cephDpl.Spec.OldNetwork.Selector != nil {
+					network["selectors"] = c.cdConfig.cephDpl.Spec.OldNetwork.Selector
 				}
 				clusterParams["network"] = network
 			}
-			c.cdConfig.cephDpl.Spec.Network = nil
+			c.cdConfig.cephDpl.Spec.OldNetwork = nil
 		}
 	}
 
-	if c.cdConfig.cephDpl.Spec.Mgr != nil {
+	if c.cdConfig.cephDpl.Spec.OldMgr != nil {
 		if _, ok := clusterParams["mgr"]; ok {
 			c.log.Error().Msgf(errMsgTmpl, "mgr", "cluster.mgr")
 			paramsCantMigrate = append(paramsCantMigrate, "spec.mgr")
 		} else {
 			c.log.Warn().Msgf(msgTmpl, "mgr", "cluster.mgr")
 			clusterParams["mgr"] = map[string]interface{}{
-				"modules": c.cdConfig.cephDpl.Spec.Mgr.MgrModules,
+				"modules": c.cdConfig.cephDpl.Spec.OldMgr.MgrModules,
 			}
-			c.cdConfig.cephDpl.Spec.Mgr = nil
+			c.cdConfig.cephDpl.Spec.OldMgr = nil
 		}
 	}
 
-	if c.cdConfig.cephDpl.Spec.HealthCheck != nil {
+	if c.cdConfig.cephDpl.Spec.OldHealthCheck != nil {
 		if _, ok := clusterParams["healthCheck"]; ok {
 			c.log.Error().Msgf(errMsgTmpl, "healthCheck", "cluster.healthCheck")
 			paramsCantMigrate = append(paramsCantMigrate, "spec.healthCheck")
 		} else {
 			c.log.Warn().Msgf(msgTmpl, "healthCheck", "cluster.healthCheck")
-			clusterParams["healthCheck"] = c.cdConfig.cephDpl.Spec.HealthCheck
-			c.cdConfig.cephDpl.Spec.HealthCheck = nil
+			clusterParams["healthCheck"] = c.cdConfig.cephDpl.Spec.OldHealthCheck
+			c.cdConfig.cephDpl.Spec.OldHealthCheck = nil
 		}
 	}
 
-	if c.cdConfig.cephDpl.Spec.HyperConverge != nil {
-		if len(c.cdConfig.cephDpl.Spec.HyperConverge.Resources) > 0 {
+	if c.cdConfig.cephDpl.Spec.OldHyperConverge != nil {
+		if len(c.cdConfig.cephDpl.Spec.OldHyperConverge.Resources) > 0 {
 			if _, ok := clusterParams["resources"]; ok {
 				c.log.Error().Msgf(errMsgTmpl, "hyperconverge.resources", "cluster.resources")
 				paramsCantMigrate = append(paramsCantMigrate, "spec.hyperconverge.resources")
 			} else {
 				c.log.Warn().Msgf(msgTmpl, "hyperconverge.resources", "cluster.resources")
-				clusterParams["resources"] = c.cdConfig.cephDpl.Spec.HyperConverge.Resources
+				clusterParams["resources"] = c.cdConfig.cephDpl.Spec.OldHyperConverge.Resources
 			}
 		}
 
-		if len(c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations) > 0 {
-			for key, tol := range c.cdConfig.cephDpl.Spec.HyperConverge.Tolerations {
+		if len(c.cdConfig.cephDpl.Spec.OldHyperConverge.Tolerations) > 0 {
+			for key, tol := range c.cdConfig.cephDpl.Spec.OldHyperConverge.Tolerations {
 				oldSection := fmt.Sprintf("hyperconverge.tolerations[%s]", key)
 				newSection := fmt.Sprintf("cluster.placement[%s].tolerations", key)
 				if p, pok := clusterParams["placement"]; pok {
@@ -409,7 +409,7 @@ func (c *cephDeploymentConfig) convertClusterRelatedParams() ([]byte, []string, 
 				c.log.Warn().Msgf(msgTmpl, oldSection, newSection)
 			}
 		}
-		c.cdConfig.cephDpl.Spec.HyperConverge = nil
+		c.cdConfig.cephDpl.Spec.OldHyperConverge = nil
 	}
 
 	data, err := json.Marshal(clusterParams)
@@ -422,8 +422,8 @@ func (c *cephDeploymentConfig) convertClusterRelatedParams() ([]byte, []string, 
 }
 
 func (c *cephDeploymentConfig) convertPoolsParams() ([]cephlcmv1alpha1.CephPool, error) {
-	newPools := make([]cephlcmv1alpha1.CephPool, len(c.cdConfig.cephDpl.Spec.Pools))
-	for idx, oldPool := range c.cdConfig.cephDpl.Spec.Pools {
+	newPools := make([]cephlcmv1alpha1.CephPool, len(c.cdConfig.cephDpl.Spec.OldPools))
+	for idx, oldPool := range c.cdConfig.cephDpl.Spec.OldPools {
 		newPool := cephlcmv1alpha1.CephPool{
 			Name:             oldPool.Name,
 			UseAsFullName:    oldPool.UseAsFullName,

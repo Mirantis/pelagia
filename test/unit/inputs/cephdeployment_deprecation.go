@@ -28,9 +28,9 @@ import (
 var CephDeploymentDeprecated = cephlcmv1alpha1.CephDeployment{
 	ObjectMeta: LcmObjectMeta,
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		DashboardEnabled: &[]bool{true}[0],
-		DataDirHostPath:  "/var/lib/custom-path",
-		HealthCheck: &cephlcmv1alpha1.CephClusterHealthCheckSpec{
+		OldDashboardEnabled: &[]bool{true}[0],
+		OldDataDirHostPath:  "/var/lib/custom-path",
+		OldHealthCheck: &cephlcmv1alpha1.CephClusterHealthCheckSpec{
 			DaemonHealth: cephv1.DaemonHealthSpec{
 				Status:              cephv1.HealthCheckSpec{Disabled: true},
 				ObjectStorageDaemon: cephv1.HealthCheckSpec{Timeout: "60s"},
@@ -53,7 +53,7 @@ var CephDeploymentDeprecated = cephlcmv1alpha1.CephDeployment{
 				},
 			},
 		},
-		HyperConverge: &cephlcmv1alpha1.CephDeploymentHyperConverge{
+		OldHyperConverge: &cephlcmv1alpha1.CephDeploymentHyperConverge{
 			Resources: cephv1.ResourceSpec{
 				"osd-nvme": v1.ResourceRequirements{
 					Limits: v1.ResourceList{
@@ -135,7 +135,7 @@ var CephDeploymentDeprecated = cephlcmv1alpha1.CephDeployment{
 				},
 			},
 		},
-		Mgr: &cephlcmv1alpha1.Mgr{
+		OldMgr: &cephlcmv1alpha1.Mgr{
 			MgrModules: []cephlcmv1alpha1.CephMgrModule{
 				{
 					Name:    "balancer",
@@ -150,11 +150,11 @@ var CephDeploymentDeprecated = cephlcmv1alpha1.CephDeployment{
 				},
 			},
 		},
-		Network: &cephlcmv1alpha1.CephNetworkSpec{
+		OldNetwork: &cephlcmv1alpha1.CephNetworkSpec{
 			ClusterNet: "127.0.0.0/16",
 			PublicNet:  "192.168.0.0/16",
 		},
-		Pools: []cephlcmv1alpha1.CephPoolOld{
+		OldPools: []cephlcmv1alpha1.CephPoolOld{
 			{
 				Name: "pool1",
 				Role: "fake",
@@ -453,7 +453,7 @@ var CephDeploymentMultisiteMigrated = cephlcmv1alpha1.CephDeployment{
 var CephDeploymentMultusDeprecated = cephlcmv1alpha1.CephDeployment{
 	ObjectMeta: LcmObjectMeta,
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		Network: &cephlcmv1alpha1.CephNetworkSpec{
+		OldNetwork: &cephlcmv1alpha1.CephNetworkSpec{
 			Provider:   "multus",
 			ClusterNet: "127.0.0.0/16",
 			PublicNet:  "192.168.0.0/16",
@@ -481,11 +481,11 @@ var CephDeploymentMultusMigrated = cephlcmv1alpha1.CephDeployment{
 var CephDeployExternalDeprecated = cephlcmv1alpha1.CephDeployment{
 	ObjectMeta: LcmObjectMeta,
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		Network: &cephlcmv1alpha1.CephNetworkSpec{
+		OldNetwork: &cephlcmv1alpha1.CephNetworkSpec{
 			ClusterNet: "127.0.0.0/32",
 			PublicNet:  "127.0.0.0/32",
 		},
-		External: &[]bool{true}[0],
+		OldExternal: &[]bool{true}[0],
 		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
 			OldRgw: &cephlcmv1alpha1.CephRGW{
 				Name: "external-rgw",

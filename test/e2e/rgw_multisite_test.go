@@ -169,6 +169,9 @@ func TestMultisiteRgw(t *testing.T) {
 				Realms: []cephlcmv1alpha1.CephObjectRealm{
 					{
 						Name: realmName,
+						Spec: runtime.RawExtension{
+							Raw: []byte(`{"defaultRealm": true}`),
+						},
 					},
 				},
 				Zonegroups: []cephlcmv1alpha1.CephObjectZonegroup{
@@ -309,7 +312,7 @@ func TestMultisiteRgw(t *testing.T) {
 			{
 				Name: realmName,
 				Spec: runtime.RawExtension{
-					Raw: []byte(fmt.Sprintf(`{"pull":{"endpoint": "%s"}}`, rgwMasterPublicEndpoint)),
+					Raw: []byte(fmt.Sprintf(`{"defaultRealm": true,"pull":{"endpoint": "%s"}}`, rgwMasterPublicEndpoint)),
 				},
 			},
 		},

@@ -119,6 +119,8 @@ var (
 	cephConfigSectionHashLabel = "cephdeployment.lcm.mirantis.com/config-%s-hash"
 	// template for keeping last update for parameters under specific section, max lentgh after / is 63 symbols
 	cephConfigParametersUpdateTimestampLabel = "cephdeployment.lcm.mirantis.com/config-%s-updated"
+	// valid pool reclaim policies
+	poolReclaimPolicies = []string{"Retain", "Delete"}
 )
 
 func getCrushKeys() []string {

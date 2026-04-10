@@ -798,38 +798,38 @@ func (in *CephDeploymentSpec) DeepCopyInto(out *CephDeploymentSpec) {
 		*out = new(CephSharedFilesystem)
 		(*in).DeepCopyInto(*out)
 	}
-	if in.DashboardEnabled != nil {
-		in, out := &in.DashboardEnabled, &out.DashboardEnabled
+	if in.OldDashboardEnabled != nil {
+		in, out := &in.OldDashboardEnabled, &out.OldDashboardEnabled
 		*out = new(bool)
 		**out = **in
 	}
-	if in.External != nil {
-		in, out := &in.External, &out.External
+	if in.OldExternal != nil {
+		in, out := &in.OldExternal, &out.OldExternal
 		*out = new(bool)
 		**out = **in
 	}
-	if in.Mgr != nil {
-		in, out := &in.Mgr, &out.Mgr
+	if in.OldMgr != nil {
+		in, out := &in.OldMgr, &out.OldMgr
 		*out = new(Mgr)
 		(*in).DeepCopyInto(*out)
 	}
-	if in.Network != nil {
-		in, out := &in.Network, &out.Network
+	if in.OldNetwork != nil {
+		in, out := &in.OldNetwork, &out.OldNetwork
 		*out = new(CephNetworkSpec)
 		(*in).DeepCopyInto(*out)
 	}
-	if in.HyperConverge != nil {
-		in, out := &in.HyperConverge, &out.HyperConverge
+	if in.OldHyperConverge != nil {
+		in, out := &in.OldHyperConverge, &out.OldHyperConverge
 		*out = new(CephDeploymentHyperConverge)
 		(*in).DeepCopyInto(*out)
 	}
-	if in.HealthCheck != nil {
-		in, out := &in.HealthCheck, &out.HealthCheck
+	if in.OldHealthCheck != nil {
+		in, out := &in.OldHealthCheck, &out.OldHealthCheck
 		*out = new(CephClusterHealthCheckSpec)
 		(*in).DeepCopyInto(*out)
 	}
-	if in.Pools != nil {
-		in, out := &in.Pools, &out.Pools
+	if in.OldPools != nil {
+		in, out := &in.OldPools, &out.OldPools
 		*out = make([]CephPoolOld, len(*in))
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])

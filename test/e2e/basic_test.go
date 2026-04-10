@@ -337,21 +337,20 @@ func TestValidationFailure(t *testing.T) {
 		t.Fatalf("validation result expected is 'Failed', actual is '%s'", result)
 	}
 	expectedMsg := []string{
-		fmt.Sprintf("CephDeployment pool %s has no deviceClass specified (valid options are: [hdd nvme ssd])", poolName),
-		fmt.Sprintf("CephDeployment pool %s spec should contain either replicated or erasureCoded spec", poolName),
-		fmt.Sprintf("CephDeployment pool %s spec contains invalid reclaimPolicy 'Fake', valid are: %v", poolName, []string{"Retain", "Delete"}),
-		fmt.Sprintf("CephDeployment node spec for node '%s' contains invalid crush topology key 'datcentr'. Valid are: chassis, datacenter, pdu, rack, region, room, row, zone", nodeNameToCheck),
-		fmt.Sprintf("failed to parse config parameter 'osdsPerDevice' for device '%s' from node '%s'", deviceNameToCheck, nodeNameToCheck),
-		fmt.Sprintf("CephDeployment monitors (roles 'mon') count %d is even, but should be odd for a healthy quorum", monCnt),
-		"network address ranges public parameter should not be empty or contain range 0.0.0.0",
-		"network addressRanges cluster parameter is empty",
-		"metadataPool for CephFS rook-ceph/fake must use replication only",
-		"metadataPool for CephFS rook-ceph/fake has no deviceClass specified (valid options are: [hdd nvme ssd])",
-		"dataPool fake-datapool-1 will be used as default for CephFS rook-ceph/fake and must use replication only",
-		"dataPool fake-datapool-2 for CephFS rook-ceph/fake has no neither replication or erasureCoded sections specified",
+		"cluster network address ranges public parameter should not be empty or contain range 0.0.0.0",
+		"cluster network addressRanges cluster parameter not specified",
+		fmt.Sprintf("nodes item node '%s' contains invalid crush topology key 'datcentr'. Valid are: chassis, datacenter, pdu, rack, region, room, row, zone", nodeNameToCheck),
+		fmt.Sprintf("failed to parse config parameter 'osdsPerDevice' for device '%s' from node '%s': strconv.Atoi: parsing \"fake\": invalid syntax", deviceNameToCheck, nodeNameToCheck),
+		fmt.Sprintf("monitor nodes in spec (with roles 'mon') count is %d, but should be odd for a healthy quorum", monCnt),
+		fmt.Sprintf("%s pool should be either replicated or erasureCoded", poolName),
+		fmt.Sprintf("pool %s contains invalid reclaimPolicy 'Fake', valid are: [Retain Delete]", poolName),
+		"cephfs 'fake' metadata pool must be only replicated",
+		"cephfs 'fake' data fake-datapool-1 will be used as default and must use replication only",
+		"cephfs 'fake' data fake-datapool-2 pool should be either replicated or erasureCoded",
 	}
 	if cd.Spec.ObjectStorage != nil {
-		expectedMsg = append(expectedMsg, "ObjectStorage section is incorrect: rgw metadata pool must be only replicated,rgw data pool should be either replicated or erasureCoded")
+		expectedMsg = append(expectedMsg, "rgw 'rgw-store' metadata pool must be only replicated")
+		expectedMsg = append(expectedMsg, "rgw 'rgw-store' data pool should be either replicated or erasureCoded")
 	}
 	for _, expected := range expectedMsg {
 		found := false
