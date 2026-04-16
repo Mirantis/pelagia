@@ -141,8 +141,8 @@ func TestGenerateOpenStackClient(t *testing.T) {
 		},
 	}
 	blockPoolsExtra := &cephv1.CephBlockPoolList{Items: []cephv1.CephBlockPool{
-		unitinputs.GetOpenstackPool("vms-hdd", false, 0), unitinputs.GetOpenstackPool("backup-hdd", false, 0), unitinputs.GetOpenstackPool("images-hdd", false, 0),
-		unitinputs.GetOpenstackPool("volumes-hdd", false, 0), unitinputs.GetOpenstackPool("volumes-backend-1-hdd", false, 0), unitinputs.GetOpenstackPool("volumes-2-hdd", false, 0),
+		unitinputs.GetReadyPoolWithRatio("vms-hdd", false, 0), unitinputs.GetReadyPoolWithRatio("backup-hdd", false, 0), unitinputs.GetReadyPoolWithRatio("images-hdd", false, 0),
+		unitinputs.GetReadyPoolWithRatio("volumes-hdd", false, 0), unitinputs.GetReadyPoolWithRatio("volumes-backend-1-hdd", false, 0), unitinputs.GetReadyPoolWithRatio("volumes-2-hdd", false, 0),
 	}}
 
 	tests := []struct {
@@ -720,7 +720,7 @@ func TestEnsureCephClients(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"cephclients": &unitinputs.CephClientListEmpty,
 				"cephblockpools": &cephv1.CephBlockPoolList{
-					Items: []cephv1.CephBlockPool{unitinputs.GetOpenstackPool("images-hdd", false, 0), unitinputs.GetOpenstackPool("volumes-hdd", false, 0), unitinputs.GetOpenstackPool("backup-hdd", false, 0)},
+					Items: []cephv1.CephBlockPool{unitinputs.GetReadyPoolWithRatio("images-hdd", false, 0), unitinputs.GetReadyPoolWithRatio("volumes-hdd", false, 0), unitinputs.GetReadyPoolWithRatio("backup-hdd", false, 0)},
 				},
 			},
 			expectedError: "failed to calculate OpenStack CephClients: failed to generate spec for Ceph openstack client nova: failed to get one of the required cephblockpools for nova client: cephblockpools \"vms-hdd\" not found",

@@ -122,7 +122,7 @@ func GetCephBlockPoolWithStatus(pool cephv1.CephBlockPool, ready bool) cephv1.Ce
 	return *newPool
 }
 
-func GetOpenstackPool(name string, ready bool, targetRatio float64) cephv1.CephBlockPool {
+func GetReadyPoolWithRatio(name string, ready bool, targetRatio float64) cephv1.CephBlockPool {
 	pool := GetCephBlockPoolWithStatus(CephBlockPoolReplicated, ready)
 	pool.Name = name
 	if targetRatio != 0 {
@@ -133,13 +133,13 @@ func GetOpenstackPool(name string, ready bool, targetRatio float64) cephv1.CephB
 
 var OpenstackCephBlockPoolsList = cephv1.CephBlockPoolList{
 	Items: []cephv1.CephBlockPool{
-		GetOpenstackPool("vms-hdd", false, 0.2), GetOpenstackPool("volumes-hdd", false, 0.4), GetOpenstackPool("images-hdd", false, 0.1), GetOpenstackPool("backup-hdd", false, 0.1),
+		GetReadyPoolWithRatio("vms-hdd", false, 0), GetReadyPoolWithRatio("volumes-hdd", false, 0), GetReadyPoolWithRatio("images-hdd", false, 0), GetReadyPoolWithRatio("backup-hdd", false, 0),
 	},
 }
 
 var OpenstackCephBlockPoolsListReady = cephv1.CephBlockPoolList{
 	Items: []cephv1.CephBlockPool{
-		GetOpenstackPool("vms-hdd", true, 0.2), GetOpenstackPool("volumes-hdd", true, 0.4), GetOpenstackPool("images-hdd", true, 0.1), GetOpenstackPool("backup-hdd", true, 0.1),
+		GetReadyPoolWithRatio("vms-hdd", true, 0), GetReadyPoolWithRatio("volumes-hdd", true, 0), GetReadyPoolWithRatio("images-hdd", true, 0), GetReadyPoolWithRatio("backup-hdd", true, 0),
 	},
 }
 

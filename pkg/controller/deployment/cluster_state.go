@@ -191,6 +191,10 @@ func (c *cephDeploymentConfig) verifyBuiltinPools() (bool, error) {
 							}, c.lcmConfig.RookNamespace)
 
 							builtinCephPool.Spec.EnableCrushUpdates = &foundDefault
+							// unset target size ratio for builtin pools, if default pool has targetsize ratio set
+							if builtinCephPool.Spec.Replicated.Size > 0 && builtinCephPool.Spec.Replicated.TargetSizeRatio > 0 {
+								builtinCephPool.Spec.Replicated.TargetSizeRatio = 0
+							}
 							builtinPoolsToProcess = append(builtinPoolsToProcess, *builtinCephPool)
 							break
 						}

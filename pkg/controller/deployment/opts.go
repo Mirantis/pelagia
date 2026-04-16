@@ -33,6 +33,11 @@ var (
 
 	failTriesLeft  = 3
 	currentFailTry = 0
+
+	resourceUpdateTimestamps = updateTimestamps{
+		cephConfigMap: map[string]string{},
+		rgwSSLCert:    map[string]string{},
+	}
 )
 
 // cephDeploymentConfig main type for reconcilation for each CephDeployment object
@@ -59,4 +64,18 @@ type deployConfig struct {
 	currentCephVersion *lcmcommon.CephVersion
 	// parsed ceph image for current cephDpl
 	currentCephImage string
+}
+
+type updateTimestamps struct {
+	cephConfigMap    map[string]string
+	rgwSSLCert       map[string]string
+	rgwRuntimeParams string
+	osdRuntimeParams string
+}
+
+func unsetTimestampsVar() {
+	resourceUpdateTimestamps = updateTimestamps{
+		cephConfigMap: map[string]string{},
+		rgwSSLCert:    map[string]string{},
+	}
 }

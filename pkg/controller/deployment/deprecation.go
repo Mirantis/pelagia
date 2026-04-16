@@ -431,6 +431,21 @@ func (c *cephDeploymentConfig) convertPoolsParams() ([]cephlcmv1alpha1.CephPool,
 			PreserveOnDelete: oldPool.PreserveOnDelete,
 			StorageClassOpts: oldPool.StorageClassOpts,
 		}
+		if oldPool.Replicated != nil && oldPool.Replicated.TargetSizeRatio == 0 {
+			// get rid of legacy default target ratios during migration
+			defaultRatioByRole := func(role string) float64 {
+				switch role {
+				case "images", "backup":
+					return 0.1
+				case "volumes":
+					return 0.4
+				case "vms":
+					return 0.2
+				}
+				return 0
+			}
+			oldPool.Replicated.TargetSizeRatio = defaultRatioByRole(oldPool.Role)
+		}
 		poolData, err := json.Marshal(oldPool.CephPoolSpec)
 		if err != nil {
 			return nil, errors.Wrapf(err, "failed to convert to JSON pool %s", oldPool.Name)
@@ -532,6 +547,10 @@ func (c *cephDeploymentConfig) convertMultisiteParams() ([]cephlcmv1alpha1.CephO
 	newZones := make([]cephlcmv1alpha1.CephObjectZone, len(c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite.Zones))
 	for idx, zone := range c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite.Zones {
 		newZone := cephlcmv1alpha1.CephObjectZone{Name: zone.Name}
+		// default legacy target ratio for rgw datapools
+		if zone.DataPool.Replicated != nil && zone.DataPool.Replicated.TargetSizeRatio == 0 {
+			zone.DataPool.Replicated.TargetSizeRatio = 0.1
+		}
 		zoneSpec := map[string]interface{}{
 			"zoneGroup":    zone.ZoneGroup,
 			"metadataPool": zone.MetadataPool,
@@ -600,6 +619,10 @@ func (c *cephDeploymentConfig) convertRgwParams(hyperConvergePlacement cephv1.Pl
 	}
 	if c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Gateway.ExternalRgwEndpoint == nil {
 		if c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.Zone == nil {
+			// default legacy target ratio for rgw datapools
+			if c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.DataPool.Replicated != nil && c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.DataPool.Replicated.TargetSizeRatio == 0 {
+				c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.DataPool.Replicated.TargetSizeRatio = 0.1
+			}
 			rgwParams["metadataPool"] = c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.MetadataPool
 			rgwParams["dataPool"] = c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.DataPool
 			rgwParams["preservePoolsOnDelete"] = c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.PreservePoolsOnDelete

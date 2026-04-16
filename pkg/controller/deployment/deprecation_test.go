@@ -68,14 +68,105 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cephDpl := unitinputs.CephDeployMosk.DeepCopy()
 				cephDpl.Spec.ObjectStorage = unitinputs.CephDeploymentDeprecated.Spec.ObjectStorage.DeepCopy()
+				cephDpl.Spec.ObjectStorage.OldRgw.DataPool.Replicated = &cephlcmv1alpha1.CephPoolReplicatedSpec{Size: 3}
+				cephDpl.Spec.ObjectStorage.OldRgw.DataPool.ErasureCoded = nil
+				cephDpl.Spec.BlockStorage = nil
+				cephDpl.Spec.OldPools = []cephlcmv1alpha1.CephPoolOld{
+					{
+						Name:             "pool1",
+						Role:             "fake",
+						StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{Default: true},
+						CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
+							DeviceClass:   "hdd",
+							FailureDomain: "host",
+							Replicated:    &cephlcmv1alpha1.CephPoolReplicatedSpec{Size: 3},
+						},
+					},
+					{
+						Name: "vms",
+						Role: "vms",
+						CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
+							DeviceClass:   "hdd",
+							FailureDomain: "host",
+							Replicated:    &cephlcmv1alpha1.CephPoolReplicatedSpec{Size: 3},
+						},
+					},
+					{
+						Name: "images",
+						Role: "images",
+						CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
+							DeviceClass:   "hdd",
+							FailureDomain: "host",
+							Replicated:    &cephlcmv1alpha1.CephPoolReplicatedSpec{Size: 3},
+						},
+					},
+					{
+						Name: "volumes",
+						Role: "volumes",
+						CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
+							DeviceClass:   "hdd",
+							FailureDomain: "host",
+							Replicated:    &cephlcmv1alpha1.CephPoolReplicatedSpec{Size: 3},
+						},
+					},
+					{
+						Name: "backup",
+						Role: "backup",
+						CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
+							DeviceClass:   "hdd",
+							FailureDomain: "host",
+							Replicated:    &cephlcmv1alpha1.CephPoolReplicatedSpec{Size: 3},
+						},
+					},
+				}
 				return cephDpl
 			}(),
 			expectedCephDpl: func() cephlcmv1alpha1.CephDeployment {
 				cephDpl := unitinputs.CephDeployMosk.DeepCopy()
+				cephDpl.Spec.BlockStorage = &cephlcmv1alpha1.CephBlockStorage{
+					Pools: []cephlcmv1alpha1.CephPool{
+						{
+							Name:             "pool1",
+							Role:             "fake",
+							StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{Default: true},
+							PoolSpec: runtime.RawExtension{
+								Raw: []byte(`{"replicated":{"size":3},"failureDomain":"host","deviceClass":"hdd"}`),
+							},
+						},
+						{
+							Name: "vms",
+							Role: "vms",
+							PoolSpec: runtime.RawExtension{
+								Raw: []byte(`{"replicated":{"size":3,"targetSizeRatio":0.2},"failureDomain":"host","deviceClass":"hdd"}`),
+							},
+						},
+						{
+							Name: "images",
+							Role: "images",
+							PoolSpec: runtime.RawExtension{
+								Raw: []byte(`{"replicated":{"size":3,"targetSizeRatio":0.1},"failureDomain":"host","deviceClass":"hdd"}`),
+							},
+						},
+						{
+							Name: "volumes",
+							Role: "volumes",
+							PoolSpec: runtime.RawExtension{
+								Raw: []byte(`{"replicated":{"size":3,"targetSizeRatio":0.4},"failureDomain":"host","deviceClass":"hdd"}`),
+							},
+						},
+						{
+							Name: "backup",
+							Role: "backup",
+							PoolSpec: runtime.RawExtension{
+								Raw: []byte(`{"replicated":{"size":3,"targetSizeRatio":0.1},"failureDomain":"host","deviceClass":"hdd"}`),
+							},
+						},
+					},
+				}
 				cephDpl.Spec.ObjectStorage = unitinputs.CephDeploymentMigrated.Spec.ObjectStorage.DeepCopy()
 				cephDpl.Spec.ObjectStorage.Rgws[0].UsedByRockoon = true
 				cephDpl.Spec.ObjectStorage.Rgws[0].ServedByIngress = true
-				cephDpl.Spec.ObjectStorage.Rgws[0].Spec.Raw = []byte(`{"dataPool":{"deviceClass":"hdd","erasureCoded":{"codingChunks":1,"dataChunks":2}},"gateway":{"instances":2,"port":80,"securePort":8443,"sslCertificateRef":"rgw-ssl-certificate"},"metadataPool":{"replicated":{"size":3},"deviceClass":"hdd"},"preservePoolsOnDelete":false}`)
+				cephDpl.Spec.ObjectStorage.Rgws[0].Spec.Raw = []byte(`{"dataPool":{"replicated":{"size":3,"targetSizeRatio":0.1},"deviceClass":"hdd"},"gateway":{"instances":2,"port":80,"securePort":8443,"sslCertificateRef":"rgw-ssl-certificate"},"metadataPool":{"replicated":{"size":3},"deviceClass":"hdd"},"preservePoolsOnDelete":false}`)
 				return *cephDpl
 			}(),
 			migrated: true,
@@ -102,6 +193,8 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 					SecretKey: "secretkey",
 				}
 				cdpl.Spec.ObjectStorage.OldRgw.Gateway.SplitDaemonForMultisiteTrafficSync = true
+				cdpl.Spec.ObjectStorage.OldMultiSite.Zones[0].DataPool.ErasureCoded = nil
+				cdpl.Spec.ObjectStorage.OldMultiSite.Zones[0].DataPool.Replicated = &cephlcmv1alpha1.CephPoolReplicatedSpec{Size: 3}
 				return cdpl
 			}(),
 			expectedCephDpl: func() cephlcmv1alpha1.CephDeployment {
@@ -112,6 +205,7 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 					AuxiliaryService: true,
 					Spec:             runtime.RawExtension{Raw: []byte(`{"gateway":{"disableMultisiteSyncTraffic":false,"instances":1,"port":8380},"zone":{"name":"zone1"}}`)},
 				}
+				cdpl.Spec.ObjectStorage.Zones[0].Spec.Raw = []byte(`{"dataPool":{"replicated":{"size":3,"targetSizeRatio":0.1},"failureDomain":"host","deviceClass":"hdd"},"metadataPool":{"replicated":{"size":3},"failureDomain":"host","deviceClass":"hdd"},"zoneGroup":"zonegroup1"}`)
 				cdpl.Spec.ObjectStorage.Rgws[0].Spec.Raw = []byte(`{"gateway":{"disableMultisiteSyncTraffic":true,"instances":2,"port":80,"securePort":8443},"zone":{"name":"zone1"}}`)
 				cdpl.Spec.ObjectStorage.Rgws = append(cdpl.Spec.ObjectStorage.Rgws, syncRgw)
 				return *cdpl

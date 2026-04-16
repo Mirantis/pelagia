@@ -290,11 +290,6 @@ func (c *cephDeploymentConfig) ensureZones() (bool, error) {
 			},
 			Spec: zoneSpecCasted,
 		}
-		if zoneResource.Spec.DataPool.Replicated.Size > 0 {
-			if zoneResource.Spec.DataPool.Replicated.TargetSizeRatio == 0 {
-				zoneResource.Spec.DataPool.Replicated.TargetSizeRatio = poolsDefaultTargetSizeRatioByRole("rgw data")
-			}
-		}
 
 		if len(zoneResource.Spec.CustomEndpoints) == 0 && zonesInUse[zone.Name] != "" {
 			// if no endpoints specified - put default external lb ip and port as endpoint
