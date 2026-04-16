@@ -41,34 +41,6 @@ func TestGeneratePool(t *testing.T) {
 			expectedPool: &unitinputs.CephBlockPoolReplicated,
 		},
 		{
-			name: "generate ceph block pool with role vms",
-			cephDpl: func() cephlcmv1alpha1.CephPool {
-				cephDplPoolRole := unitinputs.CephDeployPoolReplicated.DeepCopy()
-				cephDplPoolRole.Role = "vms"
-				return *cephDplPoolRole
-			}(),
-			expectedPool: func() *cephv1.CephBlockPool {
-				expectedCephBlockPoolRole := unitinputs.CephBlockPoolReplicated.DeepCopy()
-				expectedCephBlockPoolRole.Spec.Replicated.TargetSizeRatio = 0.2
-				return expectedCephBlockPoolRole
-			}(),
-		},
-		{
-			name: "generate ceph block pool with target ratio",
-			cephDpl: func() cephlcmv1alpha1.CephPool {
-				cephDplPoolSpec := unitinputs.CephDeployPoolReplicated.DeepCopy()
-				spec, _ := cephDplPoolSpec.GetSpec()
-				spec.Replicated.TargetSizeRatio = 0.1
-				cephDplPoolSpec.PoolSpec.Raw = unitinputs.ConvertStructToRaw(spec)
-				return *cephDplPoolSpec
-			}(),
-			expectedPool: func() *cephv1.CephBlockPool {
-				expectedCephBlockPoolSpec := unitinputs.CephBlockPoolReplicated.DeepCopy()
-				expectedCephBlockPoolSpec.Spec.Replicated.TargetSizeRatio = 0.1
-				return expectedCephBlockPoolSpec
-			}(),
-		},
-		{
 			name:         "generate ceph block pool erasure coded",
 			cephDpl:      unitinputs.CephDeployPoolErasureCoded,
 			expectedPool: &unitinputs.CephBlockPoolErasureCoded,
@@ -222,7 +194,7 @@ func TestEnsurePools(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployNonMosk,
 			inputResources: map[string]runtime.Object{
 				"cephblockpools": &cephv1.CephBlockPoolList{
-					Items: []cephv1.CephBlockPool{unitinputs.GetOpenstackPool("pool1-hdd", true, 0.5)},
+					Items: []cephv1.CephBlockPool{unitinputs.GetReadyPoolWithRatio("pool1-hdd", true, 0.5)},
 				},
 			},
 			expectedResources: map[string]runtime.Object{
@@ -235,7 +207,7 @@ func TestEnsurePools(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployNonMosk,
 			inputResources: map[string]runtime.Object{
 				"cephblockpools": &cephv1.CephBlockPoolList{
-					Items: []cephv1.CephBlockPool{unitinputs.GetOpenstackPool("pool1-hdd", true, 0.5)},
+					Items: []cephv1.CephBlockPool{unitinputs.GetReadyPoolWithRatio("pool1-hdd", true, 0.5)},
 				},
 			},
 			apiErrors:     map[string]error{"update-cephblockpools": errors.New("update failed")},

@@ -38,12 +38,6 @@ func generatePool(pool cephlcmv1alpha1.CephPool, namespace string) (newpool *cep
 	}
 	// skip check, since validation handles it
 	castedPoolSpec, _ := pool.GetSpec()
-	if castedPoolSpec.Replicated.Size > 0 {
-		if castedPoolSpec.Replicated.TargetSizeRatio == 0 {
-			castedPoolSpec.Replicated.TargetSizeRatio = poolsDefaultTargetSizeRatioByRole(pool.Role)
-		}
-	}
-
 	cephpool.Spec = cephv1.NamedBlockPoolSpec{PoolSpec: castedPoolSpec}
 	if lcmcommon.Contains(builtinCephPools, pool.Name) {
 		cephpool.Spec.Name = pool.Name

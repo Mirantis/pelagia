@@ -661,11 +661,6 @@ func generateRgw(cephDplRGW cephv1.ObjectStoreSpec, name, namespace string, useD
 			cephDplRGW.Gateway.CaBundleRef = cephDplRGW.Gateway.SSLCertificateRef
 		}
 	}
-	if cephDplRGW.DataPool.Replicated.Size > 0 {
-		if cephDplRGW.DataPool.Replicated.TargetSizeRatio == 0 {
-			cephDplRGW.DataPool.Replicated.TargetSizeRatio = poolsDefaultTargetSizeRatioByRole("rgw data")
-		}
-	}
 
 	// overwrite due nodes section
 	cephDplRGW.Gateway.Placement.NodeAffinity = &v1.NodeAffinity{
