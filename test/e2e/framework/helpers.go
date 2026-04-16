@@ -26,6 +26,7 @@ import (
 	rookv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 
 	cephlcmv1alpha "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 )
@@ -64,8 +65,12 @@ func ReadSharedFilesystemConfig(sharedFilesystemConfigString string) ([]string, 
 	if err != nil {
 		return nil, nil, err
 	}
-	for _, cephFS := range sharedFS.CephFS {
-		storageClasses = append(storageClasses, fmt.Sprintf("%s-%s", cephFS.Name, cephFS.DataPools[0].Name))
+	for _, cephFS := range sharedFS.Filesystems {
+		castedSpec, err := cephFS.GetSpec()
+		if err != nil {
+			return nil, nil, errors.Wrapf(err, "failed to cast %s ceph filesystem", cephFS.Name)
+		}
+		storageClasses = append(storageClasses, fmt.Sprintf("%s-%s", cephFS.Name, castedSpec.DataPools[0].Name))
 	}
 	return storageClasses, &sharedFS, nil
 }
@@ -113,21 +118,17 @@ func GetNewPool(name string, useAsfullName, volumeExpansion bool, size int, role
 	if role == "" {
 		role = "e2e-tests"
 	}
+	rawPoolData := fmt.Sprintf(`{"replicated": {"size": %d}, "deviceClass": "%s"}`, size, deviceClass)
 	return cephlcmv1alpha.CephPool{
-		Name: name,
-		Role: role,
+		Name:          name,
+		Role:          role,
+		UseAsFullName: useAsfullName,
 		StorageClassOpts: cephlcmv1alpha.CephStorageClassSpec{
 			Default:              false,
 			MapOptions:           mapOptions,
 			AllowVolumeExpansion: volumeExpansion,
 		},
-		CephPoolSpec: cephlcmv1alpha.CephPoolSpec{
-			Replicated: &cephlcmv1alpha.CephPoolReplicatedSpec{
-				Size: uint(size),
-			},
-			DeviceClass: deviceClass,
-		},
-		UseAsFullName: useAsfullName,
+		PoolSpec: runtime.RawExtension{Raw: []byte(rawPoolData)},
 	}
 }
 
@@ -164,10 +165,13 @@ func GetRgwPublicEndpoint(cdhName string) (string, error) {
 
 func GetDefaultPoolDeviceClass(cd *cephlcmv1alpha.CephDeployment) string {
 	poolDefaultClass := ""
-	for _, pool := range cd.Spec.Pools {
-		if pool.StorageClassOpts.Default {
-			poolDefaultClass = pool.DeviceClass
-			break
+	if cd.Spec.BlockStorage != nil {
+		for _, pool := range cd.Spec.BlockStorage.Pools {
+			if pool.StorageClassOpts.Default {
+				poolSpec, _ := pool.GetSpec()
+				poolDefaultClass = poolSpec.DeviceClass
+				break
+			}
 		}
 	}
 	return poolDefaultClass

@@ -18,10 +18,8 @@ package deployment
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
-	"github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 	"github.com/pkg/errors"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"github.com/stretchr/testify/assert"
@@ -38,7 +36,9 @@ import (
 
 func TestGenerateRgwStore(t *testing.T) {
 	resourceUpdateTimestamps = updateTimestamps{
-		rgwSSLCert: "some-time",
+		rgwSSLCert: map[string]string{
+			"rgw-store": "some-time",
+		},
 		cephConfigMap: map[string]string{
 			"global":                 "some-time",
 			"client.rgw.rgw.store.a": "some-time",
@@ -46,127 +46,47 @@ func TestGenerateRgwStore(t *testing.T) {
 	}
 	tests := []struct {
 		name              string
-		cephDplRGW        cephlcmv1alpha1.CephRGW
+		cephDplRGW        cephlcmv1alpha1.CephObjectStore
 		useDedicatedNodes bool
 		syncRgwDaemon     bool
 		hyperconverge     *cephlcmv1alpha1.CephDeploymentHyperConverge
 		expected          *cephv1.CephObjectStore
 	}{
 		{
-			name:              "default rgw spec with pools, mon nodes placement, ssl enabled",
+			name:              "base rgw spec, mon nodes placement, ssl enabled",
 			cephDplRGW:        unitinputs.CephRgwBaseSpec,
 			useDedicatedNodes: false,
 			expected:          unitinputs.CephObjectStoreBase,
 		},
 		{
-			name: "rgw spec override with health check, hyperconverge and dedicated nodes",
-			cephDplRGW: func() cephlcmv1alpha1.CephRGW {
+			name: "override rgw spec, rgw nodes placement, extra tolerations, ssl certs set",
+			cephDplRGW: func() cephlcmv1alpha1.CephObjectStore {
 				rgw := unitinputs.CephRgwBaseSpec.DeepCopy()
-				rgw.HealthCheck = &cephv1.ObjectHealthCheckSpec{
-					StartupProbe: &cephv1.ProbeSpec{
-						Probe: &v1.Probe{
-							TimeoutSeconds:   10,
-							FailureThreshold: 5,
-						},
-					},
-				}
-				rgw.PreservePoolsOnDelete = true
-				rgw.DataPool = &cephlcmv1alpha1.CephPoolSpec{
-					DeviceClass: "ssd",
-					Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-						Size: 3,
-					},
-				}
-				rgw.MetadataPool.FailureDomain = "rack"
+				rgwCasted, _ := rgw.GetSpec()
+				rgwCasted.Gateway.SSLCertificateRef = "some-cert"
+				rgwCasted.Gateway.Placement.Tolerations = []v1.Toleration{{Key: "custom-toleration", Operator: "Exists"}}
+				rgw.Spec.Raw = unitinputs.ConvertStructToRaw(rgwCasted)
 				return *rgw
 			}(),
 			useDedicatedNodes: true,
-			hyperconverge:     unitinputs.HyperConvergeForExtraSVC.DeepCopy(),
 			expected: func() *cephv1.CephObjectStore {
 				rgw := unitinputs.CephObjectStoreBase.DeepCopy()
-				rgw.Spec.DataPool = cephv1.PoolSpec{
-					DeviceClass: "ssd",
-					Replicated: cephv1.ReplicatedSpec{
-						TargetSizeRatio: 0.1,
-						Size:            3,
-					},
-				}
-				rgw.Spec.PreservePoolsOnDelete = true
-				rgw.Spec.MetadataPool.FailureDomain = "rack"
-				rgw.Spec.HealthCheck = cephv1.ObjectHealthCheckSpec{
-					StartupProbe: &cephv1.ProbeSpec{
-						Probe: &v1.Probe{
-							TimeoutSeconds:   10,
-							FailureThreshold: 5,
-						},
-					},
-				}
-				rgw.Spec.Gateway.Placement.NodeAffinity.RequiredDuringSchedulingIgnoredDuringExecution.NodeSelectorTerms = []v1.NodeSelectorTerm{
-					{
-						MatchExpressions: []v1.NodeSelectorRequirement{
-							{
-								Key:      "ceph_role_rgw",
-								Operator: "In",
-								Values: []string{
-									"true",
-								},
-							},
-						},
-					},
-				}
-				rgw.Spec.Gateway.Placement.Tolerations = []v1.Toleration{
-					{
-						Key:      "ceph_role_rgw",
-						Operator: "Exists",
-					},
-					{
-						Key:      "rgw-toleration",
-						Operator: "Exists",
-					},
-				}
-				rgw.Spec.Gateway.Resources = unitinputs.HyperConvergeForExtraSVC.Resources["rgw"]
-				return rgw
-			}(),
-		},
-		{
-			name: "rgw spec with gateway overrides",
-			cephDplRGW: func() cephlcmv1alpha1.CephRGW {
-				rgw := unitinputs.CephRgwBaseSpec.DeepCopy()
-				rgw.Gateway.Resources = &v1.ResourceRequirements{
-					Limits:   unitinputs.ResourceListLimitsDefault,
-					Requests: unitinputs.ResourceListRequestsDefault,
-				}
-				rgw.Gateway.Instances = 2
-				rgw.Gateway.Port = 88
-				rgw.Gateway.SecurePort = 444
-				rgw.RgwUseHostNetwork = &[]bool{false}[0]
-				//rgw.Gateway.SplitDaemonForMultisiteTrafficSync = true
-				return *rgw
-			}(),
-			useDedicatedNodes: false,
-			expected: func() *cephv1.CephObjectStore {
-				rgw := unitinputs.CephObjectStoreBase.DeepCopy()
-				rgw.Spec.Gateway.Resources = v1.ResourceRequirements{
-					Limits:   unitinputs.ResourceListLimitsDefault,
-					Requests: unitinputs.ResourceListRequestsDefault,
-				}
-				rgw.Spec.Gateway.Instances = 2
-				rgw.Spec.Gateway.Port = 88
-				rgw.Spec.Gateway.SecurePort = 444
-				rgw.Spec.Gateway.HostNetwork = &[]bool{false}[0]
-				//rgw.Spec.Gateway.DisableMultisiteSyncTraffic = true
+				rgw.Spec.Gateway.SSLCertificateRef = "some-cert"
+				rgw.Spec.Gateway.CaBundleRef = "some-cert"
+				rgw.Spec.Gateway.Placement.Tolerations = []v1.Toleration{{Key: "ceph_role_rgw", Operator: "Exists"}, {Key: "custom-toleration", Operator: "Exists"}}
+				rgw.Spec.Gateway.Placement.NodeAffinity.RequiredDuringSchedulingIgnoredDuringExecution.NodeSelectorTerms[0].MatchExpressions[0].Key = "ceph_role_rgw"
 				return rgw
 			}(),
 		},
 		{
 			name:              "multisite rgw run sync with single daemon",
-			cephDplRGW:        unitinputs.CephDeployMultisiteMasterRgw.Spec.ObjectStorage.Rgw,
+			cephDplRGW:        unitinputs.CephDeployMultisiteMasterRgw.Spec.ObjectStorage.Rgws[0],
 			useDedicatedNodes: false,
 			expected:          unitinputs.CephObjectStoreWithZone,
 		},
 		{
 			name:              "multisite rgw run sync with separate daemon, main rgw",
-			cephDplRGW:        unitinputs.MultisiteRgwWithSyncDaemon.Spec.ObjectStorage.Rgw,
+			cephDplRGW:        unitinputs.MultisiteRgwWithSyncDaemon.Spec.ObjectStorage.Rgws[0],
 			useDedicatedNodes: false,
 			expected: func() *cephv1.CephObjectStore {
 				rgw := unitinputs.CephObjectStoreWithZone.DeepCopy()
@@ -176,19 +96,11 @@ func TestGenerateRgwStore(t *testing.T) {
 			}(),
 		},
 		{
-			name: "multisite rgw run sync with separate daemon, sync rgw",
-			cephDplRGW: func() cephlcmv1alpha1.CephRGW {
-				cd := unitinputs.MultisiteRgwWithSyncDaemon.Spec.ObjectStorage.Rgw.DeepCopy()
-				cd.Gateway.RgwSyncPort = 8000
-				return *cd
-			}(),
+			name:              "multisite rgw run sync with separate daemon, sync rgw",
+			cephDplRGW:        unitinputs.MultisiteRgwWithSyncDaemon.Spec.ObjectStorage.Rgws[1],
 			useDedicatedNodes: false,
 			syncRgwDaemon:     true,
-			expected: func() *cephv1.CephObjectStore {
-				rgw := unitinputs.CephObjectStoreWithSyncDaemon.DeepCopy()
-				rgw.Spec.Gateway.Port = 8000
-				return rgw
-			}(),
+			expected:          unitinputs.CephObjectStoreWithSyncDaemon,
 		},
 	}
 	for _, test := range tests {
@@ -196,42 +108,17 @@ func TestGenerateRgwStore(t *testing.T) {
 			if test.syncRgwDaemon {
 				resourceUpdateTimestamps.cephConfigMap["client.rgw.rgw.store.sync.a"] = "some-time-sync"
 			}
-			actual := generateRgw(test.cephDplRGW, "rook-ceph", test.useDedicatedNodes, test.syncRgwDaemon, test.cephDplRGW.Zone == nil, test.hyperconverge)
+			castedSpec, err := test.cephDplRGW.GetSpec()
+			assert.Nil(t, err)
+			actual := generateRgw(castedSpec, test.cephDplRGW.Name, "rook-ceph", test.useDedicatedNodes)
 			assert.Equal(t, test.expected, actual)
 		})
 	}
 	unsetTimestampsVar()
 }
 
-func TestGenerateRgwBucket(t *testing.T) {
-	actual := generateRgwBucket("rgw-storage-class", "fake-bucket", "rook-ceph")
-	expected := unitinputs.GetSimpleBucket("fake-bucket")
-	assert.Equal(t, *expected, actual)
-}
-
-func TestGenerateRgwUser(t *testing.T) {
-	fakeUser := cephlcmv1alpha1.CephRGWUser{
-		Name: "test-user",
-	}
-	actual := generateRgwUser("rgw-store", fakeUser, "rook-ceph")
-	expected := unitinputs.RgwUserBase
-	assert.Equal(t, expected, actual)
-	fakeUserExtra := cephlcmv1alpha1.CephRGWUser{
-		Name: "test-user",
-		Capabilities: &cephv1.ObjectUserCapSpec{
-			User: "*",
-		},
-		Quotas: &cephv1.ObjectUserQuotaSpec{
-			MaxBuckets: &[]int{1}[0],
-		},
-	}
-	actual = generateRgwUser("rgw-store", fakeUserExtra, "rook-ceph")
-	expected = unitinputs.RgwUserWithCapsAndQuotas
-	assert.Equal(t, expected, actual)
-}
-
 func TestGenerateRgwStorageClass(t *testing.T) {
-	actual := generateRgwStorageClass("rgw-store", "rgw-storage-class", "rook-ceph", "rgw-store")
+	actual := generateRgwStorageClass("rgw-store", "rgw-store-bucket", "rook-ceph")
 	expected := unitinputs.RgwStorageClass
 	assert.Equal(t, expected, actual)
 }
@@ -240,13 +127,15 @@ func TestGenerateRgwExternalService(t *testing.T) {
 	labelSelector, err := metav1.ParseToLabelSelector("external_access=rgw")
 	assert.Nil(t, err)
 	assert.Equal(t, map[string]string{"external_access": "rgw"}, labelSelector.MatchLabels)
-	rgwExternalSvc := generateRgwExternalService("rgw-store", "rook-ceph", labelSelector, &unitinputs.CephDeployObjectStorageCeph)
+	rgwExternalSvc := generateRgwExternalService("rgw-store", "rook-ceph", labelSelector, int32(80), int32(8443))
 	assert.Equal(t, unitinputs.RgwExternalServiceGenerated, rgwExternalSvc)
 }
 
 func TestGenerateRgwExternal(t *testing.T) {
 	resourceUpdateTimestamps = updateTimestamps{
-		rgwSSLCert: "some-time",
+		rgwSSLCert: map[string]string{
+			"rgw-store": "some-time",
+		},
 		cephConfigMap: map[string]string{
 			"global":                 "some-time",
 			"client.rgw.rgw.store.a": "some-time",
@@ -254,24 +143,31 @@ func TestGenerateRgwExternal(t *testing.T) {
 	}
 	tests := []struct {
 		name          string
-		cephDplRGW    cephlcmv1alpha1.CephRGW
+		cephDplRGW    cephlcmv1alpha1.CephObjectStore
 		expected      *cephv1.CephObjectStore
 		expectedError string
 	}{
 		{
-			name:          "generate external rgw - no external endpoints, failed",
-			cephDplRGW:    cephlcmv1alpha1.CephRGW{Name: "rgw-store"},
-			expectedError: "external RGW endpoint is not specified for external ceph cluster",
+			name: "generate external rgw - no external endpoints, failed",
+			cephDplRGW: cephlcmv1alpha1.CephObjectStore{
+				Name: "rgw-store",
+				Spec: runtime.RawExtension{
+					Raw: []byte(`{}`),
+				},
+			},
+			expectedError: "external RGW endpoints is not specified for external ceph cluster",
 		},
 		{
 			name:       "generate external rgw - success",
-			cephDplRGW: unitinputs.RgwExternalSslEnabled,
+			cephDplRGW: unitinputs.CephRgwExternal,
 			expected:   unitinputs.CephObjectStoreExternal,
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			actual, err := generateRgwExternal(test.cephDplRGW, "rook-ceph")
+			casted, err := test.cephDplRGW.GetSpec()
+			assert.Nil(t, err)
+			actual, err := generateRgwExternal(casted, test.cephDplRGW.Name, "rook-ceph")
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
@@ -290,6 +186,7 @@ func TestEnsureRgwConsistence(t *testing.T) {
 		cephDpl           *cephlcmv1alpha1.CephDeployment
 		inputResources    map[string]runtime.Object
 		apiErrors         map[string]error
+		consistent        bool
 		expectedResources map[string]runtime.Object
 		expectedError     string
 	}{
@@ -309,6 +206,9 @@ func TestEnsureRgwConsistence(t *testing.T) {
 						*unitinputs.CephObjectStoreBase,
 					},
 				},
+				"secrets":        &v1.SecretList{},
+				"services":       &v1.ServiceList{},
+				"storageclasses": &unitinputs.StorageClassesListEmpty,
 			},
 			apiErrors:     map[string]error{"delete-cephobjectstores": errors.New("CephObjectStore delete failed")},
 			expectedError: "failed to cleanup inconsistent rgw resources: failed to cleanup rgw object store resources",
@@ -323,6 +223,9 @@ func TestEnsureRgwConsistence(t *testing.T) {
 						*unitinputs.CephObjectStoreBase,
 					},
 				},
+				"secrets":        &v1.SecretList{Items: []v1.Secret{unitinputs.RgwSSLCertSecret}},
+				"services":       &v1.ServiceList{},
+				"storageclasses": &unitinputs.StorageClassesListEmpty,
 			},
 			expectedResources: map[string]runtime.Object{
 				"cephobjectstores": &cephv1.CephObjectStoreList{
@@ -331,15 +234,17 @@ func TestEnsureRgwConsistence(t *testing.T) {
 			},
 		},
 		{
-			name:    "ensure rgw consistence - multisite with sync daemon, no cleanup",
-			cephDpl: &unitinputs.MultisiteRgwWithSyncDaemon,
+			name: "ensure rgw consistence - multisite with sync daemon, no cleanup",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				dpl := unitinputs.MultisiteRgwWithSyncDaemon.DeepCopy()
+				dpl.Spec.ObjectStorage.Rgws = dpl.Spec.ObjectStorage.Rgws[1:]
+				return dpl
+			}(),
 			inputResources: map[string]runtime.Object{
-				"cephobjectstores": &cephv1.CephObjectStoreList{
-					Items: []cephv1.CephObjectStore{
-						*unitinputs.CephObjectStoreWithSyncDaemon,
-						*unitinputs.CephObjectStoreWithZone,
-					},
-				},
+				"cephobjectstores": unitinputs.CephObjectStoreMultisiteSyncList.DeepCopy(),
+				"secrets":          &v1.SecretList{},
+				"services":         &v1.ServiceList{},
+				"storageclasses":   &unitinputs.StorageClassesListEmpty,
 			},
 		},
 		{
@@ -352,28 +257,65 @@ func TestEnsureRgwConsistence(t *testing.T) {
 						*unitinputs.CephObjectStoreWithZone,
 					},
 				},
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{
+						unitinputs.RgwSSLCertSecret,
+						{
+							ObjectMeta: metav1.ObjectMeta{
+								Name:      "custom-secret",
+								Namespace: "rook-ceph",
+								Labels:    map[string]string{"cephdeployment.lcm.mirantis.com/ssl-cert-for": "unexpected-rgw"},
+							},
+						},
+					},
+				},
+				"services":       &v1.ServiceList{},
+				"storageclasses": &unitinputs.StorageClassesListEmpty,
 			},
 			expectedResources: map[string]runtime.Object{
 				"cephobjectstores": &cephv1.CephObjectStoreList{
 					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreWithZone},
 				},
+				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.RgwSSLCertSecret}},
 			},
+		},
+		{
+			name:    "ensure rgw consistence - multisite no sync daemon",
+			cephDpl: &unitinputs.CephDeployMultisiteRgw,
+			inputResources: map[string]runtime.Object{
+				"cephobjectstores": &cephv1.CephObjectStoreList{
+					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreWithZone},
+				},
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{unitinputs.RgwSSLCertSecret},
+				},
+				"services":       &v1.ServiceList{},
+				"storageclasses": &unitinputs.StorageClassesListEmpty,
+			},
+			consistent: true,
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "list", []string{"secrets"}, test.inputResources, nil)
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "delete", []string{"secrets", "services"}, test.inputResources, nil)
+			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "delete", []string{"storageclasses"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", []string{"cephobjectstores"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "delete", []string{"cephobjectstores"}, test.inputResources, test.apiErrors)
 			test.expectedResources = faketestclients.PrepareExpectedResources(test.inputResources, test.expectedResources)
 
-			err := c.ensureRgwConsistence()
+			consistent, err := c.ensureRgwConsistence()
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
 			} else {
 				assert.Nil(t, err)
 			}
+			assert.Equal(t, test.consistent, consistent)
 			assert.Equal(t, test.expectedResources, test.inputResources)
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
 		})
@@ -390,7 +332,6 @@ func TestDeleteRgw(t *testing.T) {
 	tests := []struct {
 		name              string
 		objectStoreName   string
-		keepSyncStore     bool
 		inputResources    map[string]runtime.Object
 		apiErrors         map[string]error
 		deleted           bool
@@ -441,19 +382,6 @@ func TestDeleteRgw(t *testing.T) {
 			expectedError: "failed to list rgw object stores",
 		},
 		{
-			name: "delete rgw - delete cephobjectstore failed",
-			inputResources: map[string]runtime.Object{
-				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
-				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListEmpty,
-				"cephobjectstores":     unitinputs.CephObjectStoreListReady.DeepCopy(),
-				"services":             &unitinputs.ServicesListEmpty,
-			},
-			apiErrors: map[string]error{
-				"delete-cephobjectstores": errors.New("cephObjectStore delete failed"),
-			},
-			expectedError: "failed to cleanup rgw object store resources",
-		},
-		{
 			name: "delete rgw - delete rgw service failed",
 			inputResources: map[string]runtime.Object{
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
@@ -467,7 +395,23 @@ func TestDeleteRgw(t *testing.T) {
 			expectedError: "failed to cleanup rgw object store resources",
 		},
 		{
-			name: "delete rgw - delete in progress",
+			name: "delete rgw - delete rgw storageclass failed",
+			inputResources: map[string]runtime.Object{
+				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
+				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListEmpty,
+				"cephobjectstores":     unitinputs.CephObjectStoreListReady.DeepCopy(),
+				"services":             &unitinputs.ServicesListEmpty,
+				"storageclasses": &v1storage.StorageClassList{
+					Items: []v1storage.StorageClass{*unitinputs.RgwStorageClass.DeepCopy()},
+				},
+			},
+			apiErrors: map[string]error{
+				"delete-storageclasses": errors.New("storageclass delete failed"),
+			},
+			expectedError: "failed to cleanup rgw object store resources",
+		},
+		{
+			name: "delete rgw - rgw resources delete in progress",
 			inputResources: map[string]runtime.Object{
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
 				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListEmpty,
@@ -482,42 +426,35 @@ func TestDeleteRgw(t *testing.T) {
 				},
 			},
 			expectedResources: map[string]runtime.Object{
-				"cephobjectstores": &unitinputs.CephObjectStoreListEmpty,
-				"services":         &unitinputs.ServicesListEmpty,
-				"storageclasses": &v1storage.StorageClassList{
-					Items: []v1storage.StorageClass{*unitinputs.RgwStorageClass.DeepCopy()},
-				},
+				"services":       &unitinputs.ServicesListEmpty,
+				"storageclasses": &v1storage.StorageClassList{Items: []v1storage.StorageClass{}},
 			},
 		},
 		{
-			name: "delete rgw - delete rgw storageclass failed",
+			name: "delete rgw - delete cephobjectstore failed",
 			inputResources: map[string]runtime.Object{
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
 				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListEmpty,
-				"cephobjectstores":     &unitinputs.CephObjectStoreListEmpty,
+				"cephobjectstores":     unitinputs.CephObjectStoreListReady.DeepCopy(),
 				"services":             &unitinputs.ServicesListEmpty,
-				"storageclasses": &v1storage.StorageClassList{
-					Items: []v1storage.StorageClass{*unitinputs.RgwStorageClass.DeepCopy()},
-				},
+				"storageclasses":       &unitinputs.StorageClassesListEmpty,
 			},
 			apiErrors: map[string]error{
-				"delete-storageclasses": errors.New("storageclass delete failed"),
+				"delete-cephobjectstores": errors.New("cephObjectStore delete failed"),
 			},
 			expectedError: "failed to cleanup rgw object store resources",
 		},
 		{
-			name: "delete rgw - delete rgw storageclass in progress",
+			name: "delete rgw - delete cephobjectstore in progress",
 			inputResources: map[string]runtime.Object{
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
 				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListEmpty,
-				"cephobjectstores":     &unitinputs.CephObjectStoreListEmpty,
+				"cephobjectstores":     unitinputs.CephObjectStoreListReady.DeepCopy(),
 				"services":             &unitinputs.ServicesListEmpty,
-				"storageclasses": &v1storage.StorageClassList{
-					Items: []v1storage.StorageClass{*unitinputs.RgwStorageClass.DeepCopy()},
-				},
+				"storageclasses":       &unitinputs.StorageClassesListEmpty,
 			},
 			expectedResources: map[string]runtime.Object{
-				"storageclasses": &unitinputs.StorageClassesListEmpty,
+				"cephobjectstores": &unitinputs.CephObjectStoreListEmpty,
 			},
 		},
 		{
@@ -532,7 +469,7 @@ func TestDeleteRgw(t *testing.T) {
 			deleted: true,
 		},
 		{
-			name: "delete rgw - multisite only sync daemon cleanup",
+			name: "delete rgw - multiple rgw cleanup",
 			inputResources: map[string]runtime.Object{
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
 				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListEmpty,
@@ -542,34 +479,15 @@ func TestDeleteRgw(t *testing.T) {
 						*unitinputs.CephObjectStoreWithZone.DeepCopy(),
 					},
 				},
-				"services": &v1.ServiceList{},
-			},
-			objectStoreName: "rgw-store",
-			expectedResources: map[string]runtime.Object{
-				"cephobjectstores": &cephv1.CephObjectStoreList{
-					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreWithZone},
-				},
-			},
-		},
-		{
-			name: "delete rgw - multisite and sync daemon cleanup",
-			inputResources: map[string]runtime.Object{
-				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
-				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListEmpty,
-				"cephobjectstores": &cephv1.CephObjectStoreList{
-					Items: []cephv1.CephObjectStore{
-						*unitinputs.CephObjectStoreWithSyncDaemon.DeepCopy(),
-						*unitinputs.CephObjectStoreWithZone.DeepCopy(),
-					},
-				},
-				"services": &v1.ServiceList{},
+				"services":       &unitinputs.ServicesListEmpty,
+				"storageclasses": &unitinputs.StorageClassesListEmpty,
 			},
 			expectedResources: map[string]runtime.Object{
 				"cephobjectstores": &unitinputs.CephObjectStoreListEmpty,
 			},
 		},
 		{
-			name: "delete rgw - multisite with sync daemon nothing to delete",
+			name: "delete rgw - cleanup only specified",
 			inputResources: map[string]runtime.Object{
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
 				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListEmpty,
@@ -579,17 +497,26 @@ func TestDeleteRgw(t *testing.T) {
 						*unitinputs.CephObjectStoreWithZone.DeepCopy(),
 					},
 				},
-				"services": &unitinputs.ServicesListEmpty,
+				"services":       &unitinputs.ServicesListEmpty,
+				"storageclasses": &unitinputs.StorageClassesListEmpty,
 			},
-			objectStoreName: "rgw-store",
-			keepSyncStore:   true,
-			deleted:         true,
+			objectStoreName: "rgw-store-sync",
+			expectedResources: map[string]runtime.Object{
+				"cephobjectstores": &cephv1.CephObjectStoreList{
+					Items: []cephv1.CephObjectStore{
+						*unitinputs.CephObjectStoreWithZone.DeepCopy(),
+					},
+				},
+			},
 		},
 	}
 	cephAPIResources := []string{"cephobjectstoreusers", "cephobjectstores"}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(nil, nil)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: unitinputs.BaseCephDeployment.DeepCopy()}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", cephAPIResources, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "delete", cephAPIResources, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "delete", []string{"services"}, test.inputResources, test.apiErrors)
@@ -598,7 +525,7 @@ func TestDeleteRgw(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Claimclientset, "delete", []string{"objectbucketclaims"}, test.inputResources, test.apiErrors)
 			test.expectedResources = faketestclients.PrepareExpectedResources(test.inputResources, test.expectedResources)
 
-			deleted, err := c.deleteRgw(test.objectStoreName, test.keepSyncStore)
+			deleted, err := c.deleteRgw(test.objectStoreName)
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
@@ -664,7 +591,7 @@ func TestStatusRgw(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: unitinputs.CephDeployNonMosk.DeepCopy()}, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephobjectstores"}, test.inputResources, nil)
 
-			_, err := c.statusRgw()
+			err := c.statusRgw("rgw-store")
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
@@ -694,7 +621,7 @@ func TestEnsureRgwStorageClass(t *testing.T) {
 			expectedError: "storageclass get failed",
 		},
 		{
-			name: "ensure rgw storageclass - create success",
+			name: "ensure rgw storageclass - create failed",
 			inputResources: map[string]runtime.Object{
 				"storageclasses": unitinputs.StorageClassesListEmpty.DeepCopy(),
 			},
@@ -729,7 +656,7 @@ func TestEnsureRgwStorageClass(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "create", []string{"storageclasses"}, test.inputResources, test.apiErrors)
 			test.expectedResources = faketestclients.PrepareExpectedResources(test.inputResources, test.expectedResources)
 
-			changed, err := c.ensureRgwStorageClass()
+			changed, err := c.ensureRgwStorageClass("rgw-store")
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
@@ -749,6 +676,7 @@ func TestEnsureRgwObject(t *testing.T) {
 	tests := []struct {
 		name              string
 		cephDpl           *cephlcmv1alpha1.CephDeployment
+		rgwIdx            int
 		inputResources    map[string]runtime.Object
 		expectedResources map[string]runtime.Object
 		apiErrors         map[string]error
@@ -771,6 +699,15 @@ func TestEnsureRgwObject(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"cephobjectstores": unitinputs.CephObjectStoreListEmpty.DeepCopy(),
 			},
+			newTimestamps: &updateTimestamps{
+				rgwSSLCert: map[string]string{
+					"rgw-store": "some-time",
+				},
+				cephConfigMap: map[string]string{
+					"global":                 "some-time",
+					"client.rgw.rgw.store.a": "some-time",
+				},
+			},
 			expectedResources: map[string]runtime.Object{
 				"cephobjectstores": &cephv1.CephObjectStoreList{
 					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreBase},
@@ -791,7 +728,9 @@ func TestEnsureRgwObject(t *testing.T) {
 				},
 			},
 			newTimestamps: &updateTimestamps{
-				rgwSSLCert: "new-ssl-time",
+				rgwSSLCert: map[string]string{
+					"rgw-store": "new-ssl-time",
+				},
 				cephConfigMap: map[string]string{
 					"global":                 "new-global-time",
 					"client.rgw.rgw.store.a": "new-rgw-time",
@@ -850,6 +789,15 @@ func TestEnsureRgwObject(t *testing.T) {
 					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreBase},
 				},
 			},
+			newTimestamps: &updateTimestamps{
+				rgwSSLCert: map[string]string{
+					"rgw-store": "some-time",
+				},
+				cephConfigMap: map[string]string{
+					"global":                 "some-time",
+					"client.rgw.rgw.store.a": "some-time",
+				},
+			},
 		},
 		{
 			name:    "ensure rgw - external rgw failed, no rgw ops user secret",
@@ -864,9 +812,16 @@ func TestEnsureRgwObject(t *testing.T) {
 			name: "ensure rgw - external rgw spec without external endpoints - create failed",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					External: true,
+					Cluster: unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy(),
 					ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
-						Rgw: cephlcmv1alpha1.CephRGW{Name: "rgw-store"},
+						Rgws: []cephlcmv1alpha1.CephObjectStore{
+							{
+								Name: "rgw-store",
+								Spec: runtime.RawExtension{
+									Raw: []byte(`{}`),
+								},
+							},
+						},
 					},
 				},
 			},
@@ -876,7 +831,7 @@ func TestEnsureRgwObject(t *testing.T) {
 					Items: []v1.Secret{unitinputs.RookCephRgwAdminSecret},
 				},
 			},
-			expectedError: "failed to generate external rgw: external RGW endpoint is not specified for external ceph cluster",
+			expectedError: "failed to generate external rgw: external RGW endpoints is not specified for external ceph cluster",
 		},
 		{
 			name:    "ensure rgw - external rgw created",
@@ -899,28 +854,21 @@ func TestEnsureRgwObject(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployExternalRgw,
 			inputResources: map[string]runtime.Object{
 				"cephobjectstores": &cephv1.CephObjectStoreList{
-					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreExternal.DeepCopy()},
+					Items: []cephv1.CephObjectStore{
+						func() cephv1.CephObjectStore {
+							rgw := unitinputs.CephObjectStoreExternal.DeepCopy()
+							rgw.Spec.Gateway.Port = 3333
+							return *rgw
+						}(),
+					},
 				},
 				"secrets": &v1.SecretList{
 					Items: []v1.Secret{unitinputs.RookCephRgwAdminSecret},
 				},
 			},
-			newTimestamps: &updateTimestamps{
-				rgwSSLCert: "new-time",
-				cephConfigMap: map[string]string{
-					"global":                 "some-time",
-					"client.rgw.rgw.store.a": "some-time",
-				},
-			},
 			expectedResources: map[string]runtime.Object{
 				"cephobjectstores": &cephv1.CephObjectStoreList{
-					Items: []cephv1.CephObjectStore{
-						func() cephv1.CephObjectStore {
-							rgw := unitinputs.CephObjectStoreExternal.DeepCopy()
-							rgw.Spec.Gateway.Annotations["cephdeployment.lcm.mirantis.com/ssl-cert-generated"] = "new-time"
-							return *rgw
-						}(),
-					},
+					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreExternal},
 				},
 			},
 			changed: true,
@@ -941,8 +889,9 @@ func TestEnsureRgwObject(t *testing.T) {
 			name: "ensure rgw - multiste rgw failed with unknown zone",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
-						Rgw: unitinputs.CephDeployMultisiteMasterRgw.Spec.ObjectStorage.Rgw,
+						Rgws: unitinputs.CephDeployMultisiteMasterRgw.Spec.ObjectStorage.Rgws,
 					},
 				},
 			},
@@ -955,13 +904,13 @@ func TestEnsureRgwObject(t *testing.T) {
 			name: "ensure rgw - multiste rgw failed with invalid zone",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
-						Rgw: unitinputs.CephDeployMultisiteMasterRgw.Spec.ObjectStorage.Rgw,
-						MultiSite: &cephlcmv1alpha1.CephMultiSite{
-							Zones: []cephlcmv1alpha1.CephRGWZone{
-								{
-									Name: "zone2",
-								},
+						Rgws: unitinputs.CephDeployMultisiteMasterRgw.Spec.ObjectStorage.Rgws,
+						Zones: []cephlcmv1alpha1.CephObjectZone{
+							{
+								Name: "zone2",
+								Spec: runtime.RawExtension{Raw: []byte(`{}`)},
 							},
 						},
 					},
@@ -981,6 +930,15 @@ func TestEnsureRgwObject(t *testing.T) {
 			expectedResources: map[string]runtime.Object{
 				"cephobjectstores": &cephv1.CephObjectStoreList{
 					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreWithZone},
+				},
+			},
+			newTimestamps: &updateTimestamps{
+				rgwSSLCert: map[string]string{
+					"rgw-store": "some-time",
+				},
+				cephConfigMap: map[string]string{
+					"global":                 "some-time",
+					"client.rgw.rgw.store.a": "some-time",
 				},
 			},
 			changed: true,
@@ -1008,6 +966,15 @@ func TestEnsureRgwObject(t *testing.T) {
 					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreWithZone},
 				},
 			},
+			newTimestamps: &updateTimestamps{
+				rgwSSLCert: map[string]string{
+					"rgw-store": "some-time",
+				},
+				cephConfigMap: map[string]string{
+					"global":                 "some-time",
+					"client.rgw.rgw.store.a": "some-time",
+				},
+			},
 			changed: true,
 		},
 		{
@@ -1018,21 +985,34 @@ func TestEnsureRgwObject(t *testing.T) {
 					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreWithZone.DeepCopy()},
 				},
 			},
+			newTimestamps: &updateTimestamps{
+				rgwSSLCert: map[string]string{
+					"rgw-store": "some-time",
+				},
+				cephConfigMap: map[string]string{
+					"global":                 "some-time",
+					"client.rgw.rgw.store.a": "some-time",
+				},
+			},
 		},
 		{
 			name:    "ensure rgw - multisite rgw with sync daemon created",
 			cephDpl: &unitinputs.MultisiteRgwWithSyncDaemon,
+			rgwIdx:  1,
 			inputResources: map[string]runtime.Object{
 				"cephobjectstores": unitinputs.CephObjectStoreListEmpty.DeepCopy(),
 			},
 			expectedResources: map[string]runtime.Object{
-				"cephobjectstores": &unitinputs.CephObjectStoreMultisiteSyncList,
+				"cephobjectstores": &cephv1.CephObjectStoreList{
+					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreWithSyncDaemon},
+				},
 			},
 			changed: true,
 		},
 		{
 			name:    "ensure rgw - multisite rgw with sync daemon updated",
 			cephDpl: &unitinputs.MultisiteRgwWithSyncDaemon,
+			rgwIdx:  1,
 			inputResources: map[string]runtime.Object{
 				"cephobjectstores": &cephv1.CephObjectStoreList{
 					Items: []cephv1.CephObjectStore{
@@ -1050,7 +1030,6 @@ func TestEnsureRgwObject(t *testing.T) {
 				},
 			},
 			newTimestamps: &updateTimestamps{
-				rgwSSLCert: "new-ssl-time",
 				cephConfigMap: map[string]string{
 					"global":                      "new-global-time",
 					"client.rgw.rgw.store.a":      "new-rgw-time",
@@ -1061,17 +1040,12 @@ func TestEnsureRgwObject(t *testing.T) {
 				"cephobjectstores": &cephv1.CephObjectStoreList{
 					Items: []cephv1.CephObjectStore{
 						func() cephv1.CephObjectStore {
-							rgw := unitinputs.CephObjectStoreWithZone.DeepCopy()
-							rgw.Spec.Gateway.DisableMultisiteSyncTraffic = true
-							rgw.Spec.Zone.Name = "secondary-zone1"
-							rgw.Spec.Gateway.Annotations["cephdeployment.lcm.mirantis.com/ssl-cert-generated"] = "new-ssl-time"
-							rgw.Spec.Gateway.Annotations["cephdeployment.lcm.mirantis.com/config-client.rgw.rgw.store.a-updated"] = "new-rgw-time"
-							rgw.Spec.Gateway.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "new-global-time"
-							return *rgw
+							store := unitinputs.CephObjectStoreWithZone.DeepCopy()
+							store.Spec.Zone.Name = "secondary-zone1"
+							return *store
 						}(),
 						func() cephv1.CephObjectStore {
 							rgw := unitinputs.CephObjectStoreWithSyncDaemon.DeepCopy()
-							rgw.Spec.Gateway.Annotations["cephdeployment.lcm.mirantis.com/ssl-cert-generated"] = "new-ssl-time"
 							rgw.Spec.Gateway.Annotations["cephdeployment.lcm.mirantis.com/config-client.rgw.rgw.store.sync.a-updated"] = "new-rgw-sync-time"
 							rgw.Spec.Gateway.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "new-global-time"
 							return *rgw
@@ -1084,14 +1058,20 @@ func TestEnsureRgwObject(t *testing.T) {
 		{
 			name:    "ensure rgw - multisite rgw with sync have no changes",
 			cephDpl: &unitinputs.MultisiteRgwWithSyncDaemon,
+			rgwIdx:  1,
 			inputResources: map[string]runtime.Object{
-				"cephobjectstores": &unitinputs.CephObjectStoreMultisiteSyncList,
+				"cephobjectstores": &cephv1.CephObjectStoreList{
+					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreWithSyncDaemon},
+				},
 			},
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephobjectstores"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "create", []string{"cephobjectstores"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "update", []string{"cephobjectstores"}, test.inputResources, test.apiErrors)
@@ -1102,7 +1082,6 @@ func TestEnsureRgwObject(t *testing.T) {
 				resourceUpdateTimestamps = *test.newTimestamps
 			} else {
 				resourceUpdateTimestamps = updateTimestamps{
-					rgwSSLCert: "some-time",
 					cephConfigMap: map[string]string{
 						"global":                      "some-time",
 						"client.rgw.rgw.store.a":      "some-time",
@@ -1111,15 +1090,15 @@ func TestEnsureRgwObject(t *testing.T) {
 				}
 			}
 
-			changed, err := c.ensureRgwObject()
+			changed, err := c.ensureRgwObject(test.rgwIdx)
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
 			} else {
 				assert.Nil(t, err)
 			}
-			assert.Equal(t, test.expectedResources, test.inputResources)
 			assert.Equal(t, test.changed, changed)
+			assert.Equal(t, test.expectedResources, test.inputResources)
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
 		})
@@ -1242,7 +1221,7 @@ func TestEnsureRgwResourcesUsers(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Rookclientset, "delete", []string{"cephobjectstoreusers"}, test.inputResources, test.apiErrors)
 			test.expectedResources = faketestclients.PrepareExpectedResources(test.inputResources, test.expectedResources)
 
-			changed, err := c.ensureRgwUsers()
+			changed, err := c.ensureRgwUsers("rgw-store")
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
@@ -1252,98 +1231,6 @@ func TestEnsureRgwResourcesUsers(t *testing.T) {
 			assert.Equal(t, test.expectedResources, test.inputResources)
 			assert.Equal(t, test.changed, changed)
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
-		})
-	}
-}
-
-func TestEnsureRgwResourcesBuckets(t *testing.T) {
-	tests := []struct {
-		name              string
-		inputResources    map[string]runtime.Object
-		apiErrors         map[string]error
-		expectedResources map[string]runtime.Object
-		changed           bool
-		expectedError     string
-	}{
-		{
-			name:           "ensure rgw buckets - list buckets failed",
-			inputResources: map[string]runtime.Object{},
-			expectedError:  "failed to list rgw buckets: failed to list objectbucketclaims",
-		},
-		{
-			name: "ensure rgw buckets - create failed, delete failed",
-			inputResources: map[string]runtime.Object{
-				"objectbucketclaims": &v1alpha1.ObjectBucketClaimList{
-					Items: []v1alpha1.ObjectBucketClaim{
-						{ObjectMeta: metav1.ObjectMeta{Namespace: "rook-ceph", Name: "bucket-1"}},
-					},
-				},
-			},
-			apiErrors: map[string]error{
-				"create-objectbucketclaims": errors.New("bucket create failed"),
-				"delete-objectbucketclaims": errors.New("bucket delete failed"),
-			},
-			expectedError: "failed to ensure rgw buckets, multiple errors during buckets ensure",
-		},
-		{
-			name: "ensure rgw buckets - create success, delete success",
-			inputResources: map[string]runtime.Object{
-				"objectbucketclaims": &v1alpha1.ObjectBucketClaimList{
-					Items: []v1alpha1.ObjectBucketClaim{
-						{ObjectMeta: metav1.ObjectMeta{Namespace: "rook-ceph", Name: "bucket-1"}},
-					},
-				},
-			},
-			expectedResources: map[string]runtime.Object{
-				"objectbucketclaims": &v1alpha1.ObjectBucketClaimList{
-					Items: []v1alpha1.ObjectBucketClaim{
-						*unitinputs.GetSimpleBucket("fake-bucket-1"), *unitinputs.GetSimpleBucket("fake-bucket-2"),
-					},
-				},
-			},
-			changed: true,
-		},
-		{
-			name: "ensure rgw buckets - some are not ready for update",
-			inputResources: map[string]runtime.Object{
-				"objectbucketclaims": &v1alpha1.ObjectBucketClaimList{
-					Items: []v1alpha1.ObjectBucketClaim{
-						*unitinputs.GetSimpleBucket("fake-bucket-1"),
-						func() v1alpha1.ObjectBucketClaim {
-							bucket := unitinputs.GetSimpleBucket("fake-bucket-2")
-							bucket.Status.Phase = v1alpha1.ObjectBucketClaimStatusPhasePending
-							return *bucket
-						}(),
-					},
-				},
-			},
-			expectedError: "failed to ensure rgw buckets: found not ready bucket rook-ceph/fake-bucket-2, waiting for readiness (current phase is Pending)",
-		},
-		{
-			name: "ensure rgw buckets - nothing to update",
-			inputResources: map[string]runtime.Object{
-				"objectbucketclaims": &unitinputs.CephRgwBucketsList,
-			},
-		},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: unitinputs.CephDeployNonMosk.DeepCopy()}, nil)
-			faketestclients.FakeReaction(c.api.Claimclientset, "list", []string{"objectbucketclaims"}, test.inputResources, nil)
-			faketestclients.FakeReaction(c.api.Claimclientset, "create", []string{"objectbucketclaims"}, test.inputResources, test.apiErrors)
-			faketestclients.FakeReaction(c.api.Claimclientset, "delete", []string{"objectbucketclaims"}, test.inputResources, test.apiErrors)
-			test.expectedResources = faketestclients.PrepareExpectedResources(test.inputResources, test.expectedResources)
-
-			changed, err := c.ensureRgwBuckets()
-			if test.expectedError != "" {
-				assert.NotNil(t, err)
-				assert.Equal(t, test.expectedError, err.Error())
-			} else {
-				assert.Nil(t, err)
-			}
-			assert.Equal(t, test.expectedResources, test.inputResources)
-			assert.Equal(t, test.changed, changed)
-			faketestclients.CleanupFakeClientReactions(c.api.Claimclientset)
 		})
 	}
 }
@@ -1525,13 +1412,16 @@ func TestEnsureExternalService(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.lcmConfig)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"services", "secrets"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "create", []string{"services"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "update", []string{"services"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "delete", []string{"services"}, test.inputResources, test.apiErrors)
 			test.expectedResources = faketestclients.PrepareExpectedResources(test.inputResources, test.expectedResources)
 
-			changed, err := c.ensureExternalService()
+			changed, err := c.ensureExternalService(0)
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
@@ -1545,12 +1435,15 @@ func TestEnsureExternalService(t *testing.T) {
 	}
 }
 
-func TestEnsureRgw(t *testing.T) {
+func TestEnsureRgwMain(t *testing.T) {
 	resourceUpdateTimestamps = updateTimestamps{
-		rgwSSLCert: "some-time",
+		rgwSSLCert: map[string]string{
+			"rgw-store": "new-time",
+		},
 		cephConfigMap: map[string]string{
-			"global":                 "some-time",
-			"client.rgw.rgw.store.a": "some-time",
+			"global":                      "some-time",
+			"client.rgw.rgw.store.a":      "some-time",
+			"client.rgw.rgw.store.sync.a": "some-time-sync",
 		},
 	}
 	tests := []struct {
@@ -1575,7 +1468,7 @@ func TestEnsureRgw(t *testing.T) {
 				"cephobjectstores": &cephv1.CephObjectStoreList{Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreBase}},
 			},
 			apiErrors:     map[string]error{"get-cephobjectstores": errors.New("get cephobjectstore failed")},
-			expectedError: "failed to ensure rgw: failed to get object store: get cephobjectstore failed",
+			expectedError: "error(s) during rgw ensure: failed to check rgw 'rgw-store' state",
 		},
 		{
 			name:    "ensure rgw - failed to ensure rgw secrets",
@@ -1585,7 +1478,7 @@ func TestEnsureRgw(t *testing.T) {
 				"cephobjectstores": unitinputs.CephObjectStoreListEmpty.DeepCopy(),
 			},
 			apiErrors:     map[string]error{"get-secrets": errors.New("get secret failed")},
-			expectedError: "failed to ensure rgw ssl cert: failed to get secret rook-ceph/rgw-ssl-certificate: get secret failed",
+			expectedError: "error(s) during rgw ensure: failed to ensure rgw ssl cert for rgw 'rgw-store'",
 		},
 		{
 			name:    "ensure rgw - failed to ensure rgw object",
@@ -1595,19 +1488,34 @@ func TestEnsureRgw(t *testing.T) {
 				"cephobjectstores": unitinputs.CephObjectStoreListEmpty.DeepCopy(),
 			},
 			apiErrors:     map[string]error{"create-cephobjectstores": errors.New("create cephobjectstore failed")},
-			expectedError: "failed to ensure rgw object store: failed to create rgw: create cephobjectstore failed",
+			expectedError: "error(s) during rgw ensure: failed to ensure rgw object store 'rgw-store'",
 		},
 		{
 			name:    "ensure rgw - failed to ensure rgw storageclass, users, buckets and external service",
 			cephDpl: &unitinputs.CephDeployNonMosk,
 			inputResources: map[string]runtime.Object{
 				"cephobjectstores": unitinputs.CephObjectStoreListEmpty.DeepCopy(),
-				"secrets":          &v1.SecretList{Items: []v1.Secret{*unitinputs.RgwSSLCertSecret.DeepCopy()}},
+				"secrets":          &v1.SecretList{},
 			},
 			expectedResources: map[string]runtime.Object{
-				"cephobjectstores": &cephv1.CephObjectStoreList{Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreBase}},
+				"cephobjectstores": &cephv1.CephObjectStoreList{Items: []cephv1.CephObjectStore{
+					func() cephv1.CephObjectStore {
+						store := unitinputs.CephObjectStoreBase.DeepCopy()
+						store.Spec.Gateway.Annotations["cephdeployment.lcm.mirantis.com/ssl-cert-generated"] = "test-4-time"
+						return *store
+					}(),
+				},
+				},
+				"secrets": &v1.SecretList{Items: []v1.Secret{
+					func() v1.Secret {
+						secret := unitinputs.RgwSSLCertSecretSelfSigned.DeepCopy()
+						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "test-4-time"}
+						return *secret
+					}(),
+				},
+				},
 			},
-			expectedError: "multiple errors during rgw ensure",
+			expectedError: "error(s) during rgw ensure: failed to ensure rgw 'rgw-store' storage class, failed to ensure rgw 'rgw-store' external service, failed to ensure rgw 'rgw-store' users",
 		},
 		{
 			name:    "ensure rgw - ensure rgw completed, all created",
@@ -1616,49 +1524,73 @@ func TestEnsureRgw(t *testing.T) {
 				"cephobjectstores":     unitinputs.CephObjectStoreListEmpty.DeepCopy(),
 				"cephobjectstoreusers": unitinputs.CephObjectStoreUserListEmpty.DeepCopy(),
 				"objectbucketclaims":   unitinputs.ObjectBucketClaimListEmpty.DeepCopy(),
-				"secrets":              &v1.SecretList{Items: []v1.Secret{*unitinputs.RgwSSLCertSecret.DeepCopy()}},
+				"secrets":              &v1.SecretList{Items: []v1.Secret{}},
 				"storageclasses":       unitinputs.StorageClassesListEmpty.DeepCopy(),
 				"services":             unitinputs.ServicesListEmpty.DeepCopy(),
 			},
 			expectedResources: map[string]runtime.Object{
-				"cephobjectstores": &cephv1.CephObjectStoreList{Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreBase}},
+				"cephobjectstores": &cephv1.CephObjectStoreList{Items: []cephv1.CephObjectStore{
+					func() cephv1.CephObjectStore {
+						store := unitinputs.CephObjectStoreBase.DeepCopy()
+						store.Spec.Gateway.Annotations["cephdeployment.lcm.mirantis.com/ssl-cert-generated"] = "test-5-time"
+						return *store
+					}(),
+				},
+				},
 				"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{
 					Items: []cephv1.CephObjectStoreUser{unitinputs.GetCephRgwUser("fake-user-1", "rook-ceph", "rgw-store"), unitinputs.GetCephRgwUser("fake-user-2", "rook-ceph", "rgw-store")},
 				},
-				"storageclasses":     &v1storage.StorageClassList{Items: []v1storage.StorageClass{unitinputs.RgwStorageClass}},
-				"services":           &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
-				"objectbucketclaims": &v1alpha1.ObjectBucketClaimList{Items: []v1alpha1.ObjectBucketClaim{*unitinputs.GetSimpleBucket("fake-bucket-1"), *unitinputs.GetSimpleBucket("fake-bucket-2")}},
+				"storageclasses": &v1storage.StorageClassList{Items: []v1storage.StorageClass{unitinputs.RgwStorageClass}},
+				"services":       &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
+				"secrets": &v1.SecretList{Items: []v1.Secret{
+					func() v1.Secret {
+						secret := unitinputs.RgwSSLCertSecretSelfSigned.DeepCopy()
+						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "test-5-time"}
+						return *secret
+					}(),
+				},
+				},
 			},
 			changed: true,
 		},
 		{
-			name:    "ensure rgw - ensure rgw, failed to check zone hostnames",
+			name:    "ensure rgw - ensure rgw, nothing to do",
 			cephDpl: &unitinputs.CephDeployNonMosk,
 			inputResources: map[string]runtime.Object{
 				"cephobjectstores":     unitinputs.CephObjectStoreBaseListReady.DeepCopy(),
 				"cephobjectstoreusers": unitinputs.CephRgwUsersList.DeepCopy(),
-				"objectbucketclaims":   unitinputs.CephRgwBucketsList.DeepCopy(),
-				"secrets":              &v1.SecretList{Items: []v1.Secret{*unitinputs.RgwSSLCertSecret.DeepCopy()}},
-				"storageclasses":       &v1storage.StorageClassList{Items: []v1storage.StorageClass{unitinputs.RgwStorageClass}},
-				"services":             &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
+				"secrets": &v1.SecretList{Items: []v1.Secret{
+					func() v1.Secret {
+						secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "some-time"}
+						return *secret
+					}(),
+				},
+				},
+				"storageclasses": &v1storage.StorageClassList{Items: []v1storage.StorageClass{unitinputs.RgwStorageClass}},
+				"services":       &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
 			},
-			expectedError: "failed to ensure rgw zonegroup hostnames: failed to get zonegroups info for cluster 'rook-ceph/cephcluster': failed to run command 'radosgw-admin zonegroup get --rgw-zonegroup=rgw-store --format json': failed to find pod to run command: no pods found matching criteria (label(s): 'app=pelagia-ceph-toolbox') in namespace 'rook-ceph'",
 		},
 		{
-			name: "ensure rgw - ensure rgw, nothing to do",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cd := unitinputs.CephDeployNonMosk.DeepCopy()
-				cd.Spec.ObjectStorage.Rgw.SkipAutoZoneGroupHostnameUpdate = true
-				return cd
-			}(),
+			name:    "ensure rgw - ensure rgw, external, all created",
+			cephDpl: unitinputs.CephDeployExternalRgw.DeepCopy(),
 			inputResources: map[string]runtime.Object{
-				"cephobjectstores":     unitinputs.CephObjectStoreBaseListReady.DeepCopy(),
-				"cephobjectstoreusers": unitinputs.CephRgwUsersList.DeepCopy(),
-				"objectbucketclaims":   unitinputs.CephRgwBucketsList.DeepCopy(),
-				"secrets":              &v1.SecretList{Items: []v1.Secret{*unitinputs.RgwSSLCertSecret.DeepCopy()}},
-				"storageclasses":       &v1storage.StorageClassList{Items: []v1storage.StorageClass{unitinputs.RgwStorageClass}},
-				"services":             &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{*unitinputs.RookCephRgwAdminSecret.DeepCopy()},
+				},
+				"cephobjectstoreusers": unitinputs.CephObjectStoreUserListEmpty.DeepCopy(),
+				"storageclasses":       &v1storage.StorageClassList{},
+				"cephobjectstores":     &cephv1.CephObjectStoreList{},
 			},
+			expectedResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{*unitinputs.RookCephRgwAdminSecret.DeepCopy()},
+				},
+				"cephobjectstoreusers": unitinputs.CephObjectStoreUserListEmpty.DeepCopy(),
+				"storageclasses":       &v1storage.StorageClassList{Items: []v1storage.StorageClass{unitinputs.RgwStorageClass}},
+				"cephobjectstores":     &cephv1.CephObjectStoreList{Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreExternal}},
+			},
+			changed: true,
 		},
 		{
 			name:    "ensure rgw - ensure rgw, external, nothing to do",
@@ -1668,26 +1600,56 @@ func TestEnsureRgw(t *testing.T) {
 					Items: []v1.Secret{*unitinputs.RgwSSLCertSecret.DeepCopy(), *unitinputs.RookCephRgwAdminSecret.DeepCopy()},
 				},
 				"cephobjectstoreusers": unitinputs.CephObjectStoreUserListEmpty.DeepCopy(),
-				"objectbucketclaims":   unitinputs.ObjectBucketClaimListEmpty.DeepCopy(),
 				"storageclasses":       &v1storage.StorageClassList{Items: []v1storage.StorageClass{unitinputs.RgwStorageClass}},
 				"cephobjectstores":     &cephv1.CephObjectStoreList{Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreExternal}},
 			},
 		},
 		{
-			name: "ensure rgw - ensure rgw, openstack, nothing to do",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cd := unitinputs.CephDeployMosk.DeepCopy()
-				cd.Spec.ObjectStorage.Rgw.SkipAutoZoneGroupHostnameUpdate = true
-				return cd
-			}(),
+			name:    "ensure rgw - ensure rgw, openstack, all created",
+			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
+			inputResources: map[string]runtime.Object{
+				"cephobjectstores":     &cephv1.CephObjectStoreList{},
+				"cephobjectstoreusers": unitinputs.CephObjectStoreUserListEmpty.DeepCopy(),
+				"secrets":              &v1.SecretList{},
+				"storageclasses":       &v1storage.StorageClassList{},
+				"services":             unitinputs.ServicesListEmpty.DeepCopy(),
+			},
+			expectedResources: map[string]runtime.Object{
+				"cephobjectstores": &cephv1.CephObjectStoreList{Items: []cephv1.CephObjectStore{
+					func() cephv1.CephObjectStore {
+						store := unitinputs.CephObjectStoreBase.DeepCopy()
+						store.Spec.Gateway.Annotations["cephdeployment.lcm.mirantis.com/ssl-cert-generated"] = "test-9-time"
+						return *store
+					}(),
+				},
+				},
+				"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{
+					Items: []cephv1.CephObjectStoreUser{unitinputs.RgwCeilometerUser},
+				},
+				"secrets": &v1.SecretList{Items: []v1.Secret{
+					func() v1.Secret {
+						secret := unitinputs.RgwSSLCertSecretSelfSigned.DeepCopy()
+						secret.Annotations = map[string]string{"cephdeployment.lcm.mirantis.com/ssl-cert-generated": "test-9-time"}
+						return *secret
+					}(),
+				}},
+				"storageclasses": &v1storage.StorageClassList{Items: []v1storage.StorageClass{unitinputs.RgwStorageClass}},
+				"services":       &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
+			},
+			changed: true,
+		},
+		{
+			name:    "ensure rgw - ensure rgw, openstack, nothing to do",
+			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
 			inputResources: map[string]runtime.Object{
 				"cephobjectstores":     unitinputs.CephObjectStoreBaseListReady.DeepCopy(),
 				"cephobjectstoreusers": unitinputs.CephObjectStoreUserListMetrics.DeepCopy(),
-				"objectbucketclaims":   unitinputs.ObjectBucketClaimListEmpty.DeepCopy(),
 				"secrets": &v1.SecretList{Items: []v1.Secret{
+					unitinputs.OpenstackRgwCredsSecret,
 					func() v1.Secret {
 						secret := unitinputs.RgwSSLCertSecret.DeepCopy()
-						secret.Data["cabundle"] = []byte(string(secret.Data["cabundle"]) + unitinputs.CephDeployMosk.Spec.IngressConfig.TLSConfig.TLSCerts.Cacert + "\n")
+						secret.Annotations = map[string]string{"cephdeployment.lcm.mirantis.com/ssl-cert-generated": "some-time"}
+						secret.Data["cabundle"] = []byte(string(secret.Data["cabundle"]) + string(unitinputs.OpenstackRgwCredsSecret.Data["ca_cert"]) + "\n")
 						return *secret
 					}(),
 				}},
@@ -1695,14 +1657,76 @@ func TestEnsureRgw(t *testing.T) {
 				"services":       unitinputs.ServicesListEmpty.DeepCopy(),
 			},
 		},
+		{
+			name:    "ensure rgw - multisite rgw with sync daemon created",
+			cephDpl: &unitinputs.MultisiteRgwWithSyncDaemon,
+			inputResources: map[string]runtime.Object{
+				"cephobjectstores":     unitinputs.CephObjectStoreListEmpty.DeepCopy(),
+				"cephobjectstoreusers": unitinputs.CephObjectStoreUserListEmpty.DeepCopy(),
+				"secrets":              &v1.SecretList{Items: []v1.Secret{unitinputs.MultisiteCabundleSecret}},
+				"storageclasses":       &v1storage.StorageClassList{},
+				"services":             unitinputs.ServicesListEmpty.DeepCopy(),
+			},
+			expectedResources: map[string]runtime.Object{
+				"cephobjectstores": &cephv1.CephObjectStoreList{
+					Items: []cephv1.CephObjectStore{
+						func() cephv1.CephObjectStore {
+							rgw := unitinputs.CephObjectStoreWithZone.DeepCopy()
+							rgw.Spec.Zone.Name = "secondary-zone1"
+							rgw.Spec.Gateway.DisableMultisiteSyncTraffic = true
+							rgw.Spec.Gateway.Annotations["cephdeployment.lcm.mirantis.com/ssl-cert-generated"] = "test-11-time"
+							return *rgw
+						}(),
+						*unitinputs.CephObjectStoreWithSyncDaemon,
+					},
+				},
+				"cephobjectstoreusers": unitinputs.CephObjectStoreUserListEmpty.DeepCopy(),
+				"secrets": &v1.SecretList{Items: []v1.Secret{
+					unitinputs.MultisiteCabundleSecret,
+					func() v1.Secret {
+						secret := unitinputs.RgwSSLCertSecretSelfSigned.DeepCopy()
+						secret.Annotations = map[string]string{"cephdeployment.lcm.mirantis.com/ssl-cert-generated": "test-11-time"}
+						return *secret
+					}(),
+				}},
+				"storageclasses": &v1storage.StorageClassList{Items: []v1storage.StorageClass{unitinputs.RgwStorageClass}},
+				"services":       &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
+			},
+			changed: true,
+		},
+		{
+			name:    "ensure rgw - multisite rgw with sync daemon, nothing to do",
+			cephDpl: &unitinputs.MultisiteRgwWithSyncDaemon,
+			inputResources: map[string]runtime.Object{
+				"cephobjectstores":     &unitinputs.CephObjectStoreMultisiteSyncList,
+				"cephobjectstoreusers": unitinputs.CephObjectStoreUserListEmpty.DeepCopy(),
+				"secrets": &v1.SecretList{Items: []v1.Secret{
+					unitinputs.MultisiteCabundleSecret,
+					func() v1.Secret {
+						secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+						secret.Annotations = map[string]string{"cephdeployment.lcm.mirantis.com/ssl-cert-generated": "some-time"}
+						return *secret
+					}(),
+				}},
+				"storageclasses": &v1storage.StorageClassList{Items: []v1storage.StorageClass{unitinputs.RgwStorageClass}},
+				"services":       &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
+			},
+		},
 	}
 	oldCrtFunc := lcmcommon.GenerateSelfSignedCert
-	for _, test := range tests {
+	for idx, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl.DeepCopy()}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
 			lcmcommon.GenerateSelfSignedCert = func(_, _ string, _ []string) (string, string, string, error) {
 				return "fake-key", "fake-crt", "fake-ca", nil
 			}
+			lcmcommon.GetCurrentTimeString = func() string {
+				return fmt.Sprintf("test-%d-time", idx)
+			}
+
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", []string{"cephobjectstores", "cephobjectstoreusers"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephobjectstores"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "create", []string{"cephobjectstores", "cephobjectstoreusers"}, test.inputResources, test.apiErrors)
@@ -1739,361 +1763,134 @@ func TestEnsureRgw(t *testing.T) {
 	lcmcommon.GenerateSelfSignedCert = oldCrtFunc
 }
 
-func TestEnsureRgwInternalSslCert(t *testing.T) {
+func TestEnsureRgwBackendSSLCert(t *testing.T) {
 	tests := []struct {
 		name                   string
-		cephDpl                *cephlcmv1alpha1.CephDeployment
+		certName               string
 		inputResources         map[string]runtime.Object
 		apiErrors              map[string]error
 		stateChanged           bool
-		multisiteSecretRef     string
 		expectedGenerationTime string
 		expectedResources      map[string]runtime.Object
 		expectedError          string
 	}{
 		{
-			name:    "failed to get openstack shared secret",
-			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
+			name:     "failed to get rgw ssl secret when it should be present",
+			certName: "rgw-store-ssl-cert",
 			inputResources: map[string]runtime.Object{
 				"secrets": unitinputs.SecretsListEmpty.DeepCopy(),
 			},
-			apiErrors:     map[string]error{"get-secrets-openstack-rgw-creds": errors.New("failed to get openstack-rgw-creds secret")},
-			expectedError: "failed to get rgw creds secret openstack-ceph-shared/openstack-rgw-creds: failed to get openstack-rgw-creds secret",
+			apiErrors:     map[string]error{"get-secrets-rgw-store-ssl-cert": errors.New("failed to get rgw-store-ssl-cert secret")},
+			expectedError: "failed to get secret rook-ceph/rgw-store-ssl-cert: failed to get rgw-store-ssl-cert secret",
 		},
 		{
-			name:    "failed to get rgw ssl secret",
-			cephDpl: unitinputs.CephDeployNonMosk.DeepCopy(),
-			inputResources: map[string]runtime.Object{
-				"secrets": unitinputs.SecretsListEmpty.DeepCopy(),
-			},
-			apiErrors:     map[string]error{"get-secrets-rgw-ssl-certificate": errors.New("failed to get rgw-ssl-certificate secret")},
-			expectedError: "failed to get secret rook-ceph/rgw-ssl-certificate: failed to get rgw-ssl-certificate secret",
-		},
-		{
-			name:    "rgw ssl secret present no annotation and no in memory and no update required",
-			cephDpl: unitinputs.CephDeployNonMosk.DeepCopy(),
-			inputResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{Items: []v1.Secret{*unitinputs.RgwSSLCertSecret.DeepCopy()}},
-			},
-		},
-		{
-			name:    "rgw ssl secret present with ssl cert annotation and no update required",
-			cephDpl: unitinputs.CephDeployNonMosk.DeepCopy(),
-			inputResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{Items: []v1.Secret{
-					func() v1.Secret {
-						sc := unitinputs.RgwSSLCertSecret.DeepCopy()
-						sc.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-prev-time"}
-						return *sc
-					}(),
-				}}},
-			expectedGenerationTime: "a-prev-time",
-		},
-		{
-			name:    "rgw ssl secret present and openstack ca updated",
-			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
-			inputResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{
-					Items: []v1.Secret{
-						*unitinputs.OpenstackRgwCredsSecret.DeepCopy(),
-						*unitinputs.RgwSSLCertSecret.DeepCopy(),
-					},
-				},
-			},
-			expectedResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{Items: []v1.Secret{
-					*unitinputs.OpenstackRgwCredsSecret.DeepCopy(),
-					func() v1.Secret {
-						secret := unitinputs.RgwSSLCertSecret.DeepCopy()
-						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-4-time"}
-						secret.Data["cabundle"] = []byte(unitinputs.RgwCaCert + "\n" + unitinputs.OpenstackCaCert + "\n")
-						return *secret
-					}(),
-				},
-				},
-			},
-			expectedGenerationTime: "a-test-4-time",
-			stateChanged:           true,
-		},
-		{
-			name: "rgw ssl secret from spec failed to validate",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployNonMosk.DeepCopy()
-				mc.Spec.ObjectStorage.Rgw.SSLCert = &cephlcmv1alpha1.CephDeploymentCert{
-					TLSKey:  "fake",
-					TLSCert: "fake",
-					Cacert:  "fake",
-				}
-				return mc
-			}(),
-			inputResources: map[string]runtime.Object{
-				"secrets": unitinputs.SecretsListEmpty.DeepCopy(),
-			},
-			expectedGenerationTime: "a-test-4-time",
-			expectedError:          "ssl verification failed for provided rgw ssl certs in spec: pem block in cacert is not found",
-		},
-		{
-			name: "rgw ssl secret updated in ceph spec",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployNonMosk.DeepCopy()
-				mc.Spec.ObjectStorage.Rgw.SSLCert = &cephlcmv1alpha1.CephDeploymentCert{
-					TLSKey:  unitinputs.OpenstackTLSKey,
-					TLSCert: unitinputs.OpenstackTLSCert,
-					Cacert:  unitinputs.OpenstackCaCert,
-				}
-				return mc
-			}(),
-			inputResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{Items: []v1.Secret{*unitinputs.RgwSSLCertSecret.DeepCopy()}},
-			},
-			expectedResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{Items: []v1.Secret{
-					func() v1.Secret {
-						secret := unitinputs.RgwSSLCertSecret.DeepCopy()
-						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-6-time"}
-						secret.Data["cert"] = []byte(unitinputs.OpenstackTLSKey + "\n" + unitinputs.OpenstackTLSCert + "\n" + unitinputs.OpenstackCaCert)
-						secret.Data["cacert"] = []byte(unitinputs.OpenstackCaCert)
-						secret.Data["cabundle"] = []byte(unitinputs.OpenstackCaCert + "\n")
-						return *secret
-					}(),
-				},
-				}},
-			expectedGenerationTime: "a-test-6-time",
-			stateChanged:           true,
-		},
-		{
-			name:    "rgw ssl secret self-signed created",
-			cephDpl: unitinputs.CephDeployNonMosk.DeepCopy(),
-			inputResources: map[string]runtime.Object{
-				"secrets": unitinputs.SecretsListEmpty.DeepCopy(),
-			},
-			expectedResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{Items: []v1.Secret{
-					func() v1.Secret {
-						secret := unitinputs.RgwSSLCertSecret.DeepCopy()
-						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-7-time"}
-						secret.Data = unitinputs.RgwSSLCertSecretSelfSigned.Data
-						return *secret
-					}(),
-				}},
-			},
-			expectedGenerationTime: "a-test-7-time",
-			stateChanged:           true,
-		},
-		{
-			name:    "rgw ssl secret renewed",
-			cephDpl: unitinputs.CephDeployNonMosk.DeepCopy(),
+			name:     "rgw ssl secret is specified in secret directly, verification failed",
+			certName: "rgw-store-ssl-cert",
 			inputResources: map[string]runtime.Object{
 				"secrets": &v1.SecretList{Items: []v1.Secret{*unitinputs.RgwSSLCertExpiredSecret.DeepCopy()}},
 			},
-			expectedResources: map[string]runtime.Object{
+			expectedError: "ssl verification failed for rgw 'rgw-store' ssl certs provided in 'rgw-store-ssl-cert' secret, update manually: pkg cacert is expired",
+		},
+		{
+			name:     "rgw ssl secret is specified in secret directly, but secret has incorrect data",
+			certName: "rgw-store-ssl-cert",
+			inputResources: map[string]runtime.Object{
 				"secrets": &v1.SecretList{Items: []v1.Secret{
 					func() v1.Secret {
 						secret := unitinputs.RgwSSLCertSecret.DeepCopy()
-						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-8-time"}
-						secret.Data = unitinputs.RgwSSLCertSecretSelfSigned.Data
+						secret.Data = nil
 						return *secret
 					}(),
 				}},
 			},
-			expectedGenerationTime: "a-test-8-time",
-			stateChanged:           true,
+			expectedError: "rgw 'rgw-store' ssl certs provided in 'rgw-store-ssl-cert' secret has no required 'cert' and 'cacert' fields",
 		},
 		{
-			name:    "failed to get multisite cabundle ssl secret",
-			cephDpl: unitinputs.CephDeployNonMosk.DeepCopy(),
+			name:     "rgw ssl secret is specified in secret directly, nothing to do",
+			certName: "rgw-store-ssl-cert",
 			inputResources: map[string]runtime.Object{
 				"secrets": &v1.SecretList{Items: []v1.Secret{*unitinputs.RgwSSLCertSecret.DeepCopy()}},
 			},
-			multisiteSecretRef:     "extra-rook-ceph-cabundle",
-			apiErrors:              map[string]error{"get-secrets-extra-rook-ceph-cabundle": errors.New("failed to get extra-rook-ceph-cabundle secret")},
-			expectedGenerationTime: "a-test-8-time",
-			expectedError:          "failed to get multisite cabundle secret rook-ceph/extra-rook-ceph-cabundle: failed to get extra-rook-ceph-cabundle secret",
 		},
 		{
-			name:    "rgw ssl secret present, multisite cabundle present updated",
-			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
+			name: "rgw ssl secret self-signed created",
 			inputResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.MultisiteCabundleSecret, *unitinputs.RgwSSLCertSecret.DeepCopy()}},
+				"secrets": unitinputs.SecretsListEmpty.DeepCopy(),
 			},
-			multisiteSecretRef: "extra-rook-ceph-cabundle",
 			expectedResources: map[string]runtime.Object{
 				"secrets": &v1.SecretList{Items: []v1.Secret{
-					unitinputs.MultisiteCabundleSecret,
 					func() v1.Secret {
-						secret := unitinputs.RgwSSLCertSecret.DeepCopy()
-						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-10-time"}
-						secret.Data["cabundle"] = []byte(unitinputs.RgwCaCert + "\n" + "fake-extra-cabundle\n")
+						secret := unitinputs.RgwSSLCertSecretSelfSigned.DeepCopy()
+						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-4-time"}
+						delete(secret.Data, "cabundle")
 						return *secret
 					}(),
 				}},
 			},
-			expectedGenerationTime: "a-test-10-time",
+			expectedGenerationTime: "a-test-4-time",
 			stateChanged:           true,
 		},
 		{
-			name:    "rgw ssl secret present, multisite cabundle is not specified",
-			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
-			inputResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{
-					Items: []v1.Secret{
-						func() v1.Secret {
-							s := unitinputs.MultisiteCabundleSecret.DeepCopy()
-							s.Data["cabundle"] = nil
-							return *s
-						}(),
-						*unitinputs.RgwSSLCertSecret.DeepCopy(),
-					},
-				}},
-			multisiteSecretRef:     "extra-rook-ceph-cabundle",
-			expectedGenerationTime: "a-test-10-time",
-			expectedError:          "multisite cabundle secret rook-ceph/extra-rook-ceph-cabundle has no provided 'cabundle' or empty",
-		},
-		{
-			name:    "rgw ssl secret self-signed create failed",
-			cephDpl: unitinputs.CephDeployNonMosk.DeepCopy(),
+			name: "rgw ssl secret self-signed create failed",
 			inputResources: map[string]runtime.Object{
 				"secrets": unitinputs.SecretsListEmpty.DeepCopy(),
 			},
 			apiErrors:              map[string]error{"create-secrets": errors.New("failed to create secret")},
-			expectedGenerationTime: "a-test-10-time",
+			expectedGenerationTime: "a-test-4-time",
 			expectedError:          "failed to create rgw ssl cert secret: failed to create secret",
 		},
 		{
-			name:    "rgw ssl secret renew failed",
-			cephDpl: unitinputs.CephDeployNonMosk.DeepCopy(),
+			name: "rgw ssl secret self-generated renewed",
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{*unitinputs.RgwSSLCertExpiredSecret.DeepCopy()}},
+			},
+			expectedResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{
+					func() v1.Secret {
+						secret := unitinputs.RgwSSLCertSecretSelfSigned.DeepCopy()
+						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-6-time"}
+						secret.Data["cabundle"] = unitinputs.RgwSSLCertExpiredSecret.Data["cabundle"]
+						return *secret
+					}(),
+				}},
+			},
+			expectedGenerationTime: "a-test-6-time",
+			stateChanged:           true,
+		},
+		{
+			name: "rgw ssl secret self-generated renew failed",
 			inputResources: map[string]runtime.Object{
 				"secrets": &v1.SecretList{Items: []v1.Secret{*unitinputs.RgwSSLCertExpiredSecret.DeepCopy()}},
 			},
 			apiErrors:              map[string]error{"update-secrets": errors.New("failed to update secret")},
-			expectedGenerationTime: "a-test-10-time",
+			expectedGenerationTime: "a-test-6-time",
 			expectedError:          "failed to update rgw ssl cert secret: failed to update secret",
 		},
 		{
-			name: "rgw ssl secret is specified in secret directly, verification failed",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployNonMosk.DeepCopy()
-				mc.Spec.ObjectStorage.Rgw.SSLCertInRef = true
-				return mc
-			}(),
+			name: "rgw ssl secret self-generated nothing to do",
 			inputResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{Items: []v1.Secret{*unitinputs.RgwSSLCertExpiredSecret.DeepCopy()}},
-			},
-			expectedGenerationTime: "a-test-10-time",
-			expectedError:          "ssl verification failed for rgw ssl certs provided in 'rgw-ssl-certificate' secret, update manually: pkg cacert is expired",
-		},
-		{
-			name: "rgw ssl secret is specified in secret directly, cabundle updated",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployNonMosk.DeepCopy()
-				mc.Spec.ObjectStorage.Rgw.SSLCertInRef = true
-				return mc
-			}(),
-			inputResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.MultisiteCabundleSecret, *unitinputs.RgwSSLCertSecret.DeepCopy()}},
-			},
-			multisiteSecretRef: "extra-rook-ceph-cabundle",
-			expectedResources: map[string]runtime.Object{
 				"secrets": &v1.SecretList{Items: []v1.Secret{
-					unitinputs.MultisiteCabundleSecret,
 					func() v1.Secret {
 						secret := unitinputs.RgwSSLCertSecret.DeepCopy()
-						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-15-time"}
-						secret.Data["cabundle"] = []byte(unitinputs.RgwCaCert + "\n" + "fake-extra-cabundle\n")
+						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-6-time"}
 						return *secret
 					}(),
 				}},
 			},
-			expectedGenerationTime: "a-test-15-time",
-			stateChanged:           true,
+			expectedGenerationTime: "a-test-6-time",
 		},
 		{
-			name: "failed to get ingress secret",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMosk.DeepCopy()
-				mc.Spec.IngressConfig.TLSConfig.TLSCerts = nil
-				mc.Spec.IngressConfig.TLSConfig.TLSSecretRefName = "rgw-store-ingress-secret"
-				return mc
-			}(),
+			name: "rgw ssl secret self-generated, nothing to do, but update timing in memory",
 			inputResources: map[string]runtime.Object{
-				"secrets": unitinputs.SecretsListEmpty.DeepCopy(),
-			},
-			expectedGenerationTime: "a-test-15-time",
-			expectedError:          "failed to get ingress secret rook-ceph/rgw-store-ingress-secret: secrets \"rgw-store-ingress-secret\" not found",
-		},
-		{
-			name: "rgw ssl cert with ingress cabundle by ref, created",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMosk.DeepCopy()
-				mc.Spec.IngressConfig.TLSConfig.TLSCerts = nil
-				mc.Spec.IngressConfig.TLSConfig.TLSSecretRefName = "rgw-store-ingress-secret"
-				return mc
-			}(),
-			inputResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.IngressRuleSecretCustom}},
-			},
-			expectedResources: map[string]runtime.Object{
 				"secrets": &v1.SecretList{Items: []v1.Secret{
-					unitinputs.IngressRuleSecretCustom,
 					func() v1.Secret {
 						secret := unitinputs.RgwSSLCertSecret.DeepCopy()
-						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-17-time"}
-						secret.Data["cabundle"] = []byte("fake-ca" + "\n" + "spec-cacert\n")
-						secret.Data["cacert"] = []byte("fake-ca")
-						secret.Data["cert"] = []byte("fake-keyfake-crtfake-ca")
+						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "secret-timing"}
 						return *secret
 					}(),
 				}},
 			},
-			stateChanged:           true,
-			expectedGenerationTime: "a-test-17-time",
-		},
-		{
-			name:    "rgw ssl cert with ingress cabundle from spec, created",
-			cephDpl: &unitinputs.CephDeployMosk,
-			inputResources: map[string]runtime.Object{
-				"secrets": unitinputs.SecretsListEmpty.DeepCopy(),
-			},
-			expectedResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{Items: []v1.Secret{
-					func() v1.Secret {
-						secret := unitinputs.RgwSSLCertSecret.DeepCopy()
-						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-18-time"}
-						secret.Data["cabundle"] = []byte("fake-ca" + "\n" + "spec-cacert\n")
-						secret.Data["cacert"] = []byte("fake-ca")
-						secret.Data["cert"] = []byte("fake-keyfake-crtfake-ca")
-						return *secret
-					}(),
-				}},
-			},
-			stateChanged:           true,
-			expectedGenerationTime: "a-test-18-time",
-		},
-		{
-			name: "rgw ssl cert with ingress empty cert, openstack cabundle, created",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMosk.DeepCopy()
-				mc.Spec.IngressConfig.TLSConfig.TLSCerts = nil
-				return mc
-			}(),
-			inputResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.OpenstackRgwCredsSecret}},
-			},
-			expectedResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{Items: []v1.Secret{
-					unitinputs.OpenstackRgwCredsSecret,
-					func() v1.Secret {
-						secret := unitinputs.RgwSSLCertSecret.DeepCopy()
-						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-19-time"}
-						secret.Data["cabundle"] = []byte("fake-ca" + "\n" + unitinputs.OpenstackCaCert + "\n")
-						secret.Data["cacert"] = []byte("fake-ca")
-						secret.Data["cert"] = []byte("fake-keyfake-crtfake-ca")
-						return *secret
-					}(),
-				}},
-			},
-			stateChanged:           true,
-			expectedGenerationTime: "a-test-19-time",
+			expectedGenerationTime: "secret-timing",
 		},
 	}
 
@@ -2101,8 +1898,12 @@ func TestEnsureRgwInternalSslCert(t *testing.T) {
 	oldCurrentTimeFunc := lcmcommon.GetCurrentTimeString
 	for idx, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, map[string]string{"DEPLOYMENT_MULTISITE_CABUNDLE_SECRET": test.multisiteSecretRef})
+			c := fakeDeploymentConfig(nil, nil)
+
 			lcmcommon.GenerateSelfSignedCert = func(_, _ string, _ []string) (string, string, string, error) {
+				if _, ok := test.apiErrors["ssl-cert"]; ok {
+					return "", "", "", errors.New("failed to generate ssl certificate")
+				}
 				return "fake-key", "fake-crt", "fake-ca", nil
 			}
 
@@ -2120,7 +1921,8 @@ func TestEnsureRgwInternalSslCert(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "update", []string{"secrets"}, test.inputResources, test.apiErrors)
 			test.expectedResources = faketestclients.PrepareExpectedResources(test.inputResources, test.expectedResources)
 
-			changed, err := c.ensureRgwInternalSslCert()
+			rgwName := "rgw-store"
+			changed, err := c.ensureRgwBackendSSLCert(rgwName, test.certName)
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
@@ -2128,7 +1930,7 @@ func TestEnsureRgwInternalSslCert(t *testing.T) {
 				assert.Nil(t, err)
 			}
 			assert.Equal(t, test.stateChanged, changed)
-			assert.Equal(t, test.expectedGenerationTime, resourceUpdateTimestamps.rgwSSLCert)
+			assert.Equal(t, test.expectedGenerationTime, resourceUpdateTimestamps.rgwSSLCert[rgwName])
 			assert.Equal(t, test.expectedResources, test.inputResources)
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
 		})
@@ -2139,241 +1941,629 @@ func TestEnsureRgwInternalSslCert(t *testing.T) {
 	unsetTimestampsVar()
 }
 
-func TestDeleteRgwInternalSslCert(t *testing.T) {
-	resourceUpdateTimestamps = updateTimestamps{rgwSSLCert: "some-time"}
-	inputResources := map[string]runtime.Object{
-		"secrets": &v1.SecretList{Items: []v1.Secret{*unitinputs.RgwSSLCertSecret.DeepCopy()}},
-	}
+func TestEnsureRgwCaBundleCert(t *testing.T) {
 	tests := []struct {
-		name          string
-		deleted       bool
-		apiErrors     map[string]error
-		expectedError string
+		name                   string
+		cephDpl                *cephlcmv1alpha1.CephDeployment
+		rgwIdx                 int
+		inputResources         map[string]runtime.Object
+		apiErrors              map[string]error
+		stateChanged           bool
+		expectedGenerationTime string
+		expectedResources      map[string]runtime.Object
+		expectedError          string
 	}{
 		{
-			name:          "delete rgw pkg ssl cert - failed",
-			apiErrors:     map[string]error{"delete-secrets": errors.New("secret delete failed")},
-			expectedError: "failed to delete rgw ssl cert secret rook-ceph/rgw-ssl-certificate: secret delete failed",
+			name:    "rgw cabundle required, but failed to get",
+			cephDpl: unitinputs.MultisiteRgwWithSyncDaemon.DeepCopy(),
+			rgwIdx:  1,
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{}},
+			},
+			expectedError: "failed to get secret 'rook-ceph/multisite-rgw-secret' with cabundle: secrets \"multisite-rgw-secret\" not found",
 		},
 		{
-			name: "delete rgw pkg ssl cert - in progress",
+			name:    "rgw cabundle required, but has no required data",
+			cephDpl: unitinputs.MultisiteRgwWithSyncDaemon.DeepCopy(),
+			rgwIdx:  1,
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{
+					func() v1.Secret {
+						secret := unitinputs.MultisiteCabundleSecret.DeepCopy()
+						delete(secret.Data, "cabundle")
+						return *secret
+					}(),
+				}},
+			},
+			expectedError: "rgw 'rgw-store-sync' secret 'rook-ceph/multisite-rgw-secret' used for as cabundle has no required field 'cabundle'",
 		},
 		{
-			name:    "delete rgw pkg ssl cert - success",
-			deleted: true,
+			name:    "rgw cabundle required and ok",
+			rgwIdx:  1,
+			cephDpl: unitinputs.MultisiteRgwWithSyncDaemon.DeepCopy(),
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.MultisiteCabundleSecret}},
+			},
+		},
+		{
+			name: "failed to get ingress ssl secret",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				dpl := unitinputs.CephDeployMosk.DeepCopy()
+				dpl.Spec.IngressConfig.TLSConfig.TLSCerts = nil
+				dpl.Spec.IngressConfig.TLSConfig.TLSSecretRefName = "rgw-store-ingress-secret"
+				return dpl
+			}(),
+			inputResources: map[string]runtime.Object{
+				"secrets": unitinputs.SecretsListEmpty.DeepCopy(),
+			},
+			expectedError: "failed to get ingress secret 'rook-ceph/rgw-store-ingress-secret': secrets \"rgw-store-ingress-secret\" not found",
+		},
+		{
+			name: "cabundle created from ingress ssl secret",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				dpl := unitinputs.CephDeployMosk.DeepCopy()
+				dpl.Spec.IngressConfig.TLSConfig.TLSCerts = nil
+				dpl.Spec.IngressConfig.TLSConfig.TLSSecretRefName = "rgw-store-ingress-secret"
+				return dpl
+			}(),
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.IngressRuleSecret}},
+			},
+			expectedResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{
+						unitinputs.IngressRuleSecret,
+						func() v1.Secret {
+							secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+							secret.Labels = nil
+							secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-4-time"}
+							secret.Data = map[string][]byte{
+								"cabundle": append(unitinputs.IngressRuleSecret.Data["ca.crt"], []byte("\n")...),
+							}
+							return *secret
+						}(),
+					},
+				},
+			},
+			expectedGenerationTime: "a-test-4-time",
+			stateChanged:           true,
+		},
+		{
+			name: "cabundle updating from base and ingress ssl secret",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				dpl := unitinputs.CephDeployMosk.DeepCopy()
+				dpl.Spec.IngressConfig.TLSConfig.TLSCerts = nil
+				dpl.Spec.IngressConfig.TLSConfig.TLSSecretRefName = "rgw-store-ingress-secret"
+				return dpl
+			}(),
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.IngressRuleSecret, unitinputs.RgwSSLCertSecret}},
+			},
+			expectedResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{
+						unitinputs.IngressRuleSecret,
+						func() v1.Secret {
+							secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+							secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-5-time"}
+							caBundle := string(unitinputs.RgwSSLCertSecret.Data["cacert"]) + "\n" + string(unitinputs.IngressRuleSecret.Data["ca.crt"]) + "\n"
+							secret.Data["cabundle"] = []byte(caBundle)
+							return *secret
+						}(),
+					},
+				},
+			},
+			expectedGenerationTime: "a-test-5-time",
+			stateChanged:           true,
+		},
+		{
+			name: "cabundle from base and ingress ssl secret nothing to do",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				dpl := unitinputs.CephDeployMosk.DeepCopy()
+				dpl.Spec.IngressConfig.TLSConfig.TLSCerts = nil
+				dpl.Spec.IngressConfig.TLSConfig.TLSSecretRefName = "rgw-store-ingress-secret"
+				return dpl
+			}(),
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{
+						unitinputs.IngressRuleSecret,
+						func() v1.Secret {
+							secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+							secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-5-time"}
+							caBundle := string(unitinputs.RgwSSLCertSecret.Data["cacert"]) + "\n" + string(unitinputs.IngressRuleSecret.Data["ca.crt"]) + "\n"
+							secret.Data["cabundle"] = []byte(caBundle)
+							return *secret
+						}(),
+					},
+				},
+			},
+			expectedGenerationTime: "a-test-5-time",
+		},
+		{
+			name:    "cabundle created from ingress in-spec ssl secret",
+			cephDpl: &unitinputs.CephDeployMosk,
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{}},
+			},
+			expectedResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{
+						func() v1.Secret {
+							secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+							secret.Labels = nil
+							secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-7-time"}
+							secret.Data = map[string][]byte{"cabundle": []byte("spec-cacert\n")}
+							return *secret
+						}(),
+					},
+				},
+			},
+			expectedGenerationTime: "a-test-7-time",
+			stateChanged:           true,
+		},
+		{
+			name:    "cabundle created from mosk ssl secret, but it is not present, no base ssl, skipping",
+			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{}},
+			},
+			expectedGenerationTime: "a-test-7-time",
+		},
+		{
+			name:    "cabundle created from mosk ssl secret, but failed to get",
+			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{}},
+			},
+			apiErrors:              map[string]error{"get-secrets-openstack-rgw-creds": errors.New("failed to get openstack-rgw-creds secret")},
+			expectedGenerationTime: "a-test-7-time",
+			expectedError:          "failed to get rgw creds secret 'openstack-ceph-shared/openstack-rgw-creds': failed to get openstack-rgw-creds secret",
+		},
+		{
+			name:    "cabundle created from mosk ssl secret",
+			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.OpenstackRgwCredsSecret}},
+			},
+			expectedResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{
+						unitinputs.OpenstackRgwCredsSecret,
+						func() v1.Secret {
+							secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+							secret.Labels = nil
+							secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-10-time"}
+							secret.Data = map[string][]byte{"cabundle": []byte(unitinputs.OpenstackCaCert + "\n")}
+							return *secret
+						}(),
+					},
+				},
+			},
+			stateChanged:           true,
+			expectedGenerationTime: "a-test-10-time",
+		},
+		{
+			name:    "cabundle nothing to do for mosk ssl secret",
+			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{
+						unitinputs.OpenstackRgwCredsSecret,
+						func() v1.Secret {
+							secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+							secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-10-time"}
+							secret.Data = map[string][]byte{"cabundle": []byte(unitinputs.OpenstackCaCert + "\n")}
+							return *secret
+						}(),
+					},
+				},
+			},
+			expectedGenerationTime: "a-test-10-time",
+		},
+		{
+			name:    "cabundle create failed",
+			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.OpenstackRgwCredsSecret}},
+			},
+			apiErrors:              map[string]error{"create-secrets": errors.New("failed to create secret")},
+			expectedGenerationTime: "a-test-10-time",
+			expectedError:          "failed to create rgw cabundle cert secret: failed to create secret",
+		},
+		{
+			name:    "cabundle create failed, failed to check base secret",
+			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.OpenstackRgwCredsSecret}},
+			},
+			apiErrors:              map[string]error{"get-secrets-rgw-store-ssl-cert": errors.New("failed to get rgw-store-ssl-cert secret")},
+			expectedGenerationTime: "a-test-10-time",
+			expectedError:          "failed to get secret 'rook-ceph/rgw-store-ssl-cert': failed to get rgw-store-ssl-cert secret",
+		},
+		{
+			name: "cabundle create failed, base secret is not present when it specified",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				dpl := unitinputs.CephDeployMoskWithoutIngress.DeepCopy()
+				rgwCasted, _ := dpl.Spec.ObjectStorage.Rgws[0].GetSpec()
+				rgwCasted.Gateway.SSLCertificateRef = "some-secret"
+				dpl.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCasted)
+				return dpl
+			}(),
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.OpenstackRgwCredsSecret}},
+			},
+			expectedGenerationTime: "a-test-10-time",
+			expectedError:          "failed to get secret 'rook-ceph/some-secret': secrets \"some-secret\" not found",
+		},
+		{
+			name: "cabundle created, base secret is present and it specified",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				dpl := unitinputs.MultisiteRgwWithSyncDaemon.DeepCopy()
+				rgwCasted, _ := dpl.Spec.ObjectStorage.Rgws[0].GetSpec()
+				rgwCasted.Gateway.SSLCertificateRef = "rgw-store-ssl-cert"
+				dpl.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCasted)
+				return dpl
+			}(),
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{
+						func() v1.Secret {
+							secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+							delete(secret.Data, "cabundle")
+							return *secret
+						}(),
+					},
+				},
+			},
+			expectedResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{
+						func() v1.Secret {
+							secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+							secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-15-time"}
+							return *secret
+						}(),
+					},
+				},
+			},
+			stateChanged:           true,
+			expectedGenerationTime: "a-test-15-time",
+		},
+		{
+			name: "cabundle nothing to do, base secret is present and it specified",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				dpl := unitinputs.MultisiteRgwWithSyncDaemon.DeepCopy()
+				rgwCasted, _ := dpl.Spec.ObjectStorage.Rgws[0].GetSpec()
+				rgwCasted.Gateway.SSLCertificateRef = "rgw-store-ssl-cert"
+				dpl.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCasted)
+				return dpl
+			}(),
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{unitinputs.RgwSSLCertSecret},
+				},
+			},
+			expectedResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{unitinputs.RgwSSLCertSecret},
+				},
+			},
+		},
+		{
+			name:    "cabundle created only from base default cert",
+			cephDpl: &unitinputs.MultisiteRgwWithSyncDaemon,
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{
+						func() v1.Secret {
+							secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+							delete(secret.Data, "cabundle")
+							return *secret
+						}(),
+					},
+				},
+			},
+			expectedResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{
+						func() v1.Secret {
+							secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+							secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-17-time"}
+							return *secret
+						}(),
+					},
+				},
+			},
+			stateChanged:           true,
+			expectedGenerationTime: "a-test-17-time",
+		},
+		{
+			name:    "cabundle failed to create, base default cert corrupted",
+			cephDpl: &unitinputs.MultisiteRgwWithSyncDaemon,
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{
+						func() v1.Secret {
+							secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+							delete(secret.Data, "cacert")
+							delete(secret.Data, "cabundle")
+							return *secret
+						}(),
+					},
+				},
+			},
+			expectedError:          "rgw 'rgw-store' seems to be must have cabundle, but it is not found",
+			expectedGenerationTime: "a-test-17-time",
 		},
 	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(nil, nil)
-			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "delete", []string{"secrets"}, inputResources, test.apiErrors)
 
-			deleted, err := c.deleteRgwInternalSslCert()
+	oldGenerateCertFunc := lcmcommon.GenerateSelfSignedCert
+	oldCurrentTimeFunc := lcmcommon.GetCurrentTimeString
+	for idx, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+
+			// test global var resourceUpdateTimestamps.RgwSSLCert is updated correctly
+			// after each test run, it should be non-set if create/update is not happened
+			// or existing cert has no annotation, should be set if create/update happened
+			// or existing cert has annotation, and should not be changed in next test if no
+			// create/update happened
+			lcmcommon.GetCurrentTimeString = func() string {
+				return fmt.Sprintf("a-test-%d-time", idx)
+			}
+
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"secrets"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "create", []string{"secrets"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "update", []string{"secrets"}, test.inputResources, test.apiErrors)
+			test.expectedResources = faketestclients.PrepareExpectedResources(test.inputResources, test.expectedResources)
+
+			rgwName := test.cephDpl.Spec.ObjectStorage.Rgws[test.rgwIdx].Name
+			rgwCasted, _ := test.cephDpl.Spec.ObjectStorage.Rgws[test.rgwIdx].GetSpec()
+			ingress := test.cephDpl.Spec.ObjectStorage.Rgws[test.rgwIdx].ServedByIngress
+			rockoon := test.cephDpl.Spec.ObjectStorage.Rgws[test.rgwIdx].UsedByRockoon
+			changed, err := c.ensureRgwCaBundleCert(rgwName, rgwCasted.Gateway.SSLCertificateRef, rgwCasted.Gateway.CaBundleRef, ingress, rockoon)
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
 			} else {
 				assert.Nil(t, err)
 			}
-			assert.Equal(t, test.deleted, deleted)
-			if test.deleted {
-				assert.Equal(t, "", resourceUpdateTimestamps.rgwSSLCert)
-			}
+			assert.Equal(t, test.stateChanged, changed)
+			assert.Equal(t, test.expectedGenerationTime, resourceUpdateTimestamps.rgwSSLCert[test.cephDpl.Spec.ObjectStorage.Rgws[test.rgwIdx].Name])
+			assert.Equal(t, test.expectedResources, test.inputResources)
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
 		})
 	}
+	lcmcommon.GenerateSelfSignedCert = oldGenerateCertFunc
+	lcmcommon.GetCurrentTimeString = oldCurrentTimeFunc
+	// unset global var to do not override with other tests
 	unsetTimestampsVar()
 }
 
-func TestEnsureDefaultZoneGroupHostnames(t *testing.T) {
+func TestEnsureRgwInternalSslCert(t *testing.T) {
 	tests := []struct {
-		name               string
-		cephDpl            *cephlcmv1alpha1.CephDeployment
-		inputResources     map[string]runtime.Object
-		apiErrors          map[string]error
-		zonegroupInfo      string
-		zonegroupUpdate    bool
-		zonegroupUpdateCmd string
-		zonegroupError     string
-		expectedError      string
+		name                   string
+		cephDpl                *cephlcmv1alpha1.CephDeployment
+		rgwIdx                 int
+		inputResources         map[string]runtime.Object
+		apiErrors              map[string]error
+		stateChanged           bool
+		expectedGenerationTime string
+		expectedResources      map[string]runtime.Object
+		expectedError          string
 	}{
 		{
-			name: "skip auto update hostnames for zonegroup",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cd := unitinputs.CephDeployObjectStorageCeph.DeepCopy()
-				cd.Spec.ObjectStorage.Rgw.SkipAutoZoneGroupHostnameUpdate = true
-				return cd
-			}(),
-		},
-		{
-			name:           "failed to get zonegroup info",
-			cephDpl:        &unitinputs.CephDeployObjectStorageCeph,
-			zonegroupError: "get",
-			expectedError:  "failed to get zonegroups info for cluster 'rook-ceph/cephcluster': failed to run command 'radosgw-admin zonegroup get --rgw-zonegroup=rgw-store --format json': failed to get zonegroup info",
-		},
-		{
-			name:           "failed to get os secret",
-			cephDpl:        &unitinputs.CephDeployMoskWithoutIngress,
-			zonegroupInfo:  unitinputs.CephZoneGroupInfoEmptyHostnames,
-			inputResources: map[string]runtime.Object{"secrets": &unitinputs.ServicesListEmpty},
-			apiErrors:      map[string]error{"get-secrets": errors.New("cant get secret")},
-			expectedError:  "failed to get rgw creds secret openstack-rgw-creds: cant get secret",
-		},
-		{
-			name:               "update failed",
-			cephDpl:            &unitinputs.CephDeployObjectStorageCeph,
-			zonegroupInfo:      unitinputs.CephZoneGroupInfoHostnamesFromConfig,
-			zonegroupUpdate:    true,
-			zonegroupUpdateCmd: "/usr/local/bin/zonegroup_hostnames_update.sh --rgw-zonegroup rgw-store --unset",
-			zonegroupError:     "update",
-			expectedError:      "failed to update zonegroup 'rgw-store' hostnames for cluster 'rook-ceph/cephcluster': failed to run command '/usr/local/bin/zonegroup_hostnames_update.sh --rgw-zonegroup rgw-store --unset': failed to update zonegroup info",
-		},
-		{
-			name:           "no ingress, os secret is not found, no hostnames - no update",
-			cephDpl:        &unitinputs.CephDeployMoskWithoutIngress,
-			inputResources: map[string]runtime.Object{"secrets": &unitinputs.ServicesListEmpty},
-			zonegroupInfo:  unitinputs.CephZoneGroupInfoEmptyHostnames,
-		},
-		{
-			name:               "no ingress, os secret is not found, hostnames present - updated on empty",
-			cephDpl:            &unitinputs.CephDeployObjectStorageCeph,
-			zonegroupInfo:      unitinputs.CephZoneGroupInfoHostnamesFromConfig,
-			zonegroupUpdate:    true,
-			zonegroupUpdateCmd: "/usr/local/bin/zonegroup_hostnames_update.sh --rgw-zonegroup rgw-store --unset",
-		},
-		{
-			name:    "no ingress, os secret, no hostnames - updated on openstack fqdn",
-			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
+			name:    "failed to create ssl certificate",
+			cephDpl: unitinputs.CephDeployNonMosk.DeepCopy(),
 			inputResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.OpenstackRgwCredsSecretNoBarbican}},
+				"secrets": unitinputs.SecretsListEmpty.DeepCopy(),
 			},
-			zonegroupInfo:      unitinputs.CephZoneGroupInfoEmptyHostnames,
-			zonegroupUpdate:    true,
-			zonegroupUpdateCmd: "/usr/local/bin/zonegroup_hostnames_update.sh --rgw-zonegroup rgw-store --hostnames rgw-store.openstack.com,rook-ceph-rgw-rgw-store.rook-ceph.svc",
+			apiErrors:     map[string]error{"get-secrets-rgw-store-ssl-cert": errors.New("failed to get rgw-store-ssl-cert secret")},
+			expectedError: "failed to ensure rgw 'rgw-store' ssl certificate: failed to get secret rook-ceph/rgw-store-ssl-cert: failed to get rgw-store-ssl-cert secret",
 		},
 		{
-			name: "no ingress, os secret, spec override - updated on spec fqdn",
+			name:    "failed to create bundle certificate",
+			cephDpl: unitinputs.CephDeployNonMosk.DeepCopy(),
+			inputResources: map[string]runtime.Object{
+				"secrets": unitinputs.SecretsListEmpty.DeepCopy(),
+			},
+			expectedResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{
+					func() v1.Secret {
+						secret := unitinputs.RgwSSLCertSecretSelfSigned.DeepCopy()
+						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-1-time"}
+						delete(secret.Data, "cabundle")
+						return *secret
+					}(),
+				}},
+			},
+			expectedGenerationTime: "a-test-1-time",
+			apiErrors:              map[string]error{"update-secrets-rgw-store-ssl-cert": errors.New("failed to get rgw-store-ssl-cert secret")},
+			expectedError:          "failed to ensure rgw 'rgw-store' cabundle certificate: failed to update rgw cabundle cert secret: failed to get rgw-store-ssl-cert secret",
+		},
+		{
+			name:    "ensure ssl certificate base, all updated",
+			cephDpl: unitinputs.CephDeployNonMosk.DeepCopy(),
+			inputResources: map[string]runtime.Object{
+				"secrets": unitinputs.SecretsListEmpty.DeepCopy(),
+			},
+			expectedResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{
+					func() v1.Secret {
+						secret := unitinputs.RgwSSLCertSecretSelfSigned.DeepCopy()
+						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-2-time"}
+						return *secret
+					}(),
+				}},
+			},
+			expectedGenerationTime: "a-test-2-time",
+			stateChanged:           true,
+		},
+		{
+			name: "ensure ssl certificate base, ssl updated only",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cephDpl := unitinputs.CephDeployMoskWithoutIngress.DeepCopy()
-				cephDpl.Spec.RookConfig = unitinputs.CephDeployMoskWithoutIngressRookConfigOverrideBarbican.Spec.RookConfig
-				return cephDpl
+				dpl := unitinputs.CephDeployNonMosk.DeepCopy()
+				rgwCasted, _ := dpl.Spec.ObjectStorage.Rgws[0].GetSpec()
+				rgwCasted.Gateway.CaBundleRef = "multisite-rgw-secret"
+				dpl.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCasted)
+				return dpl
 			}(),
 			inputResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.OpenstackRgwCredsSecretNoBarbican}},
+				"secrets": &v1.SecretList{Items: []v1.Secret{
+					func() v1.Secret {
+						secret := unitinputs.RgwSSLCertSecretSelfSigned.DeepCopy()
+						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-2-time"}
+						return *secret
+					}(),
+					unitinputs.MultisiteCabundleSecret,
+				}},
 			},
-			zonegroupInfo:      unitinputs.CephZoneGroupInfoHostnamesFromOpenstack,
-			zonegroupUpdate:    true,
-			zonegroupUpdateCmd: "/usr/local/bin/zonegroup_hostnames_update.sh --rgw-zonegroup rgw-store --hostnames rgw-store.ms2.wxlsd.com,rook-ceph-rgw-rgw-store.rook-ceph.svc",
+			expectedResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{
+					func() v1.Secret {
+						secret := unitinputs.RgwSSLCertSecretSelfSigned.DeepCopy()
+						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-3-time"}
+						return *secret
+					}(),
+					unitinputs.MultisiteCabundleSecret,
+				}},
+			},
+			expectedGenerationTime: "a-test-3-time",
+			stateChanged:           true,
 		},
 		{
-			name:    "no ingress, os secret, hostnames present - no update",
-			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
+			name: "ensure ssl certificate base, cabundle updated only",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				dpl := unitinputs.CephDeployNonMosk.DeepCopy()
+				rgwCasted, _ := dpl.Spec.ObjectStorage.Rgws[0].GetSpec()
+				rgwCasted.Gateway.SSLCertificateRef = "rgw-store-ssl-cert"
+				dpl.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCasted)
+				return dpl
+			}(),
 			inputResources: map[string]runtime.Object{
-				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.OpenstackRgwCredsSecretNoBarbican}},
+				"secrets": &v1.SecretList{Items: []v1.Secret{
+					func() v1.Secret {
+						secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+						secret.Data["cabundle"] = nil
+						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-2-time"}
+						return *secret
+					}(),
+				}},
 			},
-			zonegroupInfo: unitinputs.CephZoneGroupInfoHostnamesFromOpenstack,
+			expectedResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{
+					func() v1.Secret {
+						secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-4-time"}
+						return *secret
+					}(),
+				}},
+			},
+			expectedGenerationTime: "a-test-4-time",
+			stateChanged:           true,
 		},
 		{
-			name:               "ingress, no hostnames - updated on ingress fqdn",
-			cephDpl:            &unitinputs.CephDeployMosk,
-			zonegroupInfo:      unitinputs.CephZoneGroupInfoEmptyHostnames,
-			zonegroupUpdate:    true,
-			zonegroupUpdateCmd: "/usr/local/bin/zonegroup_hostnames_update.sh --rgw-zonegroup rgw-store --hostnames rgw-store.test,rook-ceph-rgw-rgw-store.rook-ceph.svc",
+			name:    "ensure ssl certificate for ingress no changes",
+			cephDpl: unitinputs.CephDeployMosk.DeepCopy(),
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{
+						func() v1.Secret {
+							secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+							secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "n-time"}
+							secret.Data["cabundle"] = append(secret.Data["cabundle"], []byte("spec-cacert\n")...)
+							return *secret
+						}(),
+					},
+				},
+			},
+			expectedGenerationTime: "n-time",
 		},
 		{
-			name: "ingress, spec override - updated on spec fqdn",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cephDpl := unitinputs.CephDeployMosk.DeepCopy()
-				cephDpl.Spec.RookConfig = unitinputs.CephDeployMoskWithoutIngressRookConfigOverrideBarbican.Spec.RookConfig
-				return cephDpl
-			}(),
-			zonegroupInfo:      unitinputs.CephZoneGroupInfoHostnamesFromIngress,
-			zonegroupUpdate:    true,
-			zonegroupUpdateCmd: "/usr/local/bin/zonegroup_hostnames_update.sh --rgw-zonegroup rgw-store --hostnames rgw-store.ms2.wxlsd.com,rook-ceph-rgw-rgw-store.rook-ceph.svc",
+			name:    "ensure ssl certificate for rockoon no changes",
+			cephDpl: unitinputs.CephDeployMoskWithoutIngress.DeepCopy(),
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{
+					Items: []v1.Secret{
+						unitinputs.OpenstackRgwCredsSecret,
+						func() v1.Secret {
+							secret := unitinputs.RgwSSLCertSecret.DeepCopy()
+							secret.Data["cabundle"] = append(secret.Data["cabundle"], []byte(unitinputs.OpenstackCaCert+"\n")...)
+							return *secret
+						}(),
+					},
+				},
+			},
 		},
 		{
-			name:          "ingress, hostnames present - no update",
-			cephDpl:       &unitinputs.CephDeployMosk,
-			zonegroupInfo: unitinputs.CephZoneGroupInfoHostnamesFromIngress,
+			name:    "rgw cabundle required and no changes",
+			rgwIdx:  1,
+			cephDpl: unitinputs.MultisiteRgwWithSyncDaemon.DeepCopy(),
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.MultisiteCabundleSecret}},
+			},
 		},
 		{
-			name: "no ingress, no os cert, spec override - updated on spec fqdn",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cephDpl := unitinputs.CephDeployObjectStorageCeph.DeepCopy()
-				cephDpl.Spec.RookConfig = unitinputs.CephDeployMoskWithoutIngressRookConfigOverrideBarbican.Spec.RookConfig
-				return cephDpl
-			}(),
-			zonegroupInfo:      unitinputs.CephZoneGroupInfoEmptyHostnames,
-			zonegroupUpdate:    true,
-			zonegroupUpdateCmd: "/usr/local/bin/zonegroup_hostnames_update.sh --rgw-zonegroup rgw-store --hostnames rgw-store.ms2.wxlsd.com,rook-ceph-rgw-rgw-store.rook-ceph.svc",
+			name:    "no any ssl certs required and no changes",
+			cephDpl: unitinputs.CephDeployExternalRgw.DeepCopy(),
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{},
+			},
 		},
 		{
-			name: "no ingress, no os cert, spec override - no update",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cephDpl := unitinputs.CephDeployObjectStorageCeph.DeepCopy()
-				cephDpl.Spec.RookConfig = unitinputs.CephDeployMoskWithoutIngressRookConfigOverrideBarbican.Spec.RookConfig
-				return cephDpl
-			}(),
-			zonegroupInfo: unitinputs.CephZoneGroupInfoHostnamesFromConfig,
-		},
-		{
-			name: "ingress, custom hostnames - updated on ingress fqdn",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMosk.DeepCopy()
-				mc.Spec.IngressConfig.TLSConfig.Domain = "example.com"
-				mc.Spec.IngressConfig.TLSConfig.Hostname = "test"
-				mc.Spec.IngressConfig.Annotations = nil
-				mc.Spec.IngressConfig.ControllerClassName = ""
-				return mc
-			}(),
-			zonegroupInfo:      unitinputs.CephZoneGroupInfoEmptyHostnames,
-			zonegroupUpdate:    true,
-			zonegroupUpdateCmd: "/usr/local/bin/zonegroup_hostnames_update.sh --rgw-zonegroup rgw-store --hostnames rook-ceph-rgw-rgw-store.rook-ceph.svc,test.example.com",
+			name:    "ensure ssl certificate base, nothing to do",
+			cephDpl: unitinputs.CephDeployNonMosk.DeepCopy(),
+			inputResources: map[string]runtime.Object{
+				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.RgwSSLCertSecret}},
+			},
 		},
 	}
 
-	updated := false
-	oldCmdFunc := lcmcommon.RunPodCommandWithValidation
-	for _, test := range tests {
+	oldGenerateCertFunc := lcmcommon.GenerateSelfSignedCert
+	oldCurrentTimeFunc := lcmcommon.GetCurrentTimeString
+	for idx, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
-			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"secrets"}, test.inputResources, test.apiErrors)
-			updated = false
 
-			lcmcommon.RunPodCommandWithValidation = func(e lcmcommon.ExecConfig) (string, string, error) {
-				if strings.Contains(e.Command, "radosgw-admin") {
-					if test.zonegroupError == "get" {
-						return "", "", errors.New("failed to get zonegroup info")
-					}
-					return test.zonegroupInfo, "", nil
-				} else if strings.Contains(e.Command, "/usr/local/bin/zonegroup_hostnames_update.sh") {
-					if !test.zonegroupUpdate {
-						return "", "", errors.New("unexpected zonegroup update call")
-					}
-					updated = true
-					assert.Equal(t, test.zonegroupUpdateCmd, e.Command)
-					if test.zonegroupError == "update" {
-						return "", "", errors.New("failed to update zonegroup info")
-					}
-					return "", "", nil
+			lcmcommon.GenerateSelfSignedCert = func(_, _ string, _ []string) (string, string, string, error) {
+				if _, ok := test.apiErrors["ssl-cert"]; ok {
+					return "", "", "", errors.New("failed to generate ssl certificate")
 				}
-				return "", "", errors.New("cant run ceph cmd: unknown command")
+				return "fake-key", "fake-crt", "fake-ca", nil
 			}
 
-			changed, err := c.ensureDefaultZoneGroupHostnames()
-			assert.Equal(t, test.zonegroupUpdate, updated)
+			// test global var resourceUpdateTimestamps.RgwSSLCert is updated correctly
+			// after each test run, it should be non-set if create/update is not happened
+			// or existing cert has no annotation, should be set if create/update happened
+			// or existing cert has annotation, and should not be changed in next test if no
+			// create/update happened
+			lcmcommon.GetCurrentTimeString = func() string {
+				return fmt.Sprintf("a-test-%d-time", idx)
+			}
+
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"secrets"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "create", []string{"secrets"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "update", []string{"secrets"}, test.inputResources, test.apiErrors)
+			test.expectedResources = faketestclients.PrepareExpectedResources(test.inputResources, test.expectedResources)
+
+			changed, err := c.ensureRgwSslCert(test.rgwIdx)
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
-				assert.Equal(t, false, changed)
 			} else {
 				assert.Nil(t, err)
-				assert.Equal(t, test.zonegroupUpdate, changed)
 			}
+			assert.Equal(t, test.stateChanged, changed)
+			assert.Equal(t, test.expectedGenerationTime, resourceUpdateTimestamps.rgwSSLCert[test.cephDpl.Spec.ObjectStorage.Rgws[test.rgwIdx].Name])
+			assert.Equal(t, test.expectedResources, test.inputResources)
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
 		})
 	}
-	lcmcommon.RunPodCommandWithValidation = oldCmdFunc
+	lcmcommon.GenerateSelfSignedCert = oldGenerateCertFunc
+	lcmcommon.GetCurrentTimeString = oldCurrentTimeFunc
+	// unset global var to do not override with other tests
+	unsetTimestampsVar()
 }
 
 func TestDeleteRgwAdminOpsSecret(t *testing.T) {

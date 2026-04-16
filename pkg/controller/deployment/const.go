@@ -27,8 +27,6 @@ const (
 	// secret with external connection string
 	externalStringSecretName = "pelagia-external-connection"
 
-	rgwStorageClassName    = "rgw-storage-class"
-	rgwSslCertSecretName   = "rgw-ssl-certificate"
 	rgwAdminUserSecretName = "rgw-admin-ops-user"
 	// Ceilometer metrics user
 	rgwMetricsUser = "rgw-ceilometer"
@@ -66,6 +64,8 @@ const (
 	cephRuntimeRgwParametersUpdateTimestampLabel = "cephdeployment.lcm.mirantis.com/runtime-rgw-params-updated"
 	cephRuntimeOsdParametersUpdateTimestampLabel = "cephdeployment.lcm.mirantis.com/runtime-osd-params-updated"
 	sslCertGenerationTimestampLabel              = "cephdeployment.lcm.mirantis.com/ssl-cert-generated"
+	// label for rgw default self-signed certs
+	selfSignedCertLabel = "cephdeployment.lcm.mirantis.com/ssl-cert-for"
 	// labels identifying osd restart reason and timestamp
 	cephRestartOsdLabel          = "cephdeployment.lcm.mirantis.com/restart-osd-reason"
 	cephRestartOsdTimestampLabel = "cephdeployment.lcm.mirantis.com/restart-osd-requested"
@@ -76,6 +76,10 @@ const (
 	poolPreserveOnDeleteAnnotation = "cephdeployment.lcm.mirantis.com/preserve-on-delete"
 	// subVolumeGroupName is default subvolumegroup name to create for cephfs csi
 	subVolumeGroupName = "csi"
+
+	// DEPRECATED
+	rgwStorageClassName  = "rgw-storage-class"
+	rgwSslCertSecretName = "rgw-ssl-certificate"
 )
 
 type objectProcess string
@@ -115,6 +119,8 @@ var (
 	cephConfigSectionHashLabel = "cephdeployment.lcm.mirantis.com/config-%s-hash"
 	// template for keeping last update for parameters under specific section, max lentgh after / is 63 symbols
 	cephConfigParametersUpdateTimestampLabel = "cephdeployment.lcm.mirantis.com/config-%s-updated"
+	// valid pool reclaim policies
+	poolReclaimPolicies = []string{"Retain", "Delete"}
 )
 
 func getCrushKeys() []string {

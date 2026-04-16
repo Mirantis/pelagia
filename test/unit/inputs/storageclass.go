@@ -110,7 +110,7 @@ var CephFSStorageClass = storagev1.StorageClass{
 
 var RgwStorageClass = storagev1.StorageClass{
 	ObjectMeta: metav1.ObjectMeta{
-		Name: "rgw-storage-class",
+		Name: "rgw-store-bucket",
 	},
 	Provisioner: "rook-ceph.ceph.rook.io/bucket",
 	Parameters: map[string]string{

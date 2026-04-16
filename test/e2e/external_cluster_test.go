@@ -27,12 +27,14 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/pkg/errors"
+	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/tools/clientcmd"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
@@ -202,8 +204,9 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 	poolsSection := make([]cephlcmv1alpha1.CephPool, len(rbdPoolsForShare))
 	for idx, sharePool := range rbdPoolsForShare {
 		poolFound := false
-		for _, pool := range cd.Spec.Pools {
-			if pool.Name == sharePool && pool.UseAsFullName || fmt.Sprintf("%s-%s", pool.Name, pool.DeviceClass) == sharePool {
+		for _, pool := range cd.Spec.BlockStorage.Pools {
+			castedPool, _ := pool.GetSpec()
+			if pool.Name == sharePool && pool.UseAsFullName || fmt.Sprintf("%s-%s", pool.Name, castedPool.DeviceClass) == sharePool {
 				poolFound = true
 				poolsSection[idx] = pool
 				break
@@ -214,7 +217,7 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 		}
 	}
 	cephFSSection := &cephlcmv1alpha1.CephSharedFilesystem{
-		CephFS: []cephlcmv1alpha1.CephFS{},
+		Filesystems: []cephlcmv1alpha1.CephFilesystem{},
 	}
 	if len(cephfsPoolsForShare) > 0 {
 		if cd.Spec.SharedFilesystem == nil {
@@ -222,22 +225,35 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 		}
 		for _, shareCephFsPool := range cephfsPoolsForShare {
 			poolFound := false
-			for _, cephFS := range cd.Spec.SharedFilesystem.CephFS {
-				for _, dataPool := range cephFS.DataPools {
+			for _, cephFS := range cd.Spec.SharedFilesystem.Filesystems {
+				castedFsSpec, _ := cephFS.GetSpec()
+				for _, dataPool := range castedFsSpec.DataPools {
 					if fmt.Sprintf("%s-%s", cephFS.Name, dataPool.Name) == shareCephFsPool {
 						poolFound = true
 						added := false
-						for idx, externalCephFs := range cephFSSection.CephFS {
+						for idx, externalCephFs := range cephFSSection.Filesystems {
 							if cephFS.Name == externalCephFs.Name {
 								added = true
-								cephFSSection.CephFS[idx].DataPools = append(cephFSSection.CephFS[idx].DataPools, dataPool)
+								castedExternalFs, _ := externalCephFs.GetSpec()
+								castedExternalFs.DataPools = append(castedExternalFs.DataPools, dataPool)
+								fsSpecRaw, err := cephlcmv1alpha1.DecodeStructToRaw(castedExternalFs)
+								if err != nil {
+									t.Fatal(err)
+								}
+								cephFSSection.Filesystems[idx].FsSpec.Raw = fsSpecRaw
 								break
 							}
 						}
 						if !added {
 							copyCephFs := cephFS.DeepCopy()
-							copyCephFs.DataPools = []cephlcmv1alpha1.CephFSPool{dataPool}
-							cephFSSection.CephFS = append(cephFSSection.CephFS, *copyCephFs)
+							casted, _ := copyCephFs.GetSpec()
+							casted.DataPools = []cephv1.NamedPoolSpec{dataPool}
+							fsSpecRaw, err := cephlcmv1alpha1.DecodeStructToRaw(casted)
+							if err != nil {
+								t.Fatal(err)
+							}
+							copyCephFs.FsSpec.Raw = fsSpecRaw
+							cephFSSection.Filesystems = append(cephFSSection.Filesystems, *copyCephFs)
 						}
 						break
 					}
@@ -265,19 +281,19 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 		if len(cephfsPoolsForShare) > 0 {
 			osdCaps = append(osdCaps, "allow rw tag cephfs *=*")
 		}
-		client := cephlcmv1alpha1.CephClient{
-			ClientSpec: cephlcmv1alpha1.ClientSpec{
-				Name: testClientName,
-				Caps: map[string]string{
-					"mgr": "allow r",
-					"mon": "allow r, profile role-definer",
-					"osd": strings.Join(osdCaps, ", "),
-				},
+		clientSpec := cephv1.ClientSpec{
+			Name: testClientName,
+			Caps: map[string]string{
+				"mgr": "allow r",
+				"mon": "allow r, profile role-definer",
+				"osd": strings.Join(osdCaps, ", "),
 			},
 		}
 		if len(cephfsPoolsForShare) > 0 {
-			client.Caps["mds"] = "allow rw"
+			clientSpec.Caps["mds"] = "allow rw"
 		}
+		clientRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(clientSpec)
+		client := cephlcmv1alpha1.CephClient{RawExtension: runtime.RawExtension{Raw: clientRaw}}
 		if len(cd.Spec.Clients) > 0 {
 			cd.Spec.Clients = append(cd.Spec.Clients, client)
 		} else {
@@ -313,19 +329,25 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 	}
 
 	f.Step(t, "Build and create external Ceph cluster")
+	externalRaw, err := cephlcmv1alpha1.DecodeStructToRaw(
+		cephv1.ClusterSpec{External: cephv1.ExternalSpec{Enable: true}},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
 	externalCephCluster := &cephlcmv1alpha1.CephDeployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "external-ceph",
 			Namespace: externalClusterNamespace,
 		},
 		Spec: cephlcmv1alpha1.CephDeploymentSpec{
-			Network: cephlcmv1alpha1.CephNetworkSpec{
-				ClusterNet: cd.Spec.Network.ClusterNet,
-				PublicNet:  cd.Spec.Network.PublicNet,
+			Cluster: &cephlcmv1alpha1.CephCluster{
+				RawExtension: runtime.RawExtension{Raw: externalRaw},
 			},
-			External:         true,
+			BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+				Pools: poolsSection,
+			},
 			Nodes:            []cephlcmv1alpha1.CephDeploymentNode{},
-			Pools:            poolsSection,
 			SharedFilesystem: cephFSSection,
 		},
 	}

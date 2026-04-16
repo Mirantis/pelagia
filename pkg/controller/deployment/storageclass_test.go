@@ -115,18 +115,18 @@ func TestGenerateStorageClassPoolBased(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			actual := generateStorageClassPoolBased("rook-ceph", test.cephDplPool, "rook-ceph", test.isExternal)
+			poolName := buildPoolName(test.cephDplPool)
+			actual := generateStorageClassPoolBased("rook-ceph", poolName, test.cephDplPool.StorageClassOpts, "rook-ceph", test.isExternal)
 			assert.Equal(t, test.expected, actual)
 		})
 	}
 }
 
 func TestGenerateStorageClassForCephFS(t *testing.T) {
+	rawSpec, _ := unitinputs.CephSharedFileSystemOk.Filesystems[0].GetSpec()
 	actual := generateStorageClassCephFSBased(
-		"rook-ceph",
-		unitinputs.CephSharedFileSystemOk.CephFS[0].Name,
-		unitinputs.CephSharedFileSystemOk.CephFS[0].DataPools[0].Name,
-		"rook-ceph", unitinputs.CephSharedFileSystemOk.CephFS[0].PreserveFilesystemOnDelete)
+		"rook-ceph", unitinputs.CephSharedFileSystemOk.Filesystems[0].Name,
+		rawSpec.DataPools[0].Name, "rook-ceph", rawSpec.PreserveFilesystemOnDelete)
 	expected := &unitinputs.CephFSStorageClass
 	assert.Equal(t, expected, actual)
 }
@@ -321,7 +321,7 @@ func TestEnsureStorageClasses(t *testing.T) {
 			name: "ensure storage classes - update available fields only, success",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cephDpl := unitinputs.CephDeployNonMosk.DeepCopy()
-				cephDpl.Spec.Pools[0].StorageClassOpts.MapOptions = "some-opts"
+				cephDpl.Spec.BlockStorage.Pools[0].StorageClassOpts.MapOptions = "some-opts"
 				return cephDpl
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -453,6 +453,9 @@ func TestEnsureStorageClasses(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
 			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "list", []string{"persistentvolumeclaims"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "list", []string{"persistentvolumes"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "list", []string{"storageclasses"}, test.inputResources, nil)

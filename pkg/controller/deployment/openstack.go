@@ -24,6 +24,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	rookUtils "github.com/rook/rook/pkg/operator/k8sutil"
 	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -52,7 +53,7 @@ func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
 		return false, nil
 	}
 	// Skip OpenStack secret ensure if there is no OpenStack pools
-	if !lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.Pools) {
+	if !c.cdConfig.openstackSetup {
 		c.log.Debug().Msg("required Openstack pools are not specified in spec, skipping Openstack secret ensure")
 		return false, nil
 	}
@@ -60,10 +61,10 @@ func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
 	cephFSDeployed := c.cdConfig.cephDpl.Spec.SharedFilesystem != nil
 
 	notReadyOpenStackPools := []string{}
-	for _, pool := range c.cdConfig.cephDpl.Spec.Pools {
+	for idx, pool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
 		switch pool.Role {
 		case "images", "vms", "backup", "volumes":
-			poolName := buildPoolName(pool)
+			poolName := c.cdConfig.pools[idx]
 			if !isCephPoolReady(c.context, *c.log, c.api.Rookclientset, c.lcmConfig.RookNamespace, poolName) {
 				notReadyOpenStackPools = append(notReadyOpenStackPools, poolName)
 			}
@@ -96,23 +97,34 @@ func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
 	}
 
 	if c.cdConfig.cephDpl.Spec.ObjectStorage != nil {
-		rgwSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
-		if err != nil {
-			c.log.Error().Err(err).Msgf("failed to get rgw secret for %s secret update", openstackSharedSecret)
-		} else {
-			openstackSecretData.rgwSecret = rgwSecret
-		}
-		rgwInternalCert, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.RookNamespace).Get(c.context, rgwSslCertSecretName, metav1.GetOptions{})
-		if err != nil {
-			c.log.Error().Err(err).Msgf("failed to get rgw local certs secret for %s secret update", openstackSharedSecret)
-		} else {
-			openstackSecretData.rgwInternalCert = rgwInternalCert
-		}
-		rgwMetricsUserSecret, err := c.getRgwMetricsUserSecrets()
-		if err != nil {
-			c.log.Error().Err(err).Msgf("failed to get rgw metrics user secrets for %s secret update", openstackSharedSecret)
-		} else {
-			openstackSecretData.rgwMetricsSecret = rgwMetricsUserSecret
+		for _, rgw := range c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws {
+			if !rgw.UsedByRockoon {
+				continue
+			}
+			rgwCasted, _ := rgw.GetSpec()
+			rgwSSLSecretName := getRgwDefaultSSLCertificateName(rgw.Name)
+			if rgwCasted.Gateway.SSLCertificateRef != "" {
+				rgwSSLSecretName = rgwCasted.Gateway.SSLCertificateRef
+			}
+			rgwSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
+			if err != nil {
+				c.log.Error().Err(err).Msgf("failed to get rgw secret for %s secret update", openstackSharedSecret)
+			} else {
+				openstackSecretData.rgwSecret = rgwSecret
+			}
+			rgwInternalCert, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.RookNamespace).Get(c.context, rgwSSLSecretName, metav1.GetOptions{})
+			if err != nil {
+				c.log.Error().Err(err).Msgf("failed to get rgw local certs secret for %s secret update", openstackSharedSecret)
+			} else {
+				openstackSecretData.rgwInternalCert = rgwInternalCert
+			}
+			rgwMetricsUserSecret, err := c.getRgwMetricsUserSecrets()
+			if err != nil {
+				c.log.Error().Err(err).Msgf("failed to get rgw metrics user secrets for %s secret update", openstackSharedSecret)
+			} else {
+				openstackSecretData.rgwMetricsSecret = rgwMetricsUserSecret
+			}
+			break
 		}
 	}
 
@@ -226,19 +238,20 @@ func (c *cephDeploymentConfig) getAdminSecret() (*v1.Secret, error) {
 	return adminSecret, nil
 }
 
-func (c *cephDeploymentConfig) getRgwExternalEndpoint(cephDplRGW cephlcmv1alpha1.CephRGW) string {
-	if cephDplRGW.Gateway.ExternalRgwEndpoint != nil {
+func (c *cephDeploymentConfig) getRgwExternalEndpoint(cephDplRGW cephv1.GatewaySpec) string {
+	if len(cephDplRGW.ExternalRgwEndpoints) > 0 {
+		rgwEndpoint := cephDplRGW.ExternalRgwEndpoints[0]
 		endpoint := "%s://%s:%d"
 		address := ""
-		if cephDplRGW.Gateway.ExternalRgwEndpoint.Hostname != "" {
-			address = cephDplRGW.Gateway.ExternalRgwEndpoint.Hostname
+		if rgwEndpoint.Hostname != "" {
+			address = rgwEndpoint.Hostname
 		} else {
-			address = cephDplRGW.Gateway.ExternalRgwEndpoint.IP
+			address = rgwEndpoint.IP
 		}
-		if cephDplRGW.Gateway.SecurePort != 0 {
-			endpoint = fmt.Sprintf(endpoint, "https", address, cephDplRGW.Gateway.SecurePort)
+		if cephDplRGW.SecurePort != 0 {
+			endpoint = fmt.Sprintf(endpoint, "https", address, cephDplRGW.SecurePort)
 		} else {
-			endpoint = fmt.Sprintf(endpoint, "http", address, cephDplRGW.Gateway.Port)
+			endpoint = fmt.Sprintf(endpoint, "http", address, cephDplRGW.Port)
 		}
 		return endpoint
 	}
@@ -273,35 +286,37 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 	sort.Strings(monIPs)
 	monmapString = strings.Join(monIPs, ",")
 
-	buildPoolDescription := func(pool cephlcmv1alpha1.CephPool) string {
-		return fmt.Sprintf("%s:%s:%s", buildPoolName(pool), pool.Role, pool.DeviceClass)
+	buildPoolDescription := func(fullPoolName string, pool cephlcmv1alpha1.CephPool) string {
+		castedPool, _ := pool.GetSpec()
+		return fmt.Sprintf("%s:%s:%s", fullPoolName, pool.Role, castedPool.DeviceClass)
 	}
 
 	glance := "client.glance;" + secretData.clientKeys["glance"] + "\n"
 	nova := "client.nova;" + secretData.clientKeys["nova"] + "\n"
 	cinder := "client.cinder;" + secretData.clientKeys["cinder"] + "\n"
-	for _, pool := range c.cdConfig.cephDpl.Spec.Pools {
+	for idx, pool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
+		// set basic volumes role
+		if pool.Role == "volumes-backend" {
+			pool.Role = "volumes"
+		}
+		poolDescription := buildPoolDescription(c.cdConfig.pools[idx], pool)
 		switch role := pool.Role; role {
-		case "volumes", "volumes-backend":
-			// set basic volumes role
-			if pool.Role == "volumes-backend" {
-				pool.Role = "volumes"
-			}
-			nova = nova + ";" + buildPoolDescription(pool)
-			cinder = cinder + ";" + buildPoolDescription(pool)
+		case "volumes":
+			nova = nova + ";" + poolDescription
+			cinder = cinder + ";" + poolDescription
 		case "vms":
-			nova = nova + ";" + buildPoolDescription(pool)
+			nova = nova + ";" + poolDescription
 		case "images":
-			nova = nova + ";" + buildPoolDescription(pool)
-			glance = glance + ";" + buildPoolDescription(pool)
-			cinder = cinder + ";" + buildPoolDescription(pool)
+			nova = nova + ";" + poolDescription
+			glance = glance + ";" + poolDescription
+			cinder = cinder + ";" + poolDescription
 		case "backup":
-			cinder = cinder + ";" + buildPoolDescription(pool)
+			cinder = cinder + ";" + poolDescription
 		}
 	}
 
 	var clientAdminSecret []byte
-	if c.cdConfig.cephDpl.Spec.External {
+	if c.cdConfig.clusterSpec.External.Enable {
 		// external cluster is connected with admin key
 		clientAdminSecret = secretData.adminSecret.Data["admin-secret"]
 	} else {
@@ -327,64 +342,72 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 	}
 
 	if c.cdConfig.cephDpl.Spec.ObjectStorage != nil {
-		if !c.cdConfig.cephDpl.Spec.External {
-			fqdn := fmt.Sprintf("%s.%s.svc", buildRGWName(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name, ""), c.lcmConfig.RookNamespace)
-			if c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.SecurePort != int32(0) {
-				secret.Data["rgw_internal"] = []byte(fmt.Sprintf("https://%s:%d/", fqdn, c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.SecurePort))
-			} else {
-				secret.Data["rgw_internal"] = []byte(fmt.Sprintf("http://%s:%d/", fqdn, c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.Port))
+		for _, rgw := range c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws {
+			if !rgw.UsedByRockoon {
+				continue
 			}
-			if secretData.rgwInternalCert != nil {
-				secret.Data["rgw_internal_cacert"] = secretData.rgwInternalCert.Data["cacert"]
-			}
-		}
+			rgwCasted, _ := rgw.GetSpec()
 
-		ingressTLS := getIngressTLS(c.cdConfig.cephDpl)
-		if c.cdConfig.cephDpl.Spec.External {
-			rgwExternal := c.getRgwExternalEndpoint(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw)
-			if rgwExternal != "" {
-				secret.Data["rgw_external"] = []byte(rgwExternal)
-				// provide bundle set in rgw-ssl-certificate if present as public cacert
+			if !c.cdConfig.clusterSpec.External.Enable {
+				fqdn := fmt.Sprintf("%s.%s.svc", buildRGWName(rgw.Name, ""), c.lcmConfig.RookNamespace)
+				if rgwCasted.Gateway.SecurePort != int32(0) {
+					secret.Data["rgw_internal"] = []byte(fmt.Sprintf("https://%s:%d/", fqdn, rgwCasted.Gateway.SecurePort))
+				} else {
+					secret.Data["rgw_internal"] = []byte(fmt.Sprintf("http://%s:%d/", fqdn, rgwCasted.Gateway.Port))
+				}
 				if secretData.rgwInternalCert != nil {
-					if bundle, ok := secretData.rgwInternalCert.Data["cabundle"]; ok {
-						secret.Data["rgw_external_custom_cacert"] = bundle
+					secret.Data["rgw_internal_cacert"] = secretData.rgwInternalCert.Data["cacert"]
+				}
+			}
+
+			ingressTLS := getIngressTLS(c.cdConfig.cephDpl)
+			if c.cdConfig.clusterSpec.External.Enable {
+				rgwExternal := c.getRgwExternalEndpoint(rgwCasted.Gateway)
+				if rgwExternal != "" {
+					secret.Data["rgw_external"] = []byte(rgwExternal)
+					// provide bundle set in rgw-ssl-certificate if present as public cacert
+					if secretData.rgwInternalCert != nil {
+						if bundle, ok := secretData.rgwInternalCert.Data["cabundle"]; ok {
+							secret.Data["rgw_external_custom_cacert"] = bundle
+						}
 					}
 				}
-			}
-		} else if ingressTLS != nil {
-			domain := ingressTLS.Domain
-			protocol := "https"
-			if ingressTLS.Hostname != "" {
-				secret.Data["rgw_external"] = []byte(fmt.Sprintf("%s://%s.%s/", protocol, ingressTLS.Hostname, domain))
-			} else {
-				secret.Data["rgw_external"] = []byte(fmt.Sprintf("%s://%s.%s/", protocol, c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name, domain))
-			}
-			if ingressTLS.TLSCerts != nil {
-				secret.Data["rgw_external_custom_cacert"] = []byte(ingressTLS.TLSCerts.Cacert)
-			} else if ingressTLS.TLSSecretRefName != "" {
-				tlsSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.RookNamespace).Get(c.context, ingressTLS.TLSSecretRefName, metav1.GetOptions{})
-				if err != nil {
-					c.log.Error().Err(err).Msgf("failed to get specified for ingress tls certs secret %q", ingressTLS.TLSSecretRefName)
-				} else if cacert, present := tlsSecret.Data["ca.crt"]; present {
-					secret.Data["rgw_external_custom_cacert"] = cacert
+			} else if ingressTLS != nil {
+				domain := ingressTLS.Domain
+				protocol := "https"
+				if ingressTLS.Hostname != "" {
+					secret.Data["rgw_external"] = []byte(fmt.Sprintf("%s://%s.%s/", protocol, ingressTLS.Hostname, domain))
 				} else {
-					c.log.Error().Msgf("specified for ingress tls certs secret %q doesnt contain ca cert", ingressTLS.TLSSecretRefName)
+					secret.Data["rgw_external"] = []byte(fmt.Sprintf("%s://%s.%s/", protocol, rgw.Name, domain))
+				}
+				if ingressTLS.TLSCerts != nil {
+					secret.Data["rgw_external_custom_cacert"] = []byte(ingressTLS.TLSCerts.Cacert)
+				} else if ingressTLS.TLSSecretRefName != "" {
+					tlsSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.RookNamespace).Get(c.context, ingressTLS.TLSSecretRefName, metav1.GetOptions{})
+					if err != nil {
+						c.log.Error().Err(err).Msgf("failed to get specified for ingress tls certs secret %q", ingressTLS.TLSSecretRefName)
+					} else if cacert, present := tlsSecret.Data["ca.crt"]; present {
+						secret.Data["rgw_external_custom_cacert"] = cacert
+					} else {
+						c.log.Error().Msgf("specified for ingress tls certs secret %q doesnt contain ca cert", ingressTLS.TLSSecretRefName)
+					}
+				}
+			} else if secretData.rgwSecret != nil {
+				domain := secretData.rgwSecret.Data["public_domain"]
+				protocol := "http"
+				if secretData.rgwSecret.Data["tls_crt"] != nil {
+					protocol = "https"
+				}
+				if string(domain) != "" {
+					secret.Data["rgw_external"] = []byte(fmt.Sprintf("%s://%s.%s/", protocol, rgw.Name, string(domain)))
 				}
 			}
-		} else if secretData.rgwSecret != nil {
-			domain := secretData.rgwSecret.Data["public_domain"]
-			protocol := "http"
-			if secretData.rgwSecret.Data["tls_crt"] != nil {
-				protocol = "https"
-			}
-			if string(domain) != "" {
-				secret.Data["rgw_external"] = []byte(fmt.Sprintf("%s://%s.%s/", protocol, c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name, string(domain)))
-			}
-		}
 
-		if secretData.rgwMetricsSecret != nil {
-			secret.Data["rgw_metrics_user_access_key"] = secretData.rgwMetricsSecret.Data["AccessKey"]
-			secret.Data["rgw_metrics_user_secret_key"] = secretData.rgwMetricsSecret.Data["SecretKey"]
+			if secretData.rgwMetricsSecret != nil {
+				secret.Data["rgw_metrics_user_access_key"] = secretData.rgwMetricsSecret.Data["AccessKey"]
+				secret.Data["rgw_metrics_user_secret_key"] = secretData.rgwMetricsSecret.Data["SecretKey"]
+			}
+			break
 		}
 	}
 

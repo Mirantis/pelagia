@@ -18,6 +18,7 @@ package deployment
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -29,198 +30,39 @@ import (
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
 )
 
-func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidation {
+func (c *cephDeploymentConfig) validateSpec() cephlcmv1alpha1.CephDeploymentValidation {
 	errMsgs := make([]string, 0)
-	defaultFound := false
-	for _, cephDplPool := range c.cdConfig.cephDpl.Spec.Pools {
-		if defaultFound && cephDplPool.StorageClassOpts.Default {
-			err := "CephDeployment has multiple default pools specified"
-			c.log.Error().Msg(err)
-			errMsgs = append(errMsgs, err)
+	if !c.cdConfig.clusterSpec.External.Enable {
+		if errs := validateNetworkSpec(c.cdConfig.clusterSpec.Network); len(errs) > 0 {
+			c.log.Error().Msgf("failed to validate cluster network spec: %v", errs)
+			errMsgs = append(errMsgs, errs...)
 		}
-		defaultFound = defaultFound || cephDplPool.StorageClassOpts.Default
-		if err := validateDeviceClassName(cephDplPool.DeviceClass, c.cdConfig.cephDpl.Spec.ExtraOpts); err != nil {
-			err := fmt.Sprintf("CephDeployment pool %s has %s", cephDplPool.Name, err.Error())
-			c.log.Error().Msg(err)
-			errMsgs = append(errMsgs, err)
-		}
-		if !c.cdConfig.cephDpl.Spec.External && (cephDplPool.ErasureCoded == nil && cephDplPool.Replicated == nil ||
-			cephDplPool.ErasureCoded != nil && cephDplPool.Replicated != nil) {
-			err := fmt.Sprintf("CephDeployment pool %s spec should contain either replicated or erasureCoded spec", cephDplPool.Name)
-			c.log.Error().Msg(err)
-			errMsgs = append(errMsgs, err)
-		}
-		if cephDplPool.StorageClassOpts.ReclaimPolicy != "" && !lcmcommon.Contains([]string{"Retain", "Delete"}, cephDplPool.StorageClassOpts.ReclaimPolicy) {
-			err := fmt.Sprintf("CephDeployment pool %s spec contains invalid reclaimPolicy '%s', valid are: %v", cephDplPool.Name, cephDplPool.StorageClassOpts.ReclaimPolicy, []string{"Retain", "Delete"})
-			c.log.Error().Msg(err)
-			errMsgs = append(errMsgs, err)
-		}
-		if cephDplPool.FailureDomain == "osd" && len(c.cdConfig.nodesListExpanded) > 1 {
-			err := fmt.Sprintf("CephDeployment pool %s spec contains prohibited 'osd' failureDomain", cephDplPool.Name)
-			c.log.Error().Msg(err)
-			errMsgs = append(errMsgs, err)
-		}
-	}
-	// do not fail for external case - may only CephFS be specified for usage
-	if !defaultFound && !c.cdConfig.cephDpl.Spec.External {
-		err := "CephDeployment has no default pool specified"
-		c.log.Error().Msg(err)
-		errMsgs = append(errMsgs, err)
-	}
-	if !c.cdConfig.cephDpl.Spec.External {
-		for _, node := range c.cdConfig.cephDpl.Spec.Nodes {
-			if node.UseAllDevices != nil && *node.UseAllDevices {
-				errMsg := fmt.Sprintf("detected using 'useAllDevices' for '%s' node item, which is not supported", node.Name)
-				c.log.Error().Msg(errMsg)
-				errMsgs = append(errMsgs, errMsg)
-				continue
-			}
-			nodeType := "node"
-			if node.NodesByLabel != "" || len(node.NodeGroup) > 0 {
-				nodeType = "nodeGroup"
-			}
-			nodeDeviceClass := ""
-			if node.Config != nil {
-				if node.Config["deviceClass"] != "" {
-					nodeDeviceClass = node.Config["deviceClass"]
-					if err := validateDeviceClassName(node.Config["deviceClass"], c.cdConfig.cephDpl.Spec.ExtraOpts); err != nil {
-						errMsg := fmt.Sprintf("%s config '%s' has %s", nodeType, node.Name, err.Error())
-						c.log.Error().Msg(errMsg)
-						errMsgs = append(errMsgs, errMsg)
-					}
-				}
-				if node.Config["osdsPerDevice"] != "" {
-					_, err := strconv.Atoi(node.Config["osdsPerDevice"])
-					if err != nil {
-						errMsg := fmt.Sprintf("failed to parse config parameter 'osdsPerDevice' for %s '%s': %s", nodeType, node.Name, err.Error())
-						c.log.Error().Msg(errMsg)
-						errMsgs = append(errMsgs, errMsg)
-					}
-				}
-			}
-			if lcmcommon.IsCephOsdNode(node.Node) {
-				if len(node.Devices) > 0 {
-					for _, device := range node.Devices {
-						deviceClass := ""
-						if device.Config != nil {
-							if device.Config["deviceClass"] != "" {
-								deviceClass = device.Config["deviceClass"]
-							}
-							if device.Config["osdsPerDevice"] != "" {
-								_, err := strconv.Atoi(device.Config["osdsPerDevice"])
-								if err != nil {
-									errMsg := fmt.Sprintf("failed to parse config parameter 'osdsPerDevice' for device '%s' from %s '%s': %s",
-										device.Name, nodeType, node.Name, err.Error())
-									c.log.Error().Msg(errMsg)
-									errMsgs = append(errMsgs, errMsg)
-								}
-							}
-						}
-						// out of device config check because deviceClass must have param - or on node level,
-						// or on device level - if set only on node level skip check for device
-						if deviceClass == "" && nodeDeviceClass != "" {
-							continue
-						}
-						if err := validateDeviceClassName(deviceClass, c.cdConfig.cephDpl.Spec.ExtraOpts); err != nil {
-							deviceName := device.Name
-							if device.FullPath != "" {
-								deviceName = device.FullPath
-							}
-							errMsg := fmt.Sprintf("device '%s' on %s '%s' has %s", deviceName, nodeType, node.Name, err.Error())
-							c.log.Error().Msg(errMsg)
-							errMsgs = append(errMsgs, errMsg)
-						}
-					}
-				} else {
-					if nodeDeviceClass == "" {
-						errMsg := fmt.Sprintf("deviceClass is not specified for '%s' node item, but it is required", node.Name)
-						c.log.Error().Msg(errMsg)
-						errMsgs = append(errMsgs, errMsg)
-					}
-				}
-			}
-			for crush := range node.Crush {
-				if _, ok := crushTopologyAllowedKeys[crush]; !ok {
-					err := fmt.Sprintf("CephDeployment node spec for node '%s' contains invalid crush topology key '%s'. Valid are: %v", node.Name, crush, strings.Join(getCrushKeys(), ", "))
-					c.log.Error().Msg(err)
-					errMsgs = append(errMsgs, err)
-				}
-			}
-		}
-		monCount := 0
-		mgrCount := 0
-		for _, node := range c.cdConfig.nodesListExpanded {
-			if lcmcommon.Contains(node.Roles, "mon") {
-				monCount = monCount + 1
-			}
-			if lcmcommon.Contains(node.Roles, "mgr") {
-				mgrCount = mgrCount + 1
-			}
-		}
-		// skip check for PRODX-19248
-		if len(c.cdConfig.nodesListExpanded) >= 3 && monCount%2 == 0 {
-			err := fmt.Sprintf("CephDeployment monitors (roles 'mon') count %d is even, but should be odd for a healthy quorum", monCount)
-			c.log.Error().Msg(err)
-			errMsgs = append(errMsgs, err)
-		}
-		if mgrCount == 0 {
-			err := "no 'mgr' roles specified, required at least one"
-			c.log.Error().Msg(err)
-			errMsgs = append(errMsgs, err)
-		}
-		if err := openstackPoolsValidate(c.cdConfig.cephDpl); err != nil {
-			c.log.Error().Err(err).Msg("")
+		if err := c.validateClusterNodes(); err != nil {
+			c.log.Error().Err(err).Msg("failed to validate provided nodes in cluster")
 			errMsgs = append(errMsgs, err.Error())
+		} else if errs := validateNodesSpec(c.cdConfig.cephDpl, c.cdConfig.nodesListExpanded); len(errs) > 0 {
+			c.log.Error().Msgf("failed to validate nodes spec: %v", errs)
+			errMsgs = append(errMsgs, errs...)
 		}
-		if err := c.cephDeploymentNodesValidate(); err != nil {
-			c.log.Error().Err(err).Msg("")
-			errMsgs = append(errMsgs, err.Error())
-		}
-		if err := validateObjectStorage(c.cdConfig.cephDpl, c.cdConfig.nodesListExpanded); err != nil {
-			c.log.Error().Err(err).Msg("")
-			errMsgs = append(errMsgs, err.Error())
+		// TODO: keep rbdmirror as is, requires total rework
+		if err := rbdPeersValidate(c.cdConfig.cephDpl); err != "" {
+			c.log.Error().Msgf("failed to validate rbd mirror spec: %s", err)
+			errMsgs = append(errMsgs, err)
 		}
 	}
-	if err := rbdPeersValidate(c.cdConfig.cephDpl); err != nil {
-		c.log.Error().Err(err).Msg("")
-		errMsgs = append(errMsgs, err.Error())
-	}
-	switch c.cdConfig.cephDpl.Spec.Network.Provider {
-	case "", "host":
-		// if networks section contains 0.0.0.0/0 range or empty string - fail validation
-		nets := map[string]string{
-			"publicNet":  c.cdConfig.cephDpl.Spec.Network.PublicNet,
-			"clusterNet": c.cdConfig.cephDpl.Spec.Network.ClusterNet,
-		}
-		netKeys := []string{"publicNet", "clusterNet"}
-		for _, param := range netKeys {
-			netList := strings.Split(nets[param], ",")
-			for _, netrange := range netList {
-				if netrange = strings.Trim(netrange, " "); netrange == "0.0.0.0/0" || netrange == "" {
-					var err error
-					if netrange == "0.0.0.0/0" {
-						err = errors.Errorf("network %s parameter contains prohibited 0.0.0.0 range", param)
-					} else {
-						err = errors.Errorf("network %s parameter is empty", param)
-					}
-					c.log.Error().Err(err).Msg("")
-					errMsgs = append(errMsgs, err.Error())
-				}
-			}
-		}
-	case "multus":
-		if c.cdConfig.cephDpl.Spec.Network.Selector[cephv1.CephNetworkPublic] == "" || c.cdConfig.cephDpl.Spec.Network.Selector[cephv1.CephNetworkCluster] == "" {
-			err := errors.New("network.selector public and/or cluster parameters should not be empty for provider 'multus'")
-			errMsgs = append(errMsgs, err.Error())
-		}
-	default:
-		err := errors.New("network provider parameter should be empty or equals 'host' or 'multus'")
-		errMsgs = append(errMsgs, err.Error())
-	}
-	if errs := cephSharedFilesystemValidate(c.cdConfig.cephDpl, c.lcmConfig.RookNamespace, c.cdConfig.nodesListExpanded); len(errs) > 0 {
-		c.log.Error().Msgf("errors during shared filesystem settings validation: %v", errs)
+	if errs := validatePoolsSpec(c.cdConfig.cephDpl, c.cdConfig.clusterSpec.External.Enable, len(c.cdConfig.nodesListExpanded) == 1); len(errs) > 0 {
+		c.log.Error().Msgf("failed to validate block storage pools spec: %v", errs)
 		errMsgs = append(errMsgs, errs...)
 	}
+	if errs := validateFilesystemSpec(c.cdConfig.cephDpl, c.cdConfig.nodesListExpanded, c.cdConfig.clusterSpec.External.Enable); len(errs) > 0 {
+		c.log.Error().Msgf("failed to validate shared filesystem spec: %v", errs)
+		errMsgs = append(errMsgs, errs...)
+	}
+	if errs := validateObjectStorageSpec(c.cdConfig.cephDpl, c.cdConfig.nodesListExpanded, c.cdConfig.clusterSpec.External.Enable); len(errs) > 0 {
+		c.log.Error().Msgf("failed to validate object storage spec: %v", errs)
+		errMsgs = append(errMsgs, errs...)
+	}
+
 	validationResult := cephlcmv1alpha1.CephDeploymentValidation{
 		Result:                  cephlcmv1alpha1.ValidationSucceed,
 		LastValidatedGeneration: c.cdConfig.cephDpl.Generation,
@@ -232,245 +74,476 @@ func (c *cephDeploymentConfig) validate() cephlcmv1alpha1.CephDeploymentValidati
 	return validationResult
 }
 
-func cephSharedFilesystemValidate(cephDpl *cephlcmv1alpha1.CephDeployment, rookNamespace string, nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode) []string {
-	fsErrors := make([]string, 0)
-	if cephDpl.Spec.SharedFilesystem != nil {
-		for _, cephFSSpec := range cephDpl.Spec.SharedFilesystem.CephFS {
-			if cephFSSpec.MetadataPool.Replicated == nil || cephFSSpec.MetadataPool.ErasureCoded != nil {
-				msg := fmt.Sprintf("metadataPool for CephFS %s/%s must use replication only", rookNamespace, cephFSSpec.Name)
-				fsErrors = append(fsErrors, msg)
-			}
-			if len(cephFSSpec.DataPools) == 0 {
-				msg := fmt.Sprintf("dataPools sections for CephFS %s/%s has no data pools defined", rookNamespace, cephFSSpec.Name)
-				fsErrors = append(fsErrors, msg)
-				continue
-			}
-			// for cephfs allowed do not specify deviceClass at all
-			if err := validateDeviceClassName(cephFSSpec.MetadataPool.DeviceClass, cephDpl.Spec.ExtraOpts); err != nil {
-				msg := fmt.Sprintf("metadataPool for CephFS %s/%s has %s", rookNamespace, cephFSSpec.Name, err.Error())
-				fsErrors = append(fsErrors, msg)
-			}
-			if cephFSSpec.MetadataPool.FailureDomain == "osd" && len(nodesListExpanded) > 1 {
-				msg := fmt.Sprintf("metadataPool for CephFS %s/%s contains prohibited 'osd' failureDomain", rookNamespace, cephFSSpec.Name)
-				fsErrors = append(fsErrors, msg)
-			}
-			for idx, dataPool := range cephFSSpec.DataPools {
-				if err := validateDeviceClassName(dataPool.DeviceClass, cephDpl.Spec.ExtraOpts); err != nil {
-					msg := fmt.Sprintf("dataPool %s for CephFS %s/%s has %s", dataPool.Name, rookNamespace, cephFSSpec.Name, err.Error())
-					fsErrors = append(fsErrors, msg)
-				}
-				if dataPool.FailureDomain == "osd" && len(nodesListExpanded) > 1 {
-					msg := fmt.Sprintf("dataPool %s for CephFS %s/%s contains prohibited 'osd' failureDomain", dataPool.Name, rookNamespace, cephFSSpec.Name)
-					fsErrors = append(fsErrors, msg)
-				}
-				if idx == 0 {
-					if dataPool.ErasureCoded != nil || dataPool.Replicated == nil {
-						msg := fmt.Sprintf("dataPool %s will be used as default for CephFS %s/%s and must use replication only", dataPool.Name, rookNamespace, cephFSSpec.Name)
-						fsErrors = append(fsErrors, msg)
-					}
-					continue
-				}
-				if dataPool.Replicated == nil && dataPool.ErasureCoded == nil {
-					msg := fmt.Sprintf("dataPool %s for CephFS %s/%s has no neither replication or erasureCoded sections specified", dataPool.Name, rookNamespace, cephFSSpec.Name)
-					fsErrors = append(fsErrors, msg)
-				}
-			}
-			// do not count mds roles for external cluster
-			if !cephDpl.Spec.External {
-				mdsCount := 0
-				for _, node := range nodesListExpanded {
-					if lcmcommon.Contains(node.Roles, "mds") {
-						mdsCount = mdsCount + 1
+func validateNetworkSpec(clusterNetwork cephv1.NetworkSpec) []string {
+	errMsgs := []string{}
+
+	switch clusterNetwork.Provider {
+	case "", "host", "multus":
+		if clusterNetwork.AddressRanges == nil {
+			errMsgs = append(errMsgs, "cluster network addressRanges parameter is not specified")
+		} else {
+			if len(clusterNetwork.AddressRanges.Public) == 0 {
+				errMsgs = append(errMsgs, "cluster network addressRanges public parameter not specified")
+			} else {
+				for _, net := range clusterNetwork.AddressRanges.Public {
+					if string(net) == "" || strings.HasPrefix(string(net), "0.0.0.0") {
+						errMsgs = append(errMsgs, "cluster network address ranges public parameter should not be empty or contain range 0.0.0.0")
+						break
 					}
 				}
-				if int(cephFSSpec.MetadataServer.ActiveCount) > mdsCount {
-					fsErrors = append(fsErrors, fmt.Sprintf("not enough 'mds' roles specified in nodes spec, CephFS %s/%s requires at least %d",
-						rookNamespace, cephFSSpec.Name, cephFSSpec.MetadataServer.ActiveCount))
+			}
+			if len(clusterNetwork.AddressRanges.Cluster) == 0 {
+				errMsgs = append(errMsgs, "cluster network addressRanges cluster parameter not specified")
+			} else {
+				for _, net := range clusterNetwork.AddressRanges.Cluster {
+					if string(net) == "" || strings.HasPrefix(string(net), "0.0.0.0") {
+						errMsgs = append(errMsgs, "cluster network address ranges cluster parameter should not be empty or contain range 0.0.0.0")
+						break
+					}
+				}
+			}
+		}
+		if clusterNetwork.Provider == "multus" {
+			if clusterNetwork.Selectors[cephv1.CephNetworkPublic] == "" || clusterNetwork.Selectors[cephv1.CephNetworkCluster] == "" {
+				errMsgs = append(errMsgs, "cluster network public/cluster selector parameter(s) should not be empty for 'multus' provider")
+			}
+		}
+	default:
+		errMsgs = append(errMsgs, "cluster network provider parameter should be empty or equals 'host' or 'multus'")
+	}
+	return errMsgs
+}
+
+func (c *cephDeploymentConfig) validateClusterNodes() error {
+	unknownNodes := make([]string, 0)
+	allNodes, err := lcmcommon.GetNodeList(c.context, c.api.Kubeclientset, metav1.ListOptions{})
+	if err != nil {
+		return err
+	}
+	knownNodes := map[string]bool{}
+	for _, node := range allNodes.Items {
+		knownNodes[node.Name] = true
+	}
+	for _, cephDplNode := range c.cdConfig.nodesListExpanded {
+		if !knownNodes[cephDplNode.Name] {
+			unknownNodes = append(unknownNodes, cephDplNode.Name)
+		}
+	}
+	if len(unknownNodes) > 0 {
+		return errors.Errorf("found nodes present in spec, but not exist among k8s cluster nodes: %s", strings.Join(unknownNodes, ","))
+	}
+	return nil
+}
+
+func validateNodesSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode) []string {
+	errMsgs := []string{}
+	validCrushKeys := strings.Join(getCrushKeys(), ", ")
+	for _, node := range cephDpl.Spec.Nodes {
+		nodeType := "node"
+		if node.NodesByLabel != "" || len(node.NodeGroup) > 0 {
+			nodeType = "nodeGroup"
+		}
+		// field are not supported at all in favor of Ceph OSD LCM correct work
+		if node.UseAllDevices != nil && *node.UseAllDevices {
+			errMsg := fmt.Sprintf("found 'useAllDevices' field for nodes item %s '%s', which is not supported, remove field", nodeType, node.Name)
+			errMsgs = append(errMsgs, errMsg)
+			continue
+		}
+		// currently PVC based cluster is not supported
+		if len(node.VolumeClaimTemplates) > 0 {
+			errMsg := fmt.Sprintf("found 'volumeClaimTemplates' field for nodes item %s '%s', which is not supported, remove field", nodeType, node.Name)
+			errMsgs = append(errMsgs, errMsg)
+			continue
+		}
+		// check node crush topology
+		for crush := range node.Crush {
+			if _, ok := crushTopologyAllowedKeys[crush]; !ok {
+				err := fmt.Sprintf("nodes item %s '%s' contains invalid crush topology key '%s'. Valid are: %v", nodeType, node.Name, crush, validCrushKeys)
+				errMsgs = append(errMsgs, err)
+			}
+		}
+		// check storage configs
+		if lcmcommon.IsCephOsdNode(node.Node) {
+			nodeDeviceClass := ""
+			if node.Config != nil {
+				if node.Config["deviceClass"] != "" {
+					nodeDeviceClass = node.Config["deviceClass"]
+					if err := validateDeviceClassName(node.Config["deviceClass"], cephDpl.Spec.ExtraOpts); err != nil {
+						errMsg := fmt.Sprintf("nodes item %s '%s' config has %s", nodeType, node.Name, err.Error())
+						errMsgs = append(errMsgs, errMsg)
+						continue
+					}
+				}
+				if node.Config["osdsPerDevice"] != "" {
+					_, err := strconv.Atoi(node.Config["osdsPerDevice"])
+					if err != nil {
+						errMsg := fmt.Sprintf("failed to parse config parameter 'osdsPerDevice' from nodes item %s '%s': %s", nodeType, node.Name, err.Error())
+						errMsgs = append(errMsgs, errMsg)
+						continue
+					}
+				}
+			}
+			if len(node.Devices) > 0 {
+				for _, device := range node.Devices {
+					deviceClass := nodeDeviceClass
+					deviceName := device.Name
+					if device.FullPath != "" {
+						deviceName = device.FullPath
+					} else if device.Name == "" {
+						errMsgs = append(errMsgs, fmt.Sprintf("nodes item %s '%s' has device without name or fullpath specified", nodeType, node.Name))
+					}
+					if device.Config != nil {
+						if device.Config["deviceClass"] != "" {
+							deviceClass = device.Config["deviceClass"]
+							if err := validateDeviceClassName(deviceClass, cephDpl.Spec.ExtraOpts); err != nil {
+								errMsg := fmt.Sprintf("device '%s' from nodes item %s '%s' has %s", deviceName, nodeType, node.Name, err.Error())
+								errMsgs = append(errMsgs, errMsg)
+							}
+						}
+						if device.Config["osdsPerDevice"] != "" {
+							_, err := strconv.Atoi(device.Config["osdsPerDevice"])
+							if err != nil {
+								errMsg := fmt.Sprintf("failed to parse config parameter 'osdsPerDevice' for device '%s' from %s '%s': %s",
+									deviceName, nodeType, node.Name, err.Error())
+								errMsgs = append(errMsgs, errMsg)
+							}
+						}
+					}
+					if deviceClass == "" {
+						errMsg := fmt.Sprintf("config parameter 'deviceClass' is not specified for device '%s' from nodes item %s '%s', but it is required",
+							deviceName, nodeType, node.Name)
+						errMsgs = append(errMsgs, errMsg)
+					}
+				}
+			} else {
+				// check device class is specified for deviceFilter and devicePathFilter
+				if nodeDeviceClass == "" {
+					errMsg := fmt.Sprintf("config parameter 'deviceClass' is not specified for nodes item %s '%s', but it is required", nodeType, node.Name)
+					errMsgs = append(errMsgs, errMsg)
 				}
 			}
 		}
 	}
-	return fsErrors
+	monCount := 0
+	mgrCount := 0
+	for _, node := range nodesListExpanded {
+		if lcmcommon.Contains(node.Roles, "mon") {
+			monCount = monCount + 1
+		}
+		if lcmcommon.Contains(node.Roles, "mgr") {
+			mgrCount = mgrCount + 1
+		}
+	}
+	if monCount == 0 {
+		errMsgs = append(errMsgs, "no nodes with 'mon' roles specified")
+	} else if len(nodesListExpanded) >= 3 && monCount%2 == 0 {
+		// skip check for PRODX-19248
+		err := fmt.Sprintf("monitor nodes in spec (with roles 'mon') count is %d, but should be odd for a healthy quorum", monCount)
+		errMsgs = append(errMsgs, err)
+	}
+	if mgrCount == 0 {
+		errMsgs = append(errMsgs, "no nodes with 'mgr' roles specified, required at least one")
+	}
+	return errMsgs
 }
 
-func openstackPoolsValidate(cephDpl *cephlcmv1alpha1.CephDeployment) error {
-	expectedRoles := []string{"images", "vms", "backup", "volumes"}
-	foundRoles := map[string]int{
+func validatePoolsSpec(cephDpl *cephlcmv1alpha1.CephDeployment, externalCluster bool, singleNode bool) []string {
+	if cephDpl.Spec.BlockStorage == nil || len(cephDpl.Spec.BlockStorage.Pools) == 0 {
+		if externalCluster {
+			return nil
+		}
+		return []string{"no block storage pools provided, required at least one"}
+	}
+
+	errMsgs := []string{}
+	defaultFound := false
+	for _, cephDplPool := range cephDpl.Spec.BlockStorage.Pools {
+		if defaultFound && cephDplPool.StorageClassOpts.Default {
+			errMsgs = append(errMsgs, "multiple default pools specified")
+		}
+		defaultFound = defaultFound || cephDplPool.StorageClassOpts.Default
+
+		castedPool, _ := cephDplPool.GetSpec()
+		if externalCluster {
+			if castedPool.DeviceClass == "" {
+				errMsgs = append(errMsgs, fmt.Sprintf("pool '%s' has no device class specified", cephDplPool.Name))
+			}
+			continue
+		}
+
+		if poolErrs := validatePoolSpec(castedPool, false, cephDplPool.Name, singleNode, cephDpl.Spec.ExtraOpts); len(poolErrs) > 0 {
+			errMsgs = append(errMsgs, poolErrs...)
+		}
+		if cephDplPool.StorageClassOpts.ReclaimPolicy != "" && !lcmcommon.Contains(poolReclaimPolicies, cephDplPool.StorageClassOpts.ReclaimPolicy) {
+			errMsgs = append(errMsgs, fmt.Sprintf("pool %s contains invalid reclaimPolicy '%s', valid are: %v",
+				cephDplPool.Name, cephDplPool.StorageClassOpts.ReclaimPolicy, poolReclaimPolicies))
+		}
+	}
+	if !externalCluster {
+		if !defaultFound {
+			errMsgs = append(errMsgs, "no default pool specified")
+		}
+		if errs := openstackPoolsValidate(cephDpl.Spec.BlockStorage.Pools); len(errs) > 0 {
+			errMsgs = append(errMsgs, errs...)
+		}
+	}
+	return errMsgs
+}
+
+func openstackPoolsValidate(specPools []cephlcmv1alpha1.CephPool) []string {
+	openstackRoles := map[string]int{
 		"images":  0,
 		"vms":     0,
 		"backup":  0,
 		"volumes": 0,
 	}
-	anyRolesFound := false
-	extraRolesSpecified := []string{}
-	for _, pool := range cephDpl.Spec.Pools {
-		if lcmcommon.Contains(expectedRoles, pool.Role) {
-			anyRolesFound = true
-			foundRoles[pool.Role]++
-			if foundRoles[pool.Role] > 1 && pool.Role != "volumes" {
-				extraRolesSpecified = append(extraRolesSpecified, pool.Role)
-			}
+	// count specified roles for pools
+	for _, pool := range specPools {
+		if _, ok := openstackRoles[pool.Role]; ok {
+			openstackRoles[pool.Role]++
 		}
 	}
-	if len(extraRolesSpecified) > 0 {
-		return errors.Errorf("Detected incorrent number of OpenStack Pools with roles: %v - allowed to be specified only once", extraRolesSpecified)
-	}
-	if !anyRolesFound {
-		return nil
-	}
+	extraRolesSpecified := []string{}
 	rolesNotSpecified := []string{}
-	for role, roleCount := range foundRoles {
-		if roleCount == 0 {
+	totalCount := 0
+	for role, count := range openstackRoles {
+		totalCount += count
+		if count > 1 && role != "volumes" {
+			extraRolesSpecified = append(extraRolesSpecified, role)
+		}
+		if count == 0 {
 			rolesNotSpecified = append(rolesNotSpecified, role)
 		}
 	}
-	if len(rolesNotSpecified) > 0 {
-		return errors.Errorf("Not all Openstack required pools was found: missed %v. Or it should not be Openstack pools at all", rolesNotSpecified)
+	// no openstack pools
+	if totalCount == 0 {
+		return nil
 	}
-	return nil
+	errMsgs := []string{}
+	if len(rolesNotSpecified) > 0 {
+		sort.Strings(rolesNotSpecified)
+		errMsgs = append(errMsgs, fmt.Sprintf("found pools with Openstack roles, but missed pools with next roles: %v - required to be specified for Openstack", rolesNotSpecified))
+	}
+	if len(extraRolesSpecified) > 0 {
+		sort.Strings(extraRolesSpecified)
+		errMsgs = append(errMsgs, fmt.Sprintf("found pools with Openstack roles, but pools with roles %v allowed to be specified only once", extraRolesSpecified))
+	}
+	return errMsgs
 }
 
-func rbdPeersValidate(cephDpl *cephlcmv1alpha1.CephDeployment) error {
+func validateFilesystemSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode, externalCluster bool) []string {
+	if cephDpl.Spec.SharedFilesystem == nil || len(cephDpl.Spec.SharedFilesystem.Filesystems) == 0 {
+		return nil
+	}
+
+	singleNode := len(nodesListExpanded) == 1
+	fsErrors := make([]string, 0)
+	mdsCount := 0
+	for _, node := range nodesListExpanded {
+		if lcmcommon.Contains(node.Roles, "mds") {
+			mdsCount = mdsCount + 1
+		}
+	}
+	for _, cephFSSpec := range cephDpl.Spec.SharedFilesystem.Filesystems {
+		cephFsSpecCasted, _ := cephFSSpec.GetSpec()
+		if len(cephFsSpecCasted.DataPools) == 0 {
+			fsErrors = append(fsErrors, fmt.Sprintf("cephfs '%s' has no datapools specified, requires at least one", cephFSSpec.Name))
+			continue
+		}
+		if externalCluster {
+			continue
+		}
+
+		metapoolName := fmt.Sprintf("cephfs '%s' metadata", cephFSSpec.Name)
+		if metaIssues := validatePoolSpec(cephFsSpecCasted.MetadataPool.PoolSpec, true, metapoolName, singleNode, cephDpl.Spec.ExtraOpts); len(metaIssues) > 0 {
+			fsErrors = append(fsErrors, metaIssues...)
+		}
+
+		for idx, dataPool := range cephFsSpecCasted.DataPools {
+			datapoolName := fmt.Sprintf("cephfs '%s' data %s", cephFSSpec.Name, dataPool.Name)
+			if idx == 0 {
+				if dataPool.Replicated.Size == 0 {
+					msg := fmt.Sprintf("%s will be used as default and must use replication only", datapoolName)
+					fsErrors = append(fsErrors, msg)
+				}
+				continue
+			}
+			if poolIssues := validatePoolSpec(dataPool.PoolSpec, false, datapoolName, singleNode, cephDpl.Spec.ExtraOpts); len(poolIssues) > 0 {
+				fsErrors = append(fsErrors, poolIssues...)
+			}
+		}
+
+		if int(cephFsSpecCasted.MetadataServer.ActiveCount) > mdsCount {
+			fsErrors = append(fsErrors, fmt.Sprintf("not enough 'mds' roles specified in nodes spec, cephfs %s requires at least %d, found %d",
+				cephFSSpec.Name, cephFsSpecCasted.MetadataServer.ActiveCount, mdsCount))
+		}
+	}
+	return fsErrors
+}
+
+func rbdPeersValidate(cephDpl *cephlcmv1alpha1.CephDeployment) string {
 	// Currently (Ceph Octopus release) only a single peer is supported where a peer represents a Ceph cluster.
 	if cephDpl.Spec.RBDMirror != nil && len(cephDpl.Spec.RBDMirror.Peers) > 1 {
-		return errors.Errorf("Multiple RBD Peers aren't supported yet")
+		return "multiple RBD Peers aren't supported yet"
 	}
-	return nil
+	return ""
 }
 
-func (c *cephDeploymentConfig) cephDeploymentNodesValidate() error {
-	unknownNodes := make([]string, 0)
-	allNodes, err := lcmcommon.GetNodeList(c.context, c.api.Kubeclientset, metav1.ListOptions{})
-	if err != nil {
-		return errors.Wrap(err, "failed to get node list")
-	}
-CephDeploymentNodesLoop:
-	for _, cephDplNode := range c.cdConfig.nodesListExpanded {
-		for _, node := range allNodes.Items {
-			if cephDplNode.Name == node.Name {
-				continue CephDeploymentNodesLoop
-			}
-		}
-		unknownNodes = append(unknownNodes, cephDplNode.Name)
-	}
-	if len(unknownNodes) > 0 {
-		return errors.Errorf("The following nodes are present in CephDeployment spec but not present in k8s cluster node list: %s", strings.Join(unknownNodes, ","))
-	}
-	return nil
-}
-
-func validateObjectStorage(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode) error {
+func validateObjectStorageSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode, external bool) []string {
 	issues := []string{}
-
-	checkRgwPool := func(cephDplPoolSpec cephlcmv1alpha1.CephPoolSpec, poolType, zone string) {
-		issueTmlp := fmt.Sprintf("rgw %s pool", poolType)
-		if zone != "" {
-			issueTmlp = fmt.Sprintf("%s in zone %s", issueTmlp, zone)
-		}
-		if poolType == "metadata" {
-			if cephDplPoolSpec.Replicated == nil || cephDplPoolSpec.ErasureCoded != nil {
-				issues = append(issues, fmt.Sprintf("%s must be only replicated", issueTmlp))
-			}
-		} else {
-			if cephDplPoolSpec.Replicated == nil && cephDplPoolSpec.ErasureCoded == nil {
-				issues = append(issues, fmt.Sprintf("%s has no pool type specified", issueTmlp))
-			}
-			if cephDplPoolSpec.Replicated != nil && cephDplPoolSpec.ErasureCoded != nil {
-				issues = append(issues, fmt.Sprintf("%s must have only one pool type specified", issueTmlp))
-			}
-		}
-		if err := validateDeviceClassName(cephDplPoolSpec.DeviceClass, cephDpl.Spec.ExtraOpts); err != nil {
-			issues = append(issues, fmt.Sprintf("%s has %s", issueTmlp, err.Error()))
-		}
-		if cephDplPoolSpec.FailureDomain == "osd" && len(nodesListExpanded) > 1 {
-			issues = append(issues, fmt.Sprintf("%s contains prohibited 'osd' failureDomain", issueTmlp))
-		}
-	}
+	singleClusterNode := len(nodesListExpanded) == 1
 
 	if cephDpl.Spec.ObjectStorage != nil {
-		if cephDpl.Spec.External {
-			if cephDpl.Spec.ObjectStorage.Rgw.MetadataPool != nil || cephDpl.Spec.ObjectStorage.Rgw.DataPool != nil {
-				issues = append(issues, "rgw in external mode, pools (metadata and data) specification is not allowed")
+		monNodesCount := int32(0)
+		rgwNodesCount := int32(0)
+		knownZones := map[string]bool{}
+		if external {
+			if len(cephDpl.Spec.ObjectStorage.Realms) > 0 {
+				issues = append(issues, "cluster is external, rgw realms can't be created")
+			}
+			if len(cephDpl.Spec.ObjectStorage.Zonegroups) > 0 {
+				issues = append(issues, "cluster is external, rgw zonegroups can't be created")
+			}
+			if len(cephDpl.Spec.ObjectStorage.Zones) > 0 {
+				issues = append(issues, "cluster is external, rgw zones can't be created")
 			}
 		} else {
-			if cephDpl.Spec.ObjectStorage.Rgw.Zone != nil && cephDpl.Spec.ObjectStorage.MultiSite == nil {
-				issues = append(issues, "rgw has specified zone name, but it is allowed only for multisite configuration, which is not present")
-			} else if (cephDpl.Spec.ObjectStorage.Rgw.Zone == nil || cephDpl.Spec.ObjectStorage.Rgw.Zone.Name == "") && cephDpl.Spec.ObjectStorage.MultiSite != nil {
-				issues = append(issues, "rgw has no specified zone name, but multisite configuration is present")
+			knownRealms := map[string]bool{}
+			knownZonegroups := map[string]bool{}
+			// TODO (degorenko): limit realms,zones,zonegroups to only 1 per cluster for now
+			if len(cephDpl.Spec.ObjectStorage.Realms) > 1 {
+				issues = append(issues, "more than one realm specified, but currently supported only one realm per cluster")
+			}
+			if len(cephDpl.Spec.ObjectStorage.Zonegroups) > 1 {
+				issues = append(issues, "more than one zonegroup specified, but currently supported only one zonegroup per cluster")
+			}
+			if len(cephDpl.Spec.ObjectStorage.Zones) > 1 {
+				issues = append(issues, "more than one zone specified, but currently supported only one zone per cluster")
+			}
+			for _, realm := range cephDpl.Spec.ObjectStorage.Realms {
+				knownRealms[realm.Name] = true
+			}
+			for _, zoneGroup := range cephDpl.Spec.ObjectStorage.Zonegroups {
+				knownZonegroups[zoneGroup.Name] = true
+				zoneGroupCasted, _ := zoneGroup.GetSpec()
+				if _, ok := knownRealms[zoneGroupCasted.Realm]; !ok {
+					issues = append(issues, fmt.Sprintf("zonegroup '%s' has specified realm '%s', which is not specified in spec", zoneGroup.Name, zoneGroupCasted.Realm))
+				}
+			}
+			for _, zone := range cephDpl.Spec.ObjectStorage.Zones {
+				knownZones[zone.Name] = true
+				zoneCasted, _ := zone.GetSpec()
+				if _, ok := knownZonegroups[zoneCasted.ZoneGroup]; !ok {
+					issues = append(issues, fmt.Sprintf("zone '%s' has specified zonegroup '%s', which is not specified in spec", zone.Name, zoneCasted.ZoneGroup))
+				}
+				t := "zone '%s' %s"
+				issues = append(issues, validatePoolSpec(zoneCasted.MetadataPool, true, fmt.Sprintf(t, zone.Name, "metadata"), singleClusterNode, cephDpl.Spec.ExtraOpts)...)
+				issues = append(issues, validatePoolSpec(zoneCasted.DataPool, false, fmt.Sprintf(t, zone.Name, "data"), singleClusterNode, cephDpl.Spec.ExtraOpts)...)
+			}
+			for _, node := range nodesListExpanded {
+				if lcmcommon.Contains(node.Roles, "mon") {
+					monNodesCount = monNodesCount + 1
+				}
+				if lcmcommon.Contains(node.Roles, "rgw") {
+					rgwNodesCount = rgwNodesCount + 1
+				}
+			}
+		}
+
+		for _, rgw := range cephDpl.Spec.ObjectStorage.Rgws {
+			rgwCasted, _ := rgw.GetSpec()
+			if rgwCasted.Gateway.Port == 0 {
+				issues = append(issues, fmt.Sprintf("rgw '%s' has no port specified", rgw.Name))
+			}
+			if external {
+				if rgwCasted.MetadataPool.Replicated.Size != 0 || rgwCasted.MetadataPool.ErasureCoded.DataChunks != 0 || rgwCasted.MetadataPool.ErasureCoded.CodingChunks != 0 ||
+					rgwCasted.DataPool.Replicated.Size != 0 || rgwCasted.DataPool.ErasureCoded.DataChunks != 0 || rgwCasted.DataPool.ErasureCoded.CodingChunks != 0 || rgwCasted.Zone.Name != "" {
+					issues = append(issues, fmt.Sprintf("cluster is external, rgw '%s' pools (metadata and data) specification is not allowed", rgw.Name))
+				}
+				if len(rgwCasted.Gateway.ExternalRgwEndpoints) == 0 {
+					issues = append(issues, fmt.Sprintf("external endpoints for rgw '%s' are not provided", rgw.Name))
+				}
 			} else {
-				if cephDpl.Spec.ObjectStorage.MultiSite != nil {
-					zoneFound := false
-					// TODO (degorenko): limit realms,zones,zonegroups to only 1 per cluster for now
-					if len(cephDpl.Spec.ObjectStorage.MultiSite.Zones) > 1 {
-						issues = append(issues, "more than one zone specified, but currently supported only one zone per cluster")
-					}
-					if len(cephDpl.Spec.ObjectStorage.MultiSite.ZoneGroups) > 1 {
-						issues = append(issues, "more than one zonegroup specified, but currently supported only one zonegroup per cluster")
-					}
-					if len(cephDpl.Spec.ObjectStorage.MultiSite.Realms) > 1 {
-						issues = append(issues, "more than one realm specified, but currently supported only one realm per cluster")
-					}
-					for _, zone := range cephDpl.Spec.ObjectStorage.MultiSite.Zones {
-						if zone.Name == cephDpl.Spec.ObjectStorage.Rgw.Zone.Name {
-							zoneFound = true
-							zonegroupFound := false
-							for _, zoneGroup := range cephDpl.Spec.ObjectStorage.MultiSite.ZoneGroups {
-								if zoneGroup.Name == zone.ZoneGroup {
-									zonegroupFound = true
-									realmFound := false
-									for _, realm := range cephDpl.Spec.ObjectStorage.MultiSite.Realms {
-										if realm.Name == zoneGroup.Realm {
-											realmFound = true
-											break
-										}
-									}
-									if !realmFound {
-										issues = append(issues, fmt.Sprintf("incorrect multisite configuration, specified realm '%s' is not found", zoneGroup.Realm))
-									}
-									break
-								}
-							}
-							if !zonegroupFound {
-								issues = append(issues, fmt.Sprintf("incorrect multisite configuration, specified zonegroup '%s' is not found", zone.ZoneGroup))
-							} else {
-								checkRgwPool(zone.MetadataPool, "metadata", zone.Name)
-								checkRgwPool(zone.DataPool, "data", zone.Name)
-							}
-							break
-						}
-					}
-					if !zoneFound {
-						issues = append(issues, fmt.Sprintf("incorrect multisite configuration, specified zone '%s' is not found", cephDpl.Spec.ObjectStorage.Rgw.Zone.Name))
+				if rgwCasted.Zone.Name != "" {
+					if !knownZones[rgwCasted.Zone.Name] {
+						issues = append(issues, fmt.Sprintf("incorrect rgw '%s' configuration, specified zone '%s' is not found", rgw.Name, rgwCasted.Zone.Name))
 					}
 				} else {
-					if cephDpl.Spec.ObjectStorage.Rgw.MetadataPool == nil || cephDpl.Spec.ObjectStorage.Rgw.DataPool == nil {
-						issues = append(issues, "no rgw metadata/data pool(s) specified")
-					} else {
-						checkRgwPool(*cephDpl.Spec.ObjectStorage.Rgw.MetadataPool, "metadata", "")
-						checkRgwPool(*cephDpl.Spec.ObjectStorage.Rgw.DataPool, "data", "")
+					issues = append(issues, validatePoolSpec(rgwCasted.MetadataPool, true, fmt.Sprintf("rgw '%s' metadata", rgw.Name), singleClusterNode, cephDpl.Spec.ExtraOpts)...)
+					issues = append(issues, validatePoolSpec(rgwCasted.DataPool, false, fmt.Sprintf("rgw '%s' data", rgw.Name), singleClusterNode, cephDpl.Spec.ExtraOpts)...)
+				}
+				if (rgwNodesCount > 0 && rgwCasted.Gateway.Instances > rgwNodesCount) ||
+					(rgwNodesCount == 0 && rgwCasted.Gateway.Instances > monNodesCount) {
+					issues = append(issues, fmt.Sprintf("not enough 'rgw' roles specified in nodes spec, rgw '%s' requires at least %d, found %d", rgw.Name, rgwCasted.Gateway.Instances, rgwNodesCount+monNodesCount))
+				}
+			}
+		}
+
+		for _, user := range cephDpl.Spec.ObjectStorage.Users {
+			userCasted, _ := user.GetSpec()
+			if userCasted.Store == "" {
+				issues = append(issues, fmt.Sprintf("object store user '%s' has no related rgw set ('store' field)", user.Name))
+			} else {
+				found := false
+				for _, rgw := range cephDpl.Spec.ObjectStorage.Rgws {
+					if rgw.Name == userCasted.Store {
+						found = true
+						break
 					}
+				}
+				if !found {
+					issues = append(issues, fmt.Sprintf("object store user '%s' has unknown rgw set ('store' field)", user.Name))
 				}
 			}
 		}
 	}
-	if len(issues) > 0 {
-		return fmt.Errorf("ObjectStorage section is incorrect: %s", strings.Join(issues, ","))
-	}
-	if cephDpl.Spec.ObjectStorage != nil {
-		monCount := 0
-		rgwCount := 0
-		for _, node := range nodesListExpanded {
-			if lcmcommon.Contains(node.Roles, "mon") {
-				monCount = monCount + 1
-			}
-			if lcmcommon.Contains(node.Roles, "rgw") {
-				rgwCount = rgwCount + 1
-			}
-		}
-		if (rgwCount > 0 && int(cephDpl.Spec.ObjectStorage.Rgw.Gateway.Instances) > rgwCount) ||
-			(rgwCount == 0 && int(cephDpl.Spec.ObjectStorage.Rgw.Gateway.Instances) > monCount) {
-			return fmt.Errorf("not enough 'rgw' roles specified in nodes spec, ObjectStorage requires at least %d", cephDpl.Spec.ObjectStorage.Rgw.Gateway.Instances)
+	return issues
+}
+
+func validatePoolSpec(spec cephv1.PoolSpec, metapool bool, poolName string, singleNode bool, extraOpts *cephlcmv1alpha1.CephDeploymentExtraOpts) []string {
+	if metapool {
+		if spec.Replicated.Size == 0 || (spec.ErasureCoded.DataChunks != 0 || spec.ErasureCoded.CodingChunks != 0) {
+			return []string{fmt.Sprintf("%s pool must be only replicated", poolName)}
 		}
 	}
-	return nil
+
+	if (spec.Replicated.Size == 0 && spec.ErasureCoded.DataChunks == 0 && spec.ErasureCoded.CodingChunks == 0) ||
+		(spec.Replicated.Size > 0 && (spec.ErasureCoded.DataChunks > 0 || spec.ErasureCoded.CodingChunks > 0)) {
+		return []string{fmt.Sprintf("%s pool should be either replicated or erasureCoded", poolName)}
+	}
+
+	issues := []string{}
+	if spec.ErasureCoded.DataChunks > 0 || spec.ErasureCoded.CodingChunks > 0 {
+		if spec.ErasureCoded.DataChunks < 2 {
+			issues = append(issues, fmt.Sprintf("erasureCoded %s pool needs dataChunks set to at least 2", poolName))
+		}
+		if spec.ErasureCoded.CodingChunks < 1 {
+			issues = append(issues, fmt.Sprintf("erasureCoded %s pool needs codingChunks set to at least 1", poolName))
+		}
+	}
+
+	if err := validateDeviceClassName(spec.DeviceClass, extraOpts); err != nil {
+		issues = append(issues, fmt.Sprintf("%s pool has %s", poolName, err.Error()))
+	}
+	if spec.FailureDomain == "osd" && !singleNode {
+		issues = append(issues, fmt.Sprintf("%s pool contains prohibited 'osd' failureDomain", poolName))
+	}
+	return issues
+}
+
+func validateDeviceClassName(deviceClass string, extraOpts *cephlcmv1alpha1.CephDeploymentExtraOpts) error {
+	customDeviceClasses := make([]string, 0)
+	if extraOpts != nil && len(extraOpts.CustomDeviceClasses) > 0 {
+		customDeviceClasses = extraOpts.CustomDeviceClasses
+	}
+	validNames := append([]string{"hdd", "nvme", "ssd"}, customDeviceClasses...)
+	if deviceClass == "" {
+		return fmt.Errorf("no deviceClass specified (default valid options are: %v, either specify custom classes)", validNames)
+	}
+	for _, className := range validNames {
+		if className == deviceClass {
+			return nil
+		}
+	}
+	return fmt.Errorf("unknown deviceClass '%s' (default valid options are: %v, either specify custom classes)", deviceClass, validNames)
 }

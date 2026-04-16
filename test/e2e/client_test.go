@@ -24,6 +24,7 @@ import (
 	"github.com/pkg/errors"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
@@ -39,12 +40,13 @@ func TestCreateCephClient(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	testClient := cephlcmv1alpha1.CephClient{
-		ClientSpec: cephlcmv1alpha1.ClientSpec{
+	clientRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(
+		cephv1.ClientSpec{
 			Name: "test-e2e-client",
 			Caps: map[string]string{"mon": "allow r, allow command \"osd blacklist\""},
 		},
-	}
+	)
+	testClient := cephlcmv1alpha1.CephClient{RawExtension: runtime.RawExtension{Raw: clientRaw}}
 	if len(cd.Spec.Clients) > 0 {
 		cd.Spec.Clients = append(cd.Spec.Clients, testClient)
 	} else {

@@ -20,12 +20,11 @@ import (
 	"context"
 	"time"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
-
+	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"github.com/rs/zerolog"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-
+	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
 	lcmconfig "github.com/Mirantis/pelagia/pkg/controller/config"
 )
 
@@ -48,6 +47,12 @@ type cephDeploymentConfig struct {
 type deployConfig struct {
 	// cephDpl is a full cephdeployment object pointer
 	cephDpl *cephlcmv1alpha1.CephDeployment
+	// cluster spec casted from cephdeployment cluster RawExtension
+	clusterSpec *cephv1.ClusterSpec
+	// is openstack setup
+	openstackSetup bool
+	// full pool names
+	pools []string
 	// expanded node list w/o groups and labels, like it passed to ceph cluster
 	nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode
 	// parsed currentCephVersion for current cephDpl

@@ -25,7 +25,6 @@ import (
 
 	"github.com/pkg/errors"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	v1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -59,7 +58,7 @@ func (c *cephDeploymentConfig) ensureRgwMultiSite() (bool, error) {
 
 func (c *cephDeploymentConfig) ensureRealms() (bool, error) {
 	c.log.Debug().Msgf("ensure rgw realms for %s/%s", c.cdConfig.cephDpl.Namespace, c.cdConfig.cephDpl.Name)
-	realms := c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite.Realms
+	realms := c.cdConfig.cephDpl.Spec.ObjectStorage.Realms
 	realmsReal, err := c.api.Rookclientset.CephV1().CephObjectRealms(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
 	if err != nil {
 		return false, errors.Wrapf(err, "failed to get list CephObjectRealms in '%s' namespace", c.lcmConfig.RookNamespace)
@@ -73,58 +72,11 @@ func (c *cephDeploymentConfig) ensureRealms() (bool, error) {
 		realmsInUse[zoneGroup.Spec.Realm] = zoneGroup.Name
 	}
 
-	realmsToCreate := make([]cephlcmv1alpha1.CephRGWRealm, 0)
+	realmsToCreate := make([]cephlcmv1alpha1.CephObjectRealm, 0)
 	realmsToUpdate := make([]cephv1.CephObjectRealm, 0)
 	realmsToDelete := map[string]bool{}
-	secretsToUpdate := []*v1.Secret{}
 	for _, realm := range realmsReal.Items {
 		realmsToDelete[realm.Name] = true
-	}
-
-	getRealmSecretData := func(accessKey, secretKey string) map[string][]byte {
-		return map[string][]byte{
-			"access-key": []byte(accessKey),
-			"secret-key": []byte(secretKey),
-		}
-	}
-
-	createSecret := func(secretName, accessKey, secretKey string) error {
-		c.log.Info().Msgf("creating Secret '%s/%s'", c.lcmConfig.RookNamespace, secretName)
-		secretRealm := v1.Secret{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      secretName,
-				Namespace: c.lcmConfig.RookNamespace,
-			},
-			Data: getRealmSecretData(accessKey, secretKey),
-		}
-		_, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.RookNamespace).Create(c.context, &secretRealm, metav1.CreateOptions{})
-		if err != nil {
-			return errors.Wrapf(err, "failed to create Secret '%s/%s'", c.lcmConfig.RookNamespace, secretName)
-		}
-		return nil
-	}
-
-	// find the default realm - it is a realm with no pull spec and used in rgw
-	defaultRealmName := ""
-	if c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Zone != nil {
-		for _, zone := range c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite.Zones {
-			if c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Zone.Name == zone.Name {
-				zoneGroupName := zone.ZoneGroup
-				for _, zoneGroup := range c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite.ZoneGroups {
-					if zoneGroup.Name == zoneGroupName {
-						realmName := zoneGroup.Realm
-						for _, realm := range c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite.Realms {
-							if realm.Name == realmName {
-								defaultRealmName = realm.Name
-								break
-							}
-						}
-						break
-					}
-				}
-				break
-			}
-		}
 	}
 
 	errCollector := make([]string, 0)
@@ -134,41 +86,43 @@ func (c *cephDeploymentConfig) ensureRealms() (bool, error) {
 			if realm.Name == existingRealm.Name {
 				found = true
 				delete(realmsToDelete, realm.Name)
-				pullEndpoint := ""
-				if realm.Pull != nil {
-					pullEndpoint = realm.Pull.Endpoint
+				realmCasted, _ := realm.GetSpec()
+				if realmCasted.Pull.Endpoint != "" {
 					secretName := fmt.Sprintf("%s-keys", realm.Name)
 					secret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.RookNamespace).Get(c.context, secretName, metav1.GetOptions{})
 					if err != nil {
+						msg := fmt.Sprintf("failed to get secret '%s/%s' for CephObjectRealm '%s' with user keys: %s", c.lcmConfig.RookNamespace, secretName, realm.Name, err.Error())
+						c.log.Error().Err(err).Msg(msg)
 						if apierrors.IsNotFound(err) {
-							c.log.Warn().Msgf("secret '%s/%s' is not found for present CephObjectRealm '%s', recreating", c.lcmConfig.RookNamespace, secretName, realm.Name)
-							secretErr := createSecret(fmt.Sprintf("%s-keys", realm.Name), realm.Pull.AccessKey, realm.Pull.SecretKey)
-							if secretErr != nil {
-								c.log.Error().Err(secretErr).Msg("failed to create cephobjectrealm secret")
-								errCollector = append(errCollector, secretErr.Error())
-								continue
-							}
-						} else {
-							msg := fmt.Sprintf("failed to get secret '%s/%s' for CephObjectRealm '%s': %s", c.lcmConfig.RookNamespace, secretName, realm.Name, err.Error())
-							c.log.Error().Err(err).Msg(msg)
-							errCollector = append(errCollector, msg)
-							continue
+							c.log.Warn().Msgf("secret '%s/%s' must be created by operator", c.lcmConfig.RookNamespace, secretName)
 						}
-					} else {
-						newSecretData := getRealmSecretData(realm.Pull.AccessKey, realm.Pull.SecretKey)
-						if !reflect.DeepEqual(newSecretData, secret.Data) {
-							secret.Data = newSecretData
-							secretsToUpdate = append(secretsToUpdate, secret)
-						}
+						errCollector = append(errCollector, msg)
+						continue
+					}
+					realmSecretOk := true
+					if k, ok := secret.Data["access-key"]; !ok || len(k) == 0 {
+						msg := fmt.Sprintf("secret '%s/%s' for CephObjectRealm '%s' has no access-key data provided", c.lcmConfig.RookNamespace, secretName, realm.Name)
+						c.log.Error().Err(err).Msg(msg)
+						errCollector = append(errCollector, msg)
+						realmSecretOk = false
+					}
+					if k, ok := secret.Data["secret-key"]; !ok || len(k) == 0 {
+						msg := fmt.Sprintf("secret '%s/%s' for CephObjectRealm '%s' has no secret-key data provided", c.lcmConfig.RookNamespace, secretName, realm.Name)
+						c.log.Error().Err(err).Msg(msg)
+						errCollector = append(errCollector, msg)
+						realmSecretOk = false
+					}
+					if !realmSecretOk {
+						continue
 					}
 				}
 				changed := false
-				if pullEndpoint != existingRealm.Spec.Pull.Endpoint {
-					existingRealm.Spec.Pull.Endpoint = pullEndpoint
+				if realmCasted.Pull.Endpoint != existingRealm.Spec.Pull.Endpoint {
+					existingRealm.Spec.Pull.Endpoint = realmCasted.Pull.Endpoint
 					changed = true
 				}
-				if defaultRealmName == existingRealm.Name && !existingRealm.Spec.DefaultRealm {
-					existingRealm.Spec.DefaultRealm = true
+				if realmCasted.DefaultRealm != existingRealm.Spec.DefaultRealm {
+					existingRealm.Spec.DefaultRealm = realmCasted.DefaultRealm
 					changed = true
 				}
 				if changed {
@@ -177,12 +131,11 @@ func (c *cephDeploymentConfig) ensureRealms() (bool, error) {
 			}
 		}
 		if !found {
-			realm.DefaultRealm = defaultRealmName == realm.Name
 			realmsToCreate = append(realmsToCreate, realm)
 		}
 	}
 
-	changed := len(realmsToCreate) > 0 || len(realmsToUpdate) > 0 || len(secretsToUpdate) > 0
+	changed := len(realmsToCreate) > 0 || len(realmsToUpdate) > 0
 	for _, realm := range realmsToCreate {
 		realmResource := cephv1.CephObjectRealm{
 			ObjectMeta: metav1.ObjectMeta{
@@ -190,22 +143,8 @@ func (c *cephDeploymentConfig) ensureRealms() (bool, error) {
 				Namespace: c.lcmConfig.RookNamespace,
 			},
 		}
-		if realm.Pull != nil {
-			realmResource.Spec = cephv1.ObjectRealmSpec{
-				Pull: cephv1.PullSpec{
-					Endpoint: realm.Pull.Endpoint,
-				},
-			}
-			secretErr := createSecret(fmt.Sprintf("%s-keys", realm.Name), realm.Pull.AccessKey, realm.Pull.SecretKey)
-			if secretErr != nil {
-				c.log.Error().Err(secretErr).Msg("failed to create cephobjectrealm secret")
-				errCollector = append(errCollector, secretErr.Error())
-				continue
-			}
-		}
-		if realm.DefaultRealm {
-			realmResource.Spec.DefaultRealm = true
-		}
+		realmSpec, _ := realm.GetSpec()
+		realmResource.Spec = realmSpec
 		c.log.Info().Msgf("creating CephObjectRealm '%s/%s'", c.lcmConfig.RookNamespace, realm.Name)
 		_, err := c.api.Rookclientset.CephV1().CephObjectRealms(c.lcmConfig.RookNamespace).Create(c.context, &realmResource, metav1.CreateOptions{})
 		if err != nil {
@@ -220,16 +159,6 @@ func (c *cephDeploymentConfig) ensureRealms() (bool, error) {
 		_, err := c.api.Rookclientset.CephV1().CephObjectRealms(c.lcmConfig.RookNamespace).Update(c.context, &realm, metav1.UpdateOptions{})
 		if err != nil {
 			msg := fmt.Sprintf("failed to update CephObjectRealm '%s/%s': %s", c.lcmConfig.RookNamespace, realm.Name, err.Error())
-			c.log.Error().Err(err).Msg(msg)
-			errCollector = append(errCollector, msg)
-		}
-	}
-
-	for idx := range secretsToUpdate {
-		c.log.Info().Msgf("updating Secret '%s/%s'", c.lcmConfig.RookNamespace, secretsToUpdate[idx].Name)
-		_, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.RookNamespace).Update(c.context, secretsToUpdate[idx], metav1.UpdateOptions{})
-		if err != nil {
-			msg := fmt.Sprintf("failed to update Secret '%s/%s': %s", c.lcmConfig.RookNamespace, secretsToUpdate[idx].Name, err.Error())
 			c.log.Error().Err(err).Msg(msg)
 			errCollector = append(errCollector, msg)
 		}
@@ -256,7 +185,7 @@ func (c *cephDeploymentConfig) ensureRealms() (bool, error) {
 
 func (c *cephDeploymentConfig) ensureZoneGroups() (bool, error) {
 	c.log.Debug().Msgf("ensuring zonegroups for %s/%s", c.cdConfig.cephDpl.Namespace, c.cdConfig.cephDpl.Name)
-	zoneGroups := c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite.ZoneGroups
+	zoneGroups := c.cdConfig.cephDpl.Spec.ObjectStorage.Zonegroups
 	zoneGroupsReal, err := c.api.Rookclientset.CephV1().CephObjectZoneGroups(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
 	if err != nil {
 		return false, errors.Wrapf(err, "failed to get list CephObjectZoneGroups in '%s' namespace", c.lcmConfig.RookNamespace)
@@ -270,7 +199,7 @@ func (c *cephDeploymentConfig) ensureZoneGroups() (bool, error) {
 		zoneGroupsInUse[zone.Spec.ZoneGroup] = zone.Name
 	}
 
-	zoneGroupsToCreate := make([]cephlcmv1alpha1.CephRGWZoneGroup, 0)
+	zoneGroupsToCreate := make([]cephlcmv1alpha1.CephObjectZonegroup, 0)
 	zoneGroupsToDelete := map[string]bool{}
 	for _, zoneGroup := range zoneGroupsReal.Items {
 		zoneGroupsToDelete[zoneGroup.Name] = true
@@ -297,10 +226,9 @@ func (c *cephDeploymentConfig) ensureZoneGroups() (bool, error) {
 				Name:      zoneGroup.Name,
 				Namespace: c.lcmConfig.RookNamespace,
 			},
-			Spec: cephv1.ObjectZoneGroupSpec{
-				Realm: zoneGroup.Realm,
-			},
 		}
+		zoneGroupCasted, _ := zoneGroup.GetSpec()
+		zoneGroupResource.Spec = zoneGroupCasted
 		c.log.Info().Msgf("creating CephObjectZoneGroup %q", zoneGroup.Name)
 		_, err := c.api.Rookclientset.CephV1().CephObjectZoneGroups(c.lcmConfig.RookNamespace).Create(c.context, &zoneGroupResource, metav1.CreateOptions{})
 		if err != nil {
@@ -331,7 +259,7 @@ func (c *cephDeploymentConfig) ensureZoneGroups() (bool, error) {
 
 func (c *cephDeploymentConfig) ensureZones() (bool, error) {
 	c.log.Debug().Msgf("ensuring zones for %s/%s", c.cdConfig.cephDpl.Namespace, c.cdConfig.cephDpl.Name)
-	zones := c.cdConfig.cephDpl.Spec.ObjectStorage.MultiSite.Zones
+	zones := c.cdConfig.cephDpl.Spec.ObjectStorage.Zones
 	zonesReal, err := c.api.Rookclientset.CephV1().CephObjectZones(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
 	if err != nil {
 		return false, errors.Wrapf(err, "failed to get list CephObjectZones in '%s' namespace", c.lcmConfig.RookNamespace)
@@ -352,22 +280,22 @@ func (c *cephDeploymentConfig) ensureZones() (bool, error) {
 		zonesToDelete[zone.Name] = true
 	}
 
-	preservePoolsOnDelete := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.PreservePoolsOnDelete
 	for _, zone := range zones {
 		found := false
+		zoneSpecCasted, _ := zone.GetSpec()
 		zoneResource := cephv1.CephObjectZone{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      zone.Name,
 				Namespace: c.lcmConfig.RookNamespace,
 			},
-			Spec: cephv1.ObjectZoneSpec{
-				ZoneGroup:             zone.ZoneGroup,
-				MetadataPool:          *generatePoolSpec(&zone.MetadataPool, "rgw metadata"),
-				DataPool:              *generatePoolSpec(&zone.DataPool, "rgw data"),
-				CustomEndpoints:       zone.EndpointsForZone,
-				PreservePoolsOnDelete: preservePoolsOnDelete,
-			},
+			Spec: zoneSpecCasted,
 		}
+		if zoneResource.Spec.DataPool.Replicated.Size > 0 {
+			if zoneResource.Spec.DataPool.Replicated.TargetSizeRatio == 0 {
+				zoneResource.Spec.DataPool.Replicated.TargetSizeRatio = poolsDefaultTargetSizeRatioByRole("rgw data")
+			}
+		}
+
 		if len(zoneResource.Spec.CustomEndpoints) == 0 && zonesInUse[zone.Name] != "" {
 			// if no endpoints specified - put default external lb ip and port as endpoint
 			// in case of using ingress - no default, user has to add endpoints manually
@@ -376,16 +304,18 @@ func (c *cephDeploymentConfig) ensureZones() (bool, error) {
 				if proxyDeployed {
 					c.log.Warn().Msgf("detected ingress proxy usage, but zone '%s' has no endpoints specified", zone.Name)
 				} else {
-					externalSvcName := buildRGWName(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Name, "external")
-					externalSvc, err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).Get(c.context, externalSvcName, metav1.GetOptions{})
+					externalSvcs, err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{LabelSelector: c.lcmConfig.DeployParams.RgwPublicAccessLabel})
 					if err != nil {
-						if !apierrors.IsNotFound(err) {
-							c.log.Error().Err(err).Msgf("failed to get ip of external service %q", externalSvcName)
-							return false, errors.Wrap(err, "failed to get ip of external service")
-						}
-						c.log.Warn().Msgf("zone '%s' has no endpoints specified, service '%s' is not created yet, leaving empty", zone.Name, externalSvcName)
+						msg := fmt.Sprintf("failed to find external service for zone %s", zone.Name)
+						c.log.Error().Err(err).Msg(msg)
+						return false, errors.Wrap(err, msg)
+					}
+					if len(externalSvcs.Items) == 0 {
+						c.log.Warn().Msgf("zone '%s' has no endpoints specified, no services with '%s' label found, leaving empty", zone.Name, c.lcmConfig.DeployParams.RgwPublicAccessLabel)
 					} else {
-						c.log.Warn().Msgf("zone '%s' has no endpoints specified, using service '%s' external ip address and http port as endpoint if available", zone.Name, externalSvcName)
+						externalSvc := externalSvcs.Items[0]
+						c.log.Warn().Msgf("zone '%s' has no endpoints specified, found service(s) with '%s' label, using service '%s' external ip address and http port as endpoint as default if available",
+							zone.Name, c.lcmConfig.DeployParams.RgwPublicAccessLabel, externalSvc.Name)
 						if len(externalSvc.Status.LoadBalancer.Ingress) > 0 {
 							zoneResource.Spec.CustomEndpoints = []string{fmt.Sprintf("http://%s:80", externalSvc.Status.LoadBalancer.Ingress[0].IP)}
 						}

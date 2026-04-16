@@ -26,7 +26,9 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"github.com/stretchr/testify/assert"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
@@ -69,7 +71,7 @@ func TestGetCluster(t *testing.T) {
 	}
 
 	err = wait.PollUntilContextTimeout(f.TF.ManagedCluster.Context, 10*time.Second, 5*time.Minute, true, func(_ context.Context) (bool, error) {
-		nodes, err := f.TF.ManagedCluster.ListNodes()
+		nodes, err := f.TF.ManagedCluster.ListNodes("")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -192,14 +194,32 @@ func TestValidationFailure(t *testing.T) {
 
 	f.Step(t, "generate incorrect cluster spec")
 	// network validation
-	cd.Spec.Network.PublicNet = ""
-	cd.Spec.Network.ClusterNet = "0.0.0.0/0"
+	clusterSpec, err := cd.Spec.Cluster.GetSpec()
+	if err != nil {
+		t.Fatal(err)
+	}
+	clusterSpec.Network.AddressRanges.Public = []cephv1.CIDR{cephv1.CIDR("")}
+	clusterSpec.Network.AddressRanges.Cluster = nil
+	clusterNew, err := cephlcmv1alpha1.DecodeStructToRaw(clusterSpec)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cd.Spec.Cluster = &cephlcmv1alpha1.CephCluster{
+		RawExtension: runtime.RawExtension{Raw: clusterNew},
+	}
+
 	// pools validation
 	poolName := "test-pool-invalid-" + fmt.Sprintf("%d", time.Now().Unix())
-	cd.Spec.Pools = append(cd.Spec.Pools, cephlcmv1alpha1.CephPool{
+	if cd.Spec.BlockStorage == nil {
+		cd.Spec.BlockStorage = &cephlcmv1alpha1.CephBlockStorage{}
+	}
+	cd.Spec.BlockStorage.Pools = append(cd.Spec.BlockStorage.Pools, cephlcmv1alpha1.CephPool{
 		Name: poolName,
 		StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{
 			ReclaimPolicy: "Fake",
+		},
+		PoolSpec: runtime.RawExtension{
+			Raw: []byte("{}"),
 		},
 	})
 	// nodes validation
@@ -240,43 +260,52 @@ func TestValidationFailure(t *testing.T) {
 		t.Skip("failed to update cephdeployment nodes section incorrectly - not all required nodes items found")
 	}
 	// rgw validation
-	if cd.Spec.ObjectStorage != nil {
-		if cd.Spec.ObjectStorage.Rgw.DataPool.Replicated != nil {
-			cd.Spec.ObjectStorage.Rgw.DataPool.ErasureCoded = &cephlcmv1alpha1.CephPoolErasureCodedSpec{}
-		} else if cd.Spec.ObjectStorage.Rgw.DataPool.ErasureCoded != nil {
-			cd.Spec.ObjectStorage.Rgw.DataPool.Replicated = &cephlcmv1alpha1.CephPoolReplicatedSpec{}
+	if cd.Spec.ObjectStorage != nil && len(cd.Spec.ObjectStorage.Rgws) > 0 {
+		rgwCasted, _ := cd.Spec.ObjectStorage.Rgws[0].GetSpec()
+		rgwCasted.MetadataPool.Replicated.Size = 0
+		rgwCasted.DataPool.Replicated.Size = 0
+		rgwCasted.DataPool.ErasureCoded.DataChunks = 0
+		rgwCasted.DataPool.ErasureCoded.CodingChunks = 0
+		rawRgw, err := cephlcmv1alpha1.DecodeStructToRaw(rgwCasted)
+		if err != nil {
+			t.Fatal(err)
 		}
-		cd.Spec.ObjectStorage.Rgw.MetadataPool.Replicated = nil
-		cd.Spec.ObjectStorage.Rgw.MetadataPool.ErasureCoded = nil
+		cd.Spec.ObjectStorage.Rgws[0].Spec.Raw = rawRgw
 	}
 	poolDefaultClass := f.GetDefaultPoolDeviceClass(cd)
 	if poolDefaultClass == "" {
 		t.Fatal("failed to find default pool")
 	}
 	// cephfs validation
-	cd.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{
-		CephFS: []cephlcmv1alpha1.CephFS{
+	cephfsRaw := cephv1.FilesystemSpec{
+		DataPools: []cephv1.NamedPoolSpec{
 			{
-				Name:         "fake",
-				MetadataPool: cephlcmv1alpha1.CephPoolSpec{},
-				DataPools: []cephlcmv1alpha1.CephFSPool{
-					{
-						Name: "fake-datapool-1",
-						CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-							DeviceClass: poolDefaultClass,
-							ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
-								CodingChunks: 2,
-								DataChunks:   1,
-							},
-						},
-					},
-					{
-						Name: "fake-datapool-2",
-						CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-							DeviceClass: poolDefaultClass,
-						},
+				Name: "fake-datapool-1",
+				PoolSpec: cephv1.PoolSpec{
+					DeviceClass: poolDefaultClass,
+					ErasureCoded: cephv1.ErasureCodedSpec{
+						CodingChunks: 2,
+						DataChunks:   1,
 					},
 				},
+			},
+			{
+				Name: "fake-datapool-2",
+				PoolSpec: cephv1.PoolSpec{
+					DeviceClass: poolDefaultClass,
+				},
+			},
+		},
+	}
+	fsRaw, err := cephlcmv1alpha1.DecodeStructToRaw(cephfsRaw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cd.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{
+		Filesystems: []cephlcmv1alpha1.CephFilesystem{
+			{
+				Name:   "fake",
+				FsSpec: runtime.RawExtension{Raw: fsRaw},
 			},
 		},
 	}
@@ -308,21 +337,20 @@ func TestValidationFailure(t *testing.T) {
 		t.Fatalf("validation result expected is 'Failed', actual is '%s'", result)
 	}
 	expectedMsg := []string{
-		fmt.Sprintf("CephDeployment pool %s has no deviceClass specified (valid options are: [hdd nvme ssd])", poolName),
-		fmt.Sprintf("CephDeployment pool %s spec should contain either replicated or erasureCoded spec", poolName),
-		fmt.Sprintf("CephDeployment pool %s spec contains invalid reclaimPolicy 'Fake', valid are: %v", poolName, []string{"Retain", "Delete"}),
-		fmt.Sprintf("CephDeployment node spec for node '%s' contains invalid crush topology key 'datcentr'. Valid are: chassis, datacenter, pdu, rack, region, room, row, zone", nodeNameToCheck),
-		fmt.Sprintf("failed to parse config parameter 'osdsPerDevice' for device '%s' from node '%s'", deviceNameToCheck, nodeNameToCheck),
-		fmt.Sprintf("CephDeployment monitors (roles 'mon') count %d is even, but should be odd for a healthy quorum", monCnt),
-		"network clusterNet parameter contains prohibited 0.0.0.0 range",
-		"network publicNet parameter is empty",
-		"metadataPool for CephFS rook-ceph/fake must use replication only",
-		"metadataPool for CephFS rook-ceph/fake has no deviceClass specified (valid options are: [hdd nvme ssd])",
-		"dataPool fake-datapool-1 will be used as default for CephFS rook-ceph/fake and must use replication only",
-		"dataPool fake-datapool-2 for CephFS rook-ceph/fake has no neither replication or erasureCoded sections specified",
+		"cluster network address ranges public parameter should not be empty or contain range 0.0.0.0",
+		"cluster network addressRanges cluster parameter not specified",
+		fmt.Sprintf("nodes item node '%s' contains invalid crush topology key 'datcentr'. Valid are: chassis, datacenter, pdu, rack, region, room, row, zone", nodeNameToCheck),
+		fmt.Sprintf("failed to parse config parameter 'osdsPerDevice' for device '%s' from node '%s': strconv.Atoi: parsing \"fake\": invalid syntax", deviceNameToCheck, nodeNameToCheck),
+		fmt.Sprintf("monitor nodes in spec (with roles 'mon') count is %d, but should be odd for a healthy quorum", monCnt),
+		fmt.Sprintf("%s pool should be either replicated or erasureCoded", poolName),
+		fmt.Sprintf("pool %s contains invalid reclaimPolicy 'Fake', valid are: [Retain Delete]", poolName),
+		"cephfs 'fake' metadata pool must be only replicated",
+		"cephfs 'fake' data fake-datapool-1 will be used as default and must use replication only",
+		"cephfs 'fake' data fake-datapool-2 pool should be either replicated or erasureCoded",
 	}
 	if cd.Spec.ObjectStorage != nil {
-		expectedMsg = append(expectedMsg, "ObjectStorage section is incorrect: rgw metadata pool must be only replicated,rgw data pool must have only one pool type specified")
+		expectedMsg = append(expectedMsg, "rgw 'rgw-store' metadata pool must be only replicated")
+		expectedMsg = append(expectedMsg, "rgw 'rgw-store' data pool should be either replicated or erasureCoded")
 	}
 	for _, expected := range expectedMsg {
 		found := false

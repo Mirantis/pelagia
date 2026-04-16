@@ -110,21 +110,28 @@ func (c *cephDeploymentConfig) getPortsForPolicies() map[string][]networkingv1.N
 			},
 		},
 	}
-	if c.cdConfig.cephDpl.Spec.ObjectStorage != nil {
-		portsMap["rook-ceph-rgw"] = []networkingv1.NetworkPolicyPort{
-			{
-				Port:     getPort(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.Port),
-				Protocol: &protocol,
-			},
-			{
-				Port:     getPort(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgw.Gateway.SecurePort),
-				Protocol: &protocol,
-			},
+	if c.cdConfig.cephDpl.Spec.ObjectStorage != nil && len(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws) > 0 {
+		ports := []networkingv1.NetworkPolicyPort{}
+		for _, rgw := range c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws {
+			castedRgwSpec, _ := rgw.GetSpec()
+			if castedRgwSpec.Gateway.Port != 0 {
+				ports = append(ports, networkingv1.NetworkPolicyPort{
+					Port:     getPort(castedRgwSpec.Gateway.Port),
+					Protocol: &protocol,
+				})
+			}
+			if castedRgwSpec.Gateway.SecurePort != 0 {
+				ports = append(ports, networkingv1.NetworkPolicyPort{
+					Port:     getPort(castedRgwSpec.Gateway.SecurePort),
+					Protocol: &protocol,
+				})
+			}
 		}
+		portsMap["rook-ceph-rgw"] = ports
 	} else {
 		portsMap["rook-ceph-rgw"] = nil
 	}
-	if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.CephFS) > 0 {
+	if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.Filesystems) > 0 {
 		portsMap["rook-ceph-mds"] = []networkingv1.NetworkPolicyPort{
 			{
 				Port:     getPort(int32(6800)),

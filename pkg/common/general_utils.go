@@ -65,17 +65,25 @@ func RunFuncWithRetry(times int, interval time.Duration, funcToRun func() (inter
 	return output, errors.Wrapf(err, "Retries (%d/%d) exceeded", tries, times)
 }
 
-func ShowObjectDiff(l zerolog.Logger, oldObject, newObject interface{}) {
+func GetObjectDiff(oldObject, newObject interface{}) (string, error) {
 	oldObjectType := fmt.Sprintf("%T", oldObject)
 	newObjectType := fmt.Sprintf("%T", newObject)
 	if oldObjectType != newObjectType {
-		l.Error().Msgf("can't compare two different object types: %s and %s", oldObjectType, newObjectType)
-		return
+		return "", errors.Errorf("can't compare two different object types: %s and %s", oldObjectType, newObjectType)
 	}
 	resourceQtyComparer := cmp.Comparer(func(x, y resource.Quantity) bool { return x.Cmp(y) == 0 })
 	diff := cmp.Diff(oldObject, newObject, resourceQtyComparer)
+	return diff, nil
+}
+
+func ShowObjectDiff(l zerolog.Logger, oldObject, newObject interface{}) {
+	diff, err := GetObjectDiff(oldObject, newObject)
+	if err != nil {
+		l.Error().Err(err).Msg("objects compare failed")
+		return
+	}
 	if diff != "" {
-		l.Trace().Msgf("object %s has changed, diff:\n%s", oldObjectType, diff)
+		l.Trace().Msgf("object %T has changed, diff:\n%s", oldObject, diff)
 	}
 }
 

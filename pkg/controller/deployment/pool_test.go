@@ -57,7 +57,9 @@ func TestGeneratePool(t *testing.T) {
 			name: "generate ceph block pool with target ratio",
 			cephDpl: func() cephlcmv1alpha1.CephPool {
 				cephDplPoolSpec := unitinputs.CephDeployPoolReplicated.DeepCopy()
-				cephDplPoolSpec.Replicated.TargetSizeRatio = 0.1
+				spec, _ := cephDplPoolSpec.GetSpec()
+				spec.Replicated.TargetSizeRatio = 0.1
+				cephDplPoolSpec.PoolSpec.Raw = unitinputs.ConvertStructToRaw(spec)
 				return *cephDplPoolSpec
 			}(),
 			expectedPool: func() *cephv1.CephBlockPool {
@@ -93,7 +95,10 @@ func TestGeneratePool(t *testing.T) {
 			name: "generate ceph block pool with mirroring image mode",
 			cephDpl: func() cephlcmv1alpha1.CephPool {
 				cephDplPoolMirroringImage := unitinputs.CephDeployPoolMirroring.DeepCopy()
-				cephDplPoolMirroringImage.Mirroring.Mode = "image"
+				spec, _ := cephDplPoolMirroringImage.GetSpec()
+				spec.Mirroring.Mode = "image"
+				spec.Mirroring.Enabled = true
+				cephDplPoolMirroringImage.PoolSpec.Raw = unitinputs.ConvertStructToRaw(spec)
 				return *cephDplPoolMirroringImage
 			}(),
 			expectedPool: func() *cephv1.CephBlockPool {
@@ -106,16 +111,10 @@ func TestGeneratePool(t *testing.T) {
 			name: "generate ceph block pool with mirroring no mode specified",
 			cephDpl: func() cephlcmv1alpha1.CephPool {
 				cephDplPoolMirroringImage := unitinputs.CephDeployPoolMirroring.DeepCopy()
-				cephDplPoolMirroringImage.Mirroring.Mode = ""
-				return *cephDplPoolMirroringImage
-			}(),
-			expectedPool: &unitinputs.CephBlockPoolReplicated,
-		},
-		{
-			name: "generate ceph block pool with mirroring incorrect mode",
-			cephDpl: func() cephlcmv1alpha1.CephPool {
-				cephDplPoolMirroringImage := unitinputs.CephDeployPoolMirroring.DeepCopy()
-				cephDplPoolMirroringImage.Mirroring.Mode = "fake"
+				spec, _ := cephDplPoolMirroringImage.GetSpec()
+				spec.Mirroring.Mode = ""
+				spec.Mirroring.Enabled = false
+				cephDplPoolMirroringImage.PoolSpec.Raw = unitinputs.ConvertStructToRaw(spec)
 				return *cephDplPoolMirroringImage
 			}(),
 			expectedPool: &unitinputs.CephBlockPoolReplicated,
@@ -124,11 +123,13 @@ func TestGeneratePool(t *testing.T) {
 			name: "generate pool with parameters",
 			cephDpl: func() cephlcmv1alpha1.CephPool {
 				cephDplPool := unitinputs.CephDeployPoolReplicated.DeepCopy()
-				cephDplPool.Parameters = map[string]string{
+				spec, _ := cephDplPool.GetSpec()
+				spec.Parameters = map[string]string{
 					"pg_num":            "512",
 					"target_size_ratio": "0",
 					"pg_autoscale_mode": "off",
 				}
+				cephDplPool.PoolSpec.Raw = unitinputs.ConvertStructToRaw(spec)
 				return *cephDplPool
 			}(),
 			expectedPool: func() *cephv1.CephBlockPool {

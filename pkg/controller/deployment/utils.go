@@ -68,7 +68,8 @@ func getCephPoolName(pool cephlcmv1alpha1.CephPool) string {
 	if pool.UseAsFullName {
 		return pool.Name
 	}
-	return fmt.Sprintf("%s-%s", pool.Name, pool.DeviceClass)
+	castedPool, _ := pool.GetSpec()
+	return fmt.Sprintf("%s-%s", pool.Name, castedPool.DeviceClass)
 }
 
 func getBuiltinPoolName(name string) string {
@@ -155,23 +156,6 @@ func isCephFsReady(ctx context.Context, log zerolog.Logger, client rookclient.In
 		return cephFs.Status.Phase == cephv1.ConditionReady
 	}
 	return false
-}
-
-func validateDeviceClassName(deviceClass string, extraOpts *cephlcmv1alpha1.CephDeploymentExtraOpts) error {
-	customDeviceClasses := make([]string, 0)
-	if extraOpts != nil && len(extraOpts.CustomDeviceClasses) > 0 {
-		customDeviceClasses = extraOpts.CustomDeviceClasses
-	}
-	validNames := append([]string{"hdd", "nvme", "ssd"}, customDeviceClasses...)
-	if deviceClass == "" {
-		return fmt.Errorf("no deviceClass specified (valid options are: %v)", validNames)
-	}
-	for _, className := range validNames {
-		if className == deviceClass {
-			return nil
-		}
-	}
-	return fmt.Errorf("unknown deviceClass '%s' (valid options are: %v)", deviceClass, validNames)
 }
 
 // CLI utils

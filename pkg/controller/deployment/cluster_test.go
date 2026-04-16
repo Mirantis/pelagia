@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-	"time"
 
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	fakecephv1 "github.com/rook/rook/pkg/client/clientset/versioned/typed/ceph.rook.io/v1/fake"
@@ -56,208 +55,130 @@ func TestGenerateCephCluster(t *testing.T) {
 			expectedClusterSpec: unitinputs.CephClusterGenerated.Spec,
 		},
 		{
-			name: "generate ceph cluster with resource requirements and tolerations",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cd := unitinputs.BaseCephDeployment.DeepCopy()
-				cd.Spec.HyperConverge = unitinputs.HyperConvergeCephDeploy
-				return cd
-			}(),
+			name:    "generate ceph cluster with multus provider",
+			cephDpl: &unitinputs.BaseCephDeploymentMultus,
 			expectedClusterSpec: func() cephv1.ClusterSpec {
-				newSpec := *unitinputs.CephClusterGenerated.Spec.DeepCopy()
-				newSpec.Resources = unitinputs.HyperConvergeCephDeploy.Resources
-				monPl := newSpec.Placement[cephv1.KeyMon]
-				monPl.Tolerations = append(monPl.Tolerations, unitinputs.HyperConvergeCephDeploy.Tolerations["mon"].Rules...)
-				newSpec.Placement[cephv1.KeyMon] = monPl
-				mgrPl := newSpec.Placement[cephv1.KeyMgr]
-				mgrPl.Tolerations = append(mgrPl.Tolerations, unitinputs.HyperConvergeCephDeploy.Tolerations["mgr"].Rules...)
-				newSpec.Placement[cephv1.KeyMgr] = mgrPl
-				newSpec.Placement[cephv1.KeyAll] = cephv1.Placement{
-					Tolerations: unitinputs.HyperConvergeCephDeploy.Tolerations["all"].Rules,
+				cs := unitinputs.CephClusterGenerated.Spec.DeepCopy()
+				cs.Network.Provider = "multus"
+				cs.Network.Selectors = map[cephv1.CephNetworkType]string{
+					cephv1.CephNetworkPublic:  "192.168.0.0/16",
+					cephv1.CephNetworkCluster: "127.0.0.0/16",
 				}
-				newSpec.Placement[cephv1.KeyOSD] = cephv1.Placement{
-					Tolerations: unitinputs.HyperConvergeCephDeploy.Tolerations["osd"].Rules,
-				}
-				newSpec.Placement[cephv1.KeyCleanup] = cephv1.Placement{
-					Tolerations: unitinputs.HyperConvergeCephDeploy.Tolerations["osd"].Rules,
-				}
-				newSpec.Placement[cephv1.KeyOSDPrepare] = cephv1.Placement{
-					Tolerations: unitinputs.HyperConvergeCephDeploy.Tolerations["osd"].Rules,
-				}
-				return newSpec
-			}(),
-		},
-		{
-			name: "generate ceph cluster with node resource",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				resource := unitinputs.BaseCephDeployment.DeepCopy()
-				resource.Spec.Nodes[0].Resources = v1.ResourceRequirements{
-					Limits:   unitinputs.ResourceListLimitsDefault,
-					Requests: unitinputs.ResourceListRequestsDefault,
-				}
-				return resource
-			}(),
-			expectedClusterSpec: func() cephv1.ClusterSpec {
-				newSpec := *unitinputs.CephClusterGenerated.Spec.DeepCopy()
-				newSpec.Storage.Nodes[0].Resources = v1.ResourceRequirements{
-					Limits:   unitinputs.ResourceListLimitsDefault,
-					Requests: unitinputs.ResourceListRequestsDefault,
-				}
-				return newSpec
-			}(),
-		},
-		{
-			name: "generate ceph cluster with mgr modules and differenet data host path",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				resource := unitinputs.BaseCephDeployment.DeepCopy()
-				resource.Spec.Mgr = &cephlcmv1alpha1.Mgr{
-					MgrModules: []cephlcmv1alpha1.CephMgrModule{
-						{
-							Name:    "balancer",
-							Enabled: true,
-							Settings: &cephlcmv1alpha1.CephMgrModuleSettings{
-								BalancerMode: "upmap",
-							},
-						},
-						{
-							Name:    "fake",
-							Enabled: true,
-						},
-					},
-				}
-				resource.Spec.DataDirHostPath = "/var/lib/fake"
-				return resource
-			}(),
-			expectedClusterSpec: func() cephv1.ClusterSpec {
-				newSpec := *unitinputs.CephClusterGenerated.Spec.DeepCopy()
-				newSpec.DataDirHostPath = "/var/lib/fake"
-				newSpec.Mgr.Modules = []cephv1.Module{
-					{
-						Name:    "balancer",
-						Enabled: true,
-						Settings: cephv1.ModuleSettings{
-							BalancerMode: "upmap",
-						},
-					},
-					{
-						Name:    "fake",
-						Enabled: true,
-					},
-					{
-						Name:    "pg_autoscaler",
-						Enabled: true,
-					},
-				}
-				return newSpec
-			}(),
-		},
-		{
-			name: "generate ceph cluster with healthCheck",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				resource := unitinputs.BaseCephDeployment.DeepCopy()
-				duration, _ := time.ParseDuration("60s")
-				resource.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{}
-				resource.Spec.HealthCheck = &cephlcmv1alpha1.CephClusterHealthCheckSpec{
-					DaemonHealth: cephv1.DaemonHealthSpec{
-						Status: cephv1.HealthCheckSpec{
-							Disabled: true,
-						},
-						ObjectStorageDaemon: cephv1.HealthCheckSpec{
-							Timeout:  "60s",
-							Interval: &metav1.Duration{Duration: duration},
-						},
-						Monitor: cephv1.HealthCheckSpec{
-							Timeout: "60s",
-						},
-					},
-					LivenessProbe: map[cephv1.KeyType]*cephv1.ProbeSpec{
-						"osd": {
-							Probe: &v1.Probe{
-								TimeoutSeconds:   10,
-								FailureThreshold: 10,
-							},
-						},
-						"mgr": {
-							Probe: &v1.Probe{
-								TimeoutSeconds:   7,
-								FailureThreshold: 7,
-							},
-						},
-					},
-					StartupProbe: map[cephv1.KeyType]*cephv1.ProbeSpec{
-						"osd": {
-							Probe: &v1.Probe{
-								TimeoutSeconds:   5,
-								FailureThreshold: 5,
-							},
-						},
-						"mon": {
-							Probe: &v1.Probe{
-								TimeoutSeconds:   5,
-								FailureThreshold: 5,
-							},
-						},
-					},
-				}
-				return resource
-			}(),
-			expectedClusterSpec: func() cephv1.ClusterSpec {
-				resource := *unitinputs.CephClusterGenerated.Spec.DeepCopy()
-				duration, _ := time.ParseDuration("60s")
-				resource.HealthCheck = cephv1.CephClusterHealthCheckSpec{
-					DaemonHealth: cephv1.DaemonHealthSpec{
-						Status: cephv1.HealthCheckSpec{
-							Disabled: true,
-						},
-						Monitor: cephv1.HealthCheckSpec{
-							Timeout: "60s",
-						},
-						ObjectStorageDaemon: cephv1.HealthCheckSpec{
-							Timeout:  "60s",
-							Interval: &metav1.Duration{Duration: duration},
-						},
-					},
-					LivenessProbe: map[cephv1.KeyType]*cephv1.ProbeSpec{
-						"osd": {
-							Probe: &v1.Probe{
-								TimeoutSeconds:   10,
-								FailureThreshold: 10,
-							},
-						},
-						"mgr": {
-							Probe: &v1.Probe{
-								TimeoutSeconds:   7,
-								FailureThreshold: 7,
-							},
-						},
-						"mon": {
-							Probe: &v1.Probe{
-								TimeoutSeconds:   5,
-								FailureThreshold: 5,
-							},
-						},
-					},
-					StartupProbe: map[cephv1.KeyType]*cephv1.ProbeSpec{
-						"osd": {
-							Probe: &v1.Probe{
-								TimeoutSeconds:   5,
-								FailureThreshold: 5,
-							},
-						},
-						"mon": {
-							Probe: &v1.Probe{
-								TimeoutSeconds:   5,
-								FailureThreshold: 5,
-							},
-						},
-					},
-				}
-				return resource
+				return *cs
 			}(),
 		},
 		{
 			name:                "generate cluster external",
 			cephDpl:             unitinputs.CephDeployExternal.DeepCopy(),
 			expectedClusterSpec: unitinputs.CephClusterExternal.Spec,
+		},
+		{
+			name: "generate cluster with overrides from spec",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				newCephdpl := unitinputs.BaseCephDeployment.DeepCopy()
+				newSpec := `
+dataDirHostPath: /var/lib/custom-path
+annotations:
+  mon:
+    annotations-mon: mon-value
+  mgr:
+    annotations-mgr: mgr-value
+  osd:
+    annotations-osd: osd-value
+network:
+  addressRanges:
+    cluster:
+    - 127.0.0.0/16
+    public:
+    - 192.168.0.0/16
+mgr:
+  modules:
+  - enabled: true
+    name: some-module
+storage:
+  scheduleAlways: true
+healthCheck:
+  daemonHealth:
+    status:
+      disabled: true
+  livenessProbe:
+    osd:
+      probe:
+        failureThreshold: 10
+        timeoutSeconds: 10
+  startupProbe:
+    osd:
+      probe:
+        failureThreshold: 10
+        timeoutSeconds: 10
+placement:
+  all:
+    tolerations:
+    - effect: Schedule
+      key: k8s-master
+      operator: Exists
+  mgr:
+    tolerations:
+    - effect: Schedule
+      key: k8s-master
+      operator: Exists
+  mon:
+    tolerations:
+    - effect: Schedule
+      key: k8s-master
+      operator: Exists
+  osd:
+    tolerations:
+    - effect: Schedule
+      key: k8s-master
+      operator: Exists`
+				newCephdpl.Spec.Cluster.Raw = unitinputs.ConvertYamlToJSON([]byte(newSpec))
+				return newCephdpl
+			}(),
+			expectedClusterSpec: func() cephv1.ClusterSpec {
+				spec := unitinputs.CephClusterGenerated.Spec.DeepCopy()
+				spec.DataDirHostPath = "/var/lib/custom-path"
+				spec.Annotations[cephv1.KeyMon]["annotations-mon"] = "mon-value"
+				spec.Annotations[cephv1.KeyMgr]["annotations-mgr"] = "mgr-value"
+				spec.Annotations[cephv1.KeyOSD] = map[string]string{"annotations-osd": "osd-value"}
+				spec.Mgr.Modules = append([]cephv1.Module{
+					{
+						Name:    "some-module",
+						Enabled: true,
+					},
+				}, spec.Mgr.Modules...)
+				addedToleration := v1.Toleration{Key: "k8s-master", Operator: "Exists", Effect: "Schedule"}
+				monPlacement := cephv1.GetMonPlacement(spec.Placement)
+				mgrPlacement := cephv1.GetMgrPlacement(spec.Placement)
+				osdPlacement := cephv1.GetOSDPlacement(spec.Placement)
+				monPlacement.Tolerations = append(monPlacement.Tolerations, addedToleration)
+				spec.Placement[cephv1.KeyMon] = monPlacement
+				mgrPlacement.Tolerations = append(mgrPlacement.Tolerations, addedToleration)
+				spec.Placement[cephv1.KeyMgr] = mgrPlacement
+				osdPlacement.Tolerations = append(osdPlacement.Tolerations, addedToleration)
+				spec.Placement[cephv1.KeyOSD] = osdPlacement
+				spec.Placement[cephv1.KeyCleanup] = osdPlacement
+				spec.Placement[cephv1.KeyOSDPrepare] = osdPlacement
+				spec.Placement[cephv1.KeyAll] = osdPlacement
+				spec.HealthCheck.DaemonHealth = cephv1.DaemonHealthSpec{
+					Status: cephv1.HealthCheckSpec{Disabled: true},
+				}
+				spec.HealthCheck.LivenessProbe["osd"] = &cephv1.ProbeSpec{
+					Probe: &v1.Probe{
+						TimeoutSeconds:   10,
+						FailureThreshold: 10,
+					},
+				}
+				spec.HealthCheck.StartupProbe = map[cephv1.KeyType]*cephv1.ProbeSpec{
+					"osd": {
+						Probe: &v1.Probe{
+							TimeoutSeconds:   10,
+							FailureThreshold: 10,
+						},
+					},
+				}
+				return *spec
+			}(),
 		},
 		{
 			name: "generate ceph cluster with by-id in fullPath and device filters",
@@ -343,24 +264,14 @@ func TestGenerateCephCluster(t *testing.T) {
 				return cephSpec
 			}(),
 		},
-		{
-			name:    "generate ceph cluster with multus provider",
-			cephDpl: &unitinputs.BaseCephDeploymentMultus,
-			expectedClusterSpec: func() cephv1.ClusterSpec {
-				cs := unitinputs.CephClusterGenerated.Spec.DeepCopy()
-				cs.Network.Provider = "multus"
-				cs.Network.Selectors = unitinputs.BaseCephDeploymentMultus.Spec.Network.Selector
-				return *cs
-			}(),
-		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
-			expandedNodes, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
+			err := c.castExtensions()
 			assert.Nil(t, err)
-			cephClusterSpec := generateCephClusterSpec(test.cephDpl, unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"], expandedNodes)
+			cephClusterSpec := generateCephClusterSpec(c.cdConfig.clusterSpec, unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"], c.cdConfig.nodesListExpanded)
 			assert.Equal(t, test.expectedClusterSpec, cephClusterSpec)
 		})
 	}
@@ -752,9 +663,8 @@ func TestEnsureCluster(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
 			c.cdConfig.currentCephVersion = lcmcommon.LatestRelease
 			c.cdConfig.currentCephImage = unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"]
-			expandedNodes, err := lcmcommon.GetExpandedCephDeploymentNodeList(c.context, c.api.Client, test.cephDpl.Spec)
+			err := c.castExtensions()
 			assert.Nil(t, err)
-			c.cdConfig.nodesListExpanded = expandedNodes
 
 			lcmcommon.GetCurrentTimeString = func() string {
 				return fmt.Sprintf("time-%d", idx)

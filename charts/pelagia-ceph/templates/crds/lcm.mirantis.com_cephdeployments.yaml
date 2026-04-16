@@ -70,45 +70,112 @@ spec:
               Spec defines the desired configuration of resulting Ceph Cluster
               and all corresponding resources
             properties:
+              blockStorage:
+                description: |-
+                  BlockStorage stands for configuration Ceph block storage,
+                  such as rbd pool and rbd mirroring
+                properties:
+                  pools:
+                    description: Pools is a list of Ceph RBD Pools configurations
+                    items:
+                      description: CephPool stands for specified Ceph RBD Pool configuration
+                      properties:
+                        name:
+                          description: Name represents Ceph RBD pool name
+                          type: string
+                        preserveOnDelete:
+                          description: PreserveOnDelete prevents related CephBlockPool
+                            object removal
+                          type: boolean
+                        role:
+                          description: |-
+                            Role represents pool role. The following values are reserved for
+                            MOS managed clusters: vms, images, backup, volumes
+                          nullable: true
+                          type: string
+                        spec:
+                          description: |-
+                            PoolSpec represents pool specification
+                            Follow https://rook.io/docs/rook/v1.19/CRDs/Block-Storage/ceph-block-pool-crd
+                            for available options
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                        storageClassOpts:
+                          description: StorageClassOpts represents options to set
+                            on related storage class
+                          properties:
+                            allowVolumeExpansion:
+                              description: AllowVolumeExpansion allows to extend volumes
+                                sizes in pool
+                              type: boolean
+                            default:
+                              description: Default represents whether Ceph Pool's
+                                StorageClass would be default or not
+                              type: boolean
+                            imageFeatures:
+                              description: |-
+                                ImageFeatures is a comma-separated list of RBD image features,
+                                see: https://docs.ceph.com/en/latest/man/8/rbd/#cmdoption-rbd-image-feature
+                                Default is layering.
+                              nullable: true
+                              type: string
+                            mapOptions:
+                              description: MapOptions is a comma-separated list of
+                                kernel RBD map options
+                              nullable: true
+                              type: string
+                            reclaimPolicy:
+                              description: |-
+                                ReclaimPolicy stands for underlying StorageClass reclaimPolicy parameter.
+                                Default is 'Delete' if not set.
+                              nullable: true
+                              type: string
+                            unmapOptions:
+                              description: UnmapOptions is a comma-separated list
+                                of kernel RBD unmap options
+                              nullable: true
+                              type: string
+                          type: object
+                        useAsFullName:
+                          description: UseAsFullName uses Name as a resulting pool
+                            name instead of "<Name>-<DeviceClass>"
+                          type: boolean
+                      required:
+                      - name
+                      - spec
+                      type: object
+                    type: array
+                type: object
               clients:
                 description: |-
                   Clients is a list of Ceph Clients used for Ceph Cluster connection by
                   consumer services
                 items:
-                  properties:
-                    caps:
-                      additionalProperties:
-                        type: string
-                      type: object
-                      x-kubernetes-preserve-unknown-fields: true
-                    name:
-                      type: string
-                    removeSecret:
-                      description: |-
-                        RemoveSecret indicates whether the current secret for this ceph client should be removed or not.
-                        If true, the K8s secret will be deleted, but the cephx keyring will remain until the CR is deleted.
-                      type: boolean
-                    secretName:
-                      description: |-
-                        SecretName is the name of the secret created for this ceph client.
-                        If not specified, the default name is "rook-ceph-client-" as a prefix to the CR name.
-                      type: string
-                  required:
-                  - caps
+                  description: |-
+                    CephClient represents client specification
+                    Follow https://rook.io/docs/rook/v1.19/CRDs/ceph-client-crd/
+                    for available options
                   type: object
+                  x-kubernetes-preserve-unknown-fields: true
                 type: array
+              cluster:
+                description: |-
+                  Cluster stands for main Ceph cluster configuration
+                  Required to be specified.
+                type: object
+                x-kubernetes-preserve-unknown-fields: true
               dashboard:
+                description: Deprecated parameter, cluster.dashboard.enabled should
+                  be used instead
                 type: boolean
               dataDirHostPath:
-                description: |-
-                  DataDirHostPath is a default hostPath directory where Rook stores all
-                  valuable info. Equals to '/var/lib/rook' by default
+                description: Deprecated parameter, cluster.dataDirHostPath should
+                  be used instead
                 nullable: true
                 type: string
               external:
-                description: |-
-                  External enables usage of external Ceph Cluster connected to pkg
-                  Container Cloud cluster instead of local Ceph Cluster
+                description: Deprecated parameter, cluster.external.enabled should
+                  be used instead
                 type: boolean
               extraOpts:
                 description: ExtraOpts contains some extra options for managing Ceph
@@ -150,9 +217,8 @@ spec:
                     type: boolean
                 type: object
               healthCheck:
-                description: |-
-                  HealthCheck provides an ability to configure pkg daemon healthchecks
-                  and liveness probe settings for mon,mgr,osd daemons
+                description: Deprecated parameter, cluster.healthCheck should be used
+                  instead
                 properties:
                   daemonHealth:
                     description: DaemonHealth contains health check settings for ceph
@@ -542,9 +608,9 @@ spec:
                 type: object
               hyperconverge:
                 description: |-
-                  HyperConverge provides an ability to configure resources requests and limitations
-                  for Ceph Daemons. Also provides an ability to spawn those Ceph Daemons on a tainted
-                  nodes
+                  Deprecated parameter, cluster.{placement,resources} should be used instead for mon,osd,mgr daemons,
+                  objectStorage.objectStores.[*].gateway.{placement,resources} for rgw daemon
+                  sharedFilesystem.cephFilesystems.[*].metadataServer.{placement,resources} for mds daemon
                 properties:
                   resources:
                     additionalProperties:
@@ -719,8 +785,7 @@ spec:
                     type: object
                 type: object
               mgr:
-                description: Mgr contains a list of Ceph Manager modules to enable
-                  in Ceph Cluster
+                description: Deprecated parameter, cluster.mgr should be used instead
                 properties:
                   mgrModules:
                     description: MgrModules is a list of Ceph Manager modules names
@@ -750,10 +815,8 @@ spec:
                     type: array
                 type: object
               network:
-                description: |-
-                  Network is a section which defines the specific network range(s)
-                  for Ceph daemons to communicate with each other and the an external
-                  connections
+                description: Deprecated parameter, cluster.network should be used
+                  instead
                 properties:
                   clusterNet:
                     description: ClusterNet defines pkg network for Ceph Daemons intra-communication
@@ -1151,7 +1214,7 @@ spec:
                   and RGW multisite feature
                 properties:
                   multiSite:
-                    description: MultiSite represents Ceph RadosGW multisite/multizone
+                    description: Deprecated. MultiSite represents Ceph RadosGW multisite/multizone
                       feature settings
                     properties:
                       realms:
@@ -1420,8 +1483,65 @@ spec:
                     - zoneGroups
                     - zones
                     type: object
+                  objectStores:
+                    description: |-
+                      Rgws is a list of Ceph object stores, representing Ceph RadosGW
+                      with its configuration
+                    items:
+                      description: CephObjectStore stands for configuration of object
+                        store.
+                      properties:
+                        auxiliaryService:
+                          description: |-
+                            AuxiliaryService stands for marking object store as non-client serving.
+                            Storage class and external service will not be created.
+                          type: boolean
+                        name:
+                          type: string
+                        servedByIngress:
+                          description: Related ingress configuration exists.
+                          type: boolean
+                        spec:
+                          description: |-
+                            Spec represents CephObjectStore configuration
+                            Follow https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-crd/
+                            for available options
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                        usedByRockoon:
+                          description: ObjectStore will be used for Rockoon/Openstack
+                            setup.
+                          type: boolean
+                      required:
+                      - name
+                      - spec
+                      type: object
+                    type: array
+                  realms:
+                    description: |-
+                      Realms is a list of Ceph Object storage multisite realms.
+                      Currently is possible to specify only 1 realm.
+                    items:
+                      description: CephObjectRealm stands for object store multisite
+                        realm creation and configuration.
+                      properties:
+                        name:
+                          description: Name of realm
+                          type: string
+                        spec:
+                          description: |-
+                            Spec stands for realm configuration.
+                            see https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-realm-crd/
+                            for available options
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      required:
+                      - name
+                      type: object
+                    maxItems: 1
+                    type: array
                   rgw:
-                    description: Rgw represents Ceph RadosGW settings
+                    description: Deprecated. Rgw represents Ceph RadosGW settings
                     properties:
                       SSLCert:
                         description: SSLCert used for access to RGW Gateway endpoint,
@@ -2313,11 +2433,79 @@ spec:
                     - gateway
                     - name
                     type: object
-                required:
-                - rgw
+                  users:
+                    description: Users is a list of user to create for object storage
+                      with radosgw-admin
+                    items:
+                      description: CephObjectStoreUser stands for configuration of
+                        object store users.
+                      properties:
+                        name:
+                          type: string
+                        spec:
+                          description: |-
+                            Spec represents CephObjectStoreUser configuration
+                            https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-user-crd/
+                            for available options
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      required:
+                      - name
+                      - spec
+                      type: object
+                    type: array
+                  zonegroups:
+                    description: |-
+                      Zonegroups is a list of Ceph Object storage multisite zonegroups.
+                      Currently is possible to specify only 1 zonegroup.
+                    items:
+                      description: CephObjectZonegroup stands for object store multisite
+                        zonegroup creation and configuration.
+                      properties:
+                        name:
+                          description: Name of zonegroup
+                          type: string
+                        spec:
+                          description: |-
+                            Spec stands for zonegroup configuration.
+                            https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zonegroup-crd/
+                            for available options
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      required:
+                      - name
+                      - spec
+                      type: object
+                    maxItems: 1
+                    type: array
+                  zones:
+                    description: |-
+                      Zones is a list of Ceph Object storage multisite zones.
+                      Currently is possible to specify only 1 zone.
+                    items:
+                      description: CephObjectZone stands for object store multisite
+                        zone creation and configuration.
+                      properties:
+                        name:
+                          description: Name of zone
+                          type: string
+                        spec:
+                          description: |-
+                            Spec stands for zone configuration.
+                            https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zone-crd/
+                            for available options
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      required:
+                      - name
+                      - spec
+                      type: object
+                    maxItems: 1
+                    type: array
                 type: object
               pools:
-                description: Pools is a list of Ceph RBD Pools configurations
+                description: Deprecated parameter, blockStorage.pools should be used
+                  instead
                 items:
                   description: CephPool stands for specified Ceph RBD Pool configuration
                   properties:
@@ -2501,8 +2689,7 @@ spec:
                 description: SharedFilesystem enables such system as CephFS
                 properties:
                   cephFS:
-                    description: CephFS to create. Multiple CephFS available to deploy
-                      for clusters with Ceph Reef or above
+                    description: deprecated, use cephFilesystems instead
                     items:
                       properties:
                         dataPools:
@@ -3128,10 +3315,29 @@ spec:
                       - name
                       type: object
                     type: array
+                  cephFilesystems:
+                    description: CephFilesystems to create and configure
+                    items:
+                      description: CephFilesystem stands for object store multisite
+                        zone creation and configuration.
+                      properties:
+                        name:
+                          description: CephFilesystem name
+                          type: string
+                        spec:
+                          description: |-
+                            FsSpec represents CephFilesystem configuration
+                            https://rook.io/docs/rook/v1.19/CRDs/Shared-Filesystem/ceph-filesystem-crd/
+                            for available options
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      required:
+                      - name
+                      - spec
+                      type: object
+                    type: array
                 type: object
             required:
-            - dashboard
-            - network
             - nodes
             type: object
           status:

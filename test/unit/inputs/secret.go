@@ -418,7 +418,10 @@ DAGOc64bUtcGnxxPlzMh8bmaoMmjwNAt1jIAQz2csanQuXU0dliryrZGkrUFoIxn
 var RgwSSLCertSecret = corev1.Secret{
 	ObjectMeta: metav1.ObjectMeta{
 		Namespace: "rook-ceph",
-		Name:      "rgw-ssl-certificate",
+		Name:      "rgw-store-ssl-cert",
+		Labels: map[string]string{
+			"cephdeployment.lcm.mirantis.com/ssl-cert-for": "rgw-store",
+		},
 	},
 	Data: map[string][]byte{
 		"cert":     []byte(RgwCert),
@@ -430,7 +433,10 @@ var RgwSSLCertSecret = corev1.Secret{
 var RgwSSLCertExpiredSecret = corev1.Secret{
 	ObjectMeta: metav1.ObjectMeta{
 		Namespace: "rook-ceph",
-		Name:      "rgw-ssl-certificate",
+		Name:      "rgw-store-ssl-cert",
+		Labels: map[string]string{
+			"cephdeployment.lcm.mirantis.com/ssl-cert-for": "rgw-store",
+		},
 	},
 	Data: map[string][]byte{
 		"cert":     []byte(RgwCert),
@@ -442,7 +448,10 @@ var RgwSSLCertExpiredSecret = corev1.Secret{
 var RgwSSLCertSecretSelfSigned = corev1.Secret{
 	ObjectMeta: metav1.ObjectMeta{
 		Namespace: "rook-ceph",
-		Name:      "rgw-ssl-certificate",
+		Name:      "rgw-store-ssl-cert",
+		Labels: map[string]string{
+			"cephdeployment.lcm.mirantis.com/ssl-cert-for": "rgw-store",
+		},
 	},
 	Data: map[string][]byte{
 		"cert":     []byte("fake-keyfake-crtfake-ca"),
@@ -513,7 +522,7 @@ var CephRBDMirrorSecret2 = corev1.Secret{
 var MultisiteCabundleSecret = corev1.Secret{
 	ObjectMeta: metav1.ObjectMeta{
 		Namespace: "rook-ceph",
-		Name:      "extra-rook-ceph-cabundle",
+		Name:      "multisite-rgw-secret",
 	},
 	Data: map[string][]byte{
 		"cabundle": []byte("fake-extra-cabundle"),

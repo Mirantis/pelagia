@@ -4,5 +4,6 @@ testSettings:
   - name: TestRgwAccessPublicDomainCustom
     config:
       ingressClass: nginx
+      rgwServedByIngress: ""
 testCases:
 - TestRgwAccessPublicDomainCustom

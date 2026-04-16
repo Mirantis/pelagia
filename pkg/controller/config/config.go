@@ -81,6 +81,8 @@ type DeployParams struct {
 	RgwPublicAccessLabel string
 	// namespace for sharing secrets between openstack and ceph
 	OpenstackCephSharedNamespace string
+	// TODO: deprecated, since can be replaced by CaBundleRef directly
+	// for related cephobjectstore config
 	// secret with cabundle for multisite public access between zones
 	MultisiteCabundleSecretRef string
 	// excluding label to place ceph daemonsets

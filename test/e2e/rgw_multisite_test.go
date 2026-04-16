@@ -27,6 +27,7 @@ import (
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 
@@ -74,92 +75,135 @@ func TestMultisiteRgw(t *testing.T) {
 	realmName := ""
 	zonegroupName := ""
 	changed := true
-	if cd.Spec.ObjectStorage == nil {
+	if cd.Spec.ObjectStorage == nil || len(cd.Spec.ObjectStorage.Rgws) == 0 {
 		t.Logf("#### e2e test: deploying new RGW Multisite master zone")
 		realmName = "rgw-storerealm"
 		zonegroupName = "rgw-storezonegroup"
-		cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
-			MultiSite: &cephlcmv1alpha1.CephMultiSite{
-				Realms: []cephlcmv1alpha1.CephRGWRealm{
-					{
-						Name: realmName,
-					},
+		rawZone, _ := cephlcmv1alpha1.DecodeStructToRaw(
+			cephv1.ObjectZoneSpec{
+				ZoneGroup: zonegroupName,
+				MetadataPool: cephv1.PoolSpec{
+					DeviceClass: poolDefaultClass,
+					Replicated:  cephv1.ReplicatedSpec{Size: 3},
 				},
-				ZoneGroups: []cephlcmv1alpha1.CephRGWZoneGroup{
-					{
-						Name:  zonegroupName,
-						Realm: realmName,
-					},
-				},
-				Zones: []cephlcmv1alpha1.CephRGWZone{
-					{
-						Name: "rgw-storezone",
-						MetadataPool: cephlcmv1alpha1.CephPoolSpec{
-							DeviceClass: poolDefaultClass,
-							Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-								Size: 3,
-							},
-						},
-						DataPool: cephlcmv1alpha1.CephPoolSpec{
-							DeviceClass: poolDefaultClass,
-							ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
-								CodingChunks: 1,
-								DataChunks:   2,
-							},
-						},
-						ZoneGroup: zonegroupName,
+				DataPool: cephv1.PoolSpec{
+					DeviceClass: poolDefaultClass,
+					ErasureCoded: cephv1.ErasureCodedSpec{
+						CodingChunks: 1,
+						DataChunks:   2,
 					},
 				},
 			},
-			Rgw: cephlcmv1alpha1.CephRGW{
-				Name: "rgw-store",
-				Gateway: cephlcmv1alpha1.CephRGWGateway{
+		)
+		clusterSpec, _ := cd.Spec.Cluster.GetSpec()
+		tolerations := []corev1.Toleration{}
+		if len(clusterSpec.Placement) > 0 {
+			if all, ok := clusterSpec.Placement["all"]; ok {
+				tolerations = all.Tolerations
+			}
+			if mon, ok := clusterSpec.Placement["mon"]; ok {
+				tolerations = mon.Tolerations
+			}
+		}
+		rgwRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(
+			cephv1.ObjectStoreSpec{
+				Gateway: cephv1.GatewaySpec{
 					Instances:  2,
 					Port:       80,
 					SecurePort: 8443,
+					Placement:  cephv1.Placement{Tolerations: tolerations},
 				},
-				Zone: &cephv1.ZoneSpec{Name: "rgw-storezone"},
+				Zone: cephv1.ZoneSpec{Name: "rgw-storezone"},
+			},
+		)
+		cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
+			Realms: []cephlcmv1alpha1.CephObjectRealm{
+				{
+					Name: realmName,
+					Spec: runtime.RawExtension{
+						Raw: []byte(`{"defaultRealm": true}`),
+					},
+				},
+			},
+			Zonegroups: []cephlcmv1alpha1.CephObjectZonegroup{
+				{
+					Name: zonegroupName,
+					Spec: runtime.RawExtension{
+						Raw: []byte(fmt.Sprintf(`{"realm": "%s"}`, realmName)),
+					},
+				},
+			},
+			Zones: []cephlcmv1alpha1.CephObjectZone{
+				{
+					Name: "rgw-storezone",
+					Spec: runtime.RawExtension{
+						Raw: rawZone,
+					},
+				},
+			},
+			Rgws: []cephlcmv1alpha1.CephObjectStore{
+				{
+					Name: "rgw-store",
+					Spec: runtime.RawExtension{Raw: rgwRaw},
+				},
 			},
 		}
 	} else {
-		if cd.Spec.ObjectStorage.MultiSite == nil {
-			realmName = cd.Spec.ObjectStorage.Rgw.Name
-			zonegroupName = cd.Spec.ObjectStorage.Rgw.Name
+		rgwCasted, _ := cd.Spec.ObjectStorage.Rgws[0].GetSpec()
+		if rgwCasted.Zone.Name == "" {
+			realmName = cd.Spec.ObjectStorage.Rgws[0].Name
+			zonegroupName = realmName
 			t.Logf("#### e2e test: reconfigure existing RGW to RGW Multisite master mode")
-			multisite := &cephlcmv1alpha1.CephMultiSite{
-				Realms: []cephlcmv1alpha1.CephRGWRealm{
-					{
-						Name: cd.Spec.ObjectStorage.Rgw.Name,
-					},
+			rgwCasted.Zone = cephv1.ZoneSpec{Name: zonegroupName}
+			rawZone, _ := cephlcmv1alpha1.DecodeStructToRaw(
+				cephv1.ObjectZoneSpec{
+					ZoneGroup:    zonegroupName,
+					MetadataPool: rgwCasted.MetadataPool,
+					DataPool:     rgwCasted.DataPool,
 				},
-				ZoneGroups: []cephlcmv1alpha1.CephRGWZoneGroup{
-					{
-						Name:  cd.Spec.ObjectStorage.Rgw.Name,
-						Realm: cd.Spec.ObjectStorage.Rgw.Name,
-					},
-				},
-				Zones: []cephlcmv1alpha1.CephRGWZone{
-					{
-						Name:         cd.Spec.ObjectStorage.Rgw.Name,
-						MetadataPool: *cd.Spec.ObjectStorage.Rgw.MetadataPool.DeepCopy(),
-						DataPool:     *cd.Spec.ObjectStorage.Rgw.DataPool.DeepCopy(),
-						ZoneGroup:    cd.Spec.ObjectStorage.Rgw.Name,
-					},
-				},
-			}
-			newRgw := cd.Spec.ObjectStorage.Rgw.DeepCopy()
-			newRgw.DataPool = nil
-			newRgw.MetadataPool = nil
-			newRgw.Zone = &cephv1.ZoneSpec{Name: cd.Spec.ObjectStorage.Rgw.Name}
+			)
+			rgwCasted.DataPool = cephv1.PoolSpec{}
+			rgwCasted.MetadataPool = cephv1.PoolSpec{}
+			rgwRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(rgwCasted)
 			cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
-				MultiSite: multisite,
-				Rgw:       *newRgw,
+				Realms: []cephlcmv1alpha1.CephObjectRealm{
+					{
+						Name: realmName,
+						Spec: runtime.RawExtension{
+							Raw: []byte(`{"defaultRealm": true}`),
+						},
+					},
+				},
+				Zonegroups: []cephlcmv1alpha1.CephObjectZonegroup{
+					{
+						Name: zonegroupName,
+						Spec: runtime.RawExtension{
+							Raw: []byte(fmt.Sprintf(`{"realm": "%s"}`, realmName)),
+						},
+					},
+				},
+				Zones: []cephlcmv1alpha1.CephObjectZone{
+					{
+						Name: zonegroupName,
+						Spec: runtime.RawExtension{
+							Raw: rawZone,
+						},
+					},
+				},
+				Rgws: []cephlcmv1alpha1.CephObjectStore{
+					{
+						Name: zonegroupName,
+						Spec: runtime.RawExtension{
+							Raw: rgwRaw,
+						},
+					},
+				},
 			}
 		} else {
 			t.Logf("#### e2e test: RGW Multisite master zone is already configured")
 			changed = false
-			realmName = cd.Spec.ObjectStorage.MultiSite.Realms[0].Name
-			zonegroupName = cd.Spec.ObjectStorage.MultiSite.ZoneGroups[0].Name
+			realmName = cd.Spec.ObjectStorage.Realms[0].Name
+			zonegroupName = cd.Spec.ObjectStorage.Zonegroups[0].Name
 		}
 	}
 	if changed {
@@ -173,7 +217,7 @@ func TestMultisiteRgw(t *testing.T) {
 	f.Step(t, "Get RGW multisite master public endpoint")
 	// TODO: return endpoint from cdh, which contains HTTPS and support it later
 	//rgwMasterPublicEndpoint, err := f.GetRgwPublicEndpoint(cd.Name)
-	rgwMasterPublicEndpoint, err := getRgwPublicHTTPEndpoint(f.TF.ManagedCluster.Context, f.TF.ManagedCluster.KubeClient, f.TF.ManagedCluster.LcmConfig.RookNamespace, cd.Spec.ObjectStorage.Rgw.Name)
+	rgwMasterPublicEndpoint, err := getRgwPublicHTTPEndpoint(f.TF.ManagedCluster.Context, f.TF.ManagedCluster.KubeClient, f.TF.ManagedCluster.LcmConfig.RookNamespace, cd.Spec.ObjectStorage.Rgws[0].Name)
 	if err != nil {
 		t.Fatalf("failed to get RGW master zone public endpoint: %v", err)
 	}
@@ -210,54 +254,91 @@ func TestMultisiteRgw(t *testing.T) {
 	}
 
 	f.Step(t, "Configuring RGW multisite for backup zone")
+	secretRealm := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      fmt.Sprintf("%s-keys", realmName),
+			Namespace: backupCluster.LcmConfig.RookNamespace,
+		},
+		Data: map[string][]byte{
+			"access-key": []byte(accessKey),
+			"secret-key": []byte(secretKey),
+		},
+	}
+	err = backupCluster.CreateSecret(secretRealm)
+	if err != nil {
+		t.Fatalf("failed to create secret for realm with user keys: %v", err)
+	}
 	t.Logf("#### e2e test: deploying RGW Multisite backup zone")
 	zoneName := "rgw-zone-backup"
-	cdBackup.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
-		MultiSite: &cephlcmv1alpha1.CephMultiSite{
-			Realms: []cephlcmv1alpha1.CephRGWRealm{
-				{
-					Name: realmName,
-					Pull: &cephlcmv1alpha1.CephRGWRealmPull{
-						AccessKey: accessKey,
-						SecretKey: secretKey,
-						Endpoint:  rgwMasterPublicEndpoint,
-					},
-				},
+	zoneRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(
+		cephv1.ObjectZoneSpec{
+			ZoneGroup: zonegroupName,
+			MetadataPool: cephv1.PoolSpec{
+				DeviceClass: poolDefaultClass,
+				Replicated:  cephv1.ReplicatedSpec{Size: 3},
 			},
-			ZoneGroups: []cephlcmv1alpha1.CephRGWZoneGroup{
-				{
-					Name:  zonegroupName,
-					Realm: realmName,
-				},
-			},
-			Zones: []cephlcmv1alpha1.CephRGWZone{
-				{
-					Name: zoneName,
-					MetadataPool: cephlcmv1alpha1.CephPoolSpec{
-						DeviceClass: poolDefaultClass,
-						Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-							Size: 3,
-						},
-					},
-					DataPool: cephlcmv1alpha1.CephPoolSpec{
-						DeviceClass: poolDefaultClass,
-						ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
-							CodingChunks: 1,
-							DataChunks:   2,
-						},
-					},
-					ZoneGroup: zonegroupName,
+			DataPool: cephv1.PoolSpec{
+				DeviceClass: poolDefaultClass,
+				ErasureCoded: cephv1.ErasureCodedSpec{
+					CodingChunks: 1,
+					DataChunks:   2,
 				},
 			},
 		},
-		Rgw: cephlcmv1alpha1.CephRGW{
-			Name: "rgw-store-backup",
-			Gateway: cephlcmv1alpha1.CephRGWGateway{
+	)
+	clusterSpec, _ := cdBackup.Spec.Cluster.GetSpec()
+	tolerations := []corev1.Toleration{}
+	if len(clusterSpec.Placement) > 0 {
+		if all, ok := clusterSpec.Placement["all"]; ok {
+			tolerations = all.Tolerations
+		}
+		if mon, ok := clusterSpec.Placement["mon"]; ok {
+			tolerations = mon.Tolerations
+		}
+	}
+	rgwRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(
+		cephv1.ObjectStoreSpec{
+			Gateway: cephv1.GatewaySpec{
 				Instances:  1,
 				Port:       80,
 				SecurePort: 8443,
+				Placement:  cephv1.Placement{Tolerations: tolerations},
 			},
-			Zone: &cephv1.ZoneSpec{Name: zoneName},
+			Zone: cephv1.ZoneSpec{Name: zoneName},
+		},
+	)
+	cdBackup.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
+		Realms: []cephlcmv1alpha1.CephObjectRealm{
+			{
+				Name: realmName,
+				Spec: runtime.RawExtension{
+					Raw: []byte(fmt.Sprintf(`{"defaultRealm": true,"pull":{"endpoint": "%s"}}`, rgwMasterPublicEndpoint)),
+				},
+			},
+		},
+		Zonegroups: []cephlcmv1alpha1.CephObjectZonegroup{
+			{
+				Name: zonegroupName,
+				Spec: runtime.RawExtension{
+					Raw: []byte(fmt.Sprintf(`{"realm": "%s"}`, realmName)),
+				},
+			},
+		},
+		Zones: []cephlcmv1alpha1.CephObjectZone{
+			{
+				Name: zoneName,
+				Spec: runtime.RawExtension{
+					Raw: []byte(zoneRaw),
+				},
+			},
+		},
+		Rgws: []cephlcmv1alpha1.CephObjectStore{
+			{
+				Name: "rgw-store-backup",
+				Spec: runtime.RawExtension{
+					Raw: rgwRaw,
+				},
+			},
 		},
 	}
 	_, err = backupCluster.UpdateCephDeploymentSpec(cdBackup)
@@ -283,7 +364,7 @@ func TestMultisiteRgw(t *testing.T) {
 		t.Fatal("backup cluster has empty RgwInfo status")
 	}
 	rgwBackupPublicEndpoint := cdhBackup.Status.HealthReport.ClusterDetails.RgwInfo.PublicEndpoint*/
-	rgwBackupPublicEndpoint, err := getRgwPublicHTTPEndpoint(backupCluster.Context, backupCluster.KubeClient, backupCluster.LcmConfig.RookNamespace, cdBackup.Spec.ObjectStorage.Rgw.Name)
+	rgwBackupPublicEndpoint, err := getRgwPublicHTTPEndpoint(backupCluster.Context, backupCluster.KubeClient, backupCluster.LcmConfig.RookNamespace, cdBackup.Spec.ObjectStorage.Rgws[0].Name)
 	if err != nil {
 		t.Fatalf("failed to get RGW backup zone public endpoint: %v", err)
 	}
@@ -297,23 +378,32 @@ func TestMultisiteRgw(t *testing.T) {
 	rgwUserName := fmt.Sprintf("rgw-e2e-test-user-%d", time.Now().Unix())
 	bucketQuota := 1
 	objQuota := int64(1)
-	rgwUser := cephlcmv1alpha1.CephRGWUser{
-		Name:        rgwUserName,
-		DisplayName: rgwUserName,
-		Capabilities: &cephv1.ObjectUserCapSpec{
-			Bucket:   "*",
-			User:     "read",
-			MetaData: "read",
+	rgwUserRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(
+		cephv1.ObjectStoreUserSpec{
+			Store:       cd.Spec.ObjectStorage.Rgws[0].Name,
+			DisplayName: rgwUserName,
+			Capabilities: &cephv1.ObjectUserCapSpec{
+				Bucket:   "*",
+				User:     "read",
+				MetaData: "read",
+			},
+			Quotas: &cephv1.ObjectUserQuotaSpec{
+				MaxBuckets: &bucketQuota,
+				MaxObjects: &objQuota,
+			},
 		},
-		Quotas: &cephv1.ObjectUserQuotaSpec{
-			MaxBuckets: &bucketQuota,
-			MaxObjects: &objQuota,
+	)
+	rgwUser := cephlcmv1alpha1.CephObjectStoreUser{
+		Name: rgwUserName,
+		Spec: runtime.RawExtension{
+			Raw: rgwUserRaw,
 		},
 	}
-	if len(cd.Spec.ObjectStorage.Rgw.ObjectUsers) > 0 {
-		cd.Spec.ObjectStorage.Rgw.ObjectUsers = append(cd.Spec.ObjectStorage.Rgw.ObjectUsers, rgwUser)
+
+	if len(cd.Spec.ObjectStorage.Users) > 0 {
+		cd.Spec.ObjectStorage.Users = append(cd.Spec.ObjectStorage.Users, rgwUser)
 	} else {
-		cd.Spec.ObjectStorage.Rgw.ObjectUsers = []cephlcmv1alpha1.CephRGWUser{rgwUser}
+		cd.Spec.ObjectStorage.Users = []cephlcmv1alpha1.CephObjectStoreUser{rgwUser}
 	}
 	err = f.UpdateCephDeploymentSpec(cd, true)
 	if err != nil {
@@ -366,20 +456,10 @@ aws_secret_access_key = %s`, string(userCreds.Data["AccessKey"]), string(userCre
 		}
 	}()
 
-	f.Step(t, "Get test deployment image")
-	awsCliImage := f.TF.E2eImage
-	if awsCliImage == "" {
-		rco, err := f.TF.ManagedCluster.GetDeployment("rook-ceph-operator", f.TF.ManagedCluster.LcmConfig.RookNamespace)
-		if err != nil {
-			t.Fatal(errors.Wrapf(err, "failed to get deployment %s/rook-ceph-operator", f.TF.ManagedCluster.LcmConfig.RookNamespace))
-		}
-		awsCliImage = rco.Spec.Template.Spec.Containers[0].Image
-	}
-
 	f.Step(t, "Create awscli pod to verify public endpoint accessibility on master side")
 	awsCliName := fmt.Sprintf("awscli-%d", time.Now().Unix())
 	awsAppCliLabel := "awscli-multisite-e2e"
-	awscliMaster, err := f.TF.ManagedCluster.CreateAWSCliDeployment(awsCliName, awsAppCliLabel, awsCliImage, customUserCm.Name, "rgw-ssl-certificate", "", "")
+	awscliMaster, err := f.TF.ManagedCluster.CreateAWSCliDeployment(awsCliName, awsAppCliLabel, f.TF.E2eImage, customUserCm.Name, fmt.Sprintf("%s-ssl-cert", cd.Spec.ObjectStorage.Rgws[0].Name), "", "")
 	if err != nil {
 		t.Fatalf("failed to create and configure awscli for custom rgw user: %v", err)
 	}
@@ -392,7 +472,7 @@ aws_secret_access_key = %s`, string(userCreds.Data["AccessKey"]), string(userCre
 	}()
 
 	f.Step(t, "Create awscli pod to verify public endpoint accessibility on backup side")
-	awscliBackup, err := backupCluster.CreateAWSCliDeployment(awsCliName, awsAppCliLabel, awsCliImage, customUserCm.Name, "rgw-ssl-certificate", "", "")
+	awscliBackup, err := backupCluster.CreateAWSCliDeployment(awsCliName, awsAppCliLabel, f.TF.E2eImage, customUserCm.Name, "rgw-store-backup-ssl-cert", "", "")
 	if err != nil {
 		t.Fatalf("failed to create and configure awscli for custom rgw user: %v", err)
 	}

@@ -23,6 +23,8 @@ import (
 	"github.com/pkg/errors"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"github.com/stretchr/testify/assert"
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/runtime"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
@@ -151,14 +153,15 @@ func TestEnsureCephFS(t *testing.T) {
 	cephDpl := unitinputs.BaseCephDeployment.DeepCopy()
 	// updated case
 	updateSharedFs := unitinputs.CephSharedFileSystemOk.DeepCopy()
-	updateCephFS := updateSharedFs.CephFS[0]
-	updateCephFS.MetadataPool.Replicated.Size = 1
-	updateSharedFs.CephFS[0] = updateCephFS
+	updateCephFS := updateSharedFs.Filesystems[0]
+	specRaw, _ := updateCephFS.GetSpec()
+	specRaw.MetadataPool.Replicated.Size = 1
+	updateSharedFs.Filesystems[0].FsSpec.Raw = unitinputs.ConvertStructToRaw(specRaw)
 	updatedCephFS := unitinputs.TestCephFs.DeepCopy()
 	updatedCephFS.Spec.MetadataPool.Replicated.Size = 1
 	// delete case
 	delSharedFs := unitinputs.CephSharedFileSystemOk.DeepCopy()
-	delSharedFs.CephFS = make([]cephlcmv1alpha1.CephFS, 0)
+	delSharedFs.Filesystems = make([]cephlcmv1alpha1.CephFilesystem, 0)
 	tests := []struct {
 		name                  string
 		sharedFs              *cephlcmv1alpha1.CephSharedFilesystem
@@ -622,35 +625,33 @@ func TestGenerateCephFilesystem(t *testing.T) {
 	}
 	simpleCephFS := unitinputs.BaseCephDeployment.DeepCopy()
 	simpleCephFS.Spec.SharedFilesystem = unitinputs.CephSharedFileSystemOk.DeepCopy()
-	// get tolerations from hyper and resources from metadata server spec
-	cephFSHyperTolerations := unitinputs.BaseCephDeployment.DeepCopy()
-	cephFSHyperTolerations.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{
-		CephFS: []cephlcmv1alpha1.CephFS{*unitinputs.CephFSOkWithResources.DeepCopy()},
+	cephFsWithDaemonAnnotations := unitinputs.TestCephFs.DeepCopy()
+	cephFsWithDaemonAnnotations.Spec.MetadataServer.Annotations["cephdeployment.lcm.mirantis.com/config-mds.test-cephfs-updated"] = "some-time"
+	// get tolerations from metadata server spec
+	cephFSTolerationsAndResources := unitinputs.BaseCephDeployment.DeepCopy()
+	cephFSTolerationsAndResources.Spec.SharedFilesystem = unitinputs.CephSharedFileSystemOk.DeepCopy()
+	castedSpec, _ := cephFSTolerationsAndResources.Spec.SharedFilesystem.Filesystems[0].GetSpec()
+	castedSpec.MetadataServer.Resources = v1.ResourceRequirements{
+		Limits: v1.ResourceList{
+			v1.ResourceCPU: resource.MustParse("120m"),
+		},
+		Requests: v1.ResourceList{
+			v1.ResourceCPU: resource.MustParse("10m"),
+		},
 	}
-	cephFSHyperTolerations.Spec.HyperConverge = unitinputs.HyperConvergeForExtraSVC.DeepCopy()
-	// get tolerations and resources from hyper
-	cephFSHyperTolerationsAndResources := unitinputs.BaseCephDeployment.DeepCopy()
-	cephFSHyperTolerationsAndResources.Spec.SharedFilesystem = unitinputs.CephSharedFileSystemOk.DeepCopy()
-	cephFSHyperTolerationsAndResources.Spec.HyperConverge = unitinputs.HyperConvergeForExtraSVC.DeepCopy()
-	expectedCephFsHyper := unitinputs.TestCephFsWithTolerationsAndResources.DeepCopy()
-	expectedCephFsHyper.Spec.MetadataServer.Resources = unitinputs.HyperConvergeForExtraSVC.DeepCopy().Resources["mds"]
-
-	cephFSProbes := unitinputs.BaseCephDeployment.DeepCopy()
-	cephFSProbes.Spec.SharedFilesystem = unitinputs.CephSharedFileSystemOk.DeepCopy()
-	cephfs := cephFSProbes.Spec.SharedFilesystem.CephFS[0]
+	castedSpec.MetadataServer.Placement.Tolerations = []v1.Toleration{
+		{
+			Key:      "test.kubernetes.io/testkey",
+			Effect:   "Schedule",
+			Operator: "Exists",
+		},
+	}
 	probe := &cephv1.ProbeSpec{
 		Disabled: true,
 	}
-	cephfs.MetadataServer.HealthCheck = &cephlcmv1alpha1.CephMdsHealthCheck{
-		LivenessProbe: probe,
-		StartupProbe:  probe,
-	}
-	cephFSProbes.Spec.SharedFilesystem.CephFS[0] = cephfs
-	cephFsWithDaemonAnnotations := unitinputs.TestCephFs.DeepCopy()
-	cephFsWithDaemonAnnotations.Spec.MetadataServer.Annotations["cephdeployment.lcm.mirantis.com/config-mds.test-cephfs-updated"] = "some-time"
-	expectedCephFSProbes := cephFsWithDaemonAnnotations.DeepCopy()
-	expectedCephFSProbes.Spec.MetadataServer.LivenessProbe = probe
-	expectedCephFSProbes.Spec.MetadataServer.StartupProbe = probe
+	castedSpec.MetadataServer.LivenessProbe = probe
+	castedSpec.MetadataServer.StartupProbe = probe
+	cephFSTolerationsAndResources.Spec.SharedFilesystem.Filesystems[0].FsSpec.Raw = unitinputs.ConvertStructToRaw(castedSpec)
 	tests := []struct {
 		name           string
 		cephDpl        *cephlcmv1alpha1.CephDeployment
@@ -662,25 +663,15 @@ func TestGenerateCephFilesystem(t *testing.T) {
 			expectedCephFS: cephFsWithDaemonAnnotations,
 		},
 		{
-			name:           "generate cephfs with resources from ceph fs",
-			cephDpl:        cephFSHyperTolerations,
+			name:           "generate cephfs with liveness startup probes, resources and tolerations",
+			cephDpl:        cephFSTolerationsAndResources,
 			expectedCephFS: &unitinputs.TestCephFsWithTolerationsAndResources,
-		},
-		{
-			name:           "generate cephfs with resources from hyper",
-			cephDpl:        cephFSHyperTolerationsAndResources,
-			expectedCephFS: expectedCephFsHyper,
-		},
-		{
-			name:           "generate cephfs with liveness startup probes",
-			cephDpl:        cephFSProbes,
-			expectedCephFS: expectedCephFSProbes,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			resultFS := generateCephFS(test.cephDpl.Spec.SharedFilesystem.CephFS[0], "rook-ceph", test.cephDpl.Spec.HyperConverge)
+			resultFS := generateCephFS(test.cephDpl.Spec.SharedFilesystem.Filesystems[0], "rook-ceph")
 			assert.Equal(t, test.expectedCephFS, resultFS)
 		})
 	}

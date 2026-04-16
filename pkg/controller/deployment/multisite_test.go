@@ -37,9 +37,9 @@ var multisiteResources = []string{"cephobjectstores", "cephobjectrealms", "cepho
 
 func TestEnsureRgwMultiSite(t *testing.T) {
 	multisiteNoResources := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-	multisiteNoResources.Spec.ObjectStorage.MultiSite.Realms = nil
-	multisiteNoResources.Spec.ObjectStorage.MultiSite.Zones = nil
-	multisiteNoResources.Spec.ObjectStorage.MultiSite.ZoneGroups = nil
+	multisiteNoResources.Spec.ObjectStorage.Realms = nil
+	multisiteNoResources.Spec.ObjectStorage.Zones = nil
+	multisiteNoResources.Spec.ObjectStorage.Zonegroups = nil
 	tests := []struct {
 		name           string
 		cephDpl        *cephlcmv1alpha1.CephDeployment
@@ -225,7 +225,7 @@ func TestEnsureRealms(t *testing.T) {
 			name: "nothing to do - no realms in spec",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.ObjectStorage.MultiSite.Realms = nil
+				mc.Spec.ObjectStorage.Realms = nil
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -233,20 +233,6 @@ func TestEnsureRealms(t *testing.T) {
 				"cephobjectrealms":     &cephv1.CephObjectRealmList{},
 			},
 			expectedRealms: &cephv1.CephObjectRealmList{},
-		},
-		{
-			name:    "failed to create secret for realm",
-			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
-			inputResources: map[string]runtime.Object{
-				"secrets":              &corev1.SecretList{},
-				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{},
-				"cephobjectrealms":     &cephv1.CephObjectRealmList{},
-			},
-			expectedRealms: &cephv1.CephObjectRealmList{},
-			apiErrors: map[string]error{
-				"create-secrets": errors.New("failed to create secret"),
-			},
-			expectedError: "failed to create Secret 'rook-ceph/realm1-keys': failed to create secret",
 		},
 		{
 			name:    "failed to create realm",
@@ -263,25 +249,10 @@ func TestEnsureRealms(t *testing.T) {
 			expectedError: "failed to create CephObjectRealm 'rook-ceph/realm1': failed to create realm",
 		},
 		{
-			name:    "create pull realm ok",
-			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
-			inputResources: map[string]runtime.Object{
-				"secrets":              &corev1.SecretList{},
-				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{},
-				"cephobjectrealms":     &cephv1.CephObjectRealmList{},
-			},
-			expectedRealms: &cephv1.CephObjectRealmList{
-				Items: []cephv1.CephObjectRealm{unitinputs.RgwMultisiteMasterPullRealm1},
-			},
-			stateChanged: true,
-		},
-		{
 			name: "create master realm ok",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				realm := mc.Spec.ObjectStorage.MultiSite.Realms[0]
-				realm.Pull = nil
-				mc.Spec.ObjectStorage.MultiSite.Realms[0] = realm
+				mc.Spec.ObjectStorage.Realms[0].Spec.Raw = nil
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -289,13 +260,7 @@ func TestEnsureRealms(t *testing.T) {
 				"cephobjectrealms":     &cephv1.CephObjectRealmList{},
 			},
 			expectedRealms: &cephv1.CephObjectRealmList{
-				Items: []cephv1.CephObjectRealm{
-					func() cephv1.CephObjectRealm {
-						realm := unitinputs.RgwMultisiteMasterRealm1.DeepCopy()
-						realm.Spec.DefaultRealm = true
-						return *realm
-					}(),
-				},
+				Items: []cephv1.CephObjectRealm{unitinputs.RgwMultisiteMasterRealm1},
 			},
 			stateChanged: true,
 		},
@@ -315,65 +280,43 @@ func TestEnsureRealms(t *testing.T) {
 			expectedRealms: &cephv1.CephObjectRealmList{
 				Items: []cephv1.CephObjectRealm{unitinputs.RgwMultisiteMasterPullRealm1},
 			},
-			expectedError: "failed to get secret 'rook-ceph/realm1-keys' for CephObjectRealm 'realm1': failed to get secret",
+			expectedError: "failed to get secret 'rook-ceph/realm1-keys' for CephObjectRealm 'realm1' with user keys: failed to get secret",
 		},
 		{
-			name:    "create realm secret, but realm is present already",
-			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
-			inputResources: map[string]runtime.Object{
-				"secrets": &corev1.SecretList{},
-				"cephobjectrealms": &cephv1.CephObjectRealmList{
-					Items: []cephv1.CephObjectRealm{*unitinputs.RgwMultisiteMasterPullRealm1.DeepCopy()},
-				},
-				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{},
-			},
-			expectedRealms: &cephv1.CephObjectRealmList{
-				Items: []cephv1.CephObjectRealm{unitinputs.RgwMultisiteMasterPullRealm1},
-			},
-		},
-		{
-			name:    "create realm secret failed, but realm is present already",
-			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
-			inputResources: map[string]runtime.Object{
-				"secrets": &corev1.SecretList{},
-				"cephobjectrealms": &cephv1.CephObjectRealmList{
-					Items: []cephv1.CephObjectRealm{*unitinputs.RgwMultisiteMasterPullRealm1.DeepCopy()},
-				},
-				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{},
-			},
-			expectedRealms: &cephv1.CephObjectRealmList{
-				Items: []cephv1.CephObjectRealm{unitinputs.RgwMultisiteMasterPullRealm1},
-			},
-			apiErrors: map[string]error{
-				"create-secrets": errors.New("failed to create secret"),
-			},
-			expectedError: "failed to create Secret 'rook-ceph/realm1-keys': failed to create secret",
-		},
-		{
-			name:    "update realm ok, but secret realm update failed",
+			name:    "realm secret has no required data",
 			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
 			inputResources: map[string]runtime.Object{
 				"secrets": &corev1.SecretList{
 					Items: []corev1.Secret{
 						func() corev1.Secret {
 							secret := unitinputs.MultisiteRealmSecret.DeepCopy()
-							secret.Data["secret-key"] = []byte("wrongkey")
+							secret.Data = nil
 							return *secret
 						}(),
 					},
 				},
 				"cephobjectrealms": &cephv1.CephObjectRealmList{
-					Items: []cephv1.CephObjectRealm{*unitinputs.RgwMultisiteMasterRealm1.DeepCopy()},
+					Items: []cephv1.CephObjectRealm{*unitinputs.RgwMultisiteMasterPullRealm1.DeepCopy()},
 				},
 				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{},
-			},
-			apiErrors: map[string]error{
-				"update-secrets": errors.New("failed to update secret"),
 			},
 			expectedRealms: &cephv1.CephObjectRealmList{
 				Items: []cephv1.CephObjectRealm{unitinputs.RgwMultisiteMasterPullRealm1},
 			},
-			expectedError: "failed to update Secret 'rook-ceph/realm1-keys': failed to update secret",
+			expectedError: "secret 'rook-ceph/realm1-keys' for CephObjectRealm 'realm1' has no access-key data provided, secret 'rook-ceph/realm1-keys' for CephObjectRealm 'realm1' has no secret-key data provided",
+		},
+		{
+			name:    "create pull realm ok",
+			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
+			inputResources: map[string]runtime.Object{
+				"secrets":              &corev1.SecretList{},
+				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{},
+				"cephobjectrealms":     &cephv1.CephObjectRealmList{},
+			},
+			expectedRealms: &cephv1.CephObjectRealmList{
+				Items: []cephv1.CephObjectRealm{unitinputs.RgwMultisiteMasterPullRealm1},
+			},
+			stateChanged: true,
 		},
 		{
 			name:    "update realm failed",
@@ -399,9 +342,7 @@ func TestEnsureRealms(t *testing.T) {
 			name: "update master realm ok",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				realm := mc.Spec.ObjectStorage.MultiSite.Realms[0]
-				realm.Pull = nil
-				mc.Spec.ObjectStorage.MultiSite.Realms[0] = realm
+				mc.Spec.ObjectStorage.Realms[0].Spec.Raw = nil
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -419,7 +360,7 @@ func TestEnsureRealms(t *testing.T) {
 			name: "delete secret for realm failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.ObjectStorage.MultiSite.Realms = nil
+				mc.Spec.ObjectStorage.Realms = nil
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -443,7 +384,7 @@ func TestEnsureRealms(t *testing.T) {
 			name: "delete realm failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.ObjectStorage.MultiSite.Realms = nil
+				mc.Spec.ObjectStorage.Realms = nil
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -467,7 +408,7 @@ func TestEnsureRealms(t *testing.T) {
 			name: "delete realm ok",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.ObjectStorage.MultiSite.Realms = nil
+				mc.Spec.ObjectStorage.Realms = nil
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -488,7 +429,7 @@ func TestEnsureRealms(t *testing.T) {
 			name: "delete realm skipped - in use",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.ObjectStorage.MultiSite.Realms = nil
+				mc.Spec.ObjectStorage.Realms = nil
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -588,7 +529,7 @@ func TestEnsureZoneGroups(t *testing.T) {
 			name: "nothing to do - no zonegroups in spec",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.ObjectStorage.MultiSite.ZoneGroups = nil
+				mc.Spec.ObjectStorage.Zonegroups = nil
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -626,7 +567,7 @@ func TestEnsureZoneGroups(t *testing.T) {
 			name: "delete zonegroup failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.ObjectStorage.MultiSite.ZoneGroups = nil
+				mc.Spec.ObjectStorage.Zonegroups = nil
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -647,7 +588,7 @@ func TestEnsureZoneGroups(t *testing.T) {
 			name: "delete zonegroup ok",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.ObjectStorage.MultiSite.ZoneGroups = nil
+				mc.Spec.ObjectStorage.Zonegroups = nil
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -663,7 +604,7 @@ func TestEnsureZoneGroups(t *testing.T) {
 			name: "delete zone skipped",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.ObjectStorage.MultiSite.ZoneGroups = nil
+				mc.Spec.ObjectStorage.Zonegroups = nil
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -750,7 +691,8 @@ func TestEnsureZones(t *testing.T) {
 			name: "failed to check ingress proxy setup",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.Pools = unitinputs.CephDeployMosk.Spec.Pools
+				mc.Spec.BlockStorage = unitinputs.CephDeployMosk.Spec.BlockStorage.DeepCopy()
+				mc.Spec.ObjectStorage.Rgws[0].UsedByRockoon = true
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -779,7 +721,7 @@ func TestEnsureZones(t *testing.T) {
 			name: "nothing to do - no zones in spec",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.ObjectStorage.MultiSite.Zones = nil
+				mc.Spec.ObjectStorage.Zones = nil
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -848,7 +790,7 @@ func TestEnsureZones(t *testing.T) {
 			name: "delete zone failed",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.ObjectStorage.MultiSite.Zones = nil
+				mc.Spec.ObjectStorage.Zones = nil
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -869,7 +811,7 @@ func TestEnsureZones(t *testing.T) {
 			name: "delete zone ok",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.ObjectStorage.MultiSite.Zones = nil
+				mc.Spec.ObjectStorage.Zones = nil
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -885,7 +827,7 @@ func TestEnsureZones(t *testing.T) {
 			name: "delete zone skipped",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.ObjectStorage.MultiSite.Zones = nil
+				mc.Spec.ObjectStorage.Zones = nil
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -925,6 +867,7 @@ func TestEnsureZones(t *testing.T) {
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
 				mc.Spec.IngressConfig = unitinputs.CephIngressConfig.DeepCopy()
+				mc.Spec.ObjectStorage.Rgws[0].ServedByIngress = true
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -940,7 +883,7 @@ func TestEnsureZones(t *testing.T) {
 			},
 		},
 		{
-			name:    "failed to get external svc - no endpoints",
+			name:    "failed to get external svcs - no endpoints",
 			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
 			inputResources: map[string]runtime.Object{
 				"cephobjectzones": &cephv1.CephObjectZoneList{
@@ -949,15 +892,11 @@ func TestEnsureZones(t *testing.T) {
 				"cephobjectstores": &cephv1.CephObjectStoreList{
 					Items: []cephv1.CephObjectStore{*objectStore},
 				},
-				"services": &corev1.ServiceList{},
 			},
 			expectedZones: &cephv1.CephObjectZoneList{
 				Items: []cephv1.CephObjectZone{*correctZone.DeepCopy()},
 			},
-			apiErrors: map[string]error{
-				"get-services": errors.New("failed to get external service"),
-			},
-			expectedError: "failed to get ip of external service: failed to get external service",
+			expectedError: "failed to find external service for zone secondary-zone1: failed to list services",
 		},
 		{
 			name:    "nothing to do - no endpoints, no rgw external service",
@@ -998,9 +937,9 @@ func TestEnsureZones(t *testing.T) {
 			name: "update zone - endpoints specified, replace default endpoint",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				zone := mc.Spec.ObjectStorage.MultiSite.Zones[0]
-				zone.EndpointsForZone = []string{"https://custom-endpoint"}
-				mc.Spec.ObjectStorage.MultiSite.Zones[0] = zone
+				zoneCasted, _ := mc.Spec.ObjectStorage.Zones[0].GetSpec()
+				zoneCasted.CustomEndpoints = []string{"https://custom-endpoint"}
+				mc.Spec.ObjectStorage.Zones[0].Spec.Raw = unitinputs.ConvertStructToRaw(zoneCasted)
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{
@@ -1026,11 +965,15 @@ func TestEnsureZones(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.lcmConfig)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", []string{"cephobjectstores", "cephobjectzones"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "create", []string{"cephobjectzones"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "update", []string{"cephobjectzones"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "delete", []string{"cephobjectzones"}, test.inputResources, test.apiErrors)
-			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"services", "secrets"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"secrets"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "list", []string{"services"}, test.inputResources, nil)
 
 			stateChanged, err := c.ensureZones()
 			if test.expectedError != "" {

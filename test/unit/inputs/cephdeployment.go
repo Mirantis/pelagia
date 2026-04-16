@@ -21,8 +21,8 @@ import (
 
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 )
@@ -30,11 +30,19 @@ import (
 var BaseCephDeployment = cephlcmv1alpha1.CephDeployment{
 	ObjectMeta: LcmObjectMeta,
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		DashboardEnabled: false,
-		Network: cephlcmv1alpha1.CephNetworkSpec{
-			HostNetwork: true,
-			ClusterNet:  "127.0.0.0/16",
-			PublicNet:   "192.168.0.0/16",
+		Cluster: &cephlcmv1alpha1.CephCluster{
+			RawExtension: runtime.RawExtension{
+				Raw: ConvertStructToRaw(
+					cephv1.ClusterSpec{
+						Network: cephv1.NetworkSpec{
+							AddressRanges: &cephv1.AddressRangesSpec{
+								Public:  []cephv1.CIDR{cephv1.CIDR("192.168.0.0/16")},
+								Cluster: []cephv1.CIDR{cephv1.CIDR("127.0.0.0/16")},
+							},
+						},
+					},
+				),
+			},
 		},
 		Nodes: CephNodesOk,
 	},
@@ -84,13 +92,21 @@ var BaseCephDeploymentDeleting = func() cephlcmv1alpha1.CephDeployment {
 
 var BaseCephDeploymentMultus = func() cephlcmv1alpha1.CephDeployment {
 	cd := BaseCephDeployment.DeepCopy()
-	cd.Spec.Network = cephlcmv1alpha1.CephNetworkSpec{
-		Provider: "multus",
-		Selector: map[cephv1.CephNetworkType]string{
-			cephv1.CephNetworkPublic:  "192.168.0.0/16",
-			cephv1.CephNetworkCluster: "127.0.0.0/16",
+	cd.Spec.Cluster.Raw = ConvertStructToRaw(
+		cephv1.ClusterSpec{
+			Network: cephv1.NetworkSpec{
+				Provider: "multus",
+				AddressRanges: &cephv1.AddressRangesSpec{
+					Public:  []cephv1.CIDR{cephv1.CIDR("192.168.0.0/16")},
+					Cluster: []cephv1.CIDR{cephv1.CIDR("127.0.0.0/16")},
+				},
+				Selectors: map[cephv1.CephNetworkType]string{
+					cephv1.CephNetworkPublic:  "192.168.0.0/16",
+					cephv1.CephNetworkCluster: "127.0.0.0/16",
+				},
+			},
 		},
-	}
+	)
 	return *cd
 }()
 
@@ -115,7 +131,7 @@ var CephDeployRookConfigNoRuntimeOsdParams = func() cephlcmv1alpha1.CephDeployme
 var CephDeployObjectStorageCeph = func() cephlcmv1alpha1.CephDeployment {
 	cd := BaseCephDeployment.DeepCopy()
 	cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
-		Rgw: CephRgwBaseSpec,
+		Rgws: []cephlcmv1alpha1.CephObjectStore{CephRgwBaseSpec},
 	}
 	return *cd
 }()
@@ -133,7 +149,9 @@ var CephDeployEnsureRbdMirror = func() cephlcmv1alpha1.CephDeployment {
 			},
 		},
 	}
-	cd.Spec.Pools = []cephlcmv1alpha1.CephPool{CephDeployPoolReplicated}
+	cd.Spec.BlockStorage = &cephlcmv1alpha1.CephBlockStorage{
+		Pools: []cephlcmv1alpha1.CephPool{CephDeployPoolReplicated},
+	}
 	return *cd
 }()
 
@@ -213,12 +231,36 @@ var CephDeployNonMosk = cephlcmv1alpha1.CephDeployment{
 		Generation: int64(10),
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		Pools:   []cephlcmv1alpha1.CephPool{CephDeployPoolReplicated},
+		Cluster: BaseCephDeployment.Spec.Cluster.DeepCopy(),
+		BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+			Pools: []cephlcmv1alpha1.CephPool{CephDeployPoolReplicated},
+		},
 		Clients: []cephlcmv1alpha1.CephClient{CephDeployClientTest},
 		Nodes:   CephNodesExtendedOk,
-		Network: BaseCephDeployment.Spec.Network,
 		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
-			Rgw: CephRgwSpecWithUsersBuckets,
+			Rgws: []cephlcmv1alpha1.CephObjectStore{CephRgwBaseSpec},
+			Users: []cephlcmv1alpha1.CephObjectStoreUser{
+				{
+					Name: "fake-user-1",
+					Spec: runtime.RawExtension{
+						Raw: ConvertStructToRaw(
+							cephv1.ObjectStoreUserSpec{
+								Store: "rgw-store",
+							},
+						),
+					},
+				},
+				{
+					Name: "fake-user-2",
+					Spec: runtime.RawExtension{
+						Raw: ConvertStructToRaw(
+							cephv1.ObjectStoreUserSpec{
+								Store: "rgw-store",
+							},
+						),
+					},
+				},
+			},
 		},
 		SharedFilesystem: CephSharedFileSystemOk,
 	},
@@ -238,13 +280,13 @@ var CephDeployNonMoskWithIngress = func() cephlcmv1alpha1.CephDeployment {
 			Domain: "example.com",
 		},
 	}
+	cd.Spec.ObjectStorage.Rgws[0].ServedByIngress = true
 	return *cd
 }()
 
 var CephDeployNonMoskForSecret = func() cephlcmv1alpha1.CephDeployment {
 	cd := CephDeployNonMosk.DeepCopy()
-	cd.Spec.ObjectStorage.Rgw.ObjectUsers = []cephlcmv1alpha1.CephRGWUser{{Name: "test-user"}}
-	cd.Spec.ObjectStorage.Rgw.Buckets = []string{"test-bucket"}
+	cd.Spec.ObjectStorage.Users = []cephlcmv1alpha1.CephObjectStoreUser{{Name: "test-user"}}
 	return *cd
 }()
 
@@ -257,17 +299,25 @@ var CephDeployMosk = cephlcmv1alpha1.CephDeployment{
 		},
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		Network: BaseCephDeployment.Spec.Network,
-		Pools: []cephlcmv1alpha1.CephPool{
-			CephDeployPoolReplicated,
-			GetCephDeployPool("vms", "vms"),
-			GetCephDeployPool("volumes", "volumes"),
-			GetCephDeployPool("images", "images"),
-			GetCephDeployPool("backup", "backup"),
+		Cluster: BaseCephDeployment.Spec.Cluster.DeepCopy(),
+		BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+			Pools: []cephlcmv1alpha1.CephPool{
+				CephDeployPoolReplicated,
+				GetCephDeployPool("vms", "vms"),
+				GetCephDeployPool("volumes", "volumes"),
+				GetCephDeployPool("images", "images"),
+				GetCephDeployPool("backup", "backup"),
+			},
 		},
 		Nodes: CephNodesExtendedOk,
 		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
-			Rgw: CephRgwBaseSpec,
+			Rgws: []cephlcmv1alpha1.CephObjectStore{
+				func() cephlcmv1alpha1.CephObjectStore {
+					rgw := CephRgwBaseSpec.DeepCopy()
+					rgw.UsedByRockoon = true
+					return *rgw
+				}(),
+			},
 		},
 		IngressConfig: &CephIngressConfig,
 	},
@@ -330,12 +380,28 @@ var CephDeployExternal = cephlcmv1alpha1.CephDeployment{
 		},
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		Network: cephlcmv1alpha1.CephNetworkSpec{
-			ClusterNet: "127.0.0.0/32",
-			PublicNet:  "127.0.0.0/32",
+		Cluster: &cephlcmv1alpha1.CephCluster{
+			RawExtension: runtime.RawExtension{
+				Raw: ConvertStructToRaw(
+					cephv1.ClusterSpec{
+						External: cephv1.ExternalSpec{Enable: true},
+					},
+				),
+			},
 		},
-		External: true,
-		Pools:    []cephlcmv1alpha1.CephPool{CephDeployPoolReplicated},
+		BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+			Pools: []cephlcmv1alpha1.CephPool{
+				{
+					Name: "pool1",
+					StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{
+						Default: true,
+					},
+					PoolSpec: runtime.RawExtension{
+						Raw: ConvertStructToRaw(cephv1.PoolSpec{DeviceClass: "hdd"}),
+					},
+				},
+			},
+		},
 	},
 	Status: cephlcmv1alpha1.CephDeploymentStatus{
 		Validation: cephlcmv1alpha1.CephDeploymentValidation{
@@ -348,59 +414,97 @@ var CephDeployExternal = cephlcmv1alpha1.CephDeployment{
 var CephDeployExternalRgw = func() cephlcmv1alpha1.CephDeployment {
 	cd := CephDeployExternal.DeepCopy()
 	cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
-		Rgw: RgwExternalSslEnabled,
+		Rgws: []cephlcmv1alpha1.CephObjectStore{CephRgwExternal},
 	}
 	return *cd
 }()
 
 var CephDeployExternalCephFS = func() cephlcmv1alpha1.CephDeployment {
 	cd := CephDeployExternal.DeepCopy()
-	cd.Spec.SharedFilesystem = CephSharedFileSystemOk
+	cd.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{
+		Filesystems: []cephlcmv1alpha1.CephFilesystem{
+			{
+				Name: "test-cephfs",
+				FsSpec: runtime.RawExtension{
+					Raw: ConvertStructToRaw(
+						cephv1.FilesystemSpec{
+							DataPools: []cephv1.NamedPoolSpec{
+								{
+									Name: "some-pool-name",
+									PoolSpec: cephv1.PoolSpec{
+										DeviceClass: "hdd",
+										Replicated:  cephv1.ReplicatedSpec{Size: 3},
+									},
+								},
+							},
+						},
+					),
+				},
+			},
+		},
+	}
 	return *cd
 }()
 
 var CephDeployMultisiteMasterRgw = func() cephlcmv1alpha1.CephDeployment {
 	cd := BaseCephDeployment.DeepCopy()
+	cd.Spec.BlockStorage = CephDeployNonMosk.Spec.BlockStorage.DeepCopy()
 	cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
-		MultiSite: &cephlcmv1alpha1.CephMultiSite{
-			Realms: []cephlcmv1alpha1.CephRGWRealm{
-				{
-					Name: "realm1",
-				},
+		Realms: []cephlcmv1alpha1.CephObjectRealm{
+			{
+				Name: "realm1",
 			},
-			ZoneGroups: []cephlcmv1alpha1.CephRGWZoneGroup{
-				{
-					Name:  "zonegroup1",
-					Realm: "realm1",
-				},
-			},
-			Zones: []cephlcmv1alpha1.CephRGWZone{
-				{
-					Name:      "zone1",
-					ZoneGroup: "zonegroup1",
-					DataPool: cephlcmv1alpha1.CephPoolSpec{
-						DeviceClass:   "hdd",
-						FailureDomain: "host",
-						ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
-							CodingChunks: 2,
-							DataChunks:   1,
-						},
-					},
-					MetadataPool: cephlcmv1alpha1.CephPoolSpec{
-						DeviceClass:   "hdd",
-						FailureDomain: "host",
-						Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-							Size: 3,
-						},
-					},
+		},
+		Zonegroups: []cephlcmv1alpha1.CephObjectZonegroup{
+			{
+				Name: "zonegroup1",
+				Spec: runtime.RawExtension{
+					Raw: []byte(`{"realm": "realm1"}`),
 				},
 			},
 		},
-		Rgw: cephlcmv1alpha1.CephRGW{
-			Name:    "rgw-store",
-			Gateway: CephRgwBaseSpec.Gateway,
-			Zone: &cephv1.ZoneSpec{
+		Zones: []cephlcmv1alpha1.CephObjectZone{
+			{
 				Name: "zone1",
+				Spec: runtime.RawExtension{
+					Raw: ConvertStructToRaw(
+						cephv1.ObjectZoneSpec{
+							ZoneGroup: "zonegroup1",
+							MetadataPool: cephv1.PoolSpec{
+								DeviceClass:   "hdd",
+								FailureDomain: "host",
+								Replicated:    cephv1.ReplicatedSpec{Size: 3},
+							},
+							DataPool: cephv1.PoolSpec{
+								DeviceClass:   "hdd",
+								FailureDomain: "host",
+								ErasureCoded: cephv1.ErasureCodedSpec{
+									CodingChunks: 1,
+									DataChunks:   2,
+								},
+							},
+						},
+					),
+				},
+			},
+		},
+		Rgws: []cephlcmv1alpha1.CephObjectStore{
+			{
+				Name: "rgw-store",
+				Spec: runtime.RawExtension{
+					Raw: ConvertStructToRaw(
+						cephv1.ObjectStoreSpec{
+							Gateway: cephv1.GatewaySpec{
+								Instances:  2,
+								Port:       80,
+								SecurePort: 8443,
+							},
+							Zone: cephv1.ZoneSpec{
+								Name: "zone1",
+							},
+						},
+					),
+				},
 			},
 		},
 	}
@@ -409,53 +513,68 @@ var CephDeployMultisiteMasterRgw = func() cephlcmv1alpha1.CephDeployment {
 
 var CephDeployMultisiteRgw = func() cephlcmv1alpha1.CephDeployment {
 	cd := BaseCephDeployment.DeepCopy()
+	cd.Spec.BlockStorage = CephDeployNonMosk.Spec.BlockStorage.DeepCopy()
 	cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
-		MultiSite: &cephlcmv1alpha1.CephMultiSite{
-			Realms: []cephlcmv1alpha1.CephRGWRealm{
-				{
-					Name: "realm1",
-					Pull: &cephlcmv1alpha1.CephRGWRealmPull{
-						Endpoint:  "http://10.10.0.1",
-						AccessKey: "fakekey",
-						SecretKey: "fakesecret",
-					},
-				},
-			},
-			ZoneGroups: []cephlcmv1alpha1.CephRGWZoneGroup{
-				{
-					Name:  "zonegroup1",
-					Realm: "realm1",
-				},
-			},
-			Zones: []cephlcmv1alpha1.CephRGWZone{
-				{
-					Name:      "secondary-zone1",
-					ZoneGroup: "zonegroup1",
-					DataPool: cephlcmv1alpha1.CephPoolSpec{
-						DeviceClass:   "hdd",
-						CrushRoot:     "default",
-						FailureDomain: "host",
-						ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
-							CodingChunks: 2,
-							DataChunks:   1,
-						},
-					},
-					MetadataPool: cephlcmv1alpha1.CephPoolSpec{
-						DeviceClass:   "hdd",
-						CrushRoot:     "default",
-						FailureDomain: "host",
-						Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-							Size: 3,
-						},
-					},
+		Realms: []cephlcmv1alpha1.CephObjectRealm{
+			{
+				Name: "realm1",
+				Spec: runtime.RawExtension{
+					Raw: []byte(`{"pull": {"endpoint": "http://10.10.0.1"}}`),
 				},
 			},
 		},
-		Rgw: cephlcmv1alpha1.CephRGW{
-			Name:    "rgw-store",
-			Gateway: CephRgwBaseSpec.Gateway,
-			Zone: &cephv1.ZoneSpec{
+		Zonegroups: []cephlcmv1alpha1.CephObjectZonegroup{
+			{
+				Name: "zonegroup1",
+				Spec: runtime.RawExtension{
+					Raw: []byte(`{"realm": "realm1"}`),
+				},
+			},
+		},
+		Zones: []cephlcmv1alpha1.CephObjectZone{
+			{
 				Name: "secondary-zone1",
+				Spec: runtime.RawExtension{
+					Raw: ConvertStructToRaw(
+						cephv1.ObjectZoneSpec{
+							ZoneGroup: "zonegroup1",
+							MetadataPool: cephv1.PoolSpec{
+								DeviceClass:   "hdd",
+								CrushRoot:     "default",
+								FailureDomain: "host",
+								Replicated:    cephv1.ReplicatedSpec{Size: 3},
+							},
+							DataPool: cephv1.PoolSpec{
+								DeviceClass:   "hdd",
+								CrushRoot:     "default",
+								FailureDomain: "host",
+								ErasureCoded: cephv1.ErasureCodedSpec{
+									CodingChunks: 1,
+									DataChunks:   2,
+								},
+							},
+						},
+					),
+				},
+			},
+		},
+		Rgws: []cephlcmv1alpha1.CephObjectStore{
+			{
+				Name: "rgw-store",
+				Spec: runtime.RawExtension{
+					Raw: ConvertStructToRaw(
+						cephv1.ObjectStoreSpec{
+							Gateway: cephv1.GatewaySpec{
+								Instances:  2,
+								Port:       80,
+								SecurePort: 8443,
+							},
+							Zone: cephv1.ZoneSpec{
+								Name: "secondary-zone1",
+							},
+						},
+					),
+				},
 			},
 		},
 	}
@@ -464,153 +583,236 @@ var CephDeployMultisiteRgw = func() cephlcmv1alpha1.CephDeployment {
 
 var MultisiteRgwWithSyncDaemon = func() cephlcmv1alpha1.CephDeployment {
 	cd := CephDeployMultisiteRgw.DeepCopy()
-	cd.Spec.ObjectStorage.Rgw.Gateway.SplitDaemonForMultisiteTrafficSync = true
+	cd.Spec.ObjectStorage.Rgws = []cephlcmv1alpha1.CephObjectStore{
+		{
+			Name: "rgw-store",
+			Spec: runtime.RawExtension{
+				Raw: ConvertStructToRaw(cephv1.ObjectStoreSpec{
+					Gateway: cephv1.GatewaySpec{
+						Instances:                   2,
+						Port:                        80,
+						SecurePort:                  8443,
+						DisableMultisiteSyncTraffic: true,
+					},
+					Zone: cephv1.ZoneSpec{
+						Name: "secondary-zone1",
+					},
+				}),
+			},
+		},
+		{
+			Name:             "rgw-store-sync",
+			AuxiliaryService: true,
+			Spec: runtime.RawExtension{
+				Raw: ConvertStructToRaw(cephv1.ObjectStoreSpec{
+					Gateway: cephv1.GatewaySpec{
+						Port:                        8340,
+						Instances:                   1,
+						CaBundleRef:                 "multisite-rgw-secret",
+						DisableMultisiteSyncTraffic: false,
+					},
+					Zone: cephv1.ZoneSpec{
+						Name: "secondary-zone1",
+					},
+				}),
+			},
+		},
+	}
 	return *cd
 }()
 
+var CephDeploySingleNode = cephlcmv1alpha1.CephDeployment{
+	ObjectMeta: metav1.ObjectMeta{
+		Namespace: LcmObjectMeta.Namespace,
+		Name:      LcmObjectMeta.Name,
+		Finalizers: []string{
+			"cephdeployment.lcm.mirantis.com/finalizer",
+		},
+		Generation: int64(10),
+	},
+	Spec: cephlcmv1alpha1.CephDeploymentSpec{
+		Cluster: BaseCephDeployment.Spec.Cluster.DeepCopy(),
+		BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
+			Pools: []cephlcmv1alpha1.CephPool{
+				{
+					Name: "pool1",
+					Role: "fake",
+					StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{
+						Default: true,
+					},
+					PoolSpec: runtime.RawExtension{
+						Raw: ConvertStructToRaw(
+							cephv1.PoolSpec{
+								DeviceClass:   "hdd",
+								CrushRoot:     "default",
+								FailureDomain: "osd",
+								Replicated:    cephv1.ReplicatedSpec{Size: 2},
+							},
+						),
+					},
+				},
+			},
+		},
+		Clients: []cephlcmv1alpha1.CephClient{CephDeployClientTest},
+		Nodes: []cephlcmv1alpha1.CephDeploymentNode{
+			{
+				Node: cephv1.Node{
+					Name: "node-1",
+					Selection: cephv1.Selection{
+						Devices: []cephv1.Device{
+							{
+								Name:   "sda",
+								Config: map[string]string{"deviceClass": "hdd"},
+							},
+							{
+								Name:   "sdb",
+								Config: map[string]string{"deviceClass": "hdd"},
+							},
+						},
+					},
+				},
+				Roles: []string{"mon", "mgr", "mds"},
+			},
+		},
+		ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
+			Rgws: []cephlcmv1alpha1.CephObjectStore{
+				{
+					Name: "rgw-store",
+					Spec: runtime.RawExtension{
+						Raw: ConvertStructToRaw(
+							cephv1.ObjectStoreSpec{
+								PreservePoolsOnDelete: false,
+								DataPool: cephv1.PoolSpec{
+									DeviceClass: "hdd",
+									Replicated:  cephv1.ReplicatedSpec{Size: 2},
+								},
+								MetadataPool: cephv1.PoolSpec{
+									DeviceClass: "hdd",
+									Replicated:  cephv1.ReplicatedSpec{Size: 2},
+								},
+								Gateway: cephv1.GatewaySpec{
+									Instances:  1,
+									Port:       80,
+									SecurePort: 8443,
+								},
+							},
+						),
+					},
+				},
+			},
+		},
+		SharedFilesystem: &cephlcmv1alpha1.CephSharedFilesystem{
+			Filesystems: []cephlcmv1alpha1.CephFilesystem{
+				{
+					Name: "test-cephfs",
+					FsSpec: runtime.RawExtension{
+						Raw: ConvertStructToRaw(
+							cephv1.FilesystemSpec{
+								MetadataPool: cephv1.NamedPoolSpec{
+									PoolSpec: cephv1.PoolSpec{
+										DeviceClass: "hdd",
+										Replicated:  cephv1.ReplicatedSpec{Size: 2},
+									},
+								},
+								DataPools: []cephv1.NamedPoolSpec{
+									{
+										Name: "some-pool-name",
+										PoolSpec: cephv1.PoolSpec{
+											DeviceClass: "hdd",
+											Replicated:  cephv1.ReplicatedSpec{Size: 2},
+										},
+									},
+								},
+								MetadataServer: cephv1.MetadataServerSpec{
+									ActiveCount:   1,
+									ActiveStandby: true,
+								},
+							},
+						),
+					},
+				},
+			},
+		},
+	},
+	Status: cephlcmv1alpha1.CephDeploymentStatus{
+		Validation: cephlcmv1alpha1.CephDeploymentValidation{
+			Result:                  cephlcmv1alpha1.ValidationSucceed,
+			LastValidatedGeneration: int64(10),
+		},
+		ObjectsRefs: CephDeploymentObjectsRefs,
+	},
+}
+
 // spec fixtures
 
-var HyperConvergeCephDeploy = &cephlcmv1alpha1.CephDeploymentHyperConverge{
-	Resources: cephv1.ResourceSpec{
-		"osd-nvme": v1.ResourceRequirements{
-			Limits: v1.ResourceList{
-				v1.ResourceCPU:    resource.MustParse("100m"),
-				v1.ResourceMemory: resource.MustParse("156Mi"),
-			},
-			Requests: v1.ResourceList{
-				v1.ResourceMemory: resource.MustParse("28Mi"),
-				v1.ResourceCPU:    resource.MustParse("10m"),
-			},
-		},
-	},
-	Tolerations: map[string]cephlcmv1alpha1.CephDeploymentToleration{
-		"all": {
-			Rules: []v1.Toleration{
-				{
-					Key:      "test.kubernetes.io/testkey",
-					Effect:   "Schedule",
-					Operator: "Exists",
-				},
-			},
-		},
-		"mgr": {
-			Rules: []v1.Toleration{
-				{
-					Key:      "test.kubernetes.io/testkey",
-					Effect:   "Schedule",
-					Operator: "Exists",
-				},
-			},
-		},
-		"mon": {
-			Rules: []v1.Toleration{
-				{
-					Key:      "test.kubernetes.io/testkey",
-					Effect:   "Schedule",
-					Operator: "Exists",
-				},
-			},
-		},
-		"osd": {
-			Rules: []v1.Toleration{
-				{
-					Key:      "test.kubernetes.io/testkey",
-					Effect:   "Schedule",
-					Operator: "Exists",
-				},
-			},
-		},
-	},
-}
-
-var HyperConvergeForExtraSVC = &cephlcmv1alpha1.CephDeploymentHyperConverge{
-	Tolerations: map[string]cephlcmv1alpha1.CephDeploymentToleration{
-		"mds": {
-			Rules: []v1.Toleration{
-				{
-					Key:      "test.kubernetes.io/testkey",
-					Effect:   "Schedule",
-					Operator: "Exists",
-				},
-			},
-		},
-		"rgw": {
-			Rules: []v1.Toleration{
-				{
-					Key:      "rgw-toleration",
-					Operator: "Exists",
-				},
-			},
-		},
-	},
-	Resources: cephv1.ResourceSpec{
-		"mds": v1.ResourceRequirements{
-			Limits: v1.ResourceList{
-				v1.ResourceCPU: resource.MustParse("120m"),
-			},
-			Requests: v1.ResourceList{
-				v1.ResourceCPU: resource.MustParse("10m"),
-			},
-		},
-		"rgw": v1.ResourceRequirements{
-			Limits: v1.ResourceList{
-				v1.ResourceCPU: resource.MustParse("50m"),
-			},
-			Requests: v1.ResourceList{
-				v1.ResourceCPU: resource.MustParse("20m"),
-			},
-		},
-	},
-}
-
 var CephDeployClientTest = cephlcmv1alpha1.CephClient{
-	ClientSpec: cephlcmv1alpha1.ClientSpec{
-		Name: "test",
-		Caps: map[string]string{
-			"osd": "custom-caps",
-		},
+	RawExtension: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.ClientSpec{
+				Name: "test",
+				Caps: map[string]string{
+					"osd": "custom-caps",
+				},
+			},
+		),
 	},
 }
 
 var CephDeployClientCinder = cephlcmv1alpha1.CephClient{
-	ClientSpec: cephlcmv1alpha1.ClientSpec{
-		Name: "cinder",
-		Caps: map[string]string{
-			"mon": "allow profile rbd",
-			"osd": "profile rbd pool=volumes-hdd, profile rbd-read-only pool=images-hdd, profile rbd pool=backup-hdd",
-		},
+	RawExtension: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.ClientSpec{
+				Name: "cinder",
+				Caps: map[string]string{
+					"mon": "allow profile rbd",
+					"osd": "profile rbd pool=volumes-hdd, profile rbd-read-only pool=images-hdd, profile rbd pool=backup-hdd",
+				},
+			},
+		),
 	},
 }
 
 var CephDeployClientGlance = cephlcmv1alpha1.CephClient{
-	ClientSpec: cephlcmv1alpha1.ClientSpec{
-		Name: "glance",
-		Caps: map[string]string{
-			"mon": "allow profile rbd",
-			"osd": "profile rbd pool=images-hdd",
-		},
+	RawExtension: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.ClientSpec{
+				Name: "glance",
+				Caps: map[string]string{
+					"mon": "allow profile rbd",
+					"osd": "profile rbd pool=images-hdd",
+				},
+			},
+		),
 	},
 }
 
 var CephDeployClientNova = cephlcmv1alpha1.CephClient{
-	ClientSpec: cephlcmv1alpha1.ClientSpec{
-		Name: "nova",
-		Caps: map[string]string{
-			"mon": "allow profile rbd",
-			"osd": "profile rbd pool=vms-hdd, profile rbd pool=images-hdd, profile rbd pool=volumes-hdd",
-		},
+	RawExtension: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.ClientSpec{
+				Name: "nova",
+				Caps: map[string]string{
+					"mon": "allow profile rbd",
+					"osd": "profile rbd pool=vms-hdd, profile rbd pool=images-hdd, profile rbd pool=volumes-hdd",
+				},
+			},
+		),
 	},
 }
 
 var CephDeployClientManila = cephlcmv1alpha1.CephClient{
-	ClientSpec: cephlcmv1alpha1.ClientSpec{
-		Name: "manila",
-		Caps: map[string]string{
-			"mds": "allow rw",
-			"mgr": "allow rw",
-			"osd": "allow rw tag cephfs *=*",
-			"mon": `allow r, allow command "auth del", allow command "auth caps", allow command "auth get", allow command "auth get-or-create"`,
-		},
+	RawExtension: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.ClientSpec{
+				Name: "manila",
+				Caps: map[string]string{
+					"mds": "allow rw",
+					"mgr": "allow rw",
+					"osd": "allow rw tag cephfs *=*",
+					"mon": `allow r, allow command "auth del", allow command "auth caps", allow command "auth get", allow command "auth get-or-create"`,
+				},
+			},
+		),
 	},
 }
 
@@ -620,44 +822,57 @@ var CephDeployPoolReplicated = cephlcmv1alpha1.CephPool{
 	StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{
 		Default: true,
 	},
-	CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-		DeviceClass:   "hdd",
-		CrushRoot:     "default",
-		FailureDomain: "host",
-		Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-			Size: 3,
-		},
+	PoolSpec: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.PoolSpec{
+				DeviceClass:   "hdd",
+				CrushRoot:     "default",
+				FailureDomain: "host",
+				Replicated: cephv1.ReplicatedSpec{
+					Size: 3,
+				},
+			},
+		),
 	},
 }
 
 var CephDeployPoolErasureCoded = cephlcmv1alpha1.CephPool{
 	Name: "pool1",
 	Role: "fake",
-	CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-		DeviceClass:   "hdd",
-		CrushRoot:     "default",
-		FailureDomain: "host",
-		ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
-			CodingChunks: 1,
-			DataChunks:   2,
-			Algorithm:    "fake",
-		},
+	PoolSpec: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.PoolSpec{
+				DeviceClass:   "hdd",
+				CrushRoot:     "default",
+				FailureDomain: "host",
+				ErasureCoded: cephv1.ErasureCodedSpec{
+					CodingChunks: 1,
+					DataChunks:   2,
+					Algorithm:    "fake",
+				},
+			},
+		),
 	},
 }
 
 var CephDeployPoolMirroring = cephlcmv1alpha1.CephPool{
 	Name: "pool1",
 	Role: "fake",
-	CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-		DeviceClass:   "hdd",
-		CrushRoot:     "default",
-		FailureDomain: "host",
-		Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-			Size: 3,
-		},
-		Mirroring: &cephlcmv1alpha1.CephPoolMirrorSpec{
-			Mode: "pool",
-		},
+	PoolSpec: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.PoolSpec{
+				DeviceClass:   "hdd",
+				CrushRoot:     "default",
+				FailureDomain: "host",
+				Replicated: cephv1.ReplicatedSpec{
+					Size: 3,
+				},
+				Mirroring: cephv1.MirroringSpec{
+					Enabled: true,
+					Mode:    "pool",
+				},
+			},
+		),
 	},
 }
 
@@ -665,13 +880,17 @@ func GetCephDeployPool(name string, role string) cephlcmv1alpha1.CephPool {
 	return cephlcmv1alpha1.CephPool{
 		Name: name,
 		Role: role,
-		CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-			DeviceClass:   "hdd",
-			CrushRoot:     "default",
-			FailureDomain: "host",
-			Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-				Size: 3,
-			},
+		PoolSpec: runtime.RawExtension{
+			Raw: ConvertStructToRaw(
+				cephv1.PoolSpec{
+					DeviceClass:   "hdd",
+					CrushRoot:     "default",
+					FailureDomain: "host",
+					Replicated: cephv1.ReplicatedSpec{
+						Size: 3,
+					},
+				},
+			),
 		},
 	}
 }
@@ -871,56 +1090,43 @@ var CephNodesExtendedInvalid = []cephlcmv1alpha1.CephDeploymentNode{
 	},
 }
 
-var CephFSNewOk = cephlcmv1alpha1.CephFS{
+var CephFSNewOk = cephlcmv1alpha1.CephFilesystem{
 	Name: "test-cephfs",
-	MetadataPool: cephlcmv1alpha1.CephPoolSpec{
-		DeviceClass: "hdd",
-		Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-			Size: 3,
-		},
-	},
-	DataPools: []cephlcmv1alpha1.CephFSPool{
-		{
-			Name: "some-pool-name",
-			CephPoolSpec: cephlcmv1alpha1.CephPoolSpec{
-				DeviceClass: "hdd",
-				Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-					Size: 3,
+	FsSpec: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.FilesystemSpec{
+				MetadataPool: cephv1.NamedPoolSpec{
+					PoolSpec: cephv1.PoolSpec{
+						DeviceClass: "hdd",
+						Replicated:  cephv1.ReplicatedSpec{Size: 3},
+					},
+				},
+				DataPools: []cephv1.NamedPoolSpec{
+					{
+						Name: "some-pool-name",
+						PoolSpec: cephv1.PoolSpec{
+							DeviceClass: "hdd",
+							Replicated:  cephv1.ReplicatedSpec{Size: 3},
+						},
+					},
+				},
+				MetadataServer: cephv1.MetadataServerSpec{
+					ActiveCount:   1,
+					ActiveStandby: true,
 				},
 			},
-		},
-	},
-	MetadataServer: cephlcmv1alpha1.CephMetadataServer{
-		ActiveCount:   1,
-		ActiveStandby: true,
+		),
 	},
 }
 
-var CephFSOkWithResources = func() cephlcmv1alpha1.CephFS {
-	fs := CephFSNewOk.DeepCopy()
-	fs.MetadataServer.Resources = &v1.ResourceRequirements{
-		Limits: v1.ResourceList{
-			v1.ResourceCPU:    resource.MustParse("100m"),
-			v1.ResourceMemory: resource.MustParse("156Mi"),
-		},
-		Requests: v1.ResourceList{
-			v1.ResourceMemory: resource.MustParse("28Mi"),
-			v1.ResourceCPU:    resource.MustParse("10m"),
-		},
-	}
-	return *fs
-}()
-
 var CephSharedFileSystemOk = &cephlcmv1alpha1.CephSharedFilesystem{
-	CephFS: []cephlcmv1alpha1.CephFS{
-		CephFSNewOk,
-	},
+	Filesystems: []cephlcmv1alpha1.CephFilesystem{CephFSNewOk},
 }
 
 var CephSharedFileSystemMultiple = &cephlcmv1alpha1.CephSharedFilesystem{
-	CephFS: []cephlcmv1alpha1.CephFS{
+	Filesystems: []cephlcmv1alpha1.CephFilesystem{
 		CephFSNewOk,
-		func() cephlcmv1alpha1.CephFS {
+		func() cephlcmv1alpha1.CephFilesystem {
 			newCephFS := CephFSNewOk.DeepCopy()
 			newCephFS.Name = "second-test-cephfs"
 			return *newCephFS
@@ -943,47 +1149,48 @@ var CephIngressConfig = cephlcmv1alpha1.CephDeploymentIngressConfig{
 	ControllerClassName: "fake-class-name",
 }
 
-var CephRgwBaseSpec = cephlcmv1alpha1.CephRGW{
-	Name:                  "rgw-store",
-	PreservePoolsOnDelete: false,
-	DataPool: &cephlcmv1alpha1.CephPoolSpec{
-		DeviceClass: "hdd",
-		ErasureCoded: &cephlcmv1alpha1.CephPoolErasureCodedSpec{
-			CodingChunks: 2,
-			DataChunks:   1,
-		},
-	},
-	MetadataPool: &cephlcmv1alpha1.CephPoolSpec{
-		DeviceClass: "hdd",
-		Replicated: &cephlcmv1alpha1.CephPoolReplicatedSpec{
-			Size: 3,
-		},
-	},
-	Gateway: cephlcmv1alpha1.CephRGWGateway{
-		Instances:  2,
-		Port:       80,
-		SecurePort: 8443,
+var CephRgwBaseSpec = cephlcmv1alpha1.CephObjectStore{
+	Name: "rgw-store",
+	Spec: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.ObjectStoreSpec{
+				PreservePoolsOnDelete: false,
+				DataPool: cephv1.PoolSpec{
+					DeviceClass: "hdd",
+					ErasureCoded: cephv1.ErasureCodedSpec{
+						CodingChunks: 1,
+						DataChunks:   2,
+					},
+				},
+				MetadataPool: cephv1.PoolSpec{
+					DeviceClass: "hdd",
+					Replicated:  cephv1.ReplicatedSpec{Size: 3},
+				},
+				Gateway: cephv1.GatewaySpec{
+					Instances:  2,
+					Port:       80,
+					SecurePort: 8443,
+				},
+			},
+		),
 	},
 }
 
-var CephRgwSpecWithUsersBuckets = func() cephlcmv1alpha1.CephRGW {
-	rgw := CephRgwBaseSpec.DeepCopy()
-	rgw.ObjectUsers = []cephlcmv1alpha1.CephRGWUser{
-		{Name: "fake-user-1"}, {Name: "fake-user-2"},
-	}
-	rgw.Buckets = []string{"fake-bucket-1", "fake-bucket-2"}
-	return *rgw
-}()
-
-var RgwExternalSslEnabled = cephlcmv1alpha1.CephRGW{
+var CephRgwExternal = cephlcmv1alpha1.CephObjectStore{
 	Name: "rgw-store",
-	Gateway: cephlcmv1alpha1.CephRGWGateway{
-		Instances:  2,
-		Port:       80,
-		SecurePort: 8443,
-		ExternalRgwEndpoint: &cephv1.EndpointAddress{
-			IP:       "127.0.0.1",
-			Hostname: "fake-1",
-		},
+	Spec: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.ObjectStoreSpec{
+				Gateway: cephv1.GatewaySpec{
+					Port: 8080,
+					ExternalRgwEndpoints: []cephv1.EndpointAddress{
+						{
+							IP:       "127.0.0.1",
+							Hostname: "fake-1",
+						},
+					},
+				},
+			},
+		),
 	},
 }

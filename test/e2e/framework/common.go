@@ -94,8 +94,12 @@ func (c *ManagedConfig) DeletePod(name, namespace string) error {
 	return nil
 }
 
-func (c *ManagedConfig) ListNodes() ([]corev1.Node, error) {
-	nodes, err := c.KubeClient.CoreV1().Nodes().List(c.Context, metav1.ListOptions{})
+func (c *ManagedConfig) ListNodes(label string) ([]corev1.Node, error) {
+	listOpts := metav1.ListOptions{}
+	if label != "" {
+		listOpts.LabelSelector = label
+	}
+	nodes, err := c.KubeClient.CoreV1().Nodes().List(c.Context, listOpts)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to list nodes")
 	}

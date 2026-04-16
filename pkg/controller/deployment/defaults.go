@@ -33,15 +33,19 @@ func poolsDefaultTargetSizeRatioByRole(role string) float64 {
 
 type updateTimestamps struct {
 	cephConfigMap    map[string]string
-	rgwSSLCert       string
+	rgwSSLCert       map[string]string
 	rgwRuntimeParams string
 	osdRuntimeParams string
 }
 
 var resourceUpdateTimestamps = updateTimestamps{
 	cephConfigMap: map[string]string{},
+	rgwSSLCert:    map[string]string{},
 }
 
 func unsetTimestampsVar() {
-	resourceUpdateTimestamps = updateTimestamps{cephConfigMap: map[string]string{}}
+	resourceUpdateTimestamps = updateTimestamps{
+		cephConfigMap: map[string]string{},
+		rgwSSLCert:    map[string]string{},
+	}
 }
