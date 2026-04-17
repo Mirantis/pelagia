@@ -1197,6 +1197,11 @@ spec:
                                   description: ConditionType represent a resource's
                                     status
                                   type: string
+                                replicas:
+                                  format: int32
+                                  type: integer
+                                selector:
+                                  type: string
                               type: object
                             description: ObjectStoreStatus represents a key-value
                               mapping of Ceph Object Store's name and it's status

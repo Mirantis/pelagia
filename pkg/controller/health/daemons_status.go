@@ -200,7 +200,6 @@ func (c *cephDeploymentHealthConfig) getCephDaemonsStatus() (map[string]lcmv1alp
 	// in external case cephfs resources must be present on provider cluster side
 	if !c.healthConfig.cephCluster.Spec.External.Enable {
 		showMdsStatus := false
-		mdsStandbyTotal := cephStatus.FsMap.Standby
 		mdsDaemonsRunning := map[string]map[string]int{}
 		for _, mdsInfo := range cephStatus.FsMap.ByRank {
 			showMdsStatus = true
@@ -214,15 +213,11 @@ func (c *cephDeploymentHealthConfig) getCephDaemonsStatus() (map[string]lcmv1alp
 				}
 			}
 		}
-		mdsStandbyExpected := c.healthConfig.sharedFilesystemOpts.mdsStandbyDesired
 		mdsDaemonsExpected := c.healthConfig.sharedFilesystemOpts.mdsDaemonsDesired
-		if showMdsStatus || mdsStandbyExpected > 0 || len(mdsDaemonsExpected) > 0 {
+		if showMdsStatus || len(mdsDaemonsExpected) > 0 {
 			mdsDaemonsStatus := lcmv1alpha1.DaemonStatus{
 				Status:   lcmv1alpha1.DaemonStateOk,
 				Messages: []string{},
-			}
-			if mdsStandbyExpected != mdsStandbyTotal {
-				mdsDaemonsStatus.Issues = append(mdsDaemonsStatus.Issues, fmt.Sprintf("unexpected number (%d/%d) of mds standby are running", mdsStandbyTotal, mdsStandbyExpected))
 			}
 			for cephfs := range mdsDaemonsRunning {
 				if _, ok := mdsDaemonsExpected[cephfs]; !ok {
@@ -232,11 +227,12 @@ func (c *cephDeploymentHealthConfig) getCephDaemonsStatus() (map[string]lcmv1alp
 				}
 				if mdsDaemonsExpected[cephfs]["up:active"] != mdsDaemonsRunning[cephfs]["up:active"] {
 					mdsDaemonsStatus.Issues = append(mdsDaemonsStatus.Issues,
-						fmt.Sprintf("unexpected number (%d/%d) of mds active are running for CephFS '%s'", mdsStandbyTotal, mdsStandbyExpected, cephfs))
+						fmt.Sprintf("unexpected number (%d/%d) of mds active are running for CephFS '%s'", mdsDaemonsRunning[cephfs]["up:active"], mdsDaemonsExpected[cephfs]["up:active"], cephfs))
 				}
 				if mdsDaemonsExpected[cephfs]["up:standby-replay"] != mdsDaemonsRunning[cephfs]["up:standby-replay"] {
 					mdsDaemonsStatus.Issues = append(mdsDaemonsStatus.Issues,
-						fmt.Sprintf("unexpected number (%d/%d) of mds standby-replay are running for CephFS '%s'", mdsStandbyTotal, mdsStandbyExpected, cephfs))
+						fmt.Sprintf("unexpected number (%d/%d) of mds standby-replay are running for CephFS '%s'",
+							mdsDaemonsRunning[cephfs]["up:standby-replay"], mdsDaemonsExpected[cephfs]["up:standby-replay"], cephfs))
 				}
 				if mdsDaemonsExpected[cephfs]["up:standby-replay"] == 0 && mdsDaemonsRunning[cephfs]["up:standby-replay"] == 0 {
 					mdsDaemonsStatus.Messages = append(mdsDaemonsStatus.Messages,

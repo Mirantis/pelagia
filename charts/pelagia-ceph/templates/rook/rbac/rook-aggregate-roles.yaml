@@ -1,0 +1,119 @@
+{{- if .Values.rookConfig.enableOBCs -}}
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rook-ceph-obc-view
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+rules:
+  - apiGroups:
+      - objectbucket.io
+    resources:
+      - objectbucketclaims
+    verbs:
+      - get
+      - list
+      - watch
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rook-ceph-obc-edit
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+    rbac.authorization.k8s.io/aggregate-to-edit: "true"
+rules:
+  - apiGroups:
+      - objectbucket.io
+    resources:
+      - objectbucketclaims
+    verbs:
+      - create
+      - delete
+      - deletecollection
+      - patch
+      - update
+{{- end }}
+{{- if .Values.rookConfig.enableMonitoring -}}
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rook-ceph-monitoring
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  - apiGroups:
+      - "monitoring.coreos.com"
+    resources:
+      - servicemonitors
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - delete
+---
+# Allow management of monitoring resources in the mgr
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rook-ceph-monitoring-mgr
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+rules:
+  - apiGroups:
+      - monitoring.coreos.com
+    resources:
+      - servicemonitors
+    verbs:
+      - get
+      - list
+      - create
+      - update
+---
+# Allow the operator to get ServiceMonitors in this cluster's namespace
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rook-ceph-monitoring
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: rook-ceph-monitoring
+subjects:
+  - kind: ServiceAccount
+    name: rook-ceph-system
+    namespace: {{ .Values.rookConfig.rookNamespace }}
+---
+# Allow creation of monitoring resources in the mgr
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rook-ceph-monitoring-mgr
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: rook-ceph-monitoring-mgr
+subjects:
+  - kind: ServiceAccount
+    name: rook-ceph-mgr
+    namespace: {{ .Values.rookConfig.rookNamespace }}
+{{- end }}

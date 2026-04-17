@@ -257,6 +257,29 @@ spec:
                                                 type: array
                                                 x-kubernetes-list-type: atomic
                                             type: object
+                                          podCertificate:
+                                            properties:
+                                              certificateChainPath:
+                                                type: string
+                                              credentialBundlePath:
+                                                type: string
+                                              keyPath:
+                                                type: string
+                                              keyType:
+                                                type: string
+                                              maxExpirationSeconds:
+                                                format: int32
+                                                type: integer
+                                              signerName:
+                                                type: string
+                                              userAnnotations:
+                                                additionalProperties:
+                                                  type: string
+                                                type: object
+                                            required:
+                                              - keyType
+                                              - signerName
+                                            type: object
                                           secret:
                                             properties:
                                               items:
@@ -509,6 +532,29 @@ spec:
                                                   type: object
                                                 type: array
                                                 x-kubernetes-list-type: atomic
+                                            type: object
+                                          podCertificate:
+                                            properties:
+                                              certificateChainPath:
+                                                type: string
+                                              credentialBundlePath:
+                                                type: string
+                                              keyPath:
+                                                type: string
+                                              keyType:
+                                                type: string
+                                              maxExpirationSeconds:
+                                                format: int32
+                                                type: integer
+                                              signerName:
+                                                type: string
+                                              userAnnotations:
+                                                additionalProperties:
+                                                  type: string
+                                                type: object
+                                            required:
+                                              - keyType
+                                              - signerName
                                             type: object
                                           secret:
                                             properties:
@@ -792,6 +838,29 @@ spec:
                                                       type: array
                                                       x-kubernetes-list-type: atomic
                                                   type: object
+                                                podCertificate:
+                                                  properties:
+                                                    certificateChainPath:
+                                                      type: string
+                                                    credentialBundlePath:
+                                                      type: string
+                                                    keyPath:
+                                                      type: string
+                                                    keyType:
+                                                      type: string
+                                                    maxExpirationSeconds:
+                                                      format: int32
+                                                      type: integer
+                                                    signerName:
+                                                      type: string
+                                                    userAnnotations:
+                                                      additionalProperties:
+                                                        type: string
+                                                      type: object
+                                                  required:
+                                                    - keyType
+                                                    - signerName
+                                                  type: object
                                                 secret:
                                                   properties:
                                                     items:
@@ -885,7 +954,7 @@ spec:
                                     Claims lists the names of resources, defined in spec.resourceClaims,
                                     that are used by this container.
 
-                                    This is an alpha field and requires enabling the
+                                    This field depends on the
                                     DynamicResourceAllocation feature gate.
 
                                     This field is immutable. It can only be set for containers.
@@ -1117,6 +1186,29 @@ spec:
                                                     type: array
                                                     x-kubernetes-list-type: atomic
                                                 type: object
+                                              podCertificate:
+                                                properties:
+                                                  certificateChainPath:
+                                                    type: string
+                                                  credentialBundlePath:
+                                                    type: string
+                                                  keyPath:
+                                                    type: string
+                                                  keyType:
+                                                    type: string
+                                                  maxExpirationSeconds:
+                                                    format: int32
+                                                    type: integer
+                                                  signerName:
+                                                    type: string
+                                                  userAnnotations:
+                                                    additionalProperties:
+                                                      type: string
+                                                    type: object
+                                                required:
+                                                  - keyType
+                                                  - signerName
+                                                type: object
                                               secret:
                                                 properties:
                                                   items:
@@ -1208,6 +1300,28 @@ spec:
                       description: Whether host networking is enabled for the Ganesha server. If not set, the network settings from the cluster CR will be applied.
                       nullable: true
                       type: boolean
+                    image:
+                      description: |-
+                        Image is the container image used to launch the Ceph NFS (Ganesha) daemon(s).
+                        The image must include the NFS Ganesha binaries, such as are included with the official Ceph releases. E.g.: quay.io/ceph/ceph:<tag>
+                        If not specified, the Ceph image defined in the CephCluster is used.
+                        Overriding the CephCluster defined image is not normally necessary when using the official Ceph images.
+                        The image must contain the NFS Ganesha and dbus packages.
+                        If the SSSD sidecar is enabled, the image must also contain the sssd-client package.
+                      maxLength: 1572864
+                      minLength: 1
+                      type: string
+                    imagePullPolicy:
+                      description: |-
+                        ImagePullPolicy describes a policy for if/when to pull a container image
+                        One of Always, Never, IfNotPresent.
+                        This field only has effect if an image is specified.
+                      enum:
+                        - IfNotPresent
+                        - Always
+                        - Never
+                        - ""
+                      type: string
                     labels:
                       additionalProperties:
                         type: string
@@ -1888,7 +2002,7 @@ spec:
                             Claims lists the names of resources, defined in spec.resourceClaims,
                             that are used by this container.
 
-                            This is an alpha field and requires enabling the
+                            This field depends on the
                             DynamicResourceAllocation feature gate.
 
                             This field is immutable. It can only be set for containers.

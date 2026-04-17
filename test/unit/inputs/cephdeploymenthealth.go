@@ -326,7 +326,7 @@ var CephDaemonsCephFsRgwUnhealthy = map[string]lcmv1alpha1.DaemonStatus{
 	"mds": {
 		Status: lcmv1alpha1.DaemonStateFailed,
 		Issues: []string{
-			"unexpected number (0/1) of mds active are running for CephFS 'cephfs-1'", "unexpected number (0/1) of mds standby are running",
+			"unexpected number (0/1) of mds active are running for CephFS 'cephfs-1'",
 		},
 		Messages: []string{"mds active: 0/1 (cephfs 'cephfs-1')"},
 	},

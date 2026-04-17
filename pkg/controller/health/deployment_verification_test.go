@@ -285,7 +285,6 @@ func TestCephDeploymentVerification(t *testing.T) {
 					Issues: []string{
 						"unexpected mds daemons running (CephFS 'cephfs-3')",
 						"unexpected number (0/1) of mds active are running for CephFS 'cephfs-1'",
-						"unexpected number (0/1) of mds standby are running",
 						"unexpected number (0/1) of mds standby-replay are running for CephFS 'cephfs-2'",
 					},
 				}
@@ -326,7 +325,6 @@ func TestCephDeploymentVerification(t *testing.T) {
 				"objectbucketclaim 'rook-ceph/bucket-1' is not ready",
 				"unexpected mds daemons running (CephFS 'cephfs-3')",
 				"unexpected number (0/1) of mds active are running for CephFS 'cephfs-1'",
-				"unexpected number (0/1) of mds standby are running",
 				"unexpected number (0/1) of mds standby-replay are running for CephFS 'cephfs-2'",
 				"unexpected rgws (4/3) rgws are running",
 			},

@@ -24,14 +24,14 @@ import (
 var CephStatusBaseHealthy = BuildCliOutput(CephStatusTmpl, "status", nil)
 var CephStatusBaseUnhealthy = BuildCliOutput(CephStatusTmpl, "status", map[string]string{"quorum_names": `["a", "b"]`, "osdmap": `{"num_osds": 3, "num_up_osds": 2, "num_in_osds": 2}`})
 var CephStatusCephFsRgwHealthy = BuildCliOutput(CephStatusTmpl, "status", map[string]string{
-	"fsmap":      `{"by_rank": [{"name": "cephfs-1-a", "status": "up:active"}],"up:standby": 1}`,
+	"fsmap":      `{"by_rank": [{"name": "cephfs-1-a", "status": "up:active"}],"up:standby": 0}`,
 	"servicemap": `{"services": {"rgw": {"daemons": {"11556688": {"gid": 11556688},"12065099":{"gid": 12065099},"summary": ""}}}}`,
 })
 var CephStatusCephFsRgwUnhealthy = BuildCliOutput(CephStatusTmpl, "status", map[string]string{
 	"fsmap": `{"by_rank": [{"name": "cephfs-1-a", "status": "down:inactive"}],"up:standby": 0}`,
 })
 var CephStatusCephFewFsRgwHealthy = BuildCliOutput(CephStatusTmpl, "status", map[string]string{
-	"fsmap":      `{"by_rank": [{"name": "cephfs-1-a", "status": "up:active"}, {"name": "cephfs-2-a", "status": "up:active"}, {"name": "cephfs-2-b", "status": "up:standby-replay"}],"up:standby": 1}`,
+	"fsmap":      `{"by_rank": [{"name": "cephfs-1-a", "status": "up:active"}, {"name": "cephfs-2-a", "status": "up:active"}, {"name": "cephfs-2-b", "status": "up:standby-replay"}],"up:standby": 0}`,
 	"servicemap": `{"services": {"rgw": {"daemons": {"10223488": {"gid": 10223488},"11556688": {"gid": 11556688},"12065099":{"gid": 12065099},"summary": ""}}}}`,
 })
 var CephStatusCephFewFsRgwUnhealthy = BuildCliOutput(CephStatusTmpl, "status", map[string]string{

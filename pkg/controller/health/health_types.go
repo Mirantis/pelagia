@@ -51,7 +51,6 @@ type rgwOpts struct {
 }
 
 type sharedFilesystemOpts struct {
-	mdsStandbyDesired int
 	mdsDaemonsDesired map[string]map[string]int
 }
 

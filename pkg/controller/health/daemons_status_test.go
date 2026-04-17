@@ -246,7 +246,6 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 				hc.rgwOpts.storeName = "rgw-store"
 				hc.rgwOpts.desiredRgwDaemons = 2
 				hc.sharedFilesystemOpts.mdsDaemonsDesired["cephfs-1"] = map[string]int{"up:active": 1}
-				hc.sharedFilesystemOpts.mdsStandbyDesired = 1
 				return hc
 			}(),
 			cephStatus:     unitinputs.CephStatusCephFsRgwHealthy,
@@ -262,7 +261,6 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 				hc.rgwOpts.storeName = "rgw-store"
 				hc.rgwOpts.desiredRgwDaemons = 2
 				hc.sharedFilesystemOpts.mdsDaemonsDesired["cephfs-1"] = map[string]int{"up:active": 1}
-				hc.sharedFilesystemOpts.mdsStandbyDesired = 1
 				return hc
 			}(),
 			cephStatus:     unitinputs.CephStatusCephFsRgwUnhealthy,
@@ -271,7 +269,6 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			expectedIssues: []string{
 				"not all (0/2) rgws are running",
 				"unexpected number (0/1) of mds active are running for CephFS 'cephfs-1'",
-				"unexpected number (0/1) of mds standby are running",
 			},
 		},
 		{
@@ -283,7 +280,6 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 				hc.rgwOpts.desiredRgwDaemons = 3
 				hc.sharedFilesystemOpts.mdsDaemonsDesired["cephfs-1"] = map[string]int{"up:active": 1}
 				hc.sharedFilesystemOpts.mdsDaemonsDesired["cephfs-2"] = map[string]int{"up:active": 1, "up:standby-replay": 1}
-				hc.sharedFilesystemOpts.mdsStandbyDesired = 1
 				return hc
 			}(),
 			cephStatus:  unitinputs.CephStatusCephFewFsRgwHealthy,
@@ -316,7 +312,6 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 				hc.rgwOpts.desiredRgwDaemons = 3
 				hc.sharedFilesystemOpts.mdsDaemonsDesired["cephfs-1"] = map[string]int{"up:active": 1}
 				hc.sharedFilesystemOpts.mdsDaemonsDesired["cephfs-2"] = map[string]int{"up:active": 1, "up:standby-replay": 1}
-				hc.sharedFilesystemOpts.mdsStandbyDesired = 1
 				return hc
 			}(),
 			cephStatus:  unitinputs.CephStatusCephFewFsRgwUnhealthy,
@@ -339,7 +334,6 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 						Issues: []string{
 							"unexpected mds daemons running (CephFS 'cephfs-3')",
 							"unexpected number (0/1) of mds active are running for CephFS 'cephfs-1'",
-							"unexpected number (0/1) of mds standby are running",
 							"unexpected number (0/1) of mds standby-replay are running for CephFS 'cephfs-2'",
 						},
 					},
@@ -348,7 +342,6 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			expectedIssues: []string{
 				"unexpected mds daemons running (CephFS 'cephfs-3')",
 				"unexpected number (0/1) of mds active are running for CephFS 'cephfs-1'",
-				"unexpected number (0/1) of mds standby are running",
 				"unexpected number (0/1) of mds standby-replay are running for CephFS 'cephfs-2'",
 				"unexpected rgws (4/3) rgws are running",
 			},
