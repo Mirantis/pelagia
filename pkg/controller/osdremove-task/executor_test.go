@@ -1020,6 +1020,7 @@ func TestCheckRebalance(t *testing.T) {
 	tests := []struct {
 		name           string
 		cliOutput      string
+		osdDown        bool
 		currentStatus  *lcmv1alpha1.RemoveStatus
 		expectedStatus *lcmv1alpha1.RemoveStatus
 	}{
@@ -1057,9 +1058,18 @@ func TestCheckRebalance(t *testing.T) {
 			},
 		},
 		{
-			name:          "rebalance is not finished",
+			name:          "rebalance is finished",
 			cliOutput:     `{"pg_stats":[]}`,
 			currentStatus: rebalanceStatus.DeepCopy(),
+			expectedStatus: &lcmv1alpha1.RemoveStatus{
+				Status:    lcmv1alpha1.RemoveInProgress,
+				StartedAt: rebalanceStatus.StartedAt,
+			},
+		},
+		{
+			name:          "osd became unavailable",
+			currentStatus: rebalanceStatus.DeepCopy(),
+			osdDown:       true,
 			expectedStatus: &lcmv1alpha1.RemoveStatus{
 				Status:    lcmv1alpha1.RemoveInProgress,
 				StartedAt: rebalanceStatus.StartedAt,
@@ -1077,6 +1087,9 @@ func TestCheckRebalance(t *testing.T) {
 			lcmcommon.RunPodCommand = func(_ lcmcommon.ExecConfig) (string, string, error) {
 				if test.cliOutput != "" {
 					return test.cliOutput, "", nil
+				}
+				if test.osdDown {
+					return "", "", errors.New("ceph pg ls-by-osd 5 --format json' (stdErr: Error EAGAIN: osd 5 is not up\n)")
 				}
 				return "", "", errors.New("run failed")
 			}
