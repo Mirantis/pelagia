@@ -159,6 +159,7 @@ func TestRgwSSERockoon(t *testing.T) {
 	objQuota := int64(1)
 	rgwUserRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(
 		cephv1.ObjectStoreUserSpec{
+			Store:       cd.Spec.ObjectStorage.Rgws[0].Name,
 			DisplayName: rgwUserName,
 			Capabilities: &cephv1.ObjectUserCapSpec{
 				Bucket:   "*",
