@@ -125,7 +125,7 @@ func GetFakeClaimclient(objects ...runtime.Object) claimClient.Interface {
 }
 
 func GetFakeKubeclient(objects ...runtime.Object) kubernetes.Interface {
-	ks := fakekube.NewSimpleClientset(objects...)
+	ks := fakekube.NewClientset(objects...)
 	ks.ReactionChain = make([]gotesting.Reactor, 0)
 	return ks
 }

@@ -239,8 +239,6 @@ func (c *cephDeploymentHealthConfig) checkCephFilesystems() (map[string]*cephv1.
 		c.healthConfig.sharedFilesystemOpts.mdsDaemonsDesired[cephFs.Name] = map[string]int{"up:active": int(cephFs.Spec.MetadataServer.ActiveCount)}
 		if cephFs.Spec.MetadataServer.ActiveStandby {
 			c.healthConfig.sharedFilesystemOpts.mdsDaemonsDesired[cephFs.Name]["up:standby-replay"] = int(cephFs.Spec.MetadataServer.ActiveCount)
-		} else {
-			c.healthConfig.sharedFilesystemOpts.mdsStandbyDesired += int(cephFs.Spec.MetadataServer.ActiveCount)
 		}
 	}
 	return cephFsStatus, issues

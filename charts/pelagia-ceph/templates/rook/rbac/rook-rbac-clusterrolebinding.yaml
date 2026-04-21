@@ -1,90 +1,4 @@
 {{ if .Values.rookConfig.configureRook }}
-# OLM: BEGIN CSI RBD CLUSTER ROLEBINDING
----
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: rbd-csi-nodeplugin
-  labels:
-{{ include "rook.labels" . | indent 4 }}
-{{ include "chart.labels" . | indent 4 }}
-subjects:
-  - kind: ServiceAccount
-    name: rook-csi-rbd-plugin-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
-roleRef:
-  kind: ClusterRole
-  name: rbd-csi-nodeplugin
-  apiGroup: rbac.authorization.k8s.io
----
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: rbd-csi-provisioner-role
-  labels:
-{{ include "rook.labels" . | indent 4 }}
-{{ include "chart.labels" . | indent 4 }}
-subjects:
-  - kind: ServiceAccount
-    name: rook-csi-rbd-provisioner-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
-roleRef:
-  kind: ClusterRole
-  name: rbd-external-provisioner-runner
-  apiGroup: rbac.authorization.k8s.io
-# OLM: END CSI RBD CLUSTER ROLEBINDING
-# OLM: BEGIN OBJECTBUCKET ROLEBINDING
----
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: rook-ceph-object-bucket
-  labels:
-{{ include "rook.labels" . | indent 4 }}
-{{ include "chart.labels" . | indent 4 }}
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: rook-ceph-object-bucket
-subjects:
-  - kind: ServiceAccount
-    name: rook-ceph-system
-    namespace: {{ .Values.rookConfig.rookNamespace }}
-# OLM: END OBJECTBUCKET ROLEBINDING
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: rook-ceph-system
-  labels:
-{{ include "rook.labels" . | indent 4 }}
-{{ include "chart.labels" . | indent 4 }}
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: rook-ceph-system
-subjects:
-  - kind: ServiceAccount
-    name: rook-ceph-system
-    namespace: {{ .Values.rookConfig.rookNamespace }}
----
-# Grant the rook system daemons cluster-wide access to manage the Rook CRDs, PVCs, and storage classes
-kind: ClusterRoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: rook-ceph-global
-  labels:
-{{ include "rook.labels" . | indent 4 }}
-{{ include "chart.labels" . | indent 4 }}
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: rook-ceph-global
-subjects:
-  - kind: ServiceAccount
-    name: rook-ceph-system
-    namespace: {{ .Values.rookConfig.rookNamespace }}
-# OLM: END OPERATOR ROLEBINDING
 ---
 # Allow the ceph mgr to access cluster-wide resources necessary for the mgr modules
 kind: ClusterRoleBinding
@@ -123,6 +37,72 @@ subjects:
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
+  name: rook-ceph-system
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: rook-ceph-system
+subjects:
+  - kind: ServiceAccount
+    name: rook-ceph-system
+    namespace: {{ .Values.rookConfig.rookNamespace }}
+---
+# Grant the rook system daemons cluster-wide access to manage the Rook CRDs, PVCs, and storage classes
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rook-ceph-global
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: rook-ceph-global
+subjects:
+  - kind: ServiceAccount
+    name: rook-ceph-system
+    namespace: {{ .Values.rookConfig.rookNamespace }}
+---
+kind: ClusterRoleBinding
+# Give Rook-Ceph Operator permissions to provision ObjectBuckets in response to ObjectBucketClaims.
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rook-ceph-object-bucket
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: rook-ceph-object-bucket
+subjects:
+  - kind: ServiceAccount
+    name: rook-ceph-system
+    namespace: {{ .Values.rookConfig.rookNamespace }}
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rbd-csi-nodeplugin
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: rook-csi-rbd-plugin-sa
+    namespace: {{ .Values.rookConfig.rookNamespace }}
+roleRef:
+  kind: ClusterRole
+  name: rbd-csi-nodeplugin
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
   name: cephfs-csi-provisioner-role
   labels:
 {{ include "rook.labels" . | indent 4 }}
@@ -135,7 +115,6 @@ roleRef:
   kind: ClusterRole
   name: cephfs-external-provisioner-runner
   apiGroup: rbac.authorization.k8s.io
-# OLM: END CSI CEPHFS CLUSTER ROLEBINDING
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -152,6 +131,7 @@ roleRef:
   kind: ClusterRole
   name: cephfs-csi-nodeplugin
   apiGroup: rbac.authorization.k8s.io
+  {{- if .Values.rookConfig.csiNfsEnabled }}
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -169,6 +149,8 @@ roleRef:
   name: ceph-nfs-external-provisioner-runner
   apiGroup: rbac.authorization.k8s.io
 ---
+# TODO: remove this, once https://github.com/rook/rook/issues/10141
+# is resolved.
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -183,6 +165,23 @@ subjects:
 roleRef:
   kind: ClusterRole
   name: ceph-nfs-csi-nodeplugin
+  apiGroup: rbac.authorization.k8s.io
+  {{- end }}
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rbd-csi-provisioner-role
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: rook-csi-rbd-provisioner-sa
+    namespace: {{ .Values.rookConfig.rookNamespace }}
+roleRef:
+  kind: ClusterRole
+  name: rbd-external-provisioner-runner
   apiGroup: rbac.authorization.k8s.io
 ---
 # RBAC for ceph cosi driver service account

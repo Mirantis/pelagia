@@ -35,7 +35,7 @@ import (
 )
 
 func FakeConnector() *CephConnector {
-	ks := fakekube.NewSimpleClientset()
+	ks := fakekube.NewClientset()
 	ks.ReactionChain = make([]gotesting.Reactor, 0)
 	rs := fakerook.NewSimpleClientset()
 	rs.ReactionChain = make([]gotesting.Reactor, 0)

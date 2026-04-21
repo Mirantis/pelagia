@@ -37,10 +37,6 @@ func getObjectMeta(resourceVersion string) metav1.ObjectMeta {
 
 var CephOsdRemoveTaskBase = lcmv1alpha1.CephOsdRemoveTask{
 	ObjectMeta: getObjectMeta("0"),
-	TypeMeta: metav1.TypeMeta{
-		APIVersion: "lcm.mirantis.com/v1alpha1",
-		Kind:       "CephOsdRemoveTask",
-	},
 }
 var CephOsdRemoveTaskOld = lcmv1alpha1.CephOsdRemoveTask{
 	ObjectMeta: metav1.ObjectMeta{
@@ -84,10 +80,6 @@ var initConditions = []lcmv1alpha1.CephOsdRemoveTaskCondition{
 
 var CephOsdRemoveTaskInited = lcmv1alpha1.CephOsdRemoveTask{
 	ObjectMeta: getObjectMeta("1"),
-	TypeMeta: metav1.TypeMeta{
-		APIVersion: "lcm.mirantis.com/v1alpha1",
-		Kind:       "CephOsdRemoveTask",
-	},
 	Status: &lcmv1alpha1.CephOsdRemoveTaskStatus{
 		Phase:      lcmv1alpha1.TaskPhasePending,
 		PhaseInfo:  "initializing",
@@ -109,10 +101,6 @@ var CephOsdRemoveTaskFullInited = lcmv1alpha1.CephOsdRemoveTask{
 				Name:       LcmObjectMeta.Name,
 			},
 		},
-	},
-	TypeMeta: metav1.TypeMeta{
-		APIVersion: "lcm.mirantis.com/v1alpha1",
-		Kind:       "CephOsdRemoveTask",
 	},
 	Status: &lcmv1alpha1.CephOsdRemoveTaskStatus{
 		Phase:      lcmv1alpha1.TaskPhasePending,

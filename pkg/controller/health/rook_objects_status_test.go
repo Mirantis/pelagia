@@ -137,7 +137,6 @@ func TestRookObjectsVerification(t *testing.T) {
 					multisite:         true,
 				},
 				sharedFilesystemOpts: sharedFilesystemOpts{
-					mdsStandbyDesired: 1,
 					mdsDaemonsDesired: map[string]map[string]int{
 						"cephfs-1": {"up:active": 1},
 						"cephfs-2": {"up:active": 1, "up:standby-replay": 1},
@@ -171,7 +170,6 @@ func TestRookObjectsVerification(t *testing.T) {
 					multisite:         true,
 				},
 				sharedFilesystemOpts: sharedFilesystemOpts{
-					mdsStandbyDesired: 1,
 					mdsDaemonsDesired: map[string]map[string]int{
 						"cephfs-1": {"up:active": 1},
 						"cephfs-2": {"up:active": 1, "up:standby-replay": 1},

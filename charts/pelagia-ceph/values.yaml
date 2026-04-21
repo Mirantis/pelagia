@@ -82,7 +82,7 @@ cephRelease: ""
 images:
   pelagia:
     repository: pelagia/pelagia
-    tag: master-eae240e0
+    tag: latest
     # fullName is mostly used for test purposes
     fullName: ""
     pullPolicy: Always
@@ -90,56 +90,56 @@ images:
     operator:
       repository: pelagia/rook
       tag:
-        latest: &latestImageRook v1.18.8-4
+        latest: &latestImageRook v1.19.4-4
         squid: *latestImageRook
         tentacle: *latestImageRook
   ceph:
     repository: pelagia/ceph
     tag:
       latest: &latestImageCeph v20.2.1-1.release
-      squid: v19.2.3-17.cve
+      squid: v19.2.3-21.cve
       tentacle: *latestImageCeph
   csi:
     operator:
       repository: pelagia/cephcsi-operator
       tag:
-        latest: &latestImageCSIOperator v0.4.1-1.release
+        latest: &latestImageCSIOperator v0.6.0-1.release
         squid: *latestImageCSIOperator
         tentacle: *latestImageCSIOperator
     ceph:
       repository: pelagia/cephcsi
       tag:
-        latest: &latestImageCephCSI v3.15.0-2.cve
+        latest: &latestImageCephCSI v3.16.2-1.release
         squid: *latestImageCephCSI
         tentacle: *latestImageCephCSI
     registrar:
       repository: pelagia/cephcsi-registrar
       tag:
-        latest: &latestImageRegistar v2.13.0-10.cve
+        latest: &latestImageRegistar v2.16.0-1.release
         squid: *latestImageRegistar
         tentacle: *latestImageRegistar
     provisioner:
       repository: pelagia/cephcsi-provisioner
       tag:
-        latest: &latestImageProvisioner v5.2.0-10.cve
+        latest: &latestImageProvisioner v6.1.1-1.release
         squid: *latestImageProvisioner
         tentacle: *latestImageProvisioner
     snapshotter:
       repository: pelagia/cephcsi-snapshotter
       tag:
-        latest: &latestImageSnapshotter v8.2.1-1.release
+        latest: &latestImageSnapshotter v8.5.0-1.release
         squid: *latestImageSnapshotter
         tentacle: *latestImageSnapshotter
     attacher:
       repository: pelagia/cephcsi-attacher
       tag:
-        latest: &latestImageAttacher v4.8.1-1.release
+        latest: &latestImageAttacher v4.11.0-1.release
         squid: *latestImageAttacher
         tentacle: *latestImageAttacher
     resizer:
       repository: pelagia/cephcsi-resizer
       tag:
-        latest: &latestImageResizer v1.13.2-10.cve
+        latest: &latestImageResizer v2.1.0-1.release
         squid: *latestImageResizer
         tentacle: *latestImageResizer
 rookConfig:
@@ -202,9 +202,12 @@ rookConfig:
     #   operator: Exists
     tolerations:
   csiKubeletPath: "/var/lib/kubelet"
-  csiCephFsGPCMetricsPort: "9092"
   csiCephFsLivenessMetricsPort: "9082"
   csiCephFsEnabled: true
+  csiNfsEnabled: false
+  csiAddonsEnabled: false
+  enableOBCs: false
+  enableMonitoring: false
   # extra cabundle targeted to use with multisite, when pull endpoint is https endpoint
   caBundleRef: ""
   livenessProbe:

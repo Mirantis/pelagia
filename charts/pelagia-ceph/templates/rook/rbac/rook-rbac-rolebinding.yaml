@@ -1,23 +1,22 @@
 {{ if .Values.rookConfig.configureRook }}
 ---
-# Grant the operator, agent, and discovery agents access to resources in the namespace
+# Allow the operator to create resources in this cluster's namespace
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: rook-ceph-system
+  name: rook-ceph-cluster-mgmt
   namespace: {{ .Values.rookConfig.rookNamespace }}
   labels:
 {{ include "rook.labels" . | indent 4 }}
 {{ include "chart.labels" . | indent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: rook-ceph-system
+  kind: ClusterRole
+  name: rook-ceph-cluster-mgmt
 subjects:
   - kind: ServiceAccount
     name: rook-ceph-system
     namespace: {{ .Values.rookConfig.rookNamespace }}
-# OLM: BEGIN CLUSTER ROLEBINDING
 ---
 # Allow the osd pods in this namespace to work with configmaps
 kind: RoleBinding
@@ -37,7 +36,7 @@ subjects:
     name: rook-ceph-osd
     namespace: {{ .Values.rookConfig.rookNamespace }}
 ---
-# Allow the ceph mgr to access the cluster-specific resources necessary for the mgr modules
+# Allow the ceph mgr to access resources scoped to the CephCluster namespace necessary for mgr modules
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -55,7 +54,7 @@ subjects:
     name: rook-ceph-mgr
     namespace: {{ .Values.rookConfig.rookNamespace }}
 ---
-# Allow the ceph mgr to access the rook system resources necessary for the mgr modules
+# Allow the ceph mgr to access resources in the Rook operator namespace necessary for mgr modules
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -72,8 +71,6 @@ subjects:
   - kind: ServiceAccount
     name: rook-ceph-mgr
     namespace: {{ .Values.rookConfig.rookNamespace }}
-# OLM: END CLUSTER ROLEBINDING
-# OLM: BEGIN CMD REPORTER ROLEBINDING
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -91,9 +88,8 @@ subjects:
   - kind: ServiceAccount
     name: rook-ceph-cmd-reporter
     namespace: {{ .Values.rookConfig.rookNamespace }}
-# OLM: END CMD REPORTER ROLEBINDING
-# OLM: BEGIN PURGE OSD ROLEBINDING
 ---
+# Allow the osd purge job to run in this namespace
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -110,8 +106,24 @@ subjects:
   - kind: ServiceAccount
     name: rook-ceph-purge-osd
     namespace: {{ .Values.rookConfig.rookNamespace }}
-# OLM: END PURGE OSD ROLEBINDING
-# OLM: BEGIN CSI CEPHFS ROLEBINDING
+---
+# Grant the operator, agent, and discovery agents access to resources in the rook-ceph-system namespace
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: rook-ceph-system
+  namespace: {{ .Values.rookConfig.rookNamespace }}
+  labels:
+{{ include "rook.labels" . | indent 4 }}
+{{ include "chart.labels" . | indent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: rook-ceph-system
+subjects:
+  - kind: ServiceAccount
+    name: rook-ceph-system
+    namespace: {{ .Values.rookConfig.rookNamespace }}
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -129,28 +141,25 @@ roleRef:
   kind: Role
   name: cephfs-external-provisioner-cfg
   apiGroup: rbac.authorization.k8s.io
+  {{- if .Values.rookConfig.csiAddonsEnabled }}
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: cephfs-csi-nodeplugin-role-cfg
+  name: rbd-csi-nodeplugin-role-cfg
   namespace: {{ .Values.rookConfig.rookNamespace }}
   labels:
 {{ include "rook.labels" . | indent 4 }}
 {{ include "chart.labels" . | indent 4 }}
 subjects:
   - kind: ServiceAccount
-    name: rook-csi-cephfs-provisioner-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
-  - kind: ServiceAccount
-    name: rook-csi-cephfs-plugin-sa
+    name: rook-csi-rbd-plugin-sa
     namespace: {{ .Values.rookConfig.rookNamespace }}
 roleRef:
   kind: Role
-  name: cephfs-csi-nodeplugin
+  name: rbd-csi-nodeplugin
   apiGroup: rbac.authorization.k8s.io
-# OLM: END CSI CEPHFS ROLEBINDING
-# OLM: BEGIN CSI RBD ROLEBINDING
+  {{- end }}
 ---
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
@@ -168,40 +177,4 @@ roleRef:
   kind: Role
   name: rbd-external-provisioner-cfg
   apiGroup: rbac.authorization.k8s.io
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: rbd-csi-nodeplugin-role-cfg
-  namespace: {{ .Values.rookConfig.rookNamespace }}
-  labels:
-{{ include "rook.labels" . | indent 4 }}
-{{ include "chart.labels" . | indent 4 }}
-subjects:
-  - kind: ServiceAccount
-    name: rook-csi-rbd-plugin-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
-roleRef:
-  kind: Role
-  name: rbd-csi-nodeplugin
-  apiGroup: rbac.authorization.k8s.io
-# OLM: END CSI RBD ROLEBINDING
----
-# Allow the operator to create resources in this cluster's namespace
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: rook-ceph-cluster-mgmt
-  namespace: {{ .Values.rookConfig.rookNamespace }}
-  labels:
-{{ include "rook.labels" . | indent 4 }}
-{{ include "chart.labels" . | indent 4 }}
-subjects:
-  - kind: ServiceAccount
-    name: rook-ceph-system
-    namespace: {{ .Values.rookConfig.rookNamespace }}
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: rook-ceph-cluster-mgmt
 {{- end }}

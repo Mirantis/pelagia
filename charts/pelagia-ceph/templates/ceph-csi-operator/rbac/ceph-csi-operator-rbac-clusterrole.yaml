@@ -247,6 +247,14 @@ rules:
       - tokenreviews
     verbs:
       - create
+  - apiGroups:
+      - storage.k8s.io
+    resources:
+      - volumeattributesclasses
+    verbs:
+      - get
+      - list
+      - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -268,6 +276,8 @@ rules:
       - secrets
     verbs:
       - get
+      - list
+      - watch
   - apiGroups:
       - ""
     resources:
@@ -303,6 +313,12 @@ rules:
       - persistentvolumeclaims
     verbs:
       - get
+  - apiGroups:
+      - authentication.k8s.io
+    resources:
+      - tokenreviews
+    verbs:
+      - create
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -728,6 +744,14 @@ rules:
       - volumeattachments/status
     verbs:
       - patch
+  - apiGroups:
+      - storage.k8s.io
+    resources:
+      - volumeattributesclasses
+    verbs:
+      - get
+      - list
+      - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -1022,6 +1046,14 @@ rules:
     verbs:
       - get
       - list
+  - apiGroups:
+      - storage.k8s.io
+    resources:
+      - volumeattributesclasses
+    verbs:
+      - get
+      - list
+      - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -1038,6 +1070,321 @@ rules:
     verbs:
       - get
       - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - persistentvolumes
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - storage.k8s.io
+    resources:
+      - volumeattachments
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts/token
+    verbs:
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+  - apiGroups:
+      - authentication.k8s.io
+    resources:
+      - tokenreviews
+    verbs:
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - list
+      - watch
+      - create
+      - update
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - persistentvolumeclaims
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ceph-csi-nvmeof-ctrlplugin-cr
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{ include "ceph-csi-operator.labels" . | indent 4 }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - persistentvolumes
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - delete
+      - patch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - persistentvolumeclaims
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+  - apiGroups:
+      - storage.k8s.io
+    resources:
+      - storageclasses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - list
+      - watch
+      - create
+      - update
+      - patch
+  - apiGroups:
+      - storage.k8s.io
+    resources:
+      - volumeattachments
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+  - apiGroups:
+      - storage.k8s.io
+    resources:
+      - volumeattachments/status
+    verbs:
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - storage.k8s.io
+    resources:
+      - csinodes
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - persistentvolumeclaims/status
+    verbs:
+      - patch
+  - apiGroups:
+      - snapshot.storage.k8s.io
+    resources:
+      - volumesnapshots
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - snapshot.storage.k8s.io
+    resources:
+      - volumesnapshotclasses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - snapshot.storage.k8s.io
+    resources:
+      - volumesnapshotcontents
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+      - update
+  - apiGroups:
+      - snapshot.storage.k8s.io
+    resources:
+      - volumesnapshotcontents/status
+    verbs:
+      - update
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - serviceaccounts/token
+    verbs:
+      - create
+  - apiGroups:
+      - groupsnapshot.storage.k8s.io
+    resources:
+      - volumegroupsnapshotclasses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - groupsnapshot.storage.k8s.io
+    resources:
+      - volumegroupsnapshotcontents
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - patch
+  - apiGroups:
+      - groupsnapshot.storage.k8s.io
+    resources:
+      - volumegroupsnapshotcontents/status
+    verbs:
+      - update
+      - patch
+  - apiGroups:
+      - groupsnapshot.storage.openshift.io
+    resources:
+      - volumegroupsnapshotclasses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - groupsnapshot.storage.openshift.io
+    resources:
+      - volumegroupsnapshotcontents
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - patch
+  - apiGroups:
+      - groupsnapshot.storage.openshift.io
+    resources:
+      - volumegroupsnapshotcontents/status
+    verbs:
+      - update
+      - patch
+  - apiGroups:
+      - replication.storage.openshift.io
+    resources:
+      - volumegroupreplicationcontents
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - replication.storage.openshift.io
+    resources:
+      - volumegroupreplicationclasses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - authentication.k8s.io
+    resources:
+      - tokenreviews
+    verbs:
+      - create
+  - apiGroups:
+      - authorization.k8s.io
+    resources:
+      - subjectaccessreviews
+    verbs:
+      - create
+  - apiGroups:
+      - cbt.storage.k8s.io
+    resources:
+      - snapshotmetadataservices
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - storage.k8s.io
+    resources:
+      - volumeattributesclasses
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ceph-csi-nvmeof-nodeplugin-cr
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{ include "ceph-csi-operator.labels" . | indent 4 }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - watch
   - apiGroups:
       - ""
     resources:
