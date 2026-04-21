@@ -18,6 +18,7 @@ package osdremove
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -101,6 +102,10 @@ func (c *cephOsdRemoveConfig) checkPgsForOsd(osdID string) (bool, error) {
 	cmd := fmt.Sprintf("ceph pg ls-by-osd %s --format json", osdID)
 	err := lcmcommon.RunAndParseCephToolboxCLI(c.context, c.api.Kubeclientset, c.api.Config, c.taskConfig.cephCluster.Namespace, cmd, &pgsByOsd)
 	if err != nil {
+		// if for some reasons osd became unavailable - no need to fail
+		if strings.Contains(err.Error(), fmt.Sprintf("osd %s is not up", osdID)) {
+			return false, nil
+		}
 		c.log.Error().Err(err).Msg("")
 		return false, err
 	}
