@@ -348,9 +348,9 @@ func TestValidationFailure(t *testing.T) {
 		"cephfs 'fake' data fake-datapool-1 will be used as default and must use replication only",
 		"cephfs 'fake' data fake-datapool-2 pool should be either replicated or erasureCoded",
 	}
-	if cd.Spec.ObjectStorage != nil {
-		expectedMsg = append(expectedMsg, "rgw 'rgw-store' metadata pool must be only replicated")
-		expectedMsg = append(expectedMsg, "rgw 'rgw-store' data pool should be either replicated or erasureCoded")
+	if cd.Spec.ObjectStorage != nil && len(cd.Spec.ObjectStorage.Rgws) > 0 {
+		expectedMsg = append(expectedMsg, fmt.Sprintf("rgw '%s' metadata pool must be only replicated", cd.Spec.ObjectStorage.Rgws[0].Name))
+		expectedMsg = append(expectedMsg, fmt.Sprintf("rgw '%s' data pool should be either replicated or erasureCoded", cd.Spec.ObjectStorage.Rgws[0].Name))
 	}
 	for _, expected := range expectedMsg {
 		found := false
