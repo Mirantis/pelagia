@@ -92,7 +92,7 @@ nodes.
 <a name="add-rm-ceph-node-remove-a-ceph-node"></a>
 ## Remove a Ceph node
 
-Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](./create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](./create-task-workflow.md#create-task-workflow-create-a-ceph-osd-remove-task).
 
 !!! note
 

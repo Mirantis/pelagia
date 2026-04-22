@@ -1,5 +1,5 @@
-<a id="create-task-workflow-creating-a-ceph-osd-remove-task"></a>
-# Creating a Ceph OSD remove task
+<a id="create-task-workflow-create-a-ceph-osd-remove-task"></a>
+# Create a Ceph OSD remove task
 
 The workflow of creating a Ceph OSD removal task includes the following steps:
 

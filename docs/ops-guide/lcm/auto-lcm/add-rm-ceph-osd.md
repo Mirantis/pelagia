@@ -67,7 +67,7 @@ OSDs.
 <a name="add-rm-ceph-osd-remove-a-ceph-osd"></a>
 ## Remove a Ceph OSD
 
-Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](./create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](./create-task-workflow.md#create-task-workflow-create-a-ceph-osd-remove-task).
 
 {% include "../../../snippets/replicatedSize.md" %}
 
