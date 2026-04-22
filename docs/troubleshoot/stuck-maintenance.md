@@ -13,7 +13,7 @@ The issue may only affect environments with a small number of Ceph OSD nodes (fo
 pool replica count set to one less than the number of storage nodes (`replicas=storage_nodes_count-1`),
 and failure domain `host`.
 
-**To apply the issue resolution**, run the following command for the affected Ceph OSD node:
+**To resolve the issue**, run the following command for the affected Ceph OSD node:
 ```bash
 ceph osd reweight <osdId> 0
 ```

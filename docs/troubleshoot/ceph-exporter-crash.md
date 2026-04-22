@@ -17,7 +17,7 @@ HEALTH_WARN 1 daemons have recently crashed
 The issue does not block the managed cluster update. Once the port becomes
 available, `rook-ceph-exporter` obtains the port and the issue disappears.
 
-**To apply the issue resolution**, run the following command to remove `ceph-exporter` pods from the Ceph crash list:
+**To resolve the issue**, run the following command to remove `ceph-exporter` pods from the Ceph crash list:
 ```bash
 ceph crash archive-all
 ```

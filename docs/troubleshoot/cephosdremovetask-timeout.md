@@ -18,7 +18,7 @@ status:
   - Timeout (30m0s) reached for waiting pg rebalance for osd 2
 ```
 
-**To apply the issue resolution**, increase the timeout for all future
+**To resolve the issue**, increase the timeout for all future
 `CephOsdRemoveTask` resources:
 
 Update `pelagia-lcmconfig` ConfigMap in Pelagia namespace with the key `TASK_OSD_PG_REBALANCE_TIMEOUT_MIN` and desired

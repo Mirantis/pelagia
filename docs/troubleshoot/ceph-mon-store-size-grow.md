@@ -22,7 +22,7 @@ of `logm` keys that are buffered due to Ceph OSD shadow errors.
 If between the command runs the total size increases by more than 10 MB,
 perform the steps described below to resolve the issue.
 
-**To apply the issue resolution:**
+**To resolve the issue:**
 
 1. Verify the original state of placement groups (PGs):
    ```bash
