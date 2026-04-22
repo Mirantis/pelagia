@@ -3132,7 +3132,7 @@ the rebalance process to wait indefinitely for Ceph to become ready.</p>
 <p>The issue may only affect environments with a small number of Ceph OSD nodes (for example, three),
 pool replica count set to one less than the number of storage nodes (<code>replicas=storage_nodes_count-1</code>),
 and failure domain <code>host</code>.</p>
-<p><strong>To apply the issue resolution</strong>, run the following command for the affected Ceph OSD node:
+<p><strong>To resolve the issue</strong>, run the following command for the affected Ceph OSD node:
 <div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>osd<span class="w"> </span>reweight<span class="w"> </span>&lt;osdId&gt;<span class="w"> </span><span class="m">0</span>
 </code></pre></div></p>
 

@@ -3125,7 +3125,7 @@ example message:</p>
 <span class="w">  </span><span class="nt">messages</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Timeout (30m0s) reached for waiting pg rebalance for osd 2</span>
 </code></pre></div>
-<p><strong>To apply the issue resolution</strong>, increase the timeout for all future
+<p><strong>To resolve the issue</strong>, increase the timeout for all future
 <code>CephOsdRemoveTask</code> resources:</p>
 <p>Update <code>pelagia-lcmconfig</code> ConfigMap in Pelagia namespace with the key <code>TASK_OSD_PG_REBALANCE_TIMEOUT_MIN</code> and desired
 timeout in minutes in string format:</p>
