@@ -123,7 +123,7 @@ name of the Ceph Object Storage and the specified public domain.
 Pelagia Ceph Object Storage requires the `upstream-vhost` and `rgw dns name` parameters to be equal. Therefore,
 override the default `rgw dns name` with the corresponding ingress annotation value.
 
-## Сonfigure TLS for Ceph Object Gateway
+## Configure TLS for Ceph Object Gateway
 
 1. To generate an SSL certificate for internal usage, verify that the
 RADOS Gateway `spec.objectStorage.rgw.gateway.securePort` parameter is specified in the `CephDeployment` CR.

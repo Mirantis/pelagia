@@ -79,7 +79,7 @@ OSDs with a separate metadata device.
 <a name="add-rm-ceph-osd-with-meta-remove-a-ceph-osd-with-a-metadata-device"></a>
 ## Remove a Ceph OSD with a metadata device
 
-Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](./create-task-workflow.md#create-task-workflow-creating-a-ceph-osd-remove-task).
+Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow overview, see [Creating a Ceph OSD remove task](./create-task-workflow.md#create-task-workflow-create-a-ceph-osd-remove-task).
 
 {% include "../../../snippets/replicatedSize.md" %}
 
