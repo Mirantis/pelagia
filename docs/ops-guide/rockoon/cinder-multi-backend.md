@@ -1,11 +1,11 @@
 <a id="cinder-multi-backend-ceph-pools-for-cinder-multi-backend"></a>
 
-# Ceph pools for Cinder multi-backend
+# Configure Ceph pools for Cinder multiple backends
 
 The `CephDeployment` custom resource (CR) supports multiple Ceph pools with the `volumes` role
 to configure Cinder multiple backends in Rockoon OpenStack.
 
-## Configure Ceph pools for Cinder multiple backends
+To configure Ceph pools for Cinder multiple backends:
 
 1. In the `CephDeployment` CR, add the desired number of Ceph pools to the `pools` section with the `volumes` role:
    ```bash
