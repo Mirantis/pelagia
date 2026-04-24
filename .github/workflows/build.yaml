@@ -58,7 +58,7 @@ jobs:
         if: ${{ github.ref_type == 'branch' && github.ref_name == 'main' && github.event_name == 'push' }}
         env:
           NEW_IMAGE_NAME: ${{ format('{0}/pelagia/pelagia', vars.REGISTRY_CI) }}
-          IMAGE_TAG: latest
+          NEW_IMAGE_TAG: latest
         run: make docker.copy.controller
       - name: Login to main registry
         if: ${{ github.ref_type == 'tag' }}

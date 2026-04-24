@@ -107,15 +107,20 @@ docker.publish/controller: ## Publish Pelagia single docker image to its registr
 docker.publish/e2e: ## Publish Pelagia E2E single docker image to its registry.
 	docker push $(E2E_IMAGE_NAME):$(IMAGE_TAG)
 
+docker.copy.%: NEW_IMAGE_TAG ?= $(IMAGE_TAG)
 docker.copy.%: ## Copy existing multiarch image to new registry
 	@if [ -z $(NEW_IMAGE_NAME) ]; then \
 		printf "\n=== Failed to create new manifest, NEW_IMAGE_NAME var is not specified ===\n"; \
 		exit 1 ; \
 	fi
+	@if [ -z $(NEW_IMAGE_TAG) ]; then \
+		printf "\n=== Failed to create new manifest, NEW_IMAGE_TAG var is not specified ===\n"; \
+		exit 1 ; \
+	fi
 	@if [ "$*" = "controller" ]; then \
-		docker buildx imagetools create -t $(NEW_IMAGE_NAME):$(IMAGE_TAG) $(IMAGE_NAME):$(IMAGE_TAG) ; \
+		docker buildx imagetools create -t $(NEW_IMAGE_NAME):$(NEW_IMAGE_TAG) $(IMAGE_NAME):$(IMAGE_TAG) ; \
 	else \
-		docker buildx imagetools create -t $(NEW_IMAGE_NAME):$(IMAGE_TAG) $(E2E_IMAGE_NAME):$(IMAGE_TAG) ; \
+		docker buildx imagetools create -t $(NEW_IMAGE_NAME):$(NEW_IMAGE_TAG) $(E2E_IMAGE_NAME):$(IMAGE_TAG) ; \
 	fi
 
 #===============#
