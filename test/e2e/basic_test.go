@@ -250,7 +250,12 @@ func TestValidationFailure(t *testing.T) {
 				newNodeSpec.Crush["datcentr"] = "fake"
 			}
 			newNodeSpec.Devices[0].Config["osdsPerDevice"] = "fake"
-			deviceNameToCheck = newNodeSpec.Devices[0].Name
+			if newNodeSpec.Devices[0].Name != "" {
+				deviceNameToCheck = newNodeSpec.Devices[0].Name
+			} else {
+				deviceNameToCheck = newNodeSpec.Devices[0].FullPath
+			}
+
 			cd.Spec.Nodes[idx] = *newNodeSpec
 			nodeCnt++
 			break
