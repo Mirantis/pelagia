@@ -156,7 +156,7 @@ func (c *cephDeploymentInfraConfig) generateToolBox() (*apps.Deployment, error) 
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            lcmcommon.PelagiaToolBox,
 			Namespace:       c.lcmConfig.RookNamespace,
-			Labels:          map[string]string{"app": lcmcommon.PelagiaToolBox},
+			Labels:          lcmcommon.ExtendLabels(map[string]string{"app": lcmcommon.PelagiaToolBox}, baseResourceLabels),
 			OwnerReferences: c.infraConfig.cephOwnerRefs,
 		},
 		Spec: apps.DeploymentSpec{

@@ -118,7 +118,7 @@ func (c *cephDeploymentInfraConfig) generateDiskDaemon() *apps.DaemonSet {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            lcmcommon.PelagiaDiskDaemon,
 			Namespace:       c.infraConfig.namespace,
-			Labels:          map[string]string{"app": lcmcommon.PelagiaDiskDaemon},
+			Labels:          lcmcommon.ExtendLabels(map[string]string{"app": lcmcommon.PelagiaDiskDaemon}, baseResourceLabels),
 			OwnerReferences: c.infraConfig.lcmOwnerRefs,
 		},
 		Spec: apps.DaemonSetSpec{

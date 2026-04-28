@@ -303,14 +303,18 @@ func (c *cephDeploymentConfig) ensureRgwObject(rgwIndexInSpec int) (bool, error)
 		}
 		changed = true
 	} else {
-		if !reflect.DeepEqual(rgw.Spec, rgwStore.Spec) {
-			// when rgw.Spec.Zone.Name is empty and going to be changed, probably that
-			// is switching to multisite configuration
-			if rgw.Spec.Zone.Name != rgwStore.Spec.Zone.Name && rgw.Spec.Zone.Name != "" {
-				return false, errors.New("failed to update rgw, zone change is not supported")
+		specUpdated := !reflect.DeepEqual(rgw.Spec, rgwStore.Spec)
+		changedBaseLabels := lcmcommon.AlignBaseLabels(*c.log, "CephObjectStore", rgw.ObjectMeta, rgwStore.Labels)
+		if specUpdated || changedBaseLabels {
+			if specUpdated {
+				// when rgw.Spec.Zone.Name is empty and going to be changed, probably that
+				// is switching to multisite configuration
+				if rgw.Spec.Zone.Name != rgwStore.Spec.Zone.Name && rgw.Spec.Zone.Name != "" {
+					return false, errors.New("failed to update rgw, zone change is not supported")
+				}
+				lcmcommon.ShowObjectDiff(*c.log, rgw.Spec, rgwStore.Spec)
+				rgw.Spec = rgwStore.Spec
 			}
-			lcmcommon.ShowObjectDiff(*c.log, rgw.Spec, rgwStore.Spec)
-			rgw.Spec = rgwStore.Spec
 			c.log.Info().Msgf("update rgw object store %s/%s", namespace, rgwStore.Name)
 			_, err := c.api.Rookclientset.CephV1().CephObjectStores(namespace).Update(c.context, rgw, metav1.UpdateOptions{})
 			if err != nil {
@@ -324,7 +328,7 @@ func (c *cephDeploymentConfig) ensureRgwObject(rgwIndexInSpec int) (bool, error)
 
 func (c *cephDeploymentConfig) ensureRgwStorageClass(rgwName string) (bool, error) {
 	scName := getRgwStorageClass(rgwName)
-	_, err := c.api.Kubeclientset.StorageV1().StorageClasses().Get(c.context, scName, metav1.GetOptions{})
+	sc, err := c.api.Kubeclientset.StorageV1().StorageClasses().Get(c.context, scName, metav1.GetOptions{})
 	if err != nil {
 		if !apierrors.IsNotFound(err) {
 			return false, err
@@ -337,7 +341,15 @@ func (c *cephDeploymentConfig) ensureRgwStorageClass(rgwName string) (bool, erro
 		}
 		return true, nil
 	}
-	return false, nil
+	changedBaseLabels := lcmcommon.AlignBaseLabels(*c.log, "StorageClass", sc.ObjectMeta, baseResourceLabels)
+	if changedBaseLabels {
+		c.log.Info().Msgf("update rgw storage class %s", sc.Name)
+		_, err := c.api.Kubeclientset.StorageV1().StorageClasses().Update(c.context, sc, metav1.UpdateOptions{})
+		if err != nil {
+			return false, errors.Wrap(err, "failed to update rgw storage class")
+		}
+	}
+	return changedBaseLabels, nil
 }
 
 func (c *cephDeploymentConfig) ensureRgwUsers(rgwName string) (bool, error) {
@@ -365,6 +377,7 @@ func (c *cephDeploymentConfig) ensureRgwUsers(rgwName string) (bool, error) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      rgwUser.Name,
 				Namespace: c.lcmConfig.RookNamespace,
+				Labels:    baseResourceLabels,
 			},
 			Spec: userCasted,
 		}
@@ -377,9 +390,13 @@ func (c *cephDeploymentConfig) ensureRgwUsers(rgwName string) (bool, error) {
 				c.log.Error().Msg(err)
 				errMsg = append(errMsg, errors.New(err))
 			} else {
-				if !reflect.DeepEqual(presentUser.Spec, newUser.Spec) {
-					lcmcommon.ShowObjectDiff(*c.log, presentUser.Spec, newUser.Spec)
-					presentUser.Spec = newUser.Spec
+				changedBaseLabels := lcmcommon.AlignBaseLabels(*c.log, "CephObjectStoreUser", presentUser.ObjectMeta, newUser.Labels)
+				specUpdated := !reflect.DeepEqual(presentUser.Spec, newUser.Spec)
+				if specUpdated || changedBaseLabels {
+					if specUpdated {
+						lcmcommon.ShowObjectDiff(*c.log, presentUser.Spec, newUser.Spec)
+						presentUser.Spec = newUser.Spec
+					}
 					if err := c.processRgwUsers(objectUpdate, presentUser); err != nil {
 						errMsg = append(errMsg, err)
 					}
@@ -494,10 +511,11 @@ NewPortLoop:
 		externalSvc.Spec.Ports = append(externalSvc.Spec.Ports, newPort)
 		updateRequired = true
 	}
-	updateRequired = updateRequired || !reflect.DeepEqual(externalSvc.Labels, externalSvcResource.Labels)
-	if updateRequired {
-		externalSvc.Labels = externalSvcResource.Labels
-		lcmcommon.ShowObjectDiff(*c.log, externalSvcCur, externalSvc)
+	changedBaseLabels := lcmcommon.AlignBaseLabels(*c.log, "service", externalSvc.ObjectMeta, externalSvcResource.Labels)
+	if updateRequired || changedBaseLabels {
+		if updateRequired {
+			lcmcommon.ShowObjectDiff(*c.log, externalSvcCur, externalSvc)
+		}
 		c.log.Info().Msgf("update rgw external service %s", externalSvcName)
 		_, err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).Update(c.context, externalSvc, metav1.UpdateOptions{})
 		if err != nil {
@@ -576,10 +594,10 @@ func generateRgwExternalService(name, namespace string, externalAccessLabel *met
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      buildRGWName(name, "external"),
 			Namespace: namespace,
-			Labels: map[string]string{
+			Labels: lcmcommon.ExtendLabels(map[string]string{
 				"app":               "rook-ceph-rgw",
 				"rook_object_store": name,
-			},
+			}, baseResourceLabels),
 		},
 		Spec: v1.ServiceSpec{
 			Ports: []v1.ServicePort{
@@ -624,7 +642,8 @@ func getRgwStorageClass(rgwName string) string {
 func generateRgwStorageClass(storeName, storageClassName, namespace string) v1storage.StorageClass {
 	return v1storage.StorageClass{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: storageClassName,
+			Name:   storageClassName,
+			Labels: baseResourceLabels,
 		},
 		Provisioner: "rook-ceph.ceph.rook.io/bucket",
 		Parameters: map[string]string{
@@ -692,6 +711,7 @@ func generateRgw(cephDplRGW cephv1.ObjectStoreSpec, name, namespace string, useD
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      storeName,
 			Namespace: namespace,
+			Labels:    baseResourceLabels,
 		},
 		Spec: cephDplRGW,
 	}
@@ -703,6 +723,7 @@ func generateRgwExternal(cephDplRGW cephv1.ObjectStoreSpec, name, namespace stri
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      name,
 				Namespace: namespace,
+				Labels:    baseResourceLabels,
 			},
 			Spec: cephDplRGW,
 		}
@@ -816,14 +837,13 @@ func (c *cephDeploymentConfig) ensureRgwBackendSSLCert(rgwName, certRef string) 
 	// then can be recreated (self-signed or update in spec and failed controller)
 	newTime := lcmcommon.GetCurrentTimeString()
 	changed := false
+	secretLabels := lcmcommon.ExtendLabels(map[string]string{selfSignedCertLabel: rgwName}, baseResourceLabels)
 	if apierrors.IsNotFound(rgwCertErr) {
 		newSecret := &v1.Secret{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      rgwBackendSSLCertificateSecret,
 				Namespace: c.lcmConfig.RookNamespace,
-				Labels: map[string]string{
-					selfSignedCertLabel: rgwName,
-				},
+				Labels:    secretLabels,
 				Annotations: map[string]string{
 					sslCertGenerationTimestampLabel: newTime,
 				},
@@ -847,10 +867,7 @@ func (c *cephDeploymentConfig) ensureRgwBackendSSLCert(rgwName, certRef string) 
 			rgwSslCert.Annotations = map[string]string{}
 		}
 		rgwSslCert.Annotations[sslCertGenerationTimestampLabel] = newTime
-		if rgwSslCert.Labels == nil {
-			rgwSslCert.Labels = map[string]string{}
-		}
-		rgwSslCert.Labels[selfSignedCertLabel] = rgwName
+		_ = lcmcommon.AlignBaseLabels(*c.log, "secret", rgwSslCert.ObjectMeta, secretLabels)
 		c.log.Info().Msgf("updating self-signed Rgw SSL cert %s/%s", c.lcmConfig.RookNamespace, rgwSslCert.Name)
 		_, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.RookNamespace).Update(c.context, rgwSslCert, metav1.UpdateOptions{})
 		if err != nil {
@@ -930,6 +947,7 @@ func (c *cephDeploymentConfig) ensureRgwCaBundleCert(rgwName, certRef, caBundleR
 				Annotations: map[string]string{
 					sslCertGenerationTimestampLabel: newCertTime,
 				},
+				Labels: baseResourceLabels,
 			},
 			Data: map[string][]byte{
 				"cabundle": []byte(publicCacert + "\n"),
@@ -963,14 +981,19 @@ func (c *cephDeploymentConfig) ensureRgwCaBundleCert(rgwName, certRef, caBundleR
 			rgwSslCert.Data["cabundle"] = []byte(bundleChain)
 			rgwSslCert.Annotations[sslCertGenerationTimestampLabel] = newCertTime
 			c.log.Info().Msgf("updating Rgw SSL cert %s/%s with cabundle", c.lcmConfig.RookNamespace, rgwSslCert.Name)
+			changed = true
+		} else {
+			resourceUpdateTimestamps.rgwSSLCert[rgwName] = rgwSslCert.Annotations[sslCertGenerationTimestampLabel]
+		}
+		changedBaseLabels := lcmcommon.AlignBaseLabels(*c.log, "secret", rgwSslCert.ObjectMeta, baseResourceLabels)
+		if changed || changedBaseLabels {
 			_, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.RookNamespace).Update(c.context, rgwSslCert, metav1.UpdateOptions{})
 			if err != nil {
 				return false, errors.Wrap(err, "failed to update rgw cabundle cert secret")
 			}
-			changed = true
-			resourceUpdateTimestamps.rgwSSLCert[rgwName] = newCertTime
-		} else {
-			resourceUpdateTimestamps.rgwSSLCert[rgwName] = rgwSslCert.Annotations[sslCertGenerationTimestampLabel]
+			if changed {
+				resourceUpdateTimestamps.rgwSSLCert[rgwName] = newCertTime
+			}
 		}
 	}
 	c.log.Debug().Msgf("rgw '%s' has no provided cabundle secret ref, using default '%s/%s'", rgwName, c.lcmConfig.RookNamespace, defaultCaBundleCertName)

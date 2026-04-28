@@ -187,11 +187,11 @@ func (c *cephDeploymentConfig) ensureIngressProxy() (bool, error) {
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      tlsSecretName,
 					Namespace: c.lcmConfig.RookNamespace,
-					Labels: map[string]string{
+					Labels: lcmcommon.ExtendLabels(map[string]string{
 						"objectStore":    rgw.Name,
 						"ingress":        ingressName,
 						cephIngressLabel: "ceph-object-store-ingress",
-					},
+					}, baseResourceLabels),
 				},
 				Data: map[string][]byte{
 					"ca.crt":  []byte(ingressConfig.TLSConfig.TLSCerts.Cacert),
@@ -223,17 +223,7 @@ func (c *cephDeploymentConfig) ensureIngressProxy() (bool, error) {
 					if reflect.DeepEqual(tlsSecret.Data, tlsSecretResource.Data) {
 						tlsSecretName = tlsSecret.Name
 						createNewSecret = false
-						if tlsSecret.Labels == nil {
-							tlsSecret.Labels = make(map[string]string)
-						}
-						updateLabels := false
-						for key, value := range tlsSecretResource.Labels {
-							if tlsSecret.Labels[key] != value {
-								tlsSecret.Labels[key] = value
-								updateLabels = true
-								c.log.Info().Msgf("setting label '%s=%s' for secret %s/%s", key, value, c.lcmConfig.RookNamespace, tlsSecret.Name)
-							}
-						}
+						updateLabels := lcmcommon.AlignBaseLabels(*c.log, "secret", tlsSecret.ObjectMeta, tlsSecretResource.Labels)
 						if updateLabels {
 							_, err = c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.RookNamespace).Update(c.context, tlsSecret, metav1.UpdateOptions{})
 							if err != nil {
@@ -272,19 +262,7 @@ func (c *cephDeploymentConfig) ensureIngressProxy() (bool, error) {
 			}
 			return true, nil
 		}
-		update := false
-		if ingress.Labels == nil {
-			update = true
-			ingress.Labels = ingressResource.Labels
-		} else {
-			for k, v := range ingressResource.Labels {
-				if curValue, ok := ingress.Labels[k]; !ok || curValue != v {
-					c.log.Info().Msgf("setting label '%s=%s' for ingress %s/%s", k, v, ingress.Namespace, ingress.Name)
-					ingress.Labels[k] = v
-					update = true
-				}
-			}
-		}
+		update := lcmcommon.AlignBaseLabels(*c.log, "Ingress", ingress.ObjectMeta, ingressResource.Labels)
 		if !reflect.DeepEqual(ingress.Annotations, ingressResource.Annotations) {
 			if ingress.Annotations == nil {
 				for k, v := range ingressResource.Annotations {
@@ -373,12 +351,12 @@ func generateIngress(rgwName, namespace, tlsSecretName string, ingressConfig *ce
 	annotations := ingressConfig.Annotations
 	annotations["kubernetes.io/ingress.class"] = ingressConfig.ControllerClassName
 	hostName := buildHostName(rgwName, ingressConfig.TLSConfig.Hostname, ingressConfig.TLSConfig.Domain)
-	ingressLabels := map[string]string{
+	ingressLabels := lcmcommon.ExtendLabels(map[string]string{
 		"ingress-type":      ingressTypeLabel,
 		cephIngressLabel:    "ceph-object-store-ingress",
 		"app":               "rook-ceph-rgw",
 		"rook_object_store": rgwName,
-	}
+	}, baseResourceLabels)
 	for key, val := range externalAccessLabel.MatchLabels {
 		ingressLabels[key] = val
 	}

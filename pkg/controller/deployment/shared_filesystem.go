@@ -94,10 +94,14 @@ func (c *cephDeploymentConfig) ensureCephFS() (bool, error) {
 		if createInProgress {
 			continue
 		}
-		if !reflect.DeepEqual(cephFsResource.Spec, cephFs.Spec) {
+		changedBaseLabels := lcmcommon.AlignBaseLabels(*c.log, "CephFilesystem", cephFs.ObjectMeta, cephFsResource.Labels)
+		specUpdated := !reflect.DeepEqual(cephFsResource.Spec, cephFs.Spec)
+		if specUpdated || changedBaseLabels {
 			c.log.Info().Msgf("updating CephFS %s/%s", c.lcmConfig.RookNamespace, cephDplCephFS.Name)
-			lcmcommon.ShowObjectDiff(*c.log, cephFs.Spec, cephFsResource.Spec)
-			cephFs.Spec = cephFsResource.Spec
+			if specUpdated {
+				lcmcommon.ShowObjectDiff(*c.log, cephFs.Spec, cephFsResource.Spec)
+				cephFs.Spec = cephFsResource.Spec
+			}
 			_, err := c.api.Rookclientset.CephV1().CephFilesystems(c.lcmConfig.RookNamespace).Update(c.context, cephFs, metav1.UpdateOptions{})
 			if err != nil {
 				c.log.Error().Err(err).Msg("failed to update CephFS")
@@ -210,6 +214,7 @@ func generateCephFS(cephDplCephFS cephlcmv1alpha1.CephFilesystem, namespace stri
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cephDplCephFS.Name,
 			Namespace: namespace,
+			Labels:    baseResourceLabels,
 		},
 	}
 	castedSpec, _ := cephDplCephFS.GetSpec()

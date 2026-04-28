@@ -406,18 +406,21 @@ func (c *cephDeploymentConfig) createSubObjects() ([]v1.ObjectReference, string)
 		}
 	}
 
+	getObjMeta := func() metav1.ObjectMeta {
+		return metav1.ObjectMeta{
+			Namespace:       c.cdConfig.cephDpl.Namespace,
+			Name:            c.cdConfig.cephDpl.Name,
+			OwnerReferences: ownerRefs,
+			Labels:          baseResourceLabels,
+		}
+	}
+
 	refs := []v1.ObjectReference{}
 	issues := []string{}
-	_, err = c.api.CephLcmclientset.LcmV1alpha1().CephDeploymentHealths(c.cdConfig.cephDpl.Namespace).Get(c.context, c.cdConfig.cephDpl.Name, metav1.GetOptions{})
+	health, err := c.api.CephLcmclientset.LcmV1alpha1().CephDeploymentHealths(c.cdConfig.cephDpl.Namespace).Get(c.context, c.cdConfig.cephDpl.Name, metav1.GetOptions{})
 	if err != nil {
 		if apierrors.IsNotFound(err) {
-			cephhealth := &cephlcmv1alpha1.CephDeploymentHealth{
-				ObjectMeta: metav1.ObjectMeta{
-					Namespace:       c.cdConfig.cephDpl.Namespace,
-					Name:            c.cdConfig.cephDpl.Name,
-					OwnerReferences: ownerRefs,
-				},
-			}
+			cephhealth := &cephlcmv1alpha1.CephDeploymentHealth{ObjectMeta: getObjMeta()}
 			_, err = c.api.CephLcmclientset.LcmV1alpha1().CephDeploymentHealths(cephhealth.Namespace).Create(c.context, cephhealth, metav1.CreateOptions{})
 			if err != nil {
 				msg := "failed to create CephDeploymentHealth"
@@ -433,19 +436,22 @@ func (c *cephDeploymentConfig) createSubObjects() ([]v1.ObjectReference, string)
 			issues = append(issues, msg)
 		}
 	} else {
+		healthLabelsUpdated := lcmcommon.AlignBaseLabels(*c.log, "CephDeploymentHealth", health.ObjectMeta, baseResourceLabels)
+		if healthLabelsUpdated {
+			_, err = c.api.CephLcmclientset.LcmV1alpha1().CephDeploymentHealths(health.Namespace).Update(c.context, health, metav1.UpdateOptions{})
+			if err != nil {
+				msg := "failed to update CephDeploymentHealth labels"
+				c.log.Error().Err(err).Msg(msg)
+				issues = append(issues, msg)
+			}
+		}
 		refs = append(refs, getRef(c.cdConfig.cephDpl.Name, c.cdConfig.cephDpl.Namespace, "CephDeploymentHealth"))
 	}
 
-	_, err = c.api.CephLcmclientset.LcmV1alpha1().CephDeploymentSecrets(c.cdConfig.cephDpl.Namespace).Get(c.context, c.cdConfig.cephDpl.Name, metav1.GetOptions{})
+	secret, err := c.api.CephLcmclientset.LcmV1alpha1().CephDeploymentSecrets(c.cdConfig.cephDpl.Namespace).Get(c.context, c.cdConfig.cephDpl.Name, metav1.GetOptions{})
 	if err != nil {
 		if apierrors.IsNotFound(err) {
-			cephdeploymentsecrets := &cephlcmv1alpha1.CephDeploymentSecret{
-				ObjectMeta: metav1.ObjectMeta{
-					Namespace:       c.cdConfig.cephDpl.Namespace,
-					Name:            c.cdConfig.cephDpl.Name,
-					OwnerReferences: ownerRefs,
-				},
-			}
+			cephdeploymentsecrets := &cephlcmv1alpha1.CephDeploymentSecret{ObjectMeta: getObjMeta()}
 			_, err = c.api.CephLcmclientset.LcmV1alpha1().CephDeploymentSecrets(cephdeploymentsecrets.Namespace).Create(c.context, cephdeploymentsecrets, metav1.CreateOptions{})
 			if err != nil {
 				msg := "failed to create CephDeploymentSecret"
@@ -461,19 +467,22 @@ func (c *cephDeploymentConfig) createSubObjects() ([]v1.ObjectReference, string)
 			issues = append(issues, msg)
 		}
 	} else {
+		secretLabelsUpdated := lcmcommon.AlignBaseLabels(*c.log, "CephDeploymentSecret", secret.ObjectMeta, baseResourceLabels)
+		if secretLabelsUpdated {
+			_, err = c.api.CephLcmclientset.LcmV1alpha1().CephDeploymentSecrets(secret.Namespace).Update(c.context, secret, metav1.UpdateOptions{})
+			if err != nil {
+				msg := "failed to update CephDeploymentSecret labels"
+				c.log.Error().Err(err).Msg(msg)
+				issues = append(issues, msg)
+			}
+		}
 		refs = append(refs, getRef(c.cdConfig.cephDpl.Name, c.cdConfig.cephDpl.Namespace, "CephDeploymentSecret"))
 	}
 
-	_, err = c.api.CephLcmclientset.LcmV1alpha1().CephDeploymentMaintenances(c.cdConfig.cephDpl.Namespace).Get(c.context, c.cdConfig.cephDpl.Name, metav1.GetOptions{})
+	maintenance, err := c.api.CephLcmclientset.LcmV1alpha1().CephDeploymentMaintenances(c.cdConfig.cephDpl.Namespace).Get(c.context, c.cdConfig.cephDpl.Name, metav1.GetOptions{})
 	if err != nil {
 		if apierrors.IsNotFound(err) {
-			cephDplMaintenance := &cephlcmv1alpha1.CephDeploymentMaintenance{
-				ObjectMeta: metav1.ObjectMeta{
-					Namespace:       c.cdConfig.cephDpl.Namespace,
-					Name:            c.cdConfig.cephDpl.Name,
-					OwnerReferences: ownerRefs,
-				},
-			}
+			cephDplMaintenance := &cephlcmv1alpha1.CephDeploymentMaintenance{ObjectMeta: getObjMeta()}
 			_, err = c.api.CephLcmclientset.LcmV1alpha1().CephDeploymentMaintenances(cephDplMaintenance.Namespace).Create(c.context, cephDplMaintenance, metav1.CreateOptions{})
 			if err != nil {
 				msg := "failed to create CephDeploymentMaintenance"
@@ -489,6 +498,15 @@ func (c *cephDeploymentConfig) createSubObjects() ([]v1.ObjectReference, string)
 			issues = append(issues, msg)
 		}
 	} else {
+		maintenanceLabelsUpdated := lcmcommon.AlignBaseLabels(*c.log, "CephDeploymentMaintenance", maintenance.ObjectMeta, baseResourceLabels)
+		if maintenanceLabelsUpdated {
+			_, err = c.api.CephLcmclientset.LcmV1alpha1().CephDeploymentMaintenances(maintenance.Namespace).Update(c.context, maintenance, metav1.UpdateOptions{})
+			if err != nil {
+				msg := "failed to update CephDeploymentMaintenance labels"
+				c.log.Error().Err(err).Msg(msg)
+				issues = append(issues, msg)
+			}
+		}
 		refs = append(refs, getRef(c.cdConfig.cephDpl.Name, c.cdConfig.cephDpl.Namespace, "CephDeploymentMaintenance"))
 	}
 	return refs, strings.Join(issues, ", ")
