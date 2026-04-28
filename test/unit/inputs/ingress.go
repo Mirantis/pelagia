@@ -33,9 +33,12 @@ var RgwIngress = networkingv1.Ingress{
 		Labels: map[string]string{
 			"ingress-type": "openstack-ingress-nginx-rgw",
 			"cephdeployment.lcm.mirantis.com/ingress": "ceph-object-store-ingress",
-			"app":               "rook-ceph-rgw",
-			"rook_object_store": "rgw-store",
-			"external_access":   "rgw",
+			"app":                          "rook-ceph-rgw",
+			"rook_object_store":            "rgw-store",
+			"external_access":              "rgw",
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
 		},
 		Annotations: map[string]string{
 			"nginx.ingress.kubernetes.io/proxy-body-size": "0",

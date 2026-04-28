@@ -52,6 +52,11 @@ var CephBlockPoolReplicated = cephv1.CephBlockPool{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "pool1-hdd",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.NamedBlockPoolSpec{
 		PoolSpec: cephv1.PoolSpec{
@@ -69,6 +74,11 @@ var CephBlockPoolReplicatedMirroring = cephv1.CephBlockPool{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "pool1-hdd",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.NamedBlockPoolSpec{
 		PoolSpec: cephv1.PoolSpec{
@@ -90,6 +100,11 @@ var CephBlockPoolErasureCoded = cephv1.CephBlockPool{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "pool1-hdd",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.NamedBlockPoolSpec{
 		PoolSpec: cephv1.PoolSpec{
@@ -147,6 +162,11 @@ var BuiltinMgrPool = &cephv1.CephBlockPool{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "builtin-mgr",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.NamedBlockPoolSpec{
 		Name: ".mgr",
@@ -166,6 +186,11 @@ var BuiltinRgwRootPool = &cephv1.CephBlockPool{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "builtin-rgw-root",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.NamedBlockPoolSpec{
 		Name: ".rgw.root",

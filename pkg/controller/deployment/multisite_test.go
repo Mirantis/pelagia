@@ -222,6 +222,29 @@ func TestEnsureRealms(t *testing.T) {
 			},
 		},
 		{
+			name:    "realms are aligned, but labels not found",
+			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
+			inputResources: map[string]runtime.Object{
+				"secrets": &corev1.SecretList{
+					Items: []corev1.Secret{*unitinputs.MultisiteRealmSecret.DeepCopy()},
+				},
+				"cephobjectrealms": &cephv1.CephObjectRealmList{
+					Items: []cephv1.CephObjectRealm{
+						func() cephv1.CephObjectRealm {
+							realm := unitinputs.RgwMultisiteMasterPullRealm1.DeepCopy()
+							delete(realm.Labels, "app.kubernetes.io/part-of")
+							return *realm
+						}(),
+					},
+				},
+				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{},
+			},
+			expectedRealms: &cephv1.CephObjectRealmList{
+				Items: []cephv1.CephObjectRealm{unitinputs.RgwMultisiteMasterPullRealm1},
+			},
+			stateChanged: true,
+		},
+		{
 			name: "nothing to do - no realms in spec",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
@@ -526,6 +549,26 @@ func TestEnsureZoneGroups(t *testing.T) {
 			},
 		},
 		{
+			name:    "zonegroups are aligned, but labels missed",
+			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
+			inputResources: map[string]runtime.Object{
+				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{
+					Items: []cephv1.CephObjectZoneGroup{
+						func() cephv1.CephObjectZoneGroup {
+							zg := unitinputs.RgwMultisiteMasterZoneGroup1.DeepCopy()
+							zg.Labels = nil
+							return *zg
+						}(),
+					},
+				},
+				"cephobjectzones": &cephv1.CephObjectZoneList{},
+			},
+			expectedZoneGroups: &cephv1.CephObjectZoneGroupList{
+				Items: []cephv1.CephObjectZoneGroup{unitinputs.RgwMultisiteMasterZoneGroup1},
+			},
+			stateChanged: true,
+		},
+		{
 			name: "nothing to do - no zonegroups in spec",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
@@ -601,7 +644,7 @@ func TestEnsureZoneGroups(t *testing.T) {
 			stateChanged:       true,
 		},
 		{
-			name: "delete zone skipped",
+			name: "delete zonegroup skipped",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
 				mc.Spec.ObjectStorage.Zonegroups = nil
@@ -632,6 +675,7 @@ func TestEnsureZoneGroups(t *testing.T) {
 			}
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", []string{"cephobjectzonegroups", "cephobjectzones"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "create", []string{"cephobjectzonegroups"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Rookclientset, "update", []string{"cephobjectzonegroups"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "delete", []string{"cephobjectzonegroups"}, test.inputResources, test.apiErrors)
 
 			stateChanged, err := c.ensureZoneGroups()
@@ -716,6 +760,26 @@ func TestEnsureZones(t *testing.T) {
 			expectedZones: &cephv1.CephObjectZoneList{
 				Items: []cephv1.CephObjectZone{*correctZone.DeepCopy()},
 			},
+		},
+		{
+			name:    "zones are aligned, but update labels",
+			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
+			inputResources: map[string]runtime.Object{
+				"cephobjectzones": &cephv1.CephObjectZoneList{
+					Items: []cephv1.CephObjectZone{
+						func() cephv1.CephObjectZone {
+							zone := correctZone.DeepCopy()
+							zone.Labels = nil
+							return *zone
+						}(),
+					},
+				},
+				"cephobjectstores": &cephv1.CephObjectStoreList{},
+			},
+			expectedZones: &cephv1.CephObjectZoneList{
+				Items: []cephv1.CephObjectZone{*correctZone.DeepCopy()},
+			},
+			stateChanged: true,
 		},
 		{
 			name: "nothing to do - no zones in spec",

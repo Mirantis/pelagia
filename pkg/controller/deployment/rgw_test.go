@@ -248,7 +248,7 @@ func TestEnsureRgwConsistence(t *testing.T) {
 			},
 		},
 		{
-			name:    "ensure rgw consistence - multisite no sync daemon",
+			name:    "ensure rgw consistence - multisite no sync daemon, cleanup",
 			cephDpl: &unitinputs.CephDeployMultisiteRgw,
 			inputResources: map[string]runtime.Object{
 				"cephobjectstores": &cephv1.CephObjectStoreList{
@@ -264,7 +264,7 @@ func TestEnsureRgwConsistence(t *testing.T) {
 							ObjectMeta: metav1.ObjectMeta{
 								Name:      "custom-secret",
 								Namespace: "rook-ceph",
-								Labels:    map[string]string{"cephdeployment.lcm.mirantis.com/ssl-cert-for": "unexpected-rgw"},
+								Labels:    map[string]string{"cephdeployment.lcm.mirantis.com/self-signed-ssl-cert-for": "unexpected-rgw"},
 							},
 						},
 					},
@@ -280,7 +280,7 @@ func TestEnsureRgwConsistence(t *testing.T) {
 			},
 		},
 		{
-			name:    "ensure rgw consistence - multisite no sync daemon",
+			name:    "ensure rgw consistence - multisite no sync daemon, no changes",
 			cephDpl: &unitinputs.CephDeployMultisiteRgw,
 			inputResources: map[string]runtime.Object{
 				"cephobjectstores": &cephv1.CephObjectStoreList{
@@ -857,6 +857,7 @@ func TestEnsureRgwObject(t *testing.T) {
 					Items: []cephv1.CephObjectStore{
 						func() cephv1.CephObjectStore {
 							rgw := unitinputs.CephObjectStoreExternal.DeepCopy()
+							rgw.Labels = nil
 							rgw.Spec.Gateway.Port = 3333
 							return *rgw
 						}(),
@@ -1177,6 +1178,7 @@ func TestEnsureRgwResourcesUsers(t *testing.T) {
 						unitinputs.CephRgwUsersList.Items[0],
 						func() cephv1.CephObjectStoreUser {
 							user := unitinputs.CephRgwUsersList.Items[1].DeepCopy()
+							user.Labels = nil
 							user.Spec.DisplayName = "fake-user"
 							return *user
 						}(),
@@ -1322,6 +1324,7 @@ func TestEnsureExternalService(t *testing.T) {
 						func() v1.Service {
 							svc := unitinputs.RgwExternalServiceGenerated.DeepCopy()
 							delete(svc.Labels, "external_access")
+							delete(svc.Labels, "app.kubernetes.io/part-of")
 							return *svc
 						}(),
 					},
@@ -2015,7 +2018,7 @@ func TestEnsureRgwCaBundleCert(t *testing.T) {
 						unitinputs.IngressRuleSecret,
 						func() v1.Secret {
 							secret := unitinputs.RgwSSLCertSecret.DeepCopy()
-							secret.Labels = nil
+							delete(secret.Labels, "cephdeployment.lcm.mirantis.com/self-signed-ssl-cert-for")
 							secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-4-time"}
 							secret.Data = map[string][]byte{
 								"cabundle": append(unitinputs.IngressRuleSecret.Data["ca.crt"], []byte("\n")...),
@@ -2091,7 +2094,7 @@ func TestEnsureRgwCaBundleCert(t *testing.T) {
 					Items: []v1.Secret{
 						func() v1.Secret {
 							secret := unitinputs.RgwSSLCertSecret.DeepCopy()
-							secret.Labels = nil
+							delete(secret.Labels, "cephdeployment.lcm.mirantis.com/self-signed-ssl-cert-for")
 							secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-7-time"}
 							secret.Data = map[string][]byte{"cabundle": []byte("spec-cacert\n")}
 							return *secret
@@ -2132,7 +2135,7 @@ func TestEnsureRgwCaBundleCert(t *testing.T) {
 						unitinputs.OpenstackRgwCredsSecret,
 						func() v1.Secret {
 							secret := unitinputs.RgwSSLCertSecret.DeepCopy()
-							secret.Labels = nil
+							delete(secret.Labels, "cephdeployment.lcm.mirantis.com/self-signed-ssl-cert-for")
 							secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-10-time"}
 							secret.Data = map[string][]byte{"cabundle": []byte(unitinputs.OpenstackCaCert + "\n")}
 							return *secret
@@ -2341,7 +2344,7 @@ func TestEnsureRgwCaBundleCert(t *testing.T) {
 	unsetTimestampsVar()
 }
 
-func TestEnsureRgwInternalSslCert(t *testing.T) {
+func TestEnsureRgwSslCert(t *testing.T) {
 	tests := []struct {
 		name                   string
 		cephDpl                *cephlcmv1alpha1.CephDeployment
@@ -2401,7 +2404,7 @@ func TestEnsureRgwInternalSslCert(t *testing.T) {
 			stateChanged:           true,
 		},
 		{
-			name: "ensure ssl certificate base, ssl updated only",
+			name: "ensure ssl certificate base, ssl and labels updated only",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				dpl := unitinputs.CephDeployNonMosk.DeepCopy()
 				rgwCasted, _ := dpl.Spec.ObjectStorage.Rgws[0].GetSpec()
@@ -2413,6 +2416,7 @@ func TestEnsureRgwInternalSslCert(t *testing.T) {
 				"secrets": &v1.SecretList{Items: []v1.Secret{
 					func() v1.Secret {
 						secret := unitinputs.RgwSSLCertSecretSelfSigned.DeepCopy()
+						secret.Labels = nil
 						secret.Annotations = map[string]string{sslCertGenerationTimestampLabel: "a-test-2-time"}
 						return *secret
 					}(),

@@ -56,6 +56,11 @@ var CSIRBDNodeSecret = corev1.Secret{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "rook-csi-rbd-node",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Data: map[string][]byte{
 		"userID":  []byte("csi-rbd-node.1"),
@@ -67,6 +72,11 @@ var CSIRBDProvisionerSecret = corev1.Secret{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "rook-csi-rbd-provisioner",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Data: map[string][]byte{
 		"userID":  []byte("csi-rbd-provisioner.1"),
@@ -78,6 +88,11 @@ var CSICephFSNodeSecret = corev1.Secret{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "rook-csi-cephfs-node",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Data: map[string][]byte{
 		"userID":  []byte("csi-cephfs-node.1"),
@@ -89,6 +104,11 @@ var CSICephFSProvisionerSecret = corev1.Secret{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "rook-csi-cephfs-provisioner",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Data: map[string][]byte{
 		"userID":  []byte("csi-cephfs-provisioner.1"),
@@ -100,6 +120,11 @@ var RookCephMonSecret = corev1.Secret{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "rook-ceph-mon",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Data: map[string][]byte{
 		"cluster-name":  []byte("rook-ceph"),
@@ -116,6 +141,11 @@ var RookCephMonSecretNonAdmin = corev1.Secret{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "rook-ceph-mon",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Data: map[string][]byte{
 		"cluster-name":  []byte("rook-ceph"),
@@ -132,6 +162,11 @@ var RookCephRgwAdminSecret = corev1.Secret{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "rgw-admin-ops-user",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Data: map[string][]byte{
 		"accessKey": []byte("5TABLO7H0I6BTW6N25X5"),
@@ -154,6 +189,11 @@ var CephKeysOpenstackSecretBase = corev1.Secret{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "openstack-ceph-keys",
 		Namespace: "openstack-ceph-shared",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Data: map[string][]byte{
 		"client.admin":  []byte("AQAcpuJiITYXMhAAXaOoAqOKJ4mhNOAqxFb1Hw=="),
@@ -180,6 +220,9 @@ var IngressRuleSecret = corev1.Secret{
 			"objectStore": "rgw-store",
 			"ingress":     "rook-ceph-rgw-rgw-store-ingress",
 			"cephdeployment.lcm.mirantis.com/ingress": "ceph-object-store-ingress",
+			"app.kubernetes.io/created-by":            "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by":            "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":               "ceph.pelagia.lcm",
 		},
 	},
 	Data: map[string][]byte{
@@ -420,7 +463,10 @@ var RgwSSLCertSecret = corev1.Secret{
 		Namespace: "rook-ceph",
 		Name:      "rgw-store-ssl-cert",
 		Labels: map[string]string{
-			"cephdeployment.lcm.mirantis.com/ssl-cert-for": "rgw-store",
+			"cephdeployment.lcm.mirantis.com/self-signed-ssl-cert-for": "rgw-store",
+			"app.kubernetes.io/created-by":                             "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by":                             "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":                                "ceph.pelagia.lcm",
 		},
 	},
 	Data: map[string][]byte{
@@ -435,7 +481,7 @@ var RgwSSLCertExpiredSecret = corev1.Secret{
 		Namespace: "rook-ceph",
 		Name:      "rgw-store-ssl-cert",
 		Labels: map[string]string{
-			"cephdeployment.lcm.mirantis.com/ssl-cert-for": "rgw-store",
+			"cephdeployment.lcm.mirantis.com/self-signed-ssl-cert-for": "rgw-store",
 		},
 	},
 	Data: map[string][]byte{
@@ -450,7 +496,10 @@ var RgwSSLCertSecretSelfSigned = corev1.Secret{
 		Namespace: "rook-ceph",
 		Name:      "rgw-store-ssl-cert",
 		Labels: map[string]string{
-			"cephdeployment.lcm.mirantis.com/ssl-cert-for": "rgw-store",
+			"cephdeployment.lcm.mirantis.com/self-signed-ssl-cert-for": "rgw-store",
+			"app.kubernetes.io/created-by":                             "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by":                             "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":                                "ceph.pelagia.lcm",
 		},
 	},
 	Data: map[string][]byte{
@@ -464,6 +513,11 @@ var OpenstackSecretGenerated = corev1.Secret{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "openstack-ceph-keys",
 		Namespace: "openstack-ceph-shared",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Data: map[string][]byte{
 		"client.admin":               []byte("AQAcpuJiITYXMhAAXaOoAqOKJ4mhNOAqxFb1Hw=="),
@@ -499,6 +553,11 @@ var CephRBDMirrorSecret1 = corev1.Secret{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "rbd-mirror-token-mirror1-pool-1",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Data: map[string][]byte{
 		"pool":  []byte("pool-1"),
@@ -511,6 +570,11 @@ var CephRBDMirrorSecret2 = corev1.Secret{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "rbd-mirror-token-mirror1-pool-2",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Data: map[string][]byte{
 		"pool":  []byte("pool-2"),

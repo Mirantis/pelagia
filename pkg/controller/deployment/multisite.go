@@ -116,7 +116,7 @@ func (c *cephDeploymentConfig) ensureRealms() (bool, error) {
 						continue
 					}
 				}
-				changed := false
+				changed := lcmcommon.AlignBaseLabels(*c.log, "CephObjectRealm", &existingRealm.ObjectMeta, baseResourceLabels)
 				if realmCasted.Pull.Endpoint != existingRealm.Spec.Pull.Endpoint {
 					existingRealm.Spec.Pull.Endpoint = realmCasted.Pull.Endpoint
 					changed = true
@@ -141,6 +141,7 @@ func (c *cephDeploymentConfig) ensureRealms() (bool, error) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      realm.Name,
 				Namespace: c.lcmConfig.RookNamespace,
+				Labels:    baseResourceLabels,
 			},
 		}
 		realmSpec, _ := realm.GetSpec()
@@ -200,6 +201,7 @@ func (c *cephDeploymentConfig) ensureZoneGroups() (bool, error) {
 	}
 
 	zoneGroupsToCreate := make([]cephlcmv1alpha1.CephObjectZonegroup, 0)
+	zoneGroupsToUpdate := make([]cephv1.CephObjectZoneGroup, 0)
 	zoneGroupsToDelete := map[string]bool{}
 	for _, zoneGroup := range zoneGroupsReal.Items {
 		zoneGroupsToDelete[zoneGroup.Name] = true
@@ -210,6 +212,10 @@ func (c *cephDeploymentConfig) ensureZoneGroups() (bool, error) {
 		for _, existingZoneGroup := range zoneGroupsReal.Items {
 			if zoneGroup.Name == existingZoneGroup.Name {
 				found = true
+				changed := lcmcommon.AlignBaseLabels(*c.log, "CephObjectZoneGroup", &existingZoneGroup.ObjectMeta, baseResourceLabels)
+				if changed {
+					zoneGroupsToUpdate = append(zoneGroupsToUpdate, existingZoneGroup)
+				}
 				delete(zoneGroupsToDelete, zoneGroup.Name)
 			}
 		}
@@ -219,12 +225,14 @@ func (c *cephDeploymentConfig) ensureZoneGroups() (bool, error) {
 	}
 
 	errCollector := make([]string, 0)
-	changed := len(zoneGroupsToCreate) > 0
+	changed := false
 	for _, zoneGroup := range zoneGroupsToCreate {
+		changed = true
 		zoneGroupResource := cephv1.CephObjectZoneGroup{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      zoneGroup.Name,
 				Namespace: c.lcmConfig.RookNamespace,
+				Labels:    baseResourceLabels,
 			},
 		}
 		zoneGroupCasted, _ := zoneGroup.GetSpec()
@@ -233,6 +241,17 @@ func (c *cephDeploymentConfig) ensureZoneGroups() (bool, error) {
 		_, err := c.api.Rookclientset.CephV1().CephObjectZoneGroups(c.lcmConfig.RookNamespace).Create(c.context, &zoneGroupResource, metav1.CreateOptions{})
 		if err != nil {
 			msg := fmt.Sprintf("failed to create CephObjectZoneGroup '%s/%s': %s", c.lcmConfig.RookNamespace, zoneGroup.Name, err.Error())
+			c.log.Error().Err(err).Msg(msg)
+			errCollector = append(errCollector, msg)
+		}
+	}
+
+	for _, zoneGroup := range zoneGroupsToUpdate {
+		changed = true
+		c.log.Info().Msgf("updating CephObjectZoneGroup %q", zoneGroup.Name)
+		_, err := c.api.Rookclientset.CephV1().CephObjectZoneGroups(c.lcmConfig.RookNamespace).Update(c.context, &zoneGroup, metav1.UpdateOptions{})
+		if err != nil {
+			msg := fmt.Sprintf("failed to update CephObjectZoneGroup '%s/%s': %s", c.lcmConfig.RookNamespace, zoneGroup.Name, err.Error())
 			c.log.Error().Err(err).Msg(msg)
 			errCollector = append(errCollector, msg)
 		}
@@ -287,6 +306,7 @@ func (c *cephDeploymentConfig) ensureZones() (bool, error) {
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      zone.Name,
 				Namespace: c.lcmConfig.RookNamespace,
+				Labels:    baseResourceLabels,
 			},
 			Spec: zoneSpecCasted,
 		}
@@ -324,10 +344,14 @@ func (c *cephDeploymentConfig) ensureZones() (bool, error) {
 			if zone.Name == existingZone.Name {
 				found = true
 				delete(zonesToDelete, zone.Name)
-				if !reflect.DeepEqual(zoneResource.Spec, existingZone.Spec) {
+				labelsChanged := lcmcommon.AlignBaseLabels(*c.log, "CephObjectZone", &existingZone.ObjectMeta, baseResourceLabels)
+				specChanged := !reflect.DeepEqual(zoneResource.Spec, existingZone.Spec)
+				if specChanged || labelsChanged {
 					c.log.Info().Msgf("update detected for CephObjectZone '%s'", zone.Name)
-					lcmcommon.ShowObjectDiff(*c.log, existingZone.Spec, zoneResource.Spec)
-					existingZone.Spec = zoneResource.Spec
+					if specChanged {
+						lcmcommon.ShowObjectDiff(*c.log, existingZone.Spec, zoneResource.Spec)
+						existingZone.Spec = zoneResource.Spec
+					}
 					zonesToUpdate = append(zonesToUpdate, existingZone)
 				}
 			}

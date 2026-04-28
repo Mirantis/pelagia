@@ -211,13 +211,13 @@ func (c *cephOsdRemoveConfig) runCleanupJob(host, osdID, hostOsdDirectory string
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      jobName,
 			Namespace: c.taskConfig.task.Namespace,
-			Labels: map[string]string{
+			Labels: lcmcommon.ExtendLabels(map[string]string{
 				"app":          diskCleanupJobLabel,
 				"rook-cluster": c.taskConfig.cephCluster.Name,
 				"host":         host,
 				"osd":          osdIDToUse,
 				"task":         c.taskConfig.task.Name,
-			},
+			}, baseResourceLabels),
 			OwnerReferences: ownerRefs,
 		},
 		Spec: batch.JobSpec{

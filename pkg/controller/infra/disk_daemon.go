@@ -31,25 +31,25 @@ import (
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
 )
 
-func (c *cephDeploymentInfraConfig) checkLabelsAndOwnerRefs(cur *metav1.ObjectMeta, expected *metav1.ObjectMeta) bool {
+func (c *cephDeploymentInfraConfig) checkLabelsAndOwnerRefs(cur *metav1.ObjectMeta, expected *metav1.ObjectMeta, kind string) bool {
 	update := false
 	if !reflect.DeepEqual(cur.Labels, expected.Labels) {
 		if cur.Labels == nil {
 			cur.Labels = expected.Labels
-			c.log.Debug().Msg("updating labels")
+			c.log.Debug().Msgf("updating labels for %s '%s/%s'", kind, cur.Namespace, cur.Name)
 		} else {
 			for k, v := range expected.Labels {
 				if _, ok := cur.Labels[k]; !ok {
 					update = true
 					cur.Labels[k] = v
-					c.log.Debug().Msgf("update label '%s=%s'", k, v)
+					c.log.Debug().Msgf("update label '%s=%s' for %s '%s/%s'", k, v, kind, cur.Namespace, cur.Name)
 				}
 			}
 		}
 	}
 	if !reflect.DeepEqual(cur.OwnerReferences, expected.OwnerReferences) {
 		update = true
-		c.log.Debug().Msg("updating ownerReferences")
+		c.log.Debug().Msgf("updating ownerReferences for %s '%s/%s'", kind, cur.Namespace, cur.Name)
 		cur.OwnerReferences = expected.OwnerReferences
 	}
 	return update
@@ -80,7 +80,7 @@ func (c *cephDeploymentInfraConfig) ensureDiskDaemon() error {
 	}
 	// we can't predict current default scheduler name - so just take it from present deployment
 	diskDaemonNew.Spec.Template.Spec.SchedulerName = diskDaemonCur.Spec.Template.Spec.SchedulerName
-	if !reflect.DeepEqual(diskDaemonCur.Spec, diskDaemonNew.Spec) || c.checkLabelsAndOwnerRefs(&diskDaemonCur.ObjectMeta, &diskDaemonNew.ObjectMeta) {
+	if !reflect.DeepEqual(diskDaemonCur.Spec, diskDaemonNew.Spec) || c.checkLabelsAndOwnerRefs(&diskDaemonCur.ObjectMeta, &diskDaemonNew.ObjectMeta, "daemonset") {
 		c.log.Info().Msgf("update disk daemon daemonset '%s/%s'", diskDaemonCur.Namespace, diskDaemonCur.Name)
 		lcmcommon.ShowObjectDiff(*c.log, diskDaemonCur.Spec, diskDaemonNew.Spec)
 		diskDaemonCur.Spec = diskDaemonNew.Spec
@@ -118,7 +118,7 @@ func (c *cephDeploymentInfraConfig) generateDiskDaemon() *apps.DaemonSet {
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            lcmcommon.PelagiaDiskDaemon,
 			Namespace:       c.infraConfig.namespace,
-			Labels:          map[string]string{"app": lcmcommon.PelagiaDiskDaemon},
+			Labels:          lcmcommon.ExtendLabels(map[string]string{"app": lcmcommon.PelagiaDiskDaemon}, baseResourceLabels),
 			OwnerReferences: c.infraConfig.lcmOwnerRefs,
 		},
 		Spec: apps.DaemonSetSpec{

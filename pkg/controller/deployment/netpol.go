@@ -150,7 +150,7 @@ func generateNetworkPolicy(name, namespace, appName string, ports []networkingv1
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
-			Labels:    map[string]string{rookNetworkPolicyLabel: "managed"},
+			Labels:    lcmcommon.ExtendLabels(map[string]string{rookNetworkPolicyLabel: "managed"}, baseResourceLabels),
 		},
 		Spec: networkingv1.NetworkPolicySpec{
 			Ingress:     []networkingv1.NetworkPolicyIngressRule{{Ports: ports}},
@@ -198,16 +198,14 @@ func (c *cephDeploymentConfig) manageNetworkPolicy(policy networkingv1.NetworkPo
 		}
 		return true, nil
 	}
-	if !reflect.DeepEqual(netPol.Spec, policy.Spec) || netPol.Labels[rookNetworkPolicyLabel] != policy.Labels[rookNetworkPolicyLabel] {
+	changedBaseLabels := lcmcommon.AlignBaseLabels(*c.log, "NetworkPolicy", &netPol.ObjectMeta, policy.Labels)
+	changedSpec := !reflect.DeepEqual(netPol.Spec, policy.Spec)
+	if changedSpec || changedBaseLabels {
 		c.log.Info().Msgf("updating network policy %s/%s", c.lcmConfig.RookNamespace, policy.Name)
-		if netPol.Labels == nil {
-			netPol.Labels = map[string]string{}
+		if changedSpec {
+			lcmcommon.ShowObjectDiff(*c.log, netPol.Spec, policy.Spec)
+			netPol.Spec = policy.Spec
 		}
-		if netPol.Labels[rookNetworkPolicyLabel] != policy.Labels[rookNetworkPolicyLabel] {
-			netPol.Labels[rookNetworkPolicyLabel] = policy.Labels[rookNetworkPolicyLabel]
-		}
-		lcmcommon.ShowObjectDiff(*c.log, netPol.Spec, policy.Spec)
-		netPol.Spec = policy.Spec
 		_, err := c.api.Kubeclientset.NetworkingV1().NetworkPolicies(c.lcmConfig.RookNamespace).Update(c.context, netPol, metav1.UpdateOptions{})
 		if err != nil {
 			c.log.Error().Err(err).Msg("")

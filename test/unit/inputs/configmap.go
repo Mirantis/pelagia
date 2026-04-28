@@ -95,6 +95,11 @@ var RookCephMonEndpointsExternal = corev1.ConfigMap{
 	ObjectMeta: metav1.ObjectMeta{
 		Namespace: "rook-ceph",
 		Name:      "rook-ceph-mon-endpoints",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Data: map[string]string{
 		"data":     "cmn01=10.0.0.1:6969,cmn02=10.0.0.2:6969,cmn03=10.0.0.3:6969",
@@ -121,6 +126,11 @@ var BaseRookConfigOverride = corev1.ConfigMap{
 		Annotations: map[string]string{
 			"cephdeployment.lcm.mirantis.com/config-global-hash": "95b401f9fc7db148cf2cc3bbcbbe09f7722b2060acf714c142fdf07ee249f0bb",
 			"cephdeployment.lcm.mirantis.com/config-mon-hash":    "52235ccf3c9f953de0fc2b8e2928f8119e1be19c14a4cf300c55e8498ec81fa2",
+		},
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
 		},
 	},
 	Data: map[string]string{

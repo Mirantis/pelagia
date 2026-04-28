@@ -590,6 +590,36 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 			expectedError: "failed to update openstack-ceph-shared/openstack-ceph-keys secret: secret update failed",
 		},
 		{
+			name:    "generate openstack secret - only labels update",
+			cephDpl: &unitinputs.CephDeployMosk,
+			inputResources: map[string]runtime.Object{
+				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
+				"cephclients":    &unitinputs.CephClientListOpenstack,
+				"configmaps": &corev1.ConfigMapList{
+					Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints},
+				},
+				"secrets": &corev1.SecretList{
+					Items: []corev1.Secret{
+						func() corev1.Secret {
+							secret := unitinputs.ReconcileOpenstackSecret.DeepCopy()
+							secret.Labels = nil
+							return *secret
+						}(),
+						unitinputs.RookCephMonSecret, unitinputs.OpenstackRgwCredsSecret, unitinputs.RgwSSLCertSecret, unitinputs.RookCephRgwMetricsSecret,
+					},
+				},
+				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListMetrics,
+			},
+			changed: true,
+			expectedResources: map[string]runtime.Object{
+				"secrets": &corev1.SecretList{
+					Items: []corev1.Secret{
+						unitinputs.ReconcileOpenstackSecret, unitinputs.RookCephMonSecret, unitinputs.OpenstackRgwCredsSecret, unitinputs.RgwSSLCertSecret, unitinputs.RookCephRgwMetricsSecret,
+					},
+				},
+			},
+		},
+		{
 			name:    "generate openstack secret - nothing todo",
 			cephDpl: &unitinputs.CephDeployMosk,
 			inputResources: map[string]runtime.Object{

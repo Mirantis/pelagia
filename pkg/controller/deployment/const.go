@@ -65,7 +65,7 @@ const (
 	cephRuntimeOsdParametersUpdateTimestampLabel = "cephdeployment.lcm.mirantis.com/runtime-osd-params-updated"
 	sslCertGenerationTimestampLabel              = "cephdeployment.lcm.mirantis.com/ssl-cert-generated"
 	// label for rgw default self-signed certs
-	selfSignedCertLabel = "cephdeployment.lcm.mirantis.com/ssl-cert-for"
+	selfSignedCertLabel = "cephdeployment.lcm.mirantis.com/self-signed-ssl-cert-for"
 	// labels identifying osd restart reason and timestamp
 	cephRestartOsdLabel          = "cephdeployment.lcm.mirantis.com/restart-osd-reason"
 	cephRestartOsdTimestampLabel = "cephdeployment.lcm.mirantis.com/restart-osd-requested"
