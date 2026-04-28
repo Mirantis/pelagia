@@ -140,6 +140,8 @@ var (
 	_ reconcile.Reconciler = &ReconcileCephOsdRemoveTask{}
 	// init logger
 	log = lcmcommon.InitLogger(true)
+	// base labels for osdremove controller
+	baseResourceLabels = lcmcommon.PelagiaResourceLabels(ControllerName)
 )
 
 // ReconcileCephOsdRemoveTask reconciles a CephRequest object

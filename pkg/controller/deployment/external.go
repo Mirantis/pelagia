@@ -53,6 +53,7 @@ func (c *cephDeploymentConfig) addExternalResources(ownerRefs []metav1.OwnerRefe
 			Name:            rookCephMonEndpointsMapName,
 			Namespace:       c.lcmConfig.RookNamespace,
 			OwnerReferences: ownerRefs,
+			Labels:          baseResourceLabels,
 		},
 		Data: map[string]string{
 			"data":     cephCon.MonEndpoints,
@@ -71,6 +72,7 @@ func (c *cephDeploymentConfig) addExternalResources(ownerRefs []metav1.OwnerRefe
 				Name:            secretName,
 				Namespace:       c.lcmConfig.RookNamespace,
 				OwnerReferences: ownerRefs,
+				Labels:          baseResourceLabels,
 			},
 			Data: data,
 		}
@@ -169,7 +171,7 @@ func (c *cephDeploymentConfig) manageSecrets(secrets []*corev1.Secret) (bool, er
 			errs = append(errs, err.Error())
 			continue
 		}
-		secretUpdated := false
+		secretUpdated := lcmcommon.AlignBaseLabels(*c.log, "secret", rookSecret.ObjectMeta, secret.Labels)
 		if !reflect.DeepEqual(rookSecret.OwnerReferences, secret.OwnerReferences) {
 			lcmcommon.ShowObjectDiff(*c.log, rookSecret.OwnerReferences, secret.OwnerReferences)
 			rookSecret.OwnerReferences = secret.OwnerReferences
@@ -209,7 +211,7 @@ func (c *cephDeploymentConfig) manageConfigMap(configMap *corev1.ConfigMap) (boo
 		}
 		return false, errors.Wrapf(err, "failed to get %s/%s config map", configMap.Namespace, configMap.Name)
 	}
-	updated := false
+	updated := lcmcommon.AlignBaseLabels(*c.log, "configmap", rookConfigMap.ObjectMeta, configMap.Labels)
 	if !reflect.DeepEqual(rookConfigMap.OwnerReferences, configMap.OwnerReferences) {
 		lcmcommon.ShowObjectDiff(*c.log, rookConfigMap.OwnerReferences, configMap.OwnerReferences)
 		rookConfigMap.OwnerReferences = configMap.OwnerReferences

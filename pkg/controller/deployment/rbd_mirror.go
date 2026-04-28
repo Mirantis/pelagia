@@ -90,10 +90,14 @@ func (c *cephDeploymentConfig) ensureRBDMirroring() (bool, error) {
 	}
 
 	// update existing object
-	if !reflect.DeepEqual(rbdMirror.Spec, newRbdMirror.Spec) {
+	changedBaseLabels := lcmcommon.AlignBaseLabels(*c.log, "CephRBDMirror", rbdMirror.ObjectMeta, newRbdMirror.Labels)
+	specUpdated := !reflect.DeepEqual(rbdMirror.Spec, newRbdMirror.Spec)
+	if specUpdated || changedBaseLabels {
 		c.log.Info().Msgf("updating CephRBDMirror %q", newRbdMirror.Name)
-		lcmcommon.ShowObjectDiff(*c.log, rbdMirror.Spec, newRbdMirror.Spec)
-		rbdMirror.Spec = newRbdMirror.Spec
+		if specUpdated {
+			lcmcommon.ShowObjectDiff(*c.log, rbdMirror.Spec, newRbdMirror.Spec)
+			rbdMirror.Spec = newRbdMirror.Spec
+		}
 		_, err := c.api.Rookclientset.CephV1().CephRBDMirrors(c.lcmConfig.RookNamespace).Update(c.context, rbdMirror, metav1.UpdateOptions{})
 		if err != nil {
 			return false, errors.Wrap(err, "failed to update CephRBDMirror")
@@ -156,9 +160,13 @@ func (c *cephDeploymentConfig) ensureRBDSecrets() (bool, error) {
 				continue
 			}
 
-			if !reflect.DeepEqual(genSecret.Data, kubeSecret.Data) {
+			changedBaseLabels := lcmcommon.AlignBaseLabels(*c.log, "secret", kubeSecret.ObjectMeta, genSecret.Labels)
+			secretUpdated := !reflect.DeepEqual(genSecret.Data, kubeSecret.Data)
+			if secretUpdated || changedBaseLabels {
 				c.log.Info().Msgf("updating %s secret for RBD Mirror %s", kubeSecret.Name, c.cdConfig.cephDpl.Name)
-				kubeSecret.Data = genSecret.Data
+				if secretUpdated {
+					kubeSecret.Data = genSecret.Data
+				}
 				_, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.RookNamespace).Update(c.context, kubeSecret, metav1.UpdateOptions{})
 				if err != nil {
 					return false, errors.Wrapf(err, "failed to update %v secret", name)
@@ -210,6 +218,7 @@ func generateRBDMirroring(cephDpl *cephlcmv1alpha1.CephDeployment, rookNamespace
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      cephDpl.Name,
 			Namespace: rookNamespace,
+			Labels:    baseResourceLabels,
 		},
 		Spec: cephv1.RBDMirroringSpec{
 			Count: int(cephDpl.Spec.RBDMirror.Count),
@@ -224,6 +233,7 @@ func generateRBDSecret(site string, token string, pool string, namespace string)
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      secretName(site, pool),
 			Namespace: namespace,
+			Labels:    baseResourceLabels,
 		},
 		Data: map[string][]byte{
 			"pool":  []byte(pool),

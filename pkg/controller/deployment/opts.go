@@ -38,6 +38,9 @@ var (
 		cephConfigMap: map[string]string{},
 		rgwSSLCert:    map[string]string{},
 	}
+
+	// default labels for resources created by controller
+	baseResourceLabels = lcmcommon.PelagiaResourceLabels(ControllerName)
 )
 
 // cephDeploymentConfig main type for reconcilation for each CephDeployment object

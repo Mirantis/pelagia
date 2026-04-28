@@ -35,6 +35,26 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 )
 
+func AlignBaseLabels(log zerolog.Logger, kind string, objMeta metav1.ObjectMeta, baseLabels map[string]string) bool {
+	if baseLabels == nil {
+		return false
+	}
+	if objMeta.Labels == nil {
+		log.Info().Msgf("setting missed base resource labels to %s '%s/%s'", kind, objMeta.Namespace, objMeta.Name)
+		objMeta.Labels = baseLabels
+		return true
+	}
+	updated := false
+	for k, v := range baseLabels {
+		if current, ok := objMeta.Labels[k]; ok && v == current {
+			continue
+		}
+		log.Info().Msgf("adding missed base resource label '%s=%s' to %s '%s/%s'", k, v, kind, objMeta.Namespace, objMeta.Name)
+		objMeta.Labels[k] = v
+	}
+	return updated
+}
+
 func IsDaemonSetReady(ds *appsv1.DaemonSet) bool {
 	return ds.Status.NumberReady > 0 &&
 		ds.Status.CurrentNumberScheduled == ds.Status.DesiredNumberScheduled &&
