@@ -130,7 +130,7 @@ rules:
     verbs: [list, get, create, delete]
   - apiGroups: [apps]
     resources: [deployments,daemonsets]
-    verbs: [list, get, create, delete]
+    verbs: [list, get, update]
   - apiGroups: [""]
     resources: [services]
     verbs: [list, get]
