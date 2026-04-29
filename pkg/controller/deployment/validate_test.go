@@ -739,7 +739,7 @@ func TestValidateObjectStorageSpec(t *testing.T) {
 				"cluster is external, rgw realms can't be created",
 				"cluster is external, rgw zonegroups can't be created",
 				"cluster is external, rgw zones can't be created",
-				"rgw 'external-rgw' has no port specified",
+				"rgw 'external-rgw' has no port or securePort specified",
 				"cluster is external, rgw 'external-rgw' pools (metadata and data) specification is not allowed",
 				"external endpoints for rgw 'external-rgw' are not provided",
 			},

@@ -452,8 +452,8 @@ func validateObjectStorageSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesLis
 
 		for _, rgw := range cephDpl.Spec.ObjectStorage.Rgws {
 			rgwCasted, _ := rgw.GetSpec()
-			if rgwCasted.Gateway.Port == 0 {
-				issues = append(issues, fmt.Sprintf("rgw '%s' has no port specified", rgw.Name))
+			if rgwCasted.Gateway.Port == 0 && rgwCasted.Gateway.SecurePort == 0 {
+				issues = append(issues, fmt.Sprintf("rgw '%s' has no port or securePort specified", rgw.Name))
 			}
 			if external {
 				if rgwCasted.MetadataPool.Replicated.Size != 0 || rgwCasted.MetadataPool.ErasureCoded.DataChunks != 0 || rgwCasted.MetadataPool.ErasureCoded.CodingChunks != 0 ||
