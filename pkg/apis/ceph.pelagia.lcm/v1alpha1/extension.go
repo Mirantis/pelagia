@@ -24,6 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
+	gatewayapi "sigs.k8s.io/gateway-api/apis/v1"
 )
 
 func (cl *CephCluster) GetSpec() (cephv1.ClusterSpec, error) {
@@ -208,6 +209,26 @@ func (user CephObjectStoreUser) GetSpec() (cephv1.ObjectStoreUserSpec, error) {
 		return userSpec, errors.New("spec: rgw user field has failed to convert to Rook CephObjectStoreUser object")
 	}
 	return rgwObj.Spec, nil
+}
+
+func (httpRoute CephDeploymentHTTPRoute) GetSpec() (gatewayapi.HTTPRouteSpec, error) {
+	var httpRouteSpec gatewayapi.HTTPRouteSpec
+	if httpRoute.Spec.Raw == nil && httpRoute.Spec.Object == nil {
+		return httpRouteSpec, errors.New("spec: http route spec no any data provided")
+	}
+
+	if httpRoute.Spec.Raw != nil {
+		if err := DecodeRawToStruct(httpRoute.Spec.Raw, &httpRouteSpec); err != nil {
+			return httpRouteSpec, errors.Wrap(err, "spec: http route spec has failed to decode to GatewayAPI HTTPRouteSpec struct")
+		}
+		return httpRouteSpec, nil
+	}
+
+	httpRouteObj, ok := httpRoute.Spec.Object.(*gatewayapi.HTTPRoute)
+	if !ok {
+		return httpRouteSpec, errors.New("spec: http route field has failed to convert to GatewayAPI HTTPRoute object")
+	}
+	return httpRouteObj.Spec, nil
 }
 
 // Method SetRawSpec is used to directly put Raw spec in related
