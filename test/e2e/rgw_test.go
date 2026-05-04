@@ -375,6 +375,19 @@ func runRgwAccessTest(t *testing.T, endpoint, ingressIP, domain, rgwStoreName, r
 			t.Fatal(err)
 		}
 	}
+	certSecretName := fmt.Sprintf("%s-ssl-cert", rgwStoreName)
+	for _, rgw := range cd.Spec.ObjectStorage.Rgws {
+		if rgw.Name == rgwStoreName {
+			rgwSpec, _ := rgw.GetSpec()
+			if rgwSpec.Gateway.CaBundleRef != "" {
+				certSecretName = rgwSpec.Gateway.CaBundleRef
+			} else if rgwSpec.Gateway.SSLCertificateRef != "" {
+				// backward compatibility for upgraded envs from Pelagia v1
+				certSecretName = rgwSpec.Gateway.SSLCertificateRef
+			}
+			break
+		}
+	}
 
 	f.Step(t, "Get custom rgw user credentials")
 	var userCreds *corev1.Secret
@@ -426,7 +439,7 @@ aws_secret_access_key = %s`, customAccessKey, customSecretKey),
 	}()
 
 	f.Step(t, "Create awscli pod to verify public endpoint accessibility")
-	_, err = f.TF.ManagedCluster.CreateAWSCliDeployment(awscliName, "", f.TF.E2eImage, customUserCmName, fmt.Sprintf("%s-ssl-cert", rgwStoreName), ingressIP, domain)
+	_, err = f.TF.ManagedCluster.CreateAWSCliDeployment(awscliName, "", f.TF.E2eImage, customUserCmName, certSecretName, ingressIP, domain)
 	if err != nil {
 		t.Fatalf("failed to create and configure awscli for custom rgw user: %v", err)
 	}
