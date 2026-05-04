@@ -44,6 +44,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+	gatewayclient "sigs.k8s.io/gateway-api/pkg/client/clientset/versioned"
 
 	rookclient "github.com/rook/rook/pkg/client/clientset/versioned"
 
@@ -71,19 +72,21 @@ func Add(mgr manager.Manager) error {
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
 	config, _ := rest.InClusterConfig()
 	clientNoCache, _ := client.New(config, client.Options{Scheme: mgr.GetScheme()})
-	RookClientset, _ := rookclient.NewForConfig(config)
-	CephLcmclientset, _ := lcmclient.NewForConfig(config)
-	ClaimClientset, _ := claimClient.NewForConfig(config)
+	rookClientset, _ := rookclient.NewForConfig(config)
+	cephLcmclientset, _ := lcmclient.NewForConfig(config)
+	claimClientset, _ := claimClient.NewForConfig(config)
 	kubeclientset, _ := kubernetes.NewForConfig(config)
+	gatewayClient, _ := gatewayclient.NewForConfig(config)
 
 	return &ReconcileCephDeployment{
 		Config:           config,
 		Client:           mgr.GetClient(),
 		ClientNoCache:    clientNoCache,
 		Kubeclientset:    kubeclientset,
-		Rookclientset:    RookClientset,
-		CephLcmclientset: CephLcmclientset,
-		Claimclientset:   ClaimClientset,
+		Rookclientset:    rookClientset,
+		CephLcmclientset: cephLcmclientset,
+		Claimclientset:   claimClientset,
+		Gatewayclientset: gatewayClient,
 		Scheme:           mgr.GetScheme(),
 	}
 }
@@ -149,6 +152,7 @@ type ReconcileCephDeployment struct {
 	Rookclientset    rookclient.Interface
 	CephLcmclientset lcmclient.Interface
 	Claimclientset   claimClient.Interface
+	Gatewayclientset gatewayclient.Interface
 	Scheme           *runtime.Scheme
 	Config           *rest.Config
 }

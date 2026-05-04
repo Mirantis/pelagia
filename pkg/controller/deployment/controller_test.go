@@ -37,6 +37,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	fakeclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	gatewayapi "sigs.k8s.io/gateway-api/apis/v1"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
@@ -55,6 +56,7 @@ func FakeReconciler() *ReconcileCephDeployment {
 		Rookclientset:    faketestclients.GetFakeRookclient(),
 		CephLcmclientset: faketestclients.GetFakeLcmclient(),
 		Claimclientset:   faketestclients.GetFakeClaimclient(),
+		Gatewayclientset: faketestclients.GetFakeGatewayclient(),
 		Scheme:           fscheme.Scheme,
 	}
 }
@@ -1944,6 +1946,7 @@ func TestApplyConfiguration(t *testing.T) {
 				unitinputs.NetworkPolicyMds, unitinputs.NetworkPolicyMgr, unitinputs.NetworkPolicyMon, unitinputs.NetworkPolicyOsd, unitinputs.NetworkPolicyRgw,
 			},
 		},
+		"httproutes": &gatewayapi.HTTPRouteList{},
 		"configmaps": &corev1.ConfigMapList{
 			Items: []corev1.ConfigMap{
 				*unitinputs.RookCephMonEndpoints.DeepCopy(),
@@ -2093,6 +2096,7 @@ func TestApplyConfiguration(t *testing.T) {
 						unitinputs.NetworkPolicyMds, unitinputs.NetworkPolicyMgr, unitinputs.NetworkPolicyMon, unitinputs.NetworkPolicyOsd, unitinputs.NetworkPolicyRgw,
 					},
 				},
+				"httproutes":           &gatewayapi.HTTPRouteList{},
 				"services":             &corev1.ServiceList{},
 				"secrets":              &corev1.SecretList{},
 				"storageclasses":       &storagev1.StorageClassList{},
@@ -2116,6 +2120,7 @@ func TestApplyConfiguration(t *testing.T) {
 				"configmaps":           &corev1.ConfigMapList{},
 				"ingresses":            &networkingv1.IngressList{},
 				"networkpolicies":      &networkingv1.NetworkPolicyList{},
+				"httproutes":           &gatewayapi.HTTPRouteList{},
 				"services":             &corev1.ServiceList{},
 				"secrets":              &corev1.SecretList{},
 				"storageclasses":       &storagev1.StorageClassList{},
@@ -2220,6 +2225,8 @@ func TestApplyConfiguration(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", cephAPIResources, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "create", cephAPIResources, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "update", cephAPIResources, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Gatewayclientset, "list", []string{"httproutes"}, test.inputResources, nil)
+			faketestclients.FakeReaction(c.api.Gatewayclientset, "create", []string{"httproutes"}, test.inputResources, test.apiErrors)
 			//--- common function actions ---//
 			lcmcommon.GenerateSelfSignedCert = func(_, _ string, _ []string) (string, string, string, error) {
 				return "fake-key", "fake-crt", "fake-ca", nil
@@ -2303,6 +2310,7 @@ func TestApplyConfiguration(t *testing.T) {
 			assert.Equal(t, test.failedMsg, applyErr)
 			// clean reactions before next test
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
+			faketestclients.CleanupFakeClientReactions(c.api.Gatewayclientset)
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.StorageV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.NetworkingV1())

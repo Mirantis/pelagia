@@ -8,6 +8,12 @@ metadata:
 {{ include "chart.labels" . | indent 4 }}
 data:
   ROOK_NAMESPACE: {{ .Values.rookConfig.rookNamespace }}
+  {{- if (.Values.lcmConfig.gatewayName)}}
+  BASE_GATEWAY_NAME: {{ .Values.lcmConfig.gatewayName }}
+  {{- end }}
+  {{- if (.Values.lcmConfig.gatewayNamespace)}}
+  BASE_GATEWAY_NAMESPACE: {{ .Values.lcmConfig.gatewayNamespace }}
+  {{- end }}
   DISK_DAEMON_PLACEMENT_NODES_SELECTOR: {{ .Values.lcmConfig.diskDaemonNodeSelector | quote }}
   DISK_DAEMON_API_PORT: {{ .Values.lcmConfig.diskDaemonPortParameter | quote }}
   RGW_PUBLIC_ACCESS_SERVICE_SELECTOR: {{ .Values.lcmConfig.rgwPublicAccessServiceSelector | quote }}

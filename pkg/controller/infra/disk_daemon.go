@@ -112,7 +112,7 @@ func (c *cephDeploymentInfraConfig) generateDiskDaemon() *apps.DaemonSet {
 	// we dont need to much time to terminate - stop api server, stop go threads
 	// nothing that can take to much time or affect on other services
 	terminationPeriod := int64(10)
-	nodeSelector, _ := labels.ConvertSelectorToLabelsMap(c.lcmConfig.DiskDaemonPlacementLabel)
+	nodeSelector, _ := labels.ConvertSelectorToLabelsMap(c.lcmConfig.CommonParams.DiskDaemonPlacementLabel)
 
 	diskDaemon := &apps.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
@@ -187,7 +187,7 @@ func (c *cephDeploymentInfraConfig) generateDiskDaemon() *apps.DaemonSet {
 								fmt.Sprintf("%s/%s", diskDaemonGoPath, lcmcommon.PelagiaDiskDaemon),
 								"--daemon",
 								"--port",
-								fmt.Sprintf("%d", c.lcmConfig.DiskDaemonPort),
+								fmt.Sprintf("%d", c.lcmConfig.CommonParams.DiskDaemonPort),
 							},
 							ImagePullPolicy: "IfNotPresent",
 							VolumeMounts: []v1.VolumeMount{
@@ -226,7 +226,7 @@ func (c *cephDeploymentInfraConfig) generateDiskDaemon() *apps.DaemonSet {
 											fmt.Sprintf("%s/%s", diskDaemonGoPath, lcmcommon.PelagiaDiskDaemon),
 											"--api-check",
 											"--port",
-											fmt.Sprintf("%d", c.lcmConfig.DiskDaemonPort),
+											fmt.Sprintf("%d", c.lcmConfig.CommonParams.DiskDaemonPort),
 										},
 									},
 								},
@@ -243,7 +243,7 @@ func (c *cephDeploymentInfraConfig) generateDiskDaemon() *apps.DaemonSet {
 											fmt.Sprintf("%s/%s", diskDaemonGoPath, lcmcommon.PelagiaDiskDaemon),
 											"--api-check",
 											"--port",
-											fmt.Sprintf("%d", c.lcmConfig.DiskDaemonPort),
+											fmt.Sprintf("%d", c.lcmConfig.CommonParams.DiskDaemonPort),
 										},
 									},
 								},

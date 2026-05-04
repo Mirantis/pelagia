@@ -9,6 +9,7 @@ import (
 	k8sscheme "k8s.io/client-go/kubernetes/scheme"
 
 	csiopapi "github.com/ceph/ceph-csi-operator/api/v1"
+	gatewayapi "sigs.k8s.io/gateway-api/apis/v1"
 
 	"github.com/Mirantis/pelagia/pkg/apis"
 	lcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
@@ -23,6 +24,7 @@ var SchemeBuilder = runtime.SchemeBuilder{
 	apiextenstionsv1.AddToScheme,
 	lcmv1alpha1.AddToScheme,
 	csiopapi.AddToScheme,
+	gatewayapi.Install,
 }
 var Encoder = json.NewSerializerWithOptions(json.DefaultMetaFactory, Scheme, Scheme, json.SerializerOptions{Yaml: true})
 

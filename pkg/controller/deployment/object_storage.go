@@ -51,6 +51,17 @@ func (c *cephDeploymentConfig) ensureObjectStorage() (bool, error) {
 	}
 	objectStorageChanged = objectStorageChanged || changed
 
+	// ensure gateway api routes
+	if !c.cdConfig.clusterSpec.External.Enable {
+		changed, err = c.ensureGatewayHTTPRoutes()
+		if err != nil {
+			msg := "failed to ensure gateway httproutes"
+			c.log.Error().Err(err).Msg(msg)
+			errCollector = append(errCollector, msg)
+		}
+		objectStorageChanged = objectStorageChanged || changed
+	}
+
 	// if we dont have obj storage - cleanup not needed resources
 	// once no any pre-req exists
 	if len(errCollector) == 0 && !objectStorageChanged {

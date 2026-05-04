@@ -23,6 +23,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	gatewayapi "sigs.k8s.io/gateway-api/apis/v1"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 )
@@ -281,6 +282,24 @@ var CephDeployNonMoskWithIngress = func() cephlcmv1alpha1.CephDeployment {
 		},
 	}
 	cd.Spec.ObjectStorage.Rgws[0].ServedByIngress = true
+	return *cd
+}()
+
+var CephDeployNonMoskWithGatewayRoute = func() cephlcmv1alpha1.CephDeployment {
+	cd := CephDeployNonMosk.DeepCopy()
+	cd.Spec.ObjectStorage.GatewayHTTPRoutes = []cephlcmv1alpha1.CephDeploymentHTTPRoute{
+		{
+			Name:            "rgw-route",
+			ObjectStoreName: "rgw-store",
+			Spec: runtime.RawExtension{
+				Raw: ConvertStructToRaw(gatewayapi.HTTPRouteSpec{
+					Hostnames: []gatewayapi.Hostname{
+						gatewayapi.Hostname("rgw-store.example.com"),
+					},
+				}),
+			},
+		},
+	}
 	return *cd
 }()
 

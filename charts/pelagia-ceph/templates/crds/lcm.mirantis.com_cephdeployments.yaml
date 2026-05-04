@@ -1225,6 +1225,10 @@ spec:
                         name:
                           description: Name of httproute
                           type: string
+                        objectStoreName:
+                          description: Name of related object store object, which
+                            will be routed by httproute
+                          type: string
                         spec:
                           description: |-
                             Spec represents HTTPRoute specification
@@ -1234,6 +1238,7 @@ spec:
                           x-kubernetes-preserve-unknown-fields: true
                       required:
                       - name
+                      - objectStoreName
                       - spec
                       type: object
                     type: array

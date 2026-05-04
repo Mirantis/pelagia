@@ -379,7 +379,7 @@ func TestDeleteRgw(t *testing.T) {
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
 				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListEmpty,
 			},
-			expectedError: "failed to list rgw object stores",
+			expectedError: "failed to list rgw object stores: failed to list cephobjectstores",
 		},
 		{
 			name: "delete rgw - delete rgw service failed",

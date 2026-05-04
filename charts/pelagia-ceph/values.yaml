@@ -17,6 +17,8 @@ lcmConfig:
   diskDaemonPortParameter: 9999
   diskDaemonNodeSelector: "ceph_role_osd=true"
   cephDaemonsetLabelExclude: ""
+  gatewayName: ""
+  gatewayNamespace: ""
 
 controllers:
   securityContext:

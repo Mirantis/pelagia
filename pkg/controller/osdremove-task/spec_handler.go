@@ -84,7 +84,7 @@ func (c *cephOsdRemoveConfig) getOsdsForCleanup(hostsFromCluster map[string][]in
 	// fill now with hosts with osd role label
 	for _, node := range nodesList {
 		if pickHost(node.Name) {
-			labeled := lcmcommon.IsNodeWithDiskDaemon(node, c.lcmConfig.DiskDaemonPlacementLabel)
+			labeled := lcmcommon.IsNodeWithDiskDaemon(node, c.lcmConfig.CommonParams.DiskDaemonPlacementLabel)
 			hostInfo, present := osdsHosts[node.Name]
 			if present || labeled {
 				hostAvailable, reason := lcmcommon.IsNodeAvailable(node)
