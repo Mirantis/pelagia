@@ -110,6 +110,8 @@ func TestInitReconcile(t *testing.T) {
 				ObjectMeta: metav1.ObjectMeta{Name: LcmConfigMapName, Namespace: "some-namespace-2"},
 				Data: map[string]string{
 					"ROOK_NAMESPACE":                              "custom-rook-ceph",
+					"BASE_GATEWAY_NAME":                           "custom-gateway",
+					"BASE_GATEWAY_NAMESPACE":                      "custom-namespace",
 					"DISK_DAEMON_API_PORT":                        "9998",
 					"DISK_DAEMON_PLACEMENT_NODES_SELECTOR":        "custom-node-label=true",
 					"HEALTH_CHECKS_CEPH_ISSUES_TO_IGNORE":         "MON_DOWN,HOST_DOWN",
@@ -133,15 +135,17 @@ func TestInitReconcile(t *testing.T) {
 				"some-namespace-2": func() LcmConfig {
 					newConfig := defaultLcmConfig
 					newConfig.RookNamespace = "custom-rook-ceph"
-					newConfig.DiskDaemonPort = 9998
-					newConfig.DiskDaemonPlacementLabel = "custom-node-label=true"
+					newConfig.CommonParams.BaseGatewayName = "custom-gateway"
+					newConfig.CommonParams.BaseGatewayNamespace = "custom-namespace"
+					newConfig.CommonParams.DiskDaemonPort = 9998
+					newConfig.CommonParams.DiskDaemonPlacementLabel = "custom-node-label=true"
+					newConfig.CommonParams.RgwPublicAccessLabel = "custom-access-label=true"
 					newConfig.HealthParams = &HealthParams{
 						LogLevel:                  2,
 						ChecksSkip:                []string{"ceph_daemons", "rgw_info"},
 						CephIssuesToIgnore:        []string{"MON_DOWN", "HOST_DOWN"},
 						UsageDetailsClassesFilter: "hdd",
 						UsageDetailsPoolsFilter:   "pool-.+",
-						RgwPublicAccessLabel:      "custom-access-label=true",
 					}
 					newConfig.TaskParams = &TaskParams{
 						LogLevel:                        2,
@@ -150,7 +154,6 @@ func TestInitReconcile(t *testing.T) {
 					}
 					newConfig.DeployParams = &DeployParams{
 						LogLevel:                           2,
-						RgwPublicAccessLabel:               "custom-access-label=true",
 						OpenstackCephSharedNamespace:       "custom-openstack-ns",
 						MultisiteCabundleSecretRef:         "secret-with-ca-bundle",
 						CephDaemonsetPlacementLabelExclude: "no-ceph=true",

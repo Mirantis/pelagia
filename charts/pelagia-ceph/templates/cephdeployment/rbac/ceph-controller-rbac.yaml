@@ -156,6 +156,10 @@ rules:
   - apiGroups: ["csi.ceph.io"]
     resources: ["drivers"]
     verbs: ["delete", "list"]
+  # permissions for gateway API
+  - apiGroups: [gateway.networking.k8s.io]
+    resources: [httproutes]
+    verbs: [list, get, create, update, delete]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

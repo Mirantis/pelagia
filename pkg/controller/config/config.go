@@ -30,16 +30,27 @@ import (
 type LcmConfig struct {
 	// main rook deployment namespace
 	RookNamespace string
-	// disk daemon label
-	DiskDaemonPlacementLabel string
-	// disk daemon api port for collecting info
-	DiskDaemonPort int32
+	// common params used across all controllers
+	CommonParams CommonParams
 	// params related to health controller
 	HealthParams *HealthParams
 	// params related to task controller
 	TaskParams *TaskParams
 	// params related to cephdeployment controller
 	DeployParams *DeployParams
+}
+
+type CommonParams struct {
+	// Default name of Gateway from Gateway API
+	BaseGatewayName string
+	// Default namespace of Gateway from Gateway API
+	BaseGatewayNamespace string
+	// disk daemon label
+	DiskDaemonPlacementLabel string
+	// disk daemon api port for collecting info
+	DiskDaemonPort int32
+	// Service selector providing rgw public access (ingress, loadbalancer)
+	RgwPublicAccessLabel string
 }
 
 type HealthParams struct {
@@ -53,8 +64,6 @@ type HealthParams struct {
 	UsageDetailsClassesFilter string
 	// regexp for collection class usage/capacity details
 	UsageDetailsPoolsFilter string
-	// service selector providing rgw public access (ingress, loadbalancer)
-	RgwPublicAccessLabel string
 }
 
 type TaskParams struct {
@@ -77,8 +86,6 @@ type DeployParams struct {
 	RookImage string
 	// deploy network policy objects or not
 	NetPolEnabled bool
-	// service selector providing rgw public access (ingress, loadbalancer)
-	RgwPublicAccessLabel string
 	// namespace for sharing secrets between openstack and ceph
 	OpenstackCephSharedNamespace string
 	// TODO: deprecated, since can be replaced by CaBundleRef directly
@@ -106,9 +113,14 @@ var (
 	lcmConfigs = map[string]LcmConfig{}
 	// default lcm config var
 	defaultLcmConfig = LcmConfig{
-		RookNamespace:            "rook-ceph",
-		DiskDaemonPort:           9999,
-		DiskDaemonPlacementLabel: "pelagia-disk-daemon=true",
+		RookNamespace: "rook-ceph",
+		CommonParams: CommonParams{
+			BaseGatewayName:          "app-gateway",
+			BaseGatewayNamespace:     "openstack",
+			DiskDaemonPort:           9999,
+			DiskDaemonPlacementLabel: "pelagia-disk-daemon=true",
+			RgwPublicAccessLabel:     "external_access=rgw",
+		},
 	}
 	// default health config var
 	defaultHealthConfig = HealthParams{
@@ -126,15 +138,13 @@ var (
 		LogLevel:                  zerolog.InfoLevel,
 		UsageDetailsClassesFilter: "",
 		UsageDetailsPoolsFilter:   "",
-		RgwPublicAccessLabel:      "external_access=rgw",
 	}
 	defaultTaskConfig = TaskParams{
 		LogLevel:              zerolog.InfoLevel,
 		OsdPgRebalanceTimeout: 30 * time.Minute,
 	}
 	defaultDeployParams = DeployParams{
-		LogLevel:             zerolog.InfoLevel,
-		RgwPublicAccessLabel: "external_access=rgw",
+		LogLevel: zerolog.InfoLevel,
 	}
 )
 
@@ -142,16 +152,18 @@ var (
 	errorMsgTmpl = "has incorrect parameter value '%s=%s', expected %s"
 	debugMsgTmpl = "set '%s=%s'"
 	// general lcm config params
-	rookNamespaceParameter   = "ROOK_NAMESPACE"
-	diskDaemonPortParameter  = "DISK_DAEMON_API_PORT"
-	diskDaemonPlacementLabel = "DISK_DAEMON_PLACEMENT_NODES_SELECTOR"
+	rookNamespaceParameter                  = "ROOK_NAMESPACE"
+	diskDaemonPortParameter                 = "DISK_DAEMON_API_PORT"
+	diskDaemonPlacementLabel                = "DISK_DAEMON_PLACEMENT_NODES_SELECTOR"
+	baseGatewayNameParameter                = "BASE_GATEWAY_NAME"
+	baseGatewayNamespaceParameter           = "BASE_GATEWAY_NAMESPACE"
+	rgwPublicAccessServiceSelectorParameter = "RGW_PUBLIC_ACCESS_SERVICE_SELECTOR"
 	// health controller config params
 	healthChecksCephIssuesToIgnoreParameter = "HEALTH_CHECKS_CEPH_ISSUES_TO_IGNORE"
 	healthChecksSkipParameter               = "HEALTH_CHECKS_SKIP"
 	healthChecksUsagelClassFilterParameter  = "HEALTH_CHECKS_USAGE_CLASS_FILTER"
 	healthChecksUsagelPoolsFilterParameter  = "HEALTH_CHECKS_USAGE_POOLS_FILTER"
 	healthLogLevelParameter                 = "HEALTH_LOG_LEVEL"
-	rgwPublicAccessServiceSelectorParameter = "RGW_PUBLIC_ACCESS_SERVICE_SELECTOR"
 	// params for task controller
 	taskLogLevelParameter             = "TASK_LOG_LEVEL"
 	taskOsdPgRebalanceTimeout         = "TASK_OSD_PG_REBALANCE_TIMEOUT_MIN"
@@ -210,16 +222,6 @@ func loadHealthConfiguration(objLog zerolog.Logger, configData map[string]string
 		} else {
 			objLog.Debug().Msgf(debugMsgTmpl, healthChecksUsagelPoolsFilterParameter, poolsFilter)
 			newHealthConfig.UsageDetailsPoolsFilter = poolsFilter
-		}
-	}
-
-	if rgwPublicServiceSelector, present := configData[rgwPublicAccessServiceSelectorParameter]; present {
-		selector, err := labels.Parse(rgwPublicServiceSelector)
-		if err != nil {
-			objLog.Error().Msgf(errorMsgTmpl, rgwPublicAccessServiceSelectorParameter, rgwPublicServiceSelector, "valid k8s label/selector")
-		} else {
-			objLog.Debug().Msgf(debugMsgTmpl, rgwPublicAccessServiceSelectorParameter, rgwPublicServiceSelector)
-			newHealthConfig.RgwPublicAccessLabel = selector.String()
 		}
 	}
 	return &newHealthConfig
@@ -298,16 +300,6 @@ func loadCephDeploymentConfiguration(objLog zerolog.Logger, configData map[strin
 		}
 	}
 
-	if rgwPublicServiceSelector, present := configData[rgwPublicAccessServiceSelectorParameter]; present {
-		selector, err := labels.Parse(rgwPublicServiceSelector)
-		if err != nil {
-			objLog.Error().Msgf(errorMsgTmpl, rgwPublicAccessServiceSelectorParameter, rgwPublicServiceSelector, "valid k8s label/selector")
-		} else {
-			objLog.Debug().Msgf(debugMsgTmpl, rgwPublicAccessServiceSelectorParameter, rgwPublicServiceSelector)
-			newCephDplConfig.RgwPublicAccessLabel = selector.String()
-		}
-	}
-
 	if cephDaemonsExcludeSelector, present := configData[cephDplCephDaemonsetLabelExclude]; present {
 		selector, err := labels.Parse(cephDaemonsExcludeSelector)
 		if err != nil {
@@ -350,7 +342,7 @@ func ReadConfiguration(objLog zerolog.Logger, configData map[string]string) LcmC
 			objLog.Error().Msgf(errorMsgTmpl, diskDaemonPortParameter, diskDaemonPort, "integer")
 		} else {
 			objLog.Debug().Msgf(debugMsgTmpl, diskDaemonPortParameter, diskDaemonPort)
-			newConfig.DiskDaemonPort = int32(port)
+			newConfig.CommonParams.DiskDaemonPort = int32(port)
 		}
 	}
 	// check disk daemon placement labels
@@ -360,7 +352,27 @@ func ReadConfiguration(objLog zerolog.Logger, configData map[string]string) LcmC
 			objLog.Error().Msgf(errorMsgTmpl, diskDaemonPlacementLabel, diskDaemonNodeSelectorLabels, "valid k8s label/selector")
 		} else {
 			objLog.Debug().Msgf(debugMsgTmpl, diskDaemonPlacementLabel, diskDaemonNodeSelectorLabels)
-			newConfig.DiskDaemonPlacementLabel = selector.String()
+			newConfig.CommonParams.DiskDaemonPlacementLabel = selector.String()
+		}
+	}
+	// check gateway object name param
+	if baseGatewayName, present := configData[baseGatewayNameParameter]; present {
+		objLog.Debug().Msgf(debugMsgTmpl, baseGatewayNameParameter, baseGatewayName)
+		newConfig.CommonParams.BaseGatewayName = baseGatewayName
+	}
+	// check gateway object namespace param
+	if baseGatewayNamespace, present := configData[baseGatewayNamespaceParameter]; present {
+		objLog.Debug().Msgf(debugMsgTmpl, baseGatewayNamespaceParameter, baseGatewayNamespace)
+		newConfig.CommonParams.BaseGatewayNamespace = baseGatewayNamespace
+	}
+	// rgw public service selector
+	if rgwPublicServiceSelector, present := configData[rgwPublicAccessServiceSelectorParameter]; present {
+		selector, err := labels.Parse(rgwPublicServiceSelector)
+		if err != nil {
+			objLog.Error().Msgf(errorMsgTmpl, rgwPublicAccessServiceSelectorParameter, rgwPublicServiceSelector, "valid k8s label/selector")
+		} else {
+			objLog.Debug().Msgf(debugMsgTmpl, rgwPublicAccessServiceSelectorParameter, rgwPublicServiceSelector)
+			newConfig.CommonParams.RgwPublicAccessLabel = selector.String()
 		}
 	}
 	// controller specific params

@@ -195,7 +195,7 @@ func (c *cephDeploymentConfig) deleteRgw(rgwToRemove string) (bool, error) {
 	// Delete rgw object store if exists
 	rgwList, err := c.api.Rookclientset.CephV1().CephObjectStores(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
 	if err != nil {
-		return false, errors.New("failed to list rgw object stores")
+		return false, errors.Wrap(err, "failed to list rgw object stores")
 	}
 	for _, rgw := range rgwList.Items {
 		if rgwToRemove != "" && rgw.Name != rgwToRemove {
@@ -442,7 +442,7 @@ func (c *cephDeploymentConfig) ensureExternalService(rgwIndexInSpec int) (bool, 
 	if err != nil {
 		return false, errors.Wrap(err, "failed to check ingress proxy presence")
 	}
-	if proxyToBeDeployed || c.lcmConfig.DeployParams.RgwPublicAccessLabel == "" {
+	if proxyToBeDeployed || c.lcmConfig.CommonParams.RgwPublicAccessLabel == "" {
 		err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).Delete(c.context, externalSvcName, metav1.DeleteOptions{})
 		if err == nil {
 			if proxyToBeDeployed {
@@ -456,11 +456,11 @@ func (c *cephDeploymentConfig) ensureExternalService(rgwIndexInSpec int) (bool, 
 		}
 		return false, nil
 	}
-	externalAccessLabel, err := metav1.ParseToLabelSelector(c.lcmConfig.DeployParams.RgwPublicAccessLabel)
+	externalAccessLabel, err := metav1.ParseToLabelSelector(c.lcmConfig.CommonParams.RgwPublicAccessLabel)
 	if err != nil {
 		// extra fallback case should not happen at all - because label parsed in config controller
 		// and used default in case of any problems
-		return false, errors.Wrapf(err, "failed to parse provided rgw public access label '%s'", c.lcmConfig.DeployParams.RgwPublicAccessLabel)
+		return false, errors.Wrapf(err, "failed to parse provided rgw public access label '%s'", c.lcmConfig.CommonParams.RgwPublicAccessLabel)
 	}
 	castedSpec, _ := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws[rgwIndexInSpec].GetSpec()
 	externalSvc, err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).Get(c.context, externalSvcName, metav1.GetOptions{})

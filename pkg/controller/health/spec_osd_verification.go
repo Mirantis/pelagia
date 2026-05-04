@@ -272,8 +272,8 @@ func (c *cephDeploymentHealthConfig) getNodeAnalyseStatus(namespace string, node
 			Issues: []string{fmt.Sprintf("failed to get node '%s' info", node.Name)},
 		}, false
 	}
-	if !lcmcommon.IsNodeWithDiskDaemon(*knode, c.lcmConfig.DiskDaemonPlacementLabel) {
-		c.log.Warn().Msgf("node '%s', present in cluster spec, has missed disk daemon label '%s'", node.Name, c.lcmConfig.DiskDaemonPlacementLabel)
+	if !lcmcommon.IsNodeWithDiskDaemon(*knode, c.lcmConfig.CommonParams.DiskDaemonPlacementLabel) {
+		c.log.Warn().Msgf("node '%s', present in cluster spec, has missed disk daemon label '%s'", node.Name, c.lcmConfig.CommonParams.DiskDaemonPlacementLabel)
 		return lcmv1alpha1.DaemonStatus{
 			Status:   lcmv1alpha1.DaemonStateSkipped,
 			Messages: []string{"disk daemon is not running for node (missed daemon label), spec analysis skipped"},
@@ -289,7 +289,7 @@ func (c *cephDeploymentHealthConfig) getNodeAnalyseStatus(namespace string, node
 	notReadyRetries := 3
 	var diskDaemonReport lcmcommon.DiskDaemonReport
 	for {
-		cmd := fmt.Sprintf("%s --full-report --port %d", lcmcommon.PelagiaDiskDaemon, c.lcmConfig.DiskDaemonPort)
+		cmd := fmt.Sprintf("%s --full-report --port %d", lcmcommon.PelagiaDiskDaemon, c.lcmConfig.CommonParams.DiskDaemonPort)
 		err := lcmcommon.RunAndParseDiskDaemonCLI(c.context, c.api.Kubeclientset, c.api.Config, namespace, node.Name, cmd, &diskDaemonReport)
 		if err != nil {
 			c.log.Error().Err(err).Msg("")

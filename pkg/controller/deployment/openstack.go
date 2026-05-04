@@ -372,34 +372,45 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 						}
 					}
 				}
-			} else if ingressTLS != nil {
-				domain := ingressTLS.Domain
-				protocol := "https"
-				if ingressTLS.Hostname != "" {
-					secret.Data["rgw_external"] = []byte(fmt.Sprintf("%s://%s.%s/", protocol, ingressTLS.Hostname, domain))
-				} else {
-					secret.Data["rgw_external"] = []byte(fmt.Sprintf("%s://%s.%s/", protocol, rgw.Name, domain))
-				}
-				if ingressTLS.TLSCerts != nil {
-					secret.Data["rgw_external_custom_cacert"] = []byte(ingressTLS.TLSCerts.Cacert)
-				} else if ingressTLS.TLSSecretRefName != "" {
-					tlsSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.RookNamespace).Get(c.context, ingressTLS.TLSSecretRefName, metav1.GetOptions{})
-					if err != nil {
-						c.log.Error().Err(err).Msgf("failed to get specified for ingress tls certs secret %q", ingressTLS.TLSSecretRefName)
-					} else if cacert, present := tlsSecret.Data["ca.crt"]; present {
-						secret.Data["rgw_external_custom_cacert"] = cacert
-					} else {
-						c.log.Error().Msgf("specified for ingress tls certs secret %q doesnt contain ca cert", ingressTLS.TLSSecretRefName)
+			} else {
+				if len(c.cdConfig.cephDpl.Spec.ObjectStorage.GatewayHTTPRoutes) != 0 {
+					for _, route := range c.cdConfig.cephDpl.Spec.ObjectStorage.GatewayHTTPRoutes {
+						// take for openstack first available hostname
+						if route.ObjectStoreName == rgw.Name {
+							routeSpec, _ := route.GetSpec()
+							secret.Data["rgw_external"] = []byte(fmt.Sprintf("https://%s", routeSpec.Hostnames[0]))
+							break
+						}
 					}
-				}
-			} else if secretData.rgwSecret != nil {
-				domain := secretData.rgwSecret.Data["public_domain"]
-				protocol := "http"
-				if secretData.rgwSecret.Data["tls_crt"] != nil {
-					protocol = "https"
-				}
-				if string(domain) != "" {
-					secret.Data["rgw_external"] = []byte(fmt.Sprintf("%s://%s.%s/", protocol, rgw.Name, string(domain)))
+				} else if ingressTLS != nil {
+					domain := ingressTLS.Domain
+					protocol := "https"
+					if ingressTLS.Hostname != "" {
+						secret.Data["rgw_external"] = []byte(fmt.Sprintf("%s://%s.%s/", protocol, ingressTLS.Hostname, domain))
+					} else {
+						secret.Data["rgw_external"] = []byte(fmt.Sprintf("%s://%s.%s/", protocol, rgw.Name, domain))
+					}
+					if ingressTLS.TLSCerts != nil {
+						secret.Data["rgw_external_custom_cacert"] = []byte(ingressTLS.TLSCerts.Cacert)
+					} else if ingressTLS.TLSSecretRefName != "" {
+						tlsSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.RookNamespace).Get(c.context, ingressTLS.TLSSecretRefName, metav1.GetOptions{})
+						if err != nil {
+							c.log.Error().Err(err).Msgf("failed to get specified for ingress tls certs secret %q", ingressTLS.TLSSecretRefName)
+						} else if cacert, present := tlsSecret.Data["ca.crt"]; present {
+							secret.Data["rgw_external_custom_cacert"] = cacert
+						} else {
+							c.log.Error().Msgf("specified for ingress tls certs secret %q doesnt contain ca cert", ingressTLS.TLSSecretRefName)
+						}
+					}
+				} else if secretData.rgwSecret != nil {
+					domain := secretData.rgwSecret.Data["public_domain"]
+					protocol := "http"
+					if secretData.rgwSecret.Data["tls_crt"] != nil {
+						protocol = "https"
+					}
+					if string(domain) != "" {
+						secret.Data["rgw_external"] = []byte(fmt.Sprintf("%s://%s.%s/", protocol, rgw.Name, string(domain)))
+					}
 				}
 			}
 

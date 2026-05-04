@@ -272,6 +272,8 @@ type CephObjectStoreUser struct {
 type CephDeploymentHTTPRoute struct {
 	// Name of httproute
 	Name string `json:"name"`
+	// Name of related object store object, which will be routed by httproute
+	ObjectStoreName string `json:"objectStoreName"`
 	// Spec represents HTTPRoute specification
 	// Follow https://gateway-api.sigs.k8s.io/api-types/httproute/
 	// for details

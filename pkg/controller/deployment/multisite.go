@@ -295,22 +295,22 @@ func (c *cephDeploymentConfig) ensureZones() (bool, error) {
 			// if no endpoints specified - put default external lb ip and port as endpoint
 			// in case of using ingress - no default, user has to add endpoints manually
 			// in cose of no public access - nothing to do
-			if c.lcmConfig.DeployParams.RgwPublicAccessLabel != "" {
+			if c.lcmConfig.CommonParams.RgwPublicAccessLabel != "" {
 				if proxyDeployed {
 					c.log.Warn().Msgf("detected ingress proxy usage, but zone '%s' has no endpoints specified", zone.Name)
 				} else {
-					externalSvcs, err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{LabelSelector: c.lcmConfig.DeployParams.RgwPublicAccessLabel})
+					externalSvcs, err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{LabelSelector: c.lcmConfig.CommonParams.RgwPublicAccessLabel})
 					if err != nil {
 						msg := fmt.Sprintf("failed to find external service for zone %s", zone.Name)
 						c.log.Error().Err(err).Msg(msg)
 						return false, errors.Wrap(err, msg)
 					}
 					if len(externalSvcs.Items) == 0 {
-						c.log.Warn().Msgf("zone '%s' has no endpoints specified, no services with '%s' label found, leaving empty", zone.Name, c.lcmConfig.DeployParams.RgwPublicAccessLabel)
+						c.log.Warn().Msgf("zone '%s' has no endpoints specified, no services with '%s' label found, leaving empty", zone.Name, c.lcmConfig.CommonParams.RgwPublicAccessLabel)
 					} else {
 						externalSvc := externalSvcs.Items[0]
 						c.log.Warn().Msgf("zone '%s' has no endpoints specified, found service(s) with '%s' label, using service '%s' external ip address and http port as endpoint as default if available",
-							zone.Name, c.lcmConfig.DeployParams.RgwPublicAccessLabel, externalSvc.Name)
+							zone.Name, c.lcmConfig.CommonParams.RgwPublicAccessLabel, externalSvc.Name)
 						if len(externalSvc.Status.LoadBalancer.Ingress) > 0 {
 							zoneResource.Spec.CustomEndpoints = []string{fmt.Sprintf("http://%s:80", externalSvc.Status.LoadBalancer.Ingress[0].IP)}
 						}

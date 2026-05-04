@@ -448,6 +448,12 @@ func validateObjectStorageSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesLis
 					rgwNodesCount = rgwNodesCount + 1
 				}
 			}
+			for _, route := range cephDpl.Spec.ObjectStorage.GatewayHTTPRoutes {
+				routeSpec, _ := route.GetSpec()
+				if len(routeSpec.Hostnames) == 0 {
+					issues = append(issues, fmt.Sprintf("httproute '%s' has no hostnames provided", route.Name))
+				}
+			}
 		}
 
 		for _, rgw := range cephDpl.Spec.ObjectStorage.Rgws {

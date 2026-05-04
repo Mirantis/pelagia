@@ -52,7 +52,7 @@ func (c *cephDeploymentConfig) canDeployIngressProxy() (bool, string, error) {
 	if !ingressRequired {
 		return false, "no ingress required for specified rgw", nil
 	}
-	if c.lcmConfig.DeployParams.RgwPublicAccessLabel == "" {
+	if c.lcmConfig.CommonParams.RgwPublicAccessLabel == "" {
 		return false, "no RGW_PUBLIC_ACCESS_SERVICE_SELECTOR parameter has been provided in lcmconfig", nil
 	}
 	ingressTLSConfig := getIngressTLS(c.cdConfig.cephDpl)
@@ -259,9 +259,9 @@ func (c *cephDeploymentConfig) ensureIngressProxy() (bool, error) {
 			}
 			changedIngressConfig = true
 		}
-		externalAccessLabel, err := metav1.ParseToLabelSelector(c.lcmConfig.DeployParams.RgwPublicAccessLabel)
+		externalAccessLabel, err := metav1.ParseToLabelSelector(c.lcmConfig.CommonParams.RgwPublicAccessLabel)
 		if err != nil {
-			return false, errors.Wrapf(err, "failed to parse provided ingress public access label '%s'", c.lcmConfig.DeployParams.RgwPublicAccessLabel)
+			return false, errors.Wrapf(err, "failed to parse provided ingress public access label '%s'", c.lcmConfig.CommonParams.RgwPublicAccessLabel)
 		}
 		ingressResource := generateIngress(rgw.Name, c.lcmConfig.RookNamespace, tlsSecretName, ingressConfig, externalAccessLabel)
 		if ingress == nil {
