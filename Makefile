@@ -150,7 +150,7 @@ ifeq (,$(shell $$GOPATH/golangci-lint version 2>/dev/null))
 	@printf "\n=== <INSTALL GO-LINT> ===\n"
 	@echo Missing golangci-lint. Going to install if for $(HOSTOS).
 ifeq ("Linux","$(HOSTOS)")
-	$(shell wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/v1.62.0/install.sh | bash -s -- -b $(GOPATH))
+	$(shell wget -O- -nv https://raw.githubusercontent.com/golangci/golangci-lint/v2.12.1/install.sh | bash -s -- -b $(GOPATH))
 endif
 ifeq ("Darwin","$(HOSTOS)")
 	brew install golangci/tap/golangci-lint
