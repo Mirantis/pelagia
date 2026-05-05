@@ -250,6 +250,9 @@ func (r *ReconcileCephDeployment) Reconcile(ctx context.Context, request reconci
 		cephDpl.Status.Validation = validationResult
 		if validationResult.Result == cephlcmv1alpha1.ValidationFailed {
 			cephDpl.Status.Phase = cephlcmv1alpha1.PhaseFailed
+			cephDpl.Status.Message = "Validation of CephDeployment spec is failed"
+		} else {
+			cephDpl.Status.Message = "Validation of CephDeployment spec is ok"
 		}
 		err = r.updateCephDeploymentStatus(ctx, sublog, cephDpl.Name, cephDpl.Namespace, cephDpl.Status)
 		if err != nil {
