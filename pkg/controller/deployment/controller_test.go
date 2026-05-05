@@ -223,7 +223,8 @@ func TestReconcile(t *testing.T) {
 			},
 			testclient: faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.BaseCephDeployment.DeepCopy()).WithObjects(unitinputs.BaseCephDeployment.DeepCopy()),
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
-				Phase: cephlcmv1alpha1.PhaseFailed,
+				Phase:   cephlcmv1alpha1.PhaseFailed,
+				Message: "Validation of CephDeployment spec is failed",
 				Validation: cephlcmv1alpha1.CephDeploymentValidation{
 					Result:                  cephlcmv1alpha1.ValidationFailed,
 					LastValidatedGeneration: int64(0),
@@ -393,7 +394,8 @@ func TestReconcile(t *testing.T) {
 			},
 			testclient: faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.BaseCephDeployment.DeepCopy()).WithObjects(unitinputs.BaseCephDeployment.DeepCopy()),
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
-				Phase: cephlcmv1alpha1.PhaseFailed,
+				Phase:   cephlcmv1alpha1.PhaseFailed,
+				Message: "Validation of CephDeployment spec is failed",
 				Validation: cephlcmv1alpha1.CephDeploymentValidation{
 					Result:                  cephlcmv1alpha1.ValidationFailed,
 					LastValidatedGeneration: int64(0),
