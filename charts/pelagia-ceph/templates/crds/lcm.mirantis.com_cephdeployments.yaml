@@ -731,9 +731,9 @@ spec:
                 type: object
               ingressConfig:
                 description: |-
-                  IngressConfig provides ability to configure custom ingress rule for an external
-                  access to Ceph Cluster resources, for example, public endpoint
-                  for Ceph Object Store access.
+                  Deprecated parameter, objectStorage.gatewayHTTPRoutes should be used instead.
+                  Ingress became deprecated and going to be replaced by Gateway API, for more information
+                  follow https://gateway-api.sigs.k8s.io/guides/getting-started/migrating-from-ingress/
                 properties:
                   annotations:
                     additionalProperties:
@@ -1214,6 +1214,34 @@ spec:
                   ObjectStorage contains full RadosGW Object Storage configurations: RGW itself
                   and RGW multisite feature
                 properties:
+                  gatewayHTTPRoutes:
+                    description: |-
+                      GatewayHTTPRoutes stands for adding Gateway API HTTPRoutes for Ceph RGW
+                      public access
+                    items:
+                      description: CephDeploymentHTTPRoute represents Gateway API
+                        HTTPRoute specification
+                      properties:
+                        name:
+                          description: Name of httproute
+                          type: string
+                        objectStoreName:
+                          description: Name of related object store object, which
+                            will be routed by httproute
+                          type: string
+                        spec:
+                          description: |-
+                            Spec represents HTTPRoute specification
+                            Follow https://gateway-api.sigs.k8s.io/api-types/httproute/
+                            for details
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                      required:
+                      - name
+                      - objectStoreName
+                      - spec
+                      type: object
+                    type: array
                   multiSite:
                     description: Deprecated. MultiSite represents Ceph RadosGW multisite/multizone
                       feature settings
@@ -1500,7 +1528,9 @@ spec:
                         name:
                           type: string
                         servedByIngress:
-                          description: Related ingress configuration exists.
+                          description: |-
+                            Deprecated option, since Ingress is depreated in favor of Gateway API.
+                            ObjectStore has ingress frontend.
                           type: boolean
                         spec:
                           description: |-

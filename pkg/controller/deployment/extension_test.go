@@ -84,6 +84,12 @@ func TestCastExtensions(t *testing.T) {
 								Spec: runtime.RawExtension{Raw: []byte(`{"unknownApiField": true}`)},
 							},
 						},
+						GatewayHTTPRoutes: []cephlcmv1alpha1.CephDeploymentHTTPRoute{
+							{
+								Name: "test",
+								Spec: runtime.RawExtension{Raw: []byte(`{"unknownApiField": true}`)},
+							},
+						},
 					},
 					SharedFilesystem: &cephlcmv1alpha1.CephSharedFilesystem{
 						Filesystems: []cephlcmv1alpha1.CephFilesystem{
@@ -96,7 +102,7 @@ func TestCastExtensions(t *testing.T) {
 					Nodes: unitinputs.CephDeployWithWrongNodes.Spec.Nodes,
 				},
 			},
-			expectedError: "failed to cast spec fields: failed to cast cephdeployment fields to Rook API, failed to cast block storage pool 'testpool' fields to Rook API, failed to cast client #0 to Rook API, failed to cast rgw 'testrgw' to Rook API, failed to cast user 'testuser' to Rook API, failed to cast realm 'testrealm' to Rook API, failed to cast zonegroup 'testzonegroup' to Rook API, failed to cast zone 'testzone' to Rook API, failed to cast ceph filesystem 'testfilesystem' to Rook API, failed to expand nodes list",
+			expectedError: "failed to cast spec fields: failed to cast cephdeployment fields to Rook API, failed to cast block storage pool 'testpool' fields to Rook API, failed to cast client #0 to Rook API, failed to cast rgw 'testrgw' to Rook API, failed to cast user 'testuser' to Rook API, failed to cast realm 'testrealm' to Rook API, failed to cast zonegroup 'testzonegroup' to Rook API, failed to cast zone 'testzone' to Rook API, failed to cast http route 'test' to Gateway API, failed to cast ceph filesystem 'testfilesystem' to Rook API, failed to expand nodes list",
 		},
 		{
 			name:    "validate base cephdeployment",

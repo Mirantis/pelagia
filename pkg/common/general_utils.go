@@ -102,3 +102,7 @@ func GetStringSha256(s string) string {
 	bs := h.Sum(nil)
 	return fmt.Sprintf("%x", bs)
 }
+
+func PtrTo[T any](a T) *T {
+	return &a
+}

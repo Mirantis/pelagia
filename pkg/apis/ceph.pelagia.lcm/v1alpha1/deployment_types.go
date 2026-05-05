@@ -54,11 +54,6 @@ type CephDeploymentSpec struct {
 	// ExtraOpts contains some extra options for managing Ceph cluster, like devices labels
 	// +optional
 	ExtraOpts *CephDeploymentExtraOpts `json:"extraOpts,omitempty"`
-	// IngressConfig provides ability to configure custom ingress rule for an external
-	// access to Ceph Cluster resources, for example, public endpoint
-	// for Ceph Object Store access.
-	// +optional
-	IngressConfig *CephDeploymentIngressConfig `json:"ingressConfig,omitempty"`
 	// Nodes contains full cluster nodes configuration to use as Ceph Nodes
 	Nodes []CephDeploymentNode `json:"nodes"`
 	// ObjectStorage contains full RadosGW Object Storage configurations: RGW itself
@@ -101,6 +96,11 @@ type CephDeploymentSpec struct {
 	// Deprecated parameter, blockStorage.pools should be used instead
 	// +optional
 	OldPools []CephPoolOld `json:"pools,omitempty"`
+	// Deprecated parameter, objectStorage.gatewayHTTPRoutes should be used instead.
+	// Ingress became deprecated and going to be replaced by Gateway API, for more information
+	// follow https://gateway-api.sigs.k8s.io/guides/getting-started/migrating-from-ingress/
+	// +optional
+	IngressConfig *CephDeploymentIngressConfig `json:"ingressConfig,omitempty"`
 }
 
 // CephCluster represents cluster specification
@@ -174,43 +174,6 @@ type CephDeploymentExtraOpts struct {
 	DisableOsKeys bool `json:"disableOsSharedKeys,omitempty"`
 }
 
-type CephDeploymentIngressConfig struct {
-	// Annotations is an extra annotations set to proxy
-	// +optional
-	Annotations map[string]string `json:"annotations,omitempty"`
-	// ClassName is a name of Ingress Controller class. Rockoon default
-	// is 'openstack-ingress-nginx'
-	// +nullable
-	ControllerClassName string `json:"controllerClassName,omitempty"`
-	// TLSConfig represents tls configuration: certs, public domain
-	// +optional
-	TLSConfig *CephDeploymentIngressTLSConfig `json:"tlsConfig,omitempty"`
-}
-
-type CephDeploymentIngressTLSConfig struct {
-	// TLSCerts contains TLS certs for ingress
-	// +optional
-	TLSCerts *CephDeploymentCert `json:"certs,omitempty"`
-	// TLSSecretRefName is a name of secret, where tls certs for ingress is stored
-	// +optional
-	TLSSecretRefName string `json:"tlsSecretRefName,omitempty"`
-	// Domain is a public domain used for ingress public endpoint
-	Domain string `json:"publicDomain"`
-	// Ingress hostname different from RGW Objectstore name
-	// +optional
-	Hostname string `json:"hostname,omitempty"`
-}
-
-// CephDeploymentCert represents custom certificate settings
-type CephDeploymentCert struct {
-	// Cacert represents CA certificate
-	Cacert string `json:"cacert"`
-	// TLSCert represents SSL certificate based on the defined Cacert and TLSKey
-	TLSCert string `json:"tlsCert"`
-	// TLSKey represents SSL secret key used for TLSCert generate
-	TLSKey string `json:"tlsKey"`
-}
-
 // CephDeploymentNode contains specific node configuration to use it in Ceph Cluster
 type CephDeploymentNode struct {
 	cephv1.Node `json:",inline"`
@@ -248,6 +211,10 @@ type CephObjectStorage struct {
 	// Users is a list of user to create for object storage with radosgw-admin
 	// +optional
 	Users []CephObjectStoreUser `json:"users,omitempty"`
+	// GatewayHTTPRoutes stands for adding Gateway API HTTPRoutes for Ceph RGW
+	// public access
+	// +optional
+	GatewayHTTPRoutes []CephDeploymentHTTPRoute `json:"gatewayHTTPRoutes,omitempty"`
 	// Realms is a list of Ceph Object storage multisite realms.
 	// Currently is possible to specify only 1 realm.
 	// +kubebuilder:validation:MaxItems:=1
@@ -275,7 +242,8 @@ type CephObjectStorage struct {
 // CephObjectStore stands for configuration of object store.
 type CephObjectStore struct {
 	Name string `json:"name"`
-	// Related ingress configuration exists.
+	// Deprecated option, since Ingress is depreated in favor of Gateway API.
+	// ObjectStore has ingress frontend.
 	// +optional
 	ServedByIngress bool `json:"servedByIngress,omitempty"`
 	// ObjectStore will be used for Rockoon/Openstack setup.
@@ -297,6 +265,18 @@ type CephObjectStoreUser struct {
 	// Spec represents CephObjectStoreUser configuration
 	// https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-user-crd/
 	// for available options
+	Spec runtime.RawExtension `json:"spec"`
+}
+
+// CephDeploymentHTTPRoute represents Gateway API HTTPRoute specification
+type CephDeploymentHTTPRoute struct {
+	// Name of httproute
+	Name string `json:"name"`
+	// Name of related object store object, which will be routed by httproute
+	ObjectStoreName string `json:"objectStoreName"`
+	// Spec represents HTTPRoute specification
+	// Follow https://gateway-api.sigs.k8s.io/api-types/httproute/
+	// for details
 	Spec runtime.RawExtension `json:"spec"`
 }
 
@@ -831,4 +811,41 @@ type CephRGWGateway struct {
 	// Has effect only for external cluster setup.
 	// +optional
 	ExternalRgwEndpoint *cephv1.EndpointAddress `json:"externalRgwEndpoint,omitempty"`
+}
+
+type CephDeploymentIngressConfig struct {
+	// Annotations is an extra annotations set to proxy
+	// +optional
+	Annotations map[string]string `json:"annotations,omitempty"`
+	// ClassName is a name of Ingress Controller class. Rockoon default
+	// is 'openstack-ingress-nginx'
+	// +nullable
+	ControllerClassName string `json:"controllerClassName,omitempty"`
+	// TLSConfig represents tls configuration: certs, public domain
+	// +optional
+	TLSConfig *CephDeploymentIngressTLSConfig `json:"tlsConfig,omitempty"`
+}
+
+type CephDeploymentIngressTLSConfig struct {
+	// TLSCerts contains TLS certs for ingress
+	// +optional
+	TLSCerts *CephDeploymentCert `json:"certs,omitempty"`
+	// TLSSecretRefName is a name of secret, where tls certs for ingress is stored
+	// +optional
+	TLSSecretRefName string `json:"tlsSecretRefName,omitempty"`
+	// Domain is a public domain used for ingress public endpoint
+	Domain string `json:"publicDomain"`
+	// Ingress hostname different from RGW Objectstore name
+	// +optional
+	Hostname string `json:"hostname,omitempty"`
+}
+
+// CephDeploymentCert represents custom certificate settings
+type CephDeploymentCert struct {
+	// Cacert represents CA certificate
+	Cacert string `json:"cacert"`
+	// TLSCert represents SSL certificate based on the defined Cacert and TLSKey
+	TLSCert string `json:"tlsCert"`
+	// TLSKey represents SSL secret key used for TLSCert generate
+	TLSKey string `json:"tlsKey"`
 }

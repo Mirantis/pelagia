@@ -372,7 +372,7 @@ func (c *cephDeploymentHealthConfig) getRgwInfo() (*lcmv1alpha1.RgwInfo, []strin
 
 func (c *cephDeploymentHealthConfig) getRgwPublicEndpoint() (string, string) {
 	listOptions := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("app=rook-ceph-rgw,rook_object_store=%s,%s", c.healthConfig.rgwOpts.storeName, c.lcmConfig.HealthParams.RgwPublicAccessLabel),
+		LabelSelector: fmt.Sprintf("app=rook-ceph-rgw,rook_object_store=%s,%s", c.healthConfig.rgwOpts.storeName, c.lcmConfig.CommonParams.RgwPublicAccessLabel),
 	}
 	ingresses, err := c.api.Kubeclientset.NetworkingV1().Ingresses(c.lcmConfig.RookNamespace).List(c.context, listOptions)
 	if err != nil {
