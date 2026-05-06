@@ -22,8 +22,8 @@ import (
 	"testing"
 	"time"
 
-	vsapi "github.com/kubernetes-csi/external-snapshotter/client/v6/apis/volumesnapshot/v1"
-	vsclient "github.com/kubernetes-csi/external-snapshotter/client/v6/clientset/versioned"
+	vsapi "github.com/kubernetes-csi/external-snapshotter/client/v8/apis/volumesnapshot/v1"
+	vsclient "github.com/kubernetes-csi/external-snapshotter/client/v8/clientset/versioned"
 	"github.com/pkg/errors"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"

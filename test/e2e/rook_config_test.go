@@ -21,8 +21,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-yaml/yaml"
 	"github.com/pkg/errors"
+	yaml "gopkg.in/yaml.v2"
 
 	f "github.com/Mirantis/pelagia/test/e2e/framework"
 )
