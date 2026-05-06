@@ -266,7 +266,7 @@ func TestEnsureClusterState(t *testing.T) {
 						}(),
 						func() cephv1.CephBlockPool {
 							pool := unitinputs.BuiltinMgrPool.DeepCopy()
-							pool.Spec.CrushRoot = ""
+							pool.Labels = nil
 							return *pool
 						}(),
 					},

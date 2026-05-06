@@ -68,6 +68,11 @@ var CephClientTest = cephv1.CephClient{
 	ObjectMeta: metav1.ObjectMeta{
 		Namespace: "rook-ceph",
 		Name:      "test",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ClientSpec{
 		Name: "test",
@@ -81,6 +86,11 @@ var CephClientCinder = cephv1.CephClient{
 	ObjectMeta: metav1.ObjectMeta{
 		Namespace: "rook-ceph",
 		Name:      "cinder",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ClientSpec{
 		Name: "cinder",
@@ -95,6 +105,11 @@ var CephClientNova = cephv1.CephClient{
 	ObjectMeta: metav1.ObjectMeta{
 		Namespace: "rook-ceph",
 		Name:      "nova",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ClientSpec{
 		Name: "nova",
@@ -109,6 +124,11 @@ var CephClientGlance = cephv1.CephClient{
 	ObjectMeta: metav1.ObjectMeta{
 		Namespace: "rook-ceph",
 		Name:      "glance",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ClientSpec{
 		Name: "glance",
@@ -123,6 +143,11 @@ var CephClientManila = cephv1.CephClient{
 	ObjectMeta: metav1.ObjectMeta{
 		Namespace: "rook-ceph",
 		Name:      "manila",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ClientSpec{
 		Name: "manila",
@@ -139,6 +164,11 @@ var TestCephClient = cephv1.CephClient{
 	ObjectMeta: metav1.ObjectMeta{
 		Namespace: "rook-ceph",
 		Name:      "test",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ClientSpec{
 		Name: "test",

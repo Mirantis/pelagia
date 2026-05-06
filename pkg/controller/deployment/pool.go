@@ -34,6 +34,7 @@ func generatePool(pool cephlcmv1alpha1.CephPool, namespace string) (newpool *cep
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      buildPoolName(pool),
 			Namespace: namespace,
+			Labels:    baseResourceLabels,
 		},
 	}
 	// skip check, since validation handles it
@@ -76,9 +77,13 @@ func (c *cephDeploymentConfig) ensurePools() (bool, error) {
 					c.log.Error().Msg(err)
 					errMsg = append(errMsg, errors.New(err))
 				} else {
-					if !reflect.DeepEqual(newPool.Spec, presentPool.Spec) {
-						lcmcommon.ShowObjectDiff(*c.log, presentPool.Spec, newPool.Spec)
-						presentPool.Spec = newPool.Spec
+					changedBaseLabels := lcmcommon.AlignBaseLabels(*c.log, "CephBlockPool", &presentPool.ObjectMeta, newPool.Labels)
+					specUpdated := !reflect.DeepEqual(newPool.Spec, presentPool.Spec)
+					if specUpdated || changedBaseLabels {
+						if specUpdated {
+							lcmcommon.ShowObjectDiff(*c.log, presentPool.Spec, newPool.Spec)
+							presentPool.Spec = newPool.Spec
+						}
 						if err := c.processBlockPools(objectUpdate, presentPool); err != nil {
 							errMsg = append(errMsg, err)
 						}

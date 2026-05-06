@@ -26,7 +26,10 @@ var BaseStorageClassDefault = storagev1.StorageClass{
 	ObjectMeta: metav1.ObjectMeta{
 		Name: "pool1-hdd",
 		Labels: map[string]string{
-			"rook-ceph-storage-class": "true",
+			"rook-ceph-storage-class":      "true",
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
 		},
 		Annotations: map[string]string{"storageclass.kubernetes.io/is-default-class": "true"},
 	},
@@ -47,7 +50,10 @@ var ExternalStorageClassDefault = storagev1.StorageClass{
 	ObjectMeta: metav1.ObjectMeta{
 		Name: "pool1-hdd",
 		Labels: map[string]string{
-			"rook-ceph-storage-class": "true",
+			"rook-ceph-storage-class":      "true",
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
 		},
 		Annotations: map[string]string{"storageclass.kubernetes.io/is-default-class": "true"},
 	},
@@ -90,6 +96,9 @@ var CephFSStorageClass = storagev1.StorageClass{
 		Labels: map[string]string{
 			"rook-ceph-storage-class":                     "true",
 			"rook-ceph-storage-class-keep-on-spec-remove": "false",
+			"app.kubernetes.io/created-by":                "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by":                "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":                   "ceph.pelagia.lcm",
 		},
 	},
 	Provisioner: "rook-ceph.cephfs.csi.ceph.com",
@@ -111,6 +120,11 @@ var CephFSStorageClass = storagev1.StorageClass{
 var RgwStorageClass = storagev1.StorageClass{
 	ObjectMeta: metav1.ObjectMeta{
 		Name: "rgw-store-bucket",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Provisioner: "rook-ceph.ceph.rook.io/bucket",
 	Parameters: map[string]string{

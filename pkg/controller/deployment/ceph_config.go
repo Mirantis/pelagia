@@ -150,6 +150,7 @@ func (c *cephDeploymentConfig) ensureCephConfig(cephClusterPresent bool) (bool, 
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      rookConfigOverrideName,
 			Namespace: c.lcmConfig.RookNamespace,
+			Labels:    baseResourceLabels,
 			Annotations: map[string]string{
 				cephConfigMapUpdateTimestampLabel: currentGenTime,
 			},
@@ -253,7 +254,8 @@ func (c *cephDeploymentConfig) ensureCephConfig(cephClusterPresent bool) (bool, 
 	}
 	configMapUpdated := !reflect.DeepEqual(currentRookCm.Data, newRookCm.Data)
 	annotationsUpdated := !reflect.DeepEqual(currentRookCm.Annotations, newAnnotations)
-	if configMapUpdated || annotationsUpdated {
+	labelsUpdated := lcmcommon.AlignBaseLabels(*c.log, "configmap", &currentRookCm.ObjectMeta, newRookCm.Labels)
+	if configMapUpdated || annotationsUpdated || labelsUpdated {
 		if configMapUpdated {
 			c.log.Info().Msgf("updating configmap data %s/%s", currentRookCm.Namespace, currentRookCm.Name)
 			lcmcommon.ShowObjectDiff(*c.log, currentRookCm, newRookCm)
@@ -263,8 +265,8 @@ func (c *cephDeploymentConfig) ensureCephConfig(cephClusterPresent bool) (bool, 
 		if annotationsUpdated {
 			c.log.Info().Msgf("updating configmap %s/%s annotations", currentRookCm.Namespace, currentRookCm.Name)
 			lcmcommon.ShowObjectDiff(*c.log, currentRookCm.Annotations, newAnnotations)
+			currentRookCm.Annotations = newAnnotations
 		}
-		currentRookCm.Annotations = newAnnotations
 		_, err := c.api.Kubeclientset.CoreV1().ConfigMaps(c.lcmConfig.RookNamespace).Update(c.context, currentRookCm, metav1.UpdateOptions{})
 		if err != nil {
 			return false, err

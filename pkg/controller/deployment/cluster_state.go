@@ -223,10 +223,14 @@ func (c *cephDeploymentConfig) verifyBuiltinPools() (bool, error) {
 				if presentPool.Spec.Name == poolToProcess.Spec.Name {
 					// If cephblockpool for builtin pool already exists but differs from current
 					// default/rgw meta pool spec then update its spec
-					if !reflect.DeepEqual(presentPool.Spec, poolToProcess.Spec) {
+					specUpdate := !reflect.DeepEqual(presentPool.Spec, poolToProcess.Spec)
+					labelsUpdated := lcmcommon.AlignBaseLabels(*c.log, "CephBlockPool", &presentPool.ObjectMeta, poolToProcess.Labels)
+					if specUpdate || labelsUpdated {
 						c.log.Info().Msgf("updating CephBlockPool '%s/%s' override for default pool '%s'", presentPool.Namespace, presentPool.Name, presentPool.Spec.Name)
-						lcmcommon.ShowObjectDiff(*c.log, presentPool.Spec, poolToProcess.Spec)
-						presentPool.Spec = poolToProcess.Spec
+						if specUpdate {
+							lcmcommon.ShowObjectDiff(*c.log, presentPool.Spec, poolToProcess.Spec)
+							presentPool.Spec = poolToProcess.Spec
+						}
 						err := c.processBlockPools(objectUpdate, &presentPool)
 						if err != nil {
 							errMsg := errors.Wrapf(err, "failed to update '%s' CephBlockPool override", presentPool.Spec.Name)

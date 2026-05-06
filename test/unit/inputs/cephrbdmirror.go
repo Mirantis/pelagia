@@ -25,6 +25,11 @@ var CephRBDMirror = cephv1.CephRBDMirror{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "cephcluster",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.RBDMirroringSpec{
 		Count: 1,
@@ -46,6 +51,11 @@ var CephRBDMirrorUpdatedReady = cephv1.CephRBDMirror{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "cephcluster",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.RBDMirroringSpec{
 		Count: 2,
