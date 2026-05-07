@@ -650,6 +650,7 @@ func TestEnsureCephClients(t *testing.T) {
 					Items: []cephv1.CephClient{
 						func() cephv1.CephClient {
 							c := unitinputs.TestCephClientReady.DeepCopy()
+							c.Labels = nil
 							c.Spec.Caps["osd"] = "yyy"
 							return *c
 						}(),

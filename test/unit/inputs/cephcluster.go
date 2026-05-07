@@ -40,6 +40,11 @@ func BuildBaseCephCluster(name, namespace string) cephv1.CephCluster {
 			Namespace:  namespace,
 			Name:       name,
 			Generation: 4,
+			Labels: map[string]string{
+				"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+				"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+				"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+			},
 		},
 		Spec: cephv1.ClusterSpec{
 			Mon: cephv1.MonSpec{Count: 3},
@@ -125,6 +130,11 @@ var CephClusterExternal = cephv1.CephCluster{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      LcmObjectMeta.Name,
 		Namespace: RookNamespace,
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ClusterSpec{
 		CephVersion:     cephv1.CephVersionSpec{Image: PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"]},
@@ -149,6 +159,11 @@ var CephClusterGenerated = cephv1.CephCluster{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      LcmObjectMeta.Name,
 		Namespace: RookNamespace,
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ClusterSpec{
 		CephVersion: cephv1.CephVersionSpec{Image: PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"]},
@@ -325,6 +340,11 @@ var TestCephCluster = cephv1.CephCluster{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      LcmObjectMeta.Name,
 		Namespace: RookNamespace,
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ClusterSpec{
 		CephVersion: CephClusterGenerated.Spec.CephVersion,

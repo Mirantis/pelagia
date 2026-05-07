@@ -113,7 +113,7 @@ func (c *cephDeploymentInfraConfig) ensureToolBox() error {
 		c.log.Error().Err(err).Msg("")
 		return errors.Wrapf(err, "failed to check toolbox deployment '%s/%s", cephToolsGenerated.Namespace, cephToolsGenerated.Name)
 	}
-	if !reflect.DeepEqual(cephTools.Spec, cephToolsGenerated.Spec) || c.checkLabelsAndOwnerRefs(&cephTools.ObjectMeta, &cephToolsGenerated.ObjectMeta) {
+	if !reflect.DeepEqual(cephTools.Spec, cephToolsGenerated.Spec) || c.checkLabelsAndOwnerRefs(&cephTools.ObjectMeta, &cephToolsGenerated.ObjectMeta, "deployment") {
 		c.log.Info().Msgf("update toolbox deployment %s/%s", cephTools.Namespace, cephTools.Name)
 		lcmcommon.ShowObjectDiff(*c.log, cephTools.Spec, cephToolsGenerated.Spec)
 		cephTools.Spec = cephToolsGenerated.Spec
@@ -156,7 +156,7 @@ func (c *cephDeploymentInfraConfig) generateToolBox() (*apps.Deployment, error) 
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            lcmcommon.PelagiaToolBox,
 			Namespace:       c.lcmConfig.RookNamespace,
-			Labels:          map[string]string{"app": lcmcommon.PelagiaToolBox},
+			Labels:          lcmcommon.ExtendLabels(map[string]string{"app": lcmcommon.PelagiaToolBox}, baseResourceLabels),
 			OwnerReferences: c.infraConfig.cephOwnerRefs,
 		},
 		Spec: apps.DeploymentSpec{

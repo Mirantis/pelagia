@@ -26,6 +26,8 @@ const (
 	// app names for disk-daemon and toolbox
 	PelagiaToolBox    = "pelagia-ceph-toolbox"
 	PelagiaDiskDaemon = "pelagia-disk-daemon"
+	// Add general Pelagia label
+	PelagiaComponentsLabel = "ceph.pelagia.lcm"
 	// rook csi plugin names, deprecated in favor of using csi operator
 	CephCSIRBDPluginDaemonSetNameOld    = "csi-rbdplugin"
 	CephCSICephFSPluginDaemonSetNameOld = "csi-cephfsplugin"
@@ -82,4 +84,12 @@ var (
 		}
 		return labelsMap
 	}()
+
+	PelagiaResourceLabels = func(controllerName string) map[string]string {
+		return map[string]string{
+			"app.kubernetes.io/part-of":    PelagiaComponentsLabel,
+			"app.kubernetes.io/created-by": controllerName,
+			"app.kubernetes.io/managed-by": controllerName,
+		}
+	}
 )

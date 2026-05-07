@@ -86,7 +86,13 @@ var RookDeploymentLatestVersion = GetRookDeployment(PelagiaConfig.Data["DEPLOYME
 var RookDeploymentNotScaled = GetRookDeployment(PelagiaConfig.Data["DEPLOYMENT_ROOK_IMAGE"], 0, 0)
 
 func GetToolBoxDeployment(external bool) *appsv1.Deployment {
-	deploy := GetDeployment("pelagia-ceph-toolbox", RookNamespace, map[string]string{"app": "pelagia-ceph-toolbox"}, &[]int32{1}[0])
+	toolBoxLabels := map[string]string{
+		"app":                          "pelagia-ceph-toolbox",
+		"app.kubernetes.io/created-by": "pelagia-infra-controller",
+		"app.kubernetes.io/managed-by": "pelagia-infra-controller",
+		"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+	}
+	deploy := GetDeployment("pelagia-ceph-toolbox", RookNamespace, toolBoxLabels, &[]int32{1}[0])
 	deploy.OwnerReferences = []metav1.OwnerReference{
 		{
 			APIVersion: "ceph.rook.io/v1",

@@ -60,7 +60,10 @@ var DiskDaemonDaemonset = appsv1.DaemonSet{
 		Name:      "pelagia-disk-daemon",
 		Namespace: LcmObjectMeta.Namespace,
 		Labels: map[string]string{
-			"app": "pelagia-disk-daemon",
+			"app":                          "pelagia-disk-daemon",
+			"app.kubernetes.io/created-by": "pelagia-infra-controller",
+			"app.kubernetes.io/managed-by": "pelagia-infra-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
 		},
 		OwnerReferences: []metav1.OwnerReference{
 			{

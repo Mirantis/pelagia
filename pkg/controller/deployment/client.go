@@ -67,9 +67,13 @@ func (c *cephDeploymentConfig) ensureCephClients() (bool, error) {
 				c.log.Error().Msg(err)
 				errMsg = append(errMsg, errors.New(err))
 			} else {
-				if !reflect.DeepEqual(newClient.Spec, presentClient.Spec) {
+				labelsUpdated := lcmcommon.AlignBaseLabels(*c.log, "CephClient", &presentClient.ObjectMeta, newClient.Labels)
+				specUpdated := !reflect.DeepEqual(newClient.Spec, presentClient.Spec)
+				if specUpdated {
 					lcmcommon.ShowObjectDiff(*c.log, presentClient.Spec, newClient.Spec)
 					presentClient.Spec = newClient.Spec
+				}
+				if specUpdated || labelsUpdated {
 					if err := c.processCephClients(objectUpdate, presentClient); err != nil {
 						errMsg = append(errMsg, err)
 					}
@@ -270,6 +274,7 @@ func generateClient(namespace string, clientSpec cephv1.ClientSpec) cephv1.CephC
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      strings.ReplaceAll(clientSpec.Name, ".", "-"),
 			Namespace: namespace,
+			Labels:    baseResourceLabels,
 		},
 		Spec: clientSpec,
 	}

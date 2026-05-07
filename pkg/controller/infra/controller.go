@@ -125,6 +125,8 @@ var (
 	_ reconcile.Reconciler = &ReconcileLcmResources{}
 	// init logger
 	log = lcmcommon.InitLogger(true)
+	// base labels for infra controller
+	baseResourceLabels = lcmcommon.PelagiaResourceLabels(ControllerName)
 )
 
 // ReconcileLcmResources reconciles a CephDeploymentHealth object

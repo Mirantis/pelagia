@@ -1961,9 +1961,11 @@ func TestApplyConfiguration(t *testing.T) {
 				*unitinputs.RookCephRgwMetricsSecret.DeepCopy(),
 			},
 		},
-		"services":       &corev1.ServiceList{},
-		"pods":           unitinputs.ToolBoxPodList,
-		"storageclasses": &storagev1.StorageClassList{},
+		"services": &corev1.ServiceList{},
+		"pods":     unitinputs.ToolBoxPodList,
+		"storageclasses": &storagev1.StorageClassList{
+			Items: []storagev1.StorageClass{*unitinputs.RgwStorageClass.DeepCopy()},
+		},
 		"cephblockpools": &cephv1.CephBlockPoolList{
 			Items: append(unitinputs.OpenstackCephBlockPoolsListReady.DeepCopy().Items,
 				unitinputs.GetCephBlockPoolWithStatus(unitinputs.CephBlockPoolReplicated, true), *unitinputs.BuiltinMgrPool.DeepCopy(), *unitinputs.BuiltinRgwRootPool.DeepCopy()),
@@ -2003,8 +2005,10 @@ func TestApplyConfiguration(t *testing.T) {
 				*unitinputs.CephRBDMirrorSecret2.DeepCopy(),
 			},
 		},
-		"storageclasses": &storagev1.StorageClassList{},
-		"cephclients":    &cephv1.CephClientList{},
+		"storageclasses": &storagev1.StorageClassList{
+			Items: []storagev1.StorageClass{*unitinputs.RgwStorageClass.DeepCopy()},
+		},
+		"cephclients": &cephv1.CephClientList{},
 		"cephclusters": &cephv1.CephClusterList{
 			Items: []cephv1.CephCluster{
 				*unitinputs.CephClusterExternal.DeepCopy(),
@@ -2205,6 +2209,7 @@ func TestApplyConfiguration(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "update", []string{"configmaps", "nodes", "secrets"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "delete", []string{"services"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "list", []string{"storageclasses"}, test.inputResources, nil)
+			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "get", []string{"storageclasses"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "create", []string{"storageclasses"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "update", []string{"storageclasses"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.NetworkingV1(), "get", []string{"ingresses", "networkpolicies"}, test.inputResources, test.apiErrors)

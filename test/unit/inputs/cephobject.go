@@ -31,7 +31,15 @@ var CephObjectStoreListEmpty = cephv1.CephObjectStoreList{Items: []cephv1.CephOb
 var CephObjectStoreListExternal = cephv1.CephObjectStoreList{Items: []cephv1.CephObjectStore{CephObjectStoreExternalReady}}
 
 var CephObjectStoreReady = cephv1.CephObjectStore{
-	ObjectMeta: metav1.ObjectMeta{Namespace: RookNamespace, Name: "rgw-store"},
+	ObjectMeta: metav1.ObjectMeta{
+		Namespace: RookNamespace,
+		Name:      "rgw-store",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
+	},
 	Spec: cephv1.ObjectStoreSpec{
 		Gateway: cephv1.GatewaySpec{
 			Instances:   2,
@@ -42,7 +50,15 @@ var CephObjectStoreReady = cephv1.CephObjectStore{
 }
 
 var CephObjectStoreSyncReady = cephv1.CephObjectStore{
-	ObjectMeta: metav1.ObjectMeta{Namespace: RookNamespace, Name: "rgw-store-sync"},
+	ObjectMeta: metav1.ObjectMeta{
+		Namespace: RookNamespace,
+		Name:      "rgw-store-sync",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
+	},
 	Spec: cephv1.ObjectStoreSpec{
 		Gateway: cephv1.GatewaySpec{
 			Instances:                   1,
@@ -53,7 +69,15 @@ var CephObjectStoreSyncReady = cephv1.CephObjectStore{
 }
 
 var CephObjectStoreExternalReady = cephv1.CephObjectStore{
-	ObjectMeta: metav1.ObjectMeta{Namespace: RookNamespace, Name: "rgw-store-external"},
+	ObjectMeta: metav1.ObjectMeta{
+		Namespace: RookNamespace,
+		Name:      "rgw-store-external",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
+	},
 	Spec: cephv1.ObjectStoreSpec{
 		Gateway: cephv1.GatewaySpec{
 			ExternalRgwEndpoints: []cephv1.EndpointAddress{
@@ -111,6 +135,11 @@ var CephObjectStoreBase = &cephv1.CephObjectStore{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "rgw-store",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ObjectStoreSpec{
 		DefaultRealm:          true,
@@ -172,6 +201,11 @@ var CephObjectStoreWithZone = &cephv1.CephObjectStore{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "rgw-store",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ObjectStoreSpec{
 		PreservePoolsOnDelete: false,
@@ -238,6 +272,11 @@ var CephObjectStoreExternal = &cephv1.CephObjectStore{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "rgw-store",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ObjectStoreSpec{
 		Gateway: cephv1.GatewaySpec{
@@ -313,6 +352,11 @@ var RgwUserWithCapsAndQuotas = cephv1.CephObjectStoreUser{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "test-user",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ObjectStoreUserSpec{
 		Store:       "rgw-store",
@@ -330,6 +374,11 @@ var RgwCeilometerUser = cephv1.CephObjectStoreUser{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "rgw-ceilometer",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ObjectStoreUserSpec{
 		Store:       "rgw-store",
@@ -363,6 +412,11 @@ func GetCephRgwUser(name, namespace, rgwName string) cephv1.CephObjectStoreUser 
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
+			Labels: map[string]string{
+				"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+				"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+				"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+			},
 		},
 		Spec: cephv1.ObjectStoreUserSpec{
 			Store:       rgwName,
@@ -377,6 +431,11 @@ var CephRgwUsersList = cephv1.CephObjectStoreUserList{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "fake-user-1",
 				Namespace: "rook-ceph",
+				Labels: map[string]string{
+					"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+					"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+					"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+				},
 			},
 			Spec: cephv1.ObjectStoreUserSpec{
 				Store:       "rgw-store",
@@ -390,6 +449,11 @@ var CephRgwUsersList = cephv1.CephObjectStoreUserList{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "fake-user-2",
 				Namespace: "rook-ceph",
+				Labels: map[string]string{
+					"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+					"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+					"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+				},
 			},
 			Spec: cephv1.ObjectStoreUserSpec{
 				Store:       "rgw-store",
@@ -501,6 +565,11 @@ var RgwMultisiteMasterRealm1 = cephv1.CephObjectRealm{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "realm1",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 }
 
@@ -508,6 +577,11 @@ var RgwMultisiteMasterPullRealm1 = cephv1.CephObjectRealm{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "realm1",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ObjectRealmSpec{
 		Pull: cephv1.PullSpec{
@@ -547,6 +621,11 @@ var RgwMultisiteMasterZoneGroup1 = cephv1.CephObjectZoneGroup{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "zonegroup1",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ObjectZoneGroupSpec{
 		Realm: "realm1",
@@ -587,6 +666,11 @@ var RgwMultisiteMasterZone1 = cephv1.CephObjectZone{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "zone1",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ObjectZoneSpec{
 		ZoneGroup: "zonegroup1",
@@ -612,6 +696,11 @@ var RgwMultisiteSecondaryZone1 = cephv1.CephObjectZone{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "secondary-zone1",
 		Namespace: "rook-ceph",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.ObjectZoneSpec{
 		ZoneGroup: "zonegroup1",

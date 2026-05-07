@@ -41,7 +41,7 @@ func generateStorageClassPoolBased(clusterid, poolName string, storageOpts cephl
 	storageclass := v1storage.StorageClass{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        poolName,
-			Labels:      map[string]string{rookStorageClassLabelKey: "true"},
+			Labels:      lcmcommon.ExtendLabels(map[string]string{rookStorageClassLabelKey: "true"}, baseResourceLabels),
 			Annotations: map[string]string{rookDefaultSCAnnotationKey: fmt.Sprintf("%v", storageOpts.Default)},
 		},
 		Provisioner: rookRBDProvisionerName,
@@ -91,10 +91,10 @@ func generateStorageClassCephFSBased(clusterID, cephFsName, dataPool, namespace 
 	storageclass := v1storage.StorageClass{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: getStorageClassNameCephFS(cephFsName, dataPool),
-			Labels: map[string]string{
+			Labels: lcmcommon.ExtendLabels(map[string]string{
 				rookStorageClassLabelKey:         "true",
 				rookStorageClassKeepOnSpecRemove: fmt.Sprintf("%v", keepAfterRemove),
-			},
+			}, baseResourceLabels),
 		},
 		Provisioner: rookCephFSProvisionerName,
 		Parameters: map[string]string{
@@ -140,31 +140,22 @@ func (c *cephDeploymentConfig) ensureStorageClasses() (bool, error) {
 				if poolName == storageClass.Name {
 					found = true
 					delete(storageClassesToDelete, storageClass.Name)
-					updatedStorageClass := storageClass
-					updated := false
-					if updatedStorageClass.Labels == nil {
-						updatedStorageClass.SetLabels(map[string]string{})
+					updated := lcmcommon.AlignBaseLabels(*c.log, "StorageClass", &storageClass.ObjectMeta, storageResource.Labels)
+					if storageClass.Annotations == nil {
+						storageClass.SetAnnotations(map[string]string{})
 					}
-					if updatedStorageClass.Annotations == nil {
-						updatedStorageClass.SetAnnotations(map[string]string{})
-					}
-					if updatedStorageClass.Labels[rookStorageClassLabelKey] != "true" {
-						updatedStorageClass.Labels[rookStorageClassLabelKey] = "true"
-						c.log.Info().Msgf("setting label '%s=%s' for storage class %s", rookStorageClassLabelKey, updatedStorageClass.Labels[rookStorageClassLabelKey], updatedStorageClass.Name)
+					if storageClass.Annotations[rookDefaultSCAnnotationKey] != fmt.Sprintf("%v", cephDplPool.StorageClassOpts.Default) {
+						c.log.Info().Msgf("setting annotation '%s=%s' for storage class %s", rookDefaultSCAnnotationKey, fmt.Sprintf("%v", cephDplPool.StorageClassOpts.Default), storageClass.Name)
+						storageClass.Annotations[rookDefaultSCAnnotationKey] = fmt.Sprintf("%v", cephDplPool.StorageClassOpts.Default)
 						updated = true
 					}
-					if updatedStorageClass.Annotations[rookDefaultSCAnnotationKey] != fmt.Sprintf("%v", cephDplPool.StorageClassOpts.Default) {
-						c.log.Info().Msgf("setting annotation '%s=%s' for storage class %s", rookDefaultSCAnnotationKey, fmt.Sprintf("%v", cephDplPool.StorageClassOpts.Default), updatedStorageClass.Name)
-						updatedStorageClass.Annotations[rookDefaultSCAnnotationKey] = fmt.Sprintf("%v", cephDplPool.StorageClassOpts.Default)
-						updated = true
-					}
-					if !reflect.DeepEqual(updatedStorageClass.Parameters, storageResource.Parameters) {
-						lcmcommon.ShowObjectDiff(*c.log, updatedStorageClass.Parameters, storageResource.Parameters)
+					if !reflect.DeepEqual(storageClass.Parameters, storageResource.Parameters) {
+						lcmcommon.ShowObjectDiff(*c.log, storageClass.Parameters, storageResource.Parameters)
 						c.log.Warn().Msgf("storageclass parameters update won't be applied for storage class '%[1]s', since parameters section is immutable,"+
-							" need to recreate storage class '%[1]s' to apply new parameters", updatedStorageClass.Name)
+							" need to recreate storage class '%[1]s' to apply new parameters", storageClass.Name)
 					}
 					if updated {
-						storageClassesToUpdate = append(storageClassesToUpdate, &updatedStorageClass)
+						storageClassesToUpdate = append(storageClassesToUpdate, &storageClass)
 					}
 				}
 			}
@@ -189,18 +180,8 @@ func (c *cephDeploymentConfig) ensureStorageClasses() (bool, error) {
 				for _, storageClass := range storageClassesList.Items {
 					if storageClass.Name == storageClassName {
 						newStorageClass = false
-						if len(storageClass.Labels) == 0 || storageClass.Labels[rookStorageClassLabelKey] != storageResource.Labels[rookStorageClassLabelKey] || storageClass.Labels[rookStorageClassKeepOnSpecRemove] != storageResource.Labels[rookStorageClassKeepOnSpecRemove] {
-							if storageClass.Labels == nil {
-								storageClass.SetLabels(map[string]string{})
-							}
-							if storageClass.Labels[rookStorageClassLabelKey] != storageResource.Labels[rookStorageClassLabelKey] {
-								c.log.Info().Msgf("setting label '%s=%s' for storage class %s", rookStorageClassLabelKey, storageResource.Labels[rookStorageClassLabelKey], storageClass.Name)
-								storageClass.Labels[rookStorageClassLabelKey] = storageResource.Labels[rookStorageClassLabelKey]
-							}
-							if storageClass.Labels[rookStorageClassKeepOnSpecRemove] != storageResource.Labels[rookStorageClassKeepOnSpecRemove] {
-								c.log.Info().Msgf("setting label '%s=%s' for storage class %s", rookStorageClassKeepOnSpecRemove, storageResource.Labels[rookStorageClassKeepOnSpecRemove], storageClass.Name)
-								storageClass.Labels[rookStorageClassKeepOnSpecRemove] = storageResource.Labels[rookStorageClassKeepOnSpecRemove]
-							}
+						changedBaseLabels := lcmcommon.AlignBaseLabels(*c.log, "StorageClass", &storageClass.ObjectMeta, storageResource.Labels)
+						if changedBaseLabels {
 							storageClassesToUpdate = append(storageClassesToUpdate, &storageClass)
 						}
 						break

@@ -102,3 +102,10 @@ func GetStringSha256(s string) string {
 	bs := h.Sum(nil)
 	return fmt.Sprintf("%x", bs)
 }
+
+func ExtendLabels(resourceLabels map[string]string, extraLabels map[string]string) map[string]string {
+	for k, v := range extraLabels {
+		resourceLabels[k] = v
+	}
+	return resourceLabels
+}

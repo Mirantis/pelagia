@@ -26,7 +26,15 @@ import (
 var CephFilesystemListEmpty = cephv1.CephFilesystemList{Items: []cephv1.CephFilesystem{}}
 
 var CephFilesystemNoActiveStandbyReady = cephv1.CephFilesystem{
-	ObjectMeta: metav1.ObjectMeta{Namespace: RookNamespace, Name: "cephfs-1"},
+	ObjectMeta: metav1.ObjectMeta{
+		Namespace: RookNamespace,
+		Name:      "cephfs-1",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
+	},
 	Spec: cephv1.FilesystemSpec{
 		MetadataServer: cephv1.MetadataServerSpec{
 			ActiveCount: 1,
@@ -36,7 +44,15 @@ var CephFilesystemNoActiveStandbyReady = cephv1.CephFilesystem{
 }
 
 var CephFilesystemActiveStandbyReady = cephv1.CephFilesystem{
-	ObjectMeta: metav1.ObjectMeta{Namespace: RookNamespace, Name: "cephfs-2"},
+	ObjectMeta: metav1.ObjectMeta{
+		Namespace: RookNamespace,
+		Name:      "cephfs-2",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
+	},
 	Spec: cephv1.FilesystemSpec{
 		MetadataServer: cephv1.MetadataServerSpec{
 			ActiveCount:   1,
@@ -50,6 +66,11 @@ var TestCephFs = cephv1.CephFilesystem{
 	ObjectMeta: metav1.ObjectMeta{
 		Namespace: "rook-ceph",
 		Name:      "test-cephfs",
+		Labels: map[string]string{
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+		},
 	},
 	Spec: cephv1.FilesystemSpec{
 		MetadataPool: cephv1.NamedPoolSpec{

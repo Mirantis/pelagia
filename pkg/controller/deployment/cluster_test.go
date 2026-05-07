@@ -470,7 +470,7 @@ func TestEnsureCluster(t *testing.T) {
 			updated: true,
 		},
 		{
-			name: "update cluster - set osd restart reason",
+			name: "update cluster - set osd restart reason and labels",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.BaseCephDeployment.DeepCopy()
 				mc.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{
@@ -480,7 +480,13 @@ func TestEnsureCluster(t *testing.T) {
 			}(),
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{
-					Items: []cephv1.CephCluster{*unitinputs.CephClusterGenerated.DeepCopy()},
+					Items: []cephv1.CephCluster{
+						func() cephv1.CephCluster {
+							cl := unitinputs.CephClusterGenerated.DeepCopy()
+							cl.Labels = nil
+							return *cl
+						}(),
+					},
 				},
 				"configmaps": &v1.ConfigMapList{Items: []v1.ConfigMap{
 					func() v1.ConfigMap {

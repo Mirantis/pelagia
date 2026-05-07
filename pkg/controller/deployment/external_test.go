@@ -326,7 +326,12 @@ func TestManageSecrets(t *testing.T) {
 		{
 			name: "successfully manage some secrets",
 			secrets: []*corev1.Secret{
-				&unitinputs.RookCephMonSecret, &unitinputs.CSIRBDNodeSecret, &unitinputs.CSIRBDProvisionerSecret,
+				&unitinputs.RookCephMonSecret, &unitinputs.CSIRBDNodeSecret,
+				func() *corev1.Secret {
+					sc := unitinputs.CSIRBDProvisionerSecret.DeepCopy()
+					sc.Labels = nil
+					return sc
+				}(),
 			},
 			inputResources: map[string]runtime.Object{
 				"secrets": &corev1.SecretList{
@@ -410,6 +415,7 @@ func TestManageConfigMap(t *testing.T) {
 			name: "successfully update config map data",
 			configMap: func() *corev1.ConfigMap {
 				configMap := unitinputs.RookCephMonEndpointsExternal.DeepCopy()
+				configMap.Labels = nil
 				// changed mon endpoints to initiate update
 				configMap.Data["data"] = "cmn01=10.0.0.4:6969,cmn02=10.0.0.2:6969,cmn03=10.0.0.3:6969"
 				return configMap

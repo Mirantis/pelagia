@@ -389,6 +389,7 @@ func TestEnsureCephFS(t *testing.T) {
 					unitinputs.TestCephFs,
 					func() cephv1.CephFilesystem {
 						cephfs := unitinputs.TestCephFs.DeepCopy()
+						cephfs.Labels = nil
 						cephfs.Name = "second-test-cephfs"
 						return *cephfs
 					}(),

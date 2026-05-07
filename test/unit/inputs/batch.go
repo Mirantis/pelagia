@@ -51,11 +51,14 @@ func GetCleanupJob(host, osd, longName string, devices map[string]string) *batch
 			Name:      jobName,
 			Namespace: LcmObjectMeta.Namespace,
 			Labels: map[string]string{
-				"app":          "pelagia-lcm-cleanup-disks",
-				"rook-cluster": LcmObjectMeta.Name,
-				"host":         host,
-				"osd":          osdLabel,
-				"task":         "osdremove-task",
+				"app":                          "pelagia-lcm-cleanup-disks",
+				"app.kubernetes.io/created-by": "pelagia-osdremove-task-controller",
+				"app.kubernetes.io/managed-by": "pelagia-osdremove-task-controller",
+				"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+				"rook-cluster":                 LcmObjectMeta.Name,
+				"host":                         host,
+				"osd":                          osdLabel,
+				"task":                         "osdremove-task",
 			},
 			OwnerReferences: []metav1.OwnerReference{
 				{

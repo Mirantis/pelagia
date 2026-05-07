@@ -43,7 +43,12 @@ func GetNetworkPolicy(appName string, ports []networkingv1.NetworkPolicyPort) ne
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      fmt.Sprintf("%s-policy", appName),
 			Namespace: "rook-ceph",
-			Labels:    map[string]string{"cephdeployment.lcm.mirantis.com/networkpolicy": "managed"},
+			Labels: map[string]string{
+				"cephdeployment.lcm.mirantis.com/networkpolicy": "managed",
+				"app.kubernetes.io/created-by":                  "pelagia-deployment-controller",
+				"app.kubernetes.io/managed-by":                  "pelagia-deployment-controller",
+				"app.kubernetes.io/part-of":                     "ceph.pelagia.lcm",
+			},
 		},
 		Spec: networkingv1.NetworkPolicySpec{
 			Ingress:     []networkingv1.NetworkPolicyIngressRule{{Ports: ports}},

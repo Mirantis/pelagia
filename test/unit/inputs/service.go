@@ -30,9 +30,12 @@ var RgwExternalServiceGenerated = corev1.Service{
 		Name:      "rook-ceph-rgw-rgw-store-external",
 		Namespace: "rook-ceph",
 		Labels: map[string]string{
-			"app":               "rook-ceph-rgw",
-			"rook_object_store": "rgw-store",
-			"external_access":   "rgw",
+			"app":                          "rook-ceph-rgw",
+			"rook_object_store":            "rgw-store",
+			"external_access":              "rgw",
+			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
 		},
 	},
 	Spec: corev1.ServiceSpec{

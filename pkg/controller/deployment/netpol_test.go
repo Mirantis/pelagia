@@ -92,7 +92,11 @@ func TestEnsureNetworkPolicy(t *testing.T) {
 						unitinputs.GetNetworkPolicy("rook-ceph-mon", nil),
 						unitinputs.GetNetworkPolicy("rook-ceph-osd", nil),
 						unitinputs.GetNetworkPolicy("rook-ceph-rgw", nil),
-						unitinputs.GetNetworkPolicy("rook-ceph-mds", nil),
+						func() networkingv1.NetworkPolicy {
+							np := unitinputs.GetNetworkPolicy("rook-ceph-mds", nil)
+							np.Labels = nil
+							return np
+						}(),
 					},
 				},
 			},

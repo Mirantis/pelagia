@@ -194,7 +194,13 @@ func TestEnsurePools(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployNonMosk,
 			inputResources: map[string]runtime.Object{
 				"cephblockpools": &cephv1.CephBlockPoolList{
-					Items: []cephv1.CephBlockPool{unitinputs.GetReadyPoolWithRatio("pool1-hdd", true, 0.5)},
+					Items: []cephv1.CephBlockPool{
+						func() cephv1.CephBlockPool {
+							cephpool := unitinputs.GetReadyPoolWithRatio("pool1-hdd", true, 0.5)
+							delete(cephpool.Labels, "app.kubernetes.io/part-of")
+							return cephpool
+						}(),
+					},
 				},
 			},
 			expectedResources: map[string]runtime.Object{

@@ -146,9 +146,13 @@ func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
 		c.log.Error().Err(err).Msg("")
 		return false, errors.Wrapf(err, "failed to get %s/%s secret", c.lcmConfig.DeployParams.OpenstackCephSharedNamespace, openstackSharedSecret)
 	}
-	if !reflect.DeepEqual(currentSecret.Data, osSecret.Data) {
+	dataUpdated := !reflect.DeepEqual(currentSecret.Data, osSecret.Data)
+	changedBaseLabels := lcmcommon.AlignBaseLabels(*c.log, "secret", &currentSecret.ObjectMeta, osSecret.Labels)
+	if dataUpdated || changedBaseLabels {
 		c.log.Info().Msgf("update %s/%s secret", c.lcmConfig.DeployParams.OpenstackCephSharedNamespace, openstackSharedSecret)
-		currentSecret.Data = osSecret.Data
+		if dataUpdated {
+			currentSecret.Data = osSecret.Data
+		}
 		_, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Update(c.context, currentSecret, metav1.UpdateOptions{})
 		if err != nil {
 			c.log.Error().Err(err).Msg("")
@@ -326,6 +330,7 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      openstackSharedSecret,
 			Namespace: c.lcmConfig.DeployParams.OpenstackCephSharedNamespace,
+			Labels:    baseResourceLabels,
 		},
 		Data: map[string][]byte{
 			"client.admin":  clientAdminSecret,

@@ -83,13 +83,13 @@ func (c *cephDeploymentConfig) ensureCluster() (bool, error) {
 
 	// Generate new ceph cluster spec
 	generatedClusterSpec := generateCephClusterSpec(c.cdConfig.clusterSpec, c.cdConfig.currentCephImage, c.cdConfig.nodesListExpanded)
-
 	// Create/Update/Skip ceph cluster
 	if !cephClusterFound {
 		newCluster := &cephv1.CephCluster{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      c.cdConfig.cephDpl.Name,
 				Namespace: c.lcmConfig.RookNamespace,
+				Labels:    baseResourceLabels,
 			},
 			Spec: generatedClusterSpec,
 		}
@@ -121,10 +121,14 @@ func (c *cephDeploymentConfig) ensureCluster() (bool, error) {
 		generatedClusterSpec.Annotations[cephv1.KeyOSD][cephRestartOsdTimestampLabel] = cephCluster.Annotations[cephRestartOsdTimestampLabel]
 	}
 
-	if !reflect.DeepEqual(cephCluster.Spec, generatedClusterSpec) {
+	labelsUpdated := lcmcommon.AlignBaseLabels(*c.log, "CephCluster", &cephCluster.ObjectMeta, baseResourceLabels)
+	specUpdated := !reflect.DeepEqual(cephCluster.Spec, generatedClusterSpec)
+	if specUpdated || labelsUpdated {
 		c.log.Info().Msgf("updating cephcluster %s/%s", c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Name)
-		lcmcommon.ShowObjectDiff(*c.log, cephCluster.Spec, generatedClusterSpec)
-		cephCluster.Spec = generatedClusterSpec
+		if specUpdated {
+			lcmcommon.ShowObjectDiff(*c.log, cephCluster.Spec, generatedClusterSpec)
+			cephCluster.Spec = generatedClusterSpec
+		}
 		_, err := c.api.Rookclientset.CephV1().CephClusters(c.lcmConfig.RookNamespace).Update(c.context, cephCluster, metav1.UpdateOptions{})
 		if err != nil {
 			return false, errors.Wrapf(err, "failed to update cephcluster %s/%s", c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Name)

@@ -105,7 +105,9 @@ func TestEnsureObjectStorage(t *testing.T) {
 				"secrets": &corev1.SecretList{
 					Items: []corev1.Secret{*unitinputs.RgwSSLCertSecret.DeepCopy(), *unitinputs.RookCephRgwAdminSecret.DeepCopy()},
 				},
-				"storageclasses": &storagev1.StorageClassList{},
+				"storageclasses": &storagev1.StorageClassList{
+					Items: []storagev1.StorageClass{*unitinputs.RgwStorageClass.DeepCopy()},
+				},
 				"cephobjectstores": &cephv1.CephObjectStoreList{
 					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreExternal.DeepCopy()},
 				},
@@ -166,7 +168,9 @@ func TestEnsureObjectStorage(t *testing.T) {
 				"services": &corev1.ServiceList{
 					Items: []corev1.Service{*unitinputs.RgwExternalServiceGenerated.DeepCopy()},
 				},
-				"storageclasses": &storagev1.StorageClassList{},
+				"storageclasses": &storagev1.StorageClassList{
+					Items: []storagev1.StorageClass{*unitinputs.RgwStorageClass.DeepCopy()},
+				},
 				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{
 					Items: []cephv1.CephObjectZoneGroup{*unitinputs.RgwMultisiteMasterZoneGroup1.DeepCopy()},
 				},
@@ -218,6 +222,7 @@ func TestEnsureObjectStorage(t *testing.T) {
 			}
 			c.cdConfig.currentCephVersion = lcmcommon.LatestRelease
 
+			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "get", []string{"storageclasses"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "delete", []string{"storageclasses"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"secrets", "services"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "delete", []string{"secrets"}, test.inputResources, test.apiErrors)
