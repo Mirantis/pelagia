@@ -1,7 +1,6 @@
 package v1alpha1
 
 import (
-	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -127,9 +126,6 @@ type ObjectStorageStatus struct {
 	// CephObjectStoreUsers represents a key-value mapping of Ceph object storage user's name and it's status
 	// +optional
 	CephObjectStoreUsers map[string]*cephv1.ObjectStoreUserStatus `json:"cephObjectStoreUsers,omitempty"`
-	// ObjectBucketClaims represents a key-value mapping of Ceph object storage bucket's name and it's status
-	// +optional
-	ObjectBucketClaims map[string]bktv1alpha1.ObjectBucketClaimStatus `json:"objectBucketClaims,omitempty"`
 	// CephObjectRealm represents a key-value mapping of Ceph object storage gateway realm's name and it's status
 	// +optional
 	CephObjectRealms map[string]*cephv1.Status `json:"cephObjectRealms,omitempty"`

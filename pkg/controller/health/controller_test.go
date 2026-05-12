@@ -39,13 +39,12 @@ import (
 
 func FakeReconciler() *ReconcileCephDeploymentHealth {
 	return &ReconcileCephDeploymentHealth{
-		Config:         &rest.Config{},
-		Client:         faketestclients.GetClient(nil),
-		Lcmclientset:   faketestclients.GetFakeLcmclient(),
-		Kubeclientset:  faketestclients.GetFakeKubeclient(),
-		Rookclientset:  faketestclients.GetFakeRookclient(),
-		Claimclientset: faketestclients.GetFakeClaimclient(),
-		Scheme:         faketestscheme.Scheme,
+		Config:        &rest.Config{},
+		Client:        faketestclients.GetClient(nil),
+		Lcmclientset:  faketestclients.GetFakeLcmclient(),
+		Kubeclientset: faketestclients.GetFakeKubeclient(),
+		Rookclientset: faketestclients.GetFakeRookclient(),
+		Scheme:        faketestscheme.Scheme,
 	}
 }
 
@@ -79,7 +78,6 @@ func fakeCephReconcileConfig(hconfig *healthConfig, lcmConfigData map[string]str
 
 var rookListResources = []string{"cephblockpools", "cephclients", "cephfilesystems", "cephobjectstores", "cephobjectstoreusers", "cephobjectrealms", "cephobjectzonegroups", "cephobjectzones"}
 var rookGetResources = []string{"cephclusters"}
-var claimListResources = []string{"objectbucketclaims"}
 
 func TestHealthReconcile(t *testing.T) {
 	req := reconcile.Request{NamespacedName: types.NamespacedName{Namespace: unitinputs.LcmObjectMeta.Namespace, Name: unitinputs.LcmObjectMeta.Name}}
@@ -125,7 +123,6 @@ func TestHealthReconcile(t *testing.T) {
 				"cephclients":           &unitinputs.CephClientListEmpty,
 				"cephobjectstores":      &unitinputs.CephObjectStoreListEmpty,
 				"cephobjectstoreusers":  &unitinputs.CephObjectStoreUserListEmpty,
-				"objectbucketclaims":    &unitinputs.ObjectBucketClaimListEmpty,
 				"cephobjectrealms":      &unitinputs.CephObjectRealmListEmpty,
 				"cephobjectzonegroups":  &unitinputs.CephObjectZoneGroupListEmpty,
 				"cephobjectzones":       &unitinputs.CephObjectZoneListEmpty,
@@ -160,7 +157,6 @@ func TestHealthReconcile(t *testing.T) {
 				"cephclients":           &unitinputs.CephClientListEmpty,
 				"cephobjectstores":      &unitinputs.CephObjectStoreListEmpty,
 				"cephobjectstoreusers":  &unitinputs.CephObjectStoreUserListEmpty,
-				"objectbucketclaims":    &unitinputs.ObjectBucketClaimListEmpty,
 				"cephobjectrealms":      &unitinputs.CephObjectRealmListEmpty,
 				"cephobjectzonegroups":  &unitinputs.CephObjectZoneGroupListEmpty,
 				"cephobjectzones":       &unitinputs.CephObjectZoneListEmpty,
@@ -193,7 +189,6 @@ func TestHealthReconcile(t *testing.T) {
 				"cephclients":           &unitinputs.CephClientListEmpty,
 				"cephobjectstores":      &unitinputs.CephObjectStoreListEmpty,
 				"cephobjectstoreusers":  &unitinputs.CephObjectStoreUserListEmpty,
-				"objectbucketclaims":    &unitinputs.ObjectBucketClaimListEmpty,
 				"cephobjectrealms":      &unitinputs.CephObjectRealmListEmpty,
 				"cephobjectzonegroups":  &unitinputs.CephObjectZoneGroupListEmpty,
 				"cephobjectzones":       &unitinputs.CephObjectZoneListEmpty,
@@ -234,7 +229,6 @@ func TestHealthReconcile(t *testing.T) {
 				"cephclients":           &unitinputs.CephClientListEmpty,
 				"cephobjectstores":      &unitinputs.CephObjectStoreListEmpty,
 				"cephobjectstoreusers":  &unitinputs.CephObjectStoreUserListEmpty,
-				"objectbucketclaims":    &unitinputs.ObjectBucketClaimListEmpty,
 				"cephobjectrealms":      &unitinputs.CephObjectRealmListEmpty,
 				"cephobjectzonegroups":  &unitinputs.CephObjectZoneGroupListEmpty,
 				"cephobjectzones":       &unitinputs.CephObjectZoneListEmpty,
@@ -289,7 +283,6 @@ func TestHealthReconcile(t *testing.T) {
 			}
 			faketestclients.FakeReaction(r.Kubeclientset.NetworkingV1(), "list", []string{"ingresses"}, test.inputResources, nil)
 			faketestclients.FakeReaction(r.Rookclientset, "list", rookListResources, test.inputResources, nil)
-			faketestclients.FakeReaction(r.Claimclientset, "list", claimListResources, test.inputResources, nil)
 			faketestclients.FakeReaction(r.Lcmclientset, "get", []string{"cephdeploymenthealths"}, test.inputResources, apiErrors)
 			faketestclients.FakeReaction(r.Rookclientset, "get", rookGetResources, test.inputResources, nil)
 			faketestclients.FakeReaction(r.Kubeclientset.CoreV1(), "get", []string{"configmaps"}, test.inputResources, nil)
@@ -332,7 +325,6 @@ func TestHealthReconcile(t *testing.T) {
 			faketestclients.CleanupFakeClientReactions(r.Kubeclientset.AppsV1())
 			faketestclients.CleanupFakeClientReactions(r.Kubeclientset.NetworkingV1())
 			faketestclients.CleanupFakeClientReactions(r.Rookclientset)
-			faketestclients.CleanupFakeClientReactions(r.Claimclientset)
 		})
 	}
 	lcmcommon.GetCurrentTimeString = baseFunc
@@ -365,7 +357,6 @@ func TestHealthAndConfigReconcile(t *testing.T) {
 		"cephclients":           &unitinputs.CephClientListEmpty,
 		"cephobjectstores":      &unitinputs.CephObjectStoreListEmpty,
 		"cephobjectstoreusers":  &unitinputs.CephObjectStoreUserListEmpty,
-		"objectbucketclaims":    &unitinputs.ObjectBucketClaimListEmpty,
 		"cephobjectrealms":      &unitinputs.CephObjectRealmListEmpty,
 		"cephobjectzonegroups":  &unitinputs.CephObjectZoneGroupListEmpty,
 		"cephobjectzones":       &unitinputs.CephObjectZoneListEmpty,
@@ -373,7 +364,6 @@ func TestHealthAndConfigReconcile(t *testing.T) {
 	}
 
 	faketestclients.FakeReaction(healthReconciler.Rookclientset, "list", rookListResources, inputResources, nil)
-	faketestclients.FakeReaction(healthReconciler.Claimclientset, "list", claimListResources, inputResources, nil)
 	faketestclients.FakeReaction(healthReconciler.Lcmclientset, "get", []string{"cephdeploymenthealths"}, inputResources, nil)
 	faketestclients.FakeReaction(healthReconciler.Rookclientset, "get", rookGetResources, inputResources, nil)
 	faketestclients.FakeReaction(healthReconciler.Kubeclientset.AppsV1(), "get", []string{"deployments", "daemonsets"}, inputResources, nil)
@@ -420,6 +410,5 @@ func TestHealthAndConfigReconcile(t *testing.T) {
 	faketestclients.CleanupFakeClientReactions(healthReconciler.Lcmclientset)
 	faketestclients.CleanupFakeClientReactions(healthReconciler.Kubeclientset.AppsV1())
 	faketestclients.CleanupFakeClientReactions(healthReconciler.Rookclientset)
-	faketestclients.CleanupFakeClientReactions(healthReconciler.Claimclientset)
 	lcmconfig.ParamsToControl = oldVal
 }

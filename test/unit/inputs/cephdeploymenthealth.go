@@ -17,7 +17,6 @@ limitations under the License.
 package input
 
 import (
-	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 
 	lcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
@@ -179,9 +178,6 @@ var RookCephObjectsReportReadyOnlyCephCluster = &lcmv1alpha1.RookCephObjectsStat
 			"rgw-user-1": CephObjectStoreUserListNotReady.Items[0].Status,
 			"rgw-user-2": nil,
 		},
-		ObjectBucketClaims: map[string]bktv1alpha1.ObjectBucketClaimStatus{
-			"bucket-1": ObjectBucketClaimListNotReady.Items[0].Status,
-		},
 		CephObjectRealms: map[string]*cephv1.Status{
 			"realm-1": CephObjectRealmListNotReady.Items[0].Status,
 			"realm-2": nil,
@@ -223,9 +219,6 @@ var RookCephObjectsReportReadyFull = &lcmv1alpha1.RookCephObjectsStatus{
 		CephObjectStoreUsers: map[string]*cephv1.ObjectStoreUserStatus{
 			"rgw-user-1": CephObjectStoreUserListReady.Items[0].Status,
 			"rgw-user-2": CephObjectStoreUserListReady.Items[1].Status,
-		},
-		ObjectBucketClaims: map[string]bktv1alpha1.ObjectBucketClaimStatus{
-			"bucket-1": ObjectBucketClaimListReady.Items[0].Status,
 		},
 		CephObjectRealms: map[string]*cephv1.Status{
 			"realm-1": CephObjectRealmListReady.Items[0].Status,

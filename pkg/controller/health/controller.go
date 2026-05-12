@@ -23,7 +23,6 @@ import (
 	"strings"
 	"time"
 
-	claimClient "github.com/kube-object-storage/lib-bucket-provisioner/pkg/client/clientset/versioned"
 	"github.com/pkg/errors"
 	rookclient "github.com/rook/rook/pkg/client/clientset/versioned"
 	"github.com/rs/zerolog"
@@ -79,23 +78,18 @@ func newReconciler(mgr manager.Manager) (reconcile.Reconciler, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get lcm client")
 	}
-	ClaimClientset, err := claimClient.NewForConfig(config)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get bucket proviosioner client")
-	}
 	KubeClientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get k8s client")
 	}
 
 	return &ReconcileCephDeploymentHealth{
-		Config:         config,
-		Client:         mgr.GetClient(),
-		Lcmclientset:   LcmClientset,
-		Kubeclientset:  KubeClientset,
-		Rookclientset:  RookClientset,
-		Claimclientset: ClaimClientset,
-		Scheme:         mgr.GetScheme(),
+		Config:        config,
+		Client:        mgr.GetClient(),
+		Lcmclientset:  LcmClientset,
+		Kubeclientset: KubeClientset,
+		Rookclientset: RookClientset,
+		Scheme:        mgr.GetScheme(),
 	}, nil
 }
 
@@ -139,13 +133,12 @@ var (
 type ReconcileCephDeploymentHealth struct {
 	// This client, initialized using mgr.Client() above, is a split client
 	// that reads objects from the cache and writes to the apiserver
-	Config         *rest.Config
-	Client         client.Client
-	Lcmclientset   lcmclient.Interface
-	Kubeclientset  kubernetes.Interface
-	Rookclientset  rookclient.Interface
-	Claimclientset claimClient.Interface
-	Scheme         *runtime.Scheme
+	Config        *rest.Config
+	Client        client.Client
+	Lcmclientset  lcmclient.Interface
+	Kubeclientset kubernetes.Interface
+	Rookclientset rookclient.Interface
+	Scheme        *runtime.Scheme
 }
 
 func (r *ReconcileCephDeploymentHealth) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {

@@ -1333,21 +1333,6 @@ spec:
                               of Ceph object storage gateway zone's name and it's
                               status
                             type: object
-                          objectBucketClaims:
-                            additionalProperties:
-                              description: ObjectBucketClaimStatus defines the observed
-                                state of ObjectBucketClaim
-                              properties:
-                                phase:
-                                  description: ObjectBucketClaimStatusPhase is set
-                                    by the controller to save the state of the provisioning
-                                    process.
-                                  type: string
-                              type: object
-                            description: ObjectBucketClaims represents a key-value
-                              mapping of Ceph object storage bucket's name and it's
-                              status
-                            type: object
                         type: object
                       sharedFilesystem:
                         description: SharedFilesystem contains Ceph Filesystem's related

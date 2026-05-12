@@ -67,7 +67,6 @@ func TestCephDeploymentVerification(t *testing.T) {
 				"cephclients":          &unitinputs.CephClientListEmpty,
 				"cephobjectstores":     &unitinputs.CephObjectStoreListExternal,
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
-				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListEmpty,
 				"cephobjectrealms":     &unitinputs.CephObjectRealmListEmpty,
 				"cephobjectzonegroups": &unitinputs.CephObjectZoneGroupListEmpty,
 				"cephobjectzones":      &unitinputs.CephObjectZoneListEmpty,
@@ -100,7 +99,6 @@ func TestCephDeploymentVerification(t *testing.T) {
 				"cephblockpools":       &unitinputs.CephBlockPoolListEmpty,
 				"cephclients":          &unitinputs.CephClientListEmpty,
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
-				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListEmpty,
 				"cephobjectrealms":     &unitinputs.CephObjectRealmListEmpty,
 				"cephobjectzonegroups": &unitinputs.CephObjectZoneGroupListEmpty,
 				"cephobjectzones":      &unitinputs.CephObjectZoneListEmpty,
@@ -154,7 +152,6 @@ func TestCephDeploymentVerification(t *testing.T) {
 				"cephclients":          &unitinputs.CephClientListEmpty,
 				"cephobjectstores":     &unitinputs.CephObjectStoreListEmpty,
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
-				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListEmpty,
 				"cephobjectrealms":     &unitinputs.CephObjectRealmListEmpty,
 				"cephobjectzonegroups": &unitinputs.CephObjectZoneGroupListEmpty,
 				"cephobjectzones":      &unitinputs.CephObjectZoneListEmpty,
@@ -189,7 +186,6 @@ func TestCephDeploymentVerification(t *testing.T) {
 				"cephclients":          &unitinputs.CephClientListEmpty,
 				"cephobjectstores":     &unitinputs.CephObjectStoreListEmpty,
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
-				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListEmpty,
 				"cephobjectrealms":     &unitinputs.CephObjectRealmListEmpty,
 				"cephobjectzonegroups": &unitinputs.CephObjectZoneGroupListEmpty,
 				"cephobjectzones":      &unitinputs.CephObjectZoneListEmpty,
@@ -217,7 +213,6 @@ func TestCephDeploymentVerification(t *testing.T) {
 				"cephclients":          &unitinputs.CephClientListReady,
 				"cephobjectstores":     &unitinputs.CephObjectStoresMultisiteSyncDaemonPhaseReady,
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListReady,
-				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListReady,
 				"cephobjectrealms":     &unitinputs.CephObjectRealmListReady,
 				"cephobjectzonegroups": &unitinputs.CephObjectZoneGroupListReady,
 				"cephobjectzones":      &unitinputs.CephObjectZoneListReady,
@@ -253,7 +248,6 @@ func TestCephDeploymentVerification(t *testing.T) {
 				"cephclients":          &unitinputs.CephClientListNotReady,
 				"cephobjectstores":     &unitinputs.CephObjectStoresMultisiteSyncDaemonPhaseNotReady,
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListNotReady,
-				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListNotReady,
 				"cephobjectrealms":     &unitinputs.CephObjectRealmListNotReady,
 				"cephobjectzonegroups": &unitinputs.CephObjectZoneGroupListNotReady,
 				"cephobjectzones":      &unitinputs.CephObjectZoneListNotReady,
@@ -322,7 +316,6 @@ func TestCephDeploymentVerification(t *testing.T) {
 				"failed to run 'radosgw-admin sync status --rgw-zonegroup=zonegroup-1 --rgw-zone=zone-1' command to check multisite status for zone 'zone-1'",
 				"node 'node-1' has failed spec analyse",
 				"node 'node-2' has failed spec analyse",
-				"objectbucketclaim 'rook-ceph/bucket-1' is not ready",
 				"unexpected mds daemons running (CephFS 'cephfs-3')",
 				"unexpected number (0/1) of mds active are running for CephFS 'cephfs-1'",
 				"unexpected number (0/1) of mds standby-replay are running for CephFS 'cephfs-2'",
@@ -339,7 +332,6 @@ func TestCephDeploymentVerification(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "list", []string{"pods"}, map[string]runtime.Object{"pods": unitinputs.ToolBoxAndDiskDaemonPodsList}, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.NetworkingV1(), "list", []string{"ingresses"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", rookListResources, test.inputResources, nil)
-			faketestclients.FakeReaction(c.api.Claimclientset, "list", claimListResources, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", rookGetResources, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"configmaps"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.AppsV1(), "get", []string{"deployments", "daemonsets"}, test.inputResources, nil)
@@ -364,7 +356,6 @@ func TestCephDeploymentVerification(t *testing.T) {
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.AppsV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.NetworkingV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
-			faketestclients.CleanupFakeClientReactions(c.api.Claimclientset)
 		})
 	}
 	lcmcommon.RunPodCommand = oldRunFunc
