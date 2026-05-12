@@ -53,7 +53,7 @@ func getEmtpyHealthConfig() healthConfig {
 		name:        unitinputs.LcmObjectMeta.Name,
 		namespace:   unitinputs.LcmObjectMeta.Namespace,
 		cephCluster: nil,
-		rgwOpts:     rgwOpts{},
+		rgwOpts:     map[string]rgwOpts{},
 		sharedFilesystemOpts: sharedFilesystemOpts{
 			mdsDaemonsDesired: map[string]map[string]int{},
 		},
@@ -61,6 +61,10 @@ func getEmtpyHealthConfig() healthConfig {
 }
 
 func fakeCephReconcileConfig(hconfig *healthConfig, lcmConfigData map[string]string) *cephDeploymentHealthConfig {
+	if lcmConfigData == nil {
+		lcmConfigData = map[string]string{}
+	}
+	lcmConfigData["DEPLOYMENT_LOG_LEVEL"] = "TRACE"
 	lcmConfig := lcmconfig.ReadConfiguration(log.With().Str(lcmcommon.LoggerObjectField, "configmap").Logger(), lcmConfigData)
 	sublog := log.With().Str(lcmcommon.LoggerObjectField, "cephdeploymenthealth 'lcm-namespace/cephcluster'").Logger().Level(lcmConfig.HealthParams.LogLevel)
 	hc := getEmtpyHealthConfig()

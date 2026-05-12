@@ -243,8 +243,9 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
 				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
-				hc.rgwOpts.storeName = "rgw-store"
-				hc.rgwOpts.desiredRgwDaemons = 2
+				hc.rgwOpts = map[string]rgwOpts{
+					"rgw-store": {desiredRgwDaemons: 2},
+				}
 				hc.sharedFilesystemOpts.mdsDaemonsDesired["cephfs-1"] = map[string]int{"up:active": 1}
 				return hc
 			}(),
@@ -258,8 +259,9 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
 				hc.cephCluster = unitinputs.CephClusterNotReady.DeepCopy()
-				hc.rgwOpts.storeName = "rgw-store"
-				hc.rgwOpts.desiredRgwDaemons = 2
+				hc.rgwOpts = map[string]rgwOpts{
+					"rgw-store": {desiredRgwDaemons: 2},
+				}
 				hc.sharedFilesystemOpts.mdsDaemonsDesired["cephfs-1"] = map[string]int{"up:active": 1}
 				return hc
 			}(),
@@ -267,7 +269,7 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			cephMgrDump:    unitinputs.CephMgrDumpBaseHealthy,
 			expectedStatus: unitinputs.CephDaemonsCephFsRgwUnhealthy,
 			expectedIssues: []string{
-				"not all (0/2) rgws are running",
+				"incorrect number of rgws (0/2) running for rgw 'rgw-store'",
 				"unexpected number (0/1) of mds active are running for CephFS 'cephfs-1'",
 			},
 		},
@@ -276,8 +278,10 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
 				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
-				hc.rgwOpts.storeName = "rgw-store"
-				hc.rgwOpts.desiredRgwDaemons = 3
+				hc.rgwOpts = map[string]rgwOpts{
+					"rgw-store":      {desiredRgwDaemons: 2},
+					"rgw-store-sync": {desiredRgwDaemons: 1},
+				}
 				hc.sharedFilesystemOpts.mdsDaemonsDesired["cephfs-1"] = map[string]int{"up:active": 1}
 				hc.sharedFilesystemOpts.mdsDaemonsDesired["cephfs-2"] = map[string]int{"up:active": 1, "up:standby-replay": 1}
 				return hc
@@ -289,16 +293,8 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 					"mon": unitinputs.CephDaemonsBaseHealthy["mon"],
 					"mgr": unitinputs.CephDaemonsBaseHealthy["mgr"],
 					"osd": unitinputs.CephDaemonsBaseHealthy["osd"],
-					"rgw": {
-						Status:   lcmv1alpha1.DaemonStateOk,
-						Messages: []string{"3 rgws running, daemons: [10223488 11556688 12065099]"},
-					},
-					"mds": {
-						Status: lcmv1alpha1.DaemonStateOk,
-						Messages: []string{
-							"mds active: 1/1 (cephfs 'cephfs-1')", "mds active: 1/1, standby-replay: 1/1 (cephfs 'cephfs-2')",
-						},
-					},
+					"rgw": unitinputs.CephMultisiteClusterReportOk.CephDaemons.CephDaemons["rgw"],
+					"mds": unitinputs.CephMultisiteClusterReportOk.CephDaemons.CephDaemons["mds"],
 				}
 			}(),
 			expectedIssues: make([]string, 0),
@@ -308,8 +304,10 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
 				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
-				hc.rgwOpts.storeName = "rgw-store"
-				hc.rgwOpts.desiredRgwDaemons = 3
+				hc.rgwOpts = map[string]rgwOpts{
+					"rgw-store":      {desiredRgwDaemons: 2},
+					"rgw-store-sync": {desiredRgwDaemons: 1},
+				}
 				hc.sharedFilesystemOpts.mdsDaemonsDesired["cephfs-1"] = map[string]int{"up:active": 1}
 				hc.sharedFilesystemOpts.mdsDaemonsDesired["cephfs-2"] = map[string]int{"up:active": 1, "up:standby-replay": 1}
 				return hc
@@ -322,9 +320,15 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 					"mgr": unitinputs.CephDaemonsBaseHealthy["mgr"],
 					"osd": unitinputs.CephDaemonsBaseHealthy["osd"],
 					"rgw": {
-						Status:   lcmv1alpha1.DaemonStateFailed,
-						Messages: []string{"4 rgws running, daemons: [10223488 11556688 12065099 12065109]"},
-						Issues:   []string{"unexpected rgws (4/3) rgws are running"},
+						Status: lcmv1alpha1.DaemonStateFailed,
+						Messages: []string{
+							"0/1 rgws running [], rgw 'rgw-store-sync'",
+							"3/2 rgws running [10223488 11556688 12065099], rgw 'rgw-store'",
+						},
+						Issues: []string{
+							"incorrect number of rgws (0/1) running for rgw 'rgw-store-sync'",
+							"incorrect number of rgws (3/2) running for rgw 'rgw-store'",
+						},
 					},
 					"mds": {
 						Status: lcmv1alpha1.DaemonStateFailed,
@@ -340,10 +344,12 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 				}
 			}(),
 			expectedIssues: []string{
+				"failed to parse info for RGW daemon '12065109': no metadata info found",
+				"incorrect number of rgws (0/1) running for rgw 'rgw-store-sync'",
+				"incorrect number of rgws (3/2) running for rgw 'rgw-store'",
 				"unexpected mds daemons running (CephFS 'cephfs-3')",
 				"unexpected number (0/1) of mds active are running for CephFS 'cephfs-1'",
 				"unexpected number (0/1) of mds standby-replay are running for CephFS 'cephfs-2'",
-				"unexpected rgws (4/3) rgws are running",
 			},
 		},
 		{
@@ -375,9 +381,12 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
 				hc.cephCluster = unitinputs.CephClusterExternal.DeepCopy()
-				hc.rgwOpts.storeName = "rgw-store-external"
-				hc.rgwOpts.external = true
-				hc.rgwOpts.externalEndpoint = "https://127.0.0.1:8443"
+				hc.rgwOpts = map[string]rgwOpts{
+					"rgw-store-external": {
+						external:         true,
+						externalEndpoint: "https://127.0.0.1:8443",
+					},
+				}
 				return hc
 			}(),
 			cephStatus:  unitinputs.CephStatusCephFsRgwHealthy,
@@ -387,7 +396,10 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 					"mon": unitinputs.CephDaemonsBaseHealthy["mon"],
 					"mgr": unitinputs.CephDaemonsBaseHealthy["mgr"],
 					"osd": unitinputs.CephDaemonsBaseHealthy["osd"],
-					"rgw": unitinputs.CephDaemonsCephFsRgwHealthy["rgw"],
+					"rgw": {
+						Status:   lcmv1alpha1.DaemonStateOk,
+						Messages: []string{"2 rgws running [11556688 12065099], rgw 'rgw-store'"},
+					},
 				}
 			}(),
 			expectedIssues: make([]string, 0),
@@ -397,9 +409,12 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
 				hc.cephCluster = unitinputs.CephClusterExternal.DeepCopy()
-				hc.rgwOpts.storeName = "rgw-store-external"
-				hc.rgwOpts.external = true
-				hc.rgwOpts.externalEndpoint = "https://127.0.0.1:8443"
+				hc.rgwOpts = map[string]rgwOpts{
+					"rgw-store-external": {
+						external:         true,
+						externalEndpoint: "https://127.0.0.1:8443",
+					},
+				}
 				return hc
 			}(),
 			cephStatus:  unitinputs.CephStatusCephFsRgwUnhealthy,
@@ -412,7 +427,7 @@ func TestGetCephDaemonsStatus(t *testing.T) {
 					"rgw": {
 						Status:   lcmv1alpha1.DaemonStateFailed,
 						Issues:   []string{"no rgws are running"},
-						Messages: []string{"0 rgws running, daemons: []"},
+						Messages: []string{},
 					},
 				}
 			}(),

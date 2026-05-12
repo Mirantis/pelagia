@@ -220,9 +220,9 @@ type CephEventMessage struct {
 }
 
 type RgwInfo struct {
-	// PublicEndpoint represents external endpoint to access object storage
+	// PublicEndpoints represents public endpoint to access object storage instance
 	// +nullable
-	PublicEndpoint string `json:"publicEndpoint,omitempty"`
+	PublicEndpoints map[string][]string `json:"publicEndpoints,omitempty"`
 	// MultisiteDetails represents overall multisite state info
 	// +optional
 	MultisiteDetails *MultisiteState `json:"multisiteDetails,omitempty"`

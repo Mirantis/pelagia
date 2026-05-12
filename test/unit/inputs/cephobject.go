@@ -518,10 +518,33 @@ var CephObjectRealmListReady = cephv1.CephObjectRealmList{
 	},
 }
 
+var CephObjectRealmPullListReady = cephv1.CephObjectRealmList{
+	Items: []cephv1.CephObjectRealm{
+		{
+			ObjectMeta: metav1.ObjectMeta{Namespace: RookNamespace, Name: "realm-1"},
+			Spec:       RgwMultisiteMasterPullRealm1.Spec,
+			Status:     &cephv1.Status{Phase: "Ready"},
+		},
+	},
+}
+
 var CephObjectRealmListNotReady = cephv1.CephObjectRealmList{
 	Items: []cephv1.CephObjectRealm{
 		{
 			ObjectMeta: metav1.ObjectMeta{Namespace: RookNamespace, Name: "realm-1"},
+			Status:     &cephv1.Status{Phase: "Failed"},
+		},
+		{
+			ObjectMeta: metav1.ObjectMeta{Namespace: RookNamespace, Name: "realm-2"},
+		},
+	},
+}
+
+var CephObjectRealmPullListNotReady = cephv1.CephObjectRealmList{
+	Items: []cephv1.CephObjectRealm{
+		{
+			ObjectMeta: metav1.ObjectMeta{Namespace: RookNamespace, Name: "realm-1"},
+			Spec:       RgwMultisiteMasterPullRealm1.Spec,
 			Status:     &cephv1.Status{Phase: "Failed"},
 		},
 		{
@@ -569,6 +592,7 @@ var CephObjectZoneGroupListReady = cephv1.CephObjectZoneGroupList{
 	Items: []cephv1.CephObjectZoneGroup{
 		{
 			ObjectMeta: metav1.ObjectMeta{Namespace: RookNamespace, Name: "zonegroup-1"},
+			Spec:       cephv1.ObjectZoneGroupSpec{Realm: "realm-1"},
 			Status:     &cephv1.Status{Phase: "Ready"},
 		},
 	},
@@ -578,6 +602,7 @@ var CephObjectZoneGroupListNotReady = cephv1.CephObjectZoneGroupList{
 	Items: []cephv1.CephObjectZoneGroup{
 		{
 			ObjectMeta: metav1.ObjectMeta{Namespace: RookNamespace, Name: "zonegroup-1"},
+			Spec:       cephv1.ObjectZoneGroupSpec{Realm: "realm-1"},
 			Status:     &cephv1.Status{Phase: "Failed"},
 		},
 		{

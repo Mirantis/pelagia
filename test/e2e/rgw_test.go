@@ -136,12 +136,12 @@ func TestRgwAccessPublicDomainRockoon(t *testing.T) {
 	}
 
 	f.Step(t, "Obtain RGW public endpoint with Rockoon default domain")
-	endpoint, err := f.GetRgwPublicEndpoint(cd.Name)
+	endpoints, err := f.GetRgwPublicEndpoints(cd.Name, rgws[0].Name)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	runRgwAccessTest(t, endpoint, "", "", "", "", true)
+	runRgwAccessTest(t, endpoints[0], "", "", "", "", true)
 
 	t.Log("Test successfully passed")
 }
@@ -221,11 +221,11 @@ func TestRgwAccessPublicDomainCustom(t *testing.T) {
 	}
 
 	f.Step(t, "Check new public rgw endpoint")
-	endpoint, err := f.GetRgwPublicEndpoint(cd.Name)
+	endpoints, err := f.GetRgwPublicEndpoints(cd.Name, rgwStoreName)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.HasSuffix(endpoint, publicDomain) {
+	if !strings.HasSuffix(endpoints[0], publicDomain) {
 		t.Fatal("public endpoint has no expected domain")
 	}
 
@@ -236,7 +236,7 @@ func TestRgwAccessPublicDomainCustom(t *testing.T) {
 	}
 	ingressIP := ingressSvc.Status.LoadBalancer.Ingress[0].IP
 
-	runRgwAccessTest(t, endpoint, ingressIP, fqdn, rgwStoreName, "", true)
+	runRgwAccessTest(t, endpoints[0], ingressIP, fqdn, rgwStoreName, "", true)
 
 	t.Log("Test successfully passed")
 }
@@ -305,11 +305,11 @@ func TestRgwAccessPublicTlsByRefAndCustomHostnameRockoon(t *testing.T) {
 	}
 
 	f.Step(t, "Check new public rgw endpoint")
-	endpoint, err := f.GetRgwPublicEndpoint(cd.Name)
+	endpoints, err := f.GetRgwPublicEndpoints(cd.Name, rgws[0].Name)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.HasSuffix(endpoint, cd.Spec.IngressConfig.TLSConfig.Domain) {
+	if !strings.HasSuffix(endpoints[0], cd.Spec.IngressConfig.TLSConfig.Domain) {
 		t.Fatal("public endpoint has no expected domain")
 	}
 
@@ -320,7 +320,7 @@ func TestRgwAccessPublicTlsByRefAndCustomHostnameRockoon(t *testing.T) {
 	}
 	ingressIP := ingressSvc.Status.LoadBalancer.Ingress[0].IP
 
-	runRgwAccessTest(t, endpoint, ingressIP, fmt.Sprintf("%v.%v", cd.Spec.IngressConfig.TLSConfig.Hostname, cd.Spec.IngressConfig.TLSConfig.Domain), "", "", true)
+	runRgwAccessTest(t, endpoints[0], ingressIP, fmt.Sprintf("%v.%v", cd.Spec.IngressConfig.TLSConfig.Hostname, cd.Spec.IngressConfig.TLSConfig.Domain), "", "", true)
 
 	t.Log("Test successfully passed")
 }

@@ -152,15 +152,20 @@ func GetSecretForRgwCreds(cdSecret, userName string) (*corev1.Secret, error) {
 	return TF.ManagedCluster.GetSecret(secretName, secretNamespace)
 }
 
-func GetRgwPublicEndpoint(cdhName string) (string, error) {
+func GetRgwPublicEndpoints(cdhName, rgwName string) ([]string, error) {
 	cdh, err := TF.ManagedCluster.GetCephDeploymentHealth(cdhName)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	if cdh.Status.HealthReport == nil || cdh.Status.HealthReport.ClusterDetails == nil || cdh.Status.HealthReport.ClusterDetails.RgwInfo == nil {
-		return "", errors.New("empty RgwInfo status")
+		return nil, errors.New("empty RgwInfo status")
 	}
-	return cdh.Status.HealthReport.ClusterDetails.RgwInfo.PublicEndpoint, nil
+	if cdh.Status.HealthReport.ClusterDetails.RgwInfo.PublicEndpoints != nil {
+		if v, ok := cdh.Status.HealthReport.ClusterDetails.RgwInfo.PublicEndpoints[rgwName]; ok {
+			return v, nil
+		}
+	}
+	return nil, errors.Errorf("public endpoints are not found for objectstore '%s'", rgwName)
 }
 
 func GetDefaultPoolDeviceClass(cd *cephlcmv1alpha.CephDeployment) string {

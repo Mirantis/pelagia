@@ -342,122 +342,128 @@ func (c *cephDeploymentHealthConfig) getRgwInfo() (*lcmv1alpha1.RgwInfo, []strin
 		c.log.Debug().Msgf("skipping ceph cluster rgw info check, set '%s' to skip through lcm config settings", rgwInfoCheck)
 		return nil, nil
 	}
-	if c.healthConfig.rgwOpts.storeName != "" {
-		newRgwInfo := &lcmv1alpha1.RgwInfo{}
-		issues := []string{}
-		if c.healthConfig.rgwOpts.external {
-			newRgwInfo.PublicEndpoint = c.healthConfig.rgwOpts.externalEndpoint
+	// no objectstores - no checks
+	if len(c.healthConfig.rgwOpts) == 0 {
+		return nil, nil
+	}
+
+	issues := []string{}
+	newRgwInfo := &lcmv1alpha1.RgwInfo{
+		PublicEndpoints: map[string][]string{},
+	}
+	if c.healthConfig.multisiteOpts.zone != "" {
+		multisiteDetails, multisiteIssues := c.getMultisiteSyncStatus()
+		newRgwInfo.MultisiteDetails = multisiteDetails
+		if len(multisiteIssues) > 0 {
+			issues = append(issues, multisiteIssues...)
+		}
+	}
+	// check all found rgws
+	for rgwName, opts := range c.healthConfig.rgwOpts {
+		if opts.external {
+			if c.healthConfig.rgwOpts[rgwName].externalEndpoint != "" {
+				newRgwInfo.PublicEndpoints[rgwName] = []string{c.healthConfig.rgwOpts[rgwName].externalEndpoint}
+			}
 		} else {
-			rgwEndpoint, issue := c.getRgwPublicEndpoint()
-			newRgwInfo.PublicEndpoint = rgwEndpoint
+			rgwEndpoints, issue := c.getRgwPublicEndpoint(rgwName)
+			if len(rgwEndpoints) > 0 {
+				newRgwInfo.PublicEndpoints[rgwName] = rgwEndpoints
+			}
 			if issue != "" {
 				issues = append(issues, issue)
 			}
-
-			if c.healthConfig.rgwOpts.multisite {
-				multisiteDetails, multisiteIssues := c.getMultisiteSyncStatus()
-				newRgwInfo.MultisiteDetails = multisiteDetails
-				if len(multisiteIssues) > 0 {
-					issues = append(issues, multisiteIssues...)
-				}
-			}
 		}
-		if newRgwInfo.PublicEndpoint == "" {
-			issues = append(issues, fmt.Sprintf("cephobjectstore '%s/%s' endpoint is not found", c.lcmConfig.RookNamespace, c.healthConfig.rgwOpts.storeName))
-		}
-		return newRgwInfo, issues
 	}
-	return nil, nil
+	// show global problem, if objectstores found, but public endpoint not
+	// in case if there is only ops admin api - check can be disabled at all
+	// otherwise - should be present any public endpoint
+	if len(newRgwInfo.PublicEndpoints) == 0 {
+		issues = append(issues, "no any public endpoints found for accessing Ceph RGW instance(s)")
+	}
+	return newRgwInfo, issues
 }
 
-func (c *cephDeploymentHealthConfig) getRgwPublicEndpoint() (string, string) {
+func (c *cephDeploymentHealthConfig) getRgwPublicEndpoint(rgwName string) ([]string, string) {
 	listOptions := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("app=rook-ceph-rgw,rook_object_store=%s,%s", c.healthConfig.rgwOpts.storeName, c.lcmConfig.HealthParams.RgwPublicAccessLabel),
+		LabelSelector: fmt.Sprintf("app=rook-ceph-rgw,rook_object_store=%s,%s", rgwName, c.lcmConfig.HealthParams.RgwPublicAccessLabel),
 	}
 	ingresses, err := c.api.Kubeclientset.NetworkingV1().Ingresses(c.lcmConfig.RookNamespace).List(c.context, listOptions)
 	if err != nil {
 		c.log.Error().Err(err).Msg("")
-		return "", fmt.Sprintf("failed to check ingresses in '%s' namespace", c.lcmConfig.RookNamespace)
+		return nil, fmt.Sprintf("failed to check ingresses in '%s' namespace", c.lcmConfig.RookNamespace)
 	}
 	if len(ingresses.Items) > 0 {
-		if len(ingresses.Items) > 1 {
-			c.log.Warn().Msgf("found multiple ingresses with label '%s' in namespace '%s', taking only one", listOptions.LabelSelector, c.lcmConfig.RookNamespace)
-		}
-		ingressRules := ingresses.Items[0].Spec.Rules
-		if len(ingressRules) == 0 {
-			c.log.Warn().Msgf("ingress '%s/%s' has no rules configured, can't determine Ceph RGW public endpoint", c.lcmConfig.RookNamespace, ingresses.Items[0].Name)
-			return "", ""
-		}
-		backendName := fmt.Sprintf("rook-ceph-rgw-%s", c.healthConfig.rgwOpts.storeName)
-		for _, rule := range ingressRules {
-			if rule.HTTP != nil {
-				for _, path := range rule.HTTP.Paths {
-					if (path.Backend.Service != nil && path.Backend.Service.Name == backendName) ||
-						(path.Backend.Resource != nil && path.Backend.Resource.Name == backendName && path.Backend.Resource.Kind == "CephObjectStore") {
-						return "https://" + rule.Host, ""
+		endpoints := []string{}
+		for _, ingress := range ingresses.Items {
+			if len(ingress.Spec.Rules) == 0 {
+				c.log.Warn().Msgf("ingress '%s/%s' has no rules configured, can't find Ceph RGW public endpoint", c.lcmConfig.RookNamespace, ingresses.Items[0].Name)
+				continue
+			}
+			backendName := fmt.Sprintf("rook-ceph-rgw-%s", rgwName)
+			found := false
+			for _, rule := range ingress.Spec.Rules {
+				if rule.HTTP != nil {
+					for _, path := range rule.HTTP.Paths {
+						if (path.Backend.Service != nil && path.Backend.Service.Name == backendName) ||
+							(path.Backend.Resource != nil && path.Backend.Resource.Name == backendName && path.Backend.Resource.Kind == "CephObjectStore") {
+							endpoints = append(endpoints, "https://"+rule.Host)
+							found = true
+							break
+						}
 					}
 				}
 			}
+			if !found {
+				c.log.Warn().Msgf("can't determine Ceph RGW public endpoint for ingress %s/%s, backend '%s' is not found in ingress rules",
+					c.lcmConfig.RookNamespace, ingresses.Items[0].Name, backendName)
+			}
 		}
-		return "", fmt.Sprintf("can't determine Ceph RGW public endpoint for ingress %s/%s, backend '%s' is not found in ingress rules",
-			c.lcmConfig.RookNamespace, ingresses.Items[0].Name, backendName)
+		return endpoints, ""
 	}
 	svcList, err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).List(c.context, listOptions)
 	if err != nil {
 		c.log.Error().Err(err).Msg("")
-		return "", fmt.Sprintf("failed to check services in '%s' namespace", c.lcmConfig.RookNamespace)
+		return nil, fmt.Sprintf("failed to check services in '%s' namespace", c.lcmConfig.RookNamespace)
 	}
 	if len(svcList.Items) > 0 {
-		if len(svcList.Items) > 1 {
-			c.log.Warn().Msgf("found multiple services with label '%s' in namespace '%s', taking only one", listOptions.LabelSelector, c.lcmConfig.RookNamespace)
-		}
-		svc := svcList.Items[0]
-		if svc.Spec.Type != corev1.ServiceTypeLoadBalancer {
-			c.log.Warn().Msgf("found Ceph RGW %s external service '%s/%s', but supported only '%s' service type", svc.Spec.Type, svc.Namespace, svc.Name, corev1.ServiceTypeLoadBalancer)
-			return "", ""
-		}
-		if len(svc.Status.LoadBalancer.Ingress) == 0 {
-			return "", fmt.Sprintf("external service %s/%s has no IP addresses available, can't determine Ceph RGW public endpoint", c.lcmConfig.RookNamespace, c.healthConfig.rgwOpts.storeName)
-		}
-		httpPort := int32(80)
-		for _, port := range svc.Spec.Ports {
-			// ports are named in the same way to Rook Ceph RGW svc
-			// if no https port - will be exposed http port instead
-			if port.Name == "https" {
-				return fmt.Sprintf("https://%s:%d", svc.Status.LoadBalancer.Ingress[0].IP, port.Port), ""
+		endpoints := []string{}
+		for _, svc := range svcList.Items {
+			if svc.Spec.Type != corev1.ServiceTypeLoadBalancer {
+				c.log.Warn().Msgf("found Ceph RGW %s external service '%s/%s', but supported only '%s' service type", svc.Spec.Type, svc.Namespace, svc.Name, corev1.ServiceTypeLoadBalancer)
+				continue
 			}
-			if port.Name == "http" {
-				httpPort = port.Port
+			if len(svc.Status.LoadBalancer.Ingress) == 0 {
+				c.log.Warn().Msgf("external service '%s/%s' has no IP addresses available, can't determine Ceph RGW public endpoint", c.lcmConfig.RookNamespace, rgwName)
+				continue
+			}
+			endpoint := ""
+			for _, port := range svc.Spec.Ports {
+				// ports are named in the same way to Rook Ceph RGW svc
+				// if no https port - will be exposed http port instead
+				if port.Name == "https" {
+					endpoint = fmt.Sprintf("https://%s:%d", svc.Status.LoadBalancer.Ingress[0].IP, port.Port)
+					break
+				}
+				if port.Name == "http" {
+					endpoint = fmt.Sprintf("http://%s:%d", svc.Status.LoadBalancer.Ingress[0].IP, port.Port)
+				}
+			}
+			if endpoint != "" {
+				endpoints = append(endpoints, endpoint)
 			}
 		}
-		return fmt.Sprintf("http://%s:%d", svc.Status.LoadBalancer.Ingress[0].IP, httpPort), ""
+		return endpoints, ""
 	}
-	c.log.Warn().Msgf("ingress or external service with label '%s' is not found for Ceph RGW '%s/%s'", listOptions.LabelSelector, c.lcmConfig.RookNamespace, c.healthConfig.rgwOpts.storeName)
-	return "", ""
+	c.log.Debug().Msgf("ingress or external service with label '%s' is not found for Ceph RGW '%s/%s'", listOptions.LabelSelector, c.lcmConfig.RookNamespace, rgwName)
+	return nil, ""
 }
 
 func (c *cephDeploymentHealthConfig) getMultisiteSyncStatus() (*lcmv1alpha1.MultisiteState, []string) {
-	zonesList, err := c.api.Rookclientset.CephV1().CephObjectZones(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
-	if err != nil {
-		c.log.Error().Err(err).Msg("")
-		msg := fmt.Sprintf("failed to list cephobjectzones in '%s' namespace", c.lcmConfig.RookNamespace)
-		return &lcmv1alpha1.MultisiteState{
-			MetadataSyncState: lcmv1alpha1.MultiSiteFailed,
-			DataSyncState:     lcmv1alpha1.MultiSiteFailed,
-			Messages:          []string{msg},
-		}, []string{msg}
-	}
-	// TODO: for now locked only 1 zone for cluster
-	if len(zonesList.Items) == 0 {
-		// should not happen, but to avoid nil pointer
-		return nil, []string{"zone is not created yet"}
-	}
-	zone := zonesList.Items[0]
-	cmd := fmt.Sprintf("radosgw-admin sync status --rgw-zonegroup=%s --rgw-zone=%s", zone.Spec.ZoneGroup, zone.Name)
+	cmd := fmt.Sprintf("radosgw-admin sync status --rgw-zonegroup=%s --rgw-zone=%s", c.healthConfig.multisiteOpts.zonegroup, c.healthConfig.multisiteOpts.zone)
 	syncStatusOutput, err := lcmcommon.RunCephToolboxCLI(c.context, c.api.Kubeclientset, c.api.Config, c.lcmConfig.RookNamespace, cmd)
 	if err != nil {
 		c.log.Error().Err(err).Msg("")
-		msg := fmt.Sprintf("failed to run '%s' command to check multisite status for zone '%s'", cmd, zone.Name)
+		msg := fmt.Sprintf("failed to run '%s' command to check multisite status for zone '%s'", cmd, c.healthConfig.multisiteOpts.zone)
 		return &lcmv1alpha1.MultisiteState{
 			MetadataSyncState: lcmv1alpha1.MultiSiteFailed,
 			DataSyncState:     lcmv1alpha1.MultiSiteFailed,
@@ -469,7 +475,7 @@ func (c *cephDeploymentHealthConfig) getMultisiteSyncStatus() (*lcmv1alpha1.Mult
 		DataSyncState:     lcmv1alpha1.MultiSiteSyncing,
 	}
 	multisiteIssues := []string{}
-	// CMD `radosgw-admin sync status` has no JSON format in 18.2 yet, so we can
+	// CMD `radosgw-admin sync status` has no JSON format in 19.2 yet, so we can
 	// only use regexp to determine current state
 	masterZone, _ := regexp.MatchString(`metadata sync no sync \(zone is master\)`, syncStatusOutput)
 	if masterZone {

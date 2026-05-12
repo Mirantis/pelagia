@@ -17,6 +17,7 @@ limitations under the License.
 package health
 
 import (
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -155,45 +156,78 @@ func (c *cephDeploymentHealthConfig) getCephDaemonsStatus() (map[string]lcmv1alp
 	daemonsStatus["mgr"] = mgrDaemonsStatus
 
 	// check expected/running rgws
-	expectedRgws := int(c.healthConfig.rgwOpts.desiredRgwDaemons)
-	actualRgws := 0
-	namesRgws := make([]string, 0)
-	for rgw := range cephStatus.ServiceMap.Services.Rgw.Daemons {
+	totalRgws := int32(0)
+	runningRgws := map[string][]string{}
+	for rgw, opts := range cephStatus.ServiceMap.Services.Rgw.Daemons {
 		if rgw != "summary" {
-			actualRgws++
-			namesRgws = append(namesRgws, rgw)
+			totalRgws++
+			// since daemons contains summary - string - field - process
+			// each daemon info separately
+			output, _ := json.Marshal(opts)
+			var info lcmcommon.RgwInfo
+			err := json.Unmarshal([]byte(output), &info)
+			if err != nil {
+				c.log.Error().Err(err).Msg("")
+				daemonsIssues = append(daemonsIssues, err.Error())
+				continue
+			}
+			if info.Metadata.ID == "" {
+				daemonsIssues = append(daemonsIssues, fmt.Sprintf("failed to parse info for RGW daemon '%s': no metadata info found", rgw))
+				continue
+			}
+			// since Rook creates all deploys with 'a' suffix - trim it
+			// and then replace '.' on '-' for k8s service name compatibility
+			rgwBaseName := strings.ReplaceAll(strings.TrimSuffix(info.Metadata.ID, ".a"), ".", "-")
+			if v, ok := runningRgws[rgwBaseName]; ok {
+				runningRgws[rgwBaseName] = append(v, rgw)
+			} else {
+				runningRgws[rgwBaseName] = []string{rgw}
+			}
 		}
 	}
-	if actualRgws > 0 || expectedRgws > 0 || c.healthConfig.rgwOpts.external {
-		sort.Strings(namesRgws)
+	if totalRgws > 0 || len(c.healthConfig.rgwOpts) > 0 {
 		rgwDaemonsStatus := lcmv1alpha1.DaemonStatus{
 			Status:   lcmv1alpha1.DaemonStateOk,
-			Messages: []string{fmt.Sprintf("%d rgws running, daemons: %v", actualRgws, namesRgws)},
+			Messages: []string{},
 		}
 		// check cephcluster external, since we may have rgw on another side,
 		// but external ceph cluster has no rgw running, just put overall daemon info
 		if c.healthConfig.cephCluster.Spec.External.Enable {
-			if actualRgws == 0 {
-				rgwDaemonsStatus.Status = lcmv1alpha1.DaemonStateFailed
+			if totalRgws == 0 {
 				rgwDaemonsStatus.Issues = append(rgwDaemonsStatus.Issues, "no rgws are running")
-				daemonsIssues = append(daemonsIssues, rgwDaemonsStatus.Issues...)
+			} else {
+				for rgwName, ids := range runningRgws {
+					sort.Strings(ids)
+					rgwDaemonsStatus.Messages = append(rgwDaemonsStatus.Messages, fmt.Sprintf("%d rgws running %v, rgw '%s'", len(ids), ids, rgwName))
+				}
 			}
-			daemonsStatus["rgw"] = rgwDaemonsStatus
 		} else {
-			if expectedRgws != actualRgws {
-				if actualRgws < expectedRgws {
-					rgwDaemonsStatus.Issues = append(rgwDaemonsStatus.Issues, fmt.Sprintf("not all (%d/%d) rgws are running", actualRgws, expectedRgws))
-				} else {
-					rgwDaemonsStatus.Issues = append(rgwDaemonsStatus.Issues, fmt.Sprintf("unexpected rgws (%d/%d) rgws are running", actualRgws, expectedRgws))
+			for rgwNameExpected, rgwOpts := range c.healthConfig.rgwOpts {
+				ids := runningRgws[rgwNameExpected]
+				sort.Strings(ids)
+				rgwDaemonsStatus.Messages = append(rgwDaemonsStatus.Messages,
+					fmt.Sprintf("%d/%d rgws running %v, rgw '%s'", len(ids), rgwOpts.desiredRgwDaemons, ids, rgwNameExpected))
+				if int32(len(runningRgws[rgwNameExpected])) != rgwOpts.desiredRgwDaemons {
+					rgwDaemonsStatus.Issues = append(rgwDaemonsStatus.Issues,
+						fmt.Sprintf("incorrect number of rgws (%d/%d) running for rgw '%s'", len(ids), rgwOpts.desiredRgwDaemons, rgwNameExpected))
 				}
-				if len(rgwDaemonsStatus.Issues) > 0 {
-					sort.Strings(rgwDaemonsStatus.Issues)
-					daemonsIssues = append(daemonsIssues, rgwDaemonsStatus.Issues...)
-					rgwDaemonsStatus.Status = lcmv1alpha1.DaemonStateFailed
-				}
+				delete(runningRgws, rgwNameExpected)
 			}
-			daemonsStatus["rgw"] = rgwDaemonsStatus
+			for rgwNameRunning, ids := range runningRgws {
+				sort.Strings(ids)
+				rgwDaemonsStatus.Issues = append(rgwDaemonsStatus.Issues,
+					fmt.Sprintf("unexpected rgws %v running for rgw '%s'", len(ids), rgwNameRunning))
+			}
 		}
+		if len(rgwDaemonsStatus.Messages) > 0 {
+			sort.Strings(rgwDaemonsStatus.Messages)
+		}
+		if len(rgwDaemonsStatus.Issues) > 0 {
+			sort.Strings(rgwDaemonsStatus.Issues)
+			daemonsIssues = append(daemonsIssues, rgwDaemonsStatus.Issues...)
+			rgwDaemonsStatus.Status = lcmv1alpha1.DaemonStateFailed
+		}
+		daemonsStatus["rgw"] = rgwDaemonsStatus
 	}
 
 	// check expected/running mds

@@ -207,11 +207,15 @@ spec:
                             - dataSyncState
                             - metadataSyncState
                             type: object
-                          publicEndpoint:
-                            description: PublicEndpoint represents external endpoint
-                              to access object storage
+                          publicEndpoints:
+                            additionalProperties:
+                              items:
+                                type: string
+                              type: array
+                            description: PublicEndpoints represents public endpoint
+                              to access object storage instance
                             nullable: true
-                            type: string
+                            type: object
                         type: object
                       usageDetails:
                         description: UsageDetails contains verbose info about usage/capacity
