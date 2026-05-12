@@ -472,37 +472,6 @@ var CephRgwUsersList = cephv1.CephObjectStoreUserList{
 
 var ObjectBucketClaimListEmpty = bktv1alpha1.ObjectBucketClaimList{Items: []bktv1alpha1.ObjectBucketClaim{}}
 
-var ObjectBucketClaimListReady = bktv1alpha1.ObjectBucketClaimList{
-	Items: []bktv1alpha1.ObjectBucketClaim{
-		{
-			ObjectMeta: metav1.ObjectMeta{Namespace: RookNamespace, Name: "bucket-1"},
-			Status:     bktv1alpha1.ObjectBucketClaimStatus{Phase: bktv1alpha1.ObjectBucketClaimStatusPhaseBound},
-		},
-	},
-}
-
-var ObjectBucketClaimListNotReady = bktv1alpha1.ObjectBucketClaimList{
-	Items: []bktv1alpha1.ObjectBucketClaim{
-		{
-			ObjectMeta: metav1.ObjectMeta{Namespace: RookNamespace, Name: "bucket-1"},
-			Status:     bktv1alpha1.ObjectBucketClaimStatus{Phase: bktv1alpha1.ObjectBucketClaimStatusPhaseFailed},
-		},
-	},
-}
-
-func GetSimpleBucket(name string) *bktv1alpha1.ObjectBucketClaim {
-	return &bktv1alpha1.ObjectBucketClaim{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      name,
-			Namespace: "rook-ceph",
-		},
-		Spec: bktv1alpha1.ObjectBucketClaimSpec{
-			GenerateBucketName: name,
-			StorageClassName:   "rgw-storage-class",
-		},
-	}
-}
-
 var CephRgwBucketsList = bktv1alpha1.ObjectBucketClaimList{
 	Items: []bktv1alpha1.ObjectBucketClaim{
 		{

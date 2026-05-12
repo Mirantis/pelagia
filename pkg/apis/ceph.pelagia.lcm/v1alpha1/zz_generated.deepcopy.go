@@ -5,7 +5,6 @@
 package v1alpha1
 
 import (
-	objectbucket_iov1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 	ceph_rook_iov1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -2108,13 +2107,6 @@ func (in *ObjectStorageStatus) DeepCopyInto(out *ObjectStorageStatus) {
 				(*in).DeepCopyInto(*out)
 			}
 			(*out)[key] = outVal
-		}
-	}
-	if in.ObjectBucketClaims != nil {
-		in, out := &in.ObjectBucketClaims, &out.ObjectBucketClaims
-		*out = make(map[string]objectbucket_iov1alpha1.ObjectBucketClaimStatus, len(*in))
-		for key, val := range *in {
-			(*out)[key] = val
 		}
 	}
 	if in.CephObjectRealms != nil {

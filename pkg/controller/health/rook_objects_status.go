@@ -22,7 +22,6 @@ import (
 	"strings"
 	"time"
 
-	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -67,10 +66,6 @@ func (c *cephDeploymentHealthConfig) rookObjectsVerification() (*lcmv1alpha1.Roo
 	if len(cephObjectUsersIssues) > 0 {
 		issuesForRookObjects = append(issuesForRookObjects, cephObjectUsersIssues...)
 	}
-	objectBucketClaimsStatus, objectBucketClaimsIssues := c.checkObjectBucketClaims()
-	if len(objectBucketClaimsIssues) > 0 {
-		issuesForRookObjects = append(issuesForRookObjects, objectBucketClaimsIssues...)
-	}
 	cephObjectRealmsStatus, cephObjectRealmsIssues := c.checkCephObjectRealms()
 	if len(cephObjectRealmsIssues) > 0 {
 		issuesForRookObjects = append(issuesForRookObjects, cephObjectRealmsIssues...)
@@ -83,12 +78,11 @@ func (c *cephDeploymentHealthConfig) rookObjectsVerification() (*lcmv1alpha1.Roo
 	if len(cephObjectZonesIssues) > 0 {
 		issuesForRookObjects = append(issuesForRookObjects, cephObjectZonesIssues...)
 	}
-	if cephObjectStoreStatus != nil || cephObjectUsersStatus != nil || objectBucketClaimsStatus != nil ||
-		cephObjectRealmsStatus != nil || cephObjectZoneGroupsStatus != nil || cephObjectZonesStatus != nil {
+	if cephObjectStoreStatus != nil || cephObjectUsersStatus != nil || cephObjectRealmsStatus != nil ||
+		cephObjectZoneGroupsStatus != nil || cephObjectZonesStatus != nil {
 		newRookObjectsReport.ObjectStorage = &lcmv1alpha1.ObjectStorageStatus{
 			CephObjectStores:     cephObjectStoreStatus,
 			CephObjectStoreUsers: cephObjectUsersStatus,
-			ObjectBucketClaims:   objectBucketClaimsStatus,
 			CephObjectRealms:     cephObjectRealmsStatus,
 			CephObjectZoneGroups: cephObjectZoneGroupsStatus,
 			CephObjectZones:      cephObjectZonesStatus,
@@ -305,26 +299,6 @@ func (c *cephDeploymentHealthConfig) checkCephObjectUsers() (map[string]*cephv1.
 		}
 	}
 	return rgwUsersStatus, issues
-}
-
-func (c *cephDeploymentHealthConfig) checkObjectBucketClaims() (map[string]bktv1alpha1.ObjectBucketClaimStatus, []string) {
-	bucketClaimsList, err := c.api.Claimclientset.ObjectbucketV1alpha1().ObjectBucketClaims(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
-	if err != nil {
-		c.log.Error().Err(err).Msg("")
-		return nil, []string{fmt.Sprintf("failed to list objectbucketclaims in '%s' namespace", c.lcmConfig.RookNamespace)}
-	}
-	if len(bucketClaimsList.Items) == 0 {
-		return nil, nil
-	}
-	bucketClaimsStatus := map[string]bktv1alpha1.ObjectBucketClaimStatus{}
-	issues := make([]string, 0)
-	for _, bucket := range bucketClaimsList.Items {
-		bucketClaimsStatus[bucket.Name] = bucket.Status
-		if bucket.Status.Phase != bktv1alpha1.ObjectBucketClaimStatusPhaseBound {
-			issues = append(issues, fmt.Sprintf("objectbucketclaim '%s/%s' is not ready", c.lcmConfig.RookNamespace, bucket.Name))
-		}
-	}
-	return bucketClaimsStatus, issues
 }
 
 func (c *cephDeploymentHealthConfig) checkCephObjectRealms() (map[string]*cephv1.Status, []string) {

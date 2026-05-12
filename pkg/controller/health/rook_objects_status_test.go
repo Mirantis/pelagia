@@ -57,7 +57,6 @@ func TestRookObjectsVerification(t *testing.T) {
 				"failed to list cephclients in 'rook-ceph' namespace",
 				"failed to list cephobjectstores in 'rook-ceph' namespace",
 				"failed to list cephobjectusers in 'rook-ceph' namespace",
-				"failed to list objectbucketclaims in 'rook-ceph' namespace",
 				"failed to list cephobjectrealms in 'rook-ceph' namespace",
 				"failed to list cephobjectzonegroups in 'rook-ceph' namespace",
 				"failed to list cephobjectzones in 'rook-ceph' namespace",
@@ -78,7 +77,6 @@ func TestRookObjectsVerification(t *testing.T) {
 				"cephclients":          &unitinputs.CephClientListEmpty,
 				"cephobjectstores":     &unitinputs.CephObjectStoreListEmpty,
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
-				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListEmpty,
 				"cephobjectrealms":     &unitinputs.CephObjectRealmListEmpty,
 				"cephobjectzonegroups": &unitinputs.CephObjectZoneGroupListEmpty,
 				"cephobjectzones":      &unitinputs.CephObjectZoneListEmpty,
@@ -101,7 +99,6 @@ func TestRookObjectsVerification(t *testing.T) {
 				"cephclients":          &unitinputs.CephClientListNotReady,
 				"cephobjectstores":     &unitinputs.CephObjectStoresMultisiteSyncDaemonPhaseNotReady,
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListNotReady,
-				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListNotReady,
 				"cephobjectrealms":     &unitinputs.CephObjectRealmListNotReady,
 				"cephobjectzonegroups": &unitinputs.CephObjectZoneGroupListNotReady,
 				"cephobjectzones":      &unitinputs.CephObjectZoneListNotReady,
@@ -117,7 +114,6 @@ func TestRookObjectsVerification(t *testing.T) {
 				"cephobjectstore 'rook-ceph/rgw-store-sync' status is not available yet",
 				"cephobjectuser 'rook-ceph/rgw-user-1' is not ready",
 				"cephobjectuser 'rook-ceph/rgw-user-2' status is not available yet",
-				"objectbucketclaim 'rook-ceph/bucket-1' is not ready",
 				"cephobjectrealm 'rook-ceph/realm-1' is not ready",
 				"cephobjectrealm 'rook-ceph/realm-2' status is not available yet",
 				"cephobjectzonegroup 'rook-ceph/zonegroup-1' is not ready",
@@ -152,7 +148,6 @@ func TestRookObjectsVerification(t *testing.T) {
 				"cephclients":          &unitinputs.CephClientListReady,
 				"cephobjectstores":     &unitinputs.CephObjectStoresMultisiteSyncDaemonPhaseReady,
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListReady,
-				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListReady,
 				"cephobjectrealms":     &unitinputs.CephObjectRealmListReady,
 				"cephobjectzonegroups": &unitinputs.CephObjectZoneGroupListReady,
 				"cephobjectzones":      &unitinputs.CephObjectZoneListReady,
@@ -183,7 +178,6 @@ func TestRookObjectsVerification(t *testing.T) {
 			c := fakeCephReconcileConfig(nil, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", rookListResources, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", rookGetResources, test.inputResources, nil)
-			faketestclients.FakeReaction(c.api.Claimclientset, "list", claimListResources, test.inputResources, nil)
 
 			status, issues := c.rookObjectsVerification()
 			assert.Equal(t, test.expectedStatus, status)
@@ -195,7 +189,6 @@ func TestRookObjectsVerification(t *testing.T) {
 			}
 			assert.Equal(t, hc, c.healthConfig)
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
-			faketestclients.CleanupFakeClientReactions(c.api.Claimclientset)
 		})
 	}
 }
