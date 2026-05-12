@@ -66,7 +66,9 @@ func fakeDeploymentConfig(dconfig *deployConfig, lcmConfigData map[string]string
 		lcmConfigData = map[string]string{}
 	}
 	lcmConfigData["DEPLOYMENT_LOG_LEVEL"] = "TRACE"
-	lcmConfigData["DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE"] = "openstack-ceph-shared"
+	if _, ok := lcmConfigData["DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE"]; !ok {
+		lcmConfigData["DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE"] = "openstack-ceph-shared"
+	}
 	lcmConfig := lcmconfig.ReadConfiguration(log.With().Str(lcmcommon.LoggerObjectField, "configmap").Logger(), lcmConfigData)
 	sublog := log.With().Str(lcmcommon.LoggerObjectField, "cephdeployment").Logger().Level(lcmConfig.DeployParams.LogLevel)
 	dc := deployConfig{

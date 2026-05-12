@@ -333,7 +333,7 @@ var CephDeployMosk = cephlcmv1alpha1.CephDeployment{
 			Rgws: []cephlcmv1alpha1.CephObjectStore{
 				func() cephlcmv1alpha1.CephObjectStore {
 					rgw := CephRgwBaseSpec.DeepCopy()
-					rgw.UsedByRockoon = true
+					rgw.UsedForOpenstack = true
 					return *rgw
 				}(),
 			},

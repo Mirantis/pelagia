@@ -358,7 +358,7 @@ func (c *cephDeploymentConfig) buildCephConfig() (string, map[string]string, map
 			// 3. openstack domain if present
 			// 4. default pkg svc
 			rgwDNSNameValues := []string{fmt.Sprintf("%s.%s.svc", buildRGWName(rgwStore.Name, ""), c.lcmConfig.RookNamespace)}
-			if rgwStore.ServedByIngress || rgwStore.UsedByRockoon {
+			if rgwStore.ServedByIngress || rgwStore.UsedForOpenstack {
 				ingressTLS := getIngressTLS(c.cdConfig.cephDpl)
 				if ingressTLS != nil {
 					if ingressTLS.Hostname != "" {
@@ -367,9 +367,9 @@ func (c *cephDeploymentConfig) buildCephConfig() (string, map[string]string, map
 						rgwDNSNameValues = append(rgwDNSNameValues, fmt.Sprintf("%s.%s", rgwStore.Name, ingressTLS.Domain))
 					}
 				}
-				if rgwStore.UsedByRockoon {
-					if c.lcmConfig.DeployParams.OpenstackCephSharedNamespace == "" {
-						return "", nil, nil, errors.New("RGW Rockoon setup is set, but variable 'DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE' is not set in Pelagia config")
+				if rgwStore.UsedForOpenstack {
+					if err := checkOpenstackNamespaceSetForRgw(rgwStore.Name, c.lcmConfig.DeployParams.OpenstackCephSharedNamespace); err != nil {
+						return "", nil, nil, err
 					}
 					openstackSecrets, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
 					if err != nil {

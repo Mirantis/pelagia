@@ -98,7 +98,7 @@ func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
 
 	if c.cdConfig.cephDpl.Spec.ObjectStorage != nil {
 		for _, rgw := range c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws {
-			if !rgw.UsedByRockoon {
+			if !rgw.UsedForOpenstack {
 				continue
 			}
 			rgwCasted, _ := rgw.GetSpec()
@@ -348,7 +348,7 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 
 	if c.cdConfig.cephDpl.Spec.ObjectStorage != nil {
 		for _, rgw := range c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws {
-			if !rgw.UsedByRockoon {
+			if !rgw.UsedForOpenstack {
 				continue
 			}
 			rgwCasted, _ := rgw.GetSpec()

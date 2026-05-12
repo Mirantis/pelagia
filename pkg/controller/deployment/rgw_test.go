@@ -1948,6 +1948,7 @@ func TestEnsureRgwCaBundleCert(t *testing.T) {
 	tests := []struct {
 		name                   string
 		cephDpl                *cephlcmv1alpha1.CephDeployment
+		extraLcmConfig         map[string]string
 		rgwIdx                 int
 		inputResources         map[string]runtime.Object
 		apiErrors              map[string]error
@@ -2299,13 +2300,23 @@ func TestEnsureRgwCaBundleCert(t *testing.T) {
 			expectedError:          "rgw 'rgw-store' seems to be must have cabundle, but it is not found",
 			expectedGenerationTime: "a-test-17-time",
 		},
+		{
+			name:    "mosk expected but openstack shared namespace is not set",
+			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
+			extraLcmConfig: map[string]string{
+				"DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE": "",
+			},
+			apiErrors:              map[string]error{"create-secrets": errors.New("failed to create secret")},
+			expectedGenerationTime: "a-test-17-time",
+			expectedError:          "CephRGW object storage 'rgw-store' has specified for Openstack usage, but Pelagia lcmconfig has no var 'DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE' set",
+		},
 	}
 
 	oldGenerateCertFunc := lcmcommon.GenerateSelfSignedCert
 	oldCurrentTimeFunc := lcmcommon.GetCurrentTimeString
 	for idx, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.extraLcmConfig)
 
 			// test global var resourceUpdateTimestamps.RgwSSLCert is updated correctly
 			// after each test run, it should be non-set if create/update is not happened
@@ -2324,8 +2335,8 @@ func TestEnsureRgwCaBundleCert(t *testing.T) {
 			rgwName := test.cephDpl.Spec.ObjectStorage.Rgws[test.rgwIdx].Name
 			rgwCasted, _ := test.cephDpl.Spec.ObjectStorage.Rgws[test.rgwIdx].GetSpec()
 			ingress := test.cephDpl.Spec.ObjectStorage.Rgws[test.rgwIdx].ServedByIngress
-			rockoon := test.cephDpl.Spec.ObjectStorage.Rgws[test.rgwIdx].UsedByRockoon
-			changed, err := c.ensureRgwCaBundleCert(rgwName, rgwCasted.Gateway.SSLCertificateRef, rgwCasted.Gateway.CaBundleRef, ingress, rockoon)
+			usedForOpenstack := test.cephDpl.Spec.ObjectStorage.Rgws[test.rgwIdx].UsedForOpenstack
+			changed, err := c.ensureRgwCaBundleCert(rgwName, rgwCasted.Gateway.SSLCertificateRef, rgwCasted.Gateway.CaBundleRef, ingress, usedForOpenstack)
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())

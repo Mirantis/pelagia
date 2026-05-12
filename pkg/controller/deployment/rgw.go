@@ -107,7 +107,7 @@ func (c *cephDeploymentConfig) ensureRgw() (bool, error) {
 		}
 
 		// if openstack pools are present - create ceilomenter metrics user as well
-		if rgw.UsedByRockoon && rockoonRgw == "" && !c.cdConfig.clusterSpec.External.Enable {
+		if rgw.UsedForOpenstack && rockoonRgw == "" && !c.cdConfig.clusterSpec.External.Enable {
 			// take first rockoon rgw as default for now
 			rockoonRgw = rgw.Name
 			userRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(
@@ -738,7 +738,7 @@ func (c *cephDeploymentConfig) ensureRgwSslCert(rgwIndexInSpec int) (bool, error
 	rgwName := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws[rgwIndexInSpec].Name
 	rgwCasted, _ := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws[rgwIndexInSpec].GetSpec()
 	servedByIngress := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws[rgwIndexInSpec].ServedByIngress
-	usedByRockoon := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws[rgwIndexInSpec].UsedByRockoon
+	usedForOpenstack := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws[rgwIndexInSpec].UsedForOpenstack
 
 	changed := false
 	noCerts := true
@@ -756,9 +756,9 @@ func (c *cephDeploymentConfig) ensureRgwSslCert(rgwIndexInSpec int) (bool, error
 		}
 	}
 	// if no cabundle ref, no secure port, no ingress, no rockoon setup - cabundle is not needed
-	if rgwCasted.Gateway.SecurePort != 0 || servedByIngress || usedByRockoon || rgwCasted.Gateway.CaBundleRef != "" {
+	if rgwCasted.Gateway.SecurePort != 0 || servedByIngress || usedForOpenstack || rgwCasted.Gateway.CaBundleRef != "" {
 		noCerts = false
-		changedCa, err := c.ensureRgwCaBundleCert(rgwName, rgwCasted.Gateway.SSLCertificateRef, rgwCasted.Gateway.CaBundleRef, servedByIngress, usedByRockoon)
+		changedCa, err := c.ensureRgwCaBundleCert(rgwName, rgwCasted.Gateway.SSLCertificateRef, rgwCasted.Gateway.CaBundleRef, servedByIngress, usedForOpenstack)
 		if err != nil {
 			return false, errors.Wrapf(err, "failed to ensure rgw '%s' cabundle certificate", rgwName)
 		}
@@ -877,7 +877,7 @@ func (c *cephDeploymentConfig) ensureRgwBackendSSLCert(rgwName, certRef string) 
 	return changed, nil
 }
 
-func (c *cephDeploymentConfig) ensureRgwCaBundleCert(rgwName, certRef, caBundleRef string, servedByIngress, usedByRockoon bool) (bool, error) {
+func (c *cephDeploymentConfig) ensureRgwCaBundleCert(rgwName, certRef, caBundleRef string, servedByIngress, usedForOpenstack bool) (bool, error) {
 	if caBundleRef != "" {
 		c.log.Info().Msgf("rgw '%s' has provided caBundleRef, operator should take care for cabundle update and RGW restart", rgwName)
 		caBundleCert, caCertErr := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.RookNamespace).Get(c.context, caBundleRef, metav1.GetOptions{})
@@ -892,7 +892,7 @@ func (c *cephDeploymentConfig) ensureRgwCaBundleCert(rgwName, certRef, caBundleR
 	}
 
 	publicCacert := ""
-	if servedByIngress || usedByRockoon {
+	if servedByIngress || usedForOpenstack {
 		if c.cdConfig.cephDpl.Spec.IngressConfig != nil {
 			tlsConfig := getIngressTLS(c.cdConfig.cephDpl)
 			if tlsConfig != nil {
@@ -906,9 +906,9 @@ func (c *cephDeploymentConfig) ensureRgwCaBundleCert(rgwName, certRef, caBundleR
 					publicCacert = string(ingressSecret.Data["ca.crt"])
 				}
 			}
-		} else if usedByRockoon {
-			if c.lcmConfig.DeployParams.OpenstackCephSharedNamespace == "" {
-				return false, errors.Errorf("rgw '%s' has specified for Rockoon usage, but Pelagia lcmconfig has no set Rockoon-Ceph namespace", rgwName)
+		} else if usedForOpenstack {
+			if err := checkOpenstackNamespaceSetForRgw(rgwName, c.lcmConfig.DeployParams.OpenstackCephSharedNamespace); err != nil {
+				return false, err
 			}
 			openstackSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
 			if err != nil {

@@ -147,6 +147,7 @@ func TestEnsureGatewayHTTPRoutes(t *testing.T) {
 	tests := []struct {
 		name              string
 		cephDpl           *cephlcmv1alpha1.CephDeployment
+		extraLcmConfig    map[string]string
 		inputResources    map[string]runtime.Object
 		expectedResources map[string]runtime.Object
 		apiErrors         map[string]error
@@ -163,6 +164,18 @@ func TestEnsureGatewayHTTPRoutes(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"httproutes": &gatewayapi.HTTPRouteList{},
 			},
+		},
+		{
+			name:    "default mosk expected, but openstack shared namespace is not set",
+			cephDpl: &unitinputs.CephDeployMosk,
+			extraLcmConfig: map[string]string{
+				"DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE": "",
+			},
+			inputResources: map[string]runtime.Object{
+				"httproutes": &gatewayapi.HTTPRouteList{},
+				"secrets":    &corev1.SecretList{},
+			},
+			expectedError: "CephRGW object storage 'rgw-store' has specified for Openstack usage, but Pelagia lcmconfig has no var 'DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE' set",
 		},
 		{
 			name:    "default mosk expected, but mosk secret is not present yet",
@@ -303,7 +316,7 @@ func TestEnsureGatewayHTTPRoutes(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.extraLcmConfig)
 
 			faketestclients.FakeReaction(c.api.Gatewayclientset, "list", []string{"httproutes"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Gatewayclientset, "create", []string{"httproutes"}, test.inputResources, test.apiErrors)

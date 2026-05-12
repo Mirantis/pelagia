@@ -1011,6 +1011,7 @@ func TestEnsureCephConfig(t *testing.T) {
 		openstackSecret    *v1.Secret
 		rookCm             *v1.ConfigMap
 		apiErrors          map[string]error
+		extraLcmConfig     map[string]string
 		cephClusterPresent bool
 		configDump         string
 		configRuntimeCmds  map[string]bool
@@ -1479,6 +1480,23 @@ func TestEnsureCephConfig(t *testing.T) {
 				}},
 			},
 		},
+		{
+			name:    "config map and runtime updated - rgw params has been added",
+			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
+			extraLcmConfig: map[string]string{
+				"DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE": "",
+			},
+			expectedError: "failed to prepare ceph config map: CephRGW object storage 'rgw-store' has specified for Openstack usage, but Pelagia lcmconfig has no var 'DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE' set",
+			expectedTimestamps: updateTimestamps{
+				cephConfigMap: map[string]string{
+					"global": "time-11",
+					"mon":    "time-7",
+				},
+				rgwSSLCert:       map[string]string{},
+				rgwRuntimeParams: "time-11",
+				osdRuntimeParams: "time-11",
+			},
+		},
 	}
 
 	oldTimeFunc := lcmcommon.GetCurrentTimeString
@@ -1493,7 +1511,7 @@ func TestEnsureCephConfig(t *testing.T) {
 				return fmt.Sprintf("time-%d", idx)
 			}
 
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.extraLcmConfig)
 			c.cdConfig.currentCephVersion = lcmcommon.LatestRelease
 			err := c.castExtensions()
 			assert.Nil(t, err)

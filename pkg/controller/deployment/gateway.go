@@ -51,7 +51,10 @@ func (c *cephDeploymentConfig) ensureGatewayHTTPRoutes() (bool, error) {
 	if len(c.cdConfig.cephDpl.Spec.ObjectStorage.GatewayHTTPRoutes) == 0 {
 		// find Rockoon related Rgws, if present to create default http route
 		for _, rgw := range c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws {
-			if rgw.UsedByRockoon {
+			if rgw.UsedForOpenstack {
+				if err := checkOpenstackNamespaceSetForRgw(rgw.Name, c.lcmConfig.DeployParams.OpenstackCephSharedNamespace); err != nil {
+					return false, err
+				}
 				osSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
 				if err != nil {
 					if apierrors.IsNotFound(err) {

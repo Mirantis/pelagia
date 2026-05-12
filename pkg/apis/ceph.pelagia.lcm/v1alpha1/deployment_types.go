@@ -246,9 +246,9 @@ type CephObjectStore struct {
 	// ObjectStore has ingress frontend.
 	// +optional
 	ServedByIngress bool `json:"servedByIngress,omitempty"`
-	// ObjectStore will be used for Rockoon/Openstack setup.
+	// ObjectStore will be used for Openstack.
 	// +optional
-	UsedByRockoon bool `json:"usedByRockoon,omitempty"`
+	UsedForOpenstack bool `json:"usedForOpenstack,omitempty"`
 	// AuxiliaryService stands for marking object store as non-client serving.
 	// Storage class and external service will not be created.
 	// +optional

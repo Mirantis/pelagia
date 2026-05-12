@@ -1539,9 +1539,8 @@ spec:
                             for available options
                           type: object
                           x-kubernetes-preserve-unknown-fields: true
-                        usedByRockoon:
-                          description: ObjectStore will be used for Rockoon/Openstack
-                            setup.
+                        usedForOpenstack:
+                          description: ObjectStore will be used for Openstack.
                           type: boolean
                       required:
                       - name

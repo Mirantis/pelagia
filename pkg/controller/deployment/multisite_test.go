@@ -736,7 +736,7 @@ func TestEnsureZones(t *testing.T) {
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
 				mc.Spec.BlockStorage = unitinputs.CephDeployMosk.Spec.BlockStorage.DeepCopy()
-				mc.Spec.ObjectStorage.Rgws[0].UsedByRockoon = true
+				mc.Spec.ObjectStorage.Rgws[0].UsedForOpenstack = true
 				return mc
 			}(),
 			inputResources: map[string]runtime.Object{

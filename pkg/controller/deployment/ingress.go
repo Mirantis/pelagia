@@ -45,7 +45,7 @@ func (c *cephDeploymentConfig) canDeployIngressProxy() (bool, string, error) {
 	}
 	ingressRequired := false
 	for _, rgw := range c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws {
-		if rgw.ServedByIngress || rgw.UsedByRockoon {
+		if rgw.ServedByIngress || rgw.UsedForOpenstack {
 			ingressRequired = true
 		}
 	}
@@ -105,7 +105,7 @@ func (c *cephDeploymentConfig) ensureIngressProxy() (bool, error) {
 	ingressName := ""
 	// currently supported only 1 ingress
 	for _, rgw := range c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws {
-		if !rgw.ServedByIngress && !rgw.UsedByRockoon {
+		if !rgw.ServedByIngress && !rgw.UsedForOpenstack {
 			continue
 		}
 		ingressName = buildRGWName(rgw.Name, "ingress")
