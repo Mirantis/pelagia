@@ -73,10 +73,8 @@ func TestCephDeploymentVerification(t *testing.T) {
 				"cephfilesystems":      &unitinputs.CephFilesystemListEmpty,
 			},
 			cephCliOutput: map[string]string{
-				"ceph df -f json": unitinputs.CephDfBase,
-				"ceph status -f json": unitinputs.BuildCliOutput(unitinputs.CephStatusTmpl, "status", map[string]string{
-					"servicemap": `{"services": {"rgw": {"daemons": {"11556688": {"gid": 11556688},"12065099":{"gid": 12065099},"summary": ""}}}}`,
-				}),
+				"ceph df -f json":                  unitinputs.CephDfBase,
+				"ceph status -f json":              unitinputs.CephStatusCephFsRgwHealthy,
 				"ceph mgr dump -f json":            unitinputs.CephMgrDumpBaseHealthy,
 				"ceph osd tree -f json":            unitinputs.CephOsdTreeForSizingCheck,
 				"ceph osd crush rule dump -f json": unitinputs.CephOsdCrushRuleDump,
@@ -213,7 +211,7 @@ func TestCephDeploymentVerification(t *testing.T) {
 				"cephclients":          &unitinputs.CephClientListReady,
 				"cephobjectstores":     &unitinputs.CephObjectStoresMultisiteSyncDaemonPhaseReady,
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListReady,
-				"cephobjectrealms":     &unitinputs.CephObjectRealmListReady,
+				"cephobjectrealms":     &unitinputs.CephObjectRealmPullListReady,
 				"cephobjectzonegroups": &unitinputs.CephObjectZoneGroupListReady,
 				"cephobjectzones":      &unitinputs.CephObjectZoneListReady,
 				"cephfilesystems":      &unitinputs.CephFilesystemListMultipleReady,
@@ -248,7 +246,7 @@ func TestCephDeploymentVerification(t *testing.T) {
 				"cephclients":          &unitinputs.CephClientListNotReady,
 				"cephobjectstores":     &unitinputs.CephObjectStoresMultisiteSyncDaemonPhaseNotReady,
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListNotReady,
-				"cephobjectrealms":     &unitinputs.CephObjectRealmListNotReady,
+				"cephobjectrealms":     &unitinputs.CephObjectRealmPullListNotReady,
 				"cephobjectzonegroups": &unitinputs.CephObjectZoneGroupListNotReady,
 				"cephobjectzones":      &unitinputs.CephObjectZoneListNotReady,
 				"cephfilesystems":      &unitinputs.CephFilesystemListMultipleNotReady,
@@ -283,12 +281,18 @@ func TestCephDeploymentVerification(t *testing.T) {
 					},
 				}
 				report.CephDaemons.CephDaemons["rgw"] = lcmv1alpha1.DaemonStatus{
-					Status:   lcmv1alpha1.DaemonStateFailed,
-					Messages: []string{"4 rgws running, daemons: [10223488 11556688 12065099 12065109]"},
-					Issues:   []string{"unexpected rgws (4/3) rgws are running"},
+					Status: lcmv1alpha1.DaemonStateFailed,
+					Messages: []string{
+						"0/1 rgws running [], rgw 'rgw-store-sync'",
+						"3/2 rgws running [10223488 11556688 12065099], rgw 'rgw-store'",
+					},
+					Issues: []string{
+						"incorrect number of rgws (0/1) running for rgw 'rgw-store-sync'",
+						"incorrect number of rgws (3/2) running for rgw 'rgw-store'",
+					},
 				}
 				report.OsdAnalysis = unitinputs.OsdSpecAnalysisNotOk
-				report.ClusterDetails.RgwInfo.PublicEndpoint = ""
+				report.ClusterDetails.RgwInfo.PublicEndpoints = map[string][]string{}
 				report.ClusterDetails.RgwInfo.MultisiteDetails = unitinputs.CephMultisiteStateFailed
 				// TODO: drop after full merge cephdeployment/rook resources inputs
 				report.ClusterDetails.RgwInfo.MultisiteDetails.Messages = []string{"failed to run 'radosgw-admin sync status --rgw-zonegroup=zonegroup-1 --rgw-zone=zone-1' command to check multisite status for zone 'zone-1'"}
@@ -303,7 +307,6 @@ func TestCephDeploymentVerification(t *testing.T) {
 				"cephfilesystem 'rook-ceph/cephfs-2' status is not available yet",
 				"cephobjectrealm 'rook-ceph/realm-1' is not ready",
 				"cephobjectrealm 'rook-ceph/realm-2' status is not available yet",
-				"cephobjectstore 'rook-ceph/rgw-store' endpoint is not found",
 				"cephobjectstore 'rook-ceph/rgw-store' is not ready",
 				"cephobjectstore 'rook-ceph/rgw-store-sync' status is not available yet",
 				"cephobjectuser 'rook-ceph/rgw-user-1' is not ready",
@@ -313,13 +316,17 @@ func TestCephDeploymentVerification(t *testing.T) {
 				"cephobjectzonegroup 'rook-ceph/zonegroup-1' is not ready",
 				"cephobjectzonegroup 'rook-ceph/zonegroup-2' status is not available yet",
 				"failed to check ingresses in 'rook-ceph' namespace",
+				"failed to check ingresses in 'rook-ceph' namespace",
+				"failed to parse info for RGW daemon '12065109': no metadata info found",
 				"failed to run 'radosgw-admin sync status --rgw-zonegroup=zonegroup-1 --rgw-zone=zone-1' command to check multisite status for zone 'zone-1'",
+				"incorrect number of rgws (0/1) running for rgw 'rgw-store-sync'",
+				"incorrect number of rgws (3/2) running for rgw 'rgw-store'",
+				"no any public endpoints found for accessing Ceph RGW instance(s)",
 				"node 'node-1' has failed spec analyse",
 				"node 'node-2' has failed spec analyse",
 				"unexpected mds daemons running (CephFS 'cephfs-3')",
 				"unexpected number (0/1) of mds active are running for CephFS 'cephfs-1'",
 				"unexpected number (0/1) of mds standby-replay are running for CephFS 'cephfs-2'",
-				"unexpected rgws (4/3) rgws are running",
 			},
 		},
 	}

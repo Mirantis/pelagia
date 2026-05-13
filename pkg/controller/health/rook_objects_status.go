@@ -58,14 +58,6 @@ func (c *cephDeploymentHealthConfig) rookObjectsVerification() (*lcmv1alpha1.Roo
 	}
 	newRookObjectsReport.CephClients = cephClientsStatus
 
-	cephObjectStoreStatus, cephObjectStoreIssues := c.checkCephObjectStores()
-	if len(cephObjectStoreIssues) > 0 {
-		issuesForRookObjects = append(issuesForRookObjects, cephObjectStoreIssues...)
-	}
-	cephObjectUsersStatus, cephObjectUsersIssues := c.checkCephObjectUsers()
-	if len(cephObjectUsersIssues) > 0 {
-		issuesForRookObjects = append(issuesForRookObjects, cephObjectUsersIssues...)
-	}
 	cephObjectRealmsStatus, cephObjectRealmsIssues := c.checkCephObjectRealms()
 	if len(cephObjectRealmsIssues) > 0 {
 		issuesForRookObjects = append(issuesForRookObjects, cephObjectRealmsIssues...)
@@ -77,6 +69,14 @@ func (c *cephDeploymentHealthConfig) rookObjectsVerification() (*lcmv1alpha1.Roo
 	cephObjectZonesStatus, cephObjectZonesIssues := c.checkCephObjectZones()
 	if len(cephObjectZonesIssues) > 0 {
 		issuesForRookObjects = append(issuesForRookObjects, cephObjectZonesIssues...)
+	}
+	cephObjectStoreStatus, cephObjectStoreIssues := c.checkCephObjectStores()
+	if len(cephObjectStoreIssues) > 0 {
+		issuesForRookObjects = append(issuesForRookObjects, cephObjectStoreIssues...)
+	}
+	cephObjectUsersStatus, cephObjectUsersIssues := c.checkCephObjectUsers()
+	if len(cephObjectUsersIssues) > 0 {
+		issuesForRookObjects = append(issuesForRookObjects, cephObjectUsersIssues...)
 	}
 	if cephObjectStoreStatus != nil || cephObjectUsersStatus != nil || cephObjectRealmsStatus != nil ||
 		cephObjectZoneGroupsStatus != nil || cephObjectZonesStatus != nil {
@@ -250,25 +250,21 @@ func (c *cephDeploymentHealthConfig) checkCephObjectStores() (map[string]*cephv1
 	rgwStoresStatus := map[string]*cephv1.ObjectStoreStatus{}
 	issues := make([]string, 0)
 	for _, rgw := range rgwStoreList.Items {
+		rgwInfo := rgwOpts{desiredRgwDaemons: rgw.Spec.Gateway.Instances}
 		// collect some info for future checks
 		if len(rgw.Spec.Gateway.ExternalRgwEndpoints) > 0 {
 			// Rook supports rgw external for cephcluster external case only
-			c.healthConfig.rgwOpts.external = c.healthConfig.cephCluster.Spec.External.Enable
-			c.healthConfig.rgwOpts.storeName = rgw.Name
+			rgwInfo.external = true
 			if rgw.Status != nil {
 				// rook uses info map with endpoint and secureEndpoint keys
 				if secure, present := rgw.Status.Info["secureEndpoint"]; present {
-					c.healthConfig.rgwOpts.externalEndpoint = secure
+					rgwInfo.externalEndpoint = secure
 				} else if notSecure, present := rgw.Status.Info["endpoint"]; present {
-					c.healthConfig.rgwOpts.externalEndpoint = notSecure
+					rgwInfo.externalEndpoint = notSecure
 				}
 			}
-		} else {
-			c.healthConfig.rgwOpts.desiredRgwDaemons += rgw.Spec.Gateway.Instances
-			if rgw.Spec.Gateway.DisableMultisiteSyncTraffic || len(rgwStoreList.Items) == 1 {
-				c.healthConfig.rgwOpts.storeName = rgw.Name
-			}
 		}
+		c.healthConfig.rgwOpts[rgw.Name] = rgwInfo
 		rgwStoresStatus[rgw.Name] = rgw.Status
 		if rgw.Status == nil {
 			issues = append(issues, fmt.Sprintf("cephobjectstore '%s/%s' status is not available yet", c.lcmConfig.RookNamespace, rgw.Name))
@@ -313,6 +309,9 @@ func (c *cephDeploymentHealthConfig) checkCephObjectRealms() (map[string]*cephv1
 	realmsStatus := map[string]*cephv1.Status{}
 	issues := make([]string, 0)
 	for _, realm := range realmsList.Items {
+		if realm.Spec.Pull.Endpoint != "" {
+			c.healthConfig.multisiteOpts.realm = realm.Name
+		}
 		realmsStatus[realm.Name] = realm.Status
 		if realm.Status == nil {
 			issues = append(issues, fmt.Sprintf("cephobjectrealm '%s/%s' status is not available yet", c.lcmConfig.RookNamespace, realm.Name))
@@ -335,6 +334,9 @@ func (c *cephDeploymentHealthConfig) checkCephObjectZoneGroups() (map[string]*ce
 	zoneGroupsStatus := map[string]*cephv1.Status{}
 	issues := make([]string, 0)
 	for _, zonegroup := range zoneGroupsList.Items {
+		if c.healthConfig.multisiteOpts.realm != "" && zonegroup.Spec.Realm == c.healthConfig.multisiteOpts.realm {
+			c.healthConfig.multisiteOpts.zonegroup = zonegroup.Name
+		}
 		zoneGroupsStatus[zonegroup.Name] = zonegroup.Status
 		if zonegroup.Status == nil {
 			issues = append(issues, fmt.Sprintf("cephobjectzonegroup '%s/%s' status is not available yet", c.lcmConfig.RookNamespace, zonegroup.Name))
@@ -357,7 +359,9 @@ func (c *cephDeploymentHealthConfig) checkCephObjectZones() (map[string]*cephv1.
 	zonesStatus := map[string]*cephv1.Status{}
 	issues := make([]string, 0)
 	for _, zone := range zonesList.Items {
-		c.healthConfig.rgwOpts.multisite = true
+		if c.healthConfig.multisiteOpts.zonegroup != "" && zone.Spec.ZoneGroup == c.healthConfig.multisiteOpts.zonegroup {
+			c.healthConfig.multisiteOpts.zone = zone.Name
+		}
 		zonesStatus[zone.Name] = zone.Status
 		if zone.Status == nil {
 			issues = append(issues, fmt.Sprintf("cephobjectzone '%s/%s' status is not available yet", c.lcmConfig.RookNamespace, zone.Name))

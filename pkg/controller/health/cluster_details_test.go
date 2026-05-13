@@ -361,25 +361,35 @@ func TestGetRgwInfo(t *testing.T) {
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
 				hc.cephCluster = unitinputs.CephClusterExternal.DeepCopy()
-				hc.rgwOpts.storeName = "rgw-store-external"
-				hc.rgwOpts.external = true
+				hc.rgwOpts = map[string]rgwOpts{
+					"rgw-store-external": {
+						external: true,
+					},
+				}
 				return hc
 			}(),
-			expectedStatus: &lcmv1alpha1.RgwInfo{},
-			expectedIssues: []string{"cephobjectstore 'rook-ceph/rgw-store-external' endpoint is not found"},
+			expectedStatus: &lcmv1alpha1.RgwInfo{
+				PublicEndpoints: map[string][]string{},
+			},
+			expectedIssues: []string{"no any public endpoints found for accessing Ceph RGW instance(s)"},
 		},
 		{
 			name: "cephobjectstore external has no secure endpoint",
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
 				hc.cephCluster = unitinputs.CephClusterExternal.DeepCopy()
-				hc.rgwOpts.storeName = "rgw-store-external"
-				hc.rgwOpts.external = true
-				hc.rgwOpts.externalEndpoint = "http://127.0.0.1:80"
+				hc.rgwOpts = map[string]rgwOpts{
+					"rgw-store-external": {
+						external:         true,
+						externalEndpoint: "http://127.0.0.1:80",
+					},
+				}
 				return hc
 			}(),
 			expectedStatus: &lcmv1alpha1.RgwInfo{
-				PublicEndpoint: "http://127.0.0.1:80",
+				PublicEndpoints: map[string][]string{
+					"rgw-store-external": {"http://127.0.0.1:80"},
+				},
 			},
 			expectedIssues: []string{},
 		},
@@ -388,13 +398,18 @@ func TestGetRgwInfo(t *testing.T) {
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
 				hc.cephCluster = unitinputs.CephClusterExternal.DeepCopy()
-				hc.rgwOpts.storeName = "rgw-store-external"
-				hc.rgwOpts.external = true
-				hc.rgwOpts.externalEndpoint = "https://127.0.0.1:8443"
+				hc.rgwOpts = map[string]rgwOpts{
+					"rgw-store-external": {
+						external:         true,
+						externalEndpoint: "https://127.0.0.1:8443",
+					},
+				}
 				return hc
 			}(),
 			expectedStatus: &lcmv1alpha1.RgwInfo{
-				PublicEndpoint: "https://127.0.0.1:8443",
+				PublicEndpoints: map[string][]string{
+					"rgw-store-external": {"https://127.0.0.1:8443"},
+				},
 			},
 			expectedIssues: []string{},
 		},
@@ -403,13 +418,16 @@ func TestGetRgwInfo(t *testing.T) {
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
 				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
-				hc.rgwOpts.storeName = "rgw-store"
-				hc.rgwOpts.desiredRgwDaemons = 2
+				hc.rgwOpts = map[string]rgwOpts{
+					"rgw-store": {desiredRgwDaemons: 2},
+				}
 				return hc
 			}(),
-			expectedStatus: &lcmv1alpha1.RgwInfo{},
+			expectedStatus: &lcmv1alpha1.RgwInfo{
+				PublicEndpoints: map[string][]string{},
+			},
 			expectedIssues: []string{
-				"failed to check ingresses in 'rook-ceph' namespace", "cephobjectstore 'rook-ceph/rgw-store' endpoint is not found",
+				"failed to check ingresses in 'rook-ceph' namespace", "no any public endpoints found for accessing Ceph RGW instance(s)",
 			},
 		},
 		{
@@ -420,12 +438,15 @@ func TestGetRgwInfo(t *testing.T) {
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
 				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
-				hc.rgwOpts.storeName = "rgw-store"
-				hc.rgwOpts.desiredRgwDaemons = 2
+				hc.rgwOpts = map[string]rgwOpts{
+					"rgw-store": {desiredRgwDaemons: 2},
+				}
 				return hc
 			}(),
 			expectedStatus: &lcmv1alpha1.RgwInfo{
-				PublicEndpoint: "https://rgw-store.example.com",
+				PublicEndpoints: map[string][]string{
+					"rgw-store": {"https://rgw-store.example.com"},
+				},
 			},
 			expectedIssues: []string{},
 		},
@@ -438,13 +459,19 @@ func TestGetRgwInfo(t *testing.T) {
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
 				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
-				hc.rgwOpts.storeName = "rgw-store"
-				hc.rgwOpts.desiredRgwDaemons = 2
-				hc.rgwOpts.multisite = true
+				hc.rgwOpts = map[string]rgwOpts{
+					"rgw-store": {desiredRgwDaemons: 2},
+				}
+				hc.multisiteOpts = multisiteOpts{
+					zone:      "zone1",
+					zonegroup: "zonegroup1",
+				}
 				return hc
 			}(),
 			expectedStatus: &lcmv1alpha1.RgwInfo{
-				PublicEndpoint:   "https://rgw-store.example.com",
+				PublicEndpoints: map[string][]string{
+					"rgw-store": {"https://rgw-store.example.com"},
+				},
 				MultisiteDetails: unitinputs.CephMultisiteStateFailed,
 			},
 			expectedIssues: []string{"failed to run 'radosgw-admin sync status --rgw-zonegroup=zonegroup1 --rgw-zone=zone1' command to check multisite status for zone 'zone1'"},
@@ -458,14 +485,48 @@ func TestGetRgwInfo(t *testing.T) {
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
 				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
-				hc.rgwOpts.storeName = "rgw-store"
-				hc.rgwOpts.desiredRgwDaemons = 2
-				hc.rgwOpts.multisite = true
+				hc.rgwOpts = map[string]rgwOpts{
+					"rgw-store": {desiredRgwDaemons: 2},
+				}
+				hc.multisiteOpts = multisiteOpts{
+					zone:      "zone1",
+					zonegroup: "zonegroup1",
+				}
 				return hc
 			}(),
 			radosAdminOutput: unitinputs.RadosgwAdminMasterSyncStatusOk,
 			expectedStatus: &lcmv1alpha1.RgwInfo{
-				PublicEndpoint:   "https://rgw-store.example.com",
+				PublicEndpoints: map[string][]string{
+					"rgw-store": {"https://rgw-store.example.com"},
+				},
+				MultisiteDetails: unitinputs.CephMultisiteStateOk,
+			},
+			expectedIssues: []string{},
+		},
+		{
+			name: "cephobjectstore local, rgw endpoint taken, check multisite sync ok",
+			inputResources: map[string]runtime.Object{
+				"ingresses":       &unitinputs.IngressesList,
+				"cephobjectzones": &cephv1.CephObjectZoneList{Items: []cephv1.CephObjectZone{*unitinputs.RgwMultisiteMasterZone1.DeepCopy()}},
+			},
+			healthConfig: func() healthConfig {
+				hc := getEmtpyHealthConfig()
+				hc.cephCluster = unitinputs.CephClusterReady.DeepCopy()
+				hc.rgwOpts = map[string]rgwOpts{
+					"rgw-store":      {desiredRgwDaemons: 2},
+					"rgw-store-sync": {desiredRgwDaemons: 1},
+				}
+				hc.multisiteOpts = multisiteOpts{
+					zone:      "zone1",
+					zonegroup: "zonegroup1",
+				}
+				return hc
+			}(),
+			radosAdminOutput: unitinputs.RadosgwAdminMasterSyncStatusOk,
+			expectedStatus: &lcmv1alpha1.RgwInfo{
+				PublicEndpoints: map[string][]string{
+					"rgw-store": {"https://rgw-store.example.com"},
+				},
 				MultisiteDetails: unitinputs.CephMultisiteStateOk,
 			},
 			expectedIssues: []string{},
@@ -502,12 +563,11 @@ func TestGetRgwInfo(t *testing.T) {
 
 func TestGetRgwPublicEndpoint(t *testing.T) {
 	baseConfig := getEmtpyHealthConfig()
-	baseConfig.rgwOpts.storeName = "rgw-store"
 	tests := []struct {
 		name              string
 		inputResources    map[string]runtime.Object
 		customAccessLabel string
-		expectedEndpoint  string
+		expectedEndpoints []string
 		expectedIssue     string
 	}{
 		{
@@ -520,7 +580,7 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"ingresses": &unitinputs.IngressesList,
 			},
-			expectedEndpoint: "https://rgw-store.example.com",
+			expectedEndpoints: []string{"https://rgw-store.example.com"},
 		},
 		{
 			name: "ingress has no rules",
@@ -531,6 +591,7 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 					return list
 				}(),
 			},
+			expectedEndpoints: []string{},
 		},
 		{
 			name: "ingress has no expected rgw backend",
@@ -541,7 +602,7 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 					return list
 				}(),
 			},
-			expectedIssue: "can't determine Ceph RGW public endpoint for ingress rook-ceph/rook-ceph-rgw-rgw-store-ingress, backend 'rook-ceph-rgw-rgw-store' is not found in ingress rules",
+			expectedEndpoints: []string{},
 		},
 		{
 			name: "no ingresses, failed to check services",
@@ -556,7 +617,7 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 				"ingresses": &unitinputs.IngressesListEmpty,
 				"services":  &unitinputs.ServicesListRgwExternal,
 			},
-			expectedEndpoint: "https://192.168.100.150:443",
+			expectedEndpoints: []string{"https://192.168.100.150:443"},
 		},
 		{
 			name: "no ingresses, service found, but not a LoadBalancer",
@@ -568,6 +629,7 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 					return list
 				}(),
 			},
+			expectedEndpoints: []string{},
 		},
 		{
 			name: "no ingresses, service found, but no ip",
@@ -579,7 +641,7 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 					return list
 				}(),
 			},
-			expectedIssue: "external service rook-ceph/rgw-store has no IP addresses available, can't determine Ceph RGW public endpoint",
+			expectedEndpoints: []string{},
 		},
 		{
 			name: "no ingresses, service found, but no https",
@@ -591,7 +653,7 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 					return list
 				}(),
 			},
-			expectedEndpoint: "http://192.168.100.150:80",
+			expectedEndpoints: []string{"http://192.168.100.150:80"},
 		},
 		{
 			name: "no ingresses, no services, give up",
@@ -612,7 +674,7 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 				}(),
 			},
 			customAccessLabel: "custom_label=custom_value",
-			expectedEndpoint:  "https://192.168.100.150:443",
+			expectedEndpoints: []string{"https://192.168.100.150:443"},
 		},
 	}
 	for _, test := range tests {
@@ -625,8 +687,8 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "list", []string{"services"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.NetworkingV1(), "list", []string{"ingresses"}, test.inputResources, nil)
 
-			endpoint, issue := c.getRgwPublicEndpoint()
-			assert.Equal(t, test.expectedEndpoint, endpoint)
+			endpoints, issue := c.getRgwPublicEndpoint("rgw-store")
+			assert.Equal(t, test.expectedEndpoints, endpoints)
 			assert.Equal(t, test.expectedIssue, issue)
 
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
@@ -644,16 +706,6 @@ func TestGetMultisiteSyncStatus(t *testing.T) {
 		expectedStatus *lcmv1alpha1.MultisiteState
 		expectedIssues []string
 	}{
-		{
-			name: "failed to list cephobjectzones",
-			expectedStatus: &lcmv1alpha1.MultisiteState{
-				MetadataSyncState: lcmv1alpha1.MultiSiteFailed,
-				DataSyncState:     lcmv1alpha1.MultiSiteFailed,
-				Messages:          []string{"failed to list cephobjectzones in 'rook-ceph' namespace"},
-			},
-			inputResources: map[string]runtime.Object{},
-			expectedIssues: []string{"failed to list cephobjectzones in 'rook-ceph' namespace"},
-		},
 		{
 			name:           "failed to run sync status cmd",
 			expectedStatus: unitinputs.CephMultisiteStateFailed,
@@ -877,6 +929,10 @@ zonegroup features enabled: resharding
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeCephReconcileConfig(nil, nil)
+			c.healthConfig.multisiteOpts = multisiteOpts{
+				zone:      "zone1",
+				zonegroup: "zonegroup1",
+			}
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "list", []string{"pods"}, map[string]runtime.Object{"pods": unitinputs.ToolBoxPodList}, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", []string{"cephobjectzones"}, test.inputResources, nil)
 			lcmcommon.RunPodCommand = func(e lcmcommon.ExecConfig) (string, string, error) {

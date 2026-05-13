@@ -74,14 +74,19 @@ var CephExternalClusterReportOk = &lcmv1alpha1.CephDeploymentHealthReport{
 	},
 	CephDaemons: func() *lcmv1alpha1.CephDaemonsStatus {
 		daemonsStatus := CephDaemonsStatusHealthy.DeepCopy()
-		daemonsStatus.CephDaemons["rgw"] = CephDaemonsCephFsRgwHealthy["rgw"]
+		daemonsStatus.CephDaemons["rgw"] = lcmv1alpha1.DaemonStatus{
+			Status:   lcmv1alpha1.DaemonStateOk,
+			Messages: []string{"2 rgws running [11556688 12065099], rgw 'rgw-store'"},
+		}
 		return daemonsStatus
 	}(),
 	ClusterDetails: &lcmv1alpha1.ClusterDetails{
 		UsageDetails: CephBaseUsageDetails,
 		CephEvents:   CephEventsIdle,
 		RgwInfo: &lcmv1alpha1.RgwInfo{
-			PublicEndpoint: "https://127.0.0.1:8443",
+			PublicEndpoints: map[string][]string{
+				"rgw-store-external": {"https://127.0.0.1:8443"},
+			},
 		},
 	},
 }
@@ -127,8 +132,11 @@ var CephMultisiteClusterReportOk = &lcmv1alpha1.CephDeploymentHealthReport{
 				},
 			},
 			"rgw": {
-				Status:   lcmv1alpha1.DaemonStateOk,
-				Messages: []string{"3 rgws running, daemons: [10223488 11556688 12065099]"},
+				Status: lcmv1alpha1.DaemonStateOk,
+				Messages: []string{
+					"1/1 rgws running [12065099], rgw 'rgw-store-sync'",
+					"2/2 rgws running [10223488 11556688], rgw 'rgw-store'",
+				},
 			},
 		},
 		CephCSIDaemons: CephCSIDaemonsReady,
@@ -137,7 +145,9 @@ var CephMultisiteClusterReportOk = &lcmv1alpha1.CephDeploymentHealthReport{
 		UsageDetails: CephExtraUsageDetails,
 		CephEvents:   CephEventsIdle,
 		RgwInfo: &lcmv1alpha1.RgwInfo{
-			PublicEndpoint:   "https://rgw-store.example.com",
+			PublicEndpoints: map[string][]string{
+				"rgw-store": {"https://rgw-store.example.com"},
+			},
 			MultisiteDetails: CephMultisiteStateOk,
 		},
 	},
@@ -299,7 +309,7 @@ var CephDaemonsCephFsRgwHealthy = map[string]lcmv1alpha1.DaemonStatus{
 	},
 	"rgw": {
 		Status:   lcmv1alpha1.DaemonStateOk,
-		Messages: []string{"2 rgws running, daemons: [11556688 12065099]"},
+		Messages: []string{"2/2 rgws running [11556688 12065099], rgw 'rgw-store'"},
 	},
 }
 
@@ -325,8 +335,8 @@ var CephDaemonsCephFsRgwUnhealthy = map[string]lcmv1alpha1.DaemonStatus{
 	},
 	"rgw": {
 		Status:   lcmv1alpha1.DaemonStateFailed,
-		Issues:   []string{"not all (0/2) rgws are running"},
-		Messages: []string{"0 rgws running, daemons: []"},
+		Issues:   []string{"incorrect number of rgws (0/2) running for rgw 'rgw-store'"},
+		Messages: []string{"0/2 rgws running [], rgw 'rgw-store'"},
 	},
 }
 

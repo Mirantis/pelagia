@@ -25,18 +25,18 @@ var CephStatusBaseHealthy = BuildCliOutput(CephStatusTmpl, "status", nil)
 var CephStatusBaseUnhealthy = BuildCliOutput(CephStatusTmpl, "status", map[string]string{"quorum_names": `["a", "b"]`, "osdmap": `{"num_osds": 3, "num_up_osds": 2, "num_in_osds": 2}`})
 var CephStatusCephFsRgwHealthy = BuildCliOutput(CephStatusTmpl, "status", map[string]string{
 	"fsmap":      `{"by_rank": [{"name": "cephfs-1-a", "status": "up:active"}],"up:standby": 0}`,
-	"servicemap": `{"services": {"rgw": {"daemons": {"11556688": {"gid": 11556688},"12065099":{"gid": 12065099},"summary": ""}}}}`,
+	"servicemap": `{"services": {"rgw": {"daemons": {"11556688": {"gid": 11556688, "metadata": {"id": "rgw.store.a"}},"12065099":{"gid": 12065099, "metadata": {"id": "rgw.store.a"}},"summary": ""}}}}`,
 })
 var CephStatusCephFsRgwUnhealthy = BuildCliOutput(CephStatusTmpl, "status", map[string]string{
 	"fsmap": `{"by_rank": [{"name": "cephfs-1-a", "status": "down:inactive"}],"up:standby": 0}`,
 })
 var CephStatusCephFewFsRgwHealthy = BuildCliOutput(CephStatusTmpl, "status", map[string]string{
 	"fsmap":      `{"by_rank": [{"name": "cephfs-1-a", "status": "up:active"}, {"name": "cephfs-2-a", "status": "up:active"}, {"name": "cephfs-2-b", "status": "up:standby-replay"}],"up:standby": 0}`,
-	"servicemap": `{"services": {"rgw": {"daemons": {"10223488": {"gid": 10223488},"11556688": {"gid": 11556688},"12065099":{"gid": 12065099},"summary": ""}}}}`,
+	"servicemap": `{"services": {"rgw": {"daemons": {"10223488": {"gid": 10223488, "metadata": {"id": "rgw.store.a"}},"11556688": {"gid": 11556688, "metadata": {"id": "rgw.store.a"}},"12065099":{"gid": 12065099,"metadata": {"id": "rgw.store.sync.a"}},"summary": ""}}}}`,
 })
 var CephStatusCephFewFsRgwUnhealthy = BuildCliOutput(CephStatusTmpl, "status", map[string]string{
 	"fsmap":      `{"by_rank": [{"name": "cephfs-1-a", "status": "down:inactive"}, {"name": "cephfs-2-a", "status": "up:active"}, {"name": "cephfs-3-a", "status": "down:inactive"}],"up:standby": 0}`,
-	"servicemap": `{"services": {"rgw": {"daemons": {"10223488": {"gid": 10223488},"11556688": {"gid": 11556688},"12065099":{"gid": 12065099}, "12065109":{"gid": 12065109},"summary": ""}}}}`,
+	"servicemap": `{"services": {"rgw": {"daemons": {"10223488": {"gid": 10223488, "metadata": {"id": "rgw.store.a"}},"11556688": {"gid": 11556688, "metadata": {"id": "rgw.store.a"}},"12065099":{"gid": 12065099, "metadata": {"id": "rgw.store.a"}}, "12065109":{"gid": 12065109},"summary": ""}}}}`,
 })
 var CephStatusWithEvents = BuildCliOutput(CephStatusTmpl, "status", map[string]string{"progress_events": `{
   "12b640c7-9734-429e-a67d-a00ab20a7635": {

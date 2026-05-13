@@ -122,6 +122,12 @@ type CephStatus struct {
 	ProgressEvents map[string]ProgressEvents `json:"progress_events,omitempty"`
 }
 
+type RgwInfo struct {
+	Metadata struct {
+		ID string `json:"id"`
+	} `json:"metadata"`
+}
+
 type ProgressEvents struct {
 	Message  string  `json:"message,omitempty"`
 	Progress float64 `json:"progress,omitempty"`

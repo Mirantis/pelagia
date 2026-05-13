@@ -38,16 +38,21 @@ type healthConfig struct {
 	name                 string
 	namespace            string
 	cephCluster          *cephv1.CephCluster
-	rgwOpts              rgwOpts
+	rgwOpts              map[string]rgwOpts
+	multisiteOpts        multisiteOpts
 	sharedFilesystemOpts sharedFilesystemOpts
 }
 
 type rgwOpts struct {
-	storeName         string
 	desiredRgwDaemons int32
-	multisite         bool
 	external          bool
 	externalEndpoint  string
+}
+
+type multisiteOpts struct {
+	realm     string
+	zonegroup string
+	zone      string
 }
 
 type sharedFilesystemOpts struct {
