@@ -378,16 +378,16 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 					}
 				}
 			} else {
-				if len(c.cdConfig.cephDpl.Spec.ObjectStorage.GatewayHTTPRoutes) != 0 {
+				if len(c.cdConfig.cephDpl.Spec.ObjectStorage.GatewayHTTPRoutes) > 0 {
 					for _, route := range c.cdConfig.cephDpl.Spec.ObjectStorage.GatewayHTTPRoutes {
 						// take for openstack first available hostname
 						if route.ObjectStoreName == rgw.Name {
 							routeSpec, _ := route.GetSpec()
-							secret.Data["rgw_external"] = []byte(fmt.Sprintf("https://%s", routeSpec.Hostnames[0]))
+							secret.Data["rgw_external"] = []byte(fmt.Sprintf("https://%s/", routeSpec.Hostnames[0]))
 							break
 						}
 					}
-				} else if ingressTLS != nil {
+				} else if ingressTLS != nil && c.lcmConfig.CommonParams.KeepIngress {
 					domain := ingressTLS.Domain
 					protocol := "https"
 					if ingressTLS.Hostname != "" {

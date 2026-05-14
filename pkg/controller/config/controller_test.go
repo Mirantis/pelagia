@@ -110,8 +110,10 @@ func TestInitReconcile(t *testing.T) {
 				ObjectMeta: metav1.ObjectMeta{Name: LcmConfigMapName, Namespace: "some-namespace-2"},
 				Data: map[string]string{
 					"ROOK_NAMESPACE":                              "custom-rook-ceph",
-					"BASE_GATEWAY_NAME":                           "custom-gateway",
-					"BASE_GATEWAY_NAMESPACE":                      "custom-namespace",
+					"GATEWAY_API_ENABLED":                         "false",
+					"GATEWAY_BASE_NAME":                           "custom-gateway",
+					"GATEWAY_BASE_NAMESPACE":                      "custom-namespace",
+					"KEEP_INGRESS":                                "true",
 					"DISK_DAEMON_API_PORT":                        "9998",
 					"DISK_DAEMON_PLACEMENT_NODES_SELECTOR":        "custom-node-label=true",
 					"HEALTH_CHECKS_CEPH_ISSUES_TO_IGNORE":         "MON_DOWN,HOST_DOWN",
@@ -140,6 +142,8 @@ func TestInitReconcile(t *testing.T) {
 					newConfig.CommonParams.DiskDaemonPort = 9998
 					newConfig.CommonParams.DiskDaemonPlacementLabel = "custom-node-label=true"
 					newConfig.CommonParams.RgwPublicAccessLabel = "custom-access-label=true"
+					newConfig.CommonParams.KeepIngress = true
+					newConfig.CommonParams.GatewayAPIEnabled = false
 					newConfig.HealthParams = &HealthParams{
 						LogLevel:                  2,
 						ChecksSkip:                []string{"ceph_daemons", "rgw_info"},
@@ -173,6 +177,8 @@ func TestInitReconcile(t *testing.T) {
 					"HEALTH_CHECKS_USAGE_CLASS_FILTER":            "(hdd|",
 					"HEALTH_CHECKS_USAGE_POOLS_FILTER":            "(pool-|",
 					"RGW_PUBLIC_ACCESS_SERVICE_SELECTOR":          "custom&^^^-access-label",
+					"GATEWAY_API_ENABLED":                         "fa;sfla",
+					"KEEP_INGRESS":                                "asr32",
 					"HEALTH_LOG_LEVEL":                            "fakelevel",
 					"TASK_LOG_LEVEL":                              "fakelevel",
 					"TASK_OSD_PG_REBALANCE_TIMEOUT_MIN":           "10asdasd",

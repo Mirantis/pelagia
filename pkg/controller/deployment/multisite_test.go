@@ -732,23 +732,6 @@ func TestEnsureZones(t *testing.T) {
 			expectedError: "failed to check zones in use: failed to list cephobjectstores",
 		},
 		{
-			name: "failed to check ingress proxy setup",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.BlockStorage = unitinputs.CephDeployMosk.Spec.BlockStorage.DeepCopy()
-				mc.Spec.ObjectStorage.Rgws[0].UsedForOpenstack = true
-				return mc
-			}(),
-			inputResources: map[string]runtime.Object{
-				"cephobjectzones":  &cephv1.CephObjectZoneList{},
-				"cephobjectstores": &cephv1.CephObjectStoreList{},
-				"secrets":          &corev1.SecretList{},
-			},
-			apiErrors:     map[string]error{"get-secrets": errors.New("failed to get secrets")},
-			expectedZones: &cephv1.CephObjectZoneList{},
-			expectedError: "failed to check ingress proxy setup: failed to get openstack-rgw-creds secret to ensure ingress: failed to get secrets",
-		},
-		{
 			name:    "nothing to do - zones are aligned",
 			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
 			inputResources: map[string]runtime.Object{
@@ -907,13 +890,8 @@ func TestEnsureZones(t *testing.T) {
 			},
 		},
 		{
-			name: "nothing to do - no endpoints, no public access",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.IngressConfig = unitinputs.CephIngressConfig.DeepCopy()
-				return mc
-			}(),
-			lcmConfig: map[string]string{"RGW_PUBLIC_ACCESS_SERVICE_SELECTOR": ""},
+			name:    "nothing to do - no endpoints",
+			cephDpl: &unitinputs.CephDeployMultisiteRgw,
 			inputResources: map[string]runtime.Object{
 				"cephobjectzones": &cephv1.CephObjectZoneList{
 					Items: []cephv1.CephObjectZone{*correctZone.DeepCopy()},
@@ -924,77 +902,6 @@ func TestEnsureZones(t *testing.T) {
 			},
 			expectedZones: &cephv1.CephObjectZoneList{
 				Items: []cephv1.CephObjectZone{*correctZone.DeepCopy()},
-			},
-		},
-		{
-			name: "nothing to do - no endpoints, but ingress config present",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMultisiteRgw.DeepCopy()
-				mc.Spec.IngressConfig = unitinputs.CephIngressConfig.DeepCopy()
-				mc.Spec.ObjectStorage.Rgws[0].ServedByIngress = true
-				return mc
-			}(),
-			inputResources: map[string]runtime.Object{
-				"cephobjectzones": &cephv1.CephObjectZoneList{
-					Items: []cephv1.CephObjectZone{*correctZone.DeepCopy()},
-				},
-				"cephobjectstores": &cephv1.CephObjectStoreList{
-					Items: []cephv1.CephObjectStore{*objectStore},
-				},
-			},
-			expectedZones: &cephv1.CephObjectZoneList{
-				Items: []cephv1.CephObjectZone{*correctZone.DeepCopy()},
-			},
-		},
-		{
-			name:    "failed to get external svcs - no endpoints",
-			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
-			inputResources: map[string]runtime.Object{
-				"cephobjectzones": &cephv1.CephObjectZoneList{
-					Items: []cephv1.CephObjectZone{*correctZone.DeepCopy()},
-				},
-				"cephobjectstores": &cephv1.CephObjectStoreList{
-					Items: []cephv1.CephObjectStore{*objectStore},
-				},
-			},
-			expectedZones: &cephv1.CephObjectZoneList{
-				Items: []cephv1.CephObjectZone{*correctZone.DeepCopy()},
-			},
-			expectedError: "failed to find external service for zone secondary-zone1: failed to list services",
-		},
-		{
-			name:    "nothing to do - no endpoints, no rgw external service",
-			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
-			inputResources: map[string]runtime.Object{
-				"cephobjectzones": &cephv1.CephObjectZoneList{
-					Items: []cephv1.CephObjectZone{*correctZone.DeepCopy()},
-				},
-				"cephobjectstores": &cephv1.CephObjectStoreList{
-					Items: []cephv1.CephObjectStore{*objectStore},
-				},
-				"services": &corev1.ServiceList{},
-			},
-			expectedZones: &cephv1.CephObjectZoneList{
-				Items: []cephv1.CephObjectZone{*correctZone.DeepCopy()},
-			},
-		},
-		{
-			name:    "update zone - no endpoints, using rgw external service ip and http port",
-			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
-			inputResources: map[string]runtime.Object{
-				"cephobjectzones": &cephv1.CephObjectZoneList{
-					Items: []cephv1.CephObjectZone{*correctZone.DeepCopy()},
-				},
-				"cephobjectstores": &cephv1.CephObjectStoreList{
-					Items: []cephv1.CephObjectStore{*objectStore},
-				},
-				"services": &corev1.ServiceList{
-					Items: []corev1.Service{unitinputs.RgwExternalService},
-				},
-			},
-			stateChanged: true,
-			expectedZones: &cephv1.CephObjectZoneList{
-				Items: []cephv1.CephObjectZone{*zoneWithExtSvcEndpoint},
 			},
 		},
 		{
@@ -1036,8 +943,6 @@ func TestEnsureZones(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Rookclientset, "create", []string{"cephobjectzones"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "update", []string{"cephobjectzones"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "delete", []string{"cephobjectzones"}, test.inputResources, test.apiErrors)
-			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"secrets"}, test.inputResources, test.apiErrors)
-			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "list", []string{"services"}, test.inputResources, nil)
 
 			stateChanged, err := c.ensureZones()
 			if test.expectedError != "" {

@@ -97,12 +97,22 @@ func (c *cephDeploymentConfig) ensureObjectStorage() (bool, error) {
 
 func (c *cephDeploymentConfig) deleteObjectStorage() (bool, error) {
 	errorsNumber := 0
-	rgwRemoved, err := c.deleteRgw("")
+	rgwRemoved := true
+	if !c.cdConfig.clusterSpec.External.Enable {
+		gatewayRoutesRemoved, err := c.deleteGatewayHTTPRoutes()
+		if err != nil {
+			c.log.Error().Err(err).Msg("error deleting gateway httproutes")
+			errorsNumber++
+		}
+		rgwRemoved = gatewayRoutesRemoved
+	}
+	rgwResourcesRemoved, err := c.deleteRgw("")
 	if err != nil {
 		c.log.Error().Err(err).Msg("error deleting rgw")
 		errorsNumber++
 	}
-	if rgwRemoved {
+	rgwRemoved = rgwRemoved && rgwResourcesRemoved
+	if rgwResourcesRemoved {
 		certsRemoved, err := c.deleteSelfSignedCerts(nil)
 		if err != nil {
 			c.log.Error().Err(err).Msg("failed to cleanup odd rgw secrets")

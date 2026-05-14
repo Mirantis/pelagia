@@ -205,7 +205,7 @@ func TestCephDeploymentVerification(t *testing.T) {
 				"daemonsets":           unitinputs.DaemonSetListReady,
 				"deployments":          unitinputs.DeploymentListWithCSIReady,
 				"configmaps":           unitinputs.ConfigMapList,
-				"ingresses":            &unitinputs.IngressesList,
+				"httproutes":           &unitinputs.HTTPRoutesListDefaultBase,
 				"cephclusters":         &unitinputs.CephClusterListReady,
 				"cephblockpools":       &unitinputs.CephBlockPoolListReady,
 				"cephclients":          &unitinputs.CephClientListReady,
@@ -315,8 +315,8 @@ func TestCephDeploymentVerification(t *testing.T) {
 				"cephobjectzone 'rook-ceph/zone-2' status is not available yet",
 				"cephobjectzonegroup 'rook-ceph/zonegroup-1' is not ready",
 				"cephobjectzonegroup 'rook-ceph/zonegroup-2' status is not available yet",
-				"failed to check ingresses in 'rook-ceph' namespace",
-				"failed to check ingresses in 'rook-ceph' namespace",
+				"failed to check gateway httproutes in 'rook-ceph' namespace",
+				"failed to check gateway httproutes in 'rook-ceph' namespace",
 				"failed to parse info for RGW daemon '12065109': no metadata info found",
 				"failed to run 'radosgw-admin sync status --rgw-zonegroup=zonegroup-1 --rgw-zone=zone-1' command to check multisite status for zone 'zone-1'",
 				"incorrect number of rgws (0/1) running for rgw 'rgw-store-sync'",
@@ -337,7 +337,7 @@ func TestCephDeploymentVerification(t *testing.T) {
 			hc := getEmtpyHealthConfig()
 			c := fakeCephReconcileConfig(&hc, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "list", []string{"pods"}, map[string]runtime.Object{"pods": unitinputs.ToolBoxAndDiskDaemonPodsList}, nil)
-			faketestclients.FakeReaction(c.api.Kubeclientset.NetworkingV1(), "list", []string{"ingresses"}, test.inputResources, nil)
+			faketestclients.FakeReaction(c.api.Gatewayclientset, "list", []string{"httproutes"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", rookListResources, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", rookGetResources, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"configmaps"}, test.inputResources, nil)
@@ -361,7 +361,7 @@ func TestCephDeploymentVerification(t *testing.T) {
 
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.AppsV1())
-			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.NetworkingV1())
+			faketestclients.CleanupFakeClientReactions(c.api.Gatewayclientset)
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
 		})
 	}

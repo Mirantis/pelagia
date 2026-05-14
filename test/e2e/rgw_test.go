@@ -117,6 +117,9 @@ func TestRgwUserCreateAccess(t *testing.T) {
 func TestRgwAccessPublicDomainRockoon(t *testing.T) {
 	t.Log("e2e test: verify ingress rgw endpoint with default Rockoon public domain")
 	defer f.SetupTeardown(t)()
+	if !f.TF.ManagedCluster.LcmConfig.CommonParams.KeepIngress {
+		t.Skip("There are no Ingress support enabled")
+	}
 
 	cd, err := f.TF.ManagedCluster.FindCephDeployment()
 	if err != nil {
@@ -149,6 +152,9 @@ func TestRgwAccessPublicDomainRockoon(t *testing.T) {
 func TestRgwAccessPublicDomainCustom(t *testing.T) {
 	t.Log("e2e test: verify ingress rgw endpoint with custom public domain")
 	defer f.SetupTeardown(t)()
+	if !f.TF.ManagedCluster.LcmConfig.CommonParams.KeepIngress {
+		t.Skip("There are no Ingress support enabled")
+	}
 
 	f.Step(t, "Verify there is object storage in ceph cluster already created")
 	rgws, err := f.TF.ManagedCluster.ListCephObjectStore()
@@ -244,6 +250,9 @@ func TestRgwAccessPublicDomainCustom(t *testing.T) {
 func TestRgwAccessPublicTlsByRefAndCustomHostnameRockoon(t *testing.T) {
 	t.Log("e2e test: verify ingress rgw endpoint with custom hostname and Rockoon certs")
 	defer f.SetupTeardown(t)()
+	if !f.TF.ManagedCluster.LcmConfig.CommonParams.KeepIngress {
+		t.Skip("There are no Ingress support enabled")
+	}
 
 	cd, err := f.TF.ManagedCluster.FindCephDeployment()
 	if err != nil {

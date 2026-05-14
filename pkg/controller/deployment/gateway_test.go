@@ -155,6 +155,12 @@ func TestEnsureGatewayHTTPRoutes(t *testing.T) {
 		expectedError     string
 	}{
 		{
+			name: "skip gateway httproute ensure, since disabled",
+			extraLcmConfig: map[string]string{
+				"GATEWAY_API_ENABLED": "false",
+			},
+		},
+		{
 			name:          "failed to list httproutes",
 			expectedError: "failed to list rgw gateway httproutes to ensure rgw httproutes: failed to list httproutes",
 		},
@@ -313,6 +319,22 @@ func TestEnsureGatewayHTTPRoutes(t *testing.T) {
 			},
 			expectedError: "failed to ensure rgw gateway httproute(s)",
 		},
+		{
+			name:    "remove all httproute since no public selector label set",
+			cephDpl: &unitinputs.CephDeployNonMoskWithGatewayRoute,
+			extraLcmConfig: map[string]string{
+				"RGW_PUBLIC_ACCESS_SERVICE_SELECTOR": "",
+			},
+			inputResources: map[string]runtime.Object{
+				"httproutes": &gatewayapi.HTTPRouteList{
+					Items: []gatewayapi.HTTPRoute{unitinputs.DefaultBaseHTTPRoute, unitinputs.DefaultMoskHTTPRoute},
+				},
+			},
+			expectedResources: map[string]runtime.Object{
+				"httproutes": &gatewayapi.HTTPRouteList{Items: []gatewayapi.HTTPRoute{}},
+			},
+			stateChanged: true,
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -337,6 +359,80 @@ func TestEnsureGatewayHTTPRoutes(t *testing.T) {
 
 			faketestclients.CleanupFakeClientReactions(c.api.Gatewayclientset)
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
+		})
+	}
+}
+
+func TestDeleteGatewayHTTPRoutes(t *testing.T) {
+	tests := []struct {
+		name              string
+		extraLcmConfig    map[string]string
+		inputResources    map[string]runtime.Object
+		expectedResources map[string]runtime.Object
+		apiErrors         map[string]error
+		removed           bool
+		expectedError     string
+	}{
+		{
+			name: "skip gateway httproute cleanup, since disabled",
+			extraLcmConfig: map[string]string{
+				"GATEWAY_API_ENABLED": "false",
+			},
+		},
+		{
+			name:          "failed to list httproutes",
+			expectedError: "failed to list rgw gateway httproutes to ensure rgw httproutes: failed to list httproutes",
+		},
+		{
+			name: "nothing to do, no httroutes present and no expected",
+			inputResources: map[string]runtime.Object{
+				"httproutes": &gatewayapi.HTTPRouteList{},
+			},
+			removed: true,
+		},
+		{
+			name: "remove httproute failed",
+			inputResources: map[string]runtime.Object{
+				"httproutes": &gatewayapi.HTTPRouteList{
+					Items: []gatewayapi.HTTPRoute{unitinputs.DefaultBaseHTTPRoute, unitinputs.DefaultMoskHTTPRoute},
+				},
+			},
+			apiErrors: map[string]error{
+				"delete-httproutes": errors.New("failed to remove httproute"),
+			},
+			expectedError: "failed to delete gateway httproutes",
+		},
+		{
+			name: "remove all httproutes",
+			inputResources: map[string]runtime.Object{
+				"httproutes": &gatewayapi.HTTPRouteList{
+					Items: []gatewayapi.HTTPRoute{unitinputs.DefaultBaseHTTPRoute, unitinputs.DefaultMoskHTTPRoute},
+				},
+			},
+			expectedResources: map[string]runtime.Object{
+				"httproutes": &gatewayapi.HTTPRouteList{Items: []gatewayapi.HTTPRoute{}},
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			c := fakeDeploymentConfig(nil, test.extraLcmConfig)
+
+			faketestclients.FakeReaction(c.api.Gatewayclientset, "list", []string{"httproutes"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Gatewayclientset, "delete", []string{"httproutes"}, test.inputResources, test.apiErrors)
+			test.expectedResources = faketestclients.PrepareExpectedResources(test.inputResources, test.expectedResources)
+
+			removed, err := c.deleteGatewayHTTPRoutes()
+			if test.expectedError == "" {
+				assert.Nil(t, err)
+			} else {
+				assert.NotNil(t, err)
+				assert.Equal(t, test.expectedError, err.Error())
+			}
+			assert.Equal(t, test.expectedResources, test.inputResources)
+			assert.Equal(t, test.removed, removed)
+
+			faketestclients.CleanupFakeClientReactions(c.api.Gatewayclientset)
 		})
 	}
 }

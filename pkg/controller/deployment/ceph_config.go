@@ -352,6 +352,7 @@ func (c *cephDeploymentConfig) buildCephConfig() (string, map[string]string, map
 		for _, rgwStore := range c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws {
 			rgwSectionName := rgwConfigSectionName(rgwStore.Name)
 			mergeConfig(defaultRgwConfigOptions(rgwSectionName))
+			// if rgw.hosting is set - ceph config parameter will be ignored, otherwise
 			// rgw dns name parameter has next priority (from higher to lower):
 			// 1. rook override config in spec if present
 			// 2. ingress domain if present
@@ -360,7 +361,7 @@ func (c *cephDeploymentConfig) buildCephConfig() (string, map[string]string, map
 			rgwDNSNameValues := []string{fmt.Sprintf("%s.%s.svc", buildRGWName(rgwStore.Name, ""), c.lcmConfig.RookNamespace)}
 			if rgwStore.ServedByIngress || rgwStore.UsedForOpenstack {
 				ingressTLS := getIngressTLS(c.cdConfig.cephDpl)
-				if ingressTLS != nil {
+				if ingressTLS != nil && c.lcmConfig.CommonParams.KeepIngress {
 					if ingressTLS.Hostname != "" {
 						rgwDNSNameValues = append(rgwDNSNameValues, fmt.Sprintf("%s.%s", ingressTLS.Hostname, ingressTLS.Domain))
 					} else {
@@ -393,8 +394,11 @@ func (c *cephDeploymentConfig) buildCephConfig() (string, map[string]string, map
 				}
 			}
 			rgwCasted, _ := rgwStore.GetSpec()
-			if rgwCasted.Gateway.SecurePort != int32(0) {
-				mergeConfig([]configOption{{key: "rgw_dns_name", value: strings.Join(rgwDNSNameValues, ","), section: rgwSectionName}})
+			// if rgw hosting config is provided - use it. Otherwise override config value
+			if rgwCasted.Hosting == nil {
+				if rgwCasted.Gateway.SecurePort != int32(0) {
+					mergeConfig([]configOption{{key: "rgw_dns_name", value: strings.Join(rgwDNSNameValues, ","), section: rgwSectionName}})
+				}
 			}
 		}
 	}

@@ -51,6 +51,10 @@ type CommonParams struct {
 	DiskDaemonPort int32
 	// Service selector providing rgw public access (ingress, loadbalancer)
 	RgwPublicAccessLabel string
+	// Whether new gateway API is enabled
+	GatewayAPIEnabled bool
+	// Keep ingress resources or use only gateway API resources
+	KeepIngress bool
 }
 
 type HealthParams struct {
@@ -120,6 +124,7 @@ var (
 			DiskDaemonPort:           9999,
 			DiskDaemonPlacementLabel: "pelagia-disk-daemon=true",
 			RgwPublicAccessLabel:     "external_access=rgw",
+			GatewayAPIEnabled:        true,
 		},
 	}
 	// default health config var
@@ -155,9 +160,11 @@ var (
 	rookNamespaceParameter                  = "ROOK_NAMESPACE"
 	diskDaemonPortParameter                 = "DISK_DAEMON_API_PORT"
 	diskDaemonPlacementLabel                = "DISK_DAEMON_PLACEMENT_NODES_SELECTOR"
-	baseGatewayNameParameter                = "BASE_GATEWAY_NAME"
-	baseGatewayNamespaceParameter           = "BASE_GATEWAY_NAMESPACE"
+	enableGatewayParameter                  = "GATEWAY_API_ENABLED"
+	baseGatewayNameParameter                = "GATEWAY_BASE_NAME"
+	baseGatewayNamespaceParameter           = "GATEWAY_BASE_NAMESPACE"
 	rgwPublicAccessServiceSelectorParameter = "RGW_PUBLIC_ACCESS_SERVICE_SELECTOR"
+	ingressSupportParameter                 = "KEEP_INGRESS"
 	// health controller config params
 	healthChecksCephIssuesToIgnoreParameter = "HEALTH_CHECKS_CEPH_ISSUES_TO_IGNORE"
 	healthChecksSkipParameter               = "HEALTH_CHECKS_SKIP"
@@ -355,6 +362,16 @@ func ReadConfiguration(objLog zerolog.Logger, configData map[string]string) LcmC
 			newConfig.CommonParams.DiskDaemonPlacementLabel = selector.String()
 		}
 	}
+	// check gateway api is enabled
+	if gatewayEnabled, present := configData[enableGatewayParameter]; present {
+		val, err := strconv.ParseBool(gatewayEnabled)
+		if err != nil {
+			objLog.Error().Msgf(errorMsgTmpl, enableGatewayParameter, gatewayEnabled, "bool")
+		} else {
+			objLog.Debug().Msgf(debugMsgTmpl, enableGatewayParameter, gatewayEnabled)
+			newConfig.CommonParams.GatewayAPIEnabled = val
+		}
+	}
 	// check gateway object name param
 	if baseGatewayName, present := configData[baseGatewayNameParameter]; present {
 		objLog.Debug().Msgf(debugMsgTmpl, baseGatewayNameParameter, baseGatewayName)
@@ -373,6 +390,16 @@ func ReadConfiguration(objLog zerolog.Logger, configData map[string]string) LcmC
 		} else {
 			objLog.Debug().Msgf(debugMsgTmpl, rgwPublicAccessServiceSelectorParameter, rgwPublicServiceSelector)
 			newConfig.CommonParams.RgwPublicAccessLabel = selector.String()
+		}
+	}
+	// ingress support
+	if ingressSupport, present := configData[ingressSupportParameter]; present {
+		val, err := strconv.ParseBool(ingressSupport)
+		if err != nil {
+			objLog.Error().Msgf(errorMsgTmpl, ingressSupportParameter, ingressSupport, "bool")
+		} else {
+			objLog.Debug().Msgf(debugMsgTmpl, ingressSupportParameter, ingressSupport)
+			newConfig.CommonParams.KeepIngress = val
 		}
 	}
 	// controller specific params

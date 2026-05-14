@@ -39,12 +39,13 @@ import (
 
 func FakeReconciler() *ReconcileCephDeploymentHealth {
 	return &ReconcileCephDeploymentHealth{
-		Config:        &rest.Config{},
-		Client:        faketestclients.GetClient(nil),
-		Lcmclientset:  faketestclients.GetFakeLcmclient(),
-		Kubeclientset: faketestclients.GetFakeKubeclient(),
-		Rookclientset: faketestclients.GetFakeRookclient(),
-		Scheme:        faketestscheme.Scheme,
+		Config:           &rest.Config{},
+		Client:           faketestclients.GetClient(nil),
+		Lcmclientset:     faketestclients.GetFakeLcmclient(),
+		Kubeclientset:    faketestclients.GetFakeKubeclient(),
+		Rookclientset:    faketestclients.GetFakeRookclient(),
+		Gatewayclientset: faketestclients.GetFakeGatewayclient(),
+		Scheme:           faketestscheme.Scheme,
 	}
 }
 
@@ -386,6 +387,7 @@ func TestHealthAndConfigReconcile(t *testing.T) {
 			DiskDaemonPort:           9999,
 			DiskDaemonPlacementLabel: "pelagia-disk-daemon=true",
 			RgwPublicAccessLabel:     "external_access=rgw",
+			GatewayAPIEnabled:        true,
 		},
 		HealthParams: &lcmconfig.HealthParams{
 			CephIssuesToIgnore: []string{

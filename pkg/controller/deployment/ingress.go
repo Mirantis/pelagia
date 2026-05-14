@@ -40,6 +40,12 @@ func buildHostName(rgwName, rgwOverrideName, domain string) string {
 const defaultIngressClass = "openstack-ingress-nginx"
 
 func (c *cephDeploymentConfig) canDeployIngressProxy() (bool, string, error) {
+	if !c.lcmConfig.CommonParams.KeepIngress {
+		if c.cdConfig.cephDpl.Spec.IngressConfig != nil {
+			c.log.Warn().Msg("ingress support is disabled, but ingress configuration is not removed from spec")
+		}
+		return false, "ingress support is disabled", nil
+	}
 	if c.cdConfig.cephDpl.Spec.ObjectStorage == nil {
 		return false, "no rgw section specified", nil
 	}
@@ -249,11 +255,7 @@ func (c *cephDeploymentConfig) ensureIngressProxy() (bool, error) {
 			}
 			changedIngressConfig = true
 		}
-		externalAccessLabel, err := metav1.ParseToLabelSelector(c.lcmConfig.CommonParams.RgwPublicAccessLabel)
-		if err != nil {
-			return false, errors.Wrapf(err, "failed to parse provided ingress public access label '%s'", c.lcmConfig.CommonParams.RgwPublicAccessLabel)
-		}
-		ingressResource := generateIngress(rgw.Name, c.lcmConfig.RookNamespace, tlsSecretName, ingressConfig, externalAccessLabel)
+		ingressResource := generateIngress(rgw.Name, c.lcmConfig.RookNamespace, tlsSecretName, ingressConfig, c.lcmConfig.CommonParams.RgwPublicAccessLabel)
 		if ingress == nil {
 			c.log.Info().Msgf("creating ingress %s/%s", c.lcmConfig.RookNamespace, ingressName)
 			_, err = c.api.Kubeclientset.NetworkingV1().Ingresses(c.lcmConfig.RookNamespace).Create(c.context, ingressResource, metav1.CreateOptions{})
@@ -345,27 +347,34 @@ func (c *cephDeploymentConfig) deleteIngressProxy() (bool, error) {
 	return ingressResourcesRemoved, nil
 }
 
-func generateIngress(rgwName, namespace, tlsSecretName string, ingressConfig *cephlcmv1alpha1.CephDeploymentIngressConfig, externalAccessLabel *metav1.LabelSelector) *networkingv1.Ingress {
+func getBaseIngressLabels(rgwName, rgwPublicAccessLabel string) map[string]string {
+	labels := map[string]string{
+		cephIngressLabel:    "ceph-object-store-ingress",
+		"app":               "rook-ceph-rgw",
+		"rook_object_store": rgwName,
+	}
+	// checked by config controller or fall backed to default
+	externalAccessLabelParsed, _ := metav1.ParseToLabelSelector(rgwPublicAccessLabel)
+	for key, val := range externalAccessLabelParsed.MatchLabels {
+		labels[key] = val
+	}
+	return labels
+}
+
+func generateIngress(rgwName, namespace, tlsSecretName string, ingressConfig *cephlcmv1alpha1.CephDeploymentIngressConfig, rgwPublicAccessLabel string) *networkingv1.Ingress {
 	pathType := networkingv1.PathTypeImplementationSpecific
 	ingressTypeLabel := fmt.Sprintf("%s-rgw", ingressConfig.ControllerClassName)
 	annotations := ingressConfig.Annotations
 	annotations["kubernetes.io/ingress.class"] = ingressConfig.ControllerClassName
 	hostName := buildHostName(rgwName, ingressConfig.TLSConfig.Hostname, ingressConfig.TLSConfig.Domain)
-	ingressLabels := lcmcommon.ExtendLabels(map[string]string{
-		"ingress-type":      ingressTypeLabel,
-		cephIngressLabel:    "ceph-object-store-ingress",
-		"app":               "rook-ceph-rgw",
-		"rook_object_store": rgwName,
-	}, baseResourceLabels)
-	for key, val := range externalAccessLabel.MatchLabels {
-		ingressLabels[key] = val
-	}
+	ingressLabels := getBaseIngressLabels(rgwName, rgwPublicAccessLabel)
+	ingressLabels["ingress-type"] = ingressTypeLabel
 	return &networkingv1.Ingress{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        buildRGWName(rgwName, "ingress"),
 			Namespace:   namespace,
 			Annotations: annotations,
-			Labels:      ingressLabels,
+			Labels:      lcmcommon.ExtendLabels(ingressLabels, baseResourceLabels),
 		},
 		Spec: networkingv1.IngressSpec{
 			Rules: []networkingv1.IngressRule{

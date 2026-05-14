@@ -23,6 +23,7 @@ import (
 	"github.com/pkg/errors"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	labels "k8s.io/apimachinery/pkg/labels"
 	gatewayapi "sigs.k8s.io/gateway-api/apis/v1"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
@@ -37,6 +38,10 @@ var (
 
 func (c *cephDeploymentConfig) ensureGatewayHTTPRoutes() (bool, error) {
 	c.log.Debug().Msgf("ensure gateway httproutes")
+	if !c.lcmConfig.CommonParams.GatewayAPIEnabled {
+		c.log.Info().Msg("Gateway API is disabled, skipping HTTPRoutes ensure")
+		return false, nil
+	}
 	gtws, err := c.api.Gatewayclientset.GatewayV1().HTTPRoutes(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
 	if err != nil {
 		return false, errors.Wrap(err, "failed to list rgw gateway httproutes to ensure rgw httproutes")
@@ -85,34 +90,38 @@ func (c *cephDeploymentConfig) ensureGatewayHTTPRoutes() (bool, error) {
 	}
 
 	changed := false
-	for _, httproute := range gatewayRoutesToManage {
-		httpRouteResource := c.generateHTTPRoute(httproute)
-		if httpRouteCur, ok := presentRoutes[httproute.Name]; ok {
-			delete(presentRoutes, httproute.Name)
-			labelsUpdated := lcmcommon.AlignBaseLabels(*c.log, "HTTPRoute", &httpRouteCur.ObjectMeta, httpRouteResource.Labels)
-			specUpdated := !reflect.DeepEqual(httpRouteResource.Spec, httpRouteCur.Spec)
-			if specUpdated || labelsUpdated {
-				c.log.Info().Msgf("updating gateway httproute '%s/%s'", httpRouteCur.Namespace, httpRouteCur.Name)
-				if specUpdated {
-					lcmcommon.ShowObjectDiff(*c.log, httpRouteCur.Spec, httpRouteResource.Spec)
-					httpRouteCur.Spec = httpRouteResource.Spec
+	if c.lcmConfig.CommonParams.RgwPublicAccessLabel == "" {
+		c.log.Info().Msg("removing all found gateway httproutes, since 'RGW_PUBLIC_ACCESS_SERVICE_SELECTOR' is not set lcmconfig")
+	} else {
+		for _, httproute := range gatewayRoutesToManage {
+			httpRouteResource := c.generateHTTPRoute(httproute)
+			if httpRouteCur, ok := presentRoutes[httproute.Name]; ok {
+				delete(presentRoutes, httproute.Name)
+				labelsUpdated := lcmcommon.AlignBaseLabels(*c.log, "HTTPRoute", &httpRouteCur.ObjectMeta, httpRouteResource.Labels)
+				specUpdated := !reflect.DeepEqual(httpRouteResource.Spec, httpRouteCur.Spec)
+				if specUpdated || labelsUpdated {
+					c.log.Info().Msgf("updating gateway httproute '%s/%s'", httpRouteCur.Namespace, httpRouteCur.Name)
+					if specUpdated {
+						lcmcommon.ShowObjectDiff(*c.log, httpRouteCur.Spec, httpRouteResource.Spec)
+						httpRouteCur.Spec = httpRouteResource.Spec
+					}
+					_, err := c.api.Gatewayclientset.GatewayV1().HTTPRoutes(c.lcmConfig.RookNamespace).Update(c.context, &httpRouteCur, metav1.UpdateOptions{})
+					if err != nil {
+						c.log.Error().Err(err).Msgf("failed to update rgw gateway httproute '%s/%s'", httpRouteCur.Namespace, httpRouteCur.Name)
+						failDetected = true
+					} else {
+						changed = true
+					}
 				}
-				_, err := c.api.Gatewayclientset.GatewayV1().HTTPRoutes(c.lcmConfig.RookNamespace).Update(c.context, &httpRouteCur, metav1.UpdateOptions{})
+			} else {
+				c.log.Info().Msgf("creating gateway httproute '%s/%s'", c.lcmConfig.RookNamespace, httpRouteResource.Name)
+				_, err := c.api.Gatewayclientset.GatewayV1().HTTPRoutes(c.lcmConfig.RookNamespace).Create(c.context, &httpRouteResource, metav1.CreateOptions{})
 				if err != nil {
-					c.log.Error().Err(err).Msgf("failed to update rgw gateway httproute '%s/%s'", httpRouteCur.Namespace, httpRouteCur.Name)
+					c.log.Error().Err(err).Msgf("failed to create rgw gateway httproute '%s/%s'", httpRouteResource.Namespace, httpRouteResource.Name)
 					failDetected = true
 				} else {
 					changed = true
 				}
-			}
-		} else {
-			c.log.Info().Msgf("creating gateway httproute '%s/%s'", c.lcmConfig.RookNamespace, httpRouteResource.Name)
-			_, err := c.api.Gatewayclientset.GatewayV1().HTTPRoutes(c.lcmConfig.RookNamespace).Create(c.context, &httpRouteResource, metav1.CreateOptions{})
-			if err != nil {
-				c.log.Error().Err(err).Msgf("failed to create rgw gateway httproute '%s/%s'", httpRouteResource.Namespace, httpRouteResource.Name)
-				failDetected = true
-			} else {
-				changed = true
 			}
 		}
 	}
@@ -134,15 +143,26 @@ func (c *cephDeploymentConfig) ensureGatewayHTTPRoutes() (bool, error) {
 	return changed, nil
 }
 
+func getBaseHTTPRouteLabels(rgwName, externalAccessLabel string) map[string]string {
+	labels := map[string]string{
+		"app":               "rook-ceph-rgw",
+		"rook_object_store": rgwName,
+	}
+	// checked by config controller or fall backed to default
+	externalAccessLabelParsed, _ := metav1.ParseToLabelSelector(externalAccessLabel)
+	for key, val := range externalAccessLabelParsed.MatchLabels {
+		labels[key] = val
+	}
+	return labels
+}
+
 func (c *cephDeploymentConfig) generateHTTPRoute(httpRoute cephlcmv1alpha1.CephDeploymentHTTPRoute) gatewayapi.HTTPRoute {
+	httpRouteLabels := getBaseHTTPRouteLabels(httpRoute.ObjectStoreName, c.lcmConfig.CommonParams.RgwPublicAccessLabel)
 	newHTTPRoute := gatewayapi.HTTPRoute{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      httpRoute.Name,
 			Namespace: c.lcmConfig.RookNamespace,
-			Labels: lcmcommon.ExtendLabels(map[string]string{
-				"app":               "rook-ceph-rgw",
-				"rook_object_store": httpRoute.ObjectStoreName,
-			}, baseResourceLabels),
+			Labels:    lcmcommon.ExtendLabels(httpRouteLabels, baseResourceLabels),
 		},
 	}
 	var defaultObjectStorePort int32
@@ -152,13 +172,6 @@ func (c *cephDeploymentConfig) generateHTTPRoute(httpRoute cephlcmv1alpha1.CephD
 			defaultObjectStorePort = rgwSpec.Gateway.Port
 			break
 		}
-	}
-	externalAccessLabel, err := metav1.ParseToLabelSelector(c.lcmConfig.CommonParams.RgwPublicAccessLabel)
-	if err != nil {
-		c.log.Error().Err(err).Msg("")
-	}
-	for key, val := range externalAccessLabel.MatchLabels {
-		newHTTPRoute.Labels[key] = val
 	}
 	httpRouteSpec, _ := httpRoute.GetSpec()
 	if len(httpRouteSpec.ParentRefs) == 0 {
@@ -209,4 +222,35 @@ func (c *cephDeploymentConfig) generateHTTPRoute(httpRoute cephlcmv1alpha1.CephD
 	}
 	newHTTPRoute.Spec = httpRouteSpec
 	return newHTTPRoute
+}
+
+func (c *cephDeploymentConfig) deleteGatewayHTTPRoutes() (bool, error) {
+	if !c.lcmConfig.CommonParams.GatewayAPIEnabled {
+		c.log.Info().Msg("Gateway API is disabled, skipping HTTPRoutes cleanup")
+		return false, nil
+	}
+	// get all httproutes created by us
+	listOptions := metav1.ListOptions{
+		LabelSelector: labels.Set(baseResourceLabels).String(),
+	}
+	httpRoutes, err := c.api.Gatewayclientset.GatewayV1().HTTPRoutes(c.lcmConfig.RookNamespace).List(c.context, listOptions)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to list rgw gateway httproutes to ensure rgw httproutes")
+	}
+	removed := true
+	errCount := 0
+	for _, route := range httpRoutes.Items {
+		c.log.Info().Msgf("removing gateway httproute '%s/%s'", route.Namespace, route.Name)
+		err := c.api.Gatewayclientset.GatewayV1().HTTPRoutes(route.Namespace).Delete(c.context, route.Name, metav1.DeleteOptions{})
+		if err != nil {
+			c.log.Error().Err(err).Msgf("failed to delete rgw gateway httproute '%s/%s'", route.Namespace, route.Name)
+			errCount++
+		} else {
+			removed = false
+		}
+	}
+	if errCount > 0 {
+		return false, errors.New("failed to delete gateway httproutes")
+	}
+	return removed, nil
 }

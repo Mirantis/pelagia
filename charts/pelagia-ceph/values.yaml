@@ -17,8 +17,13 @@ lcmConfig:
   diskDaemonPortParameter: 9999
   diskDaemonNodeSelector: "ceph_role_osd=true"
   cephDaemonsetLabelExclude: ""
+  # if gateway api is not required or not supported - should be disabled
+  gatewayAPIEnabled: true
   gatewayName: ""
   gatewayNamespace: ""
+  # useIngress used only for backward compatibility with ingress deprecation
+  # if no ingress required - set to false
+  useIngress: true
 
 controllers:
   securityContext:

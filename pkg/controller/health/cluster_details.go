@@ -26,6 +26,7 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	gatewayapi "sigs.k8s.io/gateway-api/apis/v1"
 
 	lcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
@@ -367,6 +368,7 @@ func (c *cephDeploymentHealthConfig) getRgwInfo() (*lcmv1alpha1.RgwInfo, []strin
 		} else {
 			rgwEndpoints, issue := c.getRgwPublicEndpoint(rgwName)
 			if len(rgwEndpoints) > 0 {
+				sort.Strings(rgwEndpoints)
 				newRgwInfo.PublicEndpoints[rgwName] = rgwEndpoints
 			}
 			if issue != "" {
@@ -384,41 +386,84 @@ func (c *cephDeploymentHealthConfig) getRgwInfo() (*lcmv1alpha1.RgwInfo, []strin
 }
 
 func (c *cephDeploymentHealthConfig) getRgwPublicEndpoint(rgwName string) ([]string, string) {
+	if c.lcmConfig.CommonParams.RgwPublicAccessLabel == "" {
+		c.log.Warn().Msg("can't detect Ceph RGW public endpoint, since 'RGW_PUBLIC_ACCESS_SERVICE_SELECTOR' is not specified in lcmconfig")
+		return nil, ""
+	}
 	listOptions := metav1.ListOptions{
 		LabelSelector: fmt.Sprintf("app=rook-ceph-rgw,rook_object_store=%s,%s", rgwName, c.lcmConfig.CommonParams.RgwPublicAccessLabel),
 	}
-	ingresses, err := c.api.Kubeclientset.NetworkingV1().Ingresses(c.lcmConfig.RookNamespace).List(c.context, listOptions)
-	if err != nil {
-		c.log.Error().Err(err).Msg("")
-		return nil, fmt.Sprintf("failed to check ingresses in '%s' namespace", c.lcmConfig.RookNamespace)
-	}
-	if len(ingresses.Items) > 0 {
-		endpoints := []string{}
-		for _, ingress := range ingresses.Items {
-			if len(ingress.Spec.Rules) == 0 {
-				c.log.Warn().Msgf("ingress '%s/%s' has no rules configured, can't find Ceph RGW public endpoint", c.lcmConfig.RookNamespace, ingresses.Items[0].Name)
-				continue
-			}
-			backendName := fmt.Sprintf("rook-ceph-rgw-%s", rgwName)
-			found := false
-			for _, rule := range ingress.Spec.Rules {
-				if rule.HTTP != nil {
-					for _, path := range rule.HTTP.Paths {
-						if (path.Backend.Service != nil && path.Backend.Service.Name == backendName) ||
-							(path.Backend.Resource != nil && path.Backend.Resource.Name == backendName && path.Backend.Resource.Kind == "CephObjectStore") {
-							endpoints = append(endpoints, "https://"+rule.Host)
-							found = true
-							break
+	backendName := fmt.Sprintf("rook-ceph-rgw-%s", rgwName)
+	if c.lcmConfig.CommonParams.KeepIngress {
+		ingresses, err := c.api.Kubeclientset.NetworkingV1().Ingresses(c.lcmConfig.RookNamespace).List(c.context, listOptions)
+		if err != nil {
+			c.log.Error().Err(err).Msg("")
+			return nil, fmt.Sprintf("failed to check ingresses in '%s' namespace", c.lcmConfig.RookNamespace)
+		}
+		if len(ingresses.Items) > 0 {
+			endpoints := []string{}
+			for _, ingress := range ingresses.Items {
+				if len(ingress.Spec.Rules) == 0 {
+					c.log.Warn().Msgf("ingress '%s/%s' has no rules configured, can't find Ceph RGW public endpoint", c.lcmConfig.RookNamespace, ingress.Name)
+					continue
+				}
+				found := false
+				for _, rule := range ingress.Spec.Rules {
+					if rule.HTTP != nil {
+						for _, path := range rule.HTTP.Paths {
+							if (path.Backend.Service != nil && path.Backend.Service.Name == backendName) ||
+								(path.Backend.Resource != nil && path.Backend.Resource.Name == backendName && path.Backend.Resource.Kind == "CephObjectStore") {
+								endpoints = append(endpoints, "https://"+rule.Host)
+								found = true
+								break
+							}
 						}
 					}
 				}
+				if !found {
+					c.log.Warn().Msgf("can't determine Ceph RGW public endpoint for ingress %s/%s, backend '%s' is not found in ingress rules",
+						c.lcmConfig.RookNamespace, ingress.Name, backendName)
+				}
 			}
-			if !found {
-				c.log.Warn().Msgf("can't determine Ceph RGW public endpoint for ingress %s/%s, backend '%s' is not found in ingress rules",
-					c.lcmConfig.RookNamespace, ingresses.Items[0].Name, backendName)
-			}
+			return endpoints, ""
 		}
-		return endpoints, ""
+	}
+	if c.lcmConfig.CommonParams.GatewayAPIEnabled {
+		routes, err := c.api.Gatewayclientset.GatewayV1().HTTPRoutes(c.lcmConfig.RookNamespace).List(c.context, listOptions)
+		if err != nil {
+			c.log.Error().Err(err).Msg("")
+			return nil, fmt.Sprintf("failed to check gateway httproutes in '%s' namespace", c.lcmConfig.RookNamespace)
+		}
+		if len(routes.Items) > 0 {
+			endpoints := []string{}
+			gatewayKind := gatewayapi.Kind("Service")
+			serviceName := gatewayapi.ObjectName(backendName)
+			for _, route := range routes.Items {
+				if len(route.Spec.Rules) == 0 {
+					c.log.Warn().Msgf("gateway httproute '%s/%s' has no rules configured, can't find Ceph RGW public endpoint", route.Namespace, route.Name)
+					continue
+				}
+				found := false
+				for _, rule := range route.Spec.Rules {
+					for _, ref := range rule.BackendRefs {
+						if ref.Name != "" && ref.Kind != nil {
+							if ref.Name == serviceName && *ref.Kind == gatewayKind {
+								for _, h := range route.Spec.Hostnames {
+									endpoints = append(endpoints, "https://"+string(h))
+								}
+								found = true
+								break
+							}
+						}
+					}
+				}
+				if !found {
+					c.log.Warn().Msgf("can't determine Ceph RGW public endpoint for gateway httproute %s/%s, backend '%s' is not found in httproute rules",
+						route.Namespace, route.Name, backendName)
+				}
+			}
+			return endpoints, ""
+		}
 	}
 	svcList, err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).List(c.context, listOptions)
 	if err != nil {
@@ -454,7 +499,7 @@ func (c *cephDeploymentHealthConfig) getRgwPublicEndpoint(rgwName string) ([]str
 		}
 		return endpoints, ""
 	}
-	c.log.Debug().Msgf("ingress or external service with label '%s' is not found for Ceph RGW '%s/%s'", listOptions.LabelSelector, c.lcmConfig.RookNamespace, rgwName)
+	c.log.Debug().Msgf("no any of httproute, ingress, external service with label '%s' is not found for Ceph RGW '%s/%s'", listOptions.LabelSelector, c.lcmConfig.RookNamespace, rgwName)
 	return nil, ""
 }
 

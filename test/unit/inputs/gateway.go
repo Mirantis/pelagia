@@ -23,6 +23,16 @@ import (
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
 )
 
+var HTTPRoutesListEmpty = gatewayapi.HTTPRouteList{}
+
+var HTTPRoutesListDefaultMosk = gatewayapi.HTTPRouteList{
+	Items: []gatewayapi.HTTPRoute{DefaultMoskHTTPRoute},
+}
+
+var HTTPRoutesListDefaultBase = gatewayapi.HTTPRouteList{
+	Items: []gatewayapi.HTTPRoute{DefaultBaseHTTPRoute},
+}
+
 var DefaultMoskHTTPRoute = gatewayapi.HTTPRoute{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "rgw-store-openstack-route",
