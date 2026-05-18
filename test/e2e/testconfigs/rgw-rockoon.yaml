@@ -2,6 +2,6 @@ testSettings:
   namespace: ${TEST_NAMESPACE}
 testCases:
 - TestObjectStorageRgwAccessibility
-- TestRgwAccessPublicDomainRockoon
-- TestRgwAccessPublicTlsByRefAndCustomHostnameRockoon
 - TestRgwUserCreateAccess
+- TestRgwAccessPublicDomainRockoon
+- TestRgwIngressAccessPublicTlsByRefAndCustomHostnameRockoon

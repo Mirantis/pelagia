@@ -1,0 +1,10 @@
+testSettings:
+  namespace: ${TEST_NAMESPACE}
+  caseSettings:
+  - name: TestRgwGatewayAPIAccessPublicCustomHostname
+    config:
+      publicDomain: example.com
+      certNamespace: "envoy-gateway"
+      certName: "app-gateway-https-certs"
+testCases:
+- TestRgwGatewayAPIAccessPublicCustomHostname
