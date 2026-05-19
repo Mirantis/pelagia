@@ -644,6 +644,7 @@ func TestBuildRookConfig(t *testing.T) {
 	tests := []struct {
 		name                  string
 		cephDpl               *cephlcmv1alpha1.CephDeployment
+		lcmConfig             map[string]string
 		openstackSecret       *v1.Secret
 		currentCephVersion    *lcmcommon.CephVersion
 		expectedRookConfig    string
@@ -734,6 +735,9 @@ func TestBuildRookConfig(t *testing.T) {
 				}
 				return mc
 			}(),
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			expectedRookConfig: rookConfigRgwIngressNoOpenstackNoOverride,
 			expectedRuntimeConfig: map[string]string{
 				"global|osd_max_backfills":       "64",
@@ -867,6 +871,9 @@ func TestBuildRookConfig(t *testing.T) {
 				cephDpl.Spec.RookConfig["osd_max_backfills"] = "64"
 				return cephDpl
 			}(),
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			openstackSecret:    &unitinputs.OpenstackRgwCredsSecret,
 			expectedRookConfig: rookConfigRgwOpenstackBarbicanOverride,
 			expectedRuntimeConfig: map[string]string{
@@ -883,8 +890,11 @@ func TestBuildRookConfig(t *testing.T) {
 			},
 		},
 		{
-			name:               "rook rgw openstack ingress - no override from spec",
-			cephDpl:            &unitinputs.CephDeployMosk,
+			name:    "rook rgw openstack ingress - no override from spec",
+			cephDpl: &unitinputs.CephDeployMosk,
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			openstackSecret:    &unitinputs.OpenstackRgwCredsSecretNoBarbican,
 			expectedRookConfig: rookConfigRgwIngressOpenstackNoBarbicanNoOverride,
 			expectedRuntimeConfig: map[string]string{
@@ -906,6 +916,9 @@ func TestBuildRookConfig(t *testing.T) {
 				cephDpl.Spec.RookConfig = map[string]string{"rgw_dns_name": "rgw-store.fromspec.com"}
 				return cephDpl
 			}(),
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			expectedRookConfig:    rookConfigRgwIngressNoOpenstackOverride,
 			expectedRuntimeConfig: defaultRuntimeConfig,
 			expectedHashConfig: map[string]string{
@@ -965,6 +978,9 @@ func TestBuildRookConfig(t *testing.T) {
 				cephDpl.Spec.IngressConfig.ControllerClassName = ""
 				return cephDpl
 			}(),
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			expectedRookConfig:    strings.Replace(rookConfigRgwIngressNoOpenstackOverride, "rgw-store.fromspec.com", "rook-ceph-rgw-rgw-store.rook-ceph.svc,rgw-store.fromspec.com", 1),
 			expectedRuntimeConfig: defaultRuntimeConfig,
 			expectedHashConfig: map[string]string{
@@ -973,10 +989,21 @@ func TestBuildRookConfig(t *testing.T) {
 				"client.rgw.rgw.store.a": "48b157b9809da6aba9e3ea19654389307385bd8edb954ae7a4f2189897392433",
 			},
 		},
+		{
+			name:                  "base rook config - rgw hosting field set",
+			cephDpl:               &unitinputs.CephDeployMoskWithRgwHosting,
+			expectedRookConfig:    strings.Replace(rookConfigRgwNoOpenstackNoOverride, "rgw_dns_name = rook-ceph-rgw-rgw-store.rook-ceph.svc\n", "", 1),
+			expectedRuntimeConfig: defaultRuntimeConfig,
+			expectedHashConfig: map[string]string{
+				"global":                 "95b401f9fc7db148cf2cc3bbcbbe09f7722b2060acf714c142fdf07ee249f0bb",
+				"mon":                    "52235ccf3c9f953de0fc2b8e2928f8119e1be19c14a4cf300c55e8498ec81fa2",
+				"client.rgw.rgw.store.a": "a9235fc0e5c1a7a80f166b05b1edf0667f8529751b9f802ab4109e28fcf4ea7a",
+			},
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.lcmConfig)
 			if test.currentCephVersion == nil {
 				test.currentCephVersion = lcmcommon.LatestRelease
 			}
@@ -1011,6 +1038,7 @@ func TestEnsureCephConfig(t *testing.T) {
 		openstackSecret    *v1.Secret
 		rookCm             *v1.ConfigMap
 		apiErrors          map[string]error
+		extraLcmConfig     map[string]string
 		cephClusterPresent bool
 		configDump         string
 		configRuntimeCmds  map[string]bool
@@ -1479,6 +1507,23 @@ func TestEnsureCephConfig(t *testing.T) {
 				}},
 			},
 		},
+		{
+			name:    "config map and runtime updated - rgw params has been added",
+			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
+			extraLcmConfig: map[string]string{
+				"DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE": "",
+			},
+			expectedError: "failed to prepare ceph config map: CephRGW object storage 'rgw-store' has specified for Openstack usage, but Pelagia lcmconfig has no var 'DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE' set",
+			expectedTimestamps: updateTimestamps{
+				cephConfigMap: map[string]string{
+					"global": "time-11",
+					"mon":    "time-7",
+				},
+				rgwSSLCert:       map[string]string{},
+				rgwRuntimeParams: "time-11",
+				osdRuntimeParams: "time-11",
+			},
+		},
 	}
 
 	oldTimeFunc := lcmcommon.GetCurrentTimeString
@@ -1493,7 +1538,7 @@ func TestEnsureCephConfig(t *testing.T) {
 				return fmt.Sprintf("time-%d", idx)
 			}
 
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.extraLcmConfig)
 			c.cdConfig.currentCephVersion = lcmcommon.LatestRelease
 			err := c.castExtensions()
 			assert.Nil(t, err)

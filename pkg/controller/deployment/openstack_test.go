@@ -86,6 +86,7 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 	tests := []struct {
 		name          string
 		cephDpl       *cephlcmv1alpha1.CephDeployment
+		lcmConfig     map[string]string
 		secretError   error
 		adminSecret   *corev1.Secret
 		rgwSecret     *corev1.Secret
@@ -101,15 +102,21 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			expected:    &unitinputs.CephKeysOpenstackSecretBase,
 		},
 		{
-			name:        "generate openstack shared secret full - success",
-			cephDpl:     &unitinputs.CephDeployMosk,
+			name:    "generate openstack shared secret full - success",
+			cephDpl: &unitinputs.CephDeployMosk,
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			adminSecret: &unitinputs.RookCephMonSecret,
 			rgwSecret:   &unitinputs.OpenstackRgwCredsSecret,
 			expected:    &unitinputs.OpenstackSecretGenerated,
 		},
 		{
-			name:        "generate openstack shared secret with cephfs - success",
-			cephDpl:     &unitinputs.CephDeployMoskWithCephFS,
+			name:    "generate openstack shared secret with cephfs - success",
+			cephDpl: &unitinputs.CephDeployMoskWithCephFS,
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			adminSecret: &unitinputs.RookCephMonSecret,
 			rgwSecret:   &unitinputs.OpenstackRgwCredsSecret,
 			expected:    &unitinputs.OpenstackSecretGeneratedCephFS,
@@ -122,6 +129,9 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 				mc.Spec.IngressConfig.TLSConfig.TLSSecretRefName = "rgw-store-ingress-secret"
 				return mc
 			}(),
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			secretError: errors.New("failed to get secret"),
 			adminSecret: &unitinputs.RookCephMonSecret,
 			rgwSecret:   &unitinputs.OpenstackRgwCredsSecret,
@@ -139,6 +149,9 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 				mc.Spec.IngressConfig.TLSConfig.TLSSecretRefName = "rgw-store-ingress-secret"
 				return mc
 			}(),
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			adminSecret:   &unitinputs.RookCephMonSecret,
 			rgwSecret:     &unitinputs.OpenstackRgwCredsSecret,
 			ingressSecret: unitinputs.IngressRuleSecret.DeepCopy(),
@@ -155,6 +168,9 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 				mc.Spec.IngressConfig.TLSConfig.Hostname = "custom-hostname"
 				return mc
 			}(),
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			adminSecret:   &unitinputs.RookCephMonSecret,
 			rgwSecret:     &unitinputs.OpenstackRgwCredsSecret,
 			ingressSecret: unitinputs.IngressRuleSecret.DeepCopy(),
@@ -180,6 +196,9 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 				}
 				return mc
 			}(),
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			adminSecret: &unitinputs.RookCephMonSecret,
 			rgwSecret:   &unitinputs.OpenstackRgwCredsSecret,
 			expected: func() *corev1.Secret {
@@ -223,6 +242,18 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 				secret := unitinputs.OpenstackSecretGenerated.DeepCopy()
 				delete(secret.Data, "rgw_external_custom_cacert")
 				secret.Data["rgw_external"] = []byte("https://rgw-store.openstack.com/")
+				return secret
+			}(),
+		},
+		{
+			name:        "generate openstack shared secret with httproute - success",
+			cephDpl:     &unitinputs.CephDeployMoskWithHTTPRoute,
+			adminSecret: &unitinputs.RookCephMonSecret,
+			rgwSecret:   &unitinputs.OpenstackRgwCredsSecret,
+			expected: func() *corev1.Secret {
+				secret := unitinputs.OpenstackSecretGenerated.DeepCopy()
+				delete(secret.Data, "rgw_external_custom_cacert")
+				secret.Data["rgw_external"] = []byte("https://rgw-store-custom.openstack.com/")
 				return secret
 			}(),
 		},
@@ -318,7 +349,7 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.lcmConfig)
 			err := c.castExtensions()
 			assert.Nil(t, err)
 
@@ -397,6 +428,7 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 		name              string
 		cephDpl           *cephlcmv1alpha1.CephDeployment
 		inputResources    map[string]runtime.Object
+		lcmConfig         map[string]string
 		expectedResources map[string]runtime.Object
 		apiErrors         map[string]error
 		getAuthKeyError   error
@@ -479,6 +511,9 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 				},
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
 			},
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			changed: true,
 			expectedResources: map[string]runtime.Object{
 				"secrets": &corev1.SecretList{Items: []corev1.Secret{unitinputs.RookCephMonSecret, unitinputs.CephKeysOpenstackSecretRgwBase}},
@@ -534,6 +569,9 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 				},
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListMetrics,
 			},
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			changed: true,
 			expectedResources: map[string]runtime.Object{
 				"secrets": &corev1.SecretList{
@@ -559,6 +597,9 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 					},
 				},
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListMetrics,
+			},
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
 			},
 			changed: true,
 			expectedResources: map[string]runtime.Object{
@@ -610,6 +651,9 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 				},
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListMetrics,
 			},
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			changed: true,
 			expectedResources: map[string]runtime.Object{
 				"secrets": &corev1.SecretList{
@@ -642,7 +686,7 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 	oldCmdFunc := lcmcommon.RunPodCommandWithValidation
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.lcmConfig)
 			err := c.castExtensions()
 			assert.Nil(t, err)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"configmaps", "secrets"}, test.inputResources, test.apiErrors)

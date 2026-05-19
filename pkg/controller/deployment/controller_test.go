@@ -37,6 +37,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	fakeclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+	gatewayapi "sigs.k8s.io/gateway-api/apis/v1"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
@@ -55,6 +56,7 @@ func FakeReconciler() *ReconcileCephDeployment {
 		Rookclientset:    faketestclients.GetFakeRookclient(),
 		CephLcmclientset: faketestclients.GetFakeLcmclient(),
 		Claimclientset:   faketestclients.GetFakeClaimclient(),
+		Gatewayclientset: faketestclients.GetFakeGatewayclient(),
 		Scheme:           fscheme.Scheme,
 	}
 }
@@ -64,7 +66,9 @@ func fakeDeploymentConfig(dconfig *deployConfig, lcmConfigData map[string]string
 		lcmConfigData = map[string]string{}
 	}
 	lcmConfigData["DEPLOYMENT_LOG_LEVEL"] = "TRACE"
-	lcmConfigData["DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE"] = "openstack-ceph-shared"
+	if _, ok := lcmConfigData["DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE"]; !ok {
+		lcmConfigData["DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE"] = "openstack-ceph-shared"
+	}
 	lcmConfig := lcmconfig.ReadConfiguration(log.With().Str(lcmcommon.LoggerObjectField, "configmap").Logger(), lcmConfigData)
 	sublog := log.With().Str(lcmcommon.LoggerObjectField, "cephdeployment").Logger().Level(lcmConfig.DeployParams.LogLevel)
 	dc := deployConfig{
@@ -274,6 +278,7 @@ func TestReconcile(t *testing.T) {
 				"cephfilesystems":      &cephv1.CephFilesystemList{},
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
 				"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{},
+				"httproutes":           &gatewayapi.HTTPRouteList{},
 			},
 			testclient: faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.BaseCephDeploymentDeleting.DeepCopy()).WithObjects(unitinputs.BaseCephDeploymentDeleting.DeepCopy()),
 			apiErrors:  map[string]error{"delete-cephdeploymenthealths": errors.New("cephdeploymenthealth delete failed")},
@@ -305,6 +310,7 @@ func TestReconcile(t *testing.T) {
 				"cephobjectstores":           &cephv1.CephObjectStoreList{},
 				"cephobjectstoreusers":       &cephv1.CephObjectStoreUserList{},
 				"networkpolicies":            &networkingv1.NetworkPolicyList{},
+				"httproutes":                 &gatewayapi.HTTPRouteList{},
 			},
 			testclient: faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.BaseCephDeploymentDeleting.DeepCopy()).WithObjects(unitinputs.BaseCephDeploymentDeleting.DeepCopy()),
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
@@ -327,6 +333,7 @@ func TestReconcile(t *testing.T) {
 				"cephfilesystems":      &cephv1.CephFilesystemList{},
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
 				"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{},
+				"httproutes":           &gatewayapi.HTTPRouteList{},
 			},
 			result: requeueAfterInterval,
 		},
@@ -351,6 +358,7 @@ func TestReconcile(t *testing.T) {
 				"cephobjectstores":           &cephv1.CephObjectStoreList{},
 				"cephobjectstoreusers":       &cephv1.CephObjectStoreUserList{},
 				"networkpolicies":            &networkingv1.NetworkPolicyList{},
+				"httproutes":                 &gatewayapi.HTTPRouteList{},
 			},
 			testclient: faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.BaseCephDeploymentDeleting.DeepCopy()).WithObjects(unitinputs.BaseCephDeploymentDeleting.DeepCopy()),
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
@@ -382,6 +390,7 @@ func TestReconcile(t *testing.T) {
 				"cephobjectstores":           &cephv1.CephObjectStoreList{},
 				"cephobjectstoreusers":       &cephv1.CephObjectStoreUserList{},
 				"networkpolicies":            &networkingv1.NetworkPolicyList{},
+				"httproutes":                 &gatewayapi.HTTPRouteList{},
 			},
 			result: noRequeue,
 		},
@@ -544,7 +553,6 @@ func TestReconcile(t *testing.T) {
 				"cephosdremovetasks":         &cephlcmv1alpha1.CephOsdRemoveTaskList{Items: []cephlcmv1alpha1.CephOsdRemoveTask{}},
 				"configmaps":                 &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.PelagiaConfig, unitinputs.RookCephMonEndpoints, unitinputs.BaseRookConfigOverride}},
 				"secrets":                    &corev1.SecretList{},
-				"ingresses":                  &networkingv1.IngressList{},
 				"networkpolicies":            &networkingv1.NetworkPolicyList{},
 				"nodes":                      &corev1.NodeList{Items: []corev1.Node{unitinputs.GetAvailableNode("node-1"), unitinputs.GetAvailableNode("node-2"), unitinputs.GetAvailableNode("node-3")}},
 				"deployments": &appsv1.DeploymentList{
@@ -560,6 +568,7 @@ func TestReconcile(t *testing.T) {
 				"cephfilesystems":      &cephv1.CephFilesystemList{},
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
 				"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{},
+				"httproutes":           &gatewayapi.HTTPRouteList{},
 			},
 			testclient:      faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.BaseCephDeployment.DeepCopy()).WithObjects(unitinputs.BaseCephDeployment.DeepCopy()),
 			expectedVersion: latestClusterVersion,
@@ -617,7 +626,6 @@ func TestReconcile(t *testing.T) {
 				"configmaps": &corev1.ConfigMapList{Items: []corev1.ConfigMap{
 					unitinputs.PelagiaConfig, unitinputs.RookCephMonEndpoints, *unitinputs.BaseRookConfigOverride.DeepCopy(),
 				}},
-				"ingresses": &networkingv1.IngressList{},
 				"networkpolicies": &networkingv1.NetworkPolicyList{Items: []networkingv1.NetworkPolicy{
 					unitinputs.NetworkPolicyMds, unitinputs.NetworkPolicyMgr, unitinputs.NetworkPolicyMon, unitinputs.NetworkPolicyOsd, unitinputs.NetworkPolicyRgw,
 				}},
@@ -637,6 +645,7 @@ func TestReconcile(t *testing.T) {
 						return pool
 					}(),
 				}},
+				"httproutes":           &gatewayapi.HTTPRouteList{},
 				"cephclients":          &cephv1.CephClientList{Items: []cephv1.CephClient{}},
 				"cephclusters":         &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.TestCephCluster}},
 				"cephfilesystems":      unitinputs.CephFSListReady.DeepCopy(),
@@ -684,7 +693,7 @@ func TestReconcile(t *testing.T) {
 						return *cm
 					}(),
 				}},
-				"ingresses": &networkingv1.IngressList{},
+				"httproutes": &gatewayapi.HTTPRouteList{},
 				"networkpolicies": &networkingv1.NetworkPolicyList{Items: []networkingv1.NetworkPolicy{
 					unitinputs.NetworkPolicyMds, unitinputs.NetworkPolicyMgr, unitinputs.NetworkPolicyMon, unitinputs.NetworkPolicyOsd,
 				}},
@@ -783,6 +792,7 @@ func TestReconcile(t *testing.T) {
 						return *cluster
 					}(),
 				}},
+				"httproutes": &gatewayapi.HTTPRouteList{},
 			},
 			testclient: faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.BaseCephDeployment.DeepCopy()).WithObjects(unitinputs.BaseCephDeployment.DeepCopy()),
 			expectedVersion: &lcmcommon.CephVersion{
@@ -882,6 +892,7 @@ func TestReconcile(t *testing.T) {
 					*unitinputs.GetNamedStorageClass("images-hdd", false),
 					*unitinputs.GetNamedStorageClass("backup-hdd", false),
 				}},
+				"httproutes": &gatewayapi.HTTPRouteList{},
 				"cephblockpools": &cephv1.CephBlockPoolList{Items: append([]cephv1.CephBlockPool{unitinputs.GetCephBlockPoolWithStatus(unitinputs.CephBlockPoolReplicated, true)},
 					unitinputs.OpenstackCephBlockPoolsListReady.DeepCopy().Items...)},
 				"cephclients": &cephv1.CephClientList{Items: []cephv1.CephClient{
@@ -898,7 +909,7 @@ func TestReconcile(t *testing.T) {
 			result:          requeueAfterInterval,
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
 				Phase:   cephlcmv1alpha1.PhaseDeploying,
-				Message: "Ceph cluster configuration apply is in progress: label nodes, cephcluster, storageclasses, ceph object storage, Openstack secret, ingress proxy, cluster state; configuration apply is failed: failed to ensure cephclients",
+				Message: "Ceph cluster configuration apply is in progress: label nodes, cephcluster, storageclasses, ceph object storage, Openstack secret, cluster state; configuration apply is failed: failed to ensure cephclients",
 				Validation: cephlcmv1alpha1.CephDeploymentValidation{
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,
@@ -1274,6 +1285,10 @@ func TestReconcile(t *testing.T) {
 			faketestclients.FakeReaction(r.Rookclientset, "create", cephAPIResources, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(r.Rookclientset, "delete", cephAPIResources, test.inputResources, test.apiErrors)
 
+			// gateway actions
+			faketestclients.FakeReaction(r.Gatewayclientset, "list", []string{"httproutes"}, test.inputResources, nil)
+			faketestclients.FakeReaction(r.Gatewayclientset, "create", []string{"httproutes"}, test.inputResources, nil)
+
 			lcmcommon.RunPodCommandWithValidation = func(e lcmcommon.ExecConfig) (string, string, error) {
 				if strings.Contains(e.Command, "radosgw-admin") {
 					return unitinputs.CephZoneGroupInfoHostnamesFromOpenstack, "", nil
@@ -1326,6 +1341,7 @@ func TestReconcile(t *testing.T) {
 			// clean reactions
 			faketestclients.CleanupFakeClientReactions(r.CephLcmclientset)
 			faketestclients.CleanupFakeClientReactions(r.Rookclientset)
+			faketestclients.CleanupFakeClientReactions(r.Gatewayclientset)
 			faketestclients.CleanupFakeClientReactions(r.Kubeclientset.CoreV1())
 			faketestclients.CleanupFakeClientReactions(r.Kubeclientset.AppsV1())
 			faketestclients.CleanupFakeClientReactions(r.Kubeclientset.StorageV1())
@@ -1367,6 +1383,7 @@ func TestCleanCephDeployment(t *testing.T) {
 		"storageclasses":             &storagev1.StorageClassList{Items: []storagev1.StorageClass{*unitinputs.GetNamedStorageClass("vms-hdd", false)}},
 		"daemonsets":                 &appsv1.DaemonSetList{Items: []appsv1.DaemonSet{*unitinputs.RookDiscover.DeepCopy()}},
 		"services":                   &corev1.ServiceList{Items: []corev1.Service{}},
+		"httproutes":                 &gatewayapi.HTTPRouteList{Items: []gatewayapi.HTTPRoute{unitinputs.DefaultMoskHTTPRoute}},
 	}
 
 	cephDplExternal := unitinputs.CephDeployExternal.DeepCopy()
@@ -1416,6 +1433,7 @@ func TestCleanCephDeployment(t *testing.T) {
 				"delete-storageclasses":             errors.New("failed to delete storageclass"),
 				"delete-daemonsets":                 errors.New("failed to delete daemonset"),
 				"delete-services":                   errors.New("failed to delete service"),
+				"delete-httproutes":                 errors.New("failed to delete httproute"),
 			},
 			expectedError: "deletion is not completed for CephDeployment: failed to remove CephDeploymentSecret 'lcm-namespace/cephcluster', failed to remove CephDeploymentMaintenance 'lcm-namespace/cephcluster', failed to remove openstack shared secret, failed to remove object storage, failed to remove ingress proxy, failed to remove rbd mirror, failed to remove ceph clients, failed to remove ceph block pools, failed to remove ceph shared filesystem, failed to remove storage classes",
 		},
@@ -1513,7 +1531,7 @@ func TestCleanCephDeployment(t *testing.T) {
 	oldRunCmdFunc := lcmcommon.RunPodCommandWithValidation
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, map[string]string{"DEPLOYMENT_NETPOL_ENABLED": "true"})
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, map[string]string{"DEPLOYMENT_NETPOL_ENABLED": "true", "KEEP_INGRESS": "true"})
 			err := c.castExtensions()
 			assert.Nil(t, err)
 			c.cdConfig.currentCephVersion = lcmcommon.LatestRelease
@@ -1543,6 +1561,9 @@ func TestCleanCephDeployment(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Kubeclientset.AppsV1(), "delete", []string{"daemonsets", "deployments"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "list", []string{"storageclasses"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "delete", []string{"storageclasses"}, test.inputResources, test.apiErrors)
+			// gateway actions
+			faketestclients.FakeReaction(c.api.Gatewayclientset, "list", []string{"httproutes"}, test.inputResources, nil)
+			faketestclients.FakeReaction(c.api.Gatewayclientset, "delete", []string{"httproutes"}, test.inputResources, test.apiErrors)
 			// rook actions
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", cephAPIResources, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephclusters"}, test.inputResources, test.apiErrors)
@@ -1562,6 +1583,7 @@ func TestCleanCephDeployment(t *testing.T) {
 			// clean reactions
 			faketestclients.CleanupFakeClientReactions(c.api.CephLcmclientset)
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
+			faketestclients.CleanupFakeClientReactions(c.api.Gatewayclientset)
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.AppsV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.StorageV1())
@@ -1715,7 +1737,7 @@ func TestCheckLCMStuff(t *testing.T) {
 	tests := []struct {
 		name              string
 		cephDpl           *cephlcmv1alpha1.CephDeployment
-		ccsettingsMap     map[string]string
+		lcmconfig         map[string]string
 		inputResources    map[string]runtime.Object
 		expectedError     string
 		expectedLcmActive bool
@@ -1725,7 +1747,7 @@ func TestCheckLCMStuff(t *testing.T) {
 		{
 			name:          "list cephosdremovetasks failed",
 			cephDpl:       testCephDpl,
-			ccsettingsMap: unitinputs.PelagiaConfig.Data,
+			lcmconfig:     unitinputs.PelagiaConfig.Data,
 			expectedPhase: cephlcmv1alpha1.PhaseFailed,
 			expectedError: "failed to list CephOsdRemoveTasks in lcm-namespace namespace: failed to list cephosdremovetasks",
 		},
@@ -1738,7 +1760,7 @@ func TestCheckLCMStuff(t *testing.T) {
 				}},
 				"cephclusters": &cephv1.CephClusterList{},
 			},
-			ccsettingsMap: unitinputs.PelagiaConfig.Data,
+			lcmconfig:     unitinputs.PelagiaConfig.Data,
 			expectedPhase: cephlcmv1alpha1.PhaseFailed,
 			expectedError: "failed to check Ceph cluster state: cephclusters \"cephcluster\" not found",
 		},
@@ -1755,7 +1777,7 @@ func TestCheckLCMStuff(t *testing.T) {
 			apiErrors: map[string]error{
 				"get-cephdeploymentmaintenances": errors.New("failed to get CephDeploymentMaintenance"),
 			},
-			ccsettingsMap: unitinputs.PelagiaConfig.Data,
+			lcmconfig:     unitinputs.PelagiaConfig.Data,
 			expectedPhase: cephlcmv1alpha1.PhaseFailed,
 			expectedError: "failed to check CephDeploymentMaintenance state: failed to get CephDeploymentMaintenance lcm-namespace/cephcluster: failed to get CephDeploymentMaintenance",
 		},
@@ -1773,7 +1795,7 @@ func TestCheckLCMStuff(t *testing.T) {
 				"cephdeploymentmaintenances": unitinputs.CephDeploymentMaintenanceListIdle,
 				"cephclusters":               &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.TestCephCluster}},
 			},
-			ccsettingsMap: unitinputs.PelagiaConfig.Data,
+			lcmconfig:     unitinputs.PelagiaConfig.Data,
 			expectedPhase: cephlcmv1alpha1.PhaseReady,
 		},
 		{
@@ -1794,7 +1816,7 @@ func TestCheckLCMStuff(t *testing.T) {
 				}},
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.TestCephCluster}},
 			},
-			ccsettingsMap:     unitinputs.PelagiaConfig.Data,
+			lcmconfig:         unitinputs.PelagiaConfig.Data,
 			expectedPhase:     cephlcmv1alpha1.PhaseOnHold,
 			expectedLcmActive: true,
 		},
@@ -1807,7 +1829,7 @@ func TestCheckLCMStuff(t *testing.T) {
 				}},
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.TestCephCluster}},
 			},
-			ccsettingsMap:     unitinputs.PelagiaConfig.Data,
+			lcmconfig:         unitinputs.PelagiaConfig.Data,
 			expectedPhase:     cephlcmv1alpha1.PhaseOnHold,
 			expectedLcmActive: true,
 		},
@@ -1820,7 +1842,7 @@ func TestCheckLCMStuff(t *testing.T) {
 				}},
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.TestCephCluster}},
 			},
-			ccsettingsMap:     unitinputs.PelagiaConfig.Data,
+			lcmconfig:         unitinputs.PelagiaConfig.Data,
 			expectedPhase:     cephlcmv1alpha1.PhaseOnHold,
 			expectedLcmActive: true,
 		},
@@ -1833,7 +1855,7 @@ func TestCheckLCMStuff(t *testing.T) {
 				}},
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.TestCephCluster}},
 			},
-			ccsettingsMap:     unitinputs.PelagiaConfig.Data,
+			lcmconfig:         unitinputs.PelagiaConfig.Data,
 			expectedPhase:     cephlcmv1alpha1.PhaseOnHold,
 			expectedLcmActive: true,
 		},
@@ -1845,7 +1867,7 @@ func TestCheckLCMStuff(t *testing.T) {
 					*unitinputs.CephOsdRemoveTaskFailed,
 				}},
 			},
-			ccsettingsMap:     unitinputs.PelagiaConfig.Data,
+			lcmconfig:         unitinputs.PelagiaConfig.Data,
 			expectedPhase:     cephlcmv1alpha1.PhaseOnHold,
 			expectedLcmActive: true,
 		},
@@ -1862,7 +1884,7 @@ func TestCheckLCMStuff(t *testing.T) {
 					}(),
 				}},
 			},
-			ccsettingsMap: unitinputs.PelagiaConfig.Data,
+			lcmconfig:     unitinputs.PelagiaConfig.Data,
 			expectedPhase: cephlcmv1alpha1.PhaseReady,
 		},
 		{
@@ -1872,7 +1894,7 @@ func TestCheckLCMStuff(t *testing.T) {
 				"cephdeploymentmaintenances": unitinputs.CephDeploymentMaintenanceListActing,
 				"cephosdremovetasks":         &cephlcmv1alpha1.CephOsdRemoveTaskList{Items: []cephlcmv1alpha1.CephOsdRemoveTask{}},
 			},
-			ccsettingsMap:     unitinputs.PelagiaConfig.Data,
+			lcmconfig:         unitinputs.PelagiaConfig.Data,
 			expectedPhase:     cephlcmv1alpha1.PhaseMaintenance,
 			expectedLcmActive: true,
 		},
@@ -1883,14 +1905,14 @@ func TestCheckLCMStuff(t *testing.T) {
 				"cephdeploymentmaintenances": unitinputs.CephDeploymentMaintenanceListIdle,
 				"cephosdremovetasks":         &cephlcmv1alpha1.CephOsdRemoveTaskList{Items: []cephlcmv1alpha1.CephOsdRemoveTask{}},
 			},
-			ccsettingsMap: unitinputs.PelagiaConfig.Data,
+			lcmconfig:     unitinputs.PelagiaConfig.Data,
 			expectedPhase: cephlcmv1alpha1.PhaseReady,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.ccsettingsMap)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.lcmconfig)
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephclusters"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.CephLcmclientset, "list", []string{"cephosdremovetasks"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.CephLcmclientset, "get", []string{"cephdeploymentmaintenances"}, test.inputResources, test.apiErrors)
@@ -1915,7 +1937,8 @@ func TestCheckLCMStuff(t *testing.T) {
 }
 
 func TestApplyConfiguration(t *testing.T) {
-	ccsettingsMap := unitinputs.PelagiaConfig.Data
+	lcmconfig := unitinputs.PelagiaConfig.Data
+	lcmconfig["KEEP_INGRESS"] = "true"
 
 	fullCephDplSpec := unitinputs.CephDeployMosk.DeepCopy()
 	fullCephDplSpec.Spec.RBDMirror = unitinputs.CephDeployEnsureRbdMirror.Spec.RBDMirror.DeepCopy()
@@ -1944,6 +1967,7 @@ func TestApplyConfiguration(t *testing.T) {
 				unitinputs.NetworkPolicyMds, unitinputs.NetworkPolicyMgr, unitinputs.NetworkPolicyMon, unitinputs.NetworkPolicyOsd, unitinputs.NetworkPolicyRgw,
 			},
 		},
+		"httproutes": &gatewayapi.HTTPRouteList{},
 		"configmaps": &corev1.ConfigMapList{
 			Items: []corev1.ConfigMap{
 				*unitinputs.RookCephMonEndpoints.DeepCopy(),
@@ -2028,7 +2052,7 @@ func TestApplyConfiguration(t *testing.T) {
 		name           string
 		cephDpl        *cephlcmv1alpha1.CephDeployment
 		cephVersion    *lcmcommon.CephVersion
-		ccsettingsMap  map[string]string
+		lcmconfig      map[string]string
 		inProgressMsg  string
 		failedMsg      string
 		apiErrors      map[string]error
@@ -2043,8 +2067,8 @@ func TestApplyConfiguration(t *testing.T) {
 				mc.Status.Message = "Ceph cluster configuration successfully applied"
 				return mc
 			}(),
-			ccsettingsMap: ccsettingsMap,
-			failedMsg:     "configuration apply is failed: failed to ensure label nodes, annotate nodes, network policies",
+			lcmconfig: lcmconfig,
+			failedMsg: "configuration apply is failed: failed to ensure label nodes, annotate nodes, network policies",
 		},
 		{
 			name:    "apply cephdeployment - apply configuration is failed during all steps",
@@ -2062,7 +2086,7 @@ func TestApplyConfiguration(t *testing.T) {
 					},
 				},
 			},
-			ccsettingsMap: ccsettingsMap,
+			lcmconfig: lcmconfig,
 			apiErrors: map[string]error{
 				"get-cephclusters":     errors.New("get cluster api error"),
 				"cluster-not-verified": errors.New("not verified"),
@@ -2078,7 +2102,7 @@ func TestApplyConfiguration(t *testing.T) {
 				"configmaps":      &corev1.ConfigMapList{},
 				"networkpolicies": &networkingv1.NetworkPolicyList{},
 			},
-			ccsettingsMap: ccsettingsMap,
+			lcmconfig:     lcmconfig,
 			inProgressMsg: "configuration apply is in progress: label nodes, network policies",
 		},
 		{
@@ -2093,6 +2117,7 @@ func TestApplyConfiguration(t *testing.T) {
 						unitinputs.NetworkPolicyMds, unitinputs.NetworkPolicyMgr, unitinputs.NetworkPolicyMon, unitinputs.NetworkPolicyOsd, unitinputs.NetworkPolicyRgw,
 					},
 				},
+				"httproutes":           &gatewayapi.HTTPRouteList{},
 				"services":             &corev1.ServiceList{},
 				"secrets":              &corev1.SecretList{},
 				"storageclasses":       &storagev1.StorageClassList{},
@@ -2104,18 +2129,19 @@ func TestApplyConfiguration(t *testing.T) {
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
 				"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{},
 			},
-			ccsettingsMap: ccsettingsMap,
+			lcmconfig:     lcmconfig,
 			inProgressMsg: "configuration apply is in progress: cephcluster, cephblockpools, shared filesystems, cephclients, ceph object storage, RBD Mirroring, ingress proxy, cluster state",
 			failedMsg:     "configuration apply is failed: failed to ensure storageclasses, Openstack secret",
 		},
 		{
-			name:    "apply cephdeployment - apply configuration is started without netpol",
+			name:    "apply cephdeployment - apply configuration is started without netpol and ingress",
 			cephDpl: fullCephDplSpec.DeepCopy(),
 			inputResources: map[string]runtime.Object{
 				"nodes":                nodesForApply.DeepCopy(),
 				"configmaps":           &corev1.ConfigMapList{},
 				"ingresses":            &networkingv1.IngressList{},
 				"networkpolicies":      &networkingv1.NetworkPolicyList{},
+				"httproutes":           &gatewayapi.HTTPRouteList{},
 				"services":             &corev1.ServiceList{},
 				"secrets":              &corev1.SecretList{},
 				"storageclasses":       &storagev1.StorageClassList{},
@@ -2127,14 +2153,14 @@ func TestApplyConfiguration(t *testing.T) {
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
 				"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{},
 			},
-			inProgressMsg: "configuration apply is in progress: label nodes, cephcluster, cephblockpools, shared filesystems, cephclients, ceph object storage, RBD Mirroring, ingress proxy, cluster state",
+			inProgressMsg: "configuration apply is in progress: label nodes, cephcluster, cephblockpools, shared filesystems, cephclients, ceph object storage, RBD Mirroring, cluster state",
 			failedMsg:     "configuration apply is failed: failed to ensure storageclasses, Openstack secret",
 		},
 		{
 			name:           "apply cephdeployment - apply configuration is in progress",
 			cephDpl:        fullCephDplSpec.DeepCopy(),
 			inputResources: inputResourcesForApply,
-			ccsettingsMap:  ccsettingsMap,
+			lcmconfig:      lcmconfig,
 			apiErrors:      map[string]error{"cluster-not-verified": errors.New("not verified")},
 			inProgressMsg:  "configuration apply is in progress: cephcluster, shared filesystems, storageclasses, ceph object storage, Openstack secret, ingress proxy",
 			failedMsg:      "configuration apply is failed: failed to ensure cluster state",
@@ -2143,7 +2169,7 @@ func TestApplyConfiguration(t *testing.T) {
 			name:           "apply cephdeployment - nothing to do",
 			cephDpl:        fullCephDplSpec.DeepCopy(),
 			inputResources: inputResourcesForApply,
-			ccsettingsMap:  ccsettingsMap,
+			lcmconfig:      lcmconfig,
 			inProgressMsg:  "",
 		},
 		{
@@ -2154,7 +2180,7 @@ func TestApplyConfiguration(t *testing.T) {
 				return mc
 			}(),
 			inputResources: inputResourcesForApply,
-			ccsettingsMap:  ccsettingsMap,
+			lcmconfig:      lcmconfig,
 			inProgressMsg:  "",
 		},
 		{
@@ -2171,21 +2197,21 @@ func TestApplyConfiguration(t *testing.T) {
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
 				"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{},
 			},
-			ccsettingsMap: ccsettingsMap,
+			lcmconfig:     lcmconfig,
 			inProgressMsg: "configuration apply is in progress: cephcluster, storageclasses, ceph object storage",
 		},
 		{
 			name:           "apply reconcile cephdeployment external - apply configuration is in progress",
 			cephDpl:        externalCephDplButWithCommonFields.DeepCopy(),
 			inputResources: inputResourcesForExternalApply,
-			ccsettingsMap:  ccsettingsMap,
+			lcmconfig:      lcmconfig,
 			inProgressMsg:  "configuration apply is in progress: cephcluster, storageclasses",
 		},
 		{
 			name:           "apply reconcile cephdeployment external - apply configuration has no changes",
 			cephDpl:        externalCephDplButWithCommonFields.DeepCopy(),
 			inputResources: inputResourcesForExternalApply,
-			ccsettingsMap:  ccsettingsMap,
+			lcmconfig:      lcmconfig,
 			inProgressMsg:  "",
 		},
 	}
@@ -2196,7 +2222,7 @@ func TestApplyConfiguration(t *testing.T) {
 	oldCephCmdFunc := lcmcommon.RunPodCommandWithValidation
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.ccsettingsMap)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.lcmconfig)
 
 			if test.cephVersion == nil {
 				c.cdConfig.currentCephVersion = lcmcommon.LatestRelease
@@ -2220,6 +2246,8 @@ func TestApplyConfiguration(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", cephAPIResources, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "create", cephAPIResources, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "update", cephAPIResources, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Gatewayclientset, "list", []string{"httproutes"}, test.inputResources, nil)
+			faketestclients.FakeReaction(c.api.Gatewayclientset, "create", []string{"httproutes"}, test.inputResources, test.apiErrors)
 			//--- common function actions ---//
 			lcmcommon.GenerateSelfSignedCert = func(_, _ string, _ []string) (string, string, string, error) {
 				return "fake-key", "fake-crt", "fake-ca", nil
@@ -2303,6 +2331,7 @@ func TestApplyConfiguration(t *testing.T) {
 			assert.Equal(t, test.failedMsg, applyErr)
 			// clean reactions before next test
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
+			faketestclients.CleanupFakeClientReactions(c.api.Gatewayclientset)
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.StorageV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.NetworkingV1())

@@ -51,6 +51,17 @@ func (c *cephDeploymentConfig) ensureObjectStorage() (bool, error) {
 	}
 	objectStorageChanged = objectStorageChanged || changed
 
+	// ensure gateway api routes
+	if !c.cdConfig.clusterSpec.External.Enable {
+		changed, err = c.ensureGatewayHTTPRoutes()
+		if err != nil {
+			msg := "failed to ensure gateway httproutes"
+			c.log.Error().Err(err).Msg(msg)
+			errCollector = append(errCollector, msg)
+		}
+		objectStorageChanged = objectStorageChanged || changed
+	}
+
 	// if we dont have obj storage - cleanup not needed resources
 	// once no any pre-req exists
 	if len(errCollector) == 0 && !objectStorageChanged {
@@ -86,12 +97,22 @@ func (c *cephDeploymentConfig) ensureObjectStorage() (bool, error) {
 
 func (c *cephDeploymentConfig) deleteObjectStorage() (bool, error) {
 	errorsNumber := 0
-	rgwRemoved, err := c.deleteRgw("")
+	rgwRemoved := true
+	if !c.cdConfig.clusterSpec.External.Enable {
+		gatewayRoutesRemoved, err := c.deleteGatewayHTTPRoutes()
+		if err != nil {
+			c.log.Error().Err(err).Msg("error deleting gateway httproutes")
+			errorsNumber++
+		}
+		rgwRemoved = gatewayRoutesRemoved
+	}
+	rgwResourcesRemoved, err := c.deleteRgw("")
 	if err != nil {
 		c.log.Error().Err(err).Msg("error deleting rgw")
 		errorsNumber++
 	}
-	if rgwRemoved {
+	rgwRemoved = rgwRemoved && rgwResourcesRemoved
+	if rgwResourcesRemoved {
 		certsRemoved, err := c.deleteSelfSignedCerts(nil)
 		if err != nil {
 			c.log.Error().Err(err).Msg("failed to cleanup odd rgw secrets")

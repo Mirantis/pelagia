@@ -28,6 +28,7 @@ import (
 	v1storage "k8s.io/api/storage/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	labels "k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
@@ -107,7 +108,7 @@ func (c *cephDeploymentConfig) ensureRgw() (bool, error) {
 		}
 
 		// if openstack pools are present - create ceilomenter metrics user as well
-		if rgw.UsedByRockoon && rockoonRgw == "" && !c.cdConfig.clusterSpec.External.Enable {
+		if rgw.UsedForOpenstack && rockoonRgw == "" && !c.cdConfig.clusterSpec.External.Enable {
 			// take first rockoon rgw as default for now
 			rockoonRgw = rgw.Name
 			userRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(
@@ -195,7 +196,7 @@ func (c *cephDeploymentConfig) deleteRgw(rgwToRemove string) (bool, error) {
 	// Delete rgw object store if exists
 	rgwList, err := c.api.Rookclientset.CephV1().CephObjectStores(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
 	if err != nil {
-		return false, errors.New("failed to list rgw object stores")
+		return false, errors.Wrap(err, "failed to list rgw object stores")
 	}
 	for _, rgw := range rgwList.Items {
 		if rgwToRemove != "" && rgw.Name != rgwToRemove {
@@ -454,34 +455,50 @@ func (c *cephDeploymentConfig) processRgwUsers(process objectProcess, rgwUser *c
 
 func (c *cephDeploymentConfig) ensureExternalService(rgwIndexInSpec int) (bool, error) {
 	rgwName := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws[rgwIndexInSpec].Name
-	externalSvcName := buildRGWName(rgwName, "external")
-	proxyToBeDeployed, skipReason, err := c.canDeployIngressProxy()
-	if err != nil {
-		return false, errors.Wrap(err, "failed to check ingress proxy presence")
+	gatewayHTTPRouteFound := false
+	ingressFound := false
+	if c.lcmConfig.CommonParams.RgwPublicAccessLabel != "" {
+		if c.lcmConfig.CommonParams.GatewayAPIEnabled {
+			listOptions := metav1.ListOptions{
+				LabelSelector: labels.Set(getBaseHTTPRouteLabels(rgwName, c.lcmConfig.CommonParams.RgwPublicAccessLabel)).String(),
+			}
+			gtws, err := c.api.Gatewayclientset.GatewayV1().HTTPRoutes(c.lcmConfig.RookNamespace).List(c.context, listOptions)
+			if err != nil {
+				return false, errors.Wrap(err, "failed to list rgw gateway httproutes to ensure rgw httproutes")
+			}
+			gatewayHTTPRouteFound = len(gtws.Items) > 0
+		}
+		if c.lcmConfig.CommonParams.KeepIngress {
+			listOptions := metav1.ListOptions{
+				LabelSelector: labels.Set(getBaseIngressLabels(rgwName, c.lcmConfig.CommonParams.RgwPublicAccessLabel)).String(),
+			}
+			ingresses, err := c.api.Kubeclientset.NetworkingV1().Ingresses(c.lcmConfig.RookNamespace).List(c.context, listOptions)
+			if err != nil {
+				return false, errors.Wrap(err, "failed to find ingress to remove")
+			}
+			ingressFound = len(ingresses.Items) > 0
+		}
 	}
-	if proxyToBeDeployed || c.lcmConfig.DeployParams.RgwPublicAccessLabel == "" {
+	externalSvcName := buildRGWName(rgwName, "external")
+	if gatewayHTTPRouteFound || ingressFound || c.lcmConfig.CommonParams.RgwPublicAccessLabel == "" {
 		err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).Delete(c.context, externalSvcName, metav1.DeleteOptions{})
 		if err == nil {
-			if proxyToBeDeployed {
-				c.log.Info().Msgf("cleanup rgw external service %s in favor of using ingress proxy", externalSvcName)
+			if ingressFound {
+				c.log.Info().Msgf("cleanup rgw external service '%s/%s' in favor of using ingress proxy", c.lcmConfig.RookNamespace, externalSvcName)
+			} else if gatewayHTTPRouteFound {
+				c.log.Info().Msgf("cleanup rgw external service '%s/%s' in favor of using gateway HTTPRoute", c.lcmConfig.RookNamespace, externalSvcName)
 			} else {
-				c.log.Info().Msgf("cleanup rgw external service %s since %s", externalSvcName, skipReason)
+				c.log.Info().Msgf("cleanup rgw external service '%s/%s' since 'RGW_PUBLIC_ACCESS_SERVICE_SELECTOR' is not set lcmconfig", c.lcmConfig.RookNamespace, externalSvcName)
 			}
 			return true, nil
 		} else if !apierrors.IsNotFound(err) {
-			return false, errors.Wrapf(err, "failed to cleanup rgw external service %s", externalSvcName)
+			return false, errors.Wrapf(err, "failed to cleanup rgw external service '%s/%s'", c.lcmConfig.RookNamespace, externalSvcName)
 		}
 		return false, nil
 	}
-	externalAccessLabel, err := metav1.ParseToLabelSelector(c.lcmConfig.DeployParams.RgwPublicAccessLabel)
-	if err != nil {
-		// extra fallback case should not happen at all - because label parsed in config controller
-		// and used default in case of any problems
-		return false, errors.Wrapf(err, "failed to parse provided rgw public access label '%s'", c.lcmConfig.DeployParams.RgwPublicAccessLabel)
-	}
 	castedSpec, _ := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws[rgwIndexInSpec].GetSpec()
 	externalSvc, err := c.api.Kubeclientset.CoreV1().Services(c.lcmConfig.RookNamespace).Get(c.context, externalSvcName, metav1.GetOptions{})
-	externalSvcResource := generateRgwExternalService(rgwName, c.lcmConfig.RookNamespace, externalAccessLabel, castedSpec.Gateway.Port, castedSpec.Gateway.SecurePort)
+	externalSvcResource := generateRgwExternalService(rgwName, c.lcmConfig.RookNamespace, c.lcmConfig.CommonParams.RgwPublicAccessLabel, castedSpec.Gateway.Port, castedSpec.Gateway.SecurePort)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			c.log.Info().Msgf("create rgw external service %s", externalSvcName)
@@ -587,7 +604,7 @@ func (c *cephDeploymentConfig) ensureRgwConsistence() (bool, error) {
 	return consistent, nil
 }
 
-func generateRgwExternalService(name, namespace string, externalAccessLabel *metav1.LabelSelector, port, securePort int32) v1.Service {
+func generateRgwExternalService(name, namespace, externalAccessLabel string, port, securePort int32) v1.Service {
 	svc := v1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      buildRGWName(name, "external"),
@@ -627,7 +644,8 @@ func generateRgwExternalService(name, namespace string, externalAccessLabel *met
 			},
 		},
 	}
-	for key, val := range externalAccessLabel.MatchLabels {
+	externalAccessLabelParsed, _ := metav1.ParseToLabelSelector(externalAccessLabel)
+	for key, val := range externalAccessLabelParsed.MatchLabels {
 		svc.Labels[key] = val
 	}
 	return svc
@@ -738,7 +756,7 @@ func (c *cephDeploymentConfig) ensureRgwSslCert(rgwIndexInSpec int) (bool, error
 	rgwName := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws[rgwIndexInSpec].Name
 	rgwCasted, _ := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws[rgwIndexInSpec].GetSpec()
 	servedByIngress := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws[rgwIndexInSpec].ServedByIngress
-	usedByRockoon := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws[rgwIndexInSpec].UsedByRockoon
+	usedForOpenstack := c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws[rgwIndexInSpec].UsedForOpenstack
 
 	changed := false
 	noCerts := true
@@ -756,9 +774,9 @@ func (c *cephDeploymentConfig) ensureRgwSslCert(rgwIndexInSpec int) (bool, error
 		}
 	}
 	// if no cabundle ref, no secure port, no ingress, no rockoon setup - cabundle is not needed
-	if rgwCasted.Gateway.SecurePort != 0 || servedByIngress || usedByRockoon || rgwCasted.Gateway.CaBundleRef != "" {
+	if rgwCasted.Gateway.SecurePort != 0 || servedByIngress || usedForOpenstack || rgwCasted.Gateway.CaBundleRef != "" {
 		noCerts = false
-		changedCa, err := c.ensureRgwCaBundleCert(rgwName, rgwCasted.Gateway.SSLCertificateRef, rgwCasted.Gateway.CaBundleRef, servedByIngress, usedByRockoon)
+		changedCa, err := c.ensureRgwCaBundleCert(rgwName, rgwCasted.Gateway.SSLCertificateRef, rgwCasted.Gateway.CaBundleRef, servedByIngress, usedForOpenstack)
 		if err != nil {
 			return false, errors.Wrapf(err, "failed to ensure rgw '%s' cabundle certificate", rgwName)
 		}
@@ -877,7 +895,7 @@ func (c *cephDeploymentConfig) ensureRgwBackendSSLCert(rgwName, certRef string) 
 	return changed, nil
 }
 
-func (c *cephDeploymentConfig) ensureRgwCaBundleCert(rgwName, certRef, caBundleRef string, servedByIngress, usedByRockoon bool) (bool, error) {
+func (c *cephDeploymentConfig) ensureRgwCaBundleCert(rgwName, certRef, caBundleRef string, servedByIngress, usedForOpenstack bool) (bool, error) {
 	if caBundleRef != "" {
 		c.log.Info().Msgf("rgw '%s' has provided caBundleRef, operator should take care for cabundle update and RGW restart", rgwName)
 		caBundleCert, caCertErr := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.RookNamespace).Get(c.context, caBundleRef, metav1.GetOptions{})
@@ -892,8 +910,8 @@ func (c *cephDeploymentConfig) ensureRgwCaBundleCert(rgwName, certRef, caBundleR
 	}
 
 	publicCacert := ""
-	if servedByIngress || usedByRockoon {
-		if c.cdConfig.cephDpl.Spec.IngressConfig != nil {
+	if servedByIngress || usedForOpenstack {
+		if c.cdConfig.cephDpl.Spec.IngressConfig != nil && c.lcmConfig.CommonParams.KeepIngress {
 			tlsConfig := getIngressTLS(c.cdConfig.cephDpl)
 			if tlsConfig != nil {
 				if tlsConfig.TLSCerts != nil {
@@ -906,9 +924,9 @@ func (c *cephDeploymentConfig) ensureRgwCaBundleCert(rgwName, certRef, caBundleR
 					publicCacert = string(ingressSecret.Data["ca.crt"])
 				}
 			}
-		} else if usedByRockoon {
-			if c.lcmConfig.DeployParams.OpenstackCephSharedNamespace == "" {
-				return false, errors.Errorf("rgw '%s' has specified for Rockoon usage, but Pelagia lcmconfig has no set Rockoon-Ceph namespace", rgwName)
+		} else if usedForOpenstack {
+			if err := checkOpenstackNamespaceSetForRgw(rgwName, c.lcmConfig.DeployParams.OpenstackCephSharedNamespace); err != nil {
+				return false, err
 			}
 			openstackSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.DeployParams.OpenstackCephSharedNamespace).Get(c.context, openstackRgwCredsName, metav1.GetOptions{})
 			if err != nil {

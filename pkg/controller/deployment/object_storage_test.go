@@ -25,6 +25,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	storagev1 "k8s.io/api/storage/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	gatewayapi "sigs.k8s.io/gateway-api/apis/v1"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
@@ -53,7 +54,7 @@ func TestEnsureObjectStorage(t *testing.T) {
 			name:           "no object storage section, cleanup failed",
 			cephDpl:        &unitinputs.BaseCephDeployment,
 			inputResources: map[string]runtime.Object{},
-			expectedError:  "error(s) during object storage ensure: failed to ensure object storage multisite, failed to ensure ceph rgw",
+			expectedError:  "error(s) during object storage ensure: failed to ensure object storage multisite, failed to ensure ceph rgw, failed to ensure gateway httproutes",
 		},
 		{
 			name:    "no object storage section, cleanup in progress",
@@ -68,6 +69,7 @@ func TestEnsureObjectStorage(t *testing.T) {
 				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{},
 				"cephobjectrealms":     &cephv1.CephObjectRealmList{},
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
+				"httproutes":           &gatewayapi.HTTPRouteList{},
 			},
 			stateChanged: true,
 		},
@@ -82,6 +84,7 @@ func TestEnsureObjectStorage(t *testing.T) {
 				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{},
 				"cephobjectrealms":     &cephv1.CephObjectRealmList{},
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
+				"httproutes":           &gatewayapi.HTTPRouteList{},
 			},
 		},
 		{
@@ -95,6 +98,9 @@ func TestEnsureObjectStorage(t *testing.T) {
 				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{},
 				"cephobjectrealms":     &cephv1.CephObjectRealmList{},
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
+				"httproutes": &gatewayapi.HTTPRouteList{
+					Items: []gatewayapi.HTTPRoute{unitinputs.DefaultMoskHTTPRoute},
+				},
 			},
 			stateChanged: true,
 		},
@@ -134,6 +140,7 @@ func TestEnsureObjectStorage(t *testing.T) {
 				"cephobjectrealms":     &cephv1.CephObjectRealmList{},
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
 				"services":             &corev1.ServiceList{},
+				"httproutes":           &gatewayapi.HTTPRouteList{},
 			},
 			expectedError: "error(s) during object storage ensure: failed to ensure object storage multisite",
 		},
@@ -152,6 +159,7 @@ func TestEnsureObjectStorage(t *testing.T) {
 				"cephobjectrealms":     &cephv1.CephObjectRealmList{},
 				"cephobjectzones":      &cephv1.CephObjectZoneList{},
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
+				"httproutes":           &gatewayapi.HTTPRouteList{},
 			},
 			stateChanged: true,
 		},
@@ -165,6 +173,7 @@ func TestEnsureObjectStorage(t *testing.T) {
 						*unitinputs.MultisiteRealmSecret.DeepCopy(),
 					},
 				},
+				"httproutes": &gatewayapi.HTTPRouteList{},
 				"services": &corev1.ServiceList{
 					Items: []corev1.Service{*unitinputs.RgwExternalServiceGenerated.DeepCopy()},
 				},
@@ -229,6 +238,7 @@ func TestEnsureObjectStorage(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", rookRes, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", rookRes, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "delete", rookRes, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Gatewayclientset, "list", []string{"httproutes"}, test.inputResources, test.apiErrors)
 
 			stateChanged, err := c.ensureObjectStorage()
 			if test.expectedError != "" {
@@ -242,6 +252,7 @@ func TestEnsureObjectStorage(t *testing.T) {
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.StorageV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
+			faketestclients.CleanupFakeClientReactions(c.api.Gatewayclientset)
 		})
 	}
 	lcmcommon.GetCurrentTimeString = timeFunct
@@ -266,9 +277,13 @@ func TestDeleteObjectStorage(t *testing.T) {
 					Items: []cephv1.CephObjectStore{*unitinputs.CephObjectStoreBase.DeepCopy()},
 				},
 				"services": &corev1.ServiceList{},
+				"httproutes": &gatewayapi.HTTPRouteList{
+					Items: []gatewayapi.HTTPRoute{unitinputs.DefaultBaseHTTPRoute},
+				},
 			},
 			apiErrors: map[string]error{
 				"delete-cephobjectstores": errors.New("failed to delete CephObjectStore"),
+				"delete-httproutes":       errors.New("failed to remove httproute"),
 			},
 			expectedError: "failed to cleanup object storage",
 		},
@@ -281,6 +296,9 @@ func TestDeleteObjectStorage(t *testing.T) {
 				},
 				"secrets":  &corev1.SecretList{},
 				"services": &corev1.ServiceList{},
+				"httproutes": &gatewayapi.HTTPRouteList{
+					Items: []gatewayapi.HTTPRoute{unitinputs.DefaultBaseHTTPRoute},
+				},
 			},
 		},
 		{
@@ -291,6 +309,7 @@ func TestDeleteObjectStorage(t *testing.T) {
 				},
 				"storageclasses":   &storagev1.StorageClassList{},
 				"cephobjectstores": &cephv1.CephObjectStoreList{},
+				"httproutes":       &gatewayapi.HTTPRouteList{},
 			},
 			apiErrors: map[string]error{
 				"delete-secrets": errors.New("failed to delete Secret"),
@@ -311,6 +330,7 @@ func TestDeleteObjectStorage(t *testing.T) {
 				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{},
 				"cephobjectrealms":     &cephv1.CephObjectRealmList{},
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
+				"httproutes":           &gatewayapi.HTTPRouteList{},
 			},
 		},
 		{
@@ -327,6 +347,7 @@ func TestDeleteObjectStorage(t *testing.T) {
 				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{},
 				"cephobjectrealms":     &cephv1.CephObjectRealmList{},
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
+				"httproutes":           &gatewayapi.HTTPRouteList{},
 			},
 			apiErrors: map[string]error{
 				"delete-cephblockpools": errors.New("failed to delete cephblockpool"),
@@ -344,6 +365,7 @@ func TestDeleteObjectStorage(t *testing.T) {
 					Items: []cephv1.CephObjectRealm{*unitinputs.RgwMultisiteMasterRealm1.DeepCopy()},
 				},
 				"cephobjectstores": &cephv1.CephObjectStoreList{},
+				"httproutes":       &gatewayapi.HTTPRouteList{},
 			},
 		},
 		{
@@ -356,6 +378,7 @@ func TestDeleteObjectStorage(t *testing.T) {
 				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{},
 				"cephobjectrealms":     &cephv1.CephObjectRealmList{},
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
+				"httproutes":           &gatewayapi.HTTPRouteList{},
 			},
 			cleanupDone: true,
 		},
@@ -417,6 +440,8 @@ func TestDeleteObjectStorage(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "delete", []string{"secrets", "services"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", rookRes, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "delete", rookRes, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Gatewayclientset, "list", []string{"httproutes"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Gatewayclientset, "delete", []string{"httproutes"}, test.inputResources, test.apiErrors)
 
 			done, err := c.deleteObjectStorage()
 			if test.expectedError != "" {
@@ -430,6 +455,7 @@ func TestDeleteObjectStorage(t *testing.T) {
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.StorageV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
+			faketestclients.CleanupFakeClientReactions(c.api.Gatewayclientset)
 		})
 	}
 	lcmcommon.RunPodCommandWithValidation = oldFunc

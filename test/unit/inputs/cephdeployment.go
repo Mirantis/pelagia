@@ -23,6 +23,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	gatewayapi "sigs.k8s.io/gateway-api/apis/v1"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 )
@@ -284,6 +285,24 @@ var CephDeployNonMoskWithIngress = func() cephlcmv1alpha1.CephDeployment {
 	return *cd
 }()
 
+var CephDeployNonMoskWithGatewayRoute = func() cephlcmv1alpha1.CephDeployment {
+	cd := CephDeployNonMosk.DeepCopy()
+	cd.Spec.ObjectStorage.GatewayHTTPRoutes = []cephlcmv1alpha1.CephDeploymentHTTPRoute{
+		{
+			Name:            "rgw-route",
+			ObjectStoreName: "rgw-store",
+			Spec: runtime.RawExtension{
+				Raw: ConvertStructToRaw(gatewayapi.HTTPRouteSpec{
+					Hostnames: []gatewayapi.Hostname{
+						gatewayapi.Hostname("rgw-store.example.com"),
+					},
+				}),
+			},
+		},
+	}
+	return *cd
+}()
+
 var CephDeployNonMoskForSecret = func() cephlcmv1alpha1.CephDeployment {
 	cd := CephDeployNonMosk.DeepCopy()
 	cd.Spec.ObjectStorage.Users = []cephlcmv1alpha1.CephObjectStoreUser{{Name: "test-user"}}
@@ -314,7 +333,7 @@ var CephDeployMosk = cephlcmv1alpha1.CephDeployment{
 			Rgws: []cephlcmv1alpha1.CephObjectStore{
 				func() cephlcmv1alpha1.CephObjectStore {
 					rgw := CephRgwBaseSpec.DeepCopy()
-					rgw.UsedByRockoon = true
+					rgw.UsedForOpenstack = true
 					return *rgw
 				}(),
 			},
@@ -339,6 +358,25 @@ var CephDeployMoskWithCephFS = func() cephlcmv1alpha1.CephDeployment {
 var CephDeployMoskWithoutIngress = func() cephlcmv1alpha1.CephDeployment {
 	cd := CephDeployMosk.DeepCopy()
 	cd.Spec.IngressConfig = nil
+	return *cd
+}()
+
+var CephDeployMoskWithHTTPRoute = func() cephlcmv1alpha1.CephDeployment {
+	cd := CephDeployMosk.DeepCopy()
+	cd.Spec.IngressConfig = nil
+	cd.Spec.ObjectStorage.GatewayHTTPRoutes = []cephlcmv1alpha1.CephDeploymentHTTPRoute{
+		{
+			Name:            "rgw-route-for-openstack",
+			ObjectStoreName: "rgw-store",
+			Spec: runtime.RawExtension{
+				Raw: ConvertStructToRaw(gatewayapi.HTTPRouteSpec{
+					Hostnames: []gatewayapi.Hostname{
+						gatewayapi.Hostname("rgw-store-custom.openstack.com"),
+					},
+				}),
+			},
+		},
+	}
 	return *cd
 }()
 
@@ -368,6 +406,16 @@ var CephDeployMoskWithoutIngressRookConfigOverrideBarbican = func() cephlcmv1alp
 var CephDeployMoskWithoutRgw = func() cephlcmv1alpha1.CephDeployment {
 	cd := CephDeployMoskWithoutIngress.DeepCopy()
 	cd.Spec.ObjectStorage = nil
+	return *cd
+}()
+
+var CephDeployMoskWithRgwHosting = func() cephlcmv1alpha1.CephDeployment {
+	cd := CephDeployMoskWithoutIngress.DeepCopy()
+	casted, _ := cd.Spec.ObjectStorage.Rgws[0].GetSpec()
+	casted.Hosting = &cephv1.ObjectStoreHostingSpec{
+		DNSNames: []string{"custom-dns.openstack.com"},
+	}
+	cd.Spec.ObjectStorage.Rgws[0].Spec.Raw = ConvertStructToRaw(casted)
 	return *cd
 }()
 

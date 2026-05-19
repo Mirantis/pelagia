@@ -164,7 +164,7 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 					},
 				}
 				cephDpl.Spec.ObjectStorage = unitinputs.CephDeploymentMigrated.Spec.ObjectStorage.DeepCopy()
-				cephDpl.Spec.ObjectStorage.Rgws[0].UsedByRockoon = true
+				cephDpl.Spec.ObjectStorage.Rgws[0].UsedForOpenstack = true
 				cephDpl.Spec.ObjectStorage.Rgws[0].ServedByIngress = true
 				cephDpl.Spec.ObjectStorage.Rgws[0].Spec.Raw = []byte(`{"dataPool":{"replicated":{"size":3,"targetSizeRatio":0.1},"deviceClass":"hdd"},"gateway":{"instances":2,"port":80,"securePort":8443,"sslCertificateRef":"rgw-ssl-certificate"},"metadataPool":{"replicated":{"size":3},"deviceClass":"hdd"},"preservePoolsOnDelete":false}`)
 				return *cephDpl

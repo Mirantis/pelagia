@@ -124,10 +124,7 @@ func TestGenerateRgwStorageClass(t *testing.T) {
 }
 
 func TestGenerateRgwExternalService(t *testing.T) {
-	labelSelector, err := metav1.ParseToLabelSelector("external_access=rgw")
-	assert.Nil(t, err)
-	assert.Equal(t, map[string]string{"external_access": "rgw"}, labelSelector.MatchLabels)
-	rgwExternalSvc := generateRgwExternalService("rgw-store", "rook-ceph", labelSelector, int32(80), int32(8443))
+	rgwExternalSvc := generateRgwExternalService("rgw-store", "rook-ceph", "external_access=rgw", int32(80), int32(8443))
 	assert.Equal(t, unitinputs.RgwExternalServiceGenerated, rgwExternalSvc)
 }
 
@@ -379,7 +376,7 @@ func TestDeleteRgw(t *testing.T) {
 				"cephobjectstoreusers": &unitinputs.CephObjectStoreUserListEmpty,
 				"objectbucketclaims":   &unitinputs.ObjectBucketClaimListEmpty,
 			},
-			expectedError: "failed to list rgw object stores",
+			expectedError: "failed to list rgw object stores: failed to list cephobjectstores",
 		},
 		{
 			name: "delete rgw - delete rgw service failed",
@@ -1249,10 +1246,83 @@ func TestEnsureExternalService(t *testing.T) {
 		expectedError     string
 	}{
 		{
+			name:      "cleanup rgw external svc, no label selector",
+			cephDpl:   &unitinputs.CephDeployNonMosk,
+			lcmConfig: map[string]string{"RGW_PUBLIC_ACCESS_SERVICE_SELECTOR": ""},
+			inputResources: map[string]runtime.Object{
+				"services": &v1.ServiceList{Items: []v1.Service{*unitinputs.RgwExternalServiceGenerated.DeepCopy()}},
+			},
+			expectedResources: map[string]runtime.Object{
+				"services": &unitinputs.ServicesListEmpty,
+			},
+			changed: true,
+		},
+		{
+			name:    "cleanup rgw external svc in favor of ingress",
+			cephDpl: &unitinputs.CephDeployNonMosk,
+			inputResources: map[string]runtime.Object{
+				"services":   &v1.ServiceList{Items: []v1.Service{*unitinputs.RgwExternalServiceGenerated.DeepCopy()}},
+				"ingresses":  &unitinputs.IngressesList,
+				"httproutes": &unitinputs.HTTPRoutesListDefaultMosk,
+			},
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
+			expectedResources: map[string]runtime.Object{
+				"services": &unitinputs.ServicesListEmpty,
+			},
+			changed: true,
+		},
+		{
+			name:    "cleanup rgw external svc in favor of httproutes",
+			cephDpl: &unitinputs.CephDeployNonMosk,
+			inputResources: map[string]runtime.Object{
+				"services":   &v1.ServiceList{Items: []v1.Service{*unitinputs.RgwExternalServiceGenerated.DeepCopy()}},
+				"ingresses":  &unitinputs.IngressesListEmpty,
+				"httproutes": &unitinputs.HTTPRoutesListDefaultMosk,
+			},
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
+			expectedResources: map[string]runtime.Object{
+				"services": &unitinputs.ServicesListEmpty,
+			},
+			changed: true,
+		},
+		{
+			name:    "cleanup rgw external svc is failed",
+			cephDpl: &unitinputs.CephDeployNonMosk,
+			inputResources: map[string]runtime.Object{
+				"services":   &v1.ServiceList{Items: []v1.Service{*unitinputs.RgwExternalServiceGenerated.DeepCopy()}},
+				"httproutes": &unitinputs.HTTPRoutesListDefaultMosk,
+			},
+			apiErrors: map[string]error{
+				"delete-services": errors.New("failed to delete service"),
+			},
+			expectedError: "failed to cleanup rgw external service 'rook-ceph/rook-ceph-rgw-rgw-store-external': failed to delete service",
+		},
+		{
+			name:           "ensure external service - check gateway httproutes failed",
+			cephDpl:        &unitinputs.CephDeployNonMosk,
+			inputResources: map[string]runtime.Object{},
+			expectedError:  "failed to list rgw gateway httproutes to ensure rgw httproutes: failed to list httproutes",
+		},
+		{
+			name:           "ensure external service - check ingresses failed",
+			cephDpl:        &unitinputs.CephDeployNonMosk,
+			inputResources: map[string]runtime.Object{},
+			lcmConfig: map[string]string{
+				"GATEWAY_API_ENABLED": "false",
+				"KEEP_INGRESS":        "true",
+			},
+			expectedError: "failed to find ingress to remove: failed to list ingresses",
+		},
+		{
 			name:    "ensure external service - get failed",
 			cephDpl: &unitinputs.CephDeployNonMosk,
 			inputResources: map[string]runtime.Object{
-				"services": unitinputs.ServicesListEmpty.DeepCopy(),
+				"services":   unitinputs.ServicesListEmpty.DeepCopy(),
+				"httproutes": &unitinputs.HTTPRoutesListEmpty,
 			},
 			apiErrors:     map[string]error{"get-services": errors.New("service get failed")},
 			expectedError: "failed to get rgw external service: service get failed",
@@ -1261,7 +1331,8 @@ func TestEnsureExternalService(t *testing.T) {
 			name:    "ensure external service - create failed",
 			cephDpl: &unitinputs.CephDeployNonMosk,
 			inputResources: map[string]runtime.Object{
-				"services": unitinputs.ServicesListEmpty.DeepCopy(),
+				"services":   unitinputs.ServicesListEmpty.DeepCopy(),
+				"httproutes": &unitinputs.HTTPRoutesListEmpty,
 			},
 			apiErrors:     map[string]error{"create-services": errors.New("service create failed")},
 			expectedError: "failed to create rgw external service: service create failed",
@@ -1270,7 +1341,8 @@ func TestEnsureExternalService(t *testing.T) {
 			name:    "ensure external service - create success",
 			cephDpl: &unitinputs.CephDeployNonMosk,
 			inputResources: map[string]runtime.Object{
-				"services": unitinputs.ServicesListEmpty.DeepCopy(),
+				"services":   unitinputs.ServicesListEmpty.DeepCopy(),
+				"httproutes": &unitinputs.HTTPRoutesListEmpty,
 			},
 			expectedResources: map[string]runtime.Object{
 				"services": &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
@@ -1290,6 +1362,7 @@ func TestEnsureExternalService(t *testing.T) {
 						}(),
 					},
 				},
+				"httproutes": &unitinputs.HTTPRoutesListEmpty,
 			},
 			apiErrors:     map[string]error{"update-services": errors.New("service update failed")},
 			expectedError: "failed to update rgw external service: service update failed",
@@ -1308,6 +1381,7 @@ func TestEnsureExternalService(t *testing.T) {
 						}(),
 					},
 				},
+				"httproutes": &unitinputs.HTTPRoutesListEmpty,
 			},
 			expectedResources: map[string]runtime.Object{
 				"services": &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
@@ -1329,6 +1403,7 @@ func TestEnsureExternalService(t *testing.T) {
 						}(),
 					},
 				},
+				"httproutes": &unitinputs.HTTPRoutesListEmpty,
 			},
 			expectedResources: map[string]runtime.Object{
 				"services": &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
@@ -1339,77 +1414,9 @@ func TestEnsureExternalService(t *testing.T) {
 			name:    "ensure external service - nothing todo",
 			cephDpl: &unitinputs.CephDeployNonMosk,
 			inputResources: map[string]runtime.Object{
-				"services": &v1.ServiceList{Items: []v1.Service{*unitinputs.RgwExternalServiceGenerated.DeepCopy()}},
+				"services":   &v1.ServiceList{Items: []v1.Service{*unitinputs.RgwExternalServiceGenerated.DeepCopy()}},
+				"httproutes": &unitinputs.HTTPRoutesListEmpty,
 			},
-		},
-		{
-			name:      "ensure external service - public is not required",
-			cephDpl:   &unitinputs.CephDeployNonMosk,
-			lcmConfig: map[string]string{"RGW_PUBLIC_ACCESS_SERVICE_SELECTOR": ""},
-			inputResources: map[string]runtime.Object{
-				"services": &v1.ServiceList{Items: []v1.Service{*unitinputs.RgwExternalServiceGenerated.DeepCopy()}},
-			},
-			expectedResources: map[string]runtime.Object{
-				"services": &unitinputs.ServicesListEmpty,
-			},
-			changed: true,
-		},
-		{
-			name: "ensure external service - failed to check ingress",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cephDpl := unitinputs.CephDeployMosk.DeepCopy()
-				cephDpl.Spec.IngressConfig = nil
-				return cephDpl
-			}(),
-			inputResources: map[string]runtime.Object{
-				"services": unitinputs.ServicesListEmpty.DeepCopy(),
-				"secrets":  &unitinputs.SecretsListEmpty,
-			},
-			apiErrors:     map[string]error{"get-secrets": errors.New("failed to get secret")},
-			expectedError: "failed to check ingress proxy presence: failed to get openstack-rgw-creds secret to ensure ingress: failed to get secret",
-		},
-		{
-			name: "ensure external service - openstack pools specified, but no default openstack config",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cephDpl := unitinputs.CephDeployMosk.DeepCopy()
-				cephDpl.Spec.IngressConfig = nil
-				return cephDpl
-			}(),
-			inputResources: map[string]runtime.Object{
-				"services": unitinputs.ServicesListEmpty.DeepCopy(),
-				"secrets":  &unitinputs.SecretsListEmpty,
-			},
-			expectedResources: map[string]runtime.Object{
-				"services": &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
-			},
-			changed: true,
-		},
-		{
-			name:    "ensure external service - ingress required, delete not found success",
-			cephDpl: &unitinputs.CephDeployMosk,
-			inputResources: map[string]runtime.Object{
-				"services": &unitinputs.ServicesListEmpty,
-			},
-		},
-		{
-			name:    "ensure external service - ingress required, delete failed",
-			cephDpl: &unitinputs.CephDeployMosk,
-			inputResources: map[string]runtime.Object{
-				"services": &v1.ServiceList{Items: []v1.Service{*unitinputs.RgwExternalServiceGenerated.DeepCopy()}},
-			},
-			apiErrors:     map[string]error{"delete-services": errors.New("service failed to delete")},
-			expectedError: "failed to cleanup rgw external service rook-ceph-rgw-rgw-store-external: service failed to delete",
-		},
-		{
-			name:    "ensure external service - ingress required, delete success",
-			cephDpl: &unitinputs.CephDeployMosk,
-			inputResources: map[string]runtime.Object{
-				"services": &v1.ServiceList{Items: []v1.Service{*unitinputs.RgwExternalServiceGenerated.DeepCopy()}},
-			},
-			expectedResources: map[string]runtime.Object{
-				"services": &unitinputs.ServicesListEmpty,
-			},
-			changed: true,
 		},
 	}
 	for _, test := range tests {
@@ -1422,6 +1429,8 @@ func TestEnsureExternalService(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "create", []string{"services"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "update", []string{"services"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "delete", []string{"services"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Gatewayclientset, "list", []string{"httproutes"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.NetworkingV1(), "list", []string{"ingresses"}, test.inputResources, nil)
 			test.expectedResources = faketestclients.PrepareExpectedResources(test.inputResources, test.expectedResources)
 
 			changed, err := c.ensureExternalService(0)
@@ -1434,6 +1443,8 @@ func TestEnsureExternalService(t *testing.T) {
 			assert.Equal(t, test.expectedResources, test.inputResources)
 			assert.Equal(t, test.changed, changed)
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
+			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.NetworkingV1())
+			faketestclients.CleanupFakeClientReactions(c.api.Gatewayclientset)
 		})
 	}
 }
@@ -1530,6 +1541,7 @@ func TestEnsureRgwMain(t *testing.T) {
 				"secrets":              &v1.SecretList{Items: []v1.Secret{}},
 				"storageclasses":       unitinputs.StorageClassesListEmpty.DeepCopy(),
 				"services":             unitinputs.ServicesListEmpty.DeepCopy(),
+				"httproutes":           &unitinputs.HTTPRoutesListEmpty,
 			},
 			expectedResources: map[string]runtime.Object{
 				"cephobjectstores": &cephv1.CephObjectStoreList{Items: []cephv1.CephObjectStore{
@@ -1572,6 +1584,7 @@ func TestEnsureRgwMain(t *testing.T) {
 				},
 				"storageclasses": &v1storage.StorageClassList{Items: []v1storage.StorageClass{unitinputs.RgwStorageClass}},
 				"services":       &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
+				"httproutes":     &unitinputs.HTTPRoutesListEmpty,
 			},
 		},
 		{
@@ -1608,7 +1621,7 @@ func TestEnsureRgwMain(t *testing.T) {
 			},
 		},
 		{
-			name:    "ensure rgw - ensure rgw, openstack, all created",
+			name:    "ensure rgw - ensure rgw, openstack, no httproutes yet, all created",
 			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
 			inputResources: map[string]runtime.Object{
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
@@ -1616,6 +1629,7 @@ func TestEnsureRgwMain(t *testing.T) {
 				"secrets":              &v1.SecretList{},
 				"storageclasses":       &v1storage.StorageClassList{},
 				"services":             unitinputs.ServicesListEmpty.DeepCopy(),
+				"httproutes":           &unitinputs.HTTPRoutesListEmpty,
 			},
 			expectedResources: map[string]runtime.Object{
 				"cephobjectstores": &cephv1.CephObjectStoreList{Items: []cephv1.CephObjectStore{
@@ -1658,6 +1672,7 @@ func TestEnsureRgwMain(t *testing.T) {
 				}},
 				"storageclasses": &v1storage.StorageClassList{Items: []v1storage.StorageClass{unitinputs.RgwStorageClass}},
 				"services":       unitinputs.ServicesListEmpty.DeepCopy(),
+				"httproutes":     &unitinputs.HTTPRoutesListDefaultMosk,
 			},
 		},
 		{
@@ -1669,6 +1684,7 @@ func TestEnsureRgwMain(t *testing.T) {
 				"secrets":              &v1.SecretList{Items: []v1.Secret{unitinputs.MultisiteCabundleSecret}},
 				"storageclasses":       &v1storage.StorageClassList{},
 				"services":             unitinputs.ServicesListEmpty.DeepCopy(),
+				"httproutes":           &unitinputs.HTTPRoutesListEmpty,
 			},
 			expectedResources: map[string]runtime.Object{
 				"cephobjectstores": &cephv1.CephObjectStoreList{
@@ -1694,6 +1710,7 @@ func TestEnsureRgwMain(t *testing.T) {
 				}},
 				"storageclasses": &v1storage.StorageClassList{Items: []v1storage.StorageClass{unitinputs.RgwStorageClass}},
 				"services":       &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
+				"httproutes":     &unitinputs.HTTPRoutesListEmpty,
 			},
 			changed: true,
 		},
@@ -1713,6 +1730,7 @@ func TestEnsureRgwMain(t *testing.T) {
 				}},
 				"storageclasses": &v1storage.StorageClassList{Items: []v1storage.StorageClass{unitinputs.RgwStorageClass}},
 				"services":       &v1.ServiceList{Items: []v1.Service{unitinputs.RgwExternalServiceGenerated}},
+				"httproutes":     &unitinputs.HTTPRoutesListEmpty,
 			},
 		},
 	}
@@ -1742,8 +1760,8 @@ func TestEnsureRgwMain(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "delete", []string{"services"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "get", []string{"storageclasses"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.StorageV1(), "create", []string{"storageclasses"}, test.inputResources, test.apiErrors)
-			faketestclients.FakeReaction(c.api.Claimclientset, "list", []string{"objectbucketclaims"}, test.inputResources, nil)
-			faketestclients.FakeReaction(c.api.Claimclientset, "create", []string{"objectbucketclaims"}, test.inputResources, nil)
+			//faketestclients.FakeReaction(c.api.Claimclientset, "list", []string{"objectbucketclaims"}, test.inputResources, nil)
+			faketestclients.FakeReaction(c.api.Gatewayclientset, "list", []string{"httproutes"}, test.inputResources, test.apiErrors)
 			test.expectedResources = faketestclients.PrepareExpectedResources(test.inputResources, test.expectedResources)
 
 			changed, err := c.ensureRgw()
@@ -1759,7 +1777,8 @@ func TestEnsureRgwMain(t *testing.T) {
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.StorageV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
-			faketestclients.CleanupFakeClientReactions(c.api.Claimclientset)
+			faketestclients.CleanupFakeClientReactions(c.api.Gatewayclientset)
+			//faketestclients.CleanupFakeClientReactions(c.api.Claimclientset)
 		})
 	}
 	unsetTimestampsVar()
@@ -1948,6 +1967,7 @@ func TestEnsureRgwCaBundleCert(t *testing.T) {
 	tests := []struct {
 		name                   string
 		cephDpl                *cephlcmv1alpha1.CephDeployment
+		extraLcmConfig         map[string]string
 		rgwIdx                 int
 		inputResources         map[string]runtime.Object
 		apiErrors              map[string]error
@@ -1999,6 +2019,9 @@ func TestEnsureRgwCaBundleCert(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"secrets": unitinputs.SecretsListEmpty.DeepCopy(),
 			},
+			extraLcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			expectedError: "failed to get ingress secret 'rook-ceph/rgw-store-ingress-secret': secrets \"rgw-store-ingress-secret\" not found",
 		},
 		{
@@ -2011,6 +2034,9 @@ func TestEnsureRgwCaBundleCert(t *testing.T) {
 			}(),
 			inputResources: map[string]runtime.Object{
 				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.IngressRuleSecret}},
+			},
+			extraLcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
 			},
 			expectedResources: map[string]runtime.Object{
 				"secrets": &v1.SecretList{
@@ -2042,6 +2068,9 @@ func TestEnsureRgwCaBundleCert(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"secrets": &v1.SecretList{Items: []v1.Secret{unitinputs.IngressRuleSecret, unitinputs.RgwSSLCertSecret}},
 			},
+			extraLcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			expectedResources: map[string]runtime.Object{
 				"secrets": &v1.SecretList{
 					Items: []v1.Secret{
@@ -2067,6 +2096,9 @@ func TestEnsureRgwCaBundleCert(t *testing.T) {
 				dpl.Spec.IngressConfig.TLSConfig.TLSSecretRefName = "rgw-store-ingress-secret"
 				return dpl
 			}(),
+			extraLcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			inputResources: map[string]runtime.Object{
 				"secrets": &v1.SecretList{
 					Items: []v1.Secret{
@@ -2088,6 +2120,9 @@ func TestEnsureRgwCaBundleCert(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployMosk,
 			inputResources: map[string]runtime.Object{
 				"secrets": &v1.SecretList{Items: []v1.Secret{}},
+			},
+			extraLcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
 			},
 			expectedResources: map[string]runtime.Object{
 				"secrets": &v1.SecretList{
@@ -2299,13 +2334,23 @@ func TestEnsureRgwCaBundleCert(t *testing.T) {
 			expectedError:          "rgw 'rgw-store' seems to be must have cabundle, but it is not found",
 			expectedGenerationTime: "a-test-17-time",
 		},
+		{
+			name:    "mosk expected but openstack shared namespace is not set",
+			cephDpl: &unitinputs.CephDeployMoskWithoutIngress,
+			extraLcmConfig: map[string]string{
+				"DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE": "",
+			},
+			apiErrors:              map[string]error{"create-secrets": errors.New("failed to create secret")},
+			expectedGenerationTime: "a-test-17-time",
+			expectedError:          "CephRGW object storage 'rgw-store' has specified for Openstack usage, but Pelagia lcmconfig has no var 'DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE' set",
+		},
 	}
 
 	oldGenerateCertFunc := lcmcommon.GenerateSelfSignedCert
 	oldCurrentTimeFunc := lcmcommon.GetCurrentTimeString
 	for idx, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.extraLcmConfig)
 
 			// test global var resourceUpdateTimestamps.RgwSSLCert is updated correctly
 			// after each test run, it should be non-set if create/update is not happened
@@ -2324,8 +2369,8 @@ func TestEnsureRgwCaBundleCert(t *testing.T) {
 			rgwName := test.cephDpl.Spec.ObjectStorage.Rgws[test.rgwIdx].Name
 			rgwCasted, _ := test.cephDpl.Spec.ObjectStorage.Rgws[test.rgwIdx].GetSpec()
 			ingress := test.cephDpl.Spec.ObjectStorage.Rgws[test.rgwIdx].ServedByIngress
-			rockoon := test.cephDpl.Spec.ObjectStorage.Rgws[test.rgwIdx].UsedByRockoon
-			changed, err := c.ensureRgwCaBundleCert(rgwName, rgwCasted.Gateway.SSLCertificateRef, rgwCasted.Gateway.CaBundleRef, ingress, rockoon)
+			usedForOpenstack := test.cephDpl.Spec.ObjectStorage.Rgws[test.rgwIdx].UsedForOpenstack
+			changed, err := c.ensureRgwCaBundleCert(rgwName, rgwCasted.Gateway.SSLCertificateRef, rgwCasted.Gateway.CaBundleRef, ingress, usedForOpenstack)
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
@@ -2350,6 +2395,7 @@ func TestEnsureRgwSslCert(t *testing.T) {
 		cephDpl                *cephlcmv1alpha1.CephDeployment
 		rgwIdx                 int
 		inputResources         map[string]runtime.Object
+		lcmConfig              map[string]string
 		apiErrors              map[string]error
 		stateChanged           bool
 		expectedGenerationTime string
@@ -2482,6 +2528,9 @@ func TestEnsureRgwSslCert(t *testing.T) {
 					},
 				},
 			},
+			lcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
 			expectedGenerationTime: "n-time",
 		},
 		{
@@ -2528,7 +2577,7 @@ func TestEnsureRgwSslCert(t *testing.T) {
 	oldCurrentTimeFunc := lcmcommon.GetCurrentTimeString
 	for idx, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.lcmConfig)
 
 			lcmcommon.GenerateSelfSignedCert = func(_, _ string, _ []string) (string, string, string, error) {
 				if _, ok := test.apiErrors["ssl-cert"]; ok {

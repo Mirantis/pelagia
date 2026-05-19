@@ -31,6 +31,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
+	gatewayapi "sigs.k8s.io/gateway-api/apis/v1"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
@@ -38,32 +39,30 @@ import (
 )
 
 func verifyRgwConnection(t *testing.T, rgwName string, httpPort int32, httpsPort int32) {
-	t.Logf("Verify RGW is accessible from external loadbalancer IP")
-	externalSvc, err := f.TF.ManagedCluster.GetService(fmt.Sprintf("rook-ceph-rgw-%s-external", rgwName), f.TF.ManagedCluster.LcmConfig.RookNamespace)
-	rgwURL := ""
-	if err != nil {
-		ingress, _ := f.TF.ManagedCluster.GetIngress(fmt.Sprintf("rook-ceph-rgw-%s-ingress", rgwName), f.TF.ManagedCluster.LcmConfig.RookNamespace)
-		if ingress != nil {
-			rgwURL = ingress.Spec.Rules[0].Host
-		}
-	} else {
-		rgwURL = externalSvc.Status.LoadBalancer.Ingress[0].IP
-	}
-
+	t.Logf("Verify RGW is accessible from internal endpoint")
 	t.Logf("Send GET request to HTTP pkg RGW endpoint")
 	stdout, _, err := f.TF.ManagedCluster.RunCommand(fmt.Sprintf("curl --silent http://rook-ceph-rgw-%s.%s.svc:%d/", rgwName, f.TF.ManagedCluster.LcmConfig.RookNamespace, httpPort), f.TF.ManagedCluster.LcmConfig.RookNamespace, "app=rook-ceph-rgw")
-	t.Logf("cURL response for HTTP RGW endpoint is:\n%v", stdout)
+	t.Logf("CURL response for HTTP RGW endpoint is:\n%v", stdout)
 	assert.Nil(t, err)
 
 	t.Logf("Send GET request to HTTPs pkg RGW endpoint")
 	stdout, _, err = f.TF.ManagedCluster.RunCommand(fmt.Sprintf("curl --silent https://rook-ceph-rgw-%s.%s.svc:%d/", rgwName, f.TF.ManagedCluster.LcmConfig.RookNamespace, httpsPort), f.TF.ManagedCluster.LcmConfig.RookNamespace, "app=rook-ceph-rgw")
-	t.Logf("cURL response for HTTPs RGW endpoint is:\n%v", stdout)
+	t.Logf("CURL response for HTTPs RGW endpoint is:\n%v", stdout)
 	assert.Nil(t, err)
 
-	if rgwURL != "" {
+	t.Logf("Verify RGW is accessible from external loadbalancer IP")
+	externalSvc, err := f.TF.ManagedCluster.GetService(fmt.Sprintf("rook-ceph-rgw-%s-external", rgwName), f.TF.ManagedCluster.LcmConfig.RookNamespace)
+	rgwURL := ""
+	if err != nil {
+		if !apierrors.IsNotFound(err) {
+			t.Fatal(err)
+		}
+		t.Log("Default external loadbalancer is not present")
+	} else {
+		rgwURL = externalSvc.Status.LoadBalancer.Ingress[0].IP
 		t.Logf("Send GET request to HTTPs public RGW endpoint")
 		stdout, _, err = f.TF.ManagedCluster.RunCommand(fmt.Sprintf("curl -k --silent https://%s/", rgwURL), f.TF.ManagedCluster.LcmConfig.RookNamespace, "app=rook-ceph-rgw")
-		t.Logf("cURL response for HTTP public RGW endpoint is:\n%v", stdout)
+		t.Logf("CURL response for HTTP public RGW endpoint is:\n%v", stdout)
 		assert.Nil(t, err)
 	}
 }
@@ -115,7 +114,7 @@ func TestRgwUserCreateAccess(t *testing.T) {
 }
 
 func TestRgwAccessPublicDomainRockoon(t *testing.T) {
-	t.Log("e2e test: verify ingress rgw endpoint with default Rockoon public domain")
+	t.Log("e2e test: verify rgw endpoint with default Rockoon public domain")
 	defer f.SetupTeardown(t)()
 
 	cd, err := f.TF.ManagedCluster.FindCephDeployment()
@@ -146,9 +145,12 @@ func TestRgwAccessPublicDomainRockoon(t *testing.T) {
 	t.Log("Test successfully passed")
 }
 
-func TestRgwAccessPublicDomainCustom(t *testing.T) {
+func TestRgwIngressAccessPublicDomainCustom(t *testing.T) {
 	t.Log("e2e test: verify ingress rgw endpoint with custom public domain")
 	defer f.SetupTeardown(t)()
+	if !f.TF.ManagedCluster.LcmConfig.CommonParams.KeepIngress {
+		t.Skip("There are no Ingress support enabled")
+	}
 
 	f.Step(t, "Verify there is object storage in ceph cluster already created")
 	rgws, err := f.TF.ManagedCluster.ListCephObjectStore()
@@ -241,9 +243,12 @@ func TestRgwAccessPublicDomainCustom(t *testing.T) {
 	t.Log("Test successfully passed")
 }
 
-func TestRgwAccessPublicTlsByRefAndCustomHostnameRockoon(t *testing.T) {
+func TestRgwIngressAccessPublicTlsByRefAndCustomHostnameRockoon(t *testing.T) {
 	t.Log("e2e test: verify ingress rgw endpoint with custom hostname and Rockoon certs")
 	defer f.SetupTeardown(t)()
+	if !f.TF.ManagedCluster.LcmConfig.CommonParams.KeepIngress {
+		t.Skip("There are no Ingress support enabled")
+	}
 
 	cd, err := f.TF.ManagedCluster.FindCephDeployment()
 	if err != nil {
@@ -325,7 +330,138 @@ func TestRgwAccessPublicTlsByRefAndCustomHostnameRockoon(t *testing.T) {
 	t.Log("Test successfully passed")
 }
 
-func runRgwAccessTest(t *testing.T, endpoint, ingressIP, domain, rgwStoreName, rgwUserName string, checkOverQuota bool) {
+func TestRgwGatewayAPIAccessPublicCustomHostname(t *testing.T) {
+	t.Log("e2e test: verify gateway httproute rgw endpoint with custom hostname")
+	defer f.SetupTeardown(t)()
+	if !f.TF.ManagedCluster.LcmConfig.CommonParams.GatewayAPIEnabled {
+		t.Skip("There are no GatewayAPI support enabled")
+	}
+	testConfig := f.GetConfigForTestCase(t)
+	publicDomain := ""
+	if domain, ok := testConfig["publicDomain"]; ok {
+		publicDomain = domain
+	} else {
+		t.Fatal("Public domain for Gateway HTTPRoute is not specified")
+	}
+	var sslCertNamespace, sslCertName string
+	if certNamespace, ok := testConfig["certNamespace"]; ok {
+		sslCertNamespace = certNamespace
+	}
+	if certName, ok := testConfig["certName"]; ok {
+		sslCertName = certName
+	}
+
+	cd, err := f.TF.ManagedCluster.FindCephDeployment()
+	if err != nil {
+		t.Fatal(err)
+	}
+	openstackPoolsPresent := cd.Spec.BlockStorage == nil && !lcmcommon.IsOpenStackPoolsPresent(cd.Spec.BlockStorage.Pools)
+
+	if len(cd.Spec.ObjectStorage.GatewayHTTPRoutes) > 0 {
+		t.Skip("Some custom Gateway HTTPRoutes already present in spec, skipping")
+	}
+
+	customRgwHostname := fmt.Sprintf("rgw-custom.%s", publicDomain)
+	rgwName := ""
+	for idx, rgw := range cd.Spec.ObjectStorage.Rgws {
+		if openstackPoolsPresent {
+			if !rgw.UsedForOpenstack {
+				continue
+			}
+		} else if rgw.AuxiliaryService {
+			continue
+		}
+		rgwName = rgw.Name
+		rgwCasted, _ := rgw.GetSpec()
+		if rgwCasted.Hosting == nil {
+			rgwCasted.Hosting = &cephv1.ObjectStoreHostingSpec{}
+		}
+		rgwCasted.Hosting.DNSNames = append(rgwCasted.Hosting.DNSNames, customRgwHostname)
+
+		if sslCertName != "" && sslCertNamespace != "" {
+			f.Step(t, "Found custom ssl secret '%s/%s', creating cabundle for RGW", sslCertNamespace, sslCertName)
+			secret, err := f.TF.ManagedCluster.GetSecret(sslCertName, sslCertNamespace)
+			if err != nil {
+				t.Fatalf("failed to get secret '%s/%s' with ssl certificate: %v", sslCertNamespace, sslCertName, err)
+			}
+			if v, ok := secret.Data["ca.crt"]; ok {
+				caBundleSecret := &corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      "custom-rgw-ca",
+						Namespace: f.TF.ManagedCluster.LcmConfig.RookNamespace,
+					},
+					Data: map[string][]byte{
+						"cabundle": v,
+					},
+				}
+				err = f.TF.ManagedCluster.CreateSecret(caBundleSecret)
+				if err != nil {
+					t.Fatal(err)
+				}
+
+				defer func() {
+					f.Step(t, "Cleanup custom cabundle secret")
+					err := f.TF.ManagedCluster.DeleteSecret(caBundleSecret.Name, caBundleSecret.Namespace)
+					if err != nil {
+						t.Fatalf("failed to cleanup cabundle secret: %s", err)
+					}
+				}()
+
+				rgwCasted.Gateway.CaBundleRef = caBundleSecret.Name
+			} else {
+				t.Fatalf("failed to find 'ca.crt' key in secret '%s/%s'", sslCertNamespace, sslCertName)
+			}
+		}
+
+		rgwSpec, _ := cephlcmv1alpha1.DecodeStructToRaw(rgwCasted)
+		cd.Spec.ObjectStorage.Rgws[idx].Spec.Raw = rgwSpec
+		break
+	}
+	if rgwName == "" {
+		t.Fatal("failed to find RGW ObjectStore for test")
+	}
+
+	f.Step(t, "Define HTTPRoute with hostname in spec")
+	httpRoute := gatewayapi.HTTPRouteSpec{
+		Hostnames: []gatewayapi.Hostname{gatewayapi.Hostname(customRgwHostname)},
+	}
+	gatewayHTTPRouteRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(httpRoute)
+	cd.Spec.ObjectStorage.GatewayHTTPRoutes = []cephlcmv1alpha1.CephDeploymentHTTPRoute{
+		{
+			Name:            "custom-httproute",
+			ObjectStoreName: rgwName,
+			Spec: runtime.RawExtension{
+				Raw: gatewayHTTPRouteRaw,
+			},
+		},
+	}
+	err = f.UpdateCephDeploymentSpec(cd, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	f.Step(t, "Check new public rgw endpoint")
+	endpoints, err := f.GetRgwPublicEndpoints(cd.Name, rgwName)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.HasSuffix(endpoints[0], customRgwHostname) {
+		t.Fatal("public endpoint has no expected domain")
+	}
+
+	f.Step(t, "Obtain Gateway controller IP address")
+	gtwSvc, err := f.TF.ManagedCluster.GetService(f.TF.ManagedCluster.LcmConfig.CommonParams.BaseGatewayName, f.TF.ManagedCluster.LcmConfig.CommonParams.BaseGatewayNamespace)
+	if err != nil {
+		t.Fatalf("failed to get gateway service: %v", err)
+	}
+	gtwIP := gtwSvc.Status.LoadBalancer.Ingress[0].IP
+
+	runRgwAccessTest(t, endpoints[0], gtwIP, customRgwHostname, "", "", true)
+
+	t.Log("Test successfully passed")
+}
+
+func runRgwAccessTest(t *testing.T, endpoint, proxyIP, domain, rgwStoreName, rgwUserName string, checkOverQuota bool) {
 	awscliName := fmt.Sprintf("awscli-%d", time.Now().Unix())
 	customUserCmName := fmt.Sprintf("custom-rgw-user-creds-%d", time.Now().Unix())
 	testNamespace := f.TF.ManagedCluster.LcmConfig.RookNamespace
@@ -439,7 +575,7 @@ aws_secret_access_key = %s`, customAccessKey, customSecretKey),
 	}()
 
 	f.Step(t, "Create awscli pod to verify public endpoint accessibility")
-	_, err = f.TF.ManagedCluster.CreateAWSCliDeployment(awscliName, "", f.TF.E2eImage, customUserCmName, certSecretName, ingressIP, domain)
+	_, err = f.TF.ManagedCluster.CreateAWSCliDeployment(awscliName, "", f.TF.E2eImage, customUserCmName, certSecretName, proxyIP, domain)
 	if err != nil {
 		t.Fatalf("failed to create and configure awscli for custom rgw user: %v", err)
 	}
@@ -452,7 +588,7 @@ aws_secret_access_key = %s`, customAccessKey, customSecretKey),
 		}
 	}()
 
-	f.Step(t, "Verify rgw access with public endpoint")
+	f.Step(t, "Verify rgw access with public endpoint: %s", endpoint)
 	awsCliLabel := "app=awscli"
 	s3Api := fmt.Sprintf("aws --endpoint-url %s --ca-bundle /etc/rgwcerts/cabundle s3api", endpoint)
 	createBucketCmd := fmt.Sprintf("%s create-bucket --bucket bucket-%s", s3Api, rgwUserName)

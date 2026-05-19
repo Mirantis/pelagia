@@ -49,7 +49,7 @@ func (c *cephOsdRemoveConfig) tryToGetNodeOsdsReportOrIssues(host string) (*lcmc
 }
 
 func (c *cephOsdRemoveConfig) getNodeReport(hostName string) (*lcmcommon.DiskDaemonReport, error) {
-	cmd := fmt.Sprintf("%s --osd-report --port %d", lcmcommon.PelagiaDiskDaemon, c.lcmConfig.DiskDaemonPort)
+	cmd := fmt.Sprintf("%s --osd-report --port %d", lcmcommon.PelagiaDiskDaemon, c.lcmConfig.CommonParams.DiskDaemonPort)
 	nodeReportRes, err := lcmcommon.RunFuncWithRetry(retriesForFailedCommand, diskDaemonRetryTimeout, func() (interface{}, error) {
 		var report *lcmcommon.DiskDaemonReport
 		daemonErr := lcmcommon.RunAndParseDiskDaemonCLI(c.context, c.api.Kubeclientset, c.api.Config, c.taskConfig.task.Namespace, hostName, cmd, &report)

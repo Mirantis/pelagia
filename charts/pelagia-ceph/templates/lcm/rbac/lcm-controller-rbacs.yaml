@@ -114,9 +114,11 @@ rules:
   - apiGroups: [objectbucket.io]
     resources: [objectbucketclaims]
     verbs: [list, get]
+  {{- if (.Values.lcmConfig.useIngress) }}
   - apiGroups: [networking.k8s.io]
     resources: [ingresses]
     verbs: [list, get]
+  {{- end }}
   - apiGroups: [""]
     resources: [pods]
     verbs: [list, get]
@@ -126,6 +128,12 @@ rules:
   - apiGroups: [apps]
     resources: [deployments/scale] # required for rook-operator scaling on maintenance and task processing
     verbs: [update]
+  {{- if (.Values.lcmConfig.gatewayAPIEnabled) }}
+  # permissions for gateway API
+  - apiGroups: [gateway.networking.k8s.io]
+    resources: [httproutes]
+    verbs: [list, get]
+  {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

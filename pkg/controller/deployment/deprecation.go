@@ -611,7 +611,7 @@ func (c *cephDeploymentConfig) convertRgwParams(hyperConvergePlacement cephv1.Pl
 		ServedByIngress: c.cdConfig.cephDpl.Spec.IngressConfig != nil,
 	}
 	if c.cdConfig.cephDpl.Spec.BlockStorage != nil {
-		newRgw.UsedByRockoon = lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.BlockStorage.Pools)
+		newRgw.UsedForOpenstack = lcmcommon.IsOpenStackPoolsPresent(c.cdConfig.cephDpl.Spec.BlockStorage.Pools)
 	}
 	rgwParams := map[string]interface{}{}
 	if c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw.HealthCheck != nil {

@@ -806,9 +806,16 @@ func TestValidateObjectStorageSpec(t *testing.T) {
 				userCasted2, _ := cd.Spec.ObjectStorage.Users[1].GetSpec()
 				userCasted2.Store = "fake"
 				cd.Spec.ObjectStorage.Users[1].Spec.Raw = unitinputs.ConvertStructToRaw(userCasted2)
+				cd.Spec.ObjectStorage.GatewayHTTPRoutes = unitinputs.CephDeployNonMoskWithGatewayRoute.Spec.ObjectStorage.DeepCopy().GatewayHTTPRoutes
+				cd.Spec.ObjectStorage.GatewayHTTPRoutes[0].ObjectStoreName = "unknown-rgw"
+				routeSpec, _ := cd.Spec.ObjectStorage.GatewayHTTPRoutes[0].GetSpec()
+				routeSpec.Hostnames = nil
+				cd.Spec.ObjectStorage.GatewayHTTPRoutes[0].Spec.Raw = unitinputs.ConvertStructToRaw(routeSpec)
 				return cd
 			}(),
 			expectedIssues: []string{
+				"httproute 'rgw-route' has no hostnames provided",
+				"httproute 'rgw-route' has object store set to 'unknown-rgw', which is not present in spec",
 				"rgw 'rgw-store' metadata pool contains prohibited 'osd' failureDomain",
 				"rgw 'rgw-store' data pool contains prohibited 'osd' failureDomain",
 				"not enough 'rgw' roles specified in nodes spec, rgw 'rgw-store' requires at least 20, found 3",
@@ -819,6 +826,11 @@ func TestValidateObjectStorageSpec(t *testing.T) {
 		{
 			name:           "no object storage issues",
 			cephDpl:        unitinputs.CephDeployNonMosk.DeepCopy(),
+			expectedIssues: []string{},
+		},
+		{
+			name:           "no object storage issues #2",
+			cephDpl:        unitinputs.CephDeployNonMoskWithGatewayRoute.DeepCopy(),
 			expectedIssues: []string{},
 		},
 		{

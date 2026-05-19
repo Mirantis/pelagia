@@ -109,3 +109,7 @@ func ExtendLabels(resourceLabels map[string]string, extraLabels map[string]strin
 	}
 	return resourceLabels
 }
+
+func PtrTo[T any](a T) *T {
+	return &a
+}

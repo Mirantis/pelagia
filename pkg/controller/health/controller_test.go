@@ -39,12 +39,13 @@ import (
 
 func FakeReconciler() *ReconcileCephDeploymentHealth {
 	return &ReconcileCephDeploymentHealth{
-		Config:        &rest.Config{},
-		Client:        faketestclients.GetClient(nil),
-		Lcmclientset:  faketestclients.GetFakeLcmclient(),
-		Kubeclientset: faketestclients.GetFakeKubeclient(),
-		Rookclientset: faketestclients.GetFakeRookclient(),
-		Scheme:        faketestscheme.Scheme,
+		Config:           &rest.Config{},
+		Client:           faketestclients.GetClient(nil),
+		Lcmclientset:     faketestclients.GetFakeLcmclient(),
+		Kubeclientset:    faketestclients.GetFakeKubeclient(),
+		Rookclientset:    faketestclients.GetFakeRookclient(),
+		Gatewayclientset: faketestclients.GetFakeGatewayclient(),
+		Scheme:           faketestscheme.Scheme,
 	}
 }
 
@@ -379,9 +380,15 @@ func TestHealthAndConfigReconcile(t *testing.T) {
 	_, err = healthReconciler.Reconcile(ctx, healthRequest)
 	assert.Nil(t, err)
 	expectedLcmConfig := lcmconfig.LcmConfig{
-		RookNamespace:            "rook-ceph",
-		DiskDaemonPort:           9999,
-		DiskDaemonPlacementLabel: "pelagia-disk-daemon=true",
+		RookNamespace: "rook-ceph",
+		CommonParams: lcmconfig.CommonParams{
+			BaseGatewayName:          "app-gateway",
+			BaseGatewayNamespace:     "openstack",
+			DiskDaemonPort:           9999,
+			DiskDaemonPlacementLabel: "pelagia-disk-daemon=true",
+			RgwPublicAccessLabel:     "external_access=rgw",
+			GatewayAPIEnabled:        true,
+		},
 		HealthParams: &lcmconfig.HealthParams{
 			CephIssuesToIgnore: []string{
 				"OSDMAP_FLAGS",
@@ -397,7 +404,6 @@ func TestHealthAndConfigReconcile(t *testing.T) {
 			LogLevel:                  -1,
 			UsageDetailsClassesFilter: "",
 			UsageDetailsPoolsFilter:   "",
-			RgwPublicAccessLabel:      "external_access=rgw",
 		},
 	}
 	assert.Equal(t, expectedLcmConfig, lcmconfig.GetConfiguration("lcm-namespace"))

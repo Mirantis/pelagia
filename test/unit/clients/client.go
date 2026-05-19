@@ -34,6 +34,9 @@ import (
 	gotesting "k8s.io/client-go/testing"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	fakeclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
+	gatewayclient "sigs.k8s.io/gateway-api/pkg/client/clientset/versioned"
+	fakegateway "sigs.k8s.io/gateway-api/pkg/client/clientset/versioned/fake"
+	fakegatewayv1 "sigs.k8s.io/gateway-api/pkg/client/clientset/versioned/typed/apis/v1/fake"
 
 	lcmclient "github.com/Mirantis/pelagia/pkg/client/clientset/versioned"
 	fakelcm "github.com/Mirantis/pelagia/pkg/client/clientset/versioned/fake"
@@ -75,6 +78,8 @@ var supportedKinds = map[string]bool{
 	"services":               true,
 	"storageclasses":         true,
 	"ingresses":              true,
+	// gateway kinds
+	"httproutes": true,
 }
 
 func ExtendSupportedKinds(kinds map[string]bool) {
@@ -130,6 +135,12 @@ func GetFakeKubeclient(objects ...runtime.Object) kubernetes.Interface {
 	return ks
 }
 
+func GetFakeGatewayclient(objects ...runtime.Object) gatewayclient.Interface {
+	gtw := fakegateway.NewSimpleClientset(objects...)
+	gtw.ReactionChain = make([]gotesting.Reactor, 0)
+	return gtw
+}
+
 func CleanupFakeClientReactions(clientInterface interface{}) {
 	cleanupFakeClientReactions(GetFakeClientForInterface(clientInterface))
 }
@@ -162,6 +173,9 @@ func GetFakeClientForInterface(clientInterface interface{}) *gotesting.Fake {
 		return clientInterfaceCasted.Fake
 	case *fakestorage.FakeStorageV1:
 		return clientInterfaceCasted.Fake
+	// gateway api fake clients
+	case gatewayclient.Interface:
+		return clientInterfaceCasted.GatewayV1().(*fakegatewayv1.FakeGatewayV1).Fake
 	case *gotesting.Fake:
 		// support any fake clients, passed directly to helper
 		return clientInterfaceCasted

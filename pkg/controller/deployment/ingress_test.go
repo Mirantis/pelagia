@@ -183,6 +183,7 @@ func TestEnsureIngressProxy(t *testing.T) {
 	tests := []struct {
 		name              string
 		cephDpl           *cephlcmv1alpha1.CephDeployment
+		noIngressSupport  bool
 		lcmConfigParams   map[string]string
 		inputResources    map[string]runtime.Object
 		apiErrors         map[string]error
@@ -1071,11 +1072,27 @@ func TestEnsureIngressProxy(t *testing.T) {
 				"secrets":   &v1.SecretList{},
 			},
 		},
+		{
+			name:             "ensure ingress - no ingress supported, delete in progress",
+			cephDpl:          &unitinputs.CephDeployMosk,
+			noIngressSupport: true,
+			inputResources: map[string]runtime.Object{
+				"ingresses": &networkingv1.IngressList{Items: []networkingv1.Ingress{*unitinputs.RgwIngress.DeepCopy()}},
+				"secrets":   &v1.SecretList{},
+			},
+			expectedResources: map[string]runtime.Object{
+				"ingresses": &networkingv1.IngressList{Items: []networkingv1.Ingress{}},
+			},
+			stateChanged: true,
+		},
 	}
 	oldFunc := lcmcommon.GetCurrentUnixTimeString
 	for idx, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.lcmConfigParams)
+			if !test.noIngressSupport {
+				c.lcmConfig.CommonParams.KeepIngress = true
+			}
 			err := c.castExtensions()
 			assert.Nil(t, err)
 

@@ -1,9 +1,9 @@
 testSettings:
   namespace: ${TEST_NAMESPACE}
   caseSettings:
-  - name: TestRgwAccessPublicDomainCustom
+  - name: TestRgwIngressAccessPublicDomainCustom
     config:
       ingressClass: nginx
       rgwServedByIngress: ""
 testCases:
-- TestRgwAccessPublicDomainCustom
+- TestRgwIngressAccessPublicDomainCustom

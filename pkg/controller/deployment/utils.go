@@ -158,6 +158,13 @@ func isCephFsReady(ctx context.Context, log zerolog.Logger, client rookclient.In
 	return false
 }
 
+func checkOpenstackNamespaceSetForRgw(rgw, ns string) error {
+	if ns == "" {
+		return errors.Errorf("CephRGW object storage '%s' has specified for Openstack usage, but Pelagia lcmconfig has no var 'DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE' set", rgw)
+	}
+	return nil
+}
+
 // CLI utils
 
 type cephConfigOptionDump struct {

@@ -93,6 +93,12 @@ func (c *cephDeploymentConfig) castExtensions() error {
 				putError(fmt.Sprintf("failed to cast zone '%s' to Rook API", zone.Name), err)
 			}
 		}
+		for _, httpRoute := range c.cdConfig.cephDpl.Spec.ObjectStorage.GatewayHTTPRoutes {
+			_, err := httpRoute.GetSpec()
+			if err != nil {
+				putError(fmt.Sprintf("failed to cast http route '%s' to Gateway API", httpRoute.Name), err)
+			}
+		}
 	}
 
 	if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil {
