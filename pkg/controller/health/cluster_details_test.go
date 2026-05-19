@@ -434,7 +434,7 @@ func TestGetRgwInfo(t *testing.T) {
 		{
 			name: "cephobjectstore local, rgw endpoint taken, no multisite",
 			inputResources: map[string]runtime.Object{
-				"httproutes": &unitinputs.HTTPRoutesListDefaultBase,
+				"httproutes": &unitinputs.HTTPRoutesListDefaultBaseReady,
 			},
 			healthConfig: func() healthConfig {
 				hc := getEmtpyHealthConfig()
@@ -454,7 +454,7 @@ func TestGetRgwInfo(t *testing.T) {
 		{
 			name: "cephobjectstore local, rgw endpoint taken, check multisite failed",
 			inputResources: map[string]runtime.Object{
-				"httproutes":      &unitinputs.HTTPRoutesListDefaultBase,
+				"httproutes":      &unitinputs.HTTPRoutesListDefaultBaseReady,
 				"cephobjectzones": &cephv1.CephObjectZoneList{Items: []cephv1.CephObjectZone{*unitinputs.RgwMultisiteMasterZone1.DeepCopy()}},
 			},
 			healthConfig: func() healthConfig {
@@ -480,7 +480,7 @@ func TestGetRgwInfo(t *testing.T) {
 		{
 			name: "cephobjectstore local, rgw endpoint taken, check multisite ok",
 			inputResources: map[string]runtime.Object{
-				"httproutes":      &unitinputs.HTTPRoutesListDefaultBase,
+				"httproutes":      &unitinputs.HTTPRoutesListDefaultBaseReady,
 				"cephobjectzones": &cephv1.CephObjectZoneList{Items: []cephv1.CephObjectZone{*unitinputs.RgwMultisiteMasterZone1.DeepCopy()}},
 			},
 			healthConfig: func() healthConfig {
@@ -507,7 +507,7 @@ func TestGetRgwInfo(t *testing.T) {
 		{
 			name: "cephobjectstore local, rgw endpoint taken, check multisite sync ok",
 			inputResources: map[string]runtime.Object{
-				"httproutes":      &unitinputs.HTTPRoutesListDefaultBase,
+				"httproutes":      &unitinputs.HTTPRoutesListDefaultBaseReady,
 				"cephobjectzones": &cephv1.CephObjectZoneList{Items: []cephv1.CephObjectZone{*unitinputs.RgwMultisiteMasterZone1.DeepCopy()}},
 			},
 			healthConfig: func() healthConfig {
@@ -569,7 +569,7 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 		inputResources    map[string]runtime.Object
 		customLcmConfig   map[string]string
 		expectedEndpoints []string
-		expectedIssue     string
+		expectedIssues    []string
 	}{
 		{
 			name: "skip public endpoints check, no public selector specified",
@@ -583,18 +583,19 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 			customLcmConfig: map[string]string{
 				"KEEP_INGRESS": "true",
 			},
-			expectedIssue: "failed to check ingresses in 'rook-ceph' namespace",
+			expectedIssues: []string{"failed to check ingresses in 'rook-ceph' namespace"},
 		},
 		{
 			name: "rgw endpoint from ingress",
 			inputResources: map[string]runtime.Object{
-				"ingresses":  &unitinputs.IngressesList,
+				"ingresses":  &unitinputs.IngressesListReady,
 				"httproutes": &unitinputs.HTTPRoutesListEmpty,
 			},
 			customLcmConfig: map[string]string{
 				"KEEP_INGRESS": "true",
 			},
 			expectedEndpoints: []string{"https://rgw-store.example.com"},
+			expectedIssues:    []string{},
 		},
 		{
 			name: "ingress has no rules",
@@ -610,12 +611,25 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 				"KEEP_INGRESS": "true",
 			},
 			expectedEndpoints: []string{},
+			expectedIssues:    []string{"ingress 'rook-ceph/rook-ceph-rgw-rgw-store-ingress' has no rules configured, can't find Ceph RGW public endpoint"},
+		},
+		{
+			name: "ingress has no addresses",
+			inputResources: map[string]runtime.Object{
+				"ingresses":  &unitinputs.IngressesList,
+				"httproutes": &unitinputs.HTTPRoutesListEmpty,
+			},
+			customLcmConfig: map[string]string{
+				"KEEP_INGRESS": "true",
+			},
+			expectedEndpoints: []string{"https://rgw-store.example.com"},
+			expectedIssues:    []string{"ingress 'rook-ceph/rook-ceph-rgw-rgw-store-ingress' has no listed IP addresses available, public endpoint is not available"},
 		},
 		{
 			name: "ingress has no expected rgw backend",
 			inputResources: map[string]runtime.Object{
 				"ingresses": func() *networkingv1.IngressList {
-					list := unitinputs.IngressesList.DeepCopy()
+					list := unitinputs.IngressesListReady.DeepCopy()
 					list.Items[0].Spec.Rules[0].HTTP = nil
 					return list
 				}(),
@@ -625,18 +639,30 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 				"KEEP_INGRESS": "true",
 			},
 			expectedEndpoints: []string{},
+			expectedIssues:    []string{"can't determine Ceph RGW public endpoint for ingress 'rook-ceph/rook-ceph-rgw-rgw-store-ingress', backend 'rook-ceph-rgw-rgw-store' is not found in ingress rules"},
 		},
 		{
 			name:           "failed to check gateway routes",
 			inputResources: map[string]runtime.Object{},
-			expectedIssue:  "failed to check gateway httproutes in 'rook-ceph' namespace",
+			expectedIssues: []string{"failed to check gateway httproutes in 'rook-ceph' namespace"},
 		},
 		{
 			name: "rgw endpoint from gateway httproute",
 			inputResources: map[string]runtime.Object{
+				"httproutes": &unitinputs.HTTPRoutesListDefaultBaseReady,
+			},
+			expectedEndpoints: []string{"https://rgw-store.example.com"},
+			expectedIssues:    []string{},
+		},
+		{
+			name: "httproute is not accepted",
+			inputResources: map[string]runtime.Object{
 				"httproutes": &unitinputs.HTTPRoutesListDefaultBase,
 			},
 			expectedEndpoints: []string{"https://rgw-store.example.com"},
+			expectedIssues: []string{
+				"gateway httproute 'rook-ceph/rgw-route' has not accepted some rules, public endpoint is not available",
+			},
 		},
 		{
 			name: "httproute has no required backend",
@@ -652,13 +678,16 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 				},
 			},
 			expectedEndpoints: []string{},
+			expectedIssues: []string{
+				"can't determine Ceph RGW public endpoint for gateway httproute 'rook-ceph/rgw-route', backend 'rook-ceph-rgw-rgw-store' is not found in httproute rules",
+			},
 		},
 		{
 			name: "failed to check services",
 			inputResources: map[string]runtime.Object{
 				"httproutes": &unitinputs.HTTPRoutesListEmpty,
 			},
-			expectedIssue: "failed to check services in 'rook-ceph' namespace",
+			expectedIssues: []string{"failed to check services in 'rook-ceph' namespace"},
 		},
 		{
 			name: "base service found, rgw endpoint taken",
@@ -667,6 +696,7 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 				"services":   &unitinputs.ServicesListRgwExternal,
 			},
 			expectedEndpoints: []string{"https://192.168.100.150:443"},
+			expectedIssues:    []string{},
 		},
 		{
 			name: "base service found, but not a LoadBalancer",
@@ -679,6 +709,9 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 				"httproutes": &unitinputs.HTTPRoutesListEmpty,
 			},
 			expectedEndpoints: []string{},
+			expectedIssues: []string{
+				"found Ceph RGW NodePort external service 'rook-ceph/rook-ceph-rgw-rgw-store-external', but supported only 'LoadBalancer' service type",
+			},
 		},
 		{
 			name: "service found, but no ip",
@@ -691,6 +724,9 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 				}(),
 			},
 			expectedEndpoints: []string{},
+			expectedIssues: []string{
+				"external service 'rook-ceph/rgw-store' has no IP addresses available, can't determine Ceph RGW public endpoint",
+			},
 		},
 		{
 			name: "service found, but no https",
@@ -703,6 +739,7 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 				}(),
 			},
 			expectedEndpoints: []string{"http://192.168.100.150:80"},
+			expectedIssues:    []string{},
 		},
 		{
 			name: "no ingresses, no services, give up",
@@ -730,6 +767,7 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 				"RGW_PUBLIC_ACCESS_SERVICE_SELECTOR": "custom_label=custom_value",
 			},
 			expectedEndpoints: []string{"https://192.168.100.150:443"},
+			expectedIssues:    []string{},
 		},
 	}
 	for _, test := range tests {
@@ -739,9 +777,9 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Kubeclientset.NetworkingV1(), "list", []string{"ingresses"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Gatewayclientset, "list", []string{"httproutes"}, test.inputResources, nil)
 
-			endpoints, issue := c.getRgwPublicEndpoint("rgw-store")
+			endpoints, issues := c.getRgwPublicEndpoint("rgw-store")
 			assert.Equal(t, test.expectedEndpoints, endpoints)
-			assert.Equal(t, test.expectedIssue, issue)
+			assert.Equal(t, test.expectedIssues, issues)
 
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Gatewayclientset)

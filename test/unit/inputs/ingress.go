@@ -23,6 +23,7 @@ import (
 
 var IngressesListEmpty = networkingv1.IngressList{Items: []networkingv1.Ingress{}}
 var IngressesList = networkingv1.IngressList{Items: []networkingv1.Ingress{RgwIngress}}
+var IngressesListReady = networkingv1.IngressList{Items: []networkingv1.Ingress{RgwIngressReady}}
 
 var IngressPathType = networkingv1.PathTypeImplementationSpecific
 
@@ -87,3 +88,17 @@ var RgwOpenstackIngress = func(host string) *networkingv1.Ingress {
 	ingress.Spec.TLS[0].Hosts = []string{host}
 	return ingress
 }
+
+var RgwIngressReady = func() networkingv1.Ingress {
+	ingress := RgwIngress.DeepCopy()
+	ingress.Status = networkingv1.IngressStatus{
+		LoadBalancer: networkingv1.IngressLoadBalancerStatus{
+			Ingress: []networkingv1.IngressLoadBalancerIngress{
+				{
+					IP: "10.10.10.10",
+				},
+			},
+		},
+	}
+	return *ingress
+}()

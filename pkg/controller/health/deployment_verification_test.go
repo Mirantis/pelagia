@@ -205,7 +205,7 @@ func TestCephDeploymentVerification(t *testing.T) {
 				"daemonsets":           unitinputs.DaemonSetListReady,
 				"deployments":          unitinputs.DeploymentListWithCSIReady,
 				"configmaps":           unitinputs.ConfigMapList,
-				"httproutes":           &unitinputs.HTTPRoutesListDefaultBase,
+				"httproutes":           &unitinputs.HTTPRoutesListDefaultBaseReady,
 				"cephclusters":         &unitinputs.CephClusterListReady,
 				"cephblockpools":       &unitinputs.CephBlockPoolListReady,
 				"cephclients":          &unitinputs.CephClientListReady,

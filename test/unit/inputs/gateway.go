@@ -33,6 +33,10 @@ var HTTPRoutesListDefaultBase = gatewayapi.HTTPRouteList{
 	Items: []gatewayapi.HTTPRoute{DefaultBaseHTTPRoute},
 }
 
+var HTTPRoutesListDefaultBaseReady = gatewayapi.HTTPRouteList{
+	Items: []gatewayapi.HTTPRoute{DefaultBaseHTTPRouteReady},
+}
+
 var DefaultMoskHTTPRoute = gatewayapi.HTTPRoute{
 	ObjectMeta: metav1.ObjectMeta{
 		Name:      "rgw-store-openstack-route",
@@ -91,5 +95,23 @@ var DefaultBaseHTTPRoute = func() gatewayapi.HTTPRoute {
 	route := DefaultMoskHTTPRoute.DeepCopy()
 	route.Name = "rgw-route"
 	route.Spec.Hostnames[0] = gatewayapi.Hostname("rgw-store.example.com")
+	return *route
+}()
+
+var DefaultBaseHTTPRouteReady = func() gatewayapi.HTTPRoute {
+	route := DefaultBaseHTTPRoute.DeepCopy()
+	route.Status = gatewayapi.HTTPRouteStatus{
+		RouteStatus: gatewayapi.RouteStatus{
+			Parents: []gatewayapi.RouteParentStatus{
+				{
+					Conditions: []metav1.Condition{
+						{
+							Reason: "Accepted",
+						},
+					},
+				},
+			},
+		},
+	}
 	return *route
 }()
