@@ -97,56 +97,56 @@ images:
     operator:
       repository: pelagia/rook
       tag:
-        latest: &latestImageRook v1.19.4-4
+        latest: &latestImageRook v1.19.4-5
         squid: *latestImageRook
         tentacle: *latestImageRook
   ceph:
     repository: pelagia/ceph
     tag:
-      latest: &latestImageCeph v20.2.1-1.release
-      squid: v19.2.3-21.cve
+      latest: &latestImageCeph v20.2.1-2.release
+      squid: v19.2.3-24.cve
       tentacle: *latestImageCeph
   csi:
     operator:
       repository: pelagia/cephcsi-operator
       tag:
-        latest: &latestImageCSIOperator v0.6.0-1.release
+        latest: &latestImageCSIOperator v0.6.0-2.release
         squid: *latestImageCSIOperator
         tentacle: *latestImageCSIOperator
     ceph:
       repository: pelagia/cephcsi
       tag:
-        latest: &latestImageCephCSI v3.16.2-1.release
+        latest: &latestImageCephCSI v3.16.2-2.release
         squid: *latestImageCephCSI
         tentacle: *latestImageCephCSI
     registrar:
       repository: pelagia/cephcsi-registrar
       tag:
-        latest: &latestImageRegistar v2.16.0-1.release
+        latest: &latestImageRegistar v2.16.0-2.release
         squid: *latestImageRegistar
         tentacle: *latestImageRegistar
     provisioner:
       repository: pelagia/cephcsi-provisioner
       tag:
-        latest: &latestImageProvisioner v6.1.1-1.release
+        latest: &latestImageProvisioner v6.1.1-2.release
         squid: *latestImageProvisioner
         tentacle: *latestImageProvisioner
     snapshotter:
       repository: pelagia/cephcsi-snapshotter
       tag:
-        latest: &latestImageSnapshotter v8.5.0-1.release
+        latest: &latestImageSnapshotter v8.5.0-2.release
         squid: *latestImageSnapshotter
         tentacle: *latestImageSnapshotter
     attacher:
       repository: pelagia/cephcsi-attacher
       tag:
-        latest: &latestImageAttacher v4.11.0-1.release
+        latest: &latestImageAttacher v4.11.0-2.release
         squid: *latestImageAttacher
         tentacle: *latestImageAttacher
     resizer:
       repository: pelagia/cephcsi-resizer
       tag:
-        latest: &latestImageResizer v2.1.0-1.release
+        latest: &latestImageResizer v2.1.0-2.release
         squid: *latestImageResizer
         tentacle: *latestImageResizer
 rookConfig:
