@@ -61,7 +61,7 @@ For installation, deployment, and administration, see our
 [Documentation](https://mirantis.github.io/pelagia/) and
 [Quick start guide](https://mirantis.github.io/pelagia/quick-start/installation/).
 Have some questions? Use our
-[GitHub Discussions](https://github.com/Mirantis/pelagia/discussions).
+[GitHub Discussions](https://github.com/Mirantis/pelagia/discussions) or join the [#pelagia channel](https://cloud-native.slack.com/archives/C09K5TEC9JN) in CNCF Slack.
 
 # Report a Bug
 
