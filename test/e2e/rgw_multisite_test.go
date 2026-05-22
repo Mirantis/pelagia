@@ -74,11 +74,13 @@ func TestMultisiteRgw(t *testing.T) {
 
 	realmName := ""
 	zonegroupName := ""
+	zoneName := ""
 	changed := true
 	if cd.Spec.ObjectStorage == nil || len(cd.Spec.ObjectStorage.Rgws) == 0 {
 		t.Logf("#### e2e test: deploying new RGW Multisite master zone")
 		realmName = "rgw-storerealm"
 		zonegroupName = "rgw-storezonegroup"
+		zoneName = "rgw-storezone"
 		rawZone, _ := cephlcmv1alpha1.DecodeStructToRaw(
 			cephv1.ObjectZoneSpec{
 				ZoneGroup: zonegroupName,
@@ -113,7 +115,7 @@ func TestMultisiteRgw(t *testing.T) {
 					SecurePort: 8443,
 					Placement:  cephv1.Placement{Tolerations: tolerations},
 				},
-				Zone: cephv1.ZoneSpec{Name: "rgw-storezone"},
+				Zone: cephv1.ZoneSpec{Name: zoneName},
 			},
 		)
 		cd.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
@@ -135,7 +137,7 @@ func TestMultisiteRgw(t *testing.T) {
 			},
 			Zones: []cephlcmv1alpha1.CephObjectZone{
 				{
-					Name: "rgw-storezone",
+					Name: zoneName,
 					Spec: runtime.RawExtension{
 						Raw: rawZone,
 					},
@@ -153,6 +155,7 @@ func TestMultisiteRgw(t *testing.T) {
 		if rgwCasted.Zone.Name == "" {
 			realmName = cd.Spec.ObjectStorage.Rgws[0].Name
 			zonegroupName = realmName
+			zoneName = realmName
 			t.Logf("#### e2e test: reconfigure existing RGW to RGW Multisite master mode")
 			rgwCasted.Zone = cephv1.ZoneSpec{Name: zonegroupName}
 			rawZone, _ := cephlcmv1alpha1.DecodeStructToRaw(
@@ -184,7 +187,7 @@ func TestMultisiteRgw(t *testing.T) {
 				},
 				Zones: []cephlcmv1alpha1.CephObjectZone{
 					{
-						Name: zonegroupName,
+						Name: zoneName,
 						Spec: runtime.RawExtension{
 							Raw: rawZone,
 						},
@@ -192,7 +195,7 @@ func TestMultisiteRgw(t *testing.T) {
 				},
 				Rgws: []cephlcmv1alpha1.CephObjectStore{
 					{
-						Name: zonegroupName,
+						Name: realmName,
 						Spec: runtime.RawExtension{
 							Raw: rgwRaw,
 						},
@@ -204,6 +207,7 @@ func TestMultisiteRgw(t *testing.T) {
 			changed = false
 			realmName = cd.Spec.ObjectStorage.Realms[0].Name
 			zonegroupName = cd.Spec.ObjectStorage.Zonegroups[0].Name
+			zoneName = cd.Spec.ObjectStorage.Zones[0].Name
 		}
 	}
 	if changed {
@@ -214,12 +218,29 @@ func TestMultisiteRgw(t *testing.T) {
 		}
 	}
 
-	f.Step(t, "Get RGW multisite master public endpoint")
+	f.Step(t, "Get RGW multisite master public endpoint and set it for zone")
 	// TODO: return endpoint from cdh, which contains HTTPS and support it later
 	//rgwMasterPublicEndpoint, err := f.GetRgwPublicEndpoint(cd.Name)
 	rgwMasterPublicEndpoint, err := getRgwPublicHTTPEndpoint(f.TF.ManagedCluster.Context, f.TF.ManagedCluster.KubeClient, f.TF.ManagedCluster.LcmConfig.RookNamespace, cd.Spec.ObjectStorage.Rgws[0].Name)
 	if err != nil {
 		t.Fatalf("failed to get RGW master zone public endpoint: %v", err)
+	}
+	cd, err = f.TF.ManagedCluster.FindCephDeployment()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for idx, zone := range cd.Spec.ObjectStorage.Zones {
+		if zone.Name == zoneName {
+			zoneSpec, _ := zone.GetSpec()
+			zoneSpec.CustomEndpoints = []string{rgwMasterPublicEndpoint}
+			zoneUpdateRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(zoneSpec)
+			cd.Spec.ObjectStorage.Zones[idx].Spec.Raw = zoneUpdateRaw
+			err = f.UpdateCephDeploymentSpec(cd, true)
+			if err != nil {
+				t.Fatal(err)
+			}
+			break
+		}
 	}
 	t.Logf("#### e2e test: RGW multisite master public endpoint is: %s", rgwMasterPublicEndpoint)
 
@@ -269,7 +290,7 @@ func TestMultisiteRgw(t *testing.T) {
 		t.Fatalf("failed to create secret for realm with user keys: %v", err)
 	}
 	t.Logf("#### e2e test: deploying RGW Multisite backup zone")
-	zoneName := "rgw-zone-backup"
+	secondaryZoneName := "rgw-zone-backup"
 	zoneRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(
 		cephv1.ObjectZoneSpec{
 			ZoneGroup: zonegroupName,
@@ -304,7 +325,7 @@ func TestMultisiteRgw(t *testing.T) {
 				SecurePort: 8443,
 				Placement:  cephv1.Placement{Tolerations: tolerations},
 			},
-			Zone: cephv1.ZoneSpec{Name: zoneName},
+			Zone: cephv1.ZoneSpec{Name: secondaryZoneName},
 		},
 	)
 	cdBackup.Spec.ObjectStorage = &cephlcmv1alpha1.CephObjectStorage{
@@ -326,7 +347,7 @@ func TestMultisiteRgw(t *testing.T) {
 		},
 		Zones: []cephlcmv1alpha1.CephObjectZone{
 			{
-				Name: zoneName,
+				Name: secondaryZoneName,
 				Spec: runtime.RawExtension{
 					Raw: []byte(zoneRaw),
 				},
@@ -354,7 +375,7 @@ func TestMultisiteRgw(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	f.Step(t, "Get RGW multisite backup zone public endpoint")
+	f.Step(t, "Get RGW multisite backup zone public endpoint and set it for zone")
 	/* TODO: return endpoint from cdh, which contains HTTPS and support it later
 	cdhBackup, err := backupCluster.GetCephDeploymentHealth(cdBackup.Name)
 	if err != nil {
@@ -367,6 +388,31 @@ func TestMultisiteRgw(t *testing.T) {
 	rgwBackupPublicEndpoint, err := getRgwPublicHTTPEndpoint(backupCluster.Context, backupCluster.KubeClient, backupCluster.LcmConfig.RookNamespace, cdBackup.Spec.ObjectStorage.Rgws[0].Name)
 	if err != nil {
 		t.Fatalf("failed to get RGW backup zone public endpoint: %v", err)
+	}
+	backupCd, err := backupCluster.FindCephDeployment()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for idx, zone := range backupCd.Spec.ObjectStorage.Zones {
+		if zone.Name == secondaryZoneName {
+			zoneSpec, _ := zone.GetSpec()
+			zoneSpec.CustomEndpoints = []string{rgwBackupPublicEndpoint}
+			zoneUpdateRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(zoneSpec)
+			backupCd.Spec.ObjectStorage.Zones[idx].Spec.Raw = zoneUpdateRaw
+			_, err = backupCluster.UpdateCephDeploymentSpec(backupCd)
+			if err != nil {
+				t.Fatal(err)
+			}
+			err = backupCluster.WaitForCephDeploymentReady(backupCd.Name)
+			if err != nil {
+				t.Fatal(err)
+			}
+			err = backupCluster.WaitForCephDeploymentHealthReady(backupCd.Name)
+			if err != nil {
+				t.Fatal(err)
+			}
+			break
+		}
 	}
 	t.Logf("#### e2e test: RGW multisite backup public endpoint is: %s", rgwBackupPublicEndpoint)
 
