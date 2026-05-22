@@ -36,20 +36,20 @@ func (c *cephDeploymentInfraConfig) checkLabelsAndOwnerRefs(cur *metav1.ObjectMe
 	if !reflect.DeepEqual(cur.Labels, expected.Labels) {
 		if cur.Labels == nil {
 			cur.Labels = expected.Labels
-			c.log.Debug().Msgf("updating labels for %s '%s/%s'", kind, cur.Namespace, cur.Name)
+			c.log.Info().Msgf("updating labels for %s '%s/%s'", kind, cur.Namespace, cur.Name)
 		} else {
 			for k, v := range expected.Labels {
 				if _, ok := cur.Labels[k]; !ok {
 					update = true
 					cur.Labels[k] = v
-					c.log.Debug().Msgf("update label '%s=%s' for %s '%s/%s'", k, v, kind, cur.Namespace, cur.Name)
+					c.log.Info().Msgf("setting label '%s=%s' for %s '%s/%s'", k, v, kind, cur.Namespace, cur.Name)
 				}
 			}
 		}
 	}
 	if !reflect.DeepEqual(cur.OwnerReferences, expected.OwnerReferences) {
 		update = true
-		c.log.Debug().Msgf("updating ownerReferences for %s '%s/%s'", kind, cur.Namespace, cur.Name)
+		c.log.Info().Msgf("updating ownerReferences for %s '%s/%s'", kind, cur.Namespace, cur.Name)
 		cur.OwnerReferences = expected.OwnerReferences
 	}
 	return update
