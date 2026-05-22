@@ -299,6 +299,7 @@ func TestGenerateToolBox(t *testing.T) {
 				deploy := unitinputs.ToolBoxDeploymentWithRgwSecret.DeepCopy()
 				deploy.Spec.Template.Annotations["another-cabundle/sha256"] = "edb1f52c6686336991e2d03200964fb5a2a6f312a863cc4fe13312f22382b92c"
 				deploy.Spec.Template.Spec.Volumes[len(deploy.Spec.Template.Spec.Volumes)-1].Secret = nil
+				mode := int32(256)
 				deploy.Spec.Template.Spec.Volumes[len(deploy.Spec.Template.Spec.Volumes)-1].Projected = &corev1.ProjectedVolumeSource{
 					Sources: []corev1.VolumeProjection{
 						{
@@ -308,7 +309,7 @@ func TestGenerateToolBox(t *testing.T) {
 									{
 										Key:  "cabundle",
 										Path: "rgw-store-ssl-cert.crt",
-										Mode: &[]int32{256}[0],
+										Mode: &mode,
 									},
 								},
 							},
@@ -320,7 +321,7 @@ func TestGenerateToolBox(t *testing.T) {
 									{
 										Key:  "cabundle",
 										Path: "another-cabundle.crt",
-										Mode: &[]int32{256}[0],
+										Mode: &mode,
 									},
 								},
 							},

@@ -681,7 +681,7 @@ func TestGetNodeAnalyseStatus(t *testing.T) {
 			name: "disk report is skipped for use all devices",
 			node: cephv1.Node{
 				Name:      "node-2",
-				Selection: cephv1.Selection{UseAllDevices: &[]bool{true}[0]},
+				Selection: cephv1.Selection{UseAllDevices: lcmcommon.PtrTo(true)},
 			},
 			daemonReport: unitinputs.CephDiskDaemonDiskReportStringNode2,
 			expectedStatus: lcmv1alpha1.DaemonStatus{

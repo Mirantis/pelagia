@@ -190,7 +190,7 @@ func (c *cephOsdRemoveConfig) runCleanupJob(host, osdID, hostOsdDirectory string
 		},
 		Spec: corev1.PodSpec{
 			SecurityContext: &corev1.PodSecurityContext{
-				RunAsUser: &[]int64{0}[0],
+				RunAsUser: lcmcommon.PtrTo(int64(0)),
 			},
 			NodeSelector: map[string]string{corev1.LabelHostname: host},
 			Containers:   []corev1.Container{},
@@ -222,7 +222,7 @@ func (c *cephOsdRemoveConfig) runCleanupJob(host, osdID, hostOsdDirectory string
 		},
 		Spec: batch.JobSpec{
 			// no retry is needed, either should be completed in one-shot, either failed
-			BackoffLimit:          &[]int32{0}[0],
+			BackoffLimit:          lcmcommon.PtrTo(int32(0)),
 			ActiveDeadlineSeconds: &jobTimeout,
 		},
 	}
