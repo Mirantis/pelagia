@@ -183,7 +183,7 @@ func TestValidateNodesSpec(t *testing.T) {
 						{
 							Node: cephv1.Node{
 								Name:      "node-1",
-								Selection: cephv1.Selection{UseAllDevices: &[]bool{true}[0]},
+								Selection: cephv1.Selection{UseAllDevices: lcmcommon.PtrTo(true)},
 							},
 						},
 						{

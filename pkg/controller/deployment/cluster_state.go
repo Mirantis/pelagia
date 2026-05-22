@@ -175,7 +175,7 @@ func (c *cephDeploymentConfig) verifyBuiltinPools() (bool, error) {
 					UseAsFullName: true,
 					PoolSpec:      runtime.RawExtension{Raw: poolData},
 				}, c.lcmConfig.RookNamespace)
-				builtinCephPool.Spec.EnableCrushUpdates = &[]bool{true}[0]
+				builtinCephPool.Spec.EnableCrushUpdates = lcmcommon.PtrTo(true)
 				builtinPoolsToProcess = append(builtinPoolsToProcess, *builtinCephPool)
 			} else {
 				foundDefault := false

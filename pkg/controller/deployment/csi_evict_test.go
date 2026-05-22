@@ -742,7 +742,7 @@ func TestEnsureDaemonsetLabels(t *testing.T) {
 				1: {Items: []v1.Pod{}},
 			},
 			nodeGet: map[int]*v1.Node{
-				1: &[]v1.Node{unitinputs.GetNodeWithLabels("test-node", map[string]string{"exclude-label": "true", "ceph-daemonset-available-node": "true"}, nil)}[0],
+				1: lcmcommon.PtrTo(unitinputs.GetNodeWithLabels("test-node", map[string]string{"exclude-label": "true", "ceph-daemonset-available-node": "true"}, nil)),
 			},
 			actions: map[string]map[int]string{
 				"list pods": {
@@ -756,7 +756,7 @@ func TestEnsureDaemonsetLabels(t *testing.T) {
 				},
 			},
 			expectedNodeUpdate: map[int]*v1.Node{
-				1: &[]v1.Node{unitinputs.GetNodeWithLabels("test-node", map[string]string{"exclude-label": "true"}, nil)}[0],
+				1: lcmcommon.PtrTo(unitinputs.GetNodeWithLabels("test-node", map[string]string{"exclude-label": "true"}, nil)),
 			},
 			lcmConfig: map[string]string{"DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS": "exclude-label=true"},
 		},

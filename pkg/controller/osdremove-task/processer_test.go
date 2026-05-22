@@ -116,7 +116,7 @@ func TestHandleTask(t *testing.T) {
 			taskConfig: taskConfig{
 				task:                  unitinputs.CephOsdRemoveTaskOnValidation.DeepCopy(),
 				cephCluster:           &unitinputs.CephClusterReady,
-				cephHealthOsdAnalysis: &lcmv1alpha1.OsdSpecAnalysisState{CephClusterSpecGeneration: &[]int64{3}[0]},
+				cephHealthOsdAnalysis: &lcmv1alpha1.OsdSpecAnalysisState{CephClusterSpecGeneration: lcmcommon.PtrTo(int64(3))},
 			},
 			expectedStatus: unitinputs.CephOsdRemoveTaskOnValidation.Status,
 		},
@@ -434,7 +434,7 @@ func TestHandleTask(t *testing.T) {
 			taskConfig: taskConfig{
 				task:                  unitinputs.CephOsdRemoveTaskOnValidation.DeepCopy(),
 				cephCluster:           &unitinputs.CephClusterReady,
-				cephHealthOsdAnalysis: &lcmv1alpha1.OsdSpecAnalysisState{CephClusterSpecGeneration: &[]int64{3}[0]},
+				cephHealthOsdAnalysis: &lcmv1alpha1.OsdSpecAnalysisState{CephClusterSpecGeneration: lcmcommon.PtrTo(int64(3))},
 				cephDeploymentPhase:   &unitinputs.BaseCephDeployment.Status.Phase,
 			},
 			expectedStatus: unitinputs.CephOsdRemoveTaskOnValidation.Status,

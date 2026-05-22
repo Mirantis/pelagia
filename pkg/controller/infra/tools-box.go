@@ -165,7 +165,7 @@ func (c *cephDeploymentInfraConfig) generateToolBox() (*apps.Deployment, error) 
 			},
 			Replicas:                &toolBoxReplicas,
 			RevisionHistoryLimit:    &revisionHistoryLimit,
-			ProgressDeadlineSeconds: &[]int32{60}[0],
+			ProgressDeadlineSeconds: lcmcommon.PtrTo(int32(60)),
 			Strategy:                rookDeployment.Spec.Strategy,
 			Template: v1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
@@ -235,7 +235,7 @@ func (c *cephDeploymentInfraConfig) generateToolBox() (*apps.Deployment, error) 
 			VolumeSource: v1.VolumeSource{
 				ConfigMap: &v1.ConfigMapVolumeSource{
 					LocalObjectReference: v1.LocalObjectReference{Name: lcmcommon.MonMapConfigMapName},
-					DefaultMode:          &[]int32{420}[0],
+					DefaultMode:          lcmcommon.PtrTo(int32(420)),
 					Items: []v1.KeyToPath{
 						{
 							Key:  "data",
@@ -344,12 +344,12 @@ func (c *cephDeploymentInfraConfig) generateToolBox() (*apps.Deployment, error) 
 					VolumeSource: v1.VolumeSource{
 						Secret: &v1.SecretVolumeSource{
 							SecretName:  secrets[0],
-							DefaultMode: &[]int32{420}[0],
+							DefaultMode: lcmcommon.PtrTo(int32(420)),
 							Items: []v1.KeyToPath{
 								{
 									Key:  "cabundle",
 									Path: fmt.Sprintf("%s.crt", secrets[0]),
-									Mode: &[]int32{256}[0],
+									Mode: lcmcommon.PtrTo(int32(256)),
 								},
 							},
 						},
@@ -366,7 +366,7 @@ func (c *cephDeploymentInfraConfig) generateToolBox() (*apps.Deployment, error) 
 							{
 								Key:  "cabundle",
 								Path: fmt.Sprintf("%s.crt", secret),
-								Mode: &[]int32{256}[0],
+								Mode: lcmcommon.PtrTo(int32(256)),
 							},
 						},
 					},
