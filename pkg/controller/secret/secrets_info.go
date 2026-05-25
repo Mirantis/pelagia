@@ -30,7 +30,7 @@ const (
 )
 
 func (c *cephDeploymentSecretConfig) getSecretsStatusInfo() (*cephlcmv1alpha1.CephDeploymentSecretsInfo, []string) {
-	c.log.Debug().Msgf("verifying Ceph secrets updated for cluster %s/%s", c.secretsConfig.cephDpl.Namespace, c.secretsConfig.cephDpl.Name)
+	c.log.Debug().Msg("verifying Ceph secrets updated")
 	secretsInfo := cephlcmv1alpha1.CephDeploymentSecretsInfo{}
 	infoIssues := []string{}
 

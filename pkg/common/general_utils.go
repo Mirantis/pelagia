@@ -83,7 +83,7 @@ func ShowObjectDiff(l zerolog.Logger, oldObject, newObject interface{}) {
 		return
 	}
 	if diff != "" {
-		l.Trace().Msgf("object %T has changed, diff:\n%s", oldObject, diff)
+		l.Info().Msgf("object %T has changed, diff:\n%s", oldObject, diff)
 	}
 }
 

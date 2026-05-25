@@ -57,7 +57,7 @@ func (c *cephDeploymentConfig) ensureRgwMultiSite() (bool, error) {
 }
 
 func (c *cephDeploymentConfig) ensureRealms() (bool, error) {
-	c.log.Debug().Msgf("ensure rgw realms for %s/%s", c.cdConfig.cephDpl.Namespace, c.cdConfig.cephDpl.Name)
+	c.log.Debug().Msg("ensure rgw realms")
 	realms := c.cdConfig.cephDpl.Spec.ObjectStorage.Realms
 	realmsReal, err := c.api.Rookclientset.CephV1().CephObjectRealms(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
 	if err != nil {
@@ -185,7 +185,7 @@ func (c *cephDeploymentConfig) ensureRealms() (bool, error) {
 }
 
 func (c *cephDeploymentConfig) ensureZoneGroups() (bool, error) {
-	c.log.Debug().Msgf("ensuring zonegroups for %s/%s", c.cdConfig.cephDpl.Namespace, c.cdConfig.cephDpl.Name)
+	c.log.Debug().Msg("ensuring zonegroups")
 	zoneGroups := c.cdConfig.cephDpl.Spec.ObjectStorage.Zonegroups
 	zoneGroupsReal, err := c.api.Rookclientset.CephV1().CephObjectZoneGroups(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
 	if err != nil {
@@ -277,7 +277,7 @@ func (c *cephDeploymentConfig) ensureZoneGroups() (bool, error) {
 }
 
 func (c *cephDeploymentConfig) ensureZones() (bool, error) {
-	c.log.Debug().Msgf("ensuring zones for %s/%s", c.cdConfig.cephDpl.Namespace, c.cdConfig.cephDpl.Name)
+	c.log.Debug().Msg("ensuring zones")
 	zones := c.cdConfig.cephDpl.Spec.ObjectStorage.Zones
 	zonesReal, err := c.api.Rookclientset.CephV1().CephObjectZones(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
 	if err != nil {
