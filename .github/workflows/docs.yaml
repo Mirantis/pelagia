@@ -51,5 +51,7 @@ jobs:
           path: site/
           retention-days: 5
       - name: Publish docs
-        if: github.event_name == 'push'
-        run: mkdocs gh-deploy
+        if: ${{ github.event_name == 'push' && github.ref_type == 'branch' }}
+        env:
+          DOCS_VERSION: ${{ github.ref_name == 'main' && 'latest' || github.ref_name }}
+        run: mike deploy --push "${DOCS_VERSION#release-}"
