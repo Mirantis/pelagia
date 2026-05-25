@@ -63,7 +63,7 @@ The workflow of creating a Ceph OSD removal task includes the following steps:
          If the task completes successfully, Rook Ceph Operator and Pelagia Deployment Controller reconciliation
          resumes. Otherwise, it remains paused until the issue is resolved.
 
-4. Reviewing the Ceph OSD removal status. For details, see [Status fields](../../../architecture/custom-resources/cephosdremovetask.md#cephosdremovetask-status-fields)
+4. Reviewing the Ceph OSD removal status. For details, see [Status fields](../../../architecture/custom-resources/cephosdremovetask.md#cephosdremovetask-status-fields).
 
 5. Manual removal of device cleanup jobs. Device cleanup jobs are not removed automatically and are kept in Pelagia namespace along with pods containing information about the executed actions. The jobs have the following labels:
 
