@@ -1,6 +1,7 @@
 mkdocs
 mkdocs-callouts
 mkdocs-mermaid2-plugin
+mkdocs-redirects
 mkdocs-plugin-inline-svg
 pymdown-extensions
 mkdocs-material
@@ -8,3 +9,5 @@ markdown-grid-tables
 mkdocs-snippets
 mkdocs-exclude
 mkdocs-table-reader-plugin
+mkdocs-include-markdown-plugin
+mike
