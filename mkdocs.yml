@@ -1,4 +1,4 @@
-site_name: Pelagia Controller for Rook Ceph management
+site_name: Pelagia for Rook Ceph management
 site_author: Mirantis
 docs_dir: ./docs
 repo_name: GitHub
@@ -84,23 +84,23 @@ markdown_extensions:
 
 nav:
   - index.md
+  - Quick Start:
+      - Quick Start: quick-start/index.md
+      - Install Pelagia: quick-start/installation.md
+      - Install Pelagia in the LCM-only mode: quick-start/lcm-installation.md
+      - Upgrade Pelagia: quick-start/upgrade.md
   - Architecture:
       - Architecture: architecture/index.md
       - Pelagia overview: architecture/overview.md
       - Pelagia limitations: architecture/limitations.md
       - Pelagia integration with Rockoon: architecture/rockoon-integration.md
       - Addressing Ceph storage devices: architecture/addressing-ceph-devices.md
-      - Custom resources:
-          - Custom resources: architecture/custom-resources/index.md
-          - CephDeployment custom resource: architecture/custom-resources/cephdeployment.md
-          - CephDeploymentHealth custom resource: architecture/custom-resources/cephdeploymenthealth.md
-          - CephDeploymentSecret custom resource: architecture/custom-resources/cephdeploymentsecret.md
-          - CephOsdRemoveTask custom resource: architecture/custom-resources/cephosdremovetask.md
-  - Quick Start:
-      - Quick Start: quick-start/index.md
-      - Install Pelagia: quick-start/installation.md
-      - Install Pelagia in the LCM-only mode: quick-start/lcm-installation.md
-      - Upgrade Pelagia: quick-start/upgrade.md
+  - Custom resources:
+      - Custom resources: custom-resources/index.md
+      - CephDeployment custom resource: custom-resources/cephdeployment.md
+      - CephDeploymentHealth custom resource: custom-resources/cephdeploymenthealth.md
+      - CephDeploymentSecret custom resource: custom-resources/cephdeploymentsecret.md
+      - CephOsdRemoveTask custom resource: custom-resources/cephosdremovetask.md
   - Developer Guide: developer.md
   - Operations Guide:
       - Operations Guide: ops-guide/index.md

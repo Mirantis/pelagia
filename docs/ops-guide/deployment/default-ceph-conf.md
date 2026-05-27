@@ -80,4 +80,4 @@ If Pelagia is integrated with Rockoon and `objectStore.rgw` section is defined i
 
 !!! info "See also"
 
-    [CephDeployment custom resource](../../architecture/custom-resources/cephdeployment.md#cephdeployment-cephdeployment-custom-resource)
+    [CephDeployment custom resource](../../custom-resources/cephdeployment.md#cephdeployment-cephdeployment-custom-resource)

@@ -2,7 +2,7 @@
 # CephOsdRemoveTask custom resource
 
 This section describes the `CephOsdRemoveTask` custom resource specification.
-For the procedure workflow, see [Creating a Ceph OSD remove task](../../ops-guide/lcm/auto-lcm/create-task-workflow.md#create-task-workflow-create-a-ceph-osd-remove-task).
+For the procedure workflow, see [Creating a Ceph OSD remove task](../ops-guide/lcm/auto-lcm/create-task-workflow.md#create-task-workflow-create-a-ceph-osd-remove-task).
 
 <a name="cephosdremovetask-spec-parameters"></a>
 ## Spec parameters
@@ -29,7 +29,7 @@ For the procedure workflow, see [Creating a Ceph OSD remove task](../../ops-guid
       Defaults to `false`. If set to `true`, the device will not be cleaned up, but
       OSDs running on this device will be removed from the CRUSH map and deleted.
 
-    {% include "../../snippets/cleanupByDeviceValue.md" %}
+    {% include "../snippets/cleanupByDeviceValue.md" %}
 
 - `cleanupByOsd` - List of Ceph OSD IDs to remove. Mutually exclusive with
   `completeCleanup` and `cleanupByDevice`. Includes the following parameters:
@@ -92,7 +92,7 @@ The example above includes the following actions:
 
 `CephOsdRemoveTask` phases are moving in the following order:
 
-![System Flow](../../assets/remove-task-phase-flow.svg)
+![System Flow](../assets/remove-task-phase-flow.svg)
 
 Here are the following **final** phases:
 
