@@ -23,7 +23,7 @@ OSDs.
      - `nodes.<nodeName>.deviceFilter`
      - `nodes.<nodeName>.devicePathFilter`
 
-     For description of parameters, see [Nodes parameters](../../../architecture/custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
+     For description of parameters, see [Nodes parameters](../../../custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
 
        Example configuration of the `nodes` section with the new node:
        ```yaml

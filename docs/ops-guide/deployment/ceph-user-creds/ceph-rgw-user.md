@@ -7,7 +7,7 @@ users. This section describes how to create, access, and remove Ceph Object
 Storage users.
 
 For all supported parameters of Ceph Object Storage users, refer to
-[RADOS Gateway parameters](../../../architecture/custom-resources/cephdeployment.md#cephdeployment-rados-gateway-parameters).
+[RADOS Gateway parameters](../../../custom-resources/cephdeployment.md#cephdeployment-rados-gateway-parameters).
 
 ## Create a Ceph Object Storage user
 

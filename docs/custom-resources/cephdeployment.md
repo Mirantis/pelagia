@@ -132,7 +132,7 @@ advanced configuration.
 - `pools` - Specifies the list of Ceph pools. For details, the **Pools parameters** section below.
 - `clients` - List of Ceph clients. For details, see the **Clients parameters** section below.
 - `objectStorage` - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage. Also specifies the RADOS Gateway Multisite configuration. For details, **RADOS Gateway parameters** and **Multisite parameters** sections below.
-- `ingressConfig` - Enables a custom ingress rule for public access on Ceph services, for example, Ceph RADOS Gateway. For details, see [Configure Ceph Object Gateway TLS](../../ops-guide/deployment/object-storage/rgw-tls.md#rgw-tls-configure-ceph-object-gateway-tls).
+- `ingressConfig` - Enables a custom ingress rule for public access on Ceph services, for example, Ceph RADOS Gateway. For details, see [Configure Ceph Object Gateway TLS](../ops-guide/deployment/object-storage/rgw-tls.md#rgw-tls-configure-ceph-object-gateway-tls).
 - `sharedFilesystem` - Enables Ceph Filesystem. For details, the **CephFS parameters** section below.
 - `rookConfig` - String key-value parameter that allows overriding Ceph configuration options. For details, see the **RookConfig parameters** section below.
 - `healthCheck` - Configures health checks and liveness probe settings for Ceph daemons. For details, the **HealthCheck parameters** section below.
@@ -158,7 +158,7 @@ advanced configuration.
     !!! note
 
         The `clusterNet` and `publicNet` parameters support
-        multiple IP networks. For details, see [Enable multinetworking](../../ops-guide/deployment/multinetworking.md#multinetworking-enable-ceph-multinetwork).
+        multiple IP networks. For details, see [Enable multinetworking](../ops-guide/deployment/multinetworking.md#multinetworking-enable-ceph-multinetwork).
 
 - `publicNet` - specifies a CIDR for communication between
   the service and operator.
@@ -173,7 +173,7 @@ advanced configuration.
     !!! note
 
         The ``clusterNet`` and ``publicNet`` parameters support
-        multiple IP networks. For details, see [Enable multinetworking](../../ops-guide/deployment/multinetworking.md#multinetworking-enable-ceph-multinetwork).
+        multiple IP networks. For details, see [Enable multinetworking](../ops-guide/deployment/multinetworking.md#multinetworking-enable-ceph-multinetwork).
 
 Example configuration:
 ```yaml
@@ -269,7 +269,7 @@ spec:
 
         Recommending to use the ``fullPath`` field for defining
         ``by-id`` symlinks as persistent device identifiers. For details, see
-        [Addressing Ceph storage devices](../addressing-ceph-devices.md#addressing-ceph-devices-addressing-ceph-storage-devices).
+        [Addressing Ceph storage devices](../architecture/addressing-ceph-devices.md#addressing-ceph-devices-addressing-ceph-storage-devices).
 
     - ``fullPath`` - a storage device symlink. Accepts the following values:
 
@@ -440,7 +440,7 @@ spec:
 
         - The default ratio of the Ceph Object Storage `dataPool` 10.0%.
         - Target ratios for the pools required for Rockoon, described in
-          [Integrate Pelagia with Rockoon](../../ops-guide/rockoon/rockoon-integration.md#rockoon-integration-integrate-pelagia-with-rockoon).
+          [Integrate Pelagia with Rockoon](../ops-guide/rockoon/rockoon-integration.md#rockoon-integration-integrate-pelagia-with-rockoon).
 
         !!! note
 
@@ -460,7 +460,7 @@ spec:
         the `rack` topology instead. The `osd` failure domain is prohibited.
 
 - `mirroring` - Optional. Enables the mirroring feature for the defined pool.
-  Includes the `mode` parameter that can be set to `pool` or `image`. For details, see [Enable Ceph RBD Mirroring](../../ops-guide/deployment/rbd-mirror.md#rbd-mirror-enable-ceph-rbd-mirroring).
+  Includes the `mode` parameter that can be set to `pool` or `image`. For details, see [Enable Ceph RBD Mirroring](../ops-guide/deployment/rbd-mirror.md#rbd-mirror-enable-ceph-rbd-mirroring).
 - `parameters` - Optional. Specifies the key-value map for the parameters of the Ceph pool.
   For details, see [Ceph documentation: Set Pool values](https://docs.ceph.com/en/latest/rados/operations/pools/#set-pool-values).
 - `enableCrushUpdates` - Optional. Enables automatic updates of the CRUSH map
@@ -497,7 +497,7 @@ spec:
 As a result, the following Ceph pools will be created: `kubernetes-hdd`, `kubernetes-nvme`, and `archive`.
 
 To configure additional required pools for Rockoon, see
-[Integrate Pelagia with Rockoon](../../ops-guide/rockoon/rockoon-integration.md#rockoon-integration-integrate-pelagia-with-rockoon).
+[Integrate Pelagia with Rockoon](../ops-guide/rockoon/rockoon-integration.md#rockoon-integration-integrate-pelagia-with-rockoon).
 
 !!! danger
 
@@ -525,7 +525,7 @@ To configure additional required pools for Rockoon, see
 <a name="cephdeployment-rados-gateway-parameters"></a>
 ### RADOS Gateway parameters
 
-{% include "../../snippets/rgwParameters.md" %}
+{% include "../snippets/rgwParameters.md" %}
 
 ??? "Example configuration of RADOS gateway specification"
 
@@ -560,9 +560,9 @@ To configure additional required pools for Rockoon, see
 
     This feature is in Technical Preview, use it on own risk.
 
-{% include "../../snippets/multisiteParameters.md" %}
+{% include "../snippets/multisiteParameters.md" %}
 
-For configuration example, see [Enable Multisite for Ceph Object Storage](../../ops-guide/deployment/object-storage/rgw-multisite.md#rgw-multisite-enable-multisite-for-ceph-object-storage).
+For configuration example, see [Enable Multisite for Ceph Object Storage](../ops-guide/deployment/object-storage/rgw-multisite.md#rgw-multisite-enable-multisite-for-ceph-object-storage).
 
 <a name="cephdeployment-cephfs-parameters"></a>
 ### CephFS parameters
@@ -570,7 +570,7 @@ For configuration example, see [Enable Multisite for Ceph Object Storage](../../
 `sharedFilesystem` contains a list of Ceph Filesystems `cephFS`. Each `cephFS` item
 contains the following parameters:
 
-{% include "../../snippets/cephfsParameters.md" %}
+{% include "../snippets/cephfsParameters.md" %}
 
 ??? "Example configuration of shared Filesystem specification"
 
