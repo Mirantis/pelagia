@@ -24,7 +24,7 @@ nodes.
 
 3. In the `nodes` section, specify the parameters for a Ceph node as
    required. For the parameter description, see
-   [Nodes parameters](../../../architecture/custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
+   [Nodes parameters](../../../custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
 
      The example configuration of the `nodes` section with the new node:
      ```yaml

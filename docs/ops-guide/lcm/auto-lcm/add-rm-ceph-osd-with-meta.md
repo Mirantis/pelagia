@@ -25,7 +25,7 @@ OSDs with a separate metadata device.
 
 3. In the `nodes.<nodeName>.devices` section, specify the
    parameters for a Ceph OSD as required. For the parameters description, see
-   [Nodes parameters](../../../architecture/custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
+   [Nodes parameters](../../../custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
 
      The example configuration of the `nodes` section with the new node:
      ```yaml
