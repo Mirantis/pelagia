@@ -1,4 +1,4 @@
-<a id="ceph-kcor-timeout"></a>
+<a id="cephosdremovetask-timeout-cephosdremovetask-failure-with-a-timeout-during-rebalance"></a>
 
 # CephOsdRemoveTask failure with a timeout during rebalance
 
@@ -18,7 +18,7 @@ status:
   - Timeout (30m0s) reached for waiting pg rebalance for osd 2
 ```
 
-**To apply the issue resolution**, increase the timeout for all future
+**To resolve the issue**, increase the timeout for all future
 `CephOsdRemoveTask` resources:
 
 Update `pelagia-lcmconfig` ConfigMap in Pelagia namespace with the key `TASK_OSD_PG_REBALANCE_TIMEOUT_MIN` and desired
@@ -41,7 +41,7 @@ If you have an existing `CephOsdRemoveTask` resource with issues in
 
 1. In the failed `CephOsdRemoveTask` resource, copy the `spec` section.
 2. Create a new `CephOsdRemoveTask` with a different name. For details,
-   see [Creating a Ceph OSD remove task](https://mirantis.github.io/pelagia/ops-guide/lcm/create-task-workflow).
+   see [Creating a Ceph OSD remove task](../ops-guide/lcm/auto-lcm/create-task-workflow.md#create-task-workflow-create-a-ceph-osd-remove-task).
 3. Paste the previously copied `spec` section of the failed
    `CephOsdRemoveTask` resource to the new one.
 4. Remove the failed `CephOsdRemoveTask` resource.

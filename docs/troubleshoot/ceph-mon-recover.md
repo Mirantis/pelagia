@@ -1,4 +1,4 @@
-<a id="ceph-mon-recover"></a>
+<a id="ceph-mon-recover-ceph-monitors-recovery"></a>
 
 # Ceph Monitors recovery
 

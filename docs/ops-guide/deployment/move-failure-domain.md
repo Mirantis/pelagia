@@ -1,4 +1,4 @@
-<a id="move-failure-domain-mira"></a>
+<a id="move-failure-domain-migrate-ceph-pools-from-one-failure-domain-to-another"></a>
 
 # Migrate Ceph pools from one failure domain to another
 
@@ -52,7 +52,7 @@ other types of failure domains, migrate pools separately, and so on.
 
 1. Set the required CRUSH topology in the `MiraCeph` object for each
    defined node. For details on the `crush` parameter, see
-   [Node parameters](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment#nodes).
+   [Nodes parameters](../../architecture/custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
 
      Setting the CRUSH topology to each node causes the Pelagia Deployment Controller to set proper Kubernetes
      labels on the nodes.
@@ -147,28 +147,29 @@ other types of failure domains, migrate pools separately, and so on.
 3. Optional. Order buckets as required:
 
      1. Add the first Ceph CRUSH smaller bucket to its respective wider bucket:
+
         ```bash
         kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- bash
         ceph osd crush move <smallerBucketName> <bucketType>=<widerBucketName>
         ```
 
-          Substitute the following parameters:
-
-          * `<smallerBucketName>` with the name of the smaller bucket, for example, host name;
-          * `<bucketType>` with the required bucket type, for example, `rack`;
-          * `<widerBucketName>` with the name of the wider bucket, for example, rack name.
-
-          For example:
-          ```bash
-          ceph osd crush move kaas-node-1 rack=rack-1 root=default
-          ```
-
         !!! warning
 
-              We highly recommend moving one bucket at a time.
+            We highly recommend moving one bucket at a time.
 
-          For more details, refer to official Ceph documentation:
-          [CRUHS Maps: Moving a bucket](https://docs.ceph.com/en/latest/rados/operations/crush-map/#moving-a-bucket).
+            For more details, refer to official Ceph documentation:
+            [CRUHS Maps: Moving a bucket](https://docs.ceph.com/en/latest/rados/operations/crush-map/#moving-a-bucket).
+
+        Substitute the following parameters:
+
+        * `<smallerBucketName>` with the name of the smaller bucket, for example, host name
+        * `<bucketType>` with the required bucket type, for example, `rack`
+        * `<widerBucketName>` with the name of the wider bucket, for example, rack name
+
+        For example:
+        ```bash
+        ceph osd crush move kaas-node-1 rack=rack-1 root=default
+        ```
 
      2. After the bucket is moved to the new location in the CRUSH hierarchy,
         verify that no data rebalancing occurs:
