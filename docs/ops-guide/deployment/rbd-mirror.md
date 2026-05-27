@@ -1,8 +1,7 @@
-<a id="enable-rbd-mirror"></a>
-
+<a id="rbd-mirror-enable-ceph-rbd-mirroring"></a>
 # Enable Ceph RBD mirroring
 
-@Snippet:admonissions:techpreview@
+{% include "../../snippets/techpreview.md" %}
 
 This section describes how to configure and use RADOS Block Device (RBD) mirroring for Ceph pools using
 the `rbdMirror` section in the `CephDeployment` custom resource (CR). The feature may be useful if,
@@ -19,10 +18,12 @@ access to all images. For details, see [Ceph Documentation: RBD Mirroring](https
 To enable Ceph RBD monitoring, follow the procedure below and use the following
 `rbdMirror` parameters description:
 
-| <div style="width:150px">Parameter</div> | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-|------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `daemonsCount`                           | Count of `rbd-mirror` daemons to spawn. We recommend using one instance of the `rbd-mirror` daemon.                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| `peers`                                  | Optional. List of mirroring peers of an external cluster to connect to. Only a single peer is supported. The `peer` section includes the following parameters:<br/><ul><li>`site` - the label of a remote Ceph cluster associated with the token.</li><li>`token` - the token that will be used by one site (Ceph cluster) to pull images from the other site. To obtain the token, use the **rbd mirror pool peer bootstrap create** command.</li><li>`pools` - optional, a list of pool names to mirror.</li></ul> |
+- `daemonsCount` - Count of `rbd-mirror` daemons to spawn. We recommend using one instance of the `rbd-mirror` daemon.
+- `peers` - Optional. List of mirroring peers of an external cluster to connect to. Only a single peer is supported. The `peer` section includes the following parameters:
+
+   - `site` - the label of a remote Ceph cluster associated with the token.
+   - `token` - the token that will be used by one site (Ceph cluster) to pull images from the other site. To obtain the token, use the **rbd mirror pool peer bootstrap create** command.
+   - `pools` - optional, a list of pool names to mirror.
 
 ## Enable Ceph RBD mirroring
 

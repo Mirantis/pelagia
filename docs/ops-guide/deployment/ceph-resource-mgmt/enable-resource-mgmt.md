@@ -1,5 +1,4 @@
-<a id="enable-resource-mgmt"></a>
-
+<a id="enable-resource-mgmt-enable-management-of-ceph-tolerations-and-resources"></a>
 # Enable management of Ceph tolerations and resources
 
 !!! warning
@@ -15,10 +14,10 @@ configuration values:
 
 * Configuring tolerations for taint nodes for the Ceph Monitor, Ceph Manager,
   and Ceph OSD daemons. For details, see
-  [Taints and Tolerations](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/).
+  [Kubernetes documentation: Taints and Tolerations](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/).
 * Configuring node resource requests or limits for the Ceph daemons and for
   each Ceph OSD device class such as HDD, SSD, or NVMe. For details, see
-  [Managing Resources for Containers](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/).
+  [Kubernetes documentation: Managing Resources for Containers](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/).
 
 ## Enable management of Ceph tolerations and resources
 
@@ -67,36 +66,33 @@ configuration values:
          - `all` - specifies general toleration rules for all daemons if no separate daemon rule is specified.
          - `mds` - specifies the CephFS Metadata Server daemons.
 
-         <details>
-         <summary>Example configuration</summary>
-         <div>
-         ```yaml
-         spec:
-           hyperconverge:
-             tolerations:
-               mon:
-                 rules:
-                 - effect: NoSchedule
-                   key: node-role.kubernetes.io/controlplane
-                   operator: Exists
-               mgr:
-                 rules:
-                 - effect: NoSchedule
-                   key: node-role.kubernetes.io/controlplane
-                   operator: Exists
-               osd:
-                 rules:
-                 - effect: NoSchedule
-                   key: node-role.kubernetes.io/controlplane
-                   operator: Exists
-               rgw:
-                 rules:
-                 - effect: NoSchedule
-                   key: node-role.kubernetes.io/controlplane
-                   operator: Exists
-         ```
-         </div>
-         </details>
+        ??? "Example configuration"
+
+            ```yaml
+            spec:
+              hyperconverge:
+                tolerations:
+                  mon:
+                    rules:
+                    - effect: NoSchedule
+                      key: node-role.kubernetes.io/controlplane
+                      operator: Exists
+                  mgr:
+                    rules:
+                    - effect: NoSchedule
+                      key: node-role.kubernetes.io/controlplane
+                      operator: Exists
+                  osd:
+                    rules:
+                    - effect: NoSchedule
+                      key: node-role.kubernetes.io/controlplane
+                      operator: Exists
+                  rgw:
+                    rules:
+                    - effect: NoSchedule
+                      key: node-role.kubernetes.io/controlplane
+                      operator: Exists
+            ```
 
      - `resources` - Specifies resource requests or limits. The parameter is a map with the
        daemon type as a key and the following structure as a value:
@@ -113,58 +109,55 @@ configuration values:
          `rgw`, and `mds`. The `osd-hdd`, `osd-ssd`, and `osd-nvme` resource requirements handle only the Ceph OSDs
          with a corresponding device class.
 
-         <details>
-         <summary>Example configuration</summary>
-         <div>
-         ```yaml
-         spec:
-           hyperconverge:
-             resources:
-               mon:
-                 requests:
-                   memory: 1Gi
-                   cpu: 2
-                 limits:
-                   memory: 2Gi
-                   cpu: 3
-               mgr:
-                 requests:
-                   memory: 1Gi
-                   cpu: 2
-                 limits:
-                   memory: 2Gi
-                   cpu: 3
-               osd:
-                 requests:
-                   memory: 1Gi
-                   cpu: 2
-                 limits:
-                   memory: 2Gi
-                   cpu: 3
-               osd-hdd:
-                 requests:
-                   memory: 1Gi
-                   cpu: 2
-                 limits:
-                   memory: 2Gi
-                   cpu: 3
-               osd-ssd:
-                 requests:
-                   memory: 1Gi
-                   cpu: 2
-                 limits:
-                   memory: 2Gi
-                   cpu: 3
-               osd-nvme:
-                 requests:
-                   memory: 1Gi
-                   cpu: 2
-                 limits:
-                   memory: 2Gi
-                   cpu: 3
-         ```
-         </div>
-         </details>
+        ??? "Example configuration"
+
+            ```yaml
+            spec:
+              hyperconverge:
+                resources:
+                  mon:
+                    requests:
+                      memory: 1Gi
+                      cpu: 2
+                    limits:
+                      memory: 2Gi
+                      cpu: 3
+                  mgr:
+                    requests:
+                      memory: 1Gi
+                      cpu: 2
+                    limits:
+                      memory: 2Gi
+                      cpu: 3
+                  osd:
+                    requests:
+                      memory: 1Gi
+                      cpu: 2
+                    limits:
+                      memory: 2Gi
+                      cpu: 3
+                  osd-hdd:
+                    requests:
+                      memory: 1Gi
+                      cpu: 2
+                    limits:
+                      memory: 2Gi
+                      cpu: 3
+                  osd-ssd:
+                    requests:
+                      memory: 1Gi
+                      cpu: 2
+                    limits:
+                      memory: 2Gi
+                      cpu: 3
+                  osd-nvme:
+                    requests:
+                      memory: 1Gi
+                      cpu: 2
+                    limits:
+                      memory: 2Gi
+                      cpu: 3
+            ```
 
 4. For the Ceph node-specific resource settings, specify the `resources`
    section in the corresponding `nodes` spec of `CephDeployment` CR:
@@ -223,7 +216,7 @@ configuration values:
    Ceph configuration to Rook. Rook will recreate Ceph Monitors, Ceph Managers, or Ceph OSDs according to the
    specified `hyperconverge` configuration.
 7. Specify tolerations for different Rook resources using Pelagia Helm chart values. For details, see
-   [Rook Ceph daemons placement](https://mirantis.github.io/pelagia/ops-guide/deployment/rook-daemon-place).
+   [Specify Rook daemons placement](../rook-daemon-place.md#rook-daemon-place-specify-rook-daemons-placement).
 8. After a successful Ceph reconfiguration, unset the flags set in step 1
    through the `pelagia-ceph-toolbox` pod:
    ```bash
@@ -240,4 +233,4 @@ configuration values:
 
         Skip this step if you have only configured the PG rebalance timeout and replicas count parameters.
 
-Once done, proceed to [Verify Ceph tolerations and resources](https://mirantis.github.io/pelagia/ops-guide/deployment/ceph-resource-mgmt/verify-resource-mgmt).
+Once done, proceed to [Verify Ceph tolerations and resources](./verify-resource-mgmt.md#verify-resource-mgmt-verify-ceph-tolerations-and-resources).

@@ -1,4 +1,4 @@
-<a id="ceph-daemon-place"></a>
+<a id="rook-daemon-place-specify-rook-daemons-placement"></a>
 
 # Specify Rook daemons placement
 

@@ -1,4 +1,4 @@
-<a id="ceph-rgw-user"></a>
+<a id="ceph-rgw-user-manage-ceph-object-storage-users"></a>
 
 # Manage Ceph Object Storage users
 
@@ -7,7 +7,7 @@ users. This section describes how to create, access, and remove Ceph Object
 Storage users.
 
 For all supported parameters of Ceph Object Storage users, refer to
-[CephDeployment: Ceph Object Storage parameters](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment#rgw).
+[RADOS Gateway parameters](../../../architecture/custom-resources/cephdeployment.md#cephdeployment-rados-gateway-parameters).
 
 ## Create a Ceph Object Storage user
 
@@ -34,6 +34,8 @@ For all supported parameters of Ceph Object Storage users, refer to
                maxBuckets: 10
                maxSize: 10G
      ```
+
+     {% include "../../../snippets/objStorUserFormat.md" %}
 
 2. Wait for the created user to become ready in the `CephDeploymentHealth` status:
    ```bash

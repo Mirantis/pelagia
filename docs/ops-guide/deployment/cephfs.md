@@ -1,4 +1,4 @@
-<a id="enable-cephfs-mira"></a>
+<a id="cephfs-configure-ceph-shared-file-system-cephfs"></a>
 
 # Configure Ceph Shared File System (CephFS)
 
@@ -12,7 +12,8 @@ details, see [Ceph Documentation: Ceph File System](https://docs.ceph.com/en/lat
 
     By design, CephFS data pool and metadata pool must be `replicated` only.
 
-## CephFS specification parameters <a name="parameters"></a>
+<a name="cephfs-cephfs-specification-parameters"></a>
+## CephFS specification parameters
 
 The `CephDeployment` custom resource (CR) `spec` includes the `sharedFilesystem.cephFS` section
 with the following CephFS parameters:
@@ -45,15 +46,7 @@ with the following CephFS parameters:
 
     where `replicated.size` is the number of full copies of data on multiple nodes.
 
-    !!! warning
-
-        When using the non-recommended Ceph pools `replicated.size` of less than `3`, Ceph OSD removal cannot be
-        performed. The minimal replica size equals a rounded up half of the specified `replicated.size`.
-
-        For example, if `replicated.size` is `2`, the minimal replica size is `1`, and if `replicated.size` is `3`,
-        then the minimal replica size is `2`. The replica size of `1` allows Ceph having PGs with only one
-        Ceph OSD in the `acting` state, which may cause a `PG_TOO_DEGRADED` health warning that blocks
-        Ceph OSD removal. We recommend setting `replicated.size` to `3` for each Ceph pool.
+    {% include "../../snippets/replicatedSize.md" %}
 
     !!! warning
 
@@ -139,7 +132,8 @@ with the following CephFS parameters:
    kubectl -n pelagia edit cephdpl
    ```
 
-3. In the `sharedFilesystem` section, specify parameters according to [CephFS specification](#parameters). For example:
+3. Update the `sharedFilesystem` section specification as required using the configuration reference above. For example:
+
    ```yaml
    spec:
      sharedFilesystem:

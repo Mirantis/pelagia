@@ -1,4 +1,4 @@
-<a id="ceph-clients-mira"></a>
+<a id="ceph-client-manage-ceph-rbd-or-cephfs-clients"></a>
 
 # Manage Ceph RBD or CephFS clients
 
@@ -6,8 +6,7 @@ The `CephDeployment` custom resource (CR) allows managing custom Ceph RADOS Bloc
 or Ceph File System (CephFS) clients. This section describes how to create,
 access, and remove Ceph RBD or CephFS clients.
 
-For all supported parameters of Ceph clients, refer to
-[CephDeployment: Clients parameters](https://mirantis.github.io/pelagia/architecture/custom-resources/cephdeployment#clients).
+For all supported parameters of Ceph clients, refer to [Clients parameters](../../../architecture/custom-resources/cephdeployment.md#cephdeployment-clients-parameters).
 
 ## Create an RBD or CephFS client
 
@@ -110,8 +109,9 @@ For all supported parameters of Ceph clients, refer to
           mon_host = <mon1IP>:6789,<mon2IP>:6789,...,<monNIP>:6789
        ```
 
-         where `mon_host` are the comma-separated IP addresses with `6789` ports of the current Ceph Monitors.
-         For example, `10.10.0.145:6789,10.10.0.153:6789,10.10.0.235:6789`.
+        where `mon_host` are the comma-separated IP addresses with `6789`
+        ports of the current Ceph Monitors. For example,
+        `10.10.0.145:6789,10.10.0.153:6789,10.10.0.235:6789`.
 
      * `/etc/ceph/ceph.client.<clientName>.keyring`:
        ```bash
