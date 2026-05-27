@@ -57,6 +57,14 @@ plugins:
         - snippets/*
   - snippets
   - include-markdown
+  - mike:
+      version_selector: true
+      css_dir: css
+
+extra:
+  version:
+    provider: mike
+    default: latest
 
 markdown_extensions:
   - admonition

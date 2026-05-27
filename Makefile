@@ -276,20 +276,19 @@ go-generate: vendor
 # Docs stuff
 #
 
-.PHONY: docs-build
-docs-build: ## Run docs buld
+docs-prepare: ## prepare virtual env
 	@python3 -m venv build/venv; \
-	 . build/venv/bin/activate; \
-	 pip3 install -U -r docs/requirements.txt; \
-	 mkdocs build -d build/htmldocs; \
-	 (deactivate || true)
+	. build/venv/bin/activate; \
+	pip3 install -U -r docs/requirements.txt
+
+.PHONY: docs-build
+docs-build: docs-prepare ## Run docs buld
+	mike deploy dev -b docs-dev
+	mike set-default dev -b docs-dev
 
 .PHONY: docs-serve
 docs-serve: ## Serve built docs
-	@python3 -m venv build/venv
-	. build/venv/bin/activate; \
-	pip install -U -r docs/requirements.txt; \
-	mkdocs serve
+	mike serve -b docs-dev -a 0.0.0.0:8000
 
 .PHONY: help
 help: ## This help.
