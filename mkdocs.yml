@@ -101,6 +101,7 @@ nav:
       - CephOsdRemoveTask custom resource: custom-resources/cephosdremovetask.md
   - Developer Guide: developer.md
   - Operations Guide:
+      - Operations Guide: ops-guide/index.md
       - Ceph Default Config Options: ops-guide/deployment/default-ceph-conf.md
       - Rook Daemons Placement: ops-guide/deployment/rook-daemon-place.md
       - Enable Ceph Multinetwork: ops-guide/deployment/multinetworking.md
@@ -110,10 +111,6 @@ nav:
       - Change Ceph Monitor node: ops-guide/deployment/move-mon-daemon.md
       - Replace failed Ceph Monitor node: ops-guide/deployment/move-mon-node-replace.md
       - External Ceph cluster: ops-guide/deployment/external-ceph.md
-      - Rockoon integration:
-        - Integrate Pelagia with Rockoon: ops-guide/rockoon/rockoon-integration.md
-        - Configure Ceph pools for Cinder multi-backend: ops-guide/rockoon/cinder-multi-backend.md
-        - Calculate target ratios for Rockoon: ops-guide/rockoon/calc-target-ratio.md
       - Ceph Object Storage:
         - Enable Ceph RGW Object Storage: ops-guide/deployment/rgw.md
         - Configure Ceph Object Gateway TLS: ops-guide/deployment/rgw-tls.md
@@ -129,24 +126,32 @@ nav:
       - Ceph resources Management:
         - Enable Ceph resources Management: ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md
         - Verify Ceph resources Management: ops-guide/deployment/ceph-resource-mgmt/verify-resource-mgmt.md
-      - Ceph Cluster Lifecycle Management:
-        - Automated Lifecycle Management:
-          - Create Ceph OSD remove Task: ops-guide/lcm/create-task-workflow.md
-          - Ceph OSD Lifecycle Management: ops-guide/lcm/add-rm-ceph-osd.md
-          - Ceph OSD with metadata Lifecycle Management: ops-guide/lcm/add-rm-ceph-osd-with-meta.md
-          - Ceph Node Lifecycle Management: ops-guide/lcm/add-rm-ceph-node.md
-          - Replace failed Ceph OSD: ops-guide/lcm/replace-ceph-osd.md
-          - Replace failed Ceph OSD with metadata LVM: ops-guide/lcm/replace-osd-meta-lvm.md
-          - Replace failed Ceph OSD with metadata device: ops-guide/lcm/replace-osd-meta-device.md
-          - Replace failed Ceph Node: ops-guide/lcm/replace-ceph-node.md
-          - Replace failed metadata device: ops-guide/lcm/replace-meta.md
-        - Increase Ceph Cluster storage size: ops-guide/lcm/increase-storage-size.md
+      - Ceph cluster lifecycle management:
+        - Ceph cluster lifecycle management: ops-guide/lcm/index.md
+        - Automated lifecycle management:
+          - Automated lifecycle management: ops-guide/lcm/auto-lcm/index.md
+          - Create a Ceph OSD remove task: ops-guide/lcm/auto-lcm/create-task-workflow.md
+          - Add, remove, or reconfigure Ceph nodes: ops-guide/lcm/auto-lcm/add-rm-ceph-node.md
+          - Add, remove, or reconfigure Ceph OSDs: ops-guide/lcm/auto-lcm/add-rm-ceph-osd.md
+          - Add, remove, or reconfigure Ceph OSDs with metadata devices: ops-guide/lcm/auto-lcm/add-rm-ceph-osd-with-meta.md
+          - Replace a failed Ceph node: ops-guide/lcm/auto-lcm/replace-ceph-node.md
+          - Replace a failed Ceph OSD: ops-guide/lcm/auto-lcm/replace-ceph-osd.md
+          - Replace a failed metadata device: ops-guide/lcm/auto-lcm/replace-meta.md
+          - Replace a failed Ceph OSD disk with a metadata device as a device name: ops-guide/lcm/auto-lcm/replace-osd-meta-device.md
+          - Replace a failed Ceph OSD with a metadata device as a logical volume path: ops-guide/lcm/auto-lcm/replace-osd-meta-lvm.md
+        - Increase Ceph cluster storage size: ops-guide/lcm/increase-storage-size.md
         - Remove Ceph OSD manually: ops-guide/lcm/manual-osd-remove.md
-      - Verify Ceph Cluster:
-        - Verify CephDeployment Health: ops-guide/verify-ceph/verify-cephdeploymenthealth.md
-        - Verify Ceph Cluster services: ops-guide/verify-ceph/verify-ceph-core.md
-        - Verify Pelagia and Rook: ops-guide/verify-ceph/verify-pelagia-and-rook.md
-        - Verify Rook Discover: ops-guide/verify-ceph/verify-rook-discover.md
+      - Rockoon integration:
+        - Rockoon integration: ops-guide/rockoon/index.md
+        - Integrate Pelagia with Rockoon: ops-guide/rockoon/rockoon-integration.md
+        - Calculate target ratios for Ceph pools for Rockoon: ops-guide/rockoon/calc-target-ratio.md
+        - Ceph pools for Cinder multi-backend: ops-guide/rockoon/cinder-multi-backend.md
+      - Verify Ceph cluster:
+        - Verify Ceph cluster: ops-guide/verify-ceph/index.md
+        - Verify the Ceph core services: ops-guide/verify-ceph/verify-ceph-core.md
+        - Verify Ceph cluster state: ops-guide/verify-ceph/verify-cephdeploymenthealth.md
+        - Verify Pelagia Controllers and Rook Ceph Operator: ops-guide/verify-ceph/verify-pelagia-and-rook.md
+        - Verify rook-discover: ops-guide/verify-ceph/verify-rook-discover.md
   - Troubleshoot:
     - Troubleshoot: troubleshoot/index.md
     - Ceph disaster recovery: troubleshoot/ceph-disaster-recover.md
