@@ -148,12 +148,15 @@ nav:
         - Verify Pelagia and Rook: ops-guide/verify-ceph/verify-pelagia-and-rook.md
         - Verify Rook Discover: ops-guide/verify-ceph/verify-rook-discover.md
   - Troubleshoot:
-    - CephOsdRemoveTask rebalance timeout: troubleshoot/cephosdremovetask-timeout.md
-    - Ceph OSD auth failed: troubleshoot/ceph-osd-auth-failed.md
-    - Rook Ceph exporter crash: troubleshoot/ceph-exporter-crash.md
-    - Ceph Monitor size rapidly grows: troubleshoot/ceph-mon-store-size-grow.md
-    - Ceph Monitor disaster recovery: troubleshoot/ceph-mon-recover.md
-    - Ceph Cluster disaster recovery: troubleshoot/ceph-disaster-recover.md
+    - Troubleshoot: troubleshoot/index.md
+    - Ceph disaster recovery: troubleshoot/ceph-disaster-recover.md
+    - The ceph-exporter pods are present in the Ceph crash list: troubleshoot/ceph-exporter-crash.md
+    - Ceph Monitors recovery: troubleshoot/ceph-mon-recover.md
+    - Ceph Monitors store.db size rapidly growing: troubleshoot/ceph-mon-store-size-grow.md
+    - Replaced Ceph OSD fails to start on authorization: troubleshoot/ceph-osd-auth-failed.md
+    - Ceph health reports *PG_DAMAGED* after a failed disk or node replacement: troubleshoot/ceph-pg-damaged.md
+    - CephOsdRemoveTask failure with a timeout during rebalance: troubleshoot/cephosdremovetask-timeout.md
+    - Maintenance stuck on a compact Ceph cluster: troubleshoot/stuck-maintenance.md
 #  - Operations Guide:
 #      - Upgrade OpenStack: ops/openstack/upgrade.md
 #      - Run tempest: ops/openstack/tempest.md
