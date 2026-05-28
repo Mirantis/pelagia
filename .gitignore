@@ -1,1 +1,7 @@
+build/bin/
+build/venv/
+charts/pelagia-ceph/charts/
+site/
 vendor/
+
+pelagia-ceph-*.tgz
