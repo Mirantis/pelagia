@@ -916,10 +916,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
+  <a href="#code-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Tests
+        Code tests
       
     </span>
   </a>
@@ -927,10 +927,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#build-the-controller-image-and-chart" class="md-nav__link">
+  <a href="#build-the-controller-binary-image-and-chart" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Build the controller image and chart
+        Build the controller binary, image, and chart
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cleanup-development-material" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cleanup development material
       
     </span>
   </a>
@@ -2763,10 +2774,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#tests" class="md-nav__link">
+  <a href="#code-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Tests
+        Code tests
       
     </span>
   </a>
@@ -2774,10 +2785,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#build-the-controller-image-and-chart" class="md-nav__link">
+  <a href="#build-the-controller-binary-image-and-chart" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Build the controller image and chart
+        Build the controller binary, image, and chart
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cleanup-development-material" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cleanup development material
       
     </span>
   </a>
@@ -2815,22 +2837,46 @@
 <h1 id="developer-guide">Developer Guide<a class="headerlink" href="#developer-guide" title="Permanent link">#</a></h1>
 <p>Pelagia uses Makefile to build, test, and deploy the controller. This document provides a guide for developers
 with the most used Makefile targets.</p>
+<p>For the complete list of available instructions, refer to <a href="https://github.com/Mirantis/pelagia/blob/release-1.x/Makefile">Makefile</a></p>
 <h2 id="code-style">Code style<a class="headerlink" href="#code-style" title="Permanent link">#</a></h2>
 <p>Pelagia uses <a href="https://golangci-lint.run/">golangci-lint</a> code formatter. To check your changes and format them:
 <div class="highlight"><pre><span></span><code>make<span class="w"> </span>check
 </code></pre></div></p>
-<h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">#</a></h2>
+<p>To run check changes and auto-fix them:</p>
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>fix
+</code></pre></div>
+<h2 id="code-tests">Code tests<a class="headerlink" href="#code-tests" title="Permanent link">#</a></h2>
 <p>Each commit requires all <code>PASS</code> unit tests. To run unit tests locally:
 <div class="highlight"><pre><span></span><code>make<span class="w"> </span>unit
 </code></pre></div></p>
-<h2 id="build-the-controller-image-and-chart">Build the controller image and chart<a class="headerlink" href="#build-the-controller-image-and-chart" title="Permanent link">#</a></h2>
+<p>Pelagia has E2E tests that can be useful for verifying code changes. To run them, you
+need an environment with Pelagia installed. To be able to run E2E tests, the following
+parameters must be specified:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">TEST_NAMESPACE</span><span class="o">=</span>ceph-lcm-mirantis
+<span class="nb">export</span><span class="w"> </span><span class="nv">KUBECONFIG</span><span class="o">=</span>./kubeconfig
+<span class="nb">export</span><span class="w"> </span><span class="nv">E2E_TESTCONFIG</span><span class="o">=</span>cephfs.yaml
+</code></pre></div>
+<p>To run an E2E test:</p>
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>e2e-code
+</code></pre></div>
+<h2 id="build-the-controller-binary-image-and-chart">Build the controller binary, image, and chart<a class="headerlink" href="#build-the-controller-binary-image-and-chart" title="Permanent link">#</a></h2>
 <p>Pelagia is deployed as a Helm chart into the Kubernetes cluster.</p>
-<p>To build the controller image for the <code>linux/amd64</code> platform:
-<div class="highlight"><pre><span></span><code>make<span class="w"> </span>build<span class="w"> </span>image
+<p>To build controller binaries used in the controller image:</p>
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>go.build/all
+</code></pre></div>
+<p>To specify the required platform for building:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">PLATFORMS</span><span class="o">=</span>linux/amd64,linux/arm64
+</code></pre></div>
+<p>To build the controller Docker image:
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>docker.build
 </code></pre></div></p>
-<p>To build the Helm chart after the controller image is built:
+<p>To build the Helm chart:
 <div class="highlight"><pre><span></span><code>make
 </code></pre></div></p>
+<h2 id="cleanup-development-material">Cleanup development material<a class="headerlink" href="#cleanup-development-material" title="Permanent link">#</a></h2>
+<p>To clean up development material, such as built Docker images, Go binaries, Go dependencies, and so on:</p>
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>clean-all
+</code></pre></div>
 
 
 
