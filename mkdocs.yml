@@ -41,6 +41,8 @@ theme:
     - navigation.footer
     - navigation.path
     - content.code.copy
+    - navigation.top
+    - navigation.indexes
 
 extra_css:
   - stylesheets/extra.css
@@ -102,30 +104,36 @@ nav:
   - Developer Guide: developer.md
   - Operations Guide:
       - Operations Guide: ops-guide/index.md
-      - Ceph Default Config Options: ops-guide/deployment/default-ceph-conf.md
-      - Rook Daemons Placement: ops-guide/deployment/rook-daemon-place.md
-      - Enable Ceph Multinetwork: ops-guide/deployment/multinetworking.md
-      - Enable Ceph RBD mirroring: ops-guide/deployment/rbd-mirror.md
-      - Enable Ceph Filesystem: ops-guide/deployment/cephfs.md
-      - Change Ceph Pools Failure Domain: ops-guide/deployment/move-failure-domain.md
-      - Change Ceph Monitor node: ops-guide/deployment/move-mon-daemon.md
-      - Replace failed Ceph Monitor node: ops-guide/deployment/move-mon-node-replace.md
-      - External Ceph cluster: ops-guide/deployment/external-ceph.md
-      - Ceph Object Storage:
-        - Enable Ceph RGW Object Storage: ops-guide/deployment/rgw.md
-        - Configure Ceph Object Gateway TLS: ops-guide/deployment/rgw-tls.md
-        - Enable Multisite for Ceph Object Storage: ops-guide/deployment/rgw-multisite.md
-        - Configure Ceph Object Storage SSE: ops-guide/deployment/rgw-sse.md
-        - RADOS Gateway Bucket Policy:
-          - Create Ceph Object Storage User: ops-guide/deployment/s3-bucket-policy/s3-create-user.md
-          - Bucket Policy for Ceph Object User: ops-guide/deployment/s3-bucket-policy/bucket-policy-s3.md
-          - Bucket Policy for Rockoon OpenStack User: ops-guide/deployment/s3-bucket-policy/bucket-policy-rockoon.md
-      - Ceph User Credentials:
-        - Enable Ceph RBD/CephFS Client: ops-guide/deployment/ceph-user-creds/ceph-client.md
-        - Enable Ceph Object Storage User: ops-guide/deployment/ceph-user-creds/ceph-rgw-user.md
-      - Ceph resources Management:
-        - Enable Ceph resources Management: ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md
-        - Verify Ceph resources Management: ops-guide/deployment/ceph-resource-mgmt/verify-resource-mgmt.md
+      - CephDeployment operations:
+        - CephDeployment operations: ops-guide/deployment/index.md
+        - Ceph resources management:
+          - Ceph resources management: ops-guide/deployment/ceph-resource-mgmt/index.md
+          - Enable management of Ceph tolerations and resources: ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md
+          - Verify Ceph tolerations and resources: ops-guide/deployment/ceph-resource-mgmt/verify-resource-mgmt.md
+        - Ceph user credentials:
+          - Ceph user credentials: ops-guide/deployment/ceph-user-creds/index.md
+          - Manage Ceph RBD or CephFS clients: ops-guide/deployment/ceph-user-creds/ceph-client.md
+          - Manage Ceph Object Storage users: ops-guide/deployment/ceph-user-creds/ceph-rgw-user.md
+        - Configure Ceph Shared File System (CephFS): ops-guide/deployment/cephfs.md
+        - Ceph default configuration: ops-guide/deployment/default-ceph-conf.md
+        - Share Ceph across two clusters: ops-guide/deployment/external-ceph.md
+        - Migrate Ceph pools from one failure domain to another: ops-guide/deployment/move-failure-domain.md
+        - Move a Ceph Monitor daemon to another node: ops-guide/deployment/move-mon-daemon.md
+        - Move Ceph Monitor before node replacement: ops-guide/deployment/move-mon-node-replace.md
+        - Enable Ceph multinetwork: ops-guide/deployment/multinetworking.md
+        - Ceph Object Storage:
+          - Ceph Object Storage: ops-guide/deployment/object-storage/index.md
+          - Enable Ceph RADOS Gateway Object Storage: ops-guide/deployment/object-storage/rgw.md
+          - Enable Multisite for Ceph Object Storage: ops-guide/deployment/object-storage/rgw-multisite.md
+          - Configure Ceph Object Storage server-side encryption: ops-guide/deployment/object-storage/rgw-sse.md
+          - Configure Ceph Object Gateway TLS: ops-guide/deployment/object-storage/rgw-tls.md
+          - RADOS Gateway bucket policy:
+            - RADOS Gateway bucket policy: ops-guide/deployment/object-storage/s3-bucket-policy/index.md
+            - Create Ceph Object Storage users: ops-guide/deployment/object-storage/s3-bucket-policy/s3-create-user.md
+            - Set a bucket policy for a Ceph Object Storage user: ops-guide/deployment/object-storage/s3-bucket-policy/bucket-policy-s3.md
+            - Set a bucket policy for OpenStack users: ops-guide/deployment/object-storage/s3-bucket-policy/bucket-policy-rockoon.md
+        - Enable Ceph RBD mirroring: ops-guide/deployment/rbd-mirror.md
+        - Specify Rook daemons placement: ops-guide/deployment/rook-daemon-place.md
       - Ceph cluster lifecycle management:
         - Ceph cluster lifecycle management: ops-guide/lcm/index.md
         - Automated lifecycle management:
@@ -162,6 +170,7 @@ nav:
     - Ceph health reports *PG_DAMAGED* after a failed disk or node replacement: troubleshoot/ceph-pg-damaged.md
     - CephOsdRemoveTask failure with a timeout during rebalance: troubleshoot/cephosdremovetask-timeout.md
     - Maintenance stuck on a compact Ceph cluster: troubleshoot/stuck-maintenance.md
+
 #  - Operations Guide:
 #      - Upgrade OpenStack: ops/openstack/upgrade.md
 #      - Run tempest: ops/openstack/tempest.md
