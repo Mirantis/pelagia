@@ -244,16 +244,14 @@ spec:
     one back-up Ceph node is available to redeploy a failed Ceph Manager
     in a case of a node outage.
 
-- ``monitorIP`` - Highly recommended for production and optional for staging
-  deployments. If defined, specifies a custom IP address for Ceph Monitor which
-  should be placed on the node. If not defined, Ceph Monitor on the node will
-  use the default `hostNetwork` address of a node. We recommend using an IP
-  address from the Ceph public network address range, which is defined in the
-  `publicNet` parameter.
+- ``monitorIP`` - Optional. If defined, specifies a custom IP address for Ceph Monitor which
+  should be placed on the node. If not set, Ceph Monitor on the node will use
+  default `hostNetwork` address of a node. General recommendation is to use IP
+  address from Ceph public network address range.
 
     !!! note
 
-        To update ``monitorIP``, the corresponding Ceph Monitor daemon must be re-created.
+        To update ``monitorIP``, the corresponding Ceph Monitor daemon should be re-created.
 
 - ``config`` - Mandatory. Specifies a map of device configurations that must contain a
   mandatory ``deviceClass`` parameter set to ``hdd``, ``ssd``, or ``nvme``.
