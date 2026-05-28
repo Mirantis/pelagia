@@ -96,7 +96,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
 
 !!! note
 
-    To remove a Ceph node with a `mon` role, first move the Ceph Monitor to another node and remove the `mon` role from the Ceph node as described in [Move a Ceph Monitor daemon to another node](../../deployment/move-mon-daemon.md#move-mon-daemon-move-a-ceph-monitor-daemon-to-another-node).
+    To remove a Ceph node with a `mon` role, first move the Ceph Monitor to another node and remove the `mon` role from the Ceph node as described in [Move a Ceph Monitor daemon to another node](../move-mon-daemon.md#move-mon-daemon-move-a-ceph-monitor-daemon-to-another-node).
 
 1. Open the `CephDeployment` CR for editing:
    ```bash

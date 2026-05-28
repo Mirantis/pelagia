@@ -118,8 +118,6 @@ nav:
         - Ceph default configuration: ops-guide/deployment/default-ceph-conf.md
         - Share Ceph across two clusters: ops-guide/deployment/external-ceph.md
         - Migrate Ceph pools from one failure domain to another: ops-guide/deployment/move-failure-domain.md
-        - Move a Ceph Monitor daemon to another node: ops-guide/deployment/move-mon-daemon.md
-        - Move Ceph Monitor before node replacement: ops-guide/deployment/move-mon-node-replace.md
         - Enable Ceph multinetwork: ops-guide/deployment/multinetworking.md
         - Ceph Object Storage:
           - Ceph Object Storage: ops-guide/deployment/object-storage/index.md
@@ -136,7 +134,7 @@ nav:
         - Specify Rook daemons placement: ops-guide/deployment/rook-daemon-place.md
       - Ceph cluster lifecycle management:
         - Ceph cluster lifecycle management: ops-guide/lcm/index.md
-        - Automated lifecycle management:
+        - Automated OSD lifecycle management:
           - Automated lifecycle management: ops-guide/lcm/auto-lcm/index.md
           - Create a Ceph OSD remove task: ops-guide/lcm/auto-lcm/create-task-workflow.md
           - Add, remove, or reconfigure Ceph nodes: ops-guide/lcm/auto-lcm/add-rm-ceph-node.md
@@ -148,6 +146,8 @@ nav:
           - Replace a failed Ceph OSD disk with a metadata device as a device name: ops-guide/lcm/auto-lcm/replace-osd-meta-device.md
           - Replace a failed Ceph OSD with a metadata device as a logical volume path: ops-guide/lcm/auto-lcm/replace-osd-meta-lvm.md
         - Increase Ceph cluster storage size: ops-guide/lcm/increase-storage-size.md
+        - Move a Ceph Monitor daemon to another node: ops-guide/lcm/move-mon-daemon.md
+        - Move Ceph Monitor before node replacement: ops-guide/lcm/move-mon-node-replace.md
         - Remove Ceph OSD manually: ops-guide/lcm/manual-osd-remove.md
       - Rockoon integration:
         - Rockoon integration: ops-guide/rockoon/index.md
