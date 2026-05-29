@@ -24,45 +24,47 @@ In the `CephDeployment` custom resource, create the following Ceph pools require
 
   ```yaml
   spec:
-    pools:
-    ...
-    - default: false
-      deviceClass: hdd
-      name: volumes
-      replicated:
-        size: 3
-      role: volumes
-    - default: false
-      deviceClass: hdd
-      name: backup
-      replicated:
-        size: 3
-      role: backup
-    - default: false
-      deviceClass: hdd
-      name: vms
-      replicated:
-        size: 3
-      role: vms
-    - default: false
-      deviceClass: hdd
-      name: images
-      replicated:
-        size: 3
-      role: images
+    blockStorage:
+      pools:
+      ...
+      - name: volumes
+        role: volumes
+        spec:
+          deviceClass: hdd
+          replicated:
+            size: 3
+      - name: backup
+        role: backup
+        spec:
+          deviceClass: hdd
+          replicated:
+            size: 3
+      - name: vms
+        role: vms
+        spec:
+          deviceClass: hdd
+          replicated:
+            size: 3
+      - name: images
+        role: images
+        spec:
+          deviceClass: hdd
+          replicated:
+            size: 3
   ```
 
 As a result, Pelagia creates the following Ceph pools: `volumes-hdd`, `backup-hdd`, `vms-hdd`, and
-`images-hdd`. Target ratios will be automatically configured for these pools to match the default
-OpenStack requirements:
+`images-hdd`. We recommend the following target ratios for these pools to match the default OpenStack requirements:
 
   - Volumes pool: 0.4
   - Backup pool:  0.1
   - VMs pool:     0.2
   - Images pool:  0.1
 
-Mirantis recommends adjusting these ratios according to your OpenStack
+We recommend adjusting these ratios according to your OpenStack
 deployment requirements using the `parameters.target_size_ratio` parameter located in the `pools` section.
+For reference, see [Rook documentation: CephBlockPool CRD Spec](https://rook.io/docs/rook/v1.19/CRDs/Block-Storage/ceph-block-pool-crd/#spec).
+For details on how to set correct values, see [Calculate target ratios](calc-target-ratio.md).
 
 After Ceph pools are created, Pelagia Deployment Controller creates a secret in the `openstack-ceph-shared`
 namespace with all necessary information for Rockoon OpenStack services to be configured
@@ -72,3 +74,7 @@ services will be connected to the desired Ceph cluster.
 
 If `CephDeployment` contains the `objectStorage` section and Ceph Object Storage is deployed, then Pelagia and Rockoon
 enable Ceph RADOS Gateway integration with OpenStack Object Storage service (`swift`).
+
+!!! info "See also"
+
+    [Architecture: Pelagia integration with Rockoon](../../architecture/rockoon-integration.md)

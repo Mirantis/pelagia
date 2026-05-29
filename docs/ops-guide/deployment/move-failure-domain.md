@@ -57,7 +57,7 @@ other types of failure domains, migrate pools separately, and so on.
 
 **To migrate Ceph pools from one failure domain to another:**
 
-1. Set the required CRUSH topology in the `MiraCeph` object for each
+1. Set the required CRUSH topology in the `CephDeployment` object for each
    defined node. For details on the `crush` parameter, see
    [Nodes parameters](../../custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
 
@@ -337,19 +337,26 @@ other types of failure domains, migrate pools separately, and so on.
      pools:
      - name: images
        ...
-       failureDomain: rack
+       spec:
+         ...
+         failureDomain: rack
      - name: volumes
        ...
-       failureDomain: rack
+       spec:
+         ...
+         failureDomain: rack
      ...
      objectStorage:
-       rgw:
-         dataPool:
-           failureDomain: rack
-           ...
-         metadataPool:
-           failureDomain: rack
-           ...
+       objectStores:
+         - name: object-store
+           spec:
+             ...
+             dataPool:
+               failureDomain: rack
+               ...
+             metadataPool:
+               failureDomain: rack
+               ...
    ```
 
 7. Monitor the Ceph cluster health and wait until rebalancing is completed:

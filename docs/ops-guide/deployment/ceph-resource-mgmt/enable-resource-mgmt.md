@@ -24,7 +24,11 @@ configuration values:
   each Ceph OSD device class such as HDD, SSD, or NVMe. For details, see
   [Kubernetes documentation: Managing Resources for Containers](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/).
 
-## Enable management of Ceph tolerations and resources
+    !!! warning
+
+        Affinity placement settings specified in the `CephDeployment` spec for Ceph daemons will ignored in favor of using node roles.
+
+**To enable management of Ceph tolerations and resources:**
 
 1. To avoid Ceph cluster health issues during daemon configuration changes,
    set Ceph `noout`, `nobackfill`, `norebalance`, and `norecover`
@@ -48,124 +52,87 @@ configuration values:
    kubectl -n pelagia edit cephdpl
    ```
 
-3. Specify the parameters in the `hyperconverge` section as required. The
-   `hyperconverge` section includes the following parameters:
+3. In the `cluster.placement` section, specify the placement parameters as required.
+   For reference, see [Rook API documentation: Placement Configuration Settings](https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/#placement-configuration-settings).
 
-     - `tolerations` - Specifies tolerations for taint nodes for the defined daemon type.
-       Each daemon type key contains the following parameters:
-       ```yaml
-       spec:
-         hyperconverge:
-           tolerations:
-             <daemonType>:
-               rules:
-               - key: ""
-                 operator: ""
-                 value: ""
-                 effect: ""
-                 tolerationSeconds: 0
-       ```
+    ??? "Example configuration"
 
-         Possible values for `<daemonType>` are `osd`, `mon`, `mgr`, and `rgw`. The following values are also supported:
+        ```yaml
+        spec:
+          cluster:
+            placement:
+              tolerations:
+                mon:
+                  rules:
+                  - effect: NoSchedule
+                    key: node-role.kubernetes.io/controlplane
+                    operator: Exists
+                mgr:
+                  rules:
+                  - effect: NoSchedule
+                    key: node-role.kubernetes.io/controlplane
+                    operator: Exists
+                osd:
+                  rules:
+                  - effect: NoSchedule
+                    key: node-role.kubernetes.io/controlplane
+                    operator: Exists
+        ```
 
-         - `all` - specifies general toleration rules for all daemons if no separate daemon rule is specified.
-         - `mds` - specifies the CephFS Metadata Server daemons.
+4. In the `cluster.resources` section, specify the resource requirement parameters as required.
+   For reference, see [Rook API documentation: Resource Requirements/Limits](https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/#resource-requirementslimits).
 
-        ??? "Example configuration"
+    ??? "Example configuration"
 
-            ```yaml
-            spec:
-              hyperconverge:
-                tolerations:
-                  mon:
-                    rules:
-                    - effect: NoSchedule
-                      key: node-role.kubernetes.io/controlplane
-                      operator: Exists
-                  mgr:
-                    rules:
-                    - effect: NoSchedule
-                      key: node-role.kubernetes.io/controlplane
-                      operator: Exists
-                  osd:
-                    rules:
-                    - effect: NoSchedule
-                      key: node-role.kubernetes.io/controlplane
-                      operator: Exists
-                  rgw:
-                    rules:
-                    - effect: NoSchedule
-                      key: node-role.kubernetes.io/controlplane
-                      operator: Exists
-            ```
+        ```yaml
+        spec:
+          cluster:
+            resources:
+              mon:
+                requests:
+                  memory: 1Gi
+                  cpu: 2
+                limits:
+                  memory: 2Gi
+                  cpu: 3
+              mgr:
+                requests:
+                  memory: 1Gi
+                  cpu: 2
+                limits:
+                  memory: 2Gi
+                  cpu: 3
+              osd:
+                requests:
+                  memory: 1Gi
+                  cpu: 2
+                limits:
+                  memory: 2Gi
+                  cpu: 3
+              osd-hdd:
+                requests:
+                  memory: 1Gi
+                  cpu: 2
+                limits:
+                  memory: 2Gi
+                  cpu: 3
+              osd-ssd:
+                requests:
+                  memory: 1Gi
+                  cpu: 2
+                limits:
+                  memory: 2Gi
+                  cpu: 3
+              osd-nvme:
+                requests:
+                  memory: 1Gi
+                  cpu: 2
+                limits:
+                  memory: 2Gi
+                  cpu: 3
+        ```
 
-     - `resources` - Specifies resource requests or limits. The parameter is a map with the
-       daemon type as a key and the following structure as a value:
-       ```yaml
-       spec:
-         hyperconverge:
-           resources:
-             <daemonType>:
-               requests: <kubernetes valid spec of daemon resource requests>
-               limits: <kubernetes valid spec of daemon resource limits>
-       ```
-
-         Possible values for `<daemonType>` are `mon`, `mgr`, `osd`, `osd-hdd`, `osd-ssd`, `osd-nvme`, `prepareosd`,
-         `rgw`, and `mds`. The `osd-hdd`, `osd-ssd`, and `osd-nvme` resource requirements handle only the Ceph OSDs
-         with a corresponding device class.
-
-        ??? "Example configuration"
-
-            ```yaml
-            spec:
-              hyperconverge:
-                resources:
-                  mon:
-                    requests:
-                      memory: 1Gi
-                      cpu: 2
-                    limits:
-                      memory: 2Gi
-                      cpu: 3
-                  mgr:
-                    requests:
-                      memory: 1Gi
-                      cpu: 2
-                    limits:
-                      memory: 2Gi
-                      cpu: 3
-                  osd:
-                    requests:
-                      memory: 1Gi
-                      cpu: 2
-                    limits:
-                      memory: 2Gi
-                      cpu: 3
-                  osd-hdd:
-                    requests:
-                      memory: 1Gi
-                      cpu: 2
-                    limits:
-                      memory: 2Gi
-                      cpu: 3
-                  osd-ssd:
-                    requests:
-                      memory: 1Gi
-                      cpu: 2
-                    limits:
-                      memory: 2Gi
-                      cpu: 3
-                  osd-nvme:
-                    requests:
-                      memory: 1Gi
-                      cpu: 2
-                    limits:
-                      memory: 2Gi
-                      cpu: 3
-            ```
-
-4. For the Ceph node-specific resource settings, specify the `resources`
-   section in the corresponding `nodes` spec of `CephDeployment` CR:
+5. In the `spec.nodes` section, specify the `resources` parameters for the Ceph node-specific resources:
    ```yaml
    spec:
      nodes:
@@ -190,39 +157,65 @@ configuration values:
              cpu: 3
      ```
 
-5. For the RADOS Gateway instances specific resource settings, specify the
-   `resources` section in the `rgw` spec of `CephDeployment` CR:
+6. In the `spec.objectStorage` section, specify the `resources` and `placement` parameters for the RADOS Gateway instances:
    ```yaml
    spec:
      objectStorage:
-       rgw:
-         gateway:
-           resources:
-             requests: <kubernetes valid spec of daemon resource requests>
-             limits: <kubernetes valid spec of daemon resource limits>
-   ```
-
-     For example:
-     ```yaml
-     spec:
-       objectStorage:
-         rgw:
+       objectStore:
+       - name: rgw-store
+         spec:
+           ...
            gateway:
              resources:
-               requests:
-                 memory: 1Gi
-                 cpu: 2
-               limits:
-                 memory: 2Gi
-                 cpu: 3
-     ```
+               requests: <kubernetes valid spec of daemon resource requests>
+               limits: <kubernetes valid spec of daemon resource limits>
+             placement:
+               tolerations:
+               - effect: NoSchedule
+                 key: node-role.kubernetes.io/control-plane
+                 operator: Exists
+               - key: node-role.kubernetes.io/master
+                 effect: NoSchedule
+                 operator: Exists
+   ```
 
-6. Save the reconfigured `CephDeployment` CR and wait for Pelagia Deployment Controller to apply the updated
-   Ceph configuration to Rook. Rook will recreate Ceph Monitors, Ceph Managers, or Ceph OSDs according to the
-   specified `hyperconverge` configuration.
-7. Specify tolerations for different Rook resources using Pelagia Helm chart values. For details, see
+     For reference, see [Rook API documentation: Gateway Settings](https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-crd/#gateway-settings).
+
+7. In the `spec.sharedFilesystems` section, specify the `resources` and `placement` parameters for the CephFS daemons:
+    ```yaml
+    spec:
+      sharedFilesystem:
+        cephFilesystems:
+        - name: cephfs-store
+          spec:
+            ...
+            metadataServer:
+              placement:
+                tolerations:
+                - effect: NoSchedule
+                  key: node-role.kubernetes.io/control-plane
+                  operator: Exists
+                - key: node-role.kubernetes.io/master
+                  effect: NoSchedule
+                  operator: Exists
+              resources: # example, non-prod values
+                requests:
+                  memory: 1Gi
+                  cpu: 1
+                limits:
+                  memory: 2Gi
+                  cpu: 2
+    ```
+
+    For reference, see [Rook API documentation: CephFilesystem](https://rook.io/docs/rook/v1.19/CRDs/Shared-Filesystem/ceph-filesystem-crd/#metadata-server-settings).
+
+8. Save the reconfigured `CephDeployment` CR and wait for Pelagia Deployment Controller to apply the updated
+   Ceph configuration to Rook.
+   Rook will recreate Ceph Monitors, Ceph Managers, and Ceph OSDs according to the
+   specified configuration.
+9. Specify tolerations for different Rook resources using Pelagia Helm chart values. For details, see
    [Specify Rook daemons placement](../rook-daemon-place.md#rook-daemon-place-specify-rook-daemons-placement).
-8. After a successful Ceph reconfiguration, unset the flags set in step 1
+10. After a successful Ceph reconfiguration, unset the flags set in step 1
    through the `pelagia-ceph-toolbox` pod:
    ```bash
    kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- bash

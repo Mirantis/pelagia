@@ -16,109 +16,66 @@ details, see [Ceph Documentation: Ceph File System](https://docs.ceph.com/en/lat
 
 !!! note
 
-    By design, CephFS data pool and metadata pool must be `replicated` only.
+    By design, the default CephFS data and metadata pools must be `replicated` only.
 
 <a name="cephfs-cephfs-specification-parameters"></a>
 ## CephFS specification parameters
 
-The `CephDeployment` custom resource (CR) `spec` includes the `sharedFilesystem.cephFS` section
+The `CephDeployment` custom resource (CR) `spec` includes the `sharedFilesystem.cephFilesystems` section
 with the following CephFS parameters:
 
 - `name` - CephFS instance name.
-- `dataPools` - A list of CephFS data pool specifications. Each spec contains the `name`, `replicated` or
-  `erasureCoded`, `deviceClass`, and `failureDomain` parameters. The first pool in the list is treated
-  as the default data pool for CephFS and must always be `replicated`. The `failureDomain` parameter
-  may be set to `host`, `rack` and so on, defining the failure domain across which the data will
-  be spread. The number of data pools is unlimited, but the default pool must always be present. For example:
+- `spec` - CephFS spec definition based on the [Rook API CephFS](https://rook.io/docs/rook/v1.19/CRDs/Shared-Filesystem/ceph-filesystem-crd/) specification.
 
-    ```yaml
-    spec:
-      sharedFilesystem:
-        cephFS:
-        - name: cephfs-store
-          dataPools:
-          - name: default-pool
-            deviceClass: ssd
-            replicated:
-              size: 3
-            failureDomain: host
-          - name: second-pool
-            deviceClass: hdd
-            failureDomain: rack
-            erasureCoded:
-              dataChunks: 2
-              codingChunks: 1
-    ```
+For configuration details, refer to the [CephDeployment API](../../custom-resources/cephdeployment.md#cephdeployment-cephfs-parameters).
 
-    where `replicated.size` is the number of full copies of data on multiple nodes.
+Example of the CephFS specification:
+```yaml
+spec:
+  sharedFilesystem:
+    cephFilesystems:
+    - name: cephfs-store
+      spec:
+        dataPools:
+        - name: default-pool
+          deviceClass: ssd
+          replicated:
+            size: 3
+          failureDomain: host
+        - name: second-pool
+          deviceClass: hdd
+          failureDomain: rack
+          erasureCoded:
+            dataChunks: 2
+            codingChunks: 1
+        metadataPool:
+          deviceClass: nvme
+          replicated:
+            size: 3
+          failureDomain: host
+        metadataServer:
+          activeCount: 1
+          activeStandby: false
+          resources: # example, non-prod values
+            requests:
+              memory: 1Gi
+              cpu: 1
+            limits:
+              memory: 2Gi
+              cpu: 2
+```
 
-    {% include "../../snippets/replicatedSize.md" %}
+{% include "../../snippets/replicatedSize.md" %}
 
-    !!! warning
+!!! warning
 
-        Modifying of `dataPools` on a deployed CephFS has no effect. You can manually adjust pool settings
-        through the Ceph CLI. However, for any changes in `dataPools`, we recommend re-creating CephFS.
+    Modifying of `dataPools` on a deployed CephFS has no effect. You can manually adjust pool settings
+    through the Ceph CLI. However, for any changes in `dataPools`, we recommend re-creating CephFS.
 
-- `metadataPool` - CephFS metadata pool spec that should only contain `replicated`, `deviceClass`, and `failureDomain`
-  parameters. The `failureDomain` parameter may be set to `host`, `rack` and so on,
-  defining the failure domain across which the data will be spread. Can use only `replicated` settings. For example:
+!!! warning
 
-    ```yaml
-    spec:
-      sharedFilesystem:
-        cephFS:
-        - name: cephfs-store
-          metadataPool:
-            deviceClass: nvme
-            replicated:
-              size: 3
-            failureDomain: host
-    ```
-
-    where `replicated.size` is the number of full copies of data on multiple nodes.
-
-    !!! warning
-
-        Modifying of `metadataPool` on a deployed CephFS has no effect. You can manually adjust pool settings
-        through the Ceph CLI. However, for any changes in `metadataPool`, we recommend re-creating CephFS.
-
-- `preserveFilesystemOnDelete` - Defines whether to delete the data and metadata pools if CephFS is
-  deleted. Set to `true` to avoid occasional data loss in case of human error. However, for security reasons,
-  we recommend setting `preserveFilesystemOnDelete` to `false`.
-
-- `metadataServer` - Metadata Server settings correspond to the Ceph MDS daemon settings. Contains the following fields:
-
-    - `activeCount` - the number of active Ceph MDS instances. As a load
-      increases, CephFS will automatically partition the file system
-      across the Ceph MDS instances. Rook will create double the number
-      of Ceph MDS instances as requested by `activeCount`. The extra
-      instances will be in the standby mode for failover. We recommend specifying this parameter to `1` and
-      increasing the MDS daemons count only in case of a high load.
-    - `activeStandby` - defines whether the extra Ceph MDS instances
-      will be in active standby mode and will keep a warm cache of the
-      file system metadata for faster failover. CephFS will assign the instances in failover pairs.
-      If `false`, the extra Ceph MDS instances will all be in passive standby mode and will
-      not maintain a warm cache of the metadata. The default value is `false`.
-    - `resources` - represents Kubernetes resource requirements for Ceph MDS pods.
-
-    For example:
-
-    ```yaml
-    spec:
-      sharedFilesystem:
-        cephFS:
-        - name: cephfs-store
-          metadataServer:
-            activeCount: 1
-            activeStandby: false
-            resources: # example, non-prod values
-              requests:
-                memory: 1Gi
-                cpu: 1
-              limits:
-                memory: 2Gi
-                cpu: 2
-    ```
+    Modifying of `metadataPool` on a deployed CephFS has no effect. You can manually adjust pool settings
+    through the Ceph CLI. However, for any changes in `metadataPool`, we recommend re-creating CephFS.
 
 ## Configure CephFS
 
@@ -140,26 +97,27 @@ with the following CephFS parameters:
 
 3. Update the `sharedFilesystem` section specification as required using the configuration reference above. For example:
 
-   ```yaml
-   spec:
-     sharedFilesystem:
-       cephFS:
-       - name: cephfs-store
-         dataPools:
-         - name: cephfs-pool-1
-           deviceClass: hdd
-           replicated:
-             size: 3
-           failureDomain: host
-         metadataPool:
-           deviceClass: nvme
-           replicated:
-             size: 3
-           failureDomain: host
-         metadataServer:
-           activeCount: 1
-           activeStandby: false
-   ```
+     ```yaml
+     spec:
+       sharedFilesystem:
+         cephFilesystems:
+         - name: cephfs-store
+           spec:
+             dataPools:
+             - name: cephfs-pool-1
+               deviceClass: hdd
+               replicated:
+                 size: 3
+               failureDomain: host
+             metadataPool:
+               deviceClass: nvme
+               replicated:
+                 size: 3
+               failureDomain: host
+             metadataServer:
+               activeCount: 1
+               activeStandby: false
+     ```
 
 4. Define the `mds` role for the corresponding nodes where Ceph MDS daemons should be deployed. We recommend
    labeling only one node with the `mds` role. For example:

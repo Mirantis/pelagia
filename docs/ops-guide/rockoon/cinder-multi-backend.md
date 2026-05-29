@@ -14,31 +14,32 @@ To configure Ceph pools for Cinder multiple backends:
 
 1. In the `CephDeployment` CR, add the desired number of Ceph pools to the `pools` section with the `volumes` role:
    ```bash
-   kubectl -n ceph-lcm-mirantis edit miraceph
+   kubectl -n ceph-lcm-mirantis edit cephdeployment
    ```
 
      Example configuration:
      ```yaml
      spec:
-       pools:
-       - default: false
-         deviceClass: hdd
-         name: volumes
-         replicated:
-           size: 3
-         role: volumes
-       - default: false
-         deviceClass: hdd
-         name: volumes-backend-1
-         replicated:
-           size: 3
-         role: volumes
-       - default: false
-         deviceClass: hdd
-         name: volumes-backend-2
-         replicated:
-           size: 3
-         role: volumes
+       blockStorage:
+         pools:
+         - name: volumes
+           role: volumes
+           spec:
+             deviceClass: hdd
+             replicated:
+               size: 3
+         - name: volumes-backend-1
+           role: volumes
+           spec:
+             deviceClass: hdd
+             replicated:
+               size: 3
+         - name: volumes-backend-2
+           role: volumes
+           spec:
+             deviceClass: hdd
+             replicated:
+               size: 3
      ```
 
 2. Verify that Cinder backend pools are created and ready:

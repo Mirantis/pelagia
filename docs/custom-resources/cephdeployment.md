@@ -196,6 +196,8 @@ advanced configuration.
                   operator: Exists
         ```
 
+      For an example usage of `cluster.placement`, see [Enable management of Ceph tolerations and resources](../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md).
+
 - `blockStorage` - Specifies the Ceph block storage configuration. Contains the `pools` parameter that specifies the list of Ceph pools. For details, see [Pools parameters](./cephdeployment.md#cephdeployment-pools-parameters).
 - `clients` - Specifies the list of Ceph clients. For details, see [Clients parameters](./cephdeployment.md#cephdeployment-clients-parameters).
 - `extraOpts` - Enables specification of extra options for a Ceph cluster setup, includes the `deviceLabels` parameter. For details, see [ExtraOpts parameters](./cephdeployment.md#cephdeployment-extraopts-parameters).
@@ -555,6 +557,10 @@ For details about Ceph client capabilities (`caps`), refer to [Ceph documentatio
           osd: profile rbd pool=kubernetes-nvme
     ```
 
+!!! info "See also"
+
+    [Manage Ceph RBD or CephFS clients](../ops-guide/deployment/ceph-user-creds/ceph-client.md)
+
 <a name="cephdeployment-object-storage-parameters"></a>
 ### ObjectStorage parameters
 
@@ -602,6 +608,10 @@ For details about Ceph client capabilities (`caps`), refer to [Ceph documentatio
             preservePoolsOnDelete: false
     ```
 
+!!! info "See also"
+
+    [Enable management of Ceph tolerations and resources](../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md)
+
 <a name="cephdeployment-rgw-users-parameters"></a>
 #### RGW users parameters
 
@@ -630,8 +640,15 @@ For details, see [Rook documentation: CephObjectStoreUser CRD](https://rook.io/d
               maxSize: 10G
     ```
 
+!!! info "See also"
+
+    * [Manage Ceph Object Storage users](../ops-guide/deployment/ceph-user-creds/ceph-rgw-user.md)
+    * [RADOS Gateway bucket policy](../ops-guide/deployment/object-storage/s3-bucket-policy/index.md)
+
 <a name="cephdeployment-rados-gateway-multisite-parameters"></a>
 #### RGW multisite parameters
+
+{% include "../snippets/techpreview.md" %}
 
 {% include "../snippets/multisiteParameters.md" %}
 
@@ -670,6 +687,10 @@ The `gatewayHTTPRoutes` parameters represent the Gateway API `HTTPRoute` specifi
               - rgw-store.custom.dns.name
             ...
     ```
+
+!!! info "See also"
+
+    [Configure TLS for Ceph Object Gateway with Gateway API](../ops-guide/deployment/object-storage/rgw-tls.md#rgw-tls-configure-ceph-object-gateway-using-the-gateway-api)
 
 <a name="cephdeployment-cephfs-parameters"></a>
 ### CephFilesystems parameters
@@ -751,6 +772,10 @@ The `gatewayHTTPRoutes` parameters represent the Gateway API `HTTPRoute` specifi
             metadataServer:
               activeCount: 1
     ```
+
+!!! info "See also"
+
+    [Enable management of Ceph tolerations and resources](../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md)
 
 <a name="cephdeployment-rookconfig-parameters"></a>
 ### RookConfig parameters

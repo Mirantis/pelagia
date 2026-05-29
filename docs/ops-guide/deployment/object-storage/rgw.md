@@ -26,28 +26,27 @@ Pelagia has an integration for Ceph Object Storage with OpenStack Object Storage
    kubectl -n pelagia edit cephdpl <name>
    ```
    Substitute `<name>` with the name of your `CephDeployment`.
-2. Update the `objectStorage.rgw` section specification using the configuration reference above:
-
-     For example:
+2. Update the `objectStorage.objectStores` section specification using the configuration reference above. For example:
      ```yaml
-     rgw:
-       name: rgw-store
-       dataPool:
-         deviceClass: hdd
-         erasureCoded:
-           codingChunks: 1
-           dataChunks: 2
-         failureDomain: host
-       metadataPool:
-         deviceClass: hdd
-         failureDomain: host
-         replicated:
-           size: 3
-       gateway:
-         allNodes: false
-         instances: 3
-         port: 80
-         securePort: 8443
-       preservePoolsOnDelete: false
+     objectStores:
+     - name: rgw-store
+       spec:
+         dataPool:
+           deviceClass: hdd
+           erasureCoded:
+             codingChunks: 1
+             dataChunks: 2
+           failureDomain: host
+         metadataPool:
+           deviceClass: hdd
+           failureDomain: host
+           replicated:
+             size: 3
+         gateway:
+           allNodes: false
+           instances: 3
+           port: 80
+           securePort: 8443
+         preservePoolsOnDelete: false
      ```
 3. Save the changes and exit the editor.

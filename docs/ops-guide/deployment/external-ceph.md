@@ -60,22 +60,23 @@ To plan a shared Ceph cluster, select resources to share on the producer Ceph cl
 
      ```yaml
      sharedFilesystem:
-       cephFS:
+       cephFilesystems:
        - name: cephfs-store
-         dataPools:
-         - name: cephfs-pool-1
-           deviceClass: hdd
-           replicated:
-             size: 3
-           failureDomain: host
-         metadataPool:
-           deviceClass: nvme
-           replicated:
-             size: 3
-           failureDomain: host
-         metadataServer:
-           activeCount: 1
-           activeStandby: false
+         spec:
+           dataPools:
+           - name: cephfs-pool-1
+             deviceClass: hdd
+             replicated:
+               size: 3
+             failureDomain: host
+           metadataPool:
+             deviceClass: nvme
+             replicated:
+               size: 3
+             failureDomain: host
+           metadataServer:
+             activeCount: 1
+             activeStandby: false
      ```
 
      In the example above, the CephFS name is `cephfs-store`.
@@ -122,7 +123,7 @@ spec:
       osd: "profile rbd pool=kubernetes-hdd,profile rbd pool=anotherpool-hdd,allow rw tag cephfs data=cephfs-store"
 ```
 
-To verify the status of the created Ceph client, inspect the `status` section of the `MiraCephHealth` object. For example:
+To verify the status of the created Ceph client, inspect the `status` section of the `CephDeploymentHealth` object. For example:
 
 ```yaml
 status:
@@ -144,16 +145,15 @@ status:
 
      ```bash
      kubectl -n <pelagiaNamespace> exec -it deploy/pelagia-deployment-controller -- sh
-     /usr/local/bin/pelagia-connector --rook-namespace <rookNamespace> --client-name <clientName> --use-rbd --use-cephfs --toolbox-label pelagia-ceph-toolbox --toolbox-ns <rookNamespace> --use-rgw --rgw-username rgw-admin-ops-user --base64
+     /usr/local/bin/pelagia-connector --rook-namespace <rookNamespace> --client-name <clientName> --use-rbd --use-cephfs --base64
      ```
 
-     Substitute the following:
+     Substitute the following parameters:
 
-     - `pelagiaNamespace` with Pelagia namespace
      - `rookNamespace` with Rook namespace
-     - `clientName` with created Ceph non-admin client
+     - `clientName` with the created Ceph non-admin client
 
-     Example of output:
+     Example of system response:
      ```bash
      eyJjbGllbnRfbmFtZSI6ImFkbWluIiwiY2xpZW50X2tleXJpbmciOiJBUUJabW5kcE9HNkhMUkFBUFBQT0tQWkcxTEI0N2EwWmpLQ0t6dz09IiwiZnNpZCI6IjYzNDg1MzQwLWJkNzMtNDNiOS1iNWQyLTY5ZjQ0OTM4N2I3OSIsIm1vbl9lbmRwb2ludHNfbWFwIjoiYT0xMC4xMC4wLjE3OjY3ODksYj0xMC4xMC4wLjE3MDo2Nzg5LGM9MTAuMTAuMC4xMzY6Njc4OSIsInJnd19hZG1pbl9rZXlzIjp7ImFjY2Vzc0tleSI6IjJOVlVTM0xKMDMwTEMzUTE4TTY0Iiwic2VjcmV0S2V5Ijoia0FPU2l3Q2xEeWVpdHpiT3prbGlySEVqWlNBN0JVUnZ6dzh1RExIcCJ9fQ==
      ```
@@ -167,21 +167,29 @@ status:
        name: consumer-ceph
        namespace: <consumerPelagiaNamespace>
      spec:
-       external:
-         enable: true
-         connectionString: <generatedConnectionString>
-       network:
-          clusterNet: <clusterNetCIDR>
-          publicNet: <publicNetCIDR>
+       cluster:
+         external:
+           enable: true
        nodes: {}
      ```
 
-     Specify the following values:
+5. Create a secret with the connection string from step 3:
+     ```yaml
+     apiVersion: v1
+     kind: Secret
+     metadata:
+       name: pelagia-external-connection
+       namespace: <consumerPelagiaNamespace>
+     data:
+       connection: <base64_encoded_output>
+     ```
 
-     - `<generatedConnectionString>` is the connection string generated in the previous step.
-     - `<clusterNetCIDR>` and `<publicNetCIDR>` are values that must match the same values in the producer cluster.
+      And apply the secret. For example:
+        ```bash
+        kubectl apply -f pelagia-connection.yaml
+        ```
 
-5. Apply the file on the consumer cluster:
+5. Apply the file to the consumer cluster. For example:
    ```bash
    kubectl apply -f consumer-cephdpl.yaml
    ```
@@ -193,15 +201,17 @@ Once the Ceph cluster is specified in the `CephDeployment` CR of the consumer cl
 In the `spec.pools` of the consumer `CephDeployment`, specify pools from the producer cluster to be used by the consumer cluster. For example:
 
 ```yaml
-pools:
-- deviceClass: ssd
-  useAsFullName: true
-  name: kubernetes-ssd
-  storageClassOpts:
-    default: true
-- deviceClass: hdd
-  useAsFullName: true
-  name: volumes-hdd
+ blockStorage:
+   pools:
+    - name: kubernetes-hdd
+      role: kubernetes
+      useAsFullName: true
+      storageClassOpts:
+        default: true 
+      spec:
+        deviceClass: hdd
+        replicated:
+          size: 2
 ```
 
 !!! danger
@@ -221,21 +231,16 @@ In the `sharedFilesystem` section of the consumer `CephDeployment`, specify the 
 
 For example:
 ```yaml
-sharedFilesystem:
-  cephFS:
-  - name: cephfs-store
-    dataPools:
-    - name: cephfs-pool-1
-      replicated:
-        size: 3
-      failureDomain: host
-    metadataPool:
-      replicated:
-        size: 3
-      failureDomain: host
-    metadataServer:
-      activeCount: 1
-      activeStandby: false
+ sharedFilesystem:
+   cephFilesystems:
+   - name: cephfs-store
+     spec:
+       dataPools:
+       - name: cephfs-pool-1
+         deviceClass: hdd
+         replicated:
+           size: 3
+         failureDomain: host
 ```
 
 After specifying CephFS in the `CephDeployment` CR of the consumer cluster, Pelagia creates a corresponding `StorageClass` that allows creating `ReadWriteMany` (RWX) PVs in the consumer cluster.
