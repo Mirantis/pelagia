@@ -101,6 +101,10 @@ nav:
       - CephDeploymentHealth custom resource: custom-resources/cephdeploymenthealth.md
       - CephDeploymentSecret custom resource: custom-resources/cephdeploymentsecret.md
       - CephOsdRemoveTask custom resource: custom-resources/cephosdremovetask.md
+  - Configuration Reference:
+      - Configuration Reference: configuration/index.md
+      - Helm chart configuration: configuration/helm-values.md
+      - ConfigMap pelagia-lcmconfig: configuration/lcmconfig.md
   - Developer Guide: developer.md
   - Operations Guide:
       - Operations Guide: ops-guide/index.md
