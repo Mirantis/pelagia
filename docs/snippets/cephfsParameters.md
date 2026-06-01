@@ -1,85 +1,52 @@
- - `name` - Mandatory. CephFS instance name.
- - `dataPools` - A list of CephFS data pool specifications. Each spec contains the `name`, `replicated` or `erasureCoded`, `deviceClass`, and `failureDomain` parameters. The first pool in the list is treated as the default data pool for CephFS and must always be `replicated`
+- `name` - Mandatory. CephFS instance name.
+- `spec` - Represents the Rook `CephFilesystem` specification. For details, refer to the following Rook documentation: [CephFileystem CRD](https://rook.io/docs/rook/v1.19/CRDs/Shared-Filesystem/ceph-filesystem-crd/) and [CephFilesystem API specification](https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.FilesystemSpec).
+
+     !!! note
+
+         The CephFS metadata pool must be only of the `replicated` type.
+
+     !!! note
+
+         The first pool in the list is treated as the default data pool for CephFS and must always be `replicated`.
+
  The number of data pools is unlimited, but the default pool must always be present. For example:
 
-    ```yaml
-    spec:
-      sharedFilesystem:
-        cephFS:
-        - name: cephfs-store
-          dataPools:
-          - name: default-pool
-            deviceClass: ssd
-            replicated:
-              size: 3
-            failureDomain: host
-          - name: second-pool
-            deviceClass: hdd
-            failureDomain: rack
-            erasureCoded:
-              dataChunks: 2
-              codingChunks: 1
-    ```
+   ```yaml
+   spec:
+     sharedFilesystem:
+       cephFilesystems:
+       - name: cephfs-store
+         spec:
+           dataPools:
+           - name: default-pool
+             deviceClass: ssd
+             replicated:
+               size: 3
+             failureDomain: host
+           - name: second-pool
+             deviceClass: hdd
+             failureDomain: rack
+             erasureCoded:
+               dataChunks: 2
+               codingChunks: 1
+           metadataServer:
+             activeCount: 1
+             activeStandby: false
+           resources: # example, non-prod values
+             requests:
+               memory: 1Gi
+               cpu: 1
+           limits:
+             memory: 2Gi
+             cpu: 2
+   ```
 
-    where `replicated.size` is the number of full copies of data on multiple nodes.
+ where `replicated.size` is the number of full copies of data on multiple nodes.
 
-    {% include "./replicatedSize.md" %}
+   {% include "./replicatedSize.md" %}
 
-    !!! warning
+     !!! warning
 
-        Modifying of `dataPools` on a deployed CephFS has no effect.
-        You can manually adjust pool settings through the Ceph CLI.
-        However, for any changes in `dataPools`, we recommend re-creating CephFS.
-
-- `metadataPool` - CephFS metadata pool spec that should only contain `replicated`, `deviceClass`, and `failureDomain` parameters.
-  Can use only `replicated` settings. For example:
-
-    ```yaml
-    spec:
-      sharedFilesystem:
-        cephFS:
-        - name: cephfs-store
-          metadataPool:
-            deviceClass: nvme
-            replicated:
-              size: 3
-            failureDomain: host
-    ```
-
-    where `replicated.size` is the number of full copies of data on multiple nodes.
-
-    !!! warning
-
-        Modifying of `metadataPool` on a deployed CephFS has no effect.
-        You can manually adjust pool settings through the Ceph CLI.
-        However, for any changes in `metadataPool`, we recommend re-creating CephFS.
-
-- `preserveFilesystemOnDelete` - Defines whether to delete the data and metadata pools if CephFS is deleted.
-Set to `true` to avoid occasional data loss in case of human error.
-However, for security reasons, we recommend setting `preserveFilesystemOnDelete` to `false`.
-
-- `metadataServer` - Metadata Server settings correspond to the Ceph MDS daemon settings.
-Contains the following fields:
-
-    - `activeCount` - the number of active Ceph MDS instances. As load increases, CephFS will automatically partition the file system across the Ceph MDS instances. Rook will create double the number of Ceph MDS instances as requested by `activeCount`. The extra instances will be in the standby mode for failover. We recommend specifying this parameter to `1` and increasing the MDS daemons count only in case of high load.
-    - `activeStandby` - defines whether the extra Ceph MDS instances will be in active standby mode and will keep a warm cache of the file system metadata for faster failover.
-    The instances will be assigned by CephFS in failover pairs. If `false`, the extra Ceph MDS instances will all be in passive standby mode and will not maintain a warm cache of the metadata. The default value is `false`.
-    - `resources` - represents Kubernetes resource requirements for Ceph MDS pods.
-    For details see: [Kubernetes docs: Resource Management for Pods and Containers](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/).
-
-    ```yaml
-    spec:
-      sharedFilesystem:
-        cephFS:
-        - name: cephfs-store
-          metadataServer:
-            activeCount: 1
-            activeStandby: false
-          resources: # example, non-prod values
-            requests:
-              memory: 1Gi
-              cpu: 1
-          limits:
-            memory: 2Gi
-            cpu: 2
-    ```
+         Modifying pools on a deployed CephFS has no effect.
+         You can manually adjust pool settings through the Ceph CLI.
+         However, for any changes in pools, we recommend re-creating CephFS.
