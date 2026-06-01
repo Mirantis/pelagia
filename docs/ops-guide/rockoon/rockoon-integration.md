@@ -20,27 +20,23 @@ In the `CephDeployment` custom resource, create the following Ceph pools require
   spec:
     pools:
     ...
-    - default: false
+    - name: volumes
       deviceClass: hdd
-      name: volumes
       replicated:
         size: 3
       role: volumes
-    - default: false
+    - name: backup
       deviceClass: hdd
-      name: backup
       replicated:
         size: 3
       role: backup
-    - default: false
+    - name: vms
       deviceClass: hdd
-      name: vms
       replicated:
         size: 3
       role: vms
-    - default: false
+    - name: images
       deviceClass: hdd
-      name: images
       replicated:
         size: 3
       role: images

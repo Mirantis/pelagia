@@ -61,7 +61,7 @@ will be used as a new metadata device, and re-create all affected Ceph OSDs.
 
 3. Open the `CephDeployment` custom resource (CR) for editing:
    ```bash
-   kubectl -n pelagia edit miraceph
+   kubectl -n pelagia edit cephdeployment
    ```
 
 4. In the `nodes` section, remove all `devices` items that relate

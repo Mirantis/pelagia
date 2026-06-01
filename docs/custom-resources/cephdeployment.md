@@ -55,9 +55,10 @@ For the default `CephDeployment` CR, see the following example:
             deviceClass: ssd
           fullPath: /dev/disk/by-id/scsi-1ATA_WDC_WDS100T2B0A-00SM50_200231443409
       pools:
-      - default: true
+      - name: kubernetes
+        storageClassOpts:
+          default: true
         deviceClass: ssd
-        name: kubernetes
         replicated:
           size: 3
       objectStorage:
@@ -770,7 +771,7 @@ spec:
             deviceClass: <custom_class_name>
             fullPath: /dev/disk/by-id/<unique_ID>
       pools:
-      - default: false
+      - name: pool-1
         deviceClass: <custom_class_name>
         erasureCoded:
         codingChunks: 1

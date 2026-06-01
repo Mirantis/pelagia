@@ -74,9 +74,10 @@ spec:
           deviceClass: ssd
         fullPath: /dev/disk/by-id/nvme-SAMSUNG_ML1EB3T8HMLA-00007_S46FNY1R130423
   pools:
-  - default: true
+  - name:kubernetes
+    storageClassOpts:
+      default: true
     deviceClass: ssd
-    name: kubernetes
     replicated:
       size: 3
 ```
