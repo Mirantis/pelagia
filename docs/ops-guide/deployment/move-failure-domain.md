@@ -50,7 +50,7 @@ other types of failure domains, migrate pools separately, and so on.
 
 **To migrate Ceph pools from one failure domain to another:**
 
-1. Set the required CRUSH topology in the `MiraCeph` object for each
+1. Set the required CRUSH topology in the `CephDeployment` object for each
    defined node. For details on the `crush` parameter, see
    [Nodes parameters](../../custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
 

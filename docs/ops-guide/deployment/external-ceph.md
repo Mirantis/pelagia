@@ -114,7 +114,7 @@ spec:
       osd: "profile rbd pool=kubernetes-hdd,profile rbd pool=anotherpool-hdd,allow rw tag cephfs data=cephfs-store"
 ```
 
-To verify the status of the created Ceph client, inspect the `status` section of the `MiraCephHealth` object. For example:
+To verify the status of the created Ceph client, inspect the `status` section of the `CephDeploymentHealth` object. For example:
 
 ```yaml
 status:

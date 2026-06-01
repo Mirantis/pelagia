@@ -93,7 +93,8 @@ Ceph cluster, it could be managed by `CephDeployment` resource.
       pools:
       - name: kubernetes
         deviceClass: hdd
-        default: true
+        storageClassOpts:
+          default: true
         replicated:
           size: 3
       objectStorage:
