@@ -3552,7 +3552,7 @@ cluster, the Ceph client requires the following <code>caps</code> (permissions):
 <span class="w">      </span><span class="nt">mds</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span>
 <span class="w">      </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile</span><span class="nv"> </span><span class="s">rbd</span><span class="nv"> </span><span class="s">pool=kubernetes-hdd,profile</span><span class="nv"> </span><span class="s">rbd</span><span class="nv"> </span><span class="s">pool=anotherpool-hdd,allow</span><span class="nv"> </span><span class="s">rw</span><span class="nv"> </span><span class="s">tag</span><span class="nv"> </span><span class="s">cephfs</span><span class="nv"> </span><span class="s">data=cephfs-store&quot;</span>
 </code></pre></div>
-<p>To verify the status of the created Ceph client, inspect the <code>status</code> section of the <code>MiraCephHealth</code> object. For example:</p>
+<p>To verify the status of the created Ceph client, inspect the <code>status</code> section of the <code>CephDeploymentHealth</code> object. For example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">fullClusterInfo</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">blockStorageStatus</span><span class="p">:</span>

@@ -3400,7 +3400,7 @@ other types of failure domains, migrate pools separately, and so on.</p>
 <p><strong>To migrate Ceph pools from one failure domain to another:</strong></p>
 <ol>
 <li>
-<p>Set the required CRUSH topology in the <code>MiraCeph</code> object for each
+<p>Set the required CRUSH topology in the <code>CephDeployment</code> object for each
    defined node. For details on the <code>crush</code> parameter, see
    <a href="../../../custom-resources/cephdeployment/#cephdeployment-nodes-parameters">Nodes parameters</a>.</p>
 <p>Setting the CRUSH topology to each node causes the Pelagia Deployment Controller to set proper Kubernetes
