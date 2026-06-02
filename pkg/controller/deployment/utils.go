@@ -182,6 +182,22 @@ func (c *cephDeploymentConfig) getCephConfigDump() ([]cephConfigOptionDump, erro
 	return cephConfigDump, nil
 }
 
+func (c *cephDeploymentConfig) getCephVersion() (string, error) {
+	e := lcmcommon.ExecConfig{
+		Context:    c.context,
+		Kubeclient: c.api.Kubeclientset,
+		Config:     c.api.Config,
+		Namespace:  c.cdConfig.cephDpl.Namespace,
+		Command:    "ceph --version",
+		Labels:     []string{fmt.Sprintf("app=%s", pelagiaVersionCheckDpl)},
+	}
+	output, _, err := lcmcommon.RunPodCmdAndCheckError(e)
+	if err != nil {
+		return output, err
+	}
+	return output, nil
+}
+
 func (c *cephDeploymentConfig) getCephVersions() (*lcmcommon.CephVersions, error) {
 	var cephVersions lcmcommon.CephVersions
 	err := lcmcommon.RunAndParseCephToolboxCLI(c.context, c.api.Kubeclientset, c.api.Config, c.lcmConfig.RookNamespace, "ceph versions --format json", &cephVersions)

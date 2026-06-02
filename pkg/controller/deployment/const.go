@@ -26,6 +26,7 @@ const (
 	adminSecretName       = "rook-ceph-mon"
 	// secret with external connection string
 	externalStringSecretName = "pelagia-external-connection"
+	pelagiaVersionCheckDpl   = "pelagia-check-ceph-version"
 
 	rgwAdminUserSecretName = "rgw-admin-ops-user"
 	// Ceilometer metrics user

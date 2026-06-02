@@ -78,7 +78,8 @@ func IsDeploymentReady(deploy *appsv1.Deployment) bool {
 		deploy.Status.Replicas == replicas &&
 		deploy.Status.UpdatedReplicas == deploy.Status.Replicas &&
 		deploy.Status.ReadyReplicas == deploy.Status.Replicas &&
-		deploy.Status.AvailableReplicas == deploy.Status.Replicas
+		deploy.Status.AvailableReplicas == deploy.Status.Replicas &&
+		deploy.GetGeneration() == deploy.Status.ObservedGeneration
 }
 
 func GetObjectOwnerRef(obj runtime.Object, scheme *runtime.Scheme) ([]metav1.OwnerReference, error) {

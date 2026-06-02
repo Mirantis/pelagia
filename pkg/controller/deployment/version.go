@@ -17,132 +17,265 @@ limitations under the License.
 package deployment
 
 import (
+	"context"
 	"fmt"
-	"regexp"
+	"reflect"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/wait"
 
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
 )
 
+var (
+	versionCheckPollInterval = 20 * time.Second
+	versionCheckPollTimeout  = 5 * time.Minute
+)
+
 func (c *cephDeploymentConfig) verifyCephVersions() (*lcmcommon.CephVersion, string, string, error) {
-	desiredCephVersion, err := lcmcommon.CheckExpectedCephVersion(c.lcmConfig.DeployParams.CephImage, c.lcmConfig.DeployParams.CephRelease)
-	if err != nil {
-		return nil, "", "", errors.Wrap(err, "failed to check desired ceph version")
+	if c.lcmConfig.DeployParams.CephImage == "" {
+		return nil, "", "", errors.New("Pelagia lcmconfig has no required 'DEPLOYMENT_CEPH_IMAGE' parameter set")
 	}
-	cephVersionFromStatus := c.cdConfig.cephDpl.Status.ClusterVersion
-	// check basic case, when no ceph version changes
-	// if desired Ceph version same as in status - no matter if image changes with CVE
-	if cephVersionFromStatus != "" && cephVersionFromStatus == fmt.Sprintf("%s.%s", desiredCephVersion.MajorVersion, desiredCephVersion.MinorVersion) {
-		return desiredCephVersion, c.lcmConfig.DeployParams.CephImage, fmt.Sprintf("%s.%s", desiredCephVersion.MajorVersion, desiredCephVersion.MinorVersion), nil
-	}
+	currentCephImage := ""
+	cephVersionStatus := ""
+	var currentCephVersion *lcmcommon.CephVersion
 	cephCluster, cephClusterErr := c.api.Rookclientset.CephV1().CephClusters(c.lcmConfig.RookNamespace).Get(c.context, c.cdConfig.cephDpl.Name, metav1.GetOptions{})
-	// if no version set in status - set it first and after that wait
-	// for re-run reconcile before proceed with further checks
-	if cephVersionFromStatus == "" {
-		// if no version set in status - check that cephcluster present, otherwise fresh deploy
-		if cephClusterErr != nil {
-			if !apierrors.IsNotFound(cephClusterErr) {
-				return nil, "", "", errors.Wrapf(cephClusterErr, "failed to get %s/%s cephcluster", c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Name)
-			}
-			return desiredCephVersion, c.lcmConfig.DeployParams.CephImage, "", nil
+	if cephClusterErr != nil {
+		if !apierrors.IsNotFound(cephClusterErr) {
+			return nil, "", "", errors.Wrapf(cephClusterErr, "failed to get %s/%s cephcluster", c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Name)
 		}
+	} else {
+		currentCephImage = cephCluster.Spec.CephVersion.Image
 		if isCephDeployed(c.context, *c.log, c.api.Kubeclientset, c.lcmConfig.RookNamespace) {
 			if lcmcommon.IsCephToolboxCLIAvailable(c.context, c.api.Kubeclientset, c.lcmConfig.RookNamespace) {
-				cephVersion, cephVersionForStatus, err := c.checkVersionsFromCli()
+				var err error
+				currentCephVersion, cephVersionStatus, err = c.getClusterCephVersion()
 				if err != nil {
 					return nil, "", "", err
 				}
-				return cephVersion, cephCluster.Spec.CephVersion.Image, cephVersionForStatus, nil
+			} else {
+				return nil, "", "", errors.Errorf("Pelagia toolbox deployment '%s/%s' is not ready, waiting before proceed any actions",
+					c.lcmConfig.RookNamespace, lcmcommon.PelagiaToolBox)
 			}
-			// case when tools pod/deployment is broken and can be fixed during its reconcile function
-			// and we can't predict which current version is, because it may be upgrade/downgrade.
-			// So if Ceph deployed - we need check versions from ceph cli for sure
-			// do not fail, since it may be fixed during ceph-tools ensure, but
-			// after ceph-tools ensure we need to re-run overall reconcile to set correct version
-			return nil, cephCluster.Spec.CephVersion.Image, "", nil
 		}
-		// avoid extra parsing if image same as desired
-		if cephCluster.Spec.CephVersion.Image == c.lcmConfig.DeployParams.CephImage {
-			return desiredCephVersion, c.lcmConfig.DeployParams.CephImage, "", nil
+	}
+	if (currentCephVersion != nil && currentCephImage != c.lcmConfig.DeployParams.CephImage) || currentCephImage == "" {
+		// fully new deployment or image upgrade on live env
+		expectedCephVersion, releaseErr := lcmcommon.GetCephVersionByReleaseName(c.lcmConfig.DeployParams.CephRelease)
+		if releaseErr != nil {
+			return nil, "", "", releaseErr
 		}
-		cephVersion, err := lcmcommon.ParseCephVersion(lcmcommon.GetCephVersionFromImage(cephCluster.Spec.CephVersion.Image))
+		// check ceph version from CLI if image changed
+		newCephVersion, versionErr := c.getCephVersionFromImage(c.lcmConfig.DeployParams.CephImage)
+		if versionErr != nil {
+			return nil, "", "", errors.Wrapf(versionErr, "failed to check 'ceph --version' for provided image '%s'", c.lcmConfig.DeployParams.CephImage)
+		}
+		if newCephVersion.Name != expectedCephVersion.Name {
+			return nil, "", "", errors.Errorf("expected Ceph release %s '%s' version, but specified %s '%s' version (image: %s)",
+				expectedCephVersion.Name, expectedCephVersion.MajorVersion, newCephVersion.Name, newCephVersion.MajorVersion, c.lcmConfig.DeployParams.CephImage)
+		}
+		if currentCephVersion == nil {
+			currentCephVersion = newCephVersion
+			currentCephImage = c.lcmConfig.DeployParams.CephImage
+		} else {
+			if newCephVersion.Order < currentCephVersion.Order {
+				return nil, "", "", errors.Errorf("detected Ceph version downgrade from '%s.%s' to '%s.%s': major downgrade is not possible",
+					currentCephVersion.MajorVersion, currentCephVersion.MinorVersion, newCephVersion.MajorVersion, newCephVersion.MinorVersion)
+			}
+			if newCephVersion.Order-currentCephVersion.Order > 1 {
+				return nil, "", "", errors.Errorf("detected Ceph version upgrade from '%s.%s' to '%s.%s': upgrade with step over one major version is not possible",
+					currentCephVersion.MajorVersion, currentCephVersion.MinorVersion, newCephVersion.MajorVersion, newCephVersion.MinorVersion)
+			}
+			// no major/minor Ceph version - no Ceph version change -> use new image
+			// otherwise check version change is allowed
+			if newCephVersion.Order != currentCephVersion.Order || newCephVersion.MinorVersion != currentCephVersion.MinorVersion {
+				c.log.Info().Msgf("detected Ceph version change: current is '%s.%s', new '%s.%s'",
+					currentCephVersion.MajorVersion, currentCephVersion.MinorVersion, newCephVersion.MajorVersion, newCephVersion.MinorVersion)
+				upgradeAllowed, upgradeErr := c.cephUpgradeAllowed()
+				if upgradeErr != nil {
+					return nil, "", "", errors.Wrap(upgradeErr, "failed to check is Ceph upgrade allowed")
+				}
+				if upgradeAllowed {
+					// updating current image to use and wait until it is updated in cephcluster
+					return currentCephVersion, c.lcmConfig.DeployParams.CephImage, cephVersionStatus, nil
+				}
+			} else {
+				currentCephImage = c.lcmConfig.DeployParams.CephImage
+			}
+		}
+	} else if currentCephVersion == nil {
+		// cephcluster is present, but not yet provisioned due to some
+		// reasons, so get current version from its image and continue
+		// check ceph version from CLI if image changed
+		// deployment should be already there - so must be quick
+		newCephVersion, versionErr := c.getCephVersionFromImage(currentCephImage)
+		if versionErr != nil {
+			return nil, "", "", errors.Wrapf(versionErr, "failed to check 'ceph --version' for used in cluster image '%s'", currentCephImage)
+		}
+		currentCephVersion = newCephVersion
+	} else {
+		// all versions are available, drop deployment if present
+		_, err := c.deleteVersionCheckDeployment()
 		if err != nil {
-			return nil, "", "", errors.Wrap(err, "failed to verify Ceph version in CephCluster spec")
+			c.log.Error().Err(err).Msg("")
 		}
-		return cephVersion, cephCluster.Spec.CephVersion.Image, "", nil
 	}
-	// since version is set in status, that means ceph cluster is operational - any error
-	// should be interpreted as reconcile error
-	if cephClusterErr != nil {
-		return nil, "", "", errors.Wrapf(cephClusterErr, "failed to get %s/%s CephCluster", c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Name)
-	}
-	// since we may have right now upgrade and multiple versions set
-	// first version is ALWAYS must be lower version
-	curVersion := strings.Split(cephVersionFromStatus, ",")[0]
-	currentCephVersion, err := lcmcommon.ParseCephVersion(curVersion)
-	if err != nil {
-		return nil, "", "", errors.Wrap(err, "failed to verify current Ceph version")
-	}
-	if desiredCephVersion.Order < currentCephVersion.Order {
-		return nil, "", "", errors.Errorf("detected Ceph version downgrade from '%s.%s' to '%s.%s': downgrade is not possible",
-			currentCephVersion.MajorVersion, currentCephVersion.MinorVersion, desiredCephVersion.MajorVersion, desiredCephVersion.MinorVersion)
-	}
-	if desiredCephVersion.Order-currentCephVersion.Order > 1 {
-		return nil, "", "", errors.Errorf("detected Ceph version upgrade from '%s.%s' to '%s.%s': upgrade with step over one major version is not possible",
-			currentCephVersion.MajorVersion, currentCephVersion.MinorVersion, desiredCephVersion.MajorVersion, desiredCephVersion.MinorVersion)
-	}
-	c.log.Info().Msgf("cur: %s, conf: %s", cephCluster.Spec.CephVersion.Image, c.lcmConfig.DeployParams.CephImage)
-	// if image is not updated yet in cephcluster spec - check is it possible to update or not
-	if cephCluster.Spec.CephVersion.Image != c.lcmConfig.DeployParams.CephImage {
-		c.log.Info().Msgf("detected Ceph version change: new '%s.%s', current is '%s.%s'", desiredCephVersion.MajorVersion, desiredCephVersion.MinorVersion,
-			currentCephVersion.MajorVersion, currentCephVersion.MinorVersion)
-		upgradeAllowed, err := c.cephUpgradeAllowed()
-		if err != nil {
-			return nil, "", "", errors.Wrap(err, "failed to check is Ceph upgrade allowed")
-		}
-		if upgradeAllowed {
-			// updating current image to use and wait until it is updated in cephcluster
-			return currentCephVersion, c.lcmConfig.DeployParams.CephImage, curVersion, nil
-		}
-		return currentCephVersion, cephCluster.Spec.CephVersion.Image, curVersion, nil
-	}
-	if lcmcommon.IsCephToolboxCLIAvailable(c.context, c.api.Kubeclientset, c.lcmConfig.RookNamespace) {
-		cephVersion, cephVersionForStatus, err := c.checkVersionsFromCli()
-		if err != nil {
-			return nil, "", "", err
-		}
-		return cephVersion, cephCluster.Spec.CephVersion.Image, cephVersionForStatus, nil
-	}
-	c.log.Warn().Msgf("can't verify current Ceph version, %s is not available, waiting", lcmcommon.PelagiaToolBox)
-	// case when tools pod/deployment is broken and can be fixed during its reconcile function
-	return currentCephVersion, cephCluster.Spec.CephVersion.Image, c.cdConfig.cephDpl.Status.ClusterVersion, nil
+	return currentCephVersion, currentCephImage, cephVersionStatus, nil
 }
 
-func (c *cephDeploymentConfig) checkVersionsFromCli() (*lcmcommon.CephVersion, string, error) {
+func (c *cephDeploymentConfig) prepareVersionCheckDeployment(targetImage string) error {
+	ownerRefs, err := lcmcommon.GetObjectOwnerRef(c.cdConfig.cephDpl, c.api.Scheme)
+	if err != nil {
+		msg := fmt.Sprintf("failed to prepare ownerRefs for CephDeployment '%s/%s'", c.cdConfig.cephDpl.Namespace, c.cdConfig.cephDpl.Name)
+		c.log.Error().Err(err).Msg(msg)
+		return err
+	}
+
+	versionDpl := &appsv1.Deployment{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:            pelagiaVersionCheckDpl,
+			Namespace:       c.cdConfig.cephDpl.Namespace,
+			Labels:          lcmcommon.ExtendLabels(map[string]string{"app": pelagiaVersionCheckDpl}, baseResourceLabels),
+			OwnerReferences: ownerRefs,
+		},
+		Spec: appsv1.DeploymentSpec{
+			Selector: &metav1.LabelSelector{
+				MatchLabels: map[string]string{"app": pelagiaVersionCheckDpl},
+			},
+			Replicas:                lcmcommon.PtrTo(int32(1)),
+			RevisionHistoryLimit:    lcmcommon.PtrTo(int32(2)),
+			ProgressDeadlineSeconds: lcmcommon.PtrTo(int32(5)),
+			Strategy: appsv1.DeploymentStrategy{
+				Type: appsv1.RecreateDeploymentStrategyType,
+			},
+			Template: corev1.PodTemplateSpec{
+				ObjectMeta: metav1.ObjectMeta{
+					Labels: map[string]string{"app": pelagiaVersionCheckDpl},
+				},
+				Spec: corev1.PodSpec{
+					Containers: []corev1.Container{
+						{
+							Name:    pelagiaVersionCheckDpl,
+							Image:   targetImage,
+							Command: []string{"tail", "-f", "/dev/null"},
+							SecurityContext: &corev1.SecurityContext{
+								Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
+								AllowPrivilegeEscalation: lcmcommon.PtrTo(false),
+								ReadOnlyRootFilesystem:   lcmcommon.PtrTo(true),
+							},
+							ImagePullPolicy:          "IfNotPresent",
+							TerminationMessagePath:   "/dev/termination-log",
+							TerminationMessagePolicy: "File",
+						},
+					},
+					SecurityContext:               &corev1.PodSecurityContext{},
+					DNSPolicy:                     "ClusterFirstWithHostNet",
+					RestartPolicy:                 "Always",
+					TerminationGracePeriodSeconds: lcmcommon.PtrTo(int64(30)),
+				},
+			},
+		},
+	}
+	checkDpl, err := c.api.Kubeclientset.AppsV1().Deployments(versionDpl.Namespace).Get(c.context, versionDpl.Name, metav1.GetOptions{})
+	if err != nil {
+		if !apierrors.IsNotFound(err) {
+			c.log.Error().Err(err).Msg("")
+			return errors.Wrapf(err, "failed to get '%s/%s' deployment", versionDpl.Namespace, versionDpl.Name)
+		}
+		c.log.Info().Msgf("running Ceph version check for image '%s'", targetImage)
+		_, err = c.api.Kubeclientset.AppsV1().Deployments(versionDpl.Namespace).Create(c.context, versionDpl, metav1.CreateOptions{})
+		if err != nil {
+			c.log.Error().Err(err).Msg("")
+			return errors.Wrapf(err, "failed to create '%s/%s' deployment", versionDpl.Namespace, versionDpl.Name)
+		}
+	} else {
+		versionDpl.Spec.Template.Spec.SchedulerName = checkDpl.Spec.Template.Spec.SchedulerName
+		if !reflect.DeepEqual(checkDpl.Spec, versionDpl.Spec) {
+			c.log.Info().Msgf("restarting Ceph version check for image '%s'", targetImage)
+			lcmcommon.ShowObjectDiff(*c.log, checkDpl.Spec, versionDpl.Spec)
+			checkDpl.Spec = versionDpl.Spec
+			_, err = c.api.Kubeclientset.AppsV1().Deployments(c.lcmConfig.RookNamespace).Update(c.context, checkDpl, metav1.UpdateOptions{})
+			if err != nil {
+				c.log.Error().Err(err).Msg("")
+				return errors.Wrapf(err, "failed to update '%s/%s' deployment", versionDpl.Namespace, versionDpl.Name)
+			}
+		}
+	}
+	err = wait.PollUntilContextTimeout(c.context, versionCheckPollInterval, versionCheckPollTimeout, true, func(_ context.Context) (bool, error) {
+		checkDpl, err := c.api.Kubeclientset.AppsV1().Deployments(versionDpl.Namespace).Get(c.context, versionDpl.Name, metav1.GetOptions{})
+		if err != nil {
+			c.log.Error().Err(err).Msg("")
+			return false, nil
+		}
+		if !lcmcommon.IsDeploymentReady(checkDpl) {
+			c.log.Info().Msgf("waiting version-check deployment '%s/%s' readiness...", versionDpl.Namespace, versionDpl.Name)
+			return false, nil
+		}
+		return true, nil
+	})
+	if err != nil {
+		return errors.Wrap(err, "timeout reached for waiting version-check deployment ready")
+	}
+	return err
+}
+
+func (c *cephDeploymentConfig) deleteVersionCheckDeployment() (bool, error) {
+	err := c.api.Kubeclientset.AppsV1().Deployments(c.cdConfig.cephDpl.Namespace).Delete(c.context, pelagiaVersionCheckDpl, metav1.DeleteOptions{})
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return true, nil
+		}
+		return false, errors.Wrapf(err, "failed to delete '%s/%s' deployment", c.cdConfig.cephDpl.Namespace, pelagiaVersionCheckDpl)
+	}
+	c.log.Info().Msgf("removing version-check deployment '%s/%s'", c.cdConfig.cephDpl.Namespace, pelagiaVersionCheckDpl)
+	return true, nil
+}
+
+func (c *cephDeploymentConfig) getCephVersionFromImage(image string) (*lcmcommon.CephVersion, error) {
+	dplErr := c.prepareVersionCheckDeployment(image)
+	if dplErr != nil {
+		return nil, errors.Wrap(dplErr, "failed to prepare version-check deployment")
+	}
+	cephVersionCLI, err := c.getCephVersion()
+	if err != nil {
+		return nil, err
+	}
+	newCephVersion, err := lcmcommon.ParseCephVersion(cephVersionCLI)
+	if err != nil {
+		return nil, err
+	}
+	return newCephVersion, nil
+}
+
+func (c *cephDeploymentConfig) getClusterCephVersion() (*lcmcommon.CephVersion, string, error) {
 	cephVersions, err := c.getCephVersions()
 	if err != nil {
 		return nil, "", errors.Wrapf(err, "failed to get current Ceph versions")
 	}
 	versionsForStatus := []string{}
+	var clusterCephVersion *lcmcommon.CephVersion
 	for version := range cephVersions.Overall {
-		versionPattern := regexp.MustCompile(`(\d+)\.(\d+)\.(\d+)`)
-		parsedVersion := versionPattern.FindString(version)
-		versionsForStatus = append(versionsForStatus, fmt.Sprintf("v%s", parsedVersion))
+		cephVersion, err := lcmcommon.ParseCephVersion(version)
+		if err != nil {
+			return nil, "", errors.Wrap(err, "failed to verify Ceph version in cluster")
+		}
+		versionsForStatus = append(versionsForStatus, fmt.Sprintf("%s.%s", cephVersion.MajorVersion, cephVersion.MinorVersion))
+		if clusterCephVersion == nil || clusterCephVersion.Order > cephVersion.Order {
+			clusterCephVersion = cephVersion
+		}
 	}
 	// since we may have right now upgrade and multiple versions set
 	// first version is ALWAYS must be lower version
 	sort.Strings(versionsForStatus)
-	cephVersion, err := lcmcommon.ParseCephVersion(versionsForStatus[0])
-	if err != nil {
-		return nil, "", errors.Wrap(err, "failed to verify Ceph version in cluster")
-	}
-	return cephVersion, strings.Join(versionsForStatus, ","), nil
+	return clusterCephVersion, strings.Join(versionsForStatus, ","), nil
 }
 
 func (c *cephDeploymentConfig) ensureCephClusterVersion() error {

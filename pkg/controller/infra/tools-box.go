@@ -106,12 +106,12 @@ func (c *cephDeploymentInfraConfig) ensureToolBox() error {
 			_, err = c.api.Kubeclientset.AppsV1().Deployments(c.lcmConfig.RookNamespace).Create(c.context, cephToolsGenerated, metav1.CreateOptions{})
 			if err != nil {
 				c.log.Error().Err(err).Msg("")
-				return errors.Wrapf(err, "failed to create toolbox deployment '%s/%s", cephToolsGenerated.Namespace, cephToolsGenerated.Name)
+				return errors.Wrapf(err, "failed to create toolbox deployment '%s/%s'", cephToolsGenerated.Namespace, cephToolsGenerated.Name)
 			}
 			return nil
 		}
 		c.log.Error().Err(err).Msg("")
-		return errors.Wrapf(err, "failed to check toolbox deployment '%s/%s", cephToolsGenerated.Namespace, cephToolsGenerated.Name)
+		return errors.Wrapf(err, "failed to check toolbox deployment '%s/%s'", cephToolsGenerated.Namespace, cephToolsGenerated.Name)
 	}
 	if !reflect.DeepEqual(cephTools.Spec, cephToolsGenerated.Spec) || c.checkLabelsAndOwnerRefs(&cephTools.ObjectMeta, &cephToolsGenerated.ObjectMeta, "deployment") {
 		c.log.Info().Msgf("update toolbox deployment %s/%s", cephTools.Namespace, cephTools.Name)
@@ -120,7 +120,7 @@ func (c *cephDeploymentInfraConfig) ensureToolBox() error {
 		_, err = c.api.Kubeclientset.AppsV1().Deployments(c.lcmConfig.RookNamespace).Update(c.context, cephTools, metav1.UpdateOptions{})
 		if err != nil {
 			c.log.Error().Err(err).Msg("")
-			return errors.Wrapf(err, "failed to update toolbox deployment '%s/%s", cephToolsGenerated.Namespace, cephToolsGenerated.Name)
+			return errors.Wrapf(err, "failed to update toolbox deployment '%s/%s'", cephToolsGenerated.Namespace, cephToolsGenerated.Name)
 		}
 		return nil
 	}

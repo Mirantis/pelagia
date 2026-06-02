@@ -58,7 +58,7 @@ func TestEnsureToolBox(t *testing.T) {
 			apiErrors: map[string]error{
 				"get-deployments-pelagia-ceph-toolbox": errors.New("failed to get deployment"),
 			},
-			expectedError: "failed to check toolbox deployment 'rook-ceph/pelagia-ceph-toolbox: failed to get deployment",
+			expectedError: "failed to check toolbox deployment 'rook-ceph/pelagia-ceph-toolbox': failed to get deployment",
 		},
 		{
 			name: "create toolbox",
@@ -85,7 +85,7 @@ func TestEnsureToolBox(t *testing.T) {
 			apiErrors: map[string]error{
 				"create-deployments-pelagia-ceph-toolbox": errors.New("failed to create deployment"),
 			},
-			expectedError: "failed to create toolbox deployment 'rook-ceph/pelagia-ceph-toolbox: failed to create deployment",
+			expectedError: "failed to create toolbox deployment 'rook-ceph/pelagia-ceph-toolbox': failed to create deployment",
 		},
 		{
 			name: "update toolbox failed",
@@ -100,7 +100,7 @@ func TestEnsureToolBox(t *testing.T) {
 			apiErrors: map[string]error{
 				"update-deployments-pelagia-ceph-toolbox": errors.New("failed to update deployment"),
 			},
-			expectedError: "failed to update toolbox deployment 'rook-ceph/pelagia-ceph-toolbox: failed to update deployment",
+			expectedError: "failed to update toolbox deployment 'rook-ceph/pelagia-ceph-toolbox': failed to update deployment",
 		},
 		{
 			name: "update toolbox",
