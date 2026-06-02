@@ -68,12 +68,12 @@ func TestVerifyCephVersions(t *testing.T) {
 			expectedVersion: &lcmcommon.CephVersion{
 				Name:            "Squid",
 				MajorVersion:    "v19.2",
-				MinorVersion:    "3",
+				MinorVersion:    "4",
 				Order:           19,
-				SupportedMinors: []string{"3"},
+				SupportedMinors: []string{"3", "4"},
 			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.3",
-			expectedStatusVersion: "v19.2.3",
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.4",
+			expectedStatusVersion: "v19.2.4",
 		},
 		{
 			name:          "cephdeployment cluster version is not set and failed to get cephcluster",
@@ -91,11 +91,11 @@ func TestVerifyCephVersions(t *testing.T) {
 			expectedVersion: &lcmcommon.CephVersion{
 				Name:            "Squid",
 				MajorVersion:    "v19.2",
-				MinorVersion:    "3",
+				MinorVersion:    "4",
 				Order:           19,
-				SupportedMinors: []string{"3"},
+				SupportedMinors: []string{"3", "4"},
 			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.3",
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.4",
 			expectedStatusVersion: "",
 		},
 		{
@@ -109,11 +109,11 @@ func TestVerifyCephVersions(t *testing.T) {
 			expectedVersion: &lcmcommon.CephVersion{
 				Name:            "Squid",
 				MajorVersion:    "v19.2",
-				MinorVersion:    "3",
+				MinorVersion:    "4",
 				Order:           19,
-				SupportedMinors: []string{"3"},
+				SupportedMinors: []string{"3", "4"},
 			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.3",
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.4",
 			expectedStatusVersion: "",
 		},
 		{
@@ -159,7 +159,7 @@ func TestVerifyCephVersions(t *testing.T) {
 				"configmaps":   &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints}},
 				"deployments":  &appsv1.DeploymentList{},
 			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.3",
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.4",
 			expectedStatusVersion: "",
 		},
 		{
@@ -187,7 +187,7 @@ func TestVerifyCephVersions(t *testing.T) {
 {
   "overall": {
     "ceph version 18.2.7 (c44bc49e7a57a87d84dfff2a077a2058aa2172e2) reef (stable)": 12,
-    "ceph version 19.2.3 (c44bc49e7a57a87d84dfff2a077a2058aa2172e2) squid (stable)": 2
+    "ceph version 19.2.4 (c44bc49e7a57a87d84dfff2a077a2058aa2172e2) squid (stable)": 2
   }
 }
 			`,
@@ -198,8 +198,8 @@ func TestVerifyCephVersions(t *testing.T) {
 				Order:           18,
 				SupportedMinors: []string{"3", "4", "7"},
 			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.3",
-			expectedStatusVersion: "v18.2.7,v19.2.3",
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.4",
+			expectedStatusVersion: "v18.2.7,v19.2.4",
 		},
 		{
 			name: "cephdeployment cluster version is set, but cephCluster not found",
@@ -243,7 +243,7 @@ func TestVerifyCephVersions(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.TestCephCluster.DeepCopy()}},
 			},
-			expectedError: "detected Ceph version downgrade from 'v19.2.3' to 'v18.2.7': downgrade is not possible",
+			expectedError: "detected Ceph version downgrade from 'v19.2.4' to 'v18.2.7': downgrade is not possible",
 		},
 		/* TODO: uncomment with new release after Squid
 		{
@@ -331,7 +331,7 @@ func TestVerifyCephVersions(t *testing.T) {
 				Order:           18,
 				SupportedMinors: []string{"3", "4", "7"},
 			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.3",
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.4",
 			expectedStatusVersion: "v18.2.7",
 		},
 		{
@@ -365,12 +365,12 @@ func TestVerifyCephVersions(t *testing.T) {
 			expectedVersion: &lcmcommon.CephVersion{
 				Name:            "Squid",
 				MajorVersion:    "v19.2",
-				MinorVersion:    "3",
+				MinorVersion:    "4",
 				Order:           19,
-				SupportedMinors: []string{"3"},
+				SupportedMinors: []string{"3", "4"},
 			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.3",
-			expectedStatusVersion: "v19.2.3",
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.4",
+			expectedStatusVersion: "v19.2.4",
 		},
 		{
 			name: "cephdeployment cluster prev major version is set and up to date, ceph tools is not ready",
