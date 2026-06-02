@@ -2,6 +2,7 @@ site_name: Pelagia for Rook Ceph management
 site_author: Mirantis
 docs_dir: ./docs
 repo_name: GitHub
+site_url: https://mirantis.github.io/pelagia/
 repo_url: https://github.com/mirantis/pelagia
 copyright:
   '© 2005 - 2026 Mirantis, Inc. All rights reserved.'
