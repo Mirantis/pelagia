@@ -33,9 +33,9 @@ var LatestCephVersion = strings.ToLower(lcmcommon.LatestRelease.Name)
 var PreviousCephVersion = strings.ToLower(previousRelease.Name)
 
 var previousRelease = func() *lcmcommon.CephVersion {
-	if len(lcmcommon.LatestRelease.SupportedMinors) > 1 {
-		return lcmcommon.LatestRelease
-	}
+	//if len(lcmcommon.LatestRelease.SupportedMinors) > 1 {
+	//	return lcmcommon.LatestRelease
+	//}
 	releaseIdx := 0
 	for idx, release := range lcmcommon.AvailableCephVersions {
 		if release.Order+1 == lcmcommon.LatestRelease.Order {

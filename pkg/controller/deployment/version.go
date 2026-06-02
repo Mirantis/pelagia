@@ -97,6 +97,7 @@ func (c *cephDeploymentConfig) verifyCephVersions() (*lcmcommon.CephVersion, str
 		return nil, "", "", errors.Errorf("detected Ceph version upgrade from '%s.%s' to '%s.%s': upgrade with step over one major version is not possible",
 			currentCephVersion.MajorVersion, currentCephVersion.MinorVersion, desiredCephVersion.MajorVersion, desiredCephVersion.MinorVersion)
 	}
+	c.log.Info().Msgf("cur: %s, conf: %s", cephCluster.Spec.CephVersion.Image, c.lcmConfig.DeployParams.CephImage)
 	// if image is not updated yet in cephcluster spec - check is it possible to update or not
 	if cephCluster.Spec.CephVersion.Image != c.lcmConfig.DeployParams.CephImage {
 		c.log.Info().Msgf("detected Ceph version change: new '%s.%s', current is '%s.%s'", desiredCephVersion.MajorVersion, desiredCephVersion.MinorVersion,
