@@ -50,7 +50,7 @@ var (
 		Name:            "Squid",
 		MajorVersion:    "v19.2",
 		Order:           19,
-		SupportedMinors: []string{"3"},
+		SupportedMinors: []string{"3", "4"},
 	}
 	LatestRelease = Tentacle
 )

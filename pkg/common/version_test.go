@@ -92,7 +92,7 @@ func TestCheckExpectedCephVersion(t *testing.T) {
 		{
 			name:          "check ceph version - image is not in list supported minors",
 			cephImage:     "ceph/ceph:v19.2.20",
-			expectedError: "failed to identify Ceph version for image 'ceph/ceph:v19.2.20': specified Ceph version 'v19.2.20' is not supported. Please use one of: [v19.2.3]",
+			expectedError: "failed to identify Ceph version for image 'ceph/ceph:v19.2.20': specified Ceph version 'v19.2.20' is not supported. Please use one of: [v19.2.3 v19.2.4]",
 		},
 		{
 			name:        "check ceph version - tentacle image version passed and tentacle release",
@@ -115,7 +115,7 @@ func TestCheckExpectedCephVersion(t *testing.T) {
 				MajorVersion:    "v19.2",
 				MinorVersion:    "3",
 				Order:           19,
-				SupportedMinors: []string{"3"},
+				SupportedMinors: []string{"3", "4"},
 			},
 		},
 		{
