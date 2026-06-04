@@ -89,7 +89,6 @@ nav:
       - Quick Start: quick-start/index.md
       - Install Pelagia: quick-start/installation.md
       - Install Pelagia in the LCM-only mode: quick-start/lcm-installation.md
-      - Upgrade Pelagia: quick-start/upgrade.md
   - Architecture:
       - Architecture: architecture/index.md
       - Pelagia overview: architecture/overview.md
@@ -107,6 +106,10 @@ nav:
       - Helm chart configuration: configuration/helm-values.md
       - ConfigMap pelagia-lcmconfig: configuration/lcmconfig.md
   - Developer Guide: developer.md
+  - Upgrade Guide:
+    - Upgrade Guide: upgrade-guide/index.md
+    - Upgrade Pelagia: upgrade-guide/upgrade.md
+    - Upgrade notes 1.x to 2.x: upgrade-guide/upgrade-notes.md
   - Operations Guide:
       - Operations Guide: ops-guide/index.md
       - CephDeployment operations:
