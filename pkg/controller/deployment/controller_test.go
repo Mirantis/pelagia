@@ -460,7 +460,7 @@ func TestReconcile(t *testing.T) {
 				"nodes":                      &corev1.NodeList{Items: []corev1.Node{unitinputs.GetAvailableNode("node-1"), unitinputs.GetAvailableNode("node-2"), unitinputs.GetAvailableNode("node-3")}},
 				"cephclusters":               &cephv1.CephClusterList{},
 				"deployments": &appsv1.DeploymentList{
-					Items: []appsv1.Deployment{*unitinputs.RookDeploymentPrevVersion.DeepCopy(), *unitinputs.ToolBoxDeploymentReady},
+					Items: []appsv1.Deployment{*unitinputs.RookDeploymentPrevVersion.DeepCopy(), *unitinputs.ToolBoxDeploymentReady, unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])},
 				},
 				"daemonsets": &appsv1.DaemonSetList{Items: []appsv1.DaemonSet{*unitinputs.RookDiscover.DeepCopy()}},
 				"pods":       unitinputs.ToolBoxPodList,
@@ -490,7 +490,7 @@ func TestReconcile(t *testing.T) {
 				"nodes":                      &corev1.NodeList{Items: []corev1.Node{unitinputs.GetAvailableNode("node-1"), unitinputs.GetAvailableNode("node-2"), unitinputs.GetAvailableNode("node-3")}},
 				"cephclusters":               &cephv1.CephClusterList{},
 				"deployments": &appsv1.DeploymentList{
-					Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy(), *unitinputs.ToolBoxDeploymentReady},
+					Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy(), *unitinputs.ToolBoxDeploymentReady, unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])},
 				},
 				"daemonsets":         &appsv1.DaemonSetList{Items: []appsv1.DaemonSet{*unitinputs.RookDiscover.DeepCopy()}},
 				"pods":               unitinputs.ToolBoxPodList,
@@ -518,7 +518,7 @@ func TestReconcile(t *testing.T) {
 				"nodes":           &corev1.NodeList{Items: []corev1.Node{unitinputs.GetAvailableNode("node-1"), unitinputs.GetAvailableNode("node-2"), unitinputs.GetAvailableNode("node-3")}},
 				"cephclusters":    &cephv1.CephClusterList{},
 				"deployments": &appsv1.DeploymentList{
-					Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy(), *unitinputs.ToolBoxDeploymentReady},
+					Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy(), *unitinputs.ToolBoxDeploymentReady, unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])},
 				},
 				"daemonsets":         &appsv1.DaemonSetList{Items: []appsv1.DaemonSet{*unitinputs.RookDiscover.DeepCopy()}},
 				"pods":               unitinputs.ToolBoxPodList,
@@ -556,7 +556,7 @@ func TestReconcile(t *testing.T) {
 				"networkpolicies":            &networkingv1.NetworkPolicyList{},
 				"nodes":                      &corev1.NodeList{Items: []corev1.Node{unitinputs.GetAvailableNode("node-1"), unitinputs.GetAvailableNode("node-2"), unitinputs.GetAvailableNode("node-3")}},
 				"deployments": &appsv1.DeploymentList{
-					Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy(), *unitinputs.ToolBoxDeploymentReady},
+					Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy(), *unitinputs.ToolBoxDeploymentReady, unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])},
 				},
 				"daemonsets":           &appsv1.DaemonSetList{Items: []appsv1.DaemonSet{*unitinputs.RookDiscover.DeepCopy()}},
 				"pods":                 unitinputs.ToolBoxPodList,
@@ -770,7 +770,7 @@ func TestReconcile(t *testing.T) {
 			name: "reconcile cephdeployment - update non-mosk ceph cluster",
 			inputResources: map[string]runtime.Object{
 				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{
-					*unitinputs.GetUpdatedClusterVersionCephDeploy(unitinputs.CephDeployNonMosk.DeepCopy(), "v19.2.3")}},
+					*unitinputs.GetUpdatedClusterVersionCephDeploy(unitinputs.CephDeployNonMosk.DeepCopy(), "v20.2.1")}},
 				"cephdeploymentsecrets":      &cephlcmv1alpha1.CephDeploymentSecretList{Items: []cephlcmv1alpha1.CephDeploymentSecret{*unitinputs.EmptyCephSecret}},
 				"cephdeploymenthealths":      &cephlcmv1alpha1.CephDeploymentHealthList{Items: []cephlcmv1alpha1.CephDeploymentHealth{unitinputs.CephDeploymentHealth}},
 				"cephdeploymentmaintenances": unitinputs.CephDeploymentMaintenanceListIdle,
@@ -781,14 +781,14 @@ func TestReconcile(t *testing.T) {
 				"secrets": &corev1.SecretList{Items: []corev1.Secret{*unitinputs.RgwSSLCertSecretSelfSigned.DeepCopy(), unitinputs.RookCephMonSecret}},
 				"nodes":   &corev1.NodeList{Items: []corev1.Node{unitinputs.GetAvailableNode("node-1"), unitinputs.GetAvailableNode("node-2"), unitinputs.GetAvailableNode("node-3")}},
 				"deployments": &appsv1.DeploymentList{
-					Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy(), *unitinputs.ToolBoxDeploymentReady},
+					Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy(), *unitinputs.ToolBoxDeploymentReady, unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])},
 				},
 				"daemonsets": &appsv1.DaemonSetList{Items: []appsv1.DaemonSet{*unitinputs.RookDiscover.DeepCopy()}},
 				"pods":       unitinputs.ToolBoxPodList,
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
 					func() cephv1.CephCluster {
 						cluster := unitinputs.TestCephCluster.DeepCopy()
-						cluster.Spec.CephVersion.Image = "fake/fake:v.2.3.4"
+						cluster.Spec.CephVersion.Image = "fake/fake:v20.2.1-0"
 						return *cluster
 					}(),
 				}},
@@ -797,10 +797,10 @@ func TestReconcile(t *testing.T) {
 			testclient: faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.BaseCephDeployment.DeepCopy()).WithObjects(unitinputs.BaseCephDeployment.DeepCopy()),
 			expectedVersion: &lcmcommon.CephVersion{
 				Name:            "Squid",
-				MajorVersion:    "v19.2",
-				MinorVersion:    "3",
-				Order:           19,
-				SupportedMinors: []string{"3"},
+				MajorVersion:    "v20.2",
+				MinorVersion:    "1",
+				Order:           20,
+				SupportedMinors: []string{"0", "1"},
 			},
 			result: requeueAfterInterval,
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
@@ -810,7 +810,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 10,
 				},
-				ClusterVersion: "v19.2.3",
+				ClusterVersion: "v20.2.1",
 				LastRun:        "2021-08-15T14:30:34+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -827,7 +827,7 @@ func TestReconcile(t *testing.T) {
 				"secrets":                    &corev1.SecretList{},
 				"nodes":                      &corev1.NodeList{Items: []corev1.Node{unitinputs.GetAvailableNode("node-1"), unitinputs.GetAvailableNode("node-2"), unitinputs.GetAvailableNode("node-3")}},
 				"deployments": &appsv1.DeploymentList{
-					Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy(), *unitinputs.ToolBoxDeploymentReady},
+					Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy(), *unitinputs.ToolBoxDeploymentReady, unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])},
 				},
 				"daemonsets":           &appsv1.DaemonSetList{Items: []appsv1.DaemonSet{*unitinputs.RookDiscover.DeepCopy()}},
 				"pods":                 unitinputs.ToolBoxPodList,
@@ -929,7 +929,7 @@ func TestReconcile(t *testing.T) {
 				"configmaps":                 &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.PelagiaConfig}},
 				"secrets":                    &corev1.SecretList{Items: []corev1.Secret{unitinputs.ExternalConnectionSecretWithAdmin}},
 				"daemonsets":                 &appsv1.DaemonSetList{Items: []appsv1.DaemonSet{*unitinputs.RookDiscover.DeepCopy()}},
-				"deployments":                &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy()}},
+				"deployments":                &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy(), unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
 				"nodes": &corev1.NodeList{
 					Items: []corev1.Node{
 						unitinputs.GetNodeWithLabels("node-1", map[string]string{}, nil),
@@ -970,7 +970,7 @@ func TestReconcile(t *testing.T) {
 				"configmaps":                 &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.PelagiaConfig}},
 				"secrets":                    &corev1.SecretList{Items: []corev1.Secret{unitinputs.ExternalConnectionSecretNonAdmin}},
 				"daemonsets":                 &appsv1.DaemonSetList{Items: []appsv1.DaemonSet{*unitinputs.RookDiscover.DeepCopy()}},
-				"deployments":                &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy()}},
+				"deployments":                &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy(), unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
 				"nodes": &corev1.NodeList{
 					Items: []corev1.Node{
 						unitinputs.GetNodeWithLabels("node-1", map[string]string{}, nil),
@@ -1229,6 +1229,10 @@ func TestReconcile(t *testing.T) {
 	oldUnixTimeFunc := lcmcommon.GetCurrentUnixTimeString
 	oldGenerateCrtFunc := lcmcommon.GenerateSelfSignedCert
 	oldCephCmdFunc := lcmcommon.RunPodCommandWithValidation
+	oldInterval := versionCheckPollInterval
+	oldTimeout := versionCheckPollTimeout
+	versionCheckPollInterval = 1 * time.Second
+	versionCheckPollTimeout = 2 * time.Second
 	failTriesLeft = 0
 	t.Setenv("CEPH_CONTROLLER_CLUSTER_RELEASE", "1.1.1")
 	t.Setenv("WAIT_FOR_OPENSTACK_LOCK", "false")
@@ -1308,6 +1312,8 @@ func TestReconcile(t *testing.T) {
 					return "false", "", nil
 				} else if e.Command == "ceph versions --format json" {
 					return unitinputs.CephVersionsLatest, "", nil
+				} else if e.Command == "ceph --version" {
+					return unitinputs.CephVersionLatest, "", nil
 				} else if strings.Contains(e.Command, "config dump") {
 					return unitinputs.CephConfigDumpDefaults, "", nil
 				} else if strings.Contains(e.Command, "ceph fs subvolumegroup -f json ls test-cephfs") {
@@ -1353,6 +1359,8 @@ func TestReconcile(t *testing.T) {
 	lcmcommon.GetCurrentUnixTimeString = oldUnixTimeFunc
 	lcmcommon.GenerateSelfSignedCert = oldGenerateCrtFunc
 	lcmcommon.RunPodCommandWithValidation = oldCephCmdFunc
+	versionCheckPollInterval = oldInterval
+	versionCheckPollTimeout = oldTimeout
 	unsetTimestampsVar()
 }
 

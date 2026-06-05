@@ -730,6 +730,8 @@ var CephConfigDumpOverrideWithRgw = fmt.Sprintf("[%s, %s, %s, %s, %s]",
 	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_keystone_admin_password", "value": "AMTqaDveAp8sWlLtf0fcg6RVjFRXs7FR", "runtime_update": "false"}),
 	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_keystone_barbican_password", "value": "AMTqaDveAp8sWlLtf0fcg6RVjFRXs7FR", "runtime_update": "false"}))
 
+var CephVersionTemplate = `ceph version %s (stable)`
+
 var CephVersionsTemplate = `
 {
     "mon": {
@@ -771,8 +773,10 @@ var CephVersionsTemplateWithExtraDaemons = `
 `
 
 var cephVersionsOutputTmplLatest = fmt.Sprintf("%s (76424b2fe1bb19c32c52140f39764599abf5e035) %s", strings.TrimPrefix(LatestCephVersionImage, "v"), LatestCephVersion)
+var CephVersionLatest = fmt.Sprintf(CephVersionTemplate, cephVersionsOutputTmplLatest)
 var CephVersionsLatest = fmt.Sprintf(CephVersionsTemplate, cephVersionsOutputTmplLatest)
 var CephVersionsLatestWithExtraDaemons = fmt.Sprintf(CephVersionsTemplateWithExtraDaemons, cephVersionsOutputTmplLatest)
 var cephVersionsOutputTmplPrevious = fmt.Sprintf("%s (c44bc49e7a57a87d84dfff2a077a2058aa2172e2) %s", strings.TrimPrefix(PreviousCephVersionImage, "v"), PreviousCephVersion)
+var CephVersionPrevious = fmt.Sprintf(CephVersionTemplate, cephVersionsOutputTmplPrevious)
 var CephVersionsPrevious = fmt.Sprintf(CephVersionsTemplate, cephVersionsOutputTmplPrevious)
 var CephVersionsPreviousWithExtraDaemons = fmt.Sprintf(CephVersionsTemplateWithExtraDaemons, cephVersionsOutputTmplPrevious)

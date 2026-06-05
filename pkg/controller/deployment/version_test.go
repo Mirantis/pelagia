@@ -19,6 +19,7 @@ package deployment
 import (
 	"os"
 	"testing"
+	"time"
 
 	"github.com/pkg/errors"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
@@ -39,8 +40,9 @@ func TestVerifyCephVersions(t *testing.T) {
 		name                  string
 		cephDpl               *cephlcmv1alpha1.CephDeployment
 		inputResources        map[string]runtime.Object
-		ccsettingsMap         map[string]string
-		cmdOutput             string
+		lcmConfigData         map[string]string
+		cmdOutputs            map[string]string
+		apiErrors             map[string]error
 		osdpl                 *fakeclient.ClientBuilder
 		expectedVersion       *lcmcommon.CephVersion
 		expectedImage         string
@@ -48,199 +50,174 @@ func TestVerifyCephVersions(t *testing.T) {
 		expectedError         string
 	}{
 		{
-			name:    "failed to find supported ceph version for specified image",
-			cephDpl: unitinputs.CephDeployMosk.DeepCopy(),
-			ccsettingsMap: func() map[string]string {
-				cm := unitinputs.PelagiaConfig.DeepCopy().Data
-				cm["DEPLOYMENT_CEPH_RELEASE"] = "blabla"
-				return cm
-			}(),
-			expectedError: "failed to check desired ceph version: failed to find appropriate Ceph version of 'blabla' release. Is release name correct?",
+			name:          "ceph image is not set",
+			expectedError: "Pelagia lcmconfig has no required 'DEPLOYMENT_CEPH_IMAGE' parameter set",
 		},
 		{
-			name: "cephdeployment cluster version is aligned with specified image and release",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMosk.DeepCopy()
-				mc.Status.ClusterVersion = unitinputs.LatestCephVersionImage
-				return mc
-			}(),
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
-			expectedVersion: &lcmcommon.CephVersion{
-				Name:            "Tentacle",
-				MajorVersion:    "v20.2",
-				MinorVersion:    "1",
-				Order:           20,
-				SupportedMinors: []string{"0", "1"},
-			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.1",
-			expectedStatusVersion: "v20.2.1",
-		},
-		{
-			name:          "cephdeployment cluster version is not set and failed to get cephcluster",
+			name:          "failed to get cephcluster",
 			cephDpl:       &unitinputs.CephDeployMosk,
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
-			expectedError: "failed to get rook-ceph/cephcluster cephcluster: failed to get resource(s) kind of 'cephclusters': list object is not specified in test",
-		},
-		{
-			name:          "cephdeployment cluster version is not set and cephcluster not found",
-			cephDpl:       &unitinputs.CephDeployMosk,
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{}},
 			},
+			apiErrors:     map[string]error{"get-cephclusters": errors.New("failed to get cephcluster")},
+			expectedError: "failed to get rook-ceph/cephcluster cephcluster: failed to get cephcluster",
+		},
+		{
+			name:    "failed to find supported ceph version for specified image",
+			cephDpl: unitinputs.CephDeployMosk.DeepCopy(),
+			lcmConfigData: func() map[string]string {
+				cm := unitinputs.PelagiaConfig.DeepCopy().Data
+				cm["DEPLOYMENT_CEPH_RELEASE"] = "octopus"
+				return cm
+			}(),
+			inputResources: map[string]runtime.Object{
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{}},
+			},
+			expectedError: "specified not supported Ceph release 'octopus'. Is version correct?",
+		},
+		{
+			name:          "cephcluster not found, fresh deployment, failed to prepare version-check deployment",
+			cephDpl:       &unitinputs.CephDeployMosk,
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
+			inputResources: map[string]runtime.Object{
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{}},
+				"deployments":  &appsv1.DeploymentList{},
+			},
+			apiErrors:     map[string]error{"get-deployments": errors.New("failed to get deployments")},
+			expectedError: "failed to check 'ceph --version' for provided image 'mirantis.azurecr.io/ceph/ceph:v20.2.1': failed to prepare version-check deployment: failed to get 'lcm-namespace/pelagia-check-ceph-version' deployment: failed to get deployments",
+		},
+		{
+			name:          "cephcluster not found, fresh deployment, incorrect ceph version inside image",
+			cephDpl:       &unitinputs.CephDeployMosk,
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
+			inputResources: map[string]runtime.Object{
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{}},
+				"deployments":  &appsv1.DeploymentList{Items: []appsv1.Deployment{unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
+			},
+			cmdOutputs:    map[string]string{"ceph --version": "ceph version 3.3.3 (stable)"},
+			expectedError: "failed to check 'ceph --version' for provided image 'mirantis.azurecr.io/ceph/ceph:v20.2.1': unsupported Ceph major version 'v3.3' provided. Supported are: [Tentacle (v20.2) Squid (v19.2)]",
+		},
+		{
+			name:          "cephcluster not found, fresh deployment, version detected",
+			cephDpl:       &unitinputs.CephDeployMosk,
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
+			inputResources: map[string]runtime.Object{
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{}},
+				"deployments":  &appsv1.DeploymentList{Items: []appsv1.Deployment{unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
+			},
+			cmdOutputs: map[string]string{"ceph --version": unitinputs.CephVersionLatest},
 			expectedVersion: &lcmcommon.CephVersion{
-				Name:            "Tentacle",
-				MajorVersion:    "v20.2",
-				MinorVersion:    "1",
-				Order:           20,
-				SupportedMinors: []string{"0", "1"},
+				Name:         "Tentacle",
+				MajorVersion: "v20.2",
+				MinorVersion: "1",
+				Order:        20,
 			},
 			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.1",
 			expectedStatusVersion: "",
 		},
 		{
-			name:          "cephdeployment cluster version is not set and cephcluster not deployed",
+			name:          "cephcluster found, but not deployed yet, failed to detect version",
 			cephDpl:       &unitinputs.CephDeployMosk,
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.TestCephCluster.DeepCopy()}},
+				"deployments":  &appsv1.DeploymentList{Items: []appsv1.Deployment{unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
 				"configmaps":   &corev1.ConfigMapList{},
 			},
+			expectedError: "failed to check 'ceph --version' for used in cluster image 'mirantis.azurecr.io/ceph/ceph:v20.2.1': failed to run command 'ceph --version': unexpected run ceph command: ceph --version",
+		},
+		{
+			name:          "cephcluster found, but not deployed yet, version detected",
+			cephDpl:       &unitinputs.CephDeployMosk,
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
+			inputResources: map[string]runtime.Object{
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.TestCephCluster.DeepCopy()}},
+				"deployments":  &appsv1.DeploymentList{Items: []appsv1.Deployment{unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
+				"configmaps":   &corev1.ConfigMapList{},
+			},
+			cmdOutputs: map[string]string{"ceph --version": unitinputs.CephVersionLatest},
 			expectedVersion: &lcmcommon.CephVersion{
-				Name:            "Tentacle",
-				MajorVersion:    "v20.2",
-				MinorVersion:    "1",
-				Order:           20,
-				SupportedMinors: []string{"0", "1"},
+				Name:         "Tentacle",
+				MajorVersion: "v20.2",
+				MinorVersion: "1",
+				Order:        20,
 			},
 			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.1",
 			expectedStatusVersion: "",
 		},
 		{
-			name:          "cephdeployment cluster version is not set and cephcluster not deployed and different image set",
+			name:          "cephcluster deployed, but pelagia toolbox deployment is not ready",
 			cephDpl:       &unitinputs.CephDeployMosk,
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
+			inputResources: map[string]runtime.Object{
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.TestCephCluster.DeepCopy()}},
+				"deployments":  &appsv1.DeploymentList{},
+				"configmaps":   &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints}},
+			},
+			expectedError: "Pelagia toolbox deployment 'rook-ceph/pelagia-ceph-toolbox' is not ready, waiting before proceed any actions",
+		},
+		{
+			name:          "cephcluster deployed, pelagia toolbox available, failed to get versions",
+			cephDpl:       &unitinputs.CephDeployMosk,
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
+			inputResources: map[string]runtime.Object{
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.TestCephCluster.DeepCopy()}},
+				"configmaps":   &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints}},
+				"deployments":  &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.ToolBoxDeploymentReady}},
+			},
+			cmdOutputs:    map[string]string{"ceph versions --format json": "{||}"},
+			expectedError: "failed to get current Ceph versions: failed to parse output for command 'ceph versions --format json': invalid character '|' looking for beginning of object key string",
+		},
+		{
+			name:          "cephcluster not deployed and different image set",
+			cephDpl:       &unitinputs.CephDeployMosk,
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
 					func() cephv1.CephCluster {
 						cluster := unitinputs.CephClusterReady.DeepCopy()
-						cluster.Spec.CephVersion.Image = "some-registry.com/ceph:v19.2.3"
+						cluster.Spec.CephVersion.Image = "some-registry.com/ceph:v19.2.4"
 						return *cluster
 					}(),
 				}},
-				"configmaps": &corev1.ConfigMapList{},
+				"deployments": &appsv1.DeploymentList{Items: []appsv1.Deployment{unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
+				"configmaps":  &corev1.ConfigMapList{},
 			},
+			cmdOutputs: map[string]string{"ceph --version": unitinputs.CephVersionPrevious},
 			expectedVersion: &lcmcommon.CephVersion{
-				Name:            "Squid",
-				MajorVersion:    "v19.2",
-				MinorVersion:    "3",
-				Order:           19,
-				SupportedMinors: []string{"3", "4"},
+				Name:         "Squid",
+				MajorVersion: "v19.2",
+				MinorVersion: "4",
+				Order:        19,
 			},
-			expectedImage:         "some-registry.com/ceph:v19.2.3",
+			expectedImage:         "some-registry.com/ceph:v19.2.4",
 			expectedStatusVersion: "",
 		},
 		{
-			name:          "cephdeployment cluster version is not set and cephcluster not deployed and incorrect image",
-			cephDpl:       &unitinputs.CephDeployMosk,
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
-			inputResources: map[string]runtime.Object{
-				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
-					func() cephv1.CephCluster {
-						cl := unitinputs.CephClusterGenerated.DeepCopy()
-						cl.Spec.CephVersion.Image = "mirantis.azurecr.io/ceph/ceph:v2.3.4"
-						return *cl
-					}(),
-				}},
-				"configmaps": &corev1.ConfigMapList{},
-			},
-			expectedError: "failed to verify Ceph version in CephCluster spec: failed to find supported Ceph version for specified 'v2.3.4' version. Is version correct?",
-		},
-		{
-			name:          "cephdeployment cluster version is not set, cephcluster deployed, ceph tools is not available",
-			cephDpl:       &unitinputs.CephDeployMosk,
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
+			name:    "cephcluster image changed, but new release is different to image",
+			cephDpl: &unitinputs.CephDeployMosk,
+			lcmConfigData: func() map[string]string {
+				cm := unitinputs.PelagiaConfigForPrevCephVersion.DeepCopy().Data
+				cm["DEPLOYMENT_CEPH_IMAGE"] = "mirantis.azurecr.io/ceph/ceph:v19.2.3"
+				cm["DEPLOYMENT_CEPH_RELEASE"] = "tentacle"
+				return cm
+			}(),
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.TestCephCluster.DeepCopy()}},
 				"configmaps":   &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints}},
-				"deployments":  &appsv1.DeploymentList{},
+				"deployments":  &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.ToolBoxDeploymentReady, unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
 			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.1",
-			expectedStatusVersion: "",
+			cmdOutputs: map[string]string{
+				"ceph versions --format json": unitinputs.CephVersionsLatest,
+				"ceph --version":              unitinputs.CephVersionPrevious,
+			},
+			expectedError: "expected Ceph release Tentacle 'v20.2' version, but specified Squid 'v19.2' version (image: mirantis.azurecr.io/ceph/ceph:v19.2.3)",
 		},
 		{
-			name:          "cephdeployment cluster version is not set, cephcluster deployed, ceph tools available, failed to get versions",
-			cephDpl:       &unitinputs.CephDeployMosk,
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
-			inputResources: map[string]runtime.Object{
-				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.TestCephCluster.DeepCopy()}},
-				"configmaps":   &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints}},
-				"deployments":  &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.ToolBoxDeploymentReady}},
-			},
-			cmdOutput:     "{||}",
-			expectedError: "failed to get current Ceph versions: failed to parse output for command 'ceph versions --format json': invalid character '|' looking for beginning of object key string",
-		},
-		{
-			name:          "cephdeployment cluster version is not set, cephcluster deployed, ceph tools available, in mid upgrade",
-			cephDpl:       &unitinputs.CephDeployMosk,
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
-			inputResources: map[string]runtime.Object{
-				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.TestCephCluster.DeepCopy()}},
-				"configmaps":   &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints}},
-				"deployments":  &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.ToolBoxDeploymentReady}},
-			},
-			cmdOutput: `
-{
-  "overall": {
-    "ceph version 19.2.3 (c44bc49e7a57a87d84dfff2a077a2058aa2172e2) squid (stable)": 12,
-    "ceph version 20.2.1 (c44bc49e7a57a87d84dfff2a077a2058aa2172e2) tentacle (stable)": 2
-  }
-}
-			`,
-			expectedVersion: &lcmcommon.CephVersion{
-				Name:            "Squid",
-				MajorVersion:    "v19.2",
-				MinorVersion:    "3",
-				Order:           19,
-				SupportedMinors: []string{"3", "4"},
-			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.1",
-			expectedStatusVersion: "v19.2.3,v20.2.1",
-		},
-		{
-			name: "cephdeployment cluster version is set, but cephCluster not found",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMosk.DeepCopy()
-				mc.Status.ClusterVersion = "v19.2.3"
-				return mc
-			}(),
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
-			inputResources: map[string]runtime.Object{
-				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{}},
-			},
-			expectedError: "failed to get rook-ceph/cephcluster CephCluster: cephclusters \"cephcluster\" not found",
-		},
-		{
-			name: "cephdeployment cluster version is wrong",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMosk.DeepCopy()
-				mc.Status.ClusterVersion = "v19.2.9"
-				return mc
-			}(),
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
-			inputResources: map[string]runtime.Object{
-				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.TestCephCluster.DeepCopy()}},
-			},
-			expectedError: "failed to verify current Ceph version: specified Ceph version 'v19.2.9' is not supported. Please use one of: [v19.2.3 v19.2.4]",
-		},
-		{
-			name: "cephdeployment cluster version is set, but new release is major downgrade",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMosk.DeepCopy()
-				mc.Status.ClusterVersion = unitinputs.LatestCephVersionImage
-				return mc
-			}(),
-			ccsettingsMap: func() map[string]string {
+			name:    "cephcluster image changed, but new release is major downgrade",
+			cephDpl: &unitinputs.CephDeployMosk,
+			lcmConfigData: func() map[string]string {
 				cm := unitinputs.PelagiaConfigForPrevCephVersion.DeepCopy().Data
 				cm["DEPLOYMENT_CEPH_IMAGE"] = "mirantis.azurecr.io/ceph/ceph:v19.2.3"
 				cm["DEPLOYMENT_CEPH_RELEASE"] = "squid"
@@ -248,8 +225,14 @@ func TestVerifyCephVersions(t *testing.T) {
 			}(),
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.TestCephCluster.DeepCopy()}},
+				"configmaps":   &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints}},
+				"deployments":  &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.ToolBoxDeploymentReady, unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
 			},
-			expectedError: "detected Ceph version downgrade from 'v20.2.1' to 'v19.2.3': downgrade is not possible",
+			cmdOutputs: map[string]string{
+				"ceph versions --format json": unitinputs.CephVersionsLatest,
+				"ceph --version":              unitinputs.CephVersionPrevious,
+			},
+			expectedError: "detected Ceph version downgrade from 'v20.2.1' to 'v19.2.4': major downgrade is not possible",
 		},
 		/* TODO: uncomment if more than 2 releases are supported at the time
 		{
@@ -259,20 +242,45 @@ func TestVerifyCephVersions(t *testing.T) {
 				mc.Status.ClusterVersion = "v17.2.7"
 				return mc
 			}(),
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.TestCephCluster.DeepCopy()}},
 			},
 			expectedError: "detected Ceph version upgrade from 'v17.2.7' to 'v20.2.0': upgrade with step over one major version is not possible",
 		},*/
 		{
-			name: "cephdeployment cluster version is set, ceph image different from desired image, failed to check major upgrade allowed",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMosk.DeepCopy()
-				mc.Status.ClusterVersion = "v19.2.3"
-				return mc
-			}(),
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
+			name:          "ceph image different from desired image, upgrade is not needed",
+			cephDpl:       &unitinputs.CephDeployMosk,
+			osdpl:         faketestclients.GetClientBuilder().WithLists(unitinputs.GetOpenstackDeploymentStatusList("cur", "APPLIED", true)),
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
+			inputResources: map[string]runtime.Object{
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
+					func() cephv1.CephCluster {
+						c := unitinputs.TestCephCluster.DeepCopy()
+						c.Spec.CephVersion.Image = "mirantis.azurecr.io/ceph/ceph:v20.2.1-0"
+						return *c
+					}(),
+				}},
+				"configmaps":  &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints}},
+				"deployments": &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.ToolBoxDeploymentReady, unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
+			},
+			cmdOutputs: map[string]string{
+				"ceph versions --format json": unitinputs.CephVersionsLatest,
+				"ceph --version":              unitinputs.CephVersionLatest,
+			},
+			expectedVersion: &lcmcommon.CephVersion{
+				Name:         "Tentacle",
+				MajorVersion: "v20.2",
+				MinorVersion: "1",
+				Order:        20,
+			},
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.1",
+			expectedStatusVersion: "v20.2.1",
+		},
+		{
+			name:          "ceph image different from desired image, failed to check upgrade allowed",
+			cephDpl:       &unitinputs.CephDeployMosk,
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
 					func() cephv1.CephCluster {
@@ -281,168 +289,152 @@ func TestVerifyCephVersions(t *testing.T) {
 						return *c
 					}(),
 				}},
+				"configmaps":  &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints}},
+				"deployments": &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.ToolBoxDeploymentReady, unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
+			},
+			cmdOutputs: map[string]string{
+				"ceph versions --format json": unitinputs.CephVersionsPrevious,
+				"ceph --version":              unitinputs.CephVersionLatest,
 			},
 			expectedError: "failed to check is Ceph upgrade allowed: required env variable 'CEPH_CONTROLLER_CLUSTER_RELEASE' is not set",
 		},
 		{
-			name: "cephdeployment cluster version is set, ceph image different from desired image, major upgrade is not allowed",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMosk.DeepCopy()
-				mc.Status.ClusterVersion = "v19.2.3"
-				return mc
-			}(),
+			name:          "ceph image different from desired image, upgrade is not allowed",
+			cephDpl:       &unitinputs.CephDeployMosk,
 			osdpl:         faketestclients.GetClientBuilder().WithLists(unitinputs.GetOpenstackDeploymentStatusList("new", "APPLIED", true)),
-			ccsettingsMap: unitinputs.PelagiaConfigForPrevCephVersion.DeepCopy().Data,
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
 					func() cephv1.CephCluster {
 						c := unitinputs.TestCephCluster.DeepCopy()
-						c.Spec.CephVersion.Image = "mirantis.azurecr.io/ceph/ceph:v19.2.3"
+						c.Spec.CephVersion.Image = "mirantis.azurecr.io/ceph/ceph:v19.2.4"
 						return *c
 					}(),
 				}},
+				"configmaps":  &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints}},
+				"deployments": &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.ToolBoxDeploymentReady, unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
+			},
+			cmdOutputs: map[string]string{
+				"ceph versions --format json": unitinputs.CephVersionsPrevious,
+				"ceph --version":              unitinputs.CephVersionLatest,
 			},
 			expectedVersion: &lcmcommon.CephVersion{
-				Name:            "Squid",
-				MajorVersion:    "v19.2",
-				MinorVersion:    "3",
-				Order:           19,
-				SupportedMinors: []string{"3", "4"},
+				Name:         "Squid",
+				MajorVersion: "v19.2",
+				MinorVersion: "4",
+				Order:        19,
 			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.3",
-			expectedStatusVersion: "v19.2.3",
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.4",
+			expectedStatusVersion: "v19.2.4",
 		},
 		{
-			name: "cephdeployment cluster version is set, ceph image different from desired image, major upgrade is allowed",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMosk.DeepCopy()
-				mc.Status.ClusterVersion = "v19.2.3"
-				return mc
-			}(),
+			name:          "ceph image different from desired image, upgrade is allowed",
+			cephDpl:       &unitinputs.CephDeployMosk,
 			osdpl:         faketestclients.GetClientBuilder().WithLists(unitinputs.GetOpenstackDeploymentStatusList("cur", "APPLIED", true)),
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
 					func() cephv1.CephCluster {
 						c := unitinputs.TestCephCluster.DeepCopy()
-						c.Spec.CephVersion.Image = "mirantis.azurecr.io/ceph/ceph:v19.2.3"
+						c.Spec.CephVersion.Image = "mirantis.azurecr.io/ceph/ceph:v19.2.4"
 						return *c
 					}(),
 				}},
+				"configmaps":  &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints}},
+				"deployments": &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.ToolBoxDeploymentReady, unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
+			},
+			cmdOutputs: map[string]string{
+				"ceph versions --format json": unitinputs.CephVersionsPrevious,
+				"ceph --version":              unitinputs.CephVersionLatest,
 			},
 			expectedVersion: &lcmcommon.CephVersion{
-				Name:            "Squid",
-				MajorVersion:    "v19.2",
-				MinorVersion:    "3",
-				Order:           19,
-				SupportedMinors: []string{"3", "4"},
+				Name:         "Squid",
+				MajorVersion: "v19.2",
+				MinorVersion: "4",
+				Order:        19,
 			},
 			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.1",
-			expectedStatusVersion: "v19.2.3",
+			expectedStatusVersion: "v19.2.4",
 		},
 		{
-			name: "cephdeployment cluster version is set, ceph image different from desired image, minor upgrade is allowed",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMosk.DeepCopy()
-				mc.Status.ClusterVersion = "v20.2.0"
-				return mc
-			}(),
-			osdpl:         faketestclients.GetClientBuilder().WithLists(unitinputs.GetOpenstackDeploymentStatusList("cur", "APPLIED", true)),
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
+			name:    "ceph image different from desired image, minor downgrade is allowed",
+			cephDpl: &unitinputs.CephDeployMosk,
+			osdpl:   faketestclients.GetClientBuilder().WithLists(unitinputs.GetOpenstackDeploymentStatusList("cur", "APPLIED", true)),
+			lcmConfigData: map[string]string{
+				"DEPLOYMENT_CEPH_IMAGE": "mirantis.azurecr.io/ceph/ceph:v20.2.0",
+			},
 			inputResources: map[string]runtime.Object{
-				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
-					func() cephv1.CephCluster {
-						c := unitinputs.TestCephCluster.DeepCopy()
-						c.Spec.CephVersion.Image = unitinputs.PelagiaConfigForPrevCephVersion.Data["DEPLOYMENT_CEPH_IMAGE"]
-						return *c
-					}(),
-				}},
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.TestCephCluster.DeepCopy()}},
+				"configmaps":   &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints}},
+				"deployments":  &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.ToolBoxDeploymentReady, unitinputs.VersionCheckDeploymentReady("mirantis.azurecr.io/ceph/ceph:v20.2.0")}},
+			},
+			cmdOutputs: map[string]string{
+				"ceph versions --format json": unitinputs.CephVersionsLatest,
+				"ceph --version":              "ceph version 20.2.0 (commit) stable",
 			},
 			expectedVersion: &lcmcommon.CephVersion{
-				Name:            "Tentacle",
-				MajorVersion:    "v20.2",
-				MinorVersion:    "0",
-				Order:           20,
-				SupportedMinors: []string{"0", "1"},
+				Name:         "Tentacle",
+				MajorVersion: "v20.2",
+				MinorVersion: "1",
+				Order:        20,
+			},
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.0",
+			expectedStatusVersion: "v20.2.1",
+		},
+		{
+			name:          "image versions aligned, remove check version deployment failed",
+			cephDpl:       &unitinputs.CephDeployMosk,
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
+			inputResources: map[string]runtime.Object{
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.TestCephCluster.DeepCopy()}},
+				"deployments":  &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.ToolBoxDeploymentReady, unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
+				"configmaps":   &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints}},
+			},
+			cmdOutputs: map[string]string{"ceph versions --format json": unitinputs.CephVersionsLatest},
+			expectedVersion: &lcmcommon.CephVersion{
+				Name:         "Tentacle",
+				MajorVersion: "v20.2",
+				MinorVersion: "1",
+				Order:        20,
 			},
 			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.1",
-			expectedStatusVersion: "v20.2.0",
+			expectedStatusVersion: "v20.2.1",
+			apiErrors:             map[string]error{"delete-deployments": errors.New("failed to delete deployment")},
 		},
 		{
-			name: "cephdeployment status version is not updated, ceph cluster is up to date, failed to check versions",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMosk.DeepCopy()
-				mc.Status.ClusterVersion = "v19.2.3"
-				return mc
-			}(),
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
+			name:          "image versions aligned",
+			cephDpl:       &unitinputs.CephDeployMosk,
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.TestCephCluster.DeepCopy()}},
-				"deployments":  &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.ToolBoxDeploymentReady}},
+				"deployments":  &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.ToolBoxDeploymentReady, unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
+				"configmaps":   &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints}},
 			},
-			cmdOutput:     "{||}",
-			expectedError: "failed to get current Ceph versions: failed to parse output for command 'ceph versions --format json': invalid character '|' looking for beginning of object key string",
-		},
-		{
-			name: "cephdeployment status version is not updated, ceph cluster is up to date, check versions",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMosk.DeepCopy()
-				mc.Status.ClusterVersion = "v19.2.3"
-				return mc
-			}(),
-			ccsettingsMap: unitinputs.PelagiaConfig.DeepCopy().Data,
-			inputResources: map[string]runtime.Object{
-				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.TestCephCluster.DeepCopy()}},
-				"deployments":  &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.ToolBoxDeploymentReady}},
-			},
-			cmdOutput: unitinputs.CephVersionsLatestWithExtraDaemons,
+			cmdOutputs: map[string]string{"ceph versions --format json": unitinputs.CephVersionsLatest},
 			expectedVersion: &lcmcommon.CephVersion{
-				Name:            "Tentacle",
-				MajorVersion:    "v20.2",
-				MinorVersion:    "1",
-				Order:           20,
-				SupportedMinors: []string{"0", "1"},
+				Name:         "Tentacle",
+				MajorVersion: "v20.2",
+				MinorVersion: "1",
+				Order:        20,
 			},
 			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.1",
 			expectedStatusVersion: "v20.2.1",
 		},
-		{
-			name: "cephdeployment cluster prev major version is set and up to date, ceph tools is not ready",
-			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				mc := unitinputs.CephDeployMosk.DeepCopy()
-				mc.Status.ClusterVersion = "v19.2.3"
-				return mc
-			}(),
-			ccsettingsMap: func() map[string]string {
-				cm := unitinputs.PelagiaConfigForPrevCephVersion.DeepCopy().Data
-				cm["DEPLOYMENT_CEPH_IMAGE"] = "mirantis.azurecr.io/ceph/ceph:v19.2.3"
-				cm["DEPLOYMENT_CEPH_RELEASE"] = "squid"
-				return cm
-			}(),
-			inputResources: map[string]runtime.Object{
-				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{*unitinputs.TestCephCluster.DeepCopy()}},
-				"deployments":  &appsv1.DeploymentList{},
-			},
-			expectedVersion: &lcmcommon.CephVersion{
-				Name:            "Squid",
-				MajorVersion:    "v19.2",
-				MinorVersion:    "3",
-				Order:           19,
-				SupportedMinors: []string{"3", "4"},
-			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.3",
-			expectedStatusVersion: "v19.2.3",
-		},
 	}
 	oldRunCmd := lcmcommon.RunPodCommandWithValidation
+	oldInterval := versionCheckPollInterval
+	oldTimeout := versionCheckPollTimeout
+	versionCheckPollInterval = 1 * time.Second
+	versionCheckPollTimeout = 2 * time.Second
+
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.ccsettingsMap)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, test.lcmConfigData)
 			lcmcommon.RunPodCommandWithValidation = func(e lcmcommon.ExecConfig) (string, string, error) {
-				if e.Command == "ceph versions --format json" {
-					return test.cmdOutput, "", nil
+				if v, ok := test.cmdOutputs[e.Command]; ok {
+					return v, "", nil
 				}
-				return "", "", errors.New("unexpected run ceph command call")
+				return "", "", errors.New("unexpected run ceph command: " + e.Command)
 			}
 
 			if test.osdpl == nil {
@@ -457,8 +449,9 @@ func TestVerifyCephVersions(t *testing.T) {
 				c.api.Client = faketestclients.GetClient(nil)
 			}
 
-			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephclusters"}, test.inputResources, nil)
-			faketestclients.FakeReaction(c.api.Kubeclientset.AppsV1(), "get", []string{"deployments"}, test.inputResources, nil)
+			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephclusters"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.AppsV1(), "get", []string{"deployments"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.AppsV1(), "delete", []string{"deployments"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"configmaps"}, test.inputResources, nil)
 
 			cephVersion, cephImage, cephStatusVersion, err := c.verifyCephVersions()
@@ -478,6 +471,119 @@ func TestVerifyCephVersions(t *testing.T) {
 		})
 	}
 	lcmcommon.RunPodCommandWithValidation = oldRunCmd
+	versionCheckPollInterval = oldInterval
+	versionCheckPollTimeout = oldTimeout
+}
+
+func TestPrepareVersionCheckDeployment(t *testing.T) {
+	tests := []struct {
+		name              string
+		inputResources    map[string]runtime.Object
+		apiErrors         map[string]error
+		expectedResources map[string]runtime.Object
+		expectedError     string
+	}{
+		{
+			name: "failed to get version-check deployment",
+			inputResources: map[string]runtime.Object{
+				"deployments": &appsv1.DeploymentList{},
+			},
+			apiErrors:     map[string]error{"get-deployments": errors.New("failed to get deployment")},
+			expectedError: "failed to get 'lcm-namespace/pelagia-check-ceph-version' deployment: failed to get deployment",
+		},
+		{
+			name: "failed to create version-check deployment",
+			inputResources: map[string]runtime.Object{
+				"deployments": &appsv1.DeploymentList{},
+			},
+			apiErrors:     map[string]error{"create-deployments": errors.New("failed to create deployment")},
+			expectedError: "failed to create 'lcm-namespace/pelagia-check-ceph-version' deployment: failed to create deployment",
+		},
+		{
+			name: "failed to wait version-check deployment readiness",
+			inputResources: map[string]runtime.Object{
+				"deployments": &appsv1.DeploymentList{},
+			},
+			expectedResources: map[string]runtime.Object{
+				"deployments": &appsv1.DeploymentList{
+					Items: []appsv1.Deployment{unitinputs.VersionCheckDeployment(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])},
+				},
+			},
+			expectedError: "timeout reached for waiting version-check deployment ready: context deadline exceeded",
+		},
+		{
+			name: "version-check deployment update failed",
+			inputResources: map[string]runtime.Object{
+				"deployments": &appsv1.DeploymentList{
+					Items: []appsv1.Deployment{unitinputs.VersionCheckDeploymentReady("old-image")},
+				},
+			},
+			apiErrors:     map[string]error{"update-deployments": errors.New("failed to update deployment")},
+			expectedError: "failed to update 'lcm-namespace/pelagia-check-ceph-version' deployment: failed to update deployment",
+		},
+		{
+			name: "version-check deployment updated",
+			inputResources: map[string]runtime.Object{
+				"deployments": &appsv1.DeploymentList{
+					Items: []appsv1.Deployment{unitinputs.VersionCheckDeploymentReady("old-image")},
+				},
+			},
+			expectedResources: map[string]runtime.Object{
+				"deployments": &appsv1.DeploymentList{
+					Items: []appsv1.Deployment{unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])},
+				},
+			},
+		},
+		{
+			name: "version-check deployment just updated and ready yet",
+			inputResources: map[string]runtime.Object{
+				"deployments": &appsv1.DeploymentList{
+					Items: []appsv1.Deployment{
+						func() appsv1.Deployment {
+							dpl := unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])
+							dpl.Generation = 1
+							return dpl
+						}(),
+					},
+				},
+			},
+			expectedError: "timeout reached for waiting version-check deployment ready: context deadline exceeded",
+		},
+		{
+			name: "version-check deployment ready",
+			inputResources: map[string]runtime.Object{
+				"deployments": &appsv1.DeploymentList{
+					Items: []appsv1.Deployment{unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])},
+				},
+			},
+		},
+	}
+
+	oldInterval := versionCheckPollInterval
+	oldTimeout := versionCheckPollTimeout
+	versionCheckPollInterval = 1 * time.Second
+	versionCheckPollTimeout = 2 * time.Second
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			c := fakeDeploymentConfig(nil, nil)
+			faketestclients.FakeReaction(c.api.Kubeclientset.AppsV1(), "get", []string{"deployments"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.AppsV1(), "create", []string{"deployments"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.AppsV1(), "update", []string{"deployments"}, test.inputResources, test.apiErrors)
+			test.expectedResources = faketestclients.PrepareExpectedResources(test.inputResources, test.expectedResources)
+
+			err := c.prepareVersionCheckDeployment(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])
+			if test.expectedError != "" {
+				assert.NotNil(t, err)
+				assert.Equal(t, test.expectedError, err.Error())
+			} else {
+				assert.Nil(t, err)
+			}
+			assert.Equal(t, test.expectedResources, test.inputResources)
+			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.AppsV1())
+		})
+	}
+	versionCheckPollInterval = oldInterval
+	versionCheckPollTimeout = oldTimeout
 }
 
 func TestEnsureRookImage(t *testing.T) {

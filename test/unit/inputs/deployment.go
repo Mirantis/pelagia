@@ -351,3 +351,69 @@ var ToolBoxDeploymentReady = func() *appsv1.Deployment {
 	}
 	return tb
 }()
+
+var VersionCheckDeployment = func(image string) appsv1.Deployment {
+	versionCheckLabels := map[string]string{
+		"app":                          "pelagia-check-ceph-version",
+		"app.kubernetes.io/created-by": "pelagia-deployment-controller",
+		"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
+		"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+	}
+	deploy := GetDeployment("pelagia-check-ceph-version", LcmObjectMeta.Namespace, versionCheckLabels, &[]int32{1}[0])
+	deploy.OwnerReferences = []metav1.OwnerReference{
+		{
+			APIVersion: "lcm.mirantis.com/v1alpha1",
+			Kind:       "CephDeployment",
+			Name:       LcmObjectMeta.Name,
+		},
+	}
+	deploy.Spec = appsv1.DeploymentSpec{
+		Selector: &metav1.LabelSelector{
+			MatchLabels: map[string]string{"app": "pelagia-check-ceph-version"},
+		},
+		Replicas:                &[]int32{1}[0],
+		RevisionHistoryLimit:    &[]int32{2}[0],
+		ProgressDeadlineSeconds: &[]int32{5}[0],
+		Strategy: appsv1.DeploymentStrategy{
+			Type: appsv1.RecreateDeploymentStrategyType,
+		},
+		Template: corev1.PodTemplateSpec{
+			ObjectMeta: metav1.ObjectMeta{
+				Labels: map[string]string{"app": "pelagia-check-ceph-version"},
+			},
+			Spec: corev1.PodSpec{
+				Containers: []corev1.Container{
+					{
+						Name:    "pelagia-check-ceph-version",
+						Image:   image,
+						Command: []string{"tail", "-f", "/dev/null"},
+						SecurityContext: &corev1.SecurityContext{
+							Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
+							AllowPrivilegeEscalation: &[]bool{false}[0],
+							ReadOnlyRootFilesystem:   &[]bool{true}[0],
+						},
+						ImagePullPolicy:          "IfNotPresent",
+						TerminationMessagePath:   "/dev/termination-log",
+						TerminationMessagePolicy: "File",
+					},
+				},
+				SecurityContext:               &corev1.PodSecurityContext{},
+				DNSPolicy:                     "ClusterFirstWithHostNet",
+				RestartPolicy:                 "Always",
+				TerminationGracePeriodSeconds: &[]int64{30}[0],
+			},
+		},
+	}
+	return *deploy
+}
+
+var VersionCheckDeploymentReady = func(image string) appsv1.Deployment {
+	vc := VersionCheckDeployment(image)
+	vc.Status = appsv1.DeploymentStatus{
+		Replicas:          1,
+		UpdatedReplicas:   1,
+		ReadyReplicas:     1,
+		AvailableReplicas: 1,
+	}
+	return vc
+}

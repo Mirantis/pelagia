@@ -55,69 +55,46 @@ var (
 	LatestRelease = Tentacle
 )
 
-func GetCephVersionFromImage(cephImage string) string {
-	reg := regexp.MustCompile(`:v.*\..*\.*`)
-	ver := reg.FindString(cephImage)
-	ver = strings.TrimPrefix(ver, ":")
-	// drop cve/release suffix and return pure version in format v1.1.1
-	return strings.Split(ver, "-")[0]
+func GetCephVersionByReleaseName(releaseName string) (*CephVersion, error) {
+	if releaseName == "" {
+		return LatestRelease, nil
+	}
+	for _, version := range AvailableCephVersions {
+		if strings.EqualFold(version.Name, releaseName) {
+			return version, nil
+		}
+	}
+	return nil, errors.Errorf("specified not supported Ceph release '%s'. Is version correct?", releaseName)
 }
 
-func ParseCephVersion(version string) (*CephVersion, error) {
-	var cephVersion *CephVersion
+func ParseCephVersion(cephVersion string) (*CephVersion, error) {
+	versionPattern := regexp.MustCompile(`ceph version (\d+)\.(\d+)\.(\d+)`)
+	versionMatch := versionPattern.FindStringSubmatch(cephVersion)
+	if len(versionMatch) < 4 {
+		return nil, errors.Errorf("failed to parse version '%s', expected format 'ceph version x.x.x'", cephVersion)
+	}
+	cephVersionCLI := &CephVersion{
+		MajorVersion: fmt.Sprintf("v%s.%s", versionMatch[1], versionMatch[2]),
+		MinorVersion: versionMatch[3],
+	}
+	supportedMajors := []string{}
 	for _, supported := range AvailableCephVersions {
-		if strings.HasPrefix(version, supported.MajorVersion) {
-			minorVersion := strings.TrimPrefix(version, supported.MajorVersion+".")
-			if Contains(supported.SupportedMinors, minorVersion) {
-				cephVersion = &CephVersion{
-					Name:            supported.Name,
-					MajorVersion:    supported.MajorVersion,
-					MinorVersion:    minorVersion,
-					Order:           supported.Order,
-					SupportedMinors: supported.SupportedMinors,
-				}
-				break
+		supportedMajors = append(supportedMajors, fmt.Sprintf("%s (%s)", supported.Name, supported.MajorVersion))
+		if supported.MajorVersion == cephVersionCLI.MajorVersion {
+			if Contains(supported.SupportedMinors, cephVersionCLI.MinorVersion) {
+				cephVersionCLI.Name = supported.Name
+				cephVersionCLI.Order = supported.Order
+				return cephVersionCLI, nil
 			}
+			// TODO: get rid of supported minors and keep list supported for major only?
 			supportedMinors := []string{}
 			for _, minor := range supported.SupportedMinors {
 				supportedMinors = append(supportedMinors, fmt.Sprintf("%s.%s", supported.MajorVersion, minor))
 			}
-			return nil, errors.Errorf("specified Ceph version '%s' is not supported. Please use one of: %v", version, supportedMinors)
+			return nil, errors.Errorf("specified Ceph version '%s.%s' is not supported. Please use one of: %v", cephVersionCLI.MajorVersion, cephVersionCLI.MinorVersion, supportedMinors)
 		}
 	}
-	if cephVersion == nil {
-		return nil, errors.Errorf("failed to find supported Ceph version for specified '%s' version. Is version correct?", version)
-	}
-	return cephVersion, nil
-}
-
-func CheckExpectedCephVersion(expectedCephImage, expectedCephRelease string) (*CephVersion, error) {
-	if expectedCephImage == "" {
-		return nil, errors.New("expected ceph image is not specified")
-	}
-	var expectedCephVersion *CephVersion
-	if expectedCephRelease == "" {
-		expectedCephVersion = LatestRelease
-	} else {
-		for _, version := range AvailableCephVersions {
-			if strings.EqualFold(expectedCephRelease, version.Name) {
-				expectedCephVersion = version
-				break
-			}
-		}
-	}
-	if expectedCephVersion == nil {
-		return nil, errors.Errorf("failed to find appropriate Ceph version of '%s' release. Is release name correct?", expectedCephRelease)
-	}
-	cephVersion, err := ParseCephVersion(GetCephVersionFromImage(expectedCephImage))
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to identify Ceph version for image '%s'", expectedCephImage)
-	}
-	if cephVersion.MajorVersion != expectedCephVersion.MajorVersion {
-		return nil, errors.Errorf("expected Ceph release %s '%s' version, but specified %s '%s' version (image: %s)",
-			expectedCephVersion.Name, expectedCephVersion.MajorVersion, cephVersion.Name, cephVersion.MajorVersion, expectedCephImage)
-	}
-	return cephVersion, nil
+	return nil, errors.Errorf("unsupported Ceph major version '%s' provided. Supported are: %v", cephVersionCLI.MajorVersion, supportedMajors)
 }
 
 func CephVersionGreaterOrEqual(currentVersion, requiredVersion *CephVersion) bool {
