@@ -109,7 +109,7 @@ nav:
   - Upgrade Guide:
     - Upgrade Guide: upgrade-guide/index.md
     - Upgrade Pelagia: upgrade-guide/upgrade.md
-    - Upgrade notes 1.x to 2.x: upgrade-guide/upgrade-notes.md
+    # - Upgrade notes 1.x to 2.x: upgrade-guide/upgrade-notes.md
   - Operations Guide:
       - Operations Guide: ops-guide/index.md
       - CephDeployment operations:
