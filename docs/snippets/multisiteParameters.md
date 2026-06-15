@@ -1,14 +1,14 @@
-- `realms` - List of realms to use, represents the realm namespaces. Each item represents Rook `CephObjectRealm` specification.
+- `realms` - List of realms to use. Each item represents the Rook `CephObjectRealm` specification.
 
-    - `name` - required, the realm name.
-    - `spec` - specification of `CephObjectRealm`. Refer to [CephObjectRealm CRD](https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-realm-crd/) for details.
+    - `name` - Mandatory. The realm name.
+    - `spec` - Specification of `CephObjectRealm`. For details, see [CephObjectRealm CRD](https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-realm-crd/).
 
-- `zonegroups` - The list of zone groups for realms. Each item represents Rook `CephObjectZoneGroup` specification.
+- `zonegroups` - List of zone groups for realms. Each item represents the Rook `CephObjectZoneGroup` specification.
 
-    - `name` - required, the zone group name.
-    - `spec` - specification of `CephObjectZoneGroup`. Refer to [CephObjectZoneGroup CRD](https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zonegroup-crd/) for details.
+    - `name` - Mandatory. The zone group name.
+    - `spec` - Specification of `CephObjectZoneGroup`. For details, see [CephObjectZoneGroup CRD](https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zonegroup-crd/).
 
-- `zones` - The list of zones used within one zone group. Each item represents Rook `CephObjectZone` specification.
+- `zones` - List of zones used within one zone group. Each item represents the Rook `CephObjectZone` specification.
 
-    - `name` - required, the zone name.
-    - `spec` - specification of `CephObjectZone`. Refer to [CephObjectZone CRD](https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zone-crd/) for details.
+    - `name` - Mandatory. The zone name.
+    - `spec` - Specification of `CephObjectZone`. For details, see [CephObjectZone CRD](https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zone-crd/).

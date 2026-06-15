@@ -127,7 +127,7 @@ For the default `CephDeployment` CR, see the following example:
 
     - If you are editing `CephDeployment` , save the changes and exit the text editor to apply it.
 
-4. Verify the `CephDeployment` reconcile status. For description of the ``status`` fields, refer to the *Status fields* subsection below.
+4. Verify the `CephDeployment` reconcile status. For description of the ``status`` fields, refer to [CephDeployment status](./cephdeployment.md#cephdeployment-status-fields).
 
 ## CephDeployment configuration options
 
@@ -189,21 +189,29 @@ advanced configuration.
               operator: Exists
     ```
 
-- `blockStorages` - Specifies the Ceph block storage configuration. Contains the `pools` parameter that specifies the list of Ceph pools. For details, see the **Pools parameters** section below.
-- `clients` - Specifies the list of Ceph clients. For details, see the **Clients parameters** section below.
-- `extraOpts` - Enables specification of extra options for a Ceph cluster setup, includes the `deviceLabels` parameter. For details, see the **ExtraOpts parameters** section below.
-- `nodes` - Specifies the list of Ceph nodes with node specifications. Each list item can define a Ceph node specification for a single node or a group of nodes specified by an explicit list, a label, or a combination of both. For details, see the **Nodes parameters** section below. 
-- `objectStorage` - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage, the RADOS Gateway Multisite configuration, and the Gateway API HTTPRoutes for public access to Object Storage. For details, see the **Object storage parameters** section below.
-- `rbdMirror` - Specifies the parameters for RBD mirroring. For details, see the **RBD Mirroring parameters** section below.
-- `rookConfig` - Specifies the string key-value that allows overriding Ceph configuration options. For details, see the **RookConfig parameters** section below.
-- `sharedFilesystem` - Enables Ceph Filesystem. For details, the **CephFS parameters** section below.
-- `network` - Specifies access and public networks for the Ceph cluster. Deprecated, automatically migrated to the `cluster.network` field.
-- `pools` - Specifies the list of Ceph pools. Deprecated, automatically migrated to the `blockStorage.pools` field.
-- `ingressConfig` - Enables a custom ingress rule for public access on Ceph services, for example, Ceph RADOS Gateway. For details, see [Configure Ceph Object Gateway TLS](../ops-guide/deployment/object-storage/rgw-tls.md#rgw-tls-configure-ceph-object-gateway-tls). Deprecated in favor of the Gateway API due to [Ingress deprecation](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/).
-- `healthCheck` - Configures health checks and liveness probe settings for Ceph daemons. Deprecated, automatically migrated to the `cluster.healthCheck` field.
-- `mgr` - Specifies the list of Ceph Manager modules to be enabled or disabled. Deprecated, automatically migrated to the `cluster.mgr` field.
-- `dashboard` - Enables Ceph dashboard. Deprecated, automatically migrated to the `cluster.dashboard` field. Currently, Pelagia does not support Ceph Dashboard.
-- `external` - Enables external Ceph cluster mode. If enabled, Pelagia reads a dedicated `Secret` containing the connection credentials for the external Ceph cluster. Deprecated, automatically migrated to the `cluster.external` field.
+- `blockStorage` - Specifies the Ceph block storage configuration. Contains the `pools` parameter that specifies the list of Ceph pools. For details, see [Pools parameters](./cephdeployment.md#cephdeployment-pools-parameters).
+- `clients` - Specifies the list of Ceph clients. For details, see [Clients parameters](./cephdeployment.md#cephdeployment-clients-parameters).
+- `extraOpts` - Enables specification of extra options for a Ceph cluster setup, includes the `deviceLabels` parameter. For details, see [ExtraOpts parameters](./cephdeployment.md#cephdeployment-extraopts-parameters).
+- `nodes` - Specifies the list of Ceph nodes with node specifications. Each list item can define a Ceph node specification for a single node or a group of nodes specified by an explicit list, a label, or a combination of both. For details, see [Nodes parameters](./cephdeployment.md#cephdeployment-nodes-parameters). 
+- `objectStorage` - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage, the RADOS Gateway Multisite configuration, and the Gateway API HTTPRoutes for public access to Object Storage. For details, see [Object storage parameters](./cephdeployment.md#cephdeployment-object-storage-parameters).
+- `rbdMirror` - Specifies the parameters for RBD mirroring. For details, see [RBD Mirroring parameters](./cephdeployment.md#cephdeployment-rbd-mirroring-parameters).
+- `rookConfig` - Specifies the string key-value that allows overriding Ceph configuration options. For details, see [RookConfig parameters](./cephdeployment.md#cephdeployment-rookconfig-parameters).
+- `sharedFilesystem` - Enables Ceph Filesystem. For details, see [CephFS parameters](./cephdeployment.md#cephdeployment-cephfs-parameters).
+
+**Deprecated top-level parameters general (migrated under `cluster`)**
+
+The following general parameters are migrated under the `cluster` field, unless specified otherwise, during `CephDeployment` API refactoring.
+Their previous locations in the specification are deprecated.
+If you continue using the deprecated location, a parameter will be automatically migrated to its new location during `CephDeployment` reconciliation.
+Using both the old and new locations simultaneously causes a reconciliation failure. Therefore, we highly recommend using the new specification structure.
+
+- `network` - Specifies access and public networks for the Ceph cluster.
+- `pools` - Specifies the list of Ceph pools. Unlike other parameters in this section, it is automatically migrated to `blockStorage.pools` rather than under `cluster`.
+- `ingressConfig` - Deprecated in favor of the Gateway API due to [Ingress deprecation](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/). Enables a custom ingress rule for public access to Ceph services, for example, Ceph RADOS Gateway. For details, see [Configure Ceph Object Gateway TLS](../ops-guide/deployment/object-storage/rgw-tls.md#rgw-tls-configure-ceph-object-gateway-tls).
+- `healthCheck` - Configures health checks and liveness probe settings for Ceph daemons.
+- `mgr` - Specifies the list of Ceph Manager modules to be enabled or disabled.
+- `dashboard` - Intended to enable Ceph Dashboard. Currently, Pelagia does not support Ceph Dashboard.
+- `external` - Enables external Ceph cluster mode. If enabled, Pelagia reads a dedicated `Secret` containing the connection credentials for the external Ceph cluster.
 
 <a name="cephdeployment-nodes-parameters"></a>
 ### Nodes parameters
@@ -290,7 +298,7 @@ advanced configuration.
 
     !!! note
 
-        Recommending to use the ``fullPath`` field for defining
+        We recommend using the ``fullPath`` field for defining
         ``by-id`` symlinks as persistent device identifiers. For details, see
         [Addressing Ceph storage devices](../architecture/addressing-ceph-devices.md#addressing-ceph-devices-addressing-ceph-storage-devices).
 
@@ -471,7 +479,7 @@ The `pools` parameters contain the Ceph block pool specification that represents
         We do not recommend using the following intermediate topology keys as a failure domain: `pdu`, `row`, and `chassis`. Consider
         the `rack` topology instead. The `osd` failure domain is allowed only for single-node deployments.
 
-??? "Example configuration of *pools* specification"
+??? "Example configuration of pools specification"
 
     ```yaml
     spec:
@@ -524,7 +532,7 @@ The `clients` parameters contain the Ceph client specification that represents t
 
 For details about Ceph client capabilities (`caps`), refer to [Ceph documentation: Authorization (capabilities)](https://docs.ceph.com/en/latest/rados/operations/user-management/#authorization-capabilities).
 
-??? "Example configuration of *clients* specification"
+??? "Example configuration of clients specification"
 
     ```yaml
     spec:
@@ -538,18 +546,14 @@ For details about Ceph client capabilities (`caps`), refer to [Ceph documentatio
 <a name="cephdeployment-object-storage-parameters"></a>
 ### ObjectStorage parameters
 
-- `objectStores` - List of Ceph `ObjectStorage` (RGW) objects. Each `objectStore` item represents the Rook `CephObjectStore` specification. For details, see the **RADOS Gateway parameters** section below.
-- `users` - List of Ceph `ObjectStorage` users. Each `user` item represents the Rook `CephObjectStoreUser` specification. For details, see the **RGW users parameters** section below.
-- `realms` - List of Ceph `ObjectStorage` realms. Each `realm` item represents the Rook `CephObjectRealms` specification. Currently, only one realm is supported, so the list must contain exactly one item. For details, see the **RADOS Gateway Multisite parameters** section below.
-- `zonegroups` - List of Ceph `ObjectStorage` zone groups. Each `zonegroup` item represents the Rook `CephObjectZoneGroup` specification. Currently, only one zone group is supported, so the list must contain exactly one item. For details, see the **RADOS Gateway Multisite parameters** section below.
-- `zones` - List of Ceph `ObjectStorage` zones. Each `zone` item represents the Rook `CephObjectZone` specification. Currently, only one zone is supported, so the list must contain exactly one item. For details, see the **RADOS Gateway Multisite parameters** section below.
-- `gatewayHTTPRoute` - List of Gateway API HTTP routes. Each item represents the `HTTPRoute` specification. For details, see the **Gateway HTTPRoute parameters** section below.
-- `rgw` - Single definition of the Ceph `ObjectStorage` (RGW) object. Deprecated, automatically migrated to `objectStores` and `users` fields.
-- `multiSite` - Definition of Ceph `ObjectStorage` (RGW) Multisite configuration. Deprecated, automatically migrated to the following fields:
-
-    * `multisite.realms` -> `objectStorage.realms`
-    * `multisite.zoneGroups` -> `objectStorage.zonegroups`
-    * `multisite.zones` -> `objectStorage.zones`
+- `objectStores` - List of Ceph `ObjectStorage` (RGW) objects. Each `objectStore` item represents the Rook `CephObjectStore` specification. For details, see [RGW parameters](./cephdeployment.md#cephdeployment-rados-gateway-parameters).
+- `users` - List of Ceph `ObjectStorage` users. Each `user` item represents the Rook `CephObjectStoreUser` specification. For details, see [RGW users parameters](./cephdeployment.md#cephdeployment-rgw-users-parameters).
+- `realms` - List of Ceph `ObjectStorage` realms. Each `realm` item represents the Rook `CephObjectRealms` specification. Currently, only one realm is supported, so the list must contain exactly one item. For details, see [RADOS Gateway Multisite parameters](./cephdeployment.md#cephdeployment-rados-gateway-multisite-parameters).
+- `zonegroups` - List of Ceph `ObjectStorage` zone groups. Each `zonegroup` item represents the Rook `CephObjectZoneGroup` specification. Currently, only one zone group is supported, so the list must contain exactly one item. For details, see [RADOS Gateway Multisite parameters](./cephdeployment.md#cephdeployment-rados-gateway-multisite-parameters).
+- `zones` - List of Ceph `ObjectStorage` zones. Each `zone` item represents the Rook `CephObjectZone` specification. Currently, only one zone is supported, so the list must contain exactly one item. For details, see [RADOS Gateway Multisite parameters](./cephdeployment.md#cephdeployment-rados-gateway-multisite-parameters)..
+- `gatewayHTTPRoute` - List of Gateway API HTTP routes. Each item represents the `HTTPRoute` specification. For details, see [Gateway HTTPRoutes](./cephdeployment.md#cephdeployment-httproute-parameters).
+- `rgw` - Single definition of the Ceph `ObjectStorage` (RGW) object. Deprecated, is automatically migrated to `objectStores` and `users` fields during `CephDeployment` reconciliation.
+- `multiSite` - Definition of Ceph `ObjectStorage` (RGW) Multisite configuration. Deprecated, is automatically migrated to the `objectStorage` field during `CephDeployment` reconciliation. For example, `multisite.realms` is migrated to `objectStorage.realms`.
 
     !!! caution
 
@@ -595,7 +599,7 @@ For details about Ceph client capabilities (`caps`), refer to [Ceph documentatio
 The RGW `users` parameters represent the Rook `CephObjectStoreUser` specification.
 For details, see [Rook documenation: CephObjectStoreUser CRD](https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-user-crd/#spec).
 
-??? "Example configuration of RGW *users* specification"
+??? "Example configuration of RGW users specification"
 
     ```yaml
     spec:
@@ -660,7 +664,59 @@ The `gatewayHTTPRoutes` parameters represent the Gateway API `HTTPRoute` specifi
 - `cephFS` - Contains a list of Ceph file systems. Deprecated, automatically migrated to the `cephFilesystems` field.
 - `cephFilesystems` - Contains a list of Ceph file systems. Each `cephFilesystem` item represents the Rook `CephFilesystem` specification:
 
-    {% include "../snippets/cephfsParameters.md" %}
+    - `name` - Mandatory. CephFS instance name.
+    - `spec` - Represents the Rook `CephFilesystem` specification. For details, refer to the following Rook documentation: [CephFilesystem CRD](https://rook.io/docs/rook/v1.19/CRDs/Shared-Filesystem/ceph-filesystem-crd/) and [CephFilesystem API specification](https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.FilesystemSpec).
+
+        !!! note
+
+            The CephFS metadata pool must be only of the `replicated` type.
+
+        !!! note
+
+            The first pool in the list is treated as the default data pool for CephFS and must always be `replicated`.
+
+    The number of data pools is unlimited, but the default pool must always be present:
+    ??? "Example configuration of dataPools"
+
+        ```yaml
+        spec:
+          sharedFilesystem:
+            cephFilesystems:
+            - name: cephfs-store
+              spec:
+                dataPools:
+                - name: default-pool
+                  deviceClass: ssd
+                  replicated:
+                    size: 3
+                  failureDomain: host
+                - name: second-pool
+                  deviceClass: hdd
+                  failureDomain: rack
+                  erasureCoded:
+                    dataChunks: 2
+                    codingChunks: 1
+                metadataServer:
+                  activeCount: 1
+                  activeStandby: false
+                resources: # example, non-prod values
+                  requests:
+                    memory: 1Gi
+                    cpu: 1
+                limits:
+                  memory: 2Gi
+                  cpu: 2
+        ```
+
+        `replicated.size` is the number of full copies of data on multiple nodes.
+
+    {% include "../snippets/replicatedSize.md" %}
+
+    !!! warning
+
+        Modifying pools on a deployed CephFS has no effect.
+        You can manually adjust pool settings through the Ceph CLI.
+        However, for any changes in pools, we recommend re-creating CephFS.
 
 ??? "Example configuration of sharedFilesystem specification"
 
@@ -778,7 +834,7 @@ spec:
 <a name="cephdeployment-rbd-mirroring-parameters"></a>
 ### RBD mirroring parameters
 
-- `daemonsCount` - Count of `rbd-mirror` daemons to spawn. We recommend using one instance of the `rbd-mirror` daemon.
+- `daemonsCount` - Number of `rbd-mirror` daemons to spawn. We recommend using one instance of the `rbd-mirror` daemon.
 - `peers` - Optional. List of mirroring peers of an external cluster to connect to. Only a single peer is supported.
    The `peer` section includes the following parameters:
 
@@ -792,12 +848,12 @@ spec:
 
 - `phase` - Current handling phase of the applied Ceph cluster spec. Can equal to `Creating`, `Deploying`, `Validation`, `Ready`, `Deleting`, `OnHold` or `Failed`.
 - `message` - Detailed description of the current phase or an error message if the phase is `Failed`.
-- `lastRun` - `DateTime` when previous spec reconcile occurred.
+- `lastRun` - `DateTime` of the previous spec reconciliation.
 - `clusterVersion` - Current Ceph cluster version, for example, `v19.2.3`.
 - `validation` - Validation result (`Succeed` or `Failed`) of the spec with a list of messages, if any. The `validation` section includes the following fields:
 
-   - `result` - `Succeed` or `Failed`
-   - `messages` - List of error messages
-   - `lastValidatedGeneration` - Last validated `metadata.generation` of `CephDeployment`
+    - `result` - `Succeed` or `Failed`
+    - `messages` - List of error messages
+    - `lastValidatedGeneration` - Last validated `metadata.generation` of `CephDeployment`
 
 - `objRefs` - Pelagia API object refereneces such as `CephDeploymentHealth` and `CephDeploymentSecret`.
