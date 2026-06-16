@@ -777,17 +777,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#network-parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Network parameters
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#nodes-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -821,10 +810,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#rados-gateway-parameters" class="md-nav__link">
+  <a href="#objectstorage-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        RADOS Gateway parameters
+        ObjectStorage parameters
       
     </span>
   </a>
@@ -832,21 +821,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#rados-gateway-multisite-parameters" class="md-nav__link">
+  <a href="#cephfilesystems-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        RADOS Gateway Multisite parameters
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cephfs-parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CephFS parameters
+        CephFilesystems parameters
       
     </span>
   </a>
@@ -865,17 +843,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#healthcheck-parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        HealthCheck parameters
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#extraopts-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -887,21 +854,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#manager-modules-parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Manager modules parameters
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#rbd-mirroring-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        RBD Mirroring parameters
+        RBD mirroring parameters
       
     </span>
   </a>
@@ -3506,17 +3462,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#network-parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Network parameters
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#nodes-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3550,10 +3495,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#rados-gateway-parameters" class="md-nav__link">
+  <a href="#objectstorage-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        RADOS Gateway parameters
+        ObjectStorage parameters
       
     </span>
   </a>
@@ -3561,21 +3506,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#rados-gateway-multisite-parameters" class="md-nav__link">
+  <a href="#cephfilesystems-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        RADOS Gateway Multisite parameters
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#cephfs-parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        CephFS parameters
+        CephFilesystems parameters
       
     </span>
   </a>
@@ -3594,17 +3528,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#healthcheck-parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        HealthCheck parameters
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#extraopts-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3616,21 +3539,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#manager-modules-parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Manager modules parameters
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#rbd-mirroring-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        RBD Mirroring parameters
+        RBD mirroring parameters
       
     </span>
   </a>
@@ -3738,6 +3650,13 @@ deployed based on the <code>devices</code> parameter defined for each Ceph node.
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia-ceph</span>
 <span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia</span>
 <span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cluster</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">network</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">addressRanges</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">cluster</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.12.0.0/24</span>
+<span class="w">        </span><span class="nt">public</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.12.1.0/24</span>
 <span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cluster-storage-controlplane-0</span>
 <span class="w">    </span><span class="nt">roles</span><span class="p">:</span>
@@ -3772,44 +3691,47 @@ deployed based on the <code>devices</code> parameter defined for each Ceph node.
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">config</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssd</span>
 <span class="w">      </span><span class="nt">fullPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/disk/by-id/scsi-1ATA_WDC_WDS100T2B0A-00SM50_200231443409</span>
-<span class="w">  </span><span class="nt">pools</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssd</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes</span>
-<span class="w">    </span><span class="nt">replicated</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">  </span><span class="nt">blockStorage</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">pools</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes</span>
+<span class="w">      </span><span class="nt">storageClassOpts</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssd</span>
+<span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 <span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store</span>
-<span class="w">      </span><span class="nt">dataPool</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssd</span>
-<span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">      </span><span class="nt">metadataPool</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssd</span>
-<span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">      </span><span class="nt">gateway</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">allNodes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">instances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8081</span>
-<span class="w">        </span><span class="nt">securePort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span>
-<span class="w">      </span><span class="nt">preservePoolsOnDelete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">objectStores</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store</span>
+<span class="w">        </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">dataPool</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssd</span>
+<span class="w">            </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">          </span><span class="nt">metadataPool</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssd</span>
+<span class="w">            </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">          </span><span class="nt">gateway</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">instances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">            </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8081</span>
+<span class="w">            </span><span class="nt">securePort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span>
+<span class="w">          </span><span class="nt">preservePoolsOnDelete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 <span class="w">  </span><span class="nt">sharedFilesystem</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">cephFS</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cephFilesystems</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-store</span>
-<span class="w">      </span><span class="nt">dataPools</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-pool-1</span>
-<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssd</span>
-<span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">      </span><span class="nt">metadataPool</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssd</span>
-<span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">      </span><span class="nt">metadataServer</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">activeCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
-<span class="w">        </span><span class="nt">activeStandby</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">dataPools</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-pool-1</span>
+<span class="w">          </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssd</span>
+<span class="w">          </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">        </span><span class="nt">metadataPool</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssd</span>
+<span class="w">          </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">        </span><span class="nt">metadataServer</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">activeCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </code></pre></div>
 </details>
 <h2 id="configure-a-ceph-cluster-with-cephdeployment">Configure a Ceph cluster with CephDeployment<a class="headerlink" href="#configure-a-ceph-cluster-with-cephdeployment" title="Permanent link">#</a></h2>
@@ -3841,73 +3763,100 @@ deployed based on the <code>devices</code> parameter defined for each Ceph node.
 </ul>
 </li>
 <li>
-<p>Verify <code>CephDeployment</code> reconcile status with the Status fields.</p>
+<p>Verify the <code>CephDeployment</code> reconcile status. For description of the <code>status</code> fields, refer to <a href="./#cephdeployment-status-fields">CephDeployment status</a>.</p>
 </li>
 </ol>
 <h2 id="cephdeployment-configuration-options">CephDeployment configuration options<a class="headerlink" href="#cephdeployment-configuration-options" title="Permanent link">#</a></h2>
 <p>The following subsections contain a description of <code>CephDeployment</code> parameters for an
 advanced configuration.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><code>CephDeployment</code> has changed since version 1.x. Deprecated parameters are automatically migrated
+to the new API fields during the Pelagia upgrade. No manual steps are required.</p>
+</div>
 <p><a name="cephdeployment-general-parameters"></a></p>
 <h3 id="general-parameters">General parameters<a class="headerlink" href="#general-parameters" title="Permanent link">#</a></h3>
-<ul>
-<li><code>network</code> - Specifies access and public networks for the Ceph cluster. For details, the <strong>Network parameters</strong> section below.</li>
-<li><code>nodes</code> - Specifies the list of Ceph nodes. For details, the <strong>Nodes parameters</strong> section below. The <code>nodes</code> parameter is a list with Ceph node specifications. List item could define Ceph node specification for a single node or a group of nodes listed or defined by label. It could be also combined.</li>
-<li><code>pools</code> - Specifies the list of Ceph pools. For details, the <strong>Pools parameters</strong> section below.</li>
-<li><code>clients</code> - List of Ceph clients. For details, see the <strong>Clients parameters</strong> section below.</li>
-<li><code>objectStorage</code> - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage. Also specifies the RADOS Gateway Multisite configuration. For details, <strong>RADOS Gateway parameters</strong> and <strong>Multisite parameters</strong> sections below.</li>
-<li><code>ingressConfig</code> - Enables a custom ingress rule for public access on Ceph services, for example, Ceph RADOS Gateway. For details, see <a href="../../ops-guide/deployment/object-storage/rgw-tls/#rgw-tls-configure-ceph-object-gateway-tls">Configure Ceph Object Gateway TLS</a>.</li>
-<li><code>sharedFilesystem</code> - Enables Ceph Filesystem. For details, the <strong>CephFS parameters</strong> section below.</li>
-<li><code>rookConfig</code> - String key-value parameter that allows overriding Ceph configuration options. For details, see the <strong>RookConfig parameters</strong> section below.</li>
-<li><code>healthCheck</code> - Configures health checks and liveness probe settings for Ceph daemons. For details, the <strong>HealthCheck parameters</strong> section below.</li>
-<li><code>extraOpts</code> - Enables specification of extra options for a setup, includes the <code>deviceLabels</code> parameter. Refer to the <strong>ExtraOpts parameters</strong> section below.</li>
-<li><code>mgr</code> - Specifies a list of Ceph Manager modules to be enabled or disabled. For details, see the <strong>Manager modules parameters</strong> section below. Modules <code>balancer</code> and <code>pg_autoscaler</code> are enabled by default.</li>
-<li><code>dashboard</code> - Enables Ceph dashboard. Currently, Pelagia has no support of Ceph Dashboard. Defaults to <code>false</code>.</li>
-<li><code>rbdMirror</code> - Specifies the parameters for RBD Mirroring. For details, see the <strong>RBD Mirroring parameters</strong> section below.</li>
-<li><code>external</code> - Enables external Ceph cluster mode. If enabled, Pelagia will read a special <code>Secret</code> with external Ceph cluster credentials data connect to.</li>
-</ul>
-<p><a name="cephdeployment-network-parameters"></a></p>
-<h3 id="network-parameters">Network parameters<a class="headerlink" href="#network-parameters" title="Permanent link">#</a></h3>
-<ul>
-<li>
-<p><code>clusterNet</code> - specifies a Classless Inter-Domain Routing (CIDR)
-  for the Ceph OSD replication network.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>To avoid ambiguous behavior of Ceph daemons, do not specify
-<code>0.0.0.0/0</code> in <code>clusterNet</code>. Otherwise, Ceph daemons can select
-an incorrect public interface that can cause the Ceph cluster to
+<code>0.0.0.0/0</code> as the Ceph network. Otherwise, Ceph daemons can select
+an incorrect interface that can cause the Ceph cluster to
 become unavailable.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The <code>clusterNet</code> and <code>publicNet</code> parameters support
-multiple IP networks. For details, see <a href="../../ops-guide/deployment/multinetworking/#multinetworking-enable-ceph-multinetwork">Enable multinetworking</a>.</p>
-</div>
-</li>
-<li>
-<p><code>publicNet</code> - specifies a CIDR for communication between
-  the service and operator.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>To avoid ambiguous behavior of Ceph daemons, do not specify
-<code>0.0.0.0/0</code> in <code>publicNet</code>. Otherwise, Ceph daemons can select
-an incorrect public interface that can cause the Ceph cluster to
-become unavailable.</p>
+<p>A Ceph cluster supports multiple IP networks.
+For details, see <a href="../../ops-guide/deployment/multinetworking/#multinetworking-enable-ceph-multinetwork">Enable multinetworking</a>.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The <code>clusterNet</code> and <code>publicNet</code> parameters support
-multiple IP networks. For details, see <a href="../../ops-guide/deployment/multinetworking/#multinetworking-enable-ceph-multinetwork">Enable multinetworking</a>.</p>
+<p>The Ceph cluster placement affinity and anti-affinity will be ignored in favor of the provided <code>nodes</code> roles.</p>
 </div>
-</li>
-</ul>
-<p>Example configuration:
+<ul>
+<li>
+<p><code>cluster</code> - Specifies the complete Ceph cluster configuration and represents the Rook <code>CephCluster</code> object specification. For available configuration options, see Rook documentation: <a href="https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/">CephCluster CRD</a> and <a href="https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.ClusterSpec">CephCluster API</a>.</p>
+<details>
+<summary>Example configuration of cluster specification</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">network</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">clusterNet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.10.0.0/24</span>
-<span class="w">    </span><span class="nt">publicNet</span><span class="p">:</span><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">192.100.0.0/24</span>
+<span class="w">  </span><span class="nt">cluster</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">network</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">addressRanges</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">cluster</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.10.0.0/24</span>
+<span class="w">        </span><span class="nt">public</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">192.100.0.0/24</span>
+<span class="w">    </span><span class="nt">placement</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">mgr</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">tolerations</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
+<span class="w">          </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/control-plane</span>
+<span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/master</span>
+<span class="w">          </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
+<span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
+<span class="w">      </span><span class="nt">mon</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">tolerations</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
+<span class="w">          </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/control-plane</span>
+<span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/master</span>
+<span class="w">          </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
+<span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
 </code></pre></div>
-<a name="cephdeployment-nodes-parameters"></a></p>
+</details>
+</li>
+<li>
+<p><code>blockStorage</code> - Specifies the Ceph block storage configuration. Contains the <code>pools</code> parameter that specifies the list of Ceph pools. For details, see <a href="./#cephdeployment-pools-parameters">Pools parameters</a>.</p>
+</li>
+<li><code>clients</code> - Specifies the list of Ceph clients. For details, see <a href="./#cephdeployment-clients-parameters">Clients parameters</a>.</li>
+<li><code>extraOpts</code> - Enables specification of extra options for a Ceph cluster setup, includes the <code>deviceLabels</code> parameter. For details, see <a href="./#cephdeployment-extraopts-parameters">ExtraOpts parameters</a>.</li>
+<li><code>nodes</code> - Specifies the list of Ceph nodes with node specifications. Each list item can define a Ceph node specification for a single node or a group of nodes specified by an explicit list, a label, or a combination of both. For details, see <a href="./#cephdeployment-nodes-parameters">Nodes parameters</a>. </li>
+<li><code>objectStorage</code> - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage, the RADOS Gateway Multisite configuration, and the Gateway API HTTPRoutes for public access to Object Storage. For details, see <a href="./#cephdeployment-object-storage-parameters">Object storage parameters</a>.</li>
+<li><code>rbdMirror</code> - Specifies the parameters for RBD mirroring. For details, see <a href="./#cephdeployment-rbd-mirroring-parameters">RBD Mirroring parameters</a>.</li>
+<li><code>rookConfig</code> - Specifies the string key-value that allows overriding Ceph configuration options. For details, see <a href="./#cephdeployment-rookconfig-parameters">RookConfig parameters</a>.</li>
+<li><code>sharedFilesystem</code> - Enables Ceph Filesystem. For details, see <a href="./#cephdeployment-cephfs-parameters">CephFS parameters</a>.</li>
+</ul>
+<p><strong>Deprecated top-level parameters migrated under <code>cluster</code></strong></p>
+<p>The following top-level general parameters were moved under the <code>cluster</code> field during the <code>CephDeployment</code> API refactoring.
+Their previous locations in the specification are deprecated.
+If you continue using a deprecated location, the parameter is automatically migrated to its new location during <code>CephDeployment</code> reconciliation.
+Using both the old and new locations simultaneously causes a reconciliation failure. Therefore, we highly recommend using the new specification structure.</p>
+<ul>
+<li><code>network</code> - Specifies access and public networks for the Ceph cluster.</li>
+<li><code>healthCheck</code> - Configures health checks and liveness probe settings for Ceph daemons.</li>
+<li><code>mgr</code> - Specifies the list of Ceph Manager modules to be enabled or disabled.</li>
+<li><code>dashboard</code> - Intended to enable Ceph Dashboard. Currently, Pelagia does not support Ceph Dashboard.</li>
+<li><code>external</code> - Enables external Ceph cluster mode. If enabled, Pelagia reads a dedicated <code>Secret</code> containing the connection credentials for the external Ceph cluster.</li>
+</ul>
+<p><strong>Deprecated top-level parameters migrated to dedicated fields</strong></p>
+<ul>
+<li><code>pools</code> - Specifies the list of Ceph pools. Automatically migrated to <code>blockStorage.pools</code> during <code>CephDeployment</code> reconciliation.</li>
+<li>
+<p><code>ingressConfig</code> - Enables a custom ingress rule for public access to Ceph services, for example, Ceph RADOS Gateway. For details, see <a href="../../ops-guide/deployment/object-storage/rgw-tls/#rgw-tls-configure-ceph-object-gateway-tls">Configure Ceph Object Gateway TLS</a>.</p>
+<p>Deprecated in favor of <code>objectStorage.gatewayHTTPRoutes</code> due to <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">Ingress deprecation</a>.</p>
+</li>
+</ul>
+<p><a name="cephdeployment-nodes-parameters"></a></p>
 <h3 id="nodes-parameters">Nodes parameters<a class="headerlink" href="#nodes-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li>
@@ -3992,7 +3941,7 @@ in a case of a node outage.</p>
   Includes the following parameters:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Recommending to use the <code>fullPath</code> field for defining
+<p>We recommend using the <code>fullPath</code> field for defining
 <code>by-id</code> symlinks as persistent device identifiers. For details, see
 <a href="../../architecture/addressing-ceph-devices/#addressing-ceph-devices-addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
 </div>
@@ -4119,6 +4068,7 @@ or <code>nvme</code> disks.</p>
 </ul>
 <p><a name="cephdeployment-pools-parameters"></a></p>
 <h3 id="pools-parameters">Pools parameters<a class="headerlink" href="#pools-parameters" title="Permanent link">#</a></h3>
+<p>The <code>pools</code> parameters contain the Ceph block pool specification that represents the Rook <code>CephBlockPool</code> specification.</p>
 <ul>
 <li><code>name</code> - Mandatory. Specifies the pool name as a prefix for each Ceph block pool.
   The resulting Ceph block pool name will be <code>&lt;name&gt;-&lt;deviceClass&gt;</code>.</li>
@@ -4158,83 +4108,57 @@ or <code>nvme</code> disks.</p>
 </ul>
 </li>
 <li>
-<p><code>deviceClass</code> - Mandatory. Specifies the device class for the defined pool. Common possible
-  values are <code>hdd</code>, <code>ssd</code> and <code>nvme</code>. Also allows customized device classes, refers to the <strong>ExtraOpts parameters</strong> described below.</p>
-</li>
-<li>
-<p><code>replicated</code> - The <code>replicated</code> parameter is mutually exclusive with <code>erasureCoded</code>
-  and includes the following parameters:</p>
-<ul>
-<li><code>size</code> - the number of pool replicas.</li>
-<li>
-<p><code>targetSizeRatio</code> - A float percentage from <code>0.0</code> to <code>1.0</code>, which
-  specifies the expected consumption of the total Ceph cluster capacity.
-  The default values are as follows:</p>
-<ul>
-<li>The default ratio of the Ceph Object Storage <code>dataPool</code> 10.0%.</li>
-<li>Target ratios for the pools required for Rockoon, described in
-  <a href="../../ops-guide/rockoon/rockoon-integration/#rockoon-integration-integrate-pelagia-with-rockoon">Integrate Pelagia with Rockoon</a>.</li>
-</ul>
+<p><code>spec</code> - Represents the Rook <code>CephBlockPool</code> specification. For details see, Rook specifications: <a href="https://rook.io/docs/rook/v1.19/CRDs/Block-Storage/ceph-block-pool-crd/#spec">CephBlockPool CRD</a> and <a href="https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.PoolSpec">CephBlockPool API</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Mirantis recommends defining target ratio with the <code>parameters.target_size_ratio</code> <strong>string</strong> field instead.</p>
+<p>If you are using the <code>replicated</code> type of pool and need to use the <code>targetSizeRation</code> parameter,
+we recommend defining the target ratio using the <code>parameters.target_size_ratio</code> <strong>string</strong> field instead.
+For details, see <a href="https://docs.ceph.com/en/latest/rados/operations/pools/#set-pool-values">Ceph documentation: Set Pool values</a>.</p>
 </div>
-</li>
-</ul>
-</li>
-<li>
-<p><code>erasureCoded</code> - Enables the erasure-coded pool. For details, see <a href="https://rook.io/docs/rook/latest-release/CRDs/Block-Storage/ceph-block-pool-crd/#erasure-coded-rbd-pool">Rook documentation: Erasure Coded RBD Pool</a>.
-  and <a href="https://docs.ceph.com/en/latest/dev/erasure-coded-pool/">Ceph documentation: Erasure coded pool</a>. The
-  <code>erasureCoded</code> parameter is mutually exclusive with <code>replicated</code>.</p>
-</li>
-<li>
-<p><code>failureDomain</code> - Optional. The failure domain across which the replicas or chunks
-  of data will be spread. Set to <code>host</code> by default. The list of
-  possible recommended values includes: <code>host</code>, <code>rack</code>, <code>room</code>,
-  and <code>datacenter</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Target ratios for the pools required for Rockoon are described in
+<a href="../../ops-guide/rockoon/rockoon-integration/#rockoon-integration-integrate-pelagia-with-rockoon">Integrate Pelagia with Rockoon</a>.</p>
+</div>
 <div class="admonition danger">
 <p class="admonition-title">Danger</p>
-<p>We do not recommend using the following intermediate topology keys: <code>pdu</code>, <code>row</code>, <code>chassis</code>. Consider
-the <code>rack</code> topology instead. The <code>osd</code> failure domain is prohibited.</p>
+<p>We do not recommend using the following intermediate topology keys as a failure domain: <code>pdu</code>, <code>row</code>, and <code>chassis</code>. Consider
+the <code>rack</code> topology instead. The <code>osd</code> failure domain is allowed only for single-node deployments.</p>
 </div>
 </li>
-<li>
-<p><code>mirroring</code> - Optional. Enables the mirroring feature for the defined pool.
-  Includes the <code>mode</code> parameter that can be set to <code>pool</code> or <code>image</code>. For details, see <a href="../../ops-guide/deployment/rbd-mirror/#rbd-mirror-enable-ceph-rbd-mirroring">Enable Ceph RBD Mirroring</a>.</p>
-</li>
-<li><code>parameters</code> - Optional. Specifies the key-value map for the parameters of the Ceph pool.
-  For details, see <a href="https://docs.ceph.com/en/latest/rados/operations/pools/#set-pool-values">Ceph documentation: Set Pool values</a>.</li>
-<li><code>enableCrushUpdates</code> - Optional. Enables automatic updates of the CRUSH map
-  when the pool is created or updated. Defaulted to <code>false</code>.</li>
 </ul>
 <details>
-<summary>Example configuration of Pools specification</summary>
+<summary>Example configuration of pools specification</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">pools</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes</span>
-<span class="w">    </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
-<span class="w">    </span><span class="nt">replicated</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">    </span><span class="nt">parameters</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;10.0&quot;</span>
-<span class="w">    </span><span class="nt">storageClassOpts</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">preserveOnDelete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes</span>
-<span class="w">    </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvme</span>
-<span class="w">    </span><span class="nt">erasureCoded</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
-<span class="w">      </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-<span class="w">    </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">archive</span>
-<span class="w">    </span><span class="nt">useAsFullName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
-<span class="w">    </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rack</span>
-<span class="w">    </span><span class="nt">replicated</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">  </span><span class="nt">blockStorage</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">pools</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes</span>
+<span class="w">      </span><span class="nt">storageClassOpts</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
+<span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">        </span><span class="nt">parameters</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;10.0&quot;</span>
+<span class="w">      </span><span class="nt">preserveOnDelete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes</span>
+<span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvme</span>
+<span class="w">        </span><span class="nt">erasureCoded</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">          </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">archive</span>
+<span class="w">      </span><span class="nt">useAsFullName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
+<span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rack</span>
+<span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 </code></pre></div>
 </details>
-<p>As a result, the following Ceph pools will be created: <code>kubernetes-hdd</code>, <code>kubernetes-nvme</code>, and <code>archive</code>.</p>
+<p>As a result of <code>pools</code> configuration, the following Ceph pools will be created: <code>kubernetes-hdd</code>, <code>kubernetes-nvme</code>, and <code>archive</code>.</p>
 <p>To configure additional required pools for Rockoon, see
 <a href="../../ops-guide/rockoon/rockoon-integration/#rockoon-integration-integrate-pelagia-with-rockoon">Integrate Pelagia with Rockoon</a>.</p>
 <div class="admonition danger">
@@ -4245,13 +4169,14 @@ permission on the mount point of persistent volumes based on any
 </div>
 <p><a name="cephdeployment-clients-parameters"></a></p>
 <h3 id="clients-parameters">Clients parameters<a class="headerlink" href="#clients-parameters" title="Permanent link">#</a></h3>
+<p>The <code>clients</code> parameters contain the Ceph client specification that represents the Rook <code>CephClient</code> specification.</p>
 <ul>
 <li><code>name</code> - Mandatory. Ceph client name.</li>
-<li><code>caps</code> - Mandatory. Key-value parameter with Ceph client capabilities. For details about
-  <code>caps</code>, refer to <a href="https://docs.ceph.com/en/latest/rados/operations/user-management/#authorization-capabilities">Ceph documentation: Authorization (capabilities)</a>.</li>
+<li><code>spec</code> - Represents the Rook <code>CephClient</code> specification. For details see the following Rook documentation: <a href="https://rook.io/docs/rook/v1.19/CRDs/ceph-client-crd/">CephClient CRD</a> and <a href="https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.ClientSpec">CephClient API specification</a>.</li>
 </ul>
+<p>For details about Ceph client capabilities (<code>caps</code>), refer to <a href="https://docs.ceph.com/en/latest/rados/operations/user-management/#authorization-capabilities">Ceph documentation: Authorization (capabilities)</a>.</p>
 <details>
-<summary>Example configuration of Clients specification</summary>
+<summary>Example configuration of clients specification</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">clients</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test-client</span>
@@ -4260,338 +4185,201 @@ permission on the mount point of persistent volumes based on any
 <span class="w">      </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile rbd pool=kubernetes-nvme</span>
 </code></pre></div>
 </details>
+<p><a name="cephdeployment-object-storage-parameters"></a></p>
+<h3 id="objectstorage-parameters">ObjectStorage parameters<a class="headerlink" href="#objectstorage-parameters" title="Permanent link">#</a></h3>
+<ul>
+<li><code>objectStores</code> - List of Ceph <code>ObjectStorage</code> RADOS Gateway (RGW) objects. Each <code>objectStore</code> item represents the Rook <code>CephObjectStore</code> specification. For details, see <a href="./#cephdeployment-rados-gateway-parameters">RGW objectStores parameters</a>.</li>
+<li><code>users</code> - List of Ceph <code>ObjectStorage</code> users. Each <code>user</code> item represents the Rook <code>CephObjectStoreUser</code> specification. For details, see <a href="./#cephdeployment-rgw-users-parameters">RGW users parameters</a>.</li>
+<li><code>realms</code> - List of Ceph <code>ObjectStorage</code> realms. Each <code>realm</code> item represents the Rook <code>CephObjectRealms</code> specification. Currently, only one realm is supported, so the list must contain exactly one item. For details, see <a href="./#cephdeployment-rados-gateway-multisite-parameters">RGW multisite parameters</a>.</li>
+<li><code>zonegroups</code> - List of Ceph <code>ObjectStorage</code> zone groups. Each <code>zonegroup</code> item represents the Rook <code>CephObjectZoneGroup</code> specification. Currently, only one zone group is supported, so the list must contain exactly one item. For details, see <a href="./#cephdeployment-rados-gateway-multisite-parameters">RGW multisite parameters</a>.</li>
+<li><code>zones</code> - List of Ceph <code>ObjectStorage</code> zones. Each <code>zone</code> item represents the Rook <code>CephObjectZone</code> specification. Currently, only one zone is supported, so the list must contain exactly one item. For details, see <a href="./#cephdeployment-rados-gateway-multisite-parameters">RGW multisite parameters</a>..</li>
+<li><code>gatewayHTTPRoutes</code> - List of Gateway API HTTP routes. Each item represents the <code>HTTPRoute</code> specification. For details, see <a href="./#cephdeployment-httproute-parameters">RGW HTTPRoutes</a>.</li>
+<li><code>rgw</code> - Single definition of the Ceph <code>ObjectStorage</code> RGW object. Deprecated and automatically migrated to <code>objectStores</code> and <code>users</code> fields during <code>CephDeployment</code> reconciliation.</li>
+<li>
+<p><code>multiSite</code> - Definition of Ceph <code>ObjectStorage</code> RGW multisite configuration. Deprecated and automatically migrated to the <code>objectStorage</code> field during <code>CephDeployment</code> reconciliation. For example, <code>multisite.realms</code> is migrated to <code>objectStorage.realms</code>.</p>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>The realm access keys defined in the deprecated <code>multiSite.realms</code> field are removed from the spec during migration.</p>
+<p>For the <code>objectStorage.realms</code> field on new deployments, the operator must manually create a new secret with realm keys.
+For the procedure, see <a href="https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key">Rook documentation: Getting Realm Access Key and Secret Key</a>.</p>
+</div>
+</li>
+</ul>
 <p><a name="cephdeployment-rados-gateway-parameters"></a></p>
-<h3 id="rados-gateway-parameters">RADOS Gateway parameters<a class="headerlink" href="#rados-gateway-parameters" title="Permanent link">#</a></h3>
+<h4 id="rgw-objectstores-parameters">RGW objectStores parameters<a class="headerlink" href="#rgw-objectstores-parameters" title="Permanent link">#</a></h4>
 <ul>
-<li><code>name</code> - Required. Ceph Object Storage instance name.</li>
-<li>
-<p><code>dataPool</code> - Required if <code>zone.name</code> is not specified. Mutually exclusive with
-  <code>zone</code>. Must be used together with <code>metadataPool</code>.</p>
-<p>Object storage data pool spec that must only contain <code>replicated</code> or
- <code>erasureCoded</code>, <code>deviceClass</code> and <code>failureDomain</code> parameters. The <code>failureDomain</code>
- parameter may be set to <code>host</code>, <code>rack</code>, <code>room</code>, or <code>datacenter</code>,
- defining the failure domain across which the data will be spread. The
- <code>deviceClass</code> must be explicitly defined. For <code>dataPool</code>, We recommend
- using an <code>erasureCoded</code> pool.</p>
-<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">   </span><span class="nt">objectStorage</span><span class="p">:</span>
-<span class="w">     </span><span class="nt">rgw</span><span class="p">:</span>
-<span class="w">       </span><span class="nt">dataPool</span><span class="p">:</span>
-<span class="w">         </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
-<span class="w">         </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
-<span class="w">         </span><span class="nt">erasureCoded</span><span class="p">:</span>
-<span class="w">           </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
-<span class="w">           </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-</code></pre></div>
-</li>
-<li>
-<p><code>metadataPool</code> - Required if <code>zone.name</code> is not specified. Mutually exclusive with <code>zone</code>. Must be used together with <code>dataPool</code>.</p>
-<p>Object storage metadata pool spec that must only contain <code>replicated</code>, <code>deviceClass</code> and
-<code>failureDomain</code> parameters. The <code>failureDomain</code> parameter may be set to
-<code>host</code>, <code>rack</code>, <code>room</code>, or <code>datacenter</code>, defining the failure domain
-across which the data will be spread. The <code>deviceClass</code> must be explicitly
-defined. Can use only <code>replicated</code> settings. For example:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">   </span><span class="nt">objectStorage</span><span class="p">:</span>
-<span class="w">     </span><span class="nt">rgw</span><span class="p">:</span>
-<span class="w">       </span><span class="nt">metadataPool</span><span class="p">:</span>
-<span class="w">         </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
-<span class="w">         </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
-<span class="w">         </span><span class="nt">replicated</span><span class="p">:</span>
-<span class="w">           </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-</code></pre></div>
-<p>where <code>replicated.size</code> is the number of full copies of data on
-multiple nodes.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>,
-Ceph OSD removal cannot be performed. The minimum replica size equals a rounded
-up half of the specified <code>replicated.size</code>.</p>
-<p>For example, if <code>replicated.size</code> is <code>2</code>, the minimal replica size is
-<code>1</code>, and if <code>replicated.size</code> is <code>3</code>, then the minimal replica size
-is <code>2</code>. The replica size of <code>1</code> allows Ceph having PGs with only one
-Ceph OSD in the <code>acting</code> state, which may cause a <code>PG_TOO_DEGRADED</code>
-health warning that blocks Ceph OSD removal. Mirantis recommends setting
-<code>replicated.size</code> to <code>3</code> for each Ceph pool.</p>
-</div>
-</li>
-<li>
-<p><code>gateway</code> - Required. The gateway settings corresponding to the <code>rgw</code> daemon
-  settings. Includes the following parameters:</p>
-<ul>
-<li><code>port</code> - the port on which the Ceph RGW service will be listening on
-  HTTP.</li>
-<li><code>securePort</code> - the port on which the Ceph RGW service will be
-  listening on HTTPS.</li>
-<li>
-<p><code>instances</code> - the number of pods in the Ceph RGW ReplicaSet. If
-  <code>allNodes</code> is set to <code>true</code>, a DaemonSet is created instead.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>We recommend using 3 instances for Ceph Object Storage.</p>
-</div>
-</li>
-<li>
-<p><code>allNodes</code> - defines whether to start the Ceph RGW pods as a
-  DaemonSet on all nodes. The <code>instances</code> parameter is ignored if
-  <code>allNodes</code> is set to <code>true</code>.</p>
-</li>
-<li><code>splitDaemonForMultisiteTrafficSync</code> - Optional. For multisite setup defines
-  whether to split RGW daemon on daemon responsible for sync between zones and daemon
-  for serving clients request.</li>
-<li><code>rgwSyncPort</code> - Optional. Port the rgw multisite traffic service will be listening on (http).
-  Has effect only for multisite configuration.</li>
-<li><code>resources</code> - Optional. Represents Kubernetes resource requirements for Ceph RGW pods. For details
-  see: <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">Kubernetes docs: Resource Management for Pods and Containers</a>.</li>
-<li>
-<p><code>externalRgwEndpoint</code> - Required for external Ceph cluster Setup. Represents external RGW Endpoint to use,
-  only when external Ceph cluster is used. Contains the following parameters:</p>
-<ul>
-<li><code>ip</code> - represents the IP address of RGW endpoint.</li>
-<li>
-<p><code>hostname</code> - represents the DNS-addressable hostname of RGW endpoint.
-  This field will be preferred over IP if both are given.</p>
-<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">gateway</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">allNodes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">instances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
-<span class="w">        </span><span class="nt">securePort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span>
-</code></pre></div>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>
-<p><code>preservePoolsOnDelete</code> - Optional. Defines whether to delete the data and metadata pools in
-  the <code>rgw</code> section if the Object Storage is deleted. Set this parameter
-  to <code>true</code> if you need to store data even if the object storage is
-  deleted. However, we recommend setting this parameter to <code>false</code>.</p>
-</li>
-<li>
-<p><code>objectUsers</code> and <code>buckets</code> - Optional. To create new Ceph RGW resources, such as buckets or users,
-  specify the following keys. Ceph Controller will automatically create
-  the specified object storage users and buckets in the Ceph cluster.</p>
-<ul>
-<li>
-<p><code>objectUsers</code> - a list of user specifications to create for object
-  storage. Contains the following fields:</p>
-<ul>
-<li><code>name</code> - a user name to create.</li>
-<li><code>displayName</code> - the Ceph user name to display.</li>
-<li>
-<p><code>capabilities</code> - user capabilities:</p>
-<ul>
-<li><code>user</code> - admin capabilities to read/write Ceph Object Store
-  users.</li>
-<li><code>bucket</code> - admin capabilities to read/write Ceph Object Store
-  buckets.</li>
-<li><code>metadata</code> - admin capabilities to read/write Ceph Object Store
-  metadata.</li>
-<li><code>usage</code> - admin capabilities to read/write Ceph Object Store
-  usage.</li>
-<li><code>zone</code> - admin capabilities to read/write Ceph Object Store
-  zones.</li>
-</ul>
-<p>The available options are <code>*</code>, <code>read</code>, <code>write</code>, <code>read, write</code>. For details, see
-<a href="https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities">Ceph documentation: Add/remove admin capabilities</a>.</p>
-</li>
-<li>
-<p><code>quotas</code> - user quotas:</p>
-<ul>
-<li><code>maxBuckets</code> - the maximum bucket limit for the Ceph user.
-  Integer, for example, <code>10</code>.</li>
-<li><code>maxSize</code> - the maximum size limit of all objects across all the
-  buckets of a user. String size, for example, <code>10G</code>.</li>
-<li><code>maxObjects</code> - the maximum number of objects across all buckets
-  of a user. Integer, for example, <code>10</code>.</li>
-</ul>
-</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">objectUsers</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test-user</span>
-<span class="w">         </span><span class="l l-Scalar l-Scalar-Plain">displayName</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test-user</span>
-<span class="w">         </span><span class="l l-Scalar l-Scalar-Plain">capabilities</span><span class="p p-Indicator">:</span>
-<span class="w">           </span><span class="nt">bucket</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;*&#39;</span>
-<span class="w">           </span><span class="nt">metadata</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read</span>
-<span class="w">           </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read</span>
-<span class="w">        </span><span class="w w-Error"> </span><span class="nt">quotas</span><span class="p">:</span>
-<span class="w">           </span><span class="nt">maxBuckets</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
-<span class="w">           </span><span class="nt">maxSize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10G</span>
-</code></pre></div>
-</li>
-<li>
-<p><code>buckets</code> - a list of strings that contain bucket names to create
-  for object storage.</p>
-</li>
-</ul>
-</li>
-<li>
-<p><code>zone</code> - Required if <code>dataPool</code> and <code>metadataPool</code> are not specified. Mutually exclusive with these parameters.</p>
-<p>Defines the Ceph Multisite zone where the object storage must be placed.
-Includes the <code>name</code> parameter that must be set to one of the <code>zones</code>
-items:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">multisite</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">zones</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">master-zone</span>
-<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">zone</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">master-zone</span>
-</code></pre></div>
-</li>
-<li>
-<p><code>SSLCert</code> - Optional. Custom TLS certificate parameters used to access the Ceph RGW endpoint. If not specified, a self-signed certificate will be generated.</p>
-<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">SSLCert</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">cacert</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">          </span><span class="no">-----BEGIN CERTIFICATE-----</span>
-<span class="w">          </span><span class="no">ca-certificate here</span>
-<span class="w">          </span><span class="no">-----END CERTIFICATE-----</span>
-<span class="w">        </span><span class="nt">tlsCert</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">          </span><span class="no">-----BEGIN CERTIFICATE-----</span>
-<span class="w">          </span><span class="no">private TLS certificate here</span>
-<span class="w">          </span><span class="no">-----END CERTIFICATE-----</span>
-<span class="w">        </span><span class="nt">tlsKey</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
-<span class="w">          </span><span class="no">-----BEGIN RSA PRIVATE KEY-----</span>
-<span class="w">          </span><span class="no">private TLS key here</span>
-<span class="w">          </span><span class="no">-----END RSA PRIVATE KEY-----</span>
-</code></pre></div>
-</li>
-<li>
-<p><code>SSLCertInRef</code> - Optional. Flag to determine that a TLS certificate for accessing the Ceph RGW endpoint is used but not exposed in <code>spec</code>. For example:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">SSLCertInRef</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-</code></pre></div>
-<p>The operator must manually provide TLS configuration using the
-<code>rgw-ssl-certificate</code> secret in the <code>rook-ceph</code> namespace of the
-managed cluster. The secret object must have the following structure:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">data</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">cacert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64encodedCaCertificate&gt;</span>
-<span class="w">  </span><span class="nt">cert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64encodedCertificate&gt;</span>
-</code></pre></div>
-<p>When removing an already existing <code>SSLCert</code> block, no additional actions
-are required, because this block uses the same <code>rgw-ssl-certificate</code> secret
-in the <code>rook-ceph</code> namespace.</p>
-<p>When adding a new secret directly without exposing it in <code>spec</code>, the following
-rules apply:</p>
-<ul>
-<li><code>cert</code> - base64 representation of a file with the server TLS key,
-  server TLS cert, and CA certificate.</li>
-<li><code>cacert</code> - base64 representation of a CA certificate only.</li>
-</ul>
-</li>
+<li><code>name</code> - Mandatory. Ceph Object Storage instance name.</li>
+<li><code>usedForOpenstack</code> - Optional. Enables consumption of the current Ceph RGW instance by OpenStack,
+  which allows adding the required OpenStack parameters to the Ceph RGW configuration.</li>
+<li><code>auxiliaryService</code> - Optional. Enables the current Ceph RGW instance to operate without a <code>StorageClass</code>
+  and external API access. Useful for auxiliary instances, such as a Ceph RGW multisite
+  replication daemon or an instance providing Ceph RGW admin API access.</li>
+<li><code>servedByIngress</code> - Optional. Enables the current Ceph RGW instance to be used by the Ingress controller.
+  Deprecated in favor of the Gateway API <code>HTTPRoutes</code>.</li>
+<li><code>spec</code> - Mandatory. Represents the Rook <code>CephObjectStore</code> specification. For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-crd/">CephObjectStore CRD</a> and <a href="https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.CephObjectStore">CephObjectStore API specification</a>.</li>
 </ul>
 <details>
-<summary>Example configuration of RADOS gateway specification</summary>
+<summary>Example configuration of RGW specification</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store</span>
-<span class="w">      </span><span class="nt">dataPool</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
-<span class="w">        </span><span class="nt">erasureCoded</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
-<span class="w">          </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-<span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
-<span class="w">      </span><span class="nt">metadataPool</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
-<span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
-<span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">      </span><span class="nt">gateway</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">allNodes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">instances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
-<span class="w">        </span><span class="nt">securePort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span>
-<span class="w">      </span><span class="nt">preservePoolsOnDelete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">objectStores</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store</span>
+<span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">dataPool</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
+<span class="w">          </span><span class="nt">erasureCoded</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">            </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">          </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">        </span><span class="nt">metadataPool</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
+<span class="w">          </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">          </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">        </span><span class="nt">gateway</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">instances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">          </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
+<span class="w">          </span><span class="nt">securePort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span>
+<span class="w">        </span><span class="nt">preservePoolsOnDelete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div>
+</details>
+<p><a name="cephdeployment-rgw-users-parameters"></a></p>
+<h4 id="rgw-users-parameters">RGW users parameters<a class="headerlink" href="#rgw-users-parameters" title="Permanent link">#</a></h4>
+<p>The RGW <code>users</code> parameters represent the Rook <code>CephObjectStoreUser</code> specification.
+For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-user-crd/#spec">Rook documenation: CephObjectStoreUser CRD</a>.</p>
+<details>
+<summary>Example configuration of RGW users specification</summary>
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">objectStores</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">    </span><span class="nt">users</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user-a</span>
+<span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">store</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store</span>
+<span class="w">        </span><span class="nt">capabilities</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">bucket</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;*&#39;</span>
+<span class="w">          </span><span class="nt">metadata</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read</span>
+<span class="w">          </span><span class="nt">user</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">read</span>
+<span class="w">        </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">user-a</span>
+<span class="w">        </span><span class="nt">quotas</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">maxBuckets</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">          </span><span class="nt">maxSize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10G</span>
 </code></pre></div>
 </details>
 <p><a name="cephdeployment-rados-gateway-multisite-parameters"></a></p>
-<h3 id="rados-gateway-multisite-parameters">RADOS Gateway Multisite parameters<a class="headerlink" href="#rados-gateway-multisite-parameters" title="Permanent link">#</a></h3>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This feature is in Technical Preview, use it on own risk.</p>
-</div>
+<h4 id="rgw-multisite-parameters">RGW multisite parameters<a class="headerlink" href="#rgw-multisite-parameters" title="Permanent link">#</a></h4>
 <ul>
 <li>
-<p><code>realms</code> - Required. List of realms to use, represents the realm namespaces. Includes the following parameters:</p>
+<p><code>realms</code> - List of realms to use. Each item represents the Rook <code>CephObjectRealm</code> specification.</p>
 <ul>
-<li><code>name</code> - required, the realm name.</li>
-<li>
-<p><code>pullEndpoint</code> - optional, required only when the master zone is in
-  a different storage cluster. The endpoint, access key, and system key
-  of the system user from the realm to pull from. Includes the
-  following parameters:</p>
-<ul>
-<li><code>endpoint</code> - the endpoint of the master zone in the master zone group.</li>
-<li><code>accessKey</code> - the access key of the system user from the realm to pull from.</li>
-<li><code>secretKey</code> - the system key of the system user from the realm to pull from.</li>
-</ul>
-</li>
+<li><code>name</code> - Mandatory. The realm name.</li>
+<li><code>spec</code> - Specification of <code>CephObjectRealm</code>. For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-realm-crd/">CephObjectRealm CRD</a>.</li>
 </ul>
 </li>
 <li>
-<p><code>zoneGroups</code> - Required. The list of zone groups for realms. Includes the following parameters:</p>
+<p><code>zonegroups</code> - List of zone groups for realms. Each item represents the Rook <code>CephObjectZoneGroup</code> specification.</p>
 <ul>
-<li><code>name</code> - required, the zone group name.</li>
-<li><code>realmName</code> - required, the realm namespace name to which
-  the zone group belongs to.</li>
+<li><code>name</code> - Mandatory. The zone group name.</li>
+<li><code>spec</code> - Specification of <code>CephObjectZoneGroup</code>. For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zonegroup-crd/">CephObjectZoneGroup CRD</a>.</li>
 </ul>
 </li>
 <li>
-<p><code>zones</code> - Required. The list of zones used within one zone group. Includes the following parameters:</p>
+<p><code>zones</code> - List of zones used within one zone group. Each item represents the Rook <code>CephObjectZone</code> specification.</p>
 <ul>
-<li><code>name</code> - required, the zone name.</li>
-<li><code>metadataPool</code> - required, the settings used to create the Object Storage metadata pools. Must use replication. For details, see description of the Pool parameters.</li>
-<li><code>dataPool</code> - required, the settings used to create the Object Storage data pool. Can use replication or erasure coding. For details, see the Pool parameters.</li>
-<li><code>zoneGroupName</code> - required, the zone group name.</li>
-<li><code>endpointsForZone</code> - optional. The list of all endpoints in the zone group.
-  If you use ingress proxy for RGW, the list of endpoints must contain that FQDN/IP address to access RGW.
-  By default, if no ingress proxy is used, the list of endpoints is set to the IP address of the RGW external service. Endpoints must follow the HTTP URL format.</li>
+<li><code>name</code> - Mandatory. The zone name.</li>
+<li><code>spec</code> - Specification of <code>CephObjectZone</code>. For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zone-crd/">CephObjectZone CRD</a>.</li>
 </ul>
 </li>
 </ul>
 <p>For configuration example, see <a href="../../ops-guide/deployment/object-storage/rgw-multisite/#rgw-multisite-enable-multisite-for-ceph-object-storage">Enable Multisite for Ceph Object Storage</a>.</p>
+<p><a name="cephdeployment-httproute-parameters"></a></p>
+<h4 id="rgw-gatewayhttproutes-parameters">RGW gatewayHTTPRoutes parameters<a class="headerlink" href="#rgw-gatewayhttproutes-parameters" title="Permanent link">#</a></h4>
+<div class="admonition caution">
+<p class="admonition-title">Caution</p>
+<p>Before enabling Gateway HTTPRoutes, the operator must configure the <code>Gateway</code> object and controller.
+For details, see <a href="https://gateway-api.sigs.k8s.io/guides/getting-started/introduction/">Kubernetes Gateway API documentation</a>.</p>
+</div>
+<p>The <code>gatewayHTTPRoutes</code> parameters represent the Gateway API <code>HTTPRoute</code> specification.</p>
+<ul>
+<li><code>name</code> - Name of <code>HTTPRoute</code>. Mandatory.</li>
+<li><code>objectStoreName</code> - Name of the related <code>CephObjectStore</code> object. Mandatory.</li>
+<li><code>spec</code> - Represents the Gateway API <code>HTTPRoute</code> specification. For details, see <a href="https://gateway-api.sigs.k8s.io/reference/api-types/httproute/">Gateway API documentation: HTTPRoute</a>.</li>
+</ul>
+<details>
+<summary>Example configuration of gatewayHTTPRoutes specification</summary>
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">gatewayHTTPRoutes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">route-1</span>
+<span class="w">      </span><span class="nt">objectStoreName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store</span>
+<span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">hostnames</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store.custom.dns.name</span>
+<span class="w">    </span><span class="nt">objectStores</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store</span>
+<span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">hosting</span><span class="p p-Indicator">:</span>
+<span class="w">          </span><span class="nt">dnsNames</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store.custom.dns.name</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</code></pre></div>
+</details>
 <p><a name="cephdeployment-cephfs-parameters"></a></p>
-<h3 id="cephfs-parameters">CephFS parameters<a class="headerlink" href="#cephfs-parameters" title="Permanent link">#</a></h3>
-<p><code>sharedFilesystem</code> contains a list of Ceph Filesystems <code>cephFS</code>. Each <code>cephFS</code> item
-contains the following parameters:</p>
+<h3 id="cephfilesystems-parameters">CephFilesystems parameters<a class="headerlink" href="#cephfilesystems-parameters" title="Permanent link">#</a></h3>
+<ul>
+<li><code>cephFS</code> - Contains a list of Ceph file systems. Deprecated, automatically migrated to the <code>cephFilesystems</code> field.</li>
+<li>
+<p><code>cephFilesystems</code> - Contains a list of Ceph file systems. Each <code>cephFilesystem</code> item represents the Rook <code>CephFilesystem</code> specification:</p>
 <ul>
 <li><code>name</code> - Mandatory. CephFS instance name.</li>
 <li>
-<p><code>dataPools</code> - A list of CephFS data pool specifications. Each spec contains the <code>name</code>, <code>replicated</code> or <code>erasureCoded</code>, <code>deviceClass</code>, and <code>failureDomain</code> parameters. The first pool in the list is treated as the default data pool for CephFS and must always be <code>replicated</code>
- The number of data pools is unlimited, but the default pool must always be present. For example:</p>
+<p><code>spec</code> - Represents the Rook <code>CephFilesystem</code> specification. For details, refer to the following Rook documentation: <a href="https://rook.io/docs/rook/v1.19/CRDs/Shared-Filesystem/ceph-filesystem-crd/">CephFilesystem CRD</a> and <a href="https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.FilesystemSpec">CephFilesystem API specification</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The CephFS metadata pool must be only of the <code>replicated</code> type.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The first pool in the list is treated as the default data pool for CephFS and must always be <code>replicated</code>.</p>
+</div>
+</li>
+</ul>
+<p>The number of data pools is unlimited, but the default pool must always be present:</p>
+<details>
+<summary>Example configuration of dataPools</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">sharedFilesystem</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">cephFS</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cephFilesystems</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-store</span>
-<span class="w">      </span><span class="nt">dataPools</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default-pool</span>
-<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssd</span>
-<span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">second-pool</span>
-<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
-<span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rack</span>
-<span class="w">        </span><span class="nt">erasureCoded</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-<span class="w">          </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">dataPools</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default-pool</span>
+<span class="w">          </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssd</span>
+<span class="w">          </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">          </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">second-pool</span>
+<span class="w">          </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
+<span class="w">          </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rack</span>
+<span class="w">          </span><span class="nt">erasureCoded</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">            </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">        </span><span class="nt">metadataServer</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">activeCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">          </span><span class="nt">activeStandby</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">          </span><span class="nt">resources</span><span class="p">:</span><span class="w"> </span><span class="c1"># example, non-prod values</span>
+<span class="w">            </span><span class="nt">requests</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1Gi</span>
+<span class="w">              </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">            </span><span class="nt">limits</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2Gi</span>
+<span class="w">              </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 </code></pre></div>
-<p>where <code>replicated.size</code> is the number of full copies of data on multiple nodes.</p>
+<p><code>replicated.size</code> is the number of full copies of data on multiple nodes.</p>
+</details>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>,
@@ -4606,89 +4394,37 @@ health warning that blocks Ceph OSD removal. Mirantis recommends setting
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Modifying of <code>dataPools</code> on a deployed CephFS has no effect.
+<p>Modifying pools on a deployed CephFS has no effect.
 You can manually adjust pool settings through the Ceph CLI.
-However, for any changes in <code>dataPools</code>, we recommend re-creating CephFS.</p>
+However, for any changes in pools, we recommend re-creating CephFS.</p>
 </div>
-</li>
-<li>
-<p><code>metadataPool</code> - CephFS metadata pool spec that should only contain <code>replicated</code>, <code>deviceClass</code>, and <code>failureDomain</code> parameters.
-  Can use only <code>replicated</code> settings. For example:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">sharedFilesystem</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">cephFS</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-store</span>
-<span class="w">      </span><span class="nt">metadataPool</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvme</span>
-<span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
-</code></pre></div>
-<p>where <code>replicated.size</code> is the number of full copies of data on multiple nodes.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Modifying of <code>metadataPool</code> on a deployed CephFS has no effect.
-You can manually adjust pool settings through the Ceph CLI.
-However, for any changes in <code>metadataPool</code>, we recommend re-creating CephFS.</p>
-</div>
-</li>
-<li>
-<p><code>preserveFilesystemOnDelete</code> - Defines whether to delete the data and metadata pools if CephFS is deleted.
-Set to <code>true</code> to avoid occasional data loss in case of human error.
-However, for security reasons, we recommend setting <code>preserveFilesystemOnDelete</code> to <code>false</code>.</p>
-</li>
-<li>
-<p><code>metadataServer</code> - Metadata Server settings correspond to the Ceph MDS daemon settings.
-Contains the following fields:</p>
-<ul>
-<li><code>activeCount</code> - the number of active Ceph MDS instances. As load increases, CephFS will automatically partition the file system across the Ceph MDS instances. Rook will create double the number of Ceph MDS instances as requested by <code>activeCount</code>. The extra instances will be in the standby mode for failover. We recommend specifying this parameter to <code>1</code> and increasing the MDS daemons count only in case of high load.</li>
-<li><code>activeStandby</code> - defines whether the extra Ceph MDS instances will be in active standby mode and will keep a warm cache of the file system metadata for faster failover.
-The instances will be assigned by CephFS in failover pairs. If <code>false</code>, the extra Ceph MDS instances will all be in passive standby mode and will not maintain a warm cache of the metadata. The default value is <code>false</code>.</li>
-<li><code>resources</code> - represents Kubernetes resource requirements for Ceph MDS pods.
-For details see: <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">Kubernetes docs: Resource Management for Pods and Containers</a>.</li>
-</ul>
-<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">sharedFilesystem</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">cephFS</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-store</span>
-<span class="w">      </span><span class="nt">metadataServer</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">activeCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
-<span class="w">        </span><span class="nt">activeStandby</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">      </span><span class="nt">resources</span><span class="p">:</span><span class="w"> </span><span class="c1"># example, non-prod values</span>
-<span class="w">        </span><span class="nt">requests</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1Gi</span>
-<span class="w">          </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
-<span class="w">      </span><span class="nt">limits</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2Gi</span>
-<span class="w">        </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-</code></pre></div>
 </li>
 </ul>
 <details>
-<summary>Example configuration of shared Filesystem specification</summary>
+<summary>Example configuration of sharedFilesystem specification</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">sharedFilesystem</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">cephFS</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cephFilesystems</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-store</span>
-<span class="w">      </span><span class="nt">dataPools</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-pool-1</span>
-<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
-<span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
-<span class="w">      </span><span class="nt">metadataPool</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvme</span>
-<span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
-<span class="w">      </span><span class="nt">metadataServer</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">activeCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
-<span class="w">        </span><span class="nt">activeStandby</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">dataPools</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-pool-1</span>
+<span class="w">          </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
+<span class="w">          </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">          </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">        </span><span class="nt">metadataPool</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nvme</span>
+<span class="w">          </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">          </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">        </span><span class="nt">metadataServer</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">activeCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </code></pre></div>
 </details>
 <p><a name="cephdeployment-rookconfig-parameters"></a></p>
 <h3 id="rookconfig-parameters">RookConfig parameters<a class="headerlink" href="#rookconfig-parameters" title="Permanent link">#</a></h3>
-<p>String key-value parameter that allows overriding Ceph configuration options.</p>
+<p><code>RookConfig</code> is a string key-value parameter that allows overriding Ceph configuration options.</p>
 <p>Use the <code>|</code> delimiter to specify the section where a parameter
 must be placed. For example, <code>mon</code> or <code>osd</code>. And, if required,
 use the <code>.</code> delimiter to specify the exact number of the Ceph OSD or
@@ -4705,111 +4441,6 @@ of all Ceph daemons except Ceph OSD.</p>
 <span class="w">    </span><span class="s">&quot;osd|osd_journal_size&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;8192&quot;</span>
 <span class="w">    </span><span class="s">&quot;osd.14|osd_journal_size&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;6250&quot;</span>
 </code></pre></div>
-<p><a name="cephdeployment-healthcheck-parameters"></a></p>
-<h3 id="healthcheck-parameters">HealthCheck parameters<a class="headerlink" href="#healthcheck-parameters" title="Permanent link">#</a></h3>
-<ul>
-<li>
-<p><code>daemonHealth</code> - Optional. Specifies health check settings for Ceph daemons. Contains
-  the following parameters:</p>
-<ul>
-<li><code>status</code> - configures health check settings for Ceph health</li>
-<li><code>mon</code> - configures health check settings for Ceph Monitors</li>
-<li><code>osd</code> - configures health check settings for Ceph OSDs</li>
-</ul>
-<p>Each parameter allows defining the following settings:</p>
-<ul>
-<li><code>disabled</code> - a flag that disables the health check.</li>
-<li><code>interval</code> - an interval in seconds or minutes for the health
-  check to run. For example, <code>60s</code> for 60 seconds.</li>
-<li><code>timeout</code> - a timeout for the health check in seconds or minutes.
-  For example, <code>60s</code> for 60 seconds.</li>
-</ul>
-</li>
-<li>
-<p><code>livenessProbe</code> - Optional. Key-value parameter with liveness probe settings for
-  the defined daemon types. Can be one of the following: <code>mgr</code>,
-  <code>mon</code>, <code>osd</code>, or <code>mds</code>. Includes the <code>disabled</code> flag and
-  the <code>probe</code> parameter. The <code>probe</code> parameter accepts
-  the following options:</p>
-<ul>
-<li><code>initialDelaySeconds</code> - the number of seconds after the container
-  has started before the liveness probes are initiated. Integer.</li>
-<li><code>timeoutSeconds</code> - the number of seconds after which the probe
-  times out. Integer.</li>
-<li><code>periodSeconds</code> - the frequency (in seconds) to perform the
-  probe. Integer.</li>
-<li><code>successThreshold</code> - the minimum consecutive successful probes
-  for the probe to be considered successful after a failure. Integer.</li>
-<li><code>failureThreshold</code> - the minimum consecutive failures for the
-  probe to be considered failed after having succeeded. Integer.</li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Pelagia Deployment Controller specifies the following <code>livenessProbe</code> defaults
-for <code>mon</code>, <code>mgr</code>, <code>osd</code>, and <code>mds</code> (if CephFS is enabled):</p>
-<ul>
-<li><code>5</code> for <code>timeoutSeconds</code></li>
-<li><code>5</code> for <code>failureThreshold</code></li>
-</ul>
-</div>
-</li>
-<li>
-<p><code>startupProbe</code> - Optional. Key-value parameter with startup probe settings for
-  the defined daemon types. Can be one of the following: <code>mgr</code>,
-  <code>mon</code>, <code>osd</code>, or <code>mds</code>. Includes the <code>disabled</code> flag and
-  the <code>probe</code> parameter. The <code>probe</code> parameter accepts
-  the following options:</p>
-<ul>
-<li><code>timeoutSeconds</code> - the number of seconds after which the probe
-  times out. Integer.</li>
-<li><code>periodSeconds</code> - the frequency (in seconds) to perform the
-  probe. Integer.</li>
-<li><code>successThreshold</code> - the minimum consecutive successful probes
-  for the probe to be considered successful after a failure. Integer.</li>
-<li><code>failureThreshold</code> - the minimum consecutive failures for the
-  probe to be considered failed after having succeeded. Integer.</li>
-</ul>
-</li>
-</ul>
-<details>
-<summary>Example configuration of health check specification</summary>
-<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">healthCheck</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">daemonHealth</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">mon</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">45s</span>
-<span class="w">        </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">600s</span>
-<span class="w">      </span><span class="nt">osd</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60s</span>
-<span class="w">      </span><span class="nt">status</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="nt">livenessProbe</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">mon</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">probe</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">timeoutSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
-<span class="w">          </span><span class="nt">periodSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">          </span><span class="nt">successThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">      </span><span class="nt">mgr</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">        </span><span class="nt">probe</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">timeoutSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
-<span class="w">          </span><span class="nt">failureThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
-<span class="w">      </span><span class="nt">osd</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">probe</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">initialDelaySeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
-<span class="w">          </span><span class="nt">timeoutSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
-<span class="w">          </span><span class="nt">failureThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">7</span>
-<span class="w">    </span><span class="nt">startupProbe</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">mon</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">disabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">      </span><span class="nt">mgr</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">probe</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">successThreshold</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-</code></pre></div>
-</details>
 <p><a name="cephdeployment-extraopts-parameters"></a></p>
 <h3 id="extraopts-parameters">ExtraOpts parameters<a class="headerlink" href="#extraopts-parameters" title="Permanent link">#</a></h3>
 <ul>
@@ -4844,7 +4475,7 @@ for <code>mon</code>, <code>mgr</code>, <code>osd</code>, and <code>mds</code> (
 </code></pre></div>
 </li>
 <li>
-<p><code>customDeviceClasses</code> - Optional. TechPreview. A list of custom device class names to use in the
+<p><code>customDeviceClasses</code> - Optional. A list of custom device class names to use in the
   specification. Enables you to specify the custom names different from
   the default ones, which include <code>ssd</code>, <code>hdd</code>, and <code>nvme</code>, and use
   them in nodes and pools definitions.</p>
@@ -4856,58 +4487,34 @@ for <code>mon</code>, <code>mgr</code>, <code>osd</code>, and <code>mds</code> (
 <span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kaas-node-5bgk6</span>
 <span class="w">    </span><span class="nt">devices</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">config</span><span class="p">:</span><span class="w"> </span><span class="c1"># existing item</span>
-<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;custom_class_name&gt;</span>
-<span class="w">        </span><span class="nt">fullPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/disk/by-id/&lt;unique_ID&gt;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">config</span><span class="p">:</span><span class="w"> </span><span class="c1"># existing item</span>
+<span class="w">      </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;custom_class_name&gt;</span>
+<span class="w">      </span><span class="nt">fullPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/disk/by-id/&lt;unique_ID&gt;</span>
 <span class="w">  </span><span class="nt">pools</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
-<span class="w">    </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;custom_class_name&gt;</span>
-<span class="w">    </span><span class="nt">erasureCoded</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
-<span class="w">    </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-<span class="w">    </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pool1</span>
+<span class="w">    </span><span class="nt">storageClassOpts</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;custom_class_name&gt;</span>
+<span class="w">      </span><span class="nt">erasureCoded</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">codingChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">        </span><span class="nt">dataChunks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">      </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
 </code></pre></div>
 </li>
 </ul>
-<p><a name="cephdeployment-manager-modules-parameters"></a></p>
-<h3 id="manager-modules-parameters">Manager modules parameters<a class="headerlink" href="#manager-modules-parameters" title="Permanent link">#</a></h3>
-<p><code>CephDeployment</code> specification <code>mgr</code> section contains <code>mgrModules</code> parameter. It includes the following
-parameters:</p>
-<ul>
-<li><code>name</code> - Ceph Manager module name.</li>
-<li>
-<p><code>enabled</code> - Flag that defines whether the Ceph Manager module
-  is enabled.</p>
-<p>For example:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">mgr</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">mgrModules</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">balancer</span>
-<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pg_autoscaler</span>
-<span class="w">      </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-</code></pre></div>
-<p>The <code>balancer</code> and <code>pg_autoscaler</code> Ceph Manager modules are
- enabled by default and cannot be disabled.</p>
-</li>
-</ul>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Most Ceph Manager modules require additional configuration that you can perform through the <code>pelagia-lcm-tooblox</code>
-pod.</p>
-</div>
 <p><a name="cephdeployment-rbd-mirroring-parameters"></a></p>
-<h3 id="rbd-mirroring-parameters">RBD Mirroring parameters<a class="headerlink" href="#rbd-mirroring-parameters" title="Permanent link">#</a></h3>
+<h3 id="rbd-mirroring-parameters">RBD mirroring parameters<a class="headerlink" href="#rbd-mirroring-parameters" title="Permanent link">#</a></h3>
 <ul>
-<li><code>daemonsCount</code> - Count of <code>rbd-mirror</code> daemons to spawn. We recommend using one instance of the <code>rbd-mirror</code> daemon.                                                                                                                                                                                                                                                                                                                                                                                                                  |</li>
+<li><code>daemonsCount</code> - Number of <code>rbd-mirror</code> daemons to spawn. We recommend using one instance of the <code>rbd-mirror</code> daemon.</li>
 <li>
 <p><code>peers</code> - Optional. List of mirroring peers of an external cluster to connect to. Only a single peer is supported.
    The <code>peer</code> section includes the following parameters:</p>
 <ul>
-<li><code>site</code> - the label of a remote Ceph cluster associated with the token.</li>
-<li><code>token</code> - the token that will be used by one site (Ceph cluster) to pull images from the other site.
-   To obtain the token, use the <strong>rbd mirror pool peer bootstrap create</strong> command.</li>
-<li><code>pools</code> - optional, a list of pool names to mirror.</li>
+<li><code>site</code> - Label of a remote Ceph cluster associated with the token.</li>
+<li><code>token</code> - Token to be used by one site (Ceph cluster) to pull images from another site.
+   To obtain the token, use the <code>rbd mirror pool peer bootstrap create</code> command.</li>
+<li><code>pools</code> - Optional. A list of pool names to mirror.</li>
 </ul>
 </li>
 </ul>
@@ -4916,17 +4523,15 @@ pod.</p>
 <ul>
 <li><code>phase</code> - Current handling phase of the applied Ceph cluster spec. Can equal to <code>Creating</code>, <code>Deploying</code>, <code>Validation</code>, <code>Ready</code>, <code>Deleting</code>, <code>OnHold</code> or <code>Failed</code>.</li>
 <li><code>message</code> - Detailed description of the current phase or an error message if the phase is <code>Failed</code>.</li>
-<li><code>lastRun</code> - <code>DateTime</code> when previous spec reconcile occurred.</li>
+<li><code>lastRun</code> - <code>DateTime</code> of the previous spec reconciliation.</li>
 <li><code>clusterVersion</code> - Current Ceph cluster version, for example, <code>v19.2.3</code>.</li>
 <li>
 <p><code>validation</code> - Validation result (<code>Succeed</code> or <code>Failed</code>) of the spec with a list of messages, if any. The <code>validation</code> section includes the following fields:</p>
-</li>
-<li>
-<p><code>result</code> - Succeed or Failed</p>
-</li>
-<li><code>messages</code> - the list of error messages</li>
-<li>
-<p><code>lastValidatedGeneration</code> - the last validated <code>metadata.generation</code> of <code>CephDeployment</code></p>
+<ul>
+<li><code>result</code> - <code>Succeed</code> or <code>Failed</code></li>
+<li><code>messages</code> - List of error messages</li>
+<li><code>lastValidatedGeneration</code> - Last validated <code>metadata.generation</code> of <code>CephDeployment</code></li>
+</ul>
 </li>
 <li>
 <p><code>objRefs</code> - Pelagia API object refereneces such as <code>CephDeploymentHealth</code> and <code>CephDeploymentSecret</code>.</p>

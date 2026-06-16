@@ -3533,40 +3533,24 @@ Only the multi-zone multisite setup is currently supported. For more details, se
 <h2 id="multisite-parameters">Multisite parameters<a class="headerlink" href="#multisite-parameters" title="Permanent link">#</a></h2>
 <ul>
 <li>
-<p><code>realms</code> - Required. List of realms to use, represents the realm namespaces. Includes the following parameters:</p>
+<p><code>realms</code> - List of realms to use. Each item represents the Rook <code>CephObjectRealm</code> specification.</p>
 <ul>
-<li><code>name</code> - required, the realm name.</li>
-<li>
-<p><code>pullEndpoint</code> - optional, required only when the master zone is in
-  a different storage cluster. The endpoint, access key, and system key
-  of the system user from the realm to pull from. Includes the
-  following parameters:</p>
-<ul>
-<li><code>endpoint</code> - the endpoint of the master zone in the master zone group.</li>
-<li><code>accessKey</code> - the access key of the system user from the realm to pull from.</li>
-<li><code>secretKey</code> - the system key of the system user from the realm to pull from.</li>
-</ul>
-</li>
+<li><code>name</code> - Mandatory. The realm name.</li>
+<li><code>spec</code> - Specification of <code>CephObjectRealm</code>. For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-realm-crd/">CephObjectRealm CRD</a>.</li>
 </ul>
 </li>
 <li>
-<p><code>zoneGroups</code> - Required. The list of zone groups for realms. Includes the following parameters:</p>
+<p><code>zonegroups</code> - List of zone groups for realms. Each item represents the Rook <code>CephObjectZoneGroup</code> specification.</p>
 <ul>
-<li><code>name</code> - required, the zone group name.</li>
-<li><code>realmName</code> - required, the realm namespace name to which
-  the zone group belongs to.</li>
+<li><code>name</code> - Mandatory. The zone group name.</li>
+<li><code>spec</code> - Specification of <code>CephObjectZoneGroup</code>. For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zonegroup-crd/">CephObjectZoneGroup CRD</a>.</li>
 </ul>
 </li>
 <li>
-<p><code>zones</code> - Required. The list of zones used within one zone group. Includes the following parameters:</p>
+<p><code>zones</code> - List of zones used within one zone group. Each item represents the Rook <code>CephObjectZone</code> specification.</p>
 <ul>
-<li><code>name</code> - required, the zone name.</li>
-<li><code>metadataPool</code> - required, the settings used to create the Object Storage metadata pools. Must use replication. For details, see description of the Pool parameters.</li>
-<li><code>dataPool</code> - required, the settings used to create the Object Storage data pool. Can use replication or erasure coding. For details, see the Pool parameters.</li>
-<li><code>zoneGroupName</code> - required, the zone group name.</li>
-<li><code>endpointsForZone</code> - optional. The list of all endpoints in the zone group.
-  If you use ingress proxy for RGW, the list of endpoints must contain that FQDN/IP address to access RGW.
-  By default, if no ingress proxy is used, the list of endpoints is set to the IP address of the RGW external service. Endpoints must follow the HTTP URL format.</li>
+<li><code>name</code> - Mandatory. The zone name.</li>
+<li><code>spec</code> - Specification of <code>CephObjectZone</code>. For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zone-crd/">CephObjectZone CRD</a>.</li>
 </ul>
 </li>
 </ul>
