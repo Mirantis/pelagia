@@ -192,7 +192,7 @@ advanced configuration.
 - `blockStorage` - Specifies the Ceph block storage configuration. Contains the `pools` parameter that specifies the list of Ceph pools. For details, see [Pools parameters](./cephdeployment.md#cephdeployment-pools-parameters).
 - `clients` - Specifies the list of Ceph clients. For details, see [Clients parameters](./cephdeployment.md#cephdeployment-clients-parameters).
 - `extraOpts` - Enables specification of extra options for a Ceph cluster setup, includes the `deviceLabels` parameter. For details, see [ExtraOpts parameters](./cephdeployment.md#cephdeployment-extraopts-parameters).
-- `nodes` - Specifies the list of Ceph nodes with node specifications. Each list item can define a Ceph node specification for a single node or a group of nodes specified by an explicit list, a label, or a combination of both. For details, see [Nodes parameters](./cephdeployment.md#cephdeployment-nodes-parameters). 
+- `nodes` - Specifies the list of Ceph nodes with node specifications. Each list item can define a Ceph node specification for a single node or a group of nodes specified by an explicit list, a label, or a combination of both. For details, see [Nodes parameters](./cephdeployment.md#cephdeployment-nodes-parameters).
 - `objectStorage` - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage, the RADOS Gateway Multisite configuration, and the Gateway API HTTPRoutes for public access to Object Storage. For details, see [Object storage parameters](./cephdeployment.md#cephdeployment-object-storage-parameters).
 - `rbdMirror` - Specifies the parameters for RBD mirroring. For details, see [RBD Mirroring parameters](./cephdeployment.md#cephdeployment-rbd-mirroring-parameters).
 - `rookConfig` - Specifies the string key-value that allows overriding Ceph configuration options. For details, see [RookConfig parameters](./cephdeployment.md#cephdeployment-rookconfig-parameters).
@@ -562,17 +562,14 @@ For details about Ceph client capabilities (`caps`), refer to [Ceph documentatio
 
     !!! caution
 
-        The realm access keys defined in the deprecated `multiSite.realms` field are removed from the spec during migration.
-
-        For the `objectStorage.realms` field on new deployments, the operator must manually create a new secret with realm keys.
-        For the procedure, see [Rook documentation: Getting Realm Access Key and Secret Key](https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key).
+        The realm access keys defined in the deprecated `multiSite.realms` field are removed from the spec during migration. For the `objectStorage.realms` field on new deployments, the operator must manually create a new secret with realm keys. For the procedure, see [Rook documentation: Getting Realm Access Key and Secret Key](https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key).
 
 <a name="cephdeployment-rados-gateway-parameters"></a>
 #### RGW objectStores parameters
 
 {% include "../snippets/rgwParameters.md" %}
 
-??? "Example configuration of RGW specification"
+??? "Example configuration of RGW objectStores specification"
 
     ```yaml
     spec:
@@ -638,8 +635,7 @@ For configuration example, see [Enable Multisite for Ceph Object Storage](../ops
 
 !!! caution
 
-    Before enabling Gateway HTTPRoutes, the operator must configure the `Gateway` object and controller.
-    For details, see [Kubernetes Gateway API documentation](https://gateway-api.sigs.k8s.io/guides/getting-started/introduction/).
+    Before enabling Gateway HTTPRoutes, the operator must configure the `Gateway` object and controller. For details, see [Kubernetes Gateway API documentation](https://gateway-api.sigs.k8s.io/guides/getting-started/introduction/).
 
 The `gatewayHTTPRoutes` parameters represent the Gateway API `HTTPRoute` specification.
 
@@ -671,7 +667,7 @@ The `gatewayHTTPRoutes` parameters represent the Gateway API `HTTPRoute` specifi
 <a name="cephdeployment-cephfs-parameters"></a>
 ### CephFilesystems parameters
 
-- `cephFS` - Contains a list of Ceph file systems. Deprecated, automatically migrated to the `cephFilesystems` field.
+- `cephFS` - Contains a list of Ceph file systems. Deprecated, automatically migrated to the `cephFilesystems` field during `CephDeployment` reconciliation.
 - `cephFilesystems` - Contains a list of Ceph file systems. Each `cephFilesystem` item represents the Rook `CephFilesystem` specification:
 
     - `name` - Mandatory. CephFS instance name.
@@ -685,7 +681,7 @@ The `gatewayHTTPRoutes` parameters represent the Gateway API `HTTPRoute` specifi
 
             The first pool in the list is treated as the default data pool for CephFS and must always be `replicated`.
 
-    The number of data pools is unlimited, but the default pool must always be present:
+    The number of data pools is unlimited, but the default pool must always be present as illustrated in the following example. The `replicated.size` field defines the number of full copies of data on multiple nodes.
     ??? "Example configuration of dataPools"
 
         ```yaml
@@ -717,8 +713,6 @@ The `gatewayHTTPRoutes` parameters represent the Gateway API `HTTPRoute` specifi
                       memory: 2Gi
                       cpu: 2
         ```
-
-        `replicated.size` is the number of full copies of data on multiple nodes.
 
     {% include "../snippets/replicatedSize.md" %}
 
