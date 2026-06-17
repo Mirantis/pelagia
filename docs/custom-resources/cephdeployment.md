@@ -127,7 +127,7 @@ For the default `CephDeployment` CR, see the following example:
 
     - If you are editing `CephDeployment` , save the changes and exit the text editor to apply it.
 
-4. Verify the `CephDeployment` reconcile status. For description of the ``status`` fields, refer to [CephDeployment status](./cephdeployment.md#cephdeployment-status-fields).
+4. Verify the `CephDeployment` reconcile status. For a description of the ``status`` fields, refer to [CephDeployment status](./cephdeployment.md#cephdeployment-status-fields).
 
 ## CephDeployment configuration options
 
@@ -599,7 +599,7 @@ For details about Ceph client capabilities (`caps`), refer to [Ceph documentatio
 #### RGW users parameters
 
 The RGW `users` parameters represent the Rook `CephObjectStoreUser` specification.
-For details, see [Rook documenation: CephObjectStoreUser CRD](https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-user-crd/#spec).
+For details, see [Rook documentation: CephObjectStoreUser CRD](https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-user-crd/#spec).
 
 ??? "Example configuration of RGW users specification"
 
@@ -860,4 +860,4 @@ spec:
     - `messages` - List of error messages
     - `lastValidatedGeneration` - Last validated `metadata.generation` of `CephDeployment`
 
-- `objRefs` - Pelagia API object refereneces such as `CephDeploymentHealth` and `CephDeploymentSecret`.
+- `objRefs` - Pelagia API object references such as `CephDeploymentHealth` and `CephDeploymentSecret`.
