@@ -560,7 +560,7 @@ For details about Ceph client capabilities (`caps`), refer to [Ceph documentatio
 - `rgw` - Single definition of the Ceph `ObjectStorage` RGW object. Deprecated and automatically migrated to `objectStores` and `users` fields during `CephDeployment` reconciliation.
 - `multiSite` - Definition of Ceph `ObjectStorage` RGW multisite configuration. Deprecated and automatically migrated to the `objectStorage` field during `CephDeployment` reconciliation. For example, `multisite.realms` is migrated to `objectStorage.realms`.
 
-    !!! caution
+    !!! warning
 
         The realm access keys defined in the deprecated `multiSite.realms` field are removed from the spec during migration. For the `objectStorage.realms` field on new deployments, the operator must manually create a new secret with realm keys. For the procedure, see [Rook documentation: Getting Realm Access Key and Secret Key](https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key).
 
@@ -633,7 +633,7 @@ For configuration example, see [Enable Multisite for Ceph Object Storage](../ops
 <a name="cephdeployment-httproute-parameters"></a>
 #### RGW gatewayHTTPRoutes parameters
 
-!!! caution
+!!! warning
 
     Before enabling Gateway HTTPRoutes, the operator must configure the `Gateway` object and controller. For details, see [Kubernetes Gateway API documentation](https://gateway-api.sigs.k8s.io/guides/getting-started/introduction/).
 
