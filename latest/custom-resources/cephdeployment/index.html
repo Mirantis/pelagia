@@ -4197,8 +4197,8 @@ permission on the mount point of persistent volumes based on any
 <li><code>rgw</code> - Single definition of the Ceph <code>ObjectStorage</code> RGW object. Deprecated and automatically migrated to <code>objectStores</code> and <code>users</code> fields during <code>CephDeployment</code> reconciliation.</li>
 <li>
 <p><code>multiSite</code> - Definition of Ceph <code>ObjectStorage</code> RGW multisite configuration. Deprecated and automatically migrated to the <code>objectStorage</code> field during <code>CephDeployment</code> reconciliation. For example, <code>multisite.realms</code> is migrated to <code>objectStorage.realms</code>.</p>
-<div class="admonition caution">
-<p class="admonition-title">Caution</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>The realm access keys defined in the deprecated <code>multiSite.realms</code> field are removed from the spec during migration. For the <code>objectStorage.realms</code> field on new deployments, the operator must manually create a new secret with realm keys. For the procedure, see <a href="https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key">Rook documentation: Getting Realm Access Key and Secret Key</a>.</p>
 </div>
 </li>
@@ -4294,8 +4294,8 @@ For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ce
 <p>For configuration example, see <a href="../../ops-guide/deployment/object-storage/rgw-multisite/#rgw-multisite-enable-multisite-for-ceph-object-storage">Enable Multisite for Ceph Object Storage</a>.</p>
 <p><a name="cephdeployment-httproute-parameters"></a></p>
 <h4 id="rgw-gatewayhttproutes-parameters">RGW gatewayHTTPRoutes parameters<a class="headerlink" href="#rgw-gatewayhttproutes-parameters" title="Permanent link">#</a></h4>
-<div class="admonition caution">
-<p class="admonition-title">Caution</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>Before enabling Gateway HTTPRoutes, the operator must configure the <code>Gateway</code> object and controller. For details, see <a href="https://gateway-api.sigs.k8s.io/guides/getting-started/introduction/">Kubernetes Gateway API documentation</a>.</p>
 </div>
 <p>The <code>gatewayHTTPRoutes</code> parameters represent the Gateway API <code>HTTPRoute</code> specification.</p>
