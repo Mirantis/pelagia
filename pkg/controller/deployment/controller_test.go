@@ -1475,7 +1475,7 @@ func TestCleanCephDeployment(t *testing.T) {
 			c.cdConfig.currentCephVersion = lcmcommon.Reef
 
 			lcmcommon.RunPodCommandWithValidation = func(e lcmcommon.ExecConfig) (string, string, error) {
-				if strings.HasPrefix(e.Command, "ceph fs subvolumegroup -f json") {
+				if strings.HasPrefix(e.Command, "ceph fs ls -f json") {
 					return "[]", "", nil
 				}
 				return "", "", errors.New("unexpected command")
