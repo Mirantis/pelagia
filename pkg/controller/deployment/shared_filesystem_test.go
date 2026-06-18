@@ -115,8 +115,8 @@ func TestEnsureSharedFilesystem(t *testing.T) {
 				if strings.HasPrefix(e.Command, "ceph fs subvolumegroup -f json create") {
 					return "", "", nil
 				}
-				if strings.HasPrefix(e.Command, "ceph fs subvolumegroup -f json rm") {
-					return "", "", nil
+				if strings.HasPrefix(e.Command, "ceph fs ls -f json") {
+					return "[]", "", nil
 				}
 				return "", "", errors.Errorf("unexpected command '%v'", e.Command)
 			}
@@ -163,14 +163,14 @@ func TestEnsureCephFS(t *testing.T) {
 	delSharedFs := unitinputs.CephSharedFileSystemOk.DeepCopy()
 	delSharedFs.Filesystems = make([]cephlcmv1alpha1.CephFilesystem, 0)
 	tests := []struct {
-		name                  string
-		sharedFs              *cephlcmv1alpha1.CephSharedFilesystem
-		cephFilesystemList    *cephv1.CephFilesystemList
-		expectedCephFsList    *cephv1.CephFilesystemList
-		apiErrors             map[string]error
-		subvolumegroupCommand map[string]string
-		stateChanged          bool
-		expectedError         string
+		name               string
+		sharedFs           *cephlcmv1alpha1.CephSharedFilesystem
+		cephFilesystemList *cephv1.CephFilesystemList
+		expectedCephFsList *cephv1.CephFilesystemList
+		apiErrors          map[string]error
+		cliCommands        map[string]string
+		stateChanged       bool
+		expectedError      string
 		// to reflect ceph.conf changes
 		configUpdated bool
 	}{
@@ -185,17 +185,14 @@ func TestEnsureCephFS(t *testing.T) {
 			cephFilesystemList: unitinputs.CephFilesystemListEmpty.DeepCopy(),
 			expectedCephFsList: &unitinputs.CephFilesystemListEmpty,
 			apiErrors:          map[string]error{"get-cephfilesystems": errors.New("failed to get")},
-			expectedError:      "failed to get CephFS rook-ceph/test-cephfs: failed to get",
+			expectedError:      "error(s) during CephFilesytem(s) ensure: failed to get CephFilesytem 'rook-ceph/test-cephfs'",
 		},
 		{
 			name:               "create new cephfs",
 			sharedFs:           unitinputs.CephSharedFileSystemOk,
 			cephFilesystemList: unitinputs.CephFilesystemListEmpty.DeepCopy(),
 			expectedCephFsList: &cephv1.CephFilesystemList{Items: []cephv1.CephFilesystem{unitinputs.TestCephFs}},
-			subvolumegroupCommand: map[string]string{
-				"ls": "[]",
-			},
-			stateChanged: true,
+			stateChanged:       true,
 		},
 		{
 			name:               "fail to create new cephfs",
@@ -203,26 +200,27 @@ func TestEnsureCephFS(t *testing.T) {
 			cephFilesystemList: unitinputs.CephFilesystemListEmpty.DeepCopy(),
 			expectedCephFsList: &unitinputs.CephFilesystemListEmpty,
 			apiErrors:          map[string]error{"create-cephfilesystems": errors.New("failed to create")},
-			expectedError:      "failed to create CephFS rook-ceph/test-cephfs: failed to create",
+			expectedError:      "error(s) during CephFilesytem(s) ensure: failed to create CephFilesytem 'rook-ceph/test-cephfs'",
 		},
 		{
 			name:               "fail to create cephfs subvolumegroup",
 			sharedFs:           unitinputs.CephSharedFileSystemOk,
 			cephFilesystemList: &cephv1.CephFilesystemList{Items: []cephv1.CephFilesystem{*unitinputs.TestCephFs.DeepCopy()}},
 			expectedCephFsList: &cephv1.CephFilesystemList{Items: []cephv1.CephFilesystem{unitinputs.TestCephFs}},
-			subvolumegroupCommand: map[string]string{
-				"ls":     "[]",
-				"create": "error",
+			cliCommands: map[string]string{
+				"ceph fs subvolumegroup -f json ls test-cephfs":         "[]",
+				"ceph fs subvolumegroup -f json create test-cephfs csi": "error",
 			},
-			expectedError: "failed to create CephFS test-cephfs subvolumegroup: failed to run command 'ceph fs subvolumegroup -f json create test-cephfs csi' (stdErr: ENOENT: error): ceph fs subvolumegroup -f json create command failed",
+			expectedError: "error(s) during CephFilesytem(s) ensure: failed to create CephFS 'test-cephfs' subvolumegroup",
 		},
 		{
 			name:               "create only cephfs subvolumegroup",
 			sharedFs:           unitinputs.CephSharedFileSystemOk,
-			cephFilesystemList: unitinputs.CephFilesystemListEmpty.DeepCopy(),
+			cephFilesystemList: &cephv1.CephFilesystemList{Items: []cephv1.CephFilesystem{*unitinputs.TestCephFs.DeepCopy()}},
 			expectedCephFsList: &cephv1.CephFilesystemList{Items: []cephv1.CephFilesystem{unitinputs.TestCephFs}},
-			subvolumegroupCommand: map[string]string{
-				"ls": "[]",
+			cliCommands: map[string]string{
+				"ceph fs subvolumegroup -f json ls test-cephfs":         "[]",
+				"ceph fs subvolumegroup -f json create test-cephfs csi": "",
 			},
 			stateChanged: true,
 		},
@@ -231,29 +229,26 @@ func TestEnsureCephFS(t *testing.T) {
 			sharedFs:           unitinputs.CephSharedFileSystemOk,
 			cephFilesystemList: &cephv1.CephFilesystemList{Items: []cephv1.CephFilesystem{*unitinputs.TestCephFs.DeepCopy()}},
 			expectedCephFsList: &cephv1.CephFilesystemList{Items: []cephv1.CephFilesystem{unitinputs.TestCephFs}},
-			subvolumegroupCommand: map[string]string{
-				"ls": "error",
+			cliCommands: map[string]string{
+				"ceph fs subvolumegroup -f json ls test-cephfs": "error",
 			},
-			expectedError: "failed to list CephFS test-cephfs subvolumegroup: failed to run command 'ceph fs subvolumegroup -f json ls test-cephfs' (stdErr: ENOENT: error): ceph fs subvolumegroup -f json ls command failed",
+			expectedError: "error(s) during CephFilesytem(s) ensure: failed to list CephFS 'test-cephfs' subvolumegroups",
 		},
 		{
 			name:               "fail to update existing cephfs",
 			sharedFs:           updateSharedFs,
 			cephFilesystemList: unitinputs.CephFSList.DeepCopy(),
 			expectedCephFsList: unitinputs.CephFSList,
-			subvolumegroupCommand: map[string]string{
-				"ls": `[{"name":"csi"}]`,
-			},
-			apiErrors:     map[string]error{"update-cephfilesystems": errors.New("failed to update")},
-			expectedError: "failed to update CephFS rook-ceph/test-cephfs: failed to update",
+			apiErrors:          map[string]error{"update-cephfilesystems": errors.New("failed to update")},
+			expectedError:      "error(s) during CephFilesytem(s) ensure: failed to update CephFilesytem 'rook-ceph/test-cephfs'",
 		},
 		{
 			name:               "update existing cephfs",
 			sharedFs:           updateSharedFs,
 			cephFilesystemList: unitinputs.CephFSList.DeepCopy(),
 			expectedCephFsList: &cephv1.CephFilesystemList{Items: []cephv1.CephFilesystem{*updatedCephFS}},
-			subvolumegroupCommand: map[string]string{
-				"ls": `[{"name":"csi"}]`,
+			cliCommands: map[string]string{
+				"ceph fs subvolumegroup -f json ls test-cephfs": `[{"name":"csi"}]`,
 			},
 			stateChanged: true,
 		},
@@ -272,8 +267,8 @@ func TestEnsureCephFS(t *testing.T) {
 					}(),
 				},
 			},
-			subvolumegroupCommand: map[string]string{
-				"ls": `[{"name":"csi"}]`,
+			cliCommands: map[string]string{
+				"ceph fs subvolumegroup -f json ls test-cephfs": `[{"name":"csi"}]`,
 			},
 			configUpdated: true,
 			stateChanged:  true,
@@ -283,49 +278,31 @@ func TestEnsureCephFS(t *testing.T) {
 			sharedFs:           unitinputs.CephSharedFileSystemOk.DeepCopy(),
 			cephFilesystemList: &cephv1.CephFilesystemList{Items: []cephv1.CephFilesystem{unitinputs.TestCephFs}},
 			expectedCephFsList: &cephv1.CephFilesystemList{Items: []cephv1.CephFilesystem{unitinputs.TestCephFs}},
-			subvolumegroupCommand: map[string]string{
-				"ls": `[{"name":"csi"}]`,
+			cliCommands: map[string]string{
+				"ceph fs subvolumegroup -f json ls test-cephfs": `[{"name":"csi"}]`,
 			},
-		},
-		{
-			name:               "fail to check cephfs subvolumegroup presence for delete",
-			sharedFs:           delSharedFs,
-			cephFilesystemList: unitinputs.CephFSList.DeepCopy(),
-			expectedCephFsList: unitinputs.CephFSList,
-			subvolumegroupCommand: map[string]string{
-				"ls": "error",
-			},
-			expectedError: "failed to list CephFS test-cephfs subvolumegroup: failed to run command 'ceph fs subvolumegroup -f json ls test-cephfs' (stdErr: ENOENT: error): ceph fs subvolumegroup -f json ls command failed",
-		},
-		{
-			name:               "fail to remove cephfs subvolumegroup",
-			sharedFs:           delSharedFs,
-			cephFilesystemList: unitinputs.CephFSList.DeepCopy(),
-			expectedCephFsList: unitinputs.CephFSList,
-			subvolumegroupCommand: map[string]string{
-				"ls": `[{"name":"csi"}]`,
-				"rm": "error",
-			},
-			expectedError: "failed to remove CephFS test-cephfs subvolumegroup: failed to run command 'ceph fs subvolumegroup -f json rm test-cephfs csi' (stdErr: ENOENT: error): ceph fs subvolumegroup -f json rm command failed",
 		},
 		{
 			name:               "fail to delete existing cephfs",
 			sharedFs:           delSharedFs,
 			cephFilesystemList: unitinputs.CephFSList.DeepCopy(),
 			expectedCephFsList: unitinputs.CephFSList,
-			subvolumegroupCommand: map[string]string{
-				"ls": `[{"name":"csi"}]`,
+			cliCommands: map[string]string{
+				"ceph fs ls -f json":                                `[{"name": "test-cephfs"}]`,
+				"ceph fs subvolumegroup -f json ls test-cephfs":     `[{"name":"csi"}]`,
+				"ceph fs subvolumegroup -f json rm test-cephfs csi": "error",
 			},
-			apiErrors:     map[string]error{"delete-cephfilesystems": errors.New("failed to delete")},
-			expectedError: "failed to delete CephFS rook-ceph/test-cephfs: failed to delete",
+			expectedError: "error(s) during CephFilesytem(s) ensure: failed to remove CephFilesytem 'test-cephfs'",
 		},
 		{
 			name:               "delete existing cephfs",
 			sharedFs:           delSharedFs,
 			cephFilesystemList: unitinputs.CephFSList.DeepCopy(),
 			expectedCephFsList: &unitinputs.CephFilesystemListEmpty,
-			subvolumegroupCommand: map[string]string{
-				"ls": `[{"name":"csi"}]`,
+			cliCommands: map[string]string{
+				"ceph fs ls -f json":                                `[{"name": "test-cephfs"}]`,
+				"ceph fs subvolumegroup -f json ls test-cephfs":     `[{"name":"csi"}]`,
+				"ceph fs subvolumegroup -f json rm test-cephfs csi": "",
 			},
 			stateChanged: true,
 		},
@@ -334,9 +311,9 @@ func TestEnsureCephFS(t *testing.T) {
 			sharedFs:           delSharedFs,
 			cephFilesystemList: unitinputs.CephFSList.DeepCopy(),
 			expectedCephFsList: &unitinputs.CephFilesystemListEmpty,
-			subvolumegroupCommand: map[string]string{
-				"ls": `[]`,
-				"rm": "error",
+			cliCommands: map[string]string{
+				"ceph fs ls -f json":                            `[{"name": "test-cephfs"}]`,
+				"ceph fs subvolumegroup -f json ls test-cephfs": `[]`,
 			},
 			stateChanged: true,
 		},
@@ -357,8 +334,9 @@ func TestEnsureCephFS(t *testing.T) {
 					}(),
 				},
 			},
-			subvolumegroupCommand: map[string]string{
-				"ls": `[]`,
+			cliCommands: map[string]string{
+				"ceph fs subvolumegroup -f json ls test-cephfs":         "[]",
+				"ceph fs subvolumegroup -f json create test-cephfs csi": "",
 			},
 			stateChanged: true,
 		},
@@ -376,8 +354,11 @@ func TestEnsureCephFS(t *testing.T) {
 				},
 			},
 			expectedCephFsList: &unitinputs.CephFilesystemListEmpty,
-			subvolumegroupCommand: map[string]string{
-				"ls": `[{"name":"csi"}]`,
+			cliCommands: map[string]string{
+				"ceph fs ls -f json":                                   `[{"name":"test-cephfs"}, {"name":"second-test-cephfs"}]`,
+				"ceph fs subvolumegroup -f json ls test-cephfs":        `[{"name":"csi"}]`,
+				"ceph fs subvolumegroup -f json rm test-cephfs csi":    "",
+				"ceph fs subvolumegroup -f json ls second-test-cephfs": `[]`,
 			},
 			stateChanged: true,
 		},
@@ -396,8 +377,10 @@ func TestEnsureCephFS(t *testing.T) {
 				},
 			},
 			expectedCephFsList: &cephv1.CephFilesystemList{Items: []cephv1.CephFilesystem{*updatedCephFS}},
-			subvolumegroupCommand: map[string]string{
-				"ls": `[{"name":"csi"}]`,
+			cliCommands: map[string]string{
+				"ceph fs ls -f json":                                   `[{"name":"test-cephfs"}, {"name":"second-test-cephfs"}]`,
+				"ceph fs subvolumegroup -f json ls test-cephfs":        `[{"name":"csi"}]`,
+				"ceph fs subvolumegroup -f json ls second-test-cephfs": `[]`,
 			},
 			stateChanged: true,
 		},
@@ -407,7 +390,7 @@ func TestEnsureCephFS(t *testing.T) {
 			cephFilesystemList: unitinputs.CephFilesystemListEmpty.DeepCopy(),
 			expectedCephFsList: &unitinputs.CephFilesystemListEmpty,
 			apiErrors:          map[string]error{"create-cephfilesystems": errors.New("failed to create")},
-			expectedError:      "multiple errors during cephFS ensure",
+			expectedError:      "error(s) during CephFilesytem(s) ensure: failed to create CephFilesytem 'rook-ceph/test-cephfs', failed to create CephFilesytem 'rook-ceph/second-test-cephfs'",
 		},
 	}
 
@@ -423,20 +406,17 @@ func TestEnsureCephFS(t *testing.T) {
 				resourceUpdateTimestamps.cephConfigMap["mds.test-cephfs"] = "some-new-time"
 			}
 
+			var cliCommands map[string]string
+			if len(test.cliCommands) > 0 {
+				cliCommands = map[string]string{}
+			}
 			lcmcommon.RunPodCommandWithValidation = func(e lcmcommon.ExecConfig) (string, string, error) {
-				commands := map[string]string{
-					"ceph fs subvolumegroup -f json ls":     "ls",
-					"ceph fs subvolumegroup -f json create": "create",
-					"ceph fs subvolumegroup -f json rm":     "rm",
-				}
-				for cmd, op := range commands {
-					if strings.HasPrefix(e.Command, cmd) {
-						if test.subvolumegroupCommand[op] == "error" {
-							t.Logf("ERROR ON CREATE")
-							return "", "ENOENT: error", errors.Errorf("%s command failed", cmd)
-						}
-						return test.subvolumegroupCommand[op], "", nil
+				if v, ok := test.cliCommands[e.Command]; ok {
+					cliCommands[e.Command] = v
+					if v == "error" {
+						return "", "ENOENT: error", errors.Errorf("%s command failed", e.Command)
 					}
+					return v, "", nil
 				}
 				return "", "", errors.Errorf("unexpected command '%v'", e.Command)
 			}
@@ -459,6 +439,7 @@ func TestEnsureCephFS(t *testing.T) {
 				assert.Nil(t, err)
 			}
 			assert.Equal(t, test.stateChanged, changed)
+			assert.Equal(t, test.cliCommands, cliCommands)
 			assert.Equal(t, test.expectedCephFsList, test.cephFilesystemList)
 
 			// revert updating timestamps of config is necessary
@@ -475,56 +456,86 @@ func TestEnsureCephFS(t *testing.T) {
 }
 
 func TestDeleteSharedFilesystems(t *testing.T) {
-	resourceUpdateTimestamps = updateTimestamps{
-		cephConfigMap: map[string]string{
-			"mds": "some-time",
-		},
-	}
 	tests := []struct {
-		name                  string
-		cephDpl               *cephlcmv1alpha1.CephDeployment
-		cephFsList            *cephv1.CephFilesystemList
-		expectedList          *cephv1.CephFilesystemList
-		removed               bool
-		apiErrors             map[string]error
-		subvolumegroupCommand map[string]string
-		expectedError         string
+		name          string
+		cephDpl       *cephlcmv1alpha1.CephDeployment
+		cephFsList    *cephv1.CephFilesystemList
+		expectedList  *cephv1.CephFilesystemList
+		removed       bool
+		apiErrors     map[string]error
+		cliCommands   map[string]string
+		expectedError string
 	}{
 		{
-			name:    "fail list cephfs",
-			cephDpl: &unitinputs.BaseCephDeployment,
-			subvolumegroupCommand: map[string]string{
-				"ls": "[]",
-			},
-			expectedError: "failed to get cephFS list: failed to list cephfilesystems",
+			name:          "fail list cephfs",
+			cephDpl:       &unitinputs.BaseCephDeployment,
+			cliCommands:   map[string]string{},
+			expectedError: "failed to get CephFilesytems list: failed to list cephfilesystems",
 		},
 		{
-			name:         "failed to delete ceph fs",
-			cephDpl:      &unitinputs.BaseCephDeployment,
-			cephFsList:   unitinputs.CephFSList.DeepCopy(),
-			expectedList: unitinputs.CephFSList,
-			apiErrors:    map[string]error{"delete-cephfilesystems": errors.New("failed to delete")},
-			subvolumegroupCommand: map[string]string{
-				"ls": "[]",
+			name:       "failed to check ceph fs in cluster",
+			cephDpl:    &unitinputs.BaseCephDeployment,
+			cephFsList: unitinputs.CephFSList.DeepCopy(),
+			cliCommands: map[string]string{
+				"ceph fs ls -f json": "error",
 			},
-			expectedError: "some CephFS failed to delete",
+			expectedList:  unitinputs.CephFSList,
+			expectedError: "some CephFilesytem(s) failed to delete",
 		},
 		{
-			name:    "shared filesystems removing",
-			cephDpl: &unitinputs.BaseCephDeployment,
-			subvolumegroupCommand: map[string]string{
-				"ls": `[{"name":"csi"}]`,
-				"rm": "",
+			name:       "failed to delete cephfilesystem",
+			cephDpl:    &unitinputs.BaseCephDeployment,
+			cephFsList: unitinputs.CephFSList.DeepCopy(),
+			apiErrors:  map[string]error{"delete-cephfilesystems": errors.New("failed to delete")},
+			cliCommands: map[string]string{
+				"ceph fs ls -f json": `[]`,
 			},
-			cephFsList:   unitinputs.CephFSList.DeepCopy(),
+			expectedList:  unitinputs.CephFSList,
+			expectedError: "some CephFilesytem(s) failed to delete",
+		},
+		{
+			name:       "fail to check cephfs subvolumegroup on cephfs removing",
+			cephDpl:    &unitinputs.BaseCephDeployment,
+			cephFsList: unitinputs.CephFSList.DeepCopy(),
+			cliCommands: map[string]string{
+				"ceph fs ls -f json":                            `[{"name":"test-cephfs"}]`,
+				"ceph fs subvolumegroup -f json ls test-cephfs": "error",
+			},
+			expectedError: "some CephFilesytem(s) failed to delete",
+			expectedList:  unitinputs.CephFSList,
+		},
+		{
+			name:       "fail to delete cephfs subvolumegroup on cephfs removing",
+			cephFsList: unitinputs.CephFSList.DeepCopy(),
+			cephDpl:    &unitinputs.BaseCephDeployment,
+			cliCommands: map[string]string{
+				"ceph fs ls -f json":                                `[{"name":"test-cephfs"}]`,
+				"ceph fs subvolumegroup -f json ls test-cephfs":     `[{"name":"csi"}]`,
+				"ceph fs subvolumegroup -f json rm test-cephfs csi": "error",
+			},
+			expectedList:  unitinputs.CephFSList,
+			expectedError: "some CephFilesytem(s) failed to delete",
+		},
+		{
+			name:       "shared filesystems removing",
+			cephDpl:    &unitinputs.BaseCephDeployment,
+			cephFsList: unitinputs.CephFSList.DeepCopy(),
+			cliCommands: map[string]string{
+				"ceph fs ls -f json":                                `[{"name":"test-cephfs"}]`,
+				"ceph fs subvolumegroup -f json ls test-cephfs":     `[{"name":"csi"}]`,
+				"ceph fs subvolumegroup -f json rm test-cephfs csi": "",
+			},
 			expectedList: &unitinputs.CephFilesystemListEmpty,
 		},
 		{
 			name:    "multiple shared filesystems removing",
 			cephDpl: &unitinputs.BaseCephDeployment,
-			subvolumegroupCommand: map[string]string{
-				"ls": `[{"name":"csi"}]`,
-				"rm": "",
+			cliCommands: map[string]string{
+				"ceph fs ls -f json":                                       `[{"name":"test-cephfs"}, {"name":"second-test-cephfs"}]`,
+				"ceph fs subvolumegroup -f json ls test-cephfs":            `[{"name":"csi"}]`,
+				"ceph fs subvolumegroup -f json rm test-cephfs csi":        "",
+				"ceph fs subvolumegroup -f json ls second-test-cephfs":     `[{"name":"csi"}]`,
+				"ceph fs subvolumegroup -f json rm second-test-cephfs csi": "",
 			},
 			cephFsList: &cephv1.CephFilesystemList{
 				Items: []cephv1.CephFilesystem{
@@ -539,36 +550,12 @@ func TestDeleteSharedFilesystems(t *testing.T) {
 			expectedList: &unitinputs.CephFilesystemListEmpty,
 		},
 		{
-			name:    "fail to check cephfs subvolumegroup on cephfs removing",
-			cephDpl: &unitinputs.BaseCephDeployment,
-			subvolumegroupCommand: map[string]string{
-				"ls": "error",
-			},
-			cephFsList:    unitinputs.CephFSList.DeepCopy(),
-			expectedError: "some CephFS failed to delete",
-			expectedList:  unitinputs.CephFSList,
-		},
-		{
-			name:    "fail to delete cephfs subvolumegroup on cephfs removing",
-			cephDpl: &unitinputs.BaseCephDeployment,
-			subvolumegroupCommand: map[string]string{
-				"ls": `[{"name":"csi"}]`,
-				"rm": "error",
-			},
-			cephFsList:    unitinputs.CephFSList.DeepCopy(),
-			expectedError: "some CephFS failed to delete",
-			expectedList:  unitinputs.CephFSList,
-		},
-		{
 			name:         "nothing to remove",
 			cephDpl:      &unitinputs.BaseCephDeployment,
 			cephFsList:   unitinputs.CephFilesystemListEmpty.DeepCopy(),
 			expectedList: &unitinputs.CephFilesystemListEmpty,
-			subvolumegroupCommand: map[string]string{
-				"ls": `[]`,
-				"rm": "",
-			},
-			removed: true,
+			cliCommands:  map[string]string{},
+			removed:      true,
 		},
 	}
 
@@ -576,27 +563,31 @@ func TestDeleteSharedFilesystems(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			cliCommands := map[string]string{}
+
 			lcmcommon.RunPodCommandWithValidation = func(e lcmcommon.ExecConfig) (string, string, error) {
-				commands := map[string]string{
-					"ceph fs subvolumegroup -f json ls": "ls",
-					"ceph fs subvolumegroup -f json rm": "rm",
-				}
-				for cmd, op := range commands {
-					if strings.HasPrefix(e.Command, cmd) {
-						if test.subvolumegroupCommand[op] == "error" {
-							t.Logf("ERROR ON CREATE")
-							return "", "ENOENT: error", errors.Errorf("%s command failed", cmd)
-						}
-						return test.subvolumegroupCommand[op], "", nil
+				if v, ok := test.cliCommands[e.Command]; ok {
+					cliCommands[e.Command] = v
+					if v == "error" {
+						return "", "ENOENT: error", errors.Errorf("%s command failed", e.Command)
 					}
+					return v, "", nil
 				}
 				return "", "", errors.Errorf("unexpected command '%v'", e.Command)
 			}
 
-			inputResources := map[string]runtime.Object{"cephfilesystems": test.cephFsList}
-			if test.cephFsList == nil {
-				inputResources = nil
+			resourceUpdateTimestamps = updateTimestamps{
+				cephConfigMap: map[string]string{},
 			}
+
+			inputResources := map[string]runtime.Object{}
+			if test.cephFsList != nil {
+				inputResources["cephfilesystems"] = test.cephFsList
+				for _, fs := range test.cephFsList.Items {
+					resourceUpdateTimestamps.cephConfigMap["mds."+fs.Name] = "some-time"
+				}
+			}
+
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", []string{"cephfilesystems"}, inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "delete", []string{"cephfilesystems"}, inputResources, test.apiErrors)
 
@@ -604,11 +595,16 @@ func TestDeleteSharedFilesystems(t *testing.T) {
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
+				if test.cephFsList != nil {
+					assert.NotEqual(t, len(resourceUpdateTimestamps.cephConfigMap), 0)
+				}
 			} else {
 				assert.Nil(t, err)
+				assert.Equal(t, len(resourceUpdateTimestamps.cephConfigMap), 0)
 			}
 			assert.Equal(t, test.removed, done)
 			assert.Equal(t, test.expectedList, test.cephFsList)
+			assert.Equal(t, test.cliCommands, cliCommands)
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
 		})
 	}

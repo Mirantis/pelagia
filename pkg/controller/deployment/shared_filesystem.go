@@ -19,6 +19,7 @@ package deployment
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
 
@@ -67,7 +68,7 @@ func (c *cephDeploymentConfig) ensureCephFS() (bool, error) {
 	for _, cephFs := range cephFsList.Items {
 		dropFS[cephFs.Name] = true
 	}
-	fsErrors := make([]error, 0)
+	fsErrors := make([]string, 0)
 	changed := false
 	for _, cephDplCephFS := range c.cdConfig.cephDpl.Spec.SharedFilesystem.Filesystems {
 		delete(dropFS, cephDplCephFS.Name)
@@ -76,15 +77,17 @@ func (c *cephDeploymentConfig) ensureCephFS() (bool, error) {
 		cephFs, err := c.api.Rookclientset.CephV1().CephFilesystems(c.lcmConfig.RookNamespace).Get(c.context, cephDplCephFS.Name, metav1.GetOptions{})
 		if err != nil {
 			if !apierrors.IsNotFound(err) {
-				c.log.Error().Err(err).Msg("failed to get CephFS")
-				fsErrors = append(fsErrors, errors.Wrapf(err, "failed to get CephFS %s/%s", c.lcmConfig.RookNamespace, cephDplCephFS.Name))
+				msg := fmt.Sprintf("failed to get CephFilesytem '%s/%s'", c.lcmConfig.RookNamespace, cephDplCephFS.Name)
+				c.log.Error().Err(err).Msg(msg)
+				fsErrors = append(fsErrors, msg)
 				continue
 			}
-			c.log.Info().Msgf("creating CephFS %s/%s", c.lcmConfig.RookNamespace, cephDplCephFS.Name)
+			c.log.Info().Msgf("creating CephFS '%s/%s'", c.lcmConfig.RookNamespace, cephDplCephFS.Name)
 			_, err := c.api.Rookclientset.CephV1().CephFilesystems(c.lcmConfig.RookNamespace).Create(c.context, cephFsResource, metav1.CreateOptions{})
 			if err != nil {
-				c.log.Error().Err(err).Msg("failed to create CephFS")
-				fsErrors = append(fsErrors, errors.Wrapf(err, "failed to create CephFS %s/%s", c.lcmConfig.RookNamespace, cephDplCephFS.Name))
+				msg := fmt.Sprintf("failed to create CephFilesytem '%s/%s'", c.lcmConfig.RookNamespace, cephDplCephFS.Name)
+				c.log.Error().Err(err).Msg(msg)
+				fsErrors = append(fsErrors, msg)
 				continue
 			}
 			changed = true
@@ -97,78 +100,85 @@ func (c *cephDeploymentConfig) ensureCephFS() (bool, error) {
 		changedBaseLabels := lcmcommon.AlignBaseLabels(*c.log, "CephFilesystem", &cephFs.ObjectMeta, cephFsResource.Labels)
 		specUpdated := !reflect.DeepEqual(cephFsResource.Spec, cephFs.Spec)
 		if specUpdated || changedBaseLabels {
-			c.log.Info().Msgf("updating CephFS %s/%s", c.lcmConfig.RookNamespace, cephDplCephFS.Name)
+			c.log.Info().Msgf("updating CephFS '%s/%s'", c.lcmConfig.RookNamespace, cephDplCephFS.Name)
 			if specUpdated {
 				lcmcommon.ShowObjectDiff(*c.log, cephFs.Spec, cephFsResource.Spec)
 				cephFs.Spec = cephFsResource.Spec
 			}
 			_, err := c.api.Rookclientset.CephV1().CephFilesystems(c.lcmConfig.RookNamespace).Update(c.context, cephFs, metav1.UpdateOptions{})
 			if err != nil {
-				c.log.Error().Err(err).Msg("failed to update CephFS")
-				fsErrors = append(fsErrors, errors.Wrapf(err, "failed to update CephFS %s/%s", c.lcmConfig.RookNamespace, cephDplCephFS.Name))
+				msg := fmt.Sprintf("failed to update CephFilesytem '%s/%s'", c.lcmConfig.RookNamespace, cephDplCephFS.Name)
+				c.log.Error().Err(err).Msg(msg)
+				fsErrors = append(fsErrors, msg)
 				continue
 			}
 			changed = true
 		}
 		subvolumegroup, err := c.cephFSSubvolumegroupCommand("ls", cephDplCephFS.Name)
 		if err != nil {
-			errMsg := errors.Wrapf(err, "failed to list CephFS %s subvolumegroup", cephDplCephFS.Name)
-			c.log.Error().Err(errMsg)
-			fsErrors = append(fsErrors, errMsg)
+			msg := fmt.Sprintf("failed to list CephFS '%s' subvolumegroups", cephDplCephFS.Name)
+			c.log.Error().Err(err).Msg(msg)
+			fsErrors = append(fsErrors, msg)
 		} else if subvolumegroup == "" {
-			c.log.Info().Msgf("creating CephFS %s/%s subvolumegroup for CSI", c.lcmConfig.RookNamespace, cephDplCephFS.Name)
+			c.log.Info().Msgf("creating CephFS '%s/%s' subvolumegroup for CSI", c.lcmConfig.RookNamespace, cephDplCephFS.Name)
 			_, err = c.cephFSSubvolumegroupCommand("create", cephDplCephFS.Name)
 			if err != nil {
-				errMsg := errors.Wrapf(err, "failed to create CephFS %s subvolumegroup", cephDplCephFS.Name)
-				c.log.Error().Err(errMsg)
-				fsErrors = append(fsErrors, errMsg)
+				msg := fmt.Sprintf("failed to create CephFS '%s' subvolumegroup", cephDplCephFS.Name)
+				c.log.Error().Err(err).Msg(msg)
+				fsErrors = append(fsErrors, msg)
 				continue
 			}
 			changed = true
 		}
 	}
 	for fsName := range dropFS {
-		subvolumegroup, err := c.cephFSSubvolumegroupCommand("ls", fsName)
+		err = c.removeCephFilesystem(fsName)
 		if err != nil {
-			errMsg := errors.Wrapf(err, "failed to list CephFS %s subvolumegroup", fsName)
-			c.log.Error().Err(errMsg)
-			fsErrors = append(fsErrors, errMsg)
-			continue
-		} else if subvolumegroup != "" {
-			c.log.Info().Msgf("removing CephFS %s/%s subvolumegroup for CSI", c.lcmConfig.RookNamespace, fsName)
-			_, err = c.cephFSSubvolumegroupCommand("rm", fsName)
-			if err != nil {
-				errMsg := errors.Wrapf(err, "failed to remove CephFS %s subvolumegroup", fsName)
-				c.log.Error().Err(errMsg)
-				fsErrors = append(fsErrors, errMsg)
-				continue
-			}
-		}
-		c.log.Info().Msgf("removing CephFS %s/%s", c.lcmConfig.RookNamespace, fsName)
-		err = c.api.Rookclientset.CephV1().CephFilesystems(c.lcmConfig.RookNamespace).Delete(c.context, fsName, metav1.DeleteOptions{})
-		if err != nil {
-			c.log.Error().Err(err).Msg("failed to remove CephFS")
-			if apierrors.IsNotFound(err) {
-				continue
-			}
-			fsErrors = append(fsErrors, errors.Wrapf(err, "failed to delete CephFS %s/%s", c.lcmConfig.RookNamespace, fsName))
+			msg := fmt.Sprintf("failed to remove CephFilesytem '%s'", fsName)
+			c.log.Error().Err(err).Msg(msg)
+			fsErrors = append(fsErrors, msg)
 		}
 		changed = true
 	}
 	if len(fsErrors) > 0 {
-		if len(fsErrors) > 1 {
-			msg := "multiple errors during cephFS ensure"
-			return false, errors.New(msg)
-		}
-		return false, fsErrors[0]
+		return false, errors.Errorf("error(s) during CephFilesytem(s) ensure: %s", strings.Join(fsErrors, ", "))
 	}
 	return changed, nil
+}
+
+func (c *cephDeploymentConfig) removeCephFilesystem(cephfs string) error {
+	// check first cephFS itself is present in Ceph cluster, because it may be created
+	// with wrong params/failed to create - and no subvolume for it
+	cephFsPresent, err := c.cephFsPresent(cephfs)
+	if err != nil {
+		return errors.Wrapf(err, "failed to check CephFilesytem '%s' presence in cluster", cephfs)
+	}
+	if cephFsPresent {
+		subvolumegroup, err := c.cephFSSubvolumegroupCommand("ls", cephfs)
+		if err != nil {
+			return errors.Wrapf(err, "failed to list CephFilesytem '%s' subvolumegroups", cephfs)
+		}
+		if subvolumegroup != "" {
+			c.log.Info().Msgf("removing CephFS %s/%s subvolumegroup for CSI", c.lcmConfig.RookNamespace, cephfs)
+			_, err = c.cephFSSubvolumegroupCommand("rm", cephfs)
+			if err != nil {
+				return errors.Wrapf(err, "failed to remove CephFS '%s' subvolumegroups", cephfs)
+			}
+		}
+	}
+	c.log.Info().Msgf("removing CephFS %s/%s", c.lcmConfig.RookNamespace, cephfs)
+	err = c.api.Rookclientset.CephV1().CephFilesystems(c.lcmConfig.RookNamespace).Delete(c.context, cephfs, metav1.DeleteOptions{})
+	if err != nil && !apierrors.IsNotFound(err) {
+		return errors.Wrapf(err, "failed to remove CephFilesytem '%s/%s'", c.lcmConfig.RookNamespace, cephfs)
+	}
+	delete(resourceUpdateTimestamps.cephConfigMap, fmt.Sprintf("mds.%s", cephfs))
+	return nil
 }
 
 func (c *cephDeploymentConfig) deleteSharedFilesystems() (bool, error) {
 	cephFsList, err := c.api.Rookclientset.CephV1().CephFilesystems(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{})
 	if err != nil {
-		return false, errors.Wrap(err, "failed to get cephFS list")
+		return false, errors.Wrap(err, "failed to get CephFilesytems list")
 	}
 	if len(cephFsList.Items) == 0 {
 		delete(resourceUpdateTimestamps.cephConfigMap, "mds")
@@ -176,34 +186,14 @@ func (c *cephDeploymentConfig) deleteSharedFilesystems() (bool, error) {
 	}
 	issues := 0
 	for _, cephFs := range cephFsList.Items {
-		c.log.Info().Msgf("removing CephFS %s/%s subvolumegroup for CSI", c.lcmConfig.RookNamespace, cephFs.Name)
-		subvolumegroup, err := c.cephFSSubvolumegroupCommand("ls", cephFs.Name)
+		err = c.removeCephFilesystem(cephFs.Name)
 		if err != nil {
-			c.log.Error().Err(err).Msgf("failed to list CephFS %s subvolumegroup", cephFs.Name)
-			issues++
-			continue
-		} else if subvolumegroup != "" {
-			_, err = c.cephFSSubvolumegroupCommand("rm", cephFs.Name)
-			if err != nil {
-				c.log.Error().Err(err).Msgf("failed to remove CephFS %s subvolumegroup", cephFs.Name)
-				issues++
-				continue
-			}
-		}
-
-		c.log.Info().Msgf("removing CephFS %s/%s", c.lcmConfig.RookNamespace, cephFs.Name)
-		err = c.api.Rookclientset.CephV1().CephFilesystems(c.lcmConfig.RookNamespace).Delete(c.context, cephFs.Name, metav1.DeleteOptions{})
-		if err != nil {
-			if apierrors.IsNotFound(err) {
-				continue
-			}
-			c.log.Error().Err(err).Msgf("failed to remove CephFS %s/%s", c.lcmConfig.RookNamespace, cephFs.Name)
+			c.log.Error().Err(err).Msgf("failed to remove CephFS '%s'", cephFs.Name)
 			issues++
 		}
-		delete(resourceUpdateTimestamps.cephConfigMap, fmt.Sprintf("mds.%s", cephFs.Name))
 	}
 	if issues > 0 {
-		return false, errors.New("some CephFS failed to delete")
+		return false, errors.New("some CephFilesytem(s) failed to delete")
 	}
 	return false, nil
 }
