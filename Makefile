@@ -283,11 +283,13 @@ docs-prepare: ## prepare virtual env
 
 .PHONY: docs-build
 docs-build: docs-prepare ## Run docs buld
-	mike deploy dev -b docs-dev
+	. build/venv/bin/activate; \
+	mike deploy dev -b docs-dev; \
 	mike set-default dev -b docs-dev
 
 .PHONY: docs-serve
 docs-serve: ## Serve built docs
+	. build/venv/bin/activate; \
 	mike serve -b docs-dev -a 0.0.0.0:8000
 
 .PHONY: help
