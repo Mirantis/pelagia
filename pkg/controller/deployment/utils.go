@@ -207,6 +207,27 @@ func (c *cephDeploymentConfig) getCephVersions() (*lcmcommon.CephVersions, error
 	return &cephVersions, nil
 }
 
+func (c *cephDeploymentConfig) cephFsPresent(cephFsName string) (bool, error) {
+	command := "ceph fs ls -f json"
+	output, err := lcmcommon.RunCephToolboxCLI(c.context, c.api.Kubeclientset, c.api.Config, c.lcmConfig.RookNamespace, command)
+	if err != nil {
+		return false, err
+	}
+	var cephFsLs []struct {
+		Name string `json:"name"`
+	}
+	err = json.Unmarshal([]byte(output), &cephFsLs)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to parse 'ceph fs ls' command output")
+	}
+	for _, cephFs := range cephFsLs {
+		if cephFs.Name == cephFsName {
+			return true, nil
+		}
+	}
+	return false, nil
+}
+
 func (c *cephDeploymentConfig) cephFSSubvolumegroupCommand(op string, cephFsName string) (string, error) {
 	command := fmt.Sprintf("ceph fs subvolumegroup -f json %s %s", op, cephFsName)
 	if op == "create" || op == "rm" {
