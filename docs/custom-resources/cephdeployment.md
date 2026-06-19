@@ -806,7 +806,7 @@ spec:
     ```
 
 - `customDeviceClasses` - Deprecated and automatically removed during cluster update.
-  The parameter no longer has any effect because device classes can be specified in the node spec directly.
+  List of custom device class names to use in the specification. The parameter no longer has any effect because device classes can be specified in the node spec directly.
 
 <a name="cephdeployment-rbd-mirroring-parameters"></a>
 ### RBD mirroring parameters
