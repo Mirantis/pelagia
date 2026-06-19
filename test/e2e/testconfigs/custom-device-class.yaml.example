@@ -1,0 +1,10 @@
+testSettings:
+  namespace: ${TEST_NAMESPACE}
+  caseSettings:
+    # requires pre step for adding some OSD with device class
+    - name: TestVerifyCustomDeviceClass
+      config:
+        deviceClass: custom-class
+    # requires post step for removing added OSD with Device class
+testCases:
+  - TestVerifyCustomDeviceClass

@@ -31,33 +31,15 @@ import (
 	f "github.com/Mirantis/pelagia/test/e2e/framework"
 )
 
+// TODO: keep TestAddCustomDeviceClass and TestRemoveCustomDeviceClass for backward compatibility
+// to be removed in next release
+
 func TestAddCustomDeviceClass(t *testing.T) {
-	t.Log("#### e2e test: add custom device class")
+	t.Skip("Step is not required anymore")
+}
 
-	err := f.BaseSetup(t)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	testConfig := f.GetConfigForTestCase(t)
-	if _, ok := testConfig["deviceClass"]; !ok {
-		t.Fatal("test config does not contain 'deviceClass' key")
-	}
-
-	cd, err := f.TF.ManagedCluster.FindCephDeployment()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if cd.Spec.ExtraOpts == nil {
-		cd.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{}
-	}
-	cd.Spec.ExtraOpts.CustomDeviceClasses = append(cd.Spec.ExtraOpts.CustomDeviceClasses, testConfig["deviceClass"])
-	err = f.UpdateCephDeploymentSpec(cd, true)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	t.Logf("Test %v successfully passed", t.Name())
+func TestRemoveCustomDeviceClass(t *testing.T) {
+	t.Skip("Step is not required anymore")
 }
 
 func TestVerifyCustomDeviceClass(t *testing.T) {
@@ -165,41 +147,5 @@ func TestVerifyCustomDeviceClass(t *testing.T) {
 		t.Fatalf("failed to wait for used bytes changes: %v", err)
 	}
 
-	t.Logf("Test %v successfully passed", t.Name())
-}
-
-func TestRemoveCustomDeviceClass(t *testing.T) {
-	t.Log("#### e2e test: remove custom device class")
-
-	err := f.BaseSetup(t)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	testConfig := f.GetConfigForTestCase(t)
-	if _, ok := testConfig["deviceClass"]; !ok {
-		t.Fatal("test config does not contain 'deviceClass' key")
-	}
-
-	cd, err := f.TF.ManagedCluster.FindCephDeployment()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if cd.Spec.ExtraOpts != nil && len(cd.Spec.ExtraOpts.CustomDeviceClasses) > 0 {
-		newCustomDeviceClasses := make([]string, 0)
-		for idx, class := range cd.Spec.ExtraOpts.CustomDeviceClasses {
-			if class == testConfig["deviceClass"] {
-				newCustomDeviceClasses = append(
-					cd.Spec.ExtraOpts.CustomDeviceClasses[:idx],
-					cd.Spec.ExtraOpts.CustomDeviceClasses[idx+1:]...)
-				break
-			}
-		}
-		cd.Spec.ExtraOpts.CustomDeviceClasses = newCustomDeviceClasses
-		err = f.UpdateCephDeploymentSpec(cd, true)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
 	t.Logf("Test %v successfully passed", t.Name())
 }

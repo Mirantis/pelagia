@@ -201,7 +201,7 @@ func TestValidateNodesSpec(t *testing.T) {
 							Node: cephv1.Node{
 								Name:      "node-5",
 								Selection: cephv1.Selection{DeviceFilter: "vdf"},
-								Config:    map[string]string{"deviceClass": "unknownclass"},
+								Config:    map[string]string{"deviceClass": "customclass"},
 							},
 							Crush: map[string]string{"rack": "value"},
 						},
@@ -227,7 +227,6 @@ func TestValidateNodesSpec(t *testing.T) {
 				"found 'useAllDevices' field for nodes item node 'node-1', which is not supported, remove field",
 				"found 'volumeClaimTemplates' field for nodes item node 'node-2', which is not supported, remove field",
 				"nodes item nodeGroup 'node-group-1' contains invalid crush topology key 'fake'. Valid are: chassis, datacenter, pdu, rack, region, room, row, zone",
-				"nodes item node 'node-5' config has unknown deviceClass 'unknownclass' (default valid options are: [hdd nvme ssd], either specify custom classes)",
 				"failed to parse config parameter 'osdsPerDevice' from nodes item node 'node-6': strconv.Atoi: parsing \"aas\": invalid syntax",
 				"config parameter 'deviceClass' is not specified for nodes item node 'node-7', but it is required",
 				"no nodes with 'mon' roles specified",
@@ -239,9 +238,6 @@ func TestValidateNodesSpec(t *testing.T) {
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
 					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
-					ExtraOpts: &cephlcmv1alpha1.CephDeploymentExtraOpts{
-						CustomDeviceClasses: []string{"custom"},
-					},
 					Nodes: []cephlcmv1alpha1.CephDeploymentNode{
 						{
 							Node: cephv1.Node{
@@ -264,7 +260,7 @@ func TestValidateNodesSpec(t *testing.T) {
 									Devices: []cephv1.Device{
 										{
 											FullPath: "/dev/sdb",
-											Config:   map[string]string{"deviceClass": "fake"},
+											Config:   map[string]string{"deviceClass": "custom"},
 										},
 									},
 								},
@@ -296,7 +292,6 @@ func TestValidateNodesSpec(t *testing.T) {
 			expectedIssues: []string{
 				"failed to parse config parameter 'osdsPerDevice' for device 'sdb' from node 'node-1': strconv.Atoi: parsing \"ss\": invalid syntax",
 				"config parameter 'deviceClass' is not specified for device 'sdb' from nodes item node 'node-1', but it is required",
-				"device '/dev/sdb' from nodes item node 'node-2' has unknown deviceClass 'fake' (default valid options are: [hdd nvme ssd custom], either specify custom classes)",
 				"nodes item nodeGroup 'labeled-nodes' has device without name or fullpath specified",
 				"monitor nodes in spec (with roles 'mon') count is 2, but should be odd for a healthy quorum",
 			},
@@ -311,9 +306,6 @@ func TestValidateNodesSpec(t *testing.T) {
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
 					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
-					ExtraOpts: &cephlcmv1alpha1.CephDeploymentExtraOpts{
-						CustomDeviceClasses: []string{"custom"},
-					},
 					Nodes: []cephlcmv1alpha1.CephDeploymentNode{
 						{
 							Node: cephv1.Node{
@@ -386,18 +378,29 @@ func TestValidatePoolsSpec(t *testing.T) {
 	}{
 		{
 			name:           "no block storage section for local",
-			cephDpl:        &cephlcmv1alpha1.CephDeployment{},
+			cephDpl:        &unitinputs.BaseCephDeployment,
 			expectedIssues: []string{"no block storage pools provided, required at least one"},
 		},
 		{
-			name:            "no block storage section for external",
-			cephDpl:         &cephlcmv1alpha1.CephDeployment{},
+			name: "no block storage section for external",
+			cephDpl: &cephlcmv1alpha1.CephDeployment{
+				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: &cephlcmv1alpha1.CephCluster{
+						RawExtension: runtime.RawExtension{
+							Raw: []byte(`{"external": {"enable": true}}`),
+						},
+					},
+				},
+			},
 			externalCluster: true,
 		},
 		{
 			name: "incorrect pools spec for local #1",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: &cephlcmv1alpha1.CephCluster{
+						RawExtension: runtime.RawExtension{Raw: []byte(`{}`)},
+					},
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
 						Pools: []cephlcmv1alpha1.CephPool{
 							{
@@ -423,6 +426,7 @@ func TestValidatePoolsSpec(t *testing.T) {
 							},
 						},
 					},
+					Nodes: unitinputs.CephNodesOk,
 				},
 			},
 			expectedIssues: []string{
@@ -436,6 +440,9 @@ func TestValidatePoolsSpec(t *testing.T) {
 			name: "incorrect pools spec for local #2",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: &cephlcmv1alpha1.CephCluster{
+						RawExtension: runtime.RawExtension{Raw: []byte(`{}`)},
+					},
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
 						Pools: []cephlcmv1alpha1.CephPool{
 							{
@@ -450,6 +457,7 @@ func TestValidatePoolsSpec(t *testing.T) {
 							},
 						},
 					},
+					Nodes: unitinputs.CephNodesOk,
 				},
 			},
 			expectedIssues: []string{
@@ -462,6 +470,11 @@ func TestValidatePoolsSpec(t *testing.T) {
 			name: "incorrect pools spec for external",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: &cephlcmv1alpha1.CephCluster{
+						RawExtension: runtime.RawExtension{
+							Raw: []byte(`{"external": {"enable": true}}`),
+						},
+					},
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
 						Pools: []cephlcmv1alpha1.CephPool{
 							{
@@ -497,7 +510,11 @@ func TestValidatePoolsSpec(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			errs := validatePoolsSpec(test.cephDpl, test.externalCluster, false)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
+			err := c.castExtensions()
+			assert.Nil(t, err)
+
+			errs := validatePoolsSpec(c.cdConfig.cephDpl, c.cdConfig.nodesListExpanded, test.externalCluster)
 			assert.Equal(t, test.expectedIssues, errs)
 		})
 	}
@@ -505,13 +522,12 @@ func TestValidatePoolsSpec(t *testing.T) {
 
 func TestValidatePoolSpec(t *testing.T) {
 	tests := []struct {
-		name           string
-		poolName       string
-		poolSpec       cephv1.PoolSpec
-		metadataPool   bool
-		singleNode     bool
-		specExtraOpts  *cephlcmv1alpha1.CephDeploymentExtraOpts
-		expectedIssues []string
+		name              string
+		poolName          string
+		poolSpec          cephv1.PoolSpec
+		metadataPool      bool
+		nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode
+		expectedIssues    []string
 	}{
 		{
 			name:           "metadata pool has no replicated spec",
@@ -544,19 +560,19 @@ func TestValidatePoolSpec(t *testing.T) {
 			expectedIssues: []string{
 				"erasureCoded test-pool pool needs dataChunks set to at least 2",
 				"erasureCoded test-pool pool needs codingChunks set to at least 1",
-				"test-pool pool has no deviceClass specified (default valid options are: [hdd nvme ssd], either specify custom classes)",
+				"test-pool pool has no deviceClass set",
 			},
 		},
 		{
 			name: "replicated pool has wrong spec",
 			poolSpec: cephv1.PoolSpec{
 				FailureDomain: "osd",
-				DeviceClass:   "fake",
+				DeviceClass:   "custom",
 				Replicated:    cephv1.ReplicatedSpec{Size: 2},
 			},
 			poolName: "test-pool",
 			expectedIssues: []string{
-				"test-pool pool has unknown deviceClass 'fake' (default valid options are: [hdd nvme ssd], either specify custom classes)",
+				"test-pool pool has failed to find deviceClass 'custom' among storage devices spec",
 				"test-pool pool contains prohibited 'osd' failureDomain",
 			},
 		},
@@ -566,19 +582,8 @@ func TestValidatePoolSpec(t *testing.T) {
 				spec, _ := unitinputs.CephDeployPoolReplicated.GetSpec()
 				return spec
 			}(),
-			expectedIssues: []string{},
-		},
-		{
-			name: "replicated pool with custom deviceClass for single node ok",
-			poolSpec: cephv1.PoolSpec{
-				FailureDomain: "osd",
-				DeviceClass:   "custom",
-				Replicated:    cephv1.ReplicatedSpec{Size: 1},
-			},
-			poolName:       "test-pool",
-			singleNode:     true,
-			specExtraOpts:  &cephlcmv1alpha1.CephDeploymentExtraOpts{CustomDeviceClasses: []string{"custom"}},
-			expectedIssues: []string{},
+			nodesListExpanded: unitinputs.CephNodesOk,
+			expectedIssues:    []string{},
 		},
 		{
 			name: "ec pool ok",
@@ -586,13 +591,148 @@ func TestValidatePoolSpec(t *testing.T) {
 				spec, _ := unitinputs.CephDeployPoolErasureCoded.GetSpec()
 				return spec
 			}(),
-			expectedIssues: []string{},
+			nodesListExpanded: unitinputs.CephNodesOk,
+			expectedIssues:    []string{},
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			errs := validatePoolSpec(test.poolSpec, test.metadataPool, test.poolName, test.singleNode, test.specExtraOpts)
+			errs := validatePoolSpec(test.poolSpec, test.metadataPool, test.poolName, test.nodesListExpanded)
 			assert.Equal(t, test.expectedIssues, errs)
+		})
+	}
+}
+
+func TestValidateDeviceClass(t *testing.T) {
+	tests := []struct {
+		name              string
+		deviceClass       string
+		nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode
+		expectedError     string
+	}{
+		{
+			name:          "no device class",
+			expectedError: "no deviceClass set",
+		},
+		{
+			name:        "no device class found with devices",
+			deviceClass: "custom",
+			nodesListExpanded: []cephlcmv1alpha1.CephDeploymentNode{
+				{
+					Node: cephv1.Node{
+						Selection: cephv1.Selection{
+							Devices: []cephv1.Device{
+								{
+									Name: "sdb",
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedError: "failed to find deviceClass 'custom' among storage devices spec",
+		},
+		{
+			name:        "no device class found with devices global config",
+			deviceClass: "custom",
+			nodesListExpanded: []cephlcmv1alpha1.CephDeploymentNode{
+				{
+					Node: cephv1.Node{
+						Config: map[string]string{
+							"deviceClass": "custom",
+						},
+						Selection: cephv1.Selection{
+							Devices: []cephv1.Device{
+								{
+									Name:   "sdb",
+									Config: map[string]string{"deviceClass": "new"},
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedError: "failed to find deviceClass 'custom' among storage devices spec",
+		},
+		{
+			name:        "no device class found with filters",
+			deviceClass: "custom",
+			nodesListExpanded: []cephlcmv1alpha1.CephDeploymentNode{
+				{
+					Node: cephv1.Node{
+						Selection: cephv1.Selection{DeviceFilter: "vdf"},
+					},
+				},
+			},
+		},
+		{
+			name:        "device class found with devices",
+			deviceClass: "custom",
+			nodesListExpanded: []cephlcmv1alpha1.CephDeploymentNode{
+				{
+					Node: cephv1.Node{
+						Selection: cephv1.Selection{
+							Devices: []cephv1.Device{
+								{
+									Name: "sdb",
+									Config: map[string]string{
+										"deviceClass": "custom",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:        "device class found with devices global config",
+			deviceClass: "custom",
+			nodesListExpanded: []cephlcmv1alpha1.CephDeploymentNode{
+				{
+					Node: cephv1.Node{
+						Config: map[string]string{
+							"deviceClass": "custom",
+						},
+						Selection: cephv1.Selection{
+							Devices: []cephv1.Device{
+								{
+									Name:   "sdb",
+									Config: map[string]string{"deviceClass": "new"},
+								},
+								{
+									Name: "sdc",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name:        "device class found with filters",
+			deviceClass: "custom",
+			nodesListExpanded: []cephlcmv1alpha1.CephDeploymentNode{
+				{
+					Node: cephv1.Node{
+						Config: map[string]string{
+							"deviceClass": "custom",
+						},
+						Selection: cephv1.Selection{DeviceFilter: "vdf"},
+					},
+				},
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			err := validateDeviceClass(test.deviceClass, test.nodesListExpanded)
+			if test.expectedError == "" {
+				assert.Nil(t, err)
+			} else {
+				assert.NotNil(t, err)
+				assert.Equal(t, test.expectedError, err.Error())
+			}
 		})
 	}
 }
@@ -669,10 +809,9 @@ func TestValidateFilesystemSpec(t *testing.T) {
 			expectedErrors: []string{},
 		},
 		{
-			name: "cephfs with custom classes ok",
+			name: "cephfs with not present classes",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cephDplOkWithExtraClasses := unitinputs.CephDeployNonMosk.DeepCopy()
-				cephDplOkWithExtraClasses.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{CustomDeviceClasses: []string{"some-custom-class"}}
 				cephfs := cephDplOkWithExtraClasses.Spec.SharedFilesystem.Filesystems[0]
 				castedFsSpec, _ := cephfs.GetSpec()
 				castedFsSpec.MetadataPool.DeviceClass = "some-custom-class"
@@ -683,7 +822,10 @@ func TestValidateFilesystemSpec(t *testing.T) {
 				cephDplOkWithExtraClasses.Spec.SharedFilesystem.Filesystems[0].FsSpec.Raw = unitinputs.ConvertStructToRaw(castedFsSpec)
 				return cephDplOkWithExtraClasses
 			}(),
-			expectedErrors: []string{},
+			expectedErrors: []string{
+				"cephfs 'test-cephfs' metadata pool has failed to find deviceClass 'some-custom-class' among storage devices spec",
+				"cephfs 'test-cephfs' data custom-pool pool has failed to find deviceClass 'some-custom-class' among storage devices spec",
+			},
 		},
 		{
 			name:           "cephfs ok for external",
@@ -824,21 +966,10 @@ func TestValidateObjectStorageSpec(t *testing.T) {
 			},
 		},
 		{
-			name:           "no object storage issues",
-			cephDpl:        unitinputs.CephDeployNonMosk.DeepCopy(),
-			expectedIssues: []string{},
-		},
-		{
-			name:           "no object storage issues #2",
-			cephDpl:        unitinputs.CephDeployNonMoskWithGatewayRoute.DeepCopy(),
-			expectedIssues: []string{},
-		},
-		{
-			name: "no object storage issues with custom classes and roles",
+			name: "incorrect device classes",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cephDplWithExtraOpts := unitinputs.CephDeployNonMosk.DeepCopy()
 				rgwCastedCustomClass, _ := cephDplWithExtraOpts.Spec.ObjectStorage.Rgws[0].GetSpec()
-				cephDplWithExtraOpts.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{CustomDeviceClasses: []string{"some-custom-class"}}
 				rgwCastedCustomClass.DataPool.DeviceClass = "some-custom-class"
 				rgwCastedCustomClass.MetadataPool.DeviceClass = "some-custom-class"
 				cephDplWithExtraOpts.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCastedCustomClass)
@@ -850,6 +981,19 @@ func TestValidateObjectStorageSpec(t *testing.T) {
 				cephDplWithExtraOpts.Spec.Nodes[1] = node
 				return cephDplWithExtraOpts
 			}(),
+			expectedIssues: []string{
+				"rgw 'rgw-store' metadata pool has failed to find deviceClass 'some-custom-class' among storage devices spec",
+				"rgw 'rgw-store' data pool has failed to find deviceClass 'some-custom-class' among storage devices spec",
+			},
+		},
+		{
+			name:           "no object storage issues",
+			cephDpl:        unitinputs.CephDeployNonMosk.DeepCopy(),
+			expectedIssues: []string{},
+		},
+		{
+			name:           "no object storage issues #2",
+			cephDpl:        unitinputs.CephDeployNonMoskWithGatewayRoute.DeepCopy(),
 			expectedIssues: []string{},
 		},
 		{

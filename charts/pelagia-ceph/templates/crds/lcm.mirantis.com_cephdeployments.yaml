@@ -182,8 +182,9 @@ spec:
                   cluster, like devices labels
                 properties:
                   customDeviceClasses:
-                    description: Custom devices classes different from default classes
-                      (ssd, hdd, nvme)
+                    description: |-
+                      Deprecated. Custom devices classes different from default classes (ssd, hdd, nvme)
+                      Now all device classes can be used in spec if they are present in nodes-devices configuration.
                     items:
                       type: string
                     type: array
