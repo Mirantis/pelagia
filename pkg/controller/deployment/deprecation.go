@@ -34,7 +34,8 @@ func (c *cephDeploymentConfig) isMigrationRequired() bool {
 	return c.deprecatedClusterParams() || len(c.cdConfig.cephDpl.Spec.OldPools) > 0 ||
 		(c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.OldCephFS) > 0) ||
 		(c.cdConfig.cephDpl.Spec.ObjectStorage != nil && (c.cdConfig.cephDpl.Spec.ObjectStorage.OldMultiSite != nil ||
-			c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw != nil))
+			c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw != nil) || (c.cdConfig.cephDpl.Spec.ExtraOpts != nil &&
+			c.cdConfig.cephDpl.Spec.ExtraOpts.CustomDeviceClassesOld != nil))
 }
 
 func (c *cephDeploymentConfig) deprecatedClusterParams() bool {
@@ -233,6 +234,11 @@ func (c *cephDeploymentConfig) ensureDeprecatedFields() (bool, error) {
 				c.cdConfig.cephDpl.Spec.ObjectStorage.OldRgw = nil
 			}
 		}
+	}
+
+	if c.cdConfig.cephDpl.Spec.ExtraOpts != nil && c.cdConfig.cephDpl.Spec.ExtraOpts.CustomDeviceClassesOld != nil {
+		c.log.Warn().Msg("found deprecated field spec.extraOpts.customDeviceClasses which has no effect anymore")
+		c.cdConfig.cephDpl.Spec.ExtraOpts.CustomDeviceClassesOld = nil
 	}
 
 	if len(paramsCantMigrate) > 0 {

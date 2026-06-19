@@ -67,6 +67,7 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 			name: "migrated mosk deprecated fields",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cephDpl := unitinputs.CephDeployMosk.DeepCopy()
+				cephDpl.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{CustomDeviceClassesOld: []string{}}
 				cephDpl.Spec.ObjectStorage = unitinputs.CephDeploymentDeprecated.Spec.ObjectStorage.DeepCopy()
 				cephDpl.Spec.ObjectStorage.OldRgw.DataPool.Replicated = &cephlcmv1alpha1.CephPoolReplicatedSpec{Size: 3}
 				cephDpl.Spec.ObjectStorage.OldRgw.DataPool.ErasureCoded = nil
@@ -123,6 +124,7 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 			}(),
 			expectedCephDpl: func() cephlcmv1alpha1.CephDeployment {
 				cephDpl := unitinputs.CephDeployMosk.DeepCopy()
+				cephDpl.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{}
 				cephDpl.Spec.BlockStorage = &cephlcmv1alpha1.CephBlockStorage{
 					Pools: []cephlcmv1alpha1.CephPool{
 						{

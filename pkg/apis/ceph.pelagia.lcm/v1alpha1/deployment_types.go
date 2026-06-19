@@ -150,9 +150,6 @@ type LabeledDevices map[string]string
 
 // CephDeploymentExtraOpts contains extra options, used for cluster configuration and management
 type CephDeploymentExtraOpts struct {
-	// Custom devices classes different from default classes (ssd, hdd, nvme)
-	// +optional
-	CustomDeviceClasses []string `json:"customDeviceClasses,omitempty"`
 	// Mark some device by-id, by-path or name with label
 	// +optional
 	DeviceLabels map[string]LabeledDevices `json:"deviceLabels,omitempty"`
@@ -172,6 +169,11 @@ type CephDeploymentExtraOpts struct {
 	// Valuable only for MOS managed clusters
 	// +optional
 	DisableOsKeys bool `json:"disableOsSharedKeys,omitempty"`
+
+	// Deprecated. Custom devices classes different from default classes (ssd, hdd, nvme)
+	// Now all device classes can be used in spec if they are present in nodes-devices configuration.
+	// +optional
+	CustomDeviceClassesOld []string `json:"customDeviceClasses,omitempty"`
 }
 
 // CephDeploymentNode contains specific node configuration to use it in Ceph Cluster

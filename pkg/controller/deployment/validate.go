@@ -50,7 +50,7 @@ func (c *cephDeploymentConfig) validateSpec() cephlcmv1alpha1.CephDeploymentVali
 			errMsgs = append(errMsgs, err)
 		}
 	}
-	if errs := validatePoolsSpec(c.cdConfig.cephDpl, c.cdConfig.clusterSpec.External.Enable, len(c.cdConfig.nodesListExpanded) == 1); len(errs) > 0 {
+	if errs := validatePoolsSpec(c.cdConfig.cephDpl, c.cdConfig.nodesListExpanded, c.cdConfig.clusterSpec.External.Enable); len(errs) > 0 {
 		c.log.Error().Msgf("failed to validate block storage pools spec: %v", errs)
 		errMsgs = append(errMsgs, errs...)
 	}
@@ -168,11 +168,6 @@ func validateNodesSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExpande
 			if node.Config != nil {
 				if node.Config["deviceClass"] != "" {
 					nodeDeviceClass = node.Config["deviceClass"]
-					if err := validateDeviceClassName(node.Config["deviceClass"], cephDpl.Spec.ExtraOpts); err != nil {
-						errMsg := fmt.Sprintf("nodes item %s '%s' config has %s", nodeType, node.Name, err.Error())
-						errMsgs = append(errMsgs, errMsg)
-						continue
-					}
 				}
 				if node.Config["osdsPerDevice"] != "" {
 					_, err := strconv.Atoi(node.Config["osdsPerDevice"])
@@ -195,10 +190,6 @@ func validateNodesSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExpande
 					if device.Config != nil {
 						if device.Config["deviceClass"] != "" {
 							deviceClass = device.Config["deviceClass"]
-							if err := validateDeviceClassName(deviceClass, cephDpl.Spec.ExtraOpts); err != nil {
-								errMsg := fmt.Sprintf("device '%s' from nodes item %s '%s' has %s", deviceName, nodeType, node.Name, err.Error())
-								errMsgs = append(errMsgs, errMsg)
-							}
 						}
 						if device.Config["osdsPerDevice"] != "" {
 							_, err := strconv.Atoi(device.Config["osdsPerDevice"])
@@ -247,7 +238,7 @@ func validateNodesSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExpande
 	return errMsgs
 }
 
-func validatePoolsSpec(cephDpl *cephlcmv1alpha1.CephDeployment, externalCluster bool, singleNode bool) []string {
+func validatePoolsSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode, externalCluster bool) []string {
 	if cephDpl.Spec.BlockStorage == nil || len(cephDpl.Spec.BlockStorage.Pools) == 0 {
 		if externalCluster {
 			return nil
@@ -271,7 +262,7 @@ func validatePoolsSpec(cephDpl *cephlcmv1alpha1.CephDeployment, externalCluster 
 			continue
 		}
 
-		if poolErrs := validatePoolSpec(castedPool, false, cephDplPool.Name, singleNode, cephDpl.Spec.ExtraOpts); len(poolErrs) > 0 {
+		if poolErrs := validatePoolSpec(castedPool, false, cephDplPool.Name, nodesListExpanded); len(poolErrs) > 0 {
 			errMsgs = append(errMsgs, poolErrs...)
 		}
 		if cephDplPool.StorageClassOpts.ReclaimPolicy != "" && !lcmcommon.Contains(poolReclaimPolicies, cephDplPool.StorageClassOpts.ReclaimPolicy) {
@@ -336,7 +327,6 @@ func validateFilesystemSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListEx
 		return nil
 	}
 
-	singleNode := len(nodesListExpanded) == 1
 	fsErrors := make([]string, 0)
 	mdsCount := 0
 	for _, node := range nodesListExpanded {
@@ -355,7 +345,7 @@ func validateFilesystemSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListEx
 		}
 
 		metapoolName := fmt.Sprintf("cephfs '%s' metadata", cephFSSpec.Name)
-		if metaIssues := validatePoolSpec(cephFsSpecCasted.MetadataPool.PoolSpec, true, metapoolName, singleNode, cephDpl.Spec.ExtraOpts); len(metaIssues) > 0 {
+		if metaIssues := validatePoolSpec(cephFsSpecCasted.MetadataPool.PoolSpec, true, metapoolName, nodesListExpanded); len(metaIssues) > 0 {
 			fsErrors = append(fsErrors, metaIssues...)
 		}
 
@@ -368,7 +358,7 @@ func validateFilesystemSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListEx
 				}
 				continue
 			}
-			if poolIssues := validatePoolSpec(dataPool.PoolSpec, false, datapoolName, singleNode, cephDpl.Spec.ExtraOpts); len(poolIssues) > 0 {
+			if poolIssues := validatePoolSpec(dataPool.PoolSpec, false, datapoolName, nodesListExpanded); len(poolIssues) > 0 {
 				fsErrors = append(fsErrors, poolIssues...)
 			}
 		}
@@ -391,7 +381,6 @@ func rbdPeersValidate(cephDpl *cephlcmv1alpha1.CephDeployment) string {
 
 func validateObjectStorageSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode, external bool) []string {
 	issues := []string{}
-	singleClusterNode := len(nodesListExpanded) == 1
 
 	if cephDpl.Spec.ObjectStorage != nil {
 		monNodesCount := int32(0)
@@ -437,8 +426,8 @@ func validateObjectStorageSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesLis
 					issues = append(issues, fmt.Sprintf("zone '%s' has specified zonegroup '%s', which is not specified in spec", zone.Name, zoneCasted.ZoneGroup))
 				}
 				t := "zone '%s' %s"
-				issues = append(issues, validatePoolSpec(zoneCasted.MetadataPool, true, fmt.Sprintf(t, zone.Name, "metadata"), singleClusterNode, cephDpl.Spec.ExtraOpts)...)
-				issues = append(issues, validatePoolSpec(zoneCasted.DataPool, false, fmt.Sprintf(t, zone.Name, "data"), singleClusterNode, cephDpl.Spec.ExtraOpts)...)
+				issues = append(issues, validatePoolSpec(zoneCasted.MetadataPool, true, fmt.Sprintf(t, zone.Name, "metadata"), nodesListExpanded)...)
+				issues = append(issues, validatePoolSpec(zoneCasted.DataPool, false, fmt.Sprintf(t, zone.Name, "data"), nodesListExpanded)...)
 			}
 			for _, node := range nodesListExpanded {
 				if lcmcommon.Contains(node.Roles, "mon") {
@@ -486,8 +475,8 @@ func validateObjectStorageSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesLis
 						issues = append(issues, fmt.Sprintf("incorrect rgw '%s' configuration, specified zone '%s' is not found", rgw.Name, rgwCasted.Zone.Name))
 					}
 				} else {
-					issues = append(issues, validatePoolSpec(rgwCasted.MetadataPool, true, fmt.Sprintf("rgw '%s' metadata", rgw.Name), singleClusterNode, cephDpl.Spec.ExtraOpts)...)
-					issues = append(issues, validatePoolSpec(rgwCasted.DataPool, false, fmt.Sprintf("rgw '%s' data", rgw.Name), singleClusterNode, cephDpl.Spec.ExtraOpts)...)
+					issues = append(issues, validatePoolSpec(rgwCasted.MetadataPool, true, fmt.Sprintf("rgw '%s' metadata", rgw.Name), nodesListExpanded)...)
+					issues = append(issues, validatePoolSpec(rgwCasted.DataPool, false, fmt.Sprintf("rgw '%s' data", rgw.Name), nodesListExpanded)...)
 				}
 				if (rgwNodesCount > 0 && rgwCasted.Gateway.Instances > rgwNodesCount) ||
 					(rgwNodesCount == 0 && rgwCasted.Gateway.Instances > monNodesCount) {
@@ -517,7 +506,7 @@ func validateObjectStorageSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesLis
 	return issues
 }
 
-func validatePoolSpec(spec cephv1.PoolSpec, metapool bool, poolName string, singleNode bool, extraOpts *cephlcmv1alpha1.CephDeploymentExtraOpts) []string {
+func validatePoolSpec(spec cephv1.PoolSpec, metapool bool, poolName string, nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode) []string {
 	if metapool {
 		if spec.Replicated.Size == 0 || (spec.ErasureCoded.DataChunks != 0 || spec.ErasureCoded.CodingChunks != 0) {
 			return []string{fmt.Sprintf("%s pool must be only replicated", poolName)}
@@ -539,28 +528,45 @@ func validatePoolSpec(spec cephv1.PoolSpec, metapool bool, poolName string, sing
 		}
 	}
 
-	if err := validateDeviceClassName(spec.DeviceClass, extraOpts); err != nil {
+	if err := validateDeviceClass(spec.DeviceClass, nodesListExpanded); err != nil {
 		issues = append(issues, fmt.Sprintf("%s pool has %s", poolName, err.Error()))
 	}
-	if spec.FailureDomain == "osd" && !singleNode {
+	if spec.FailureDomain == "osd" && len(nodesListExpanded) != 1 {
 		issues = append(issues, fmt.Sprintf("%s pool contains prohibited 'osd' failureDomain", poolName))
 	}
 	return issues
 }
 
-func validateDeviceClassName(deviceClass string, extraOpts *cephlcmv1alpha1.CephDeploymentExtraOpts) error {
-	customDeviceClasses := make([]string, 0)
-	if extraOpts != nil && len(extraOpts.CustomDeviceClasses) > 0 {
-		customDeviceClasses = extraOpts.CustomDeviceClasses
-	}
-	validNames := append([]string{"hdd", "nvme", "ssd"}, customDeviceClasses...)
+func validateDeviceClass(deviceClass string, nodesListExpanded []cephlcmv1alpha1.CephDeploymentNode) error {
 	if deviceClass == "" {
-		return fmt.Errorf("no deviceClass specified (default valid options are: %v, either specify custom classes)", validNames)
+		return errors.Errorf("no deviceClass set")
 	}
-	for _, className := range validNames {
-		if className == deviceClass {
+	for _, node := range nodesListExpanded {
+		nodeWideClass := false
+		if node.Config != nil {
+			if node.Config["deviceClass"] == deviceClass {
+				nodeWideClass = true
+			}
+		}
+		if len(node.Devices) > 0 {
+			devicesWithClass := 0
+			for _, device := range node.Devices {
+				if device.Config != nil {
+					if class, ok := device.Config["deviceClass"]; ok {
+						devicesWithClass++
+						if class == deviceClass {
+							return nil
+						}
+					}
+				}
+			}
+			// case when we have set node wide device class and some overrides for specific devices on it
+			if devicesWithClass < len(node.Devices) && nodeWideClass {
+				return nil
+			}
+		} else {
 			return nil
 		}
 	}
-	return fmt.Errorf("unknown deviceClass '%s' (default valid options are: %v, either specify custom classes)", deviceClass, validNames)
+	return errors.Errorf("failed to find deviceClass '%s' among storage devices spec", deviceClass)
 }
