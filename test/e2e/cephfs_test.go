@@ -209,6 +209,10 @@ func TestCephFS(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	poolDefaultClass := f.GetDefaultPoolDeviceClass(cd)
+	if poolDefaultClass == "" {
+		t.Fatal("failed to find default pool")
+	}
 	toUpdate := false
 	if cd.Spec.SharedFilesystem == nil {
 		cd.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{}
@@ -217,6 +221,24 @@ func TestCephFS(t *testing.T) {
 		newFsSpecCasted, err := newCephFS.GetSpec()
 		if err != nil {
 			t.Fatal(err)
+		}
+		deviceClassUpdated := false
+		if newFsSpecCasted.MetadataPool.DeviceClass == "" {
+			newFsSpecCasted.MetadataPool.DeviceClass = poolDefaultClass
+			deviceClassUpdated = true
+		}
+		for idx, dp := range newFsSpecCasted.DataPools {
+			if dp.DeviceClass == "" {
+				newFsSpecCasted.DataPools[idx].DeviceClass = poolDefaultClass
+				deviceClassUpdated = true
+			}
+		}
+		if deviceClassUpdated {
+			newFsSpec, err := cephlcmv1alpha1.DecodeStructToRaw(newFsSpecCasted)
+			if err != nil {
+				t.Fatal(err)
+			}
+			newCephFS.FsSpec.Raw = newFsSpec
 		}
 		found := false
 		for idx, cephFS := range cd.Spec.SharedFilesystem.Filesystems {
