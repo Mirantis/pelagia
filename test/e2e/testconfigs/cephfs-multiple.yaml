@@ -12,12 +12,10 @@ testSettings:
                 "dataPools": [{
                   "name": "cephfs-pool",
                   "failureDomain": "host",
-                  "deviceClass": "hdd",
                   "replicated": {"size": 2 }
                 }],
                 "metadataPool": {
                   "failureDomain": "host",
-                  "deviceClass": "hdd",
                   "replicated": {"size": 2 }
                 },
                 "metadataServer": {
@@ -32,12 +30,10 @@ testSettings:
                 "dataPools": [{
                   "name": "test-datapool",
                   "failureDomain": "host",
-                  "deviceClass": "hdd",
                   "replicated": {"size": 2 }
                 }],
                 "metadataPool": {
                   "failureDomain": "host",
-                  "deviceClass": "hdd",
                   "replicated": {"size": 2 }
                 },
                 "metadataServer": {"activeCount": 1 }
