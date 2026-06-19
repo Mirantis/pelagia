@@ -805,35 +805,8 @@ spec:
         - <node_name_n>
     ```
 
-- `customDeviceClasses` - Optional. A list of custom device class names to use in the
-  specification. Enables you to specify the custom names different from
-  the default ones, which include `ssd`, `hdd`, and `nvme`, and use
-  them in nodes and pools definitions.
-
-    Example usage:
-
-    ```yaml
-    spec:
-      extraOpts:
-        customDeviceClasses:
-        - <custom_class_name>
-      nodes:
-      - name: kaas-node-5bgk6
-        devices:
-        - config: # existing item
-          deviceClass: <custom_class_name>
-          fullPath: /dev/disk/by-id/<unique_ID>
-      pools:
-      - name: pool1
-        storageClassOpts:
-          default: false
-        spec:
-          deviceClass: <custom_class_name>
-          erasureCoded:
-            codingChunks: 1
-            dataChunks: 2
-          failureDomain: host
-    ```
+- `customDeviceClasses` - Deprecated and automatically removed during cluster update.
+  The parameter no longer has any effect because device classes can be specified in the node spec directly.
 
 <a name="cephdeployment-rbd-mirroring-parameters"></a>
 ### RBD mirroring parameters
