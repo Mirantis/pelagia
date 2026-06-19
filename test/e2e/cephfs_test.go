@@ -207,10 +207,22 @@ func TestCephFS(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	poolDefaultClass := f.GetDefaultPoolDeviceClass(cd)
+	if poolDefaultClass == "" {
+		t.Fatal("failed to find default pool")
+	}
 	toUpdate := false
 	if cd.Spec.SharedFilesystem != nil {
 		for _, newCephFS := range sharedFS.CephFS {
 			found := false
+			if newCephFS.MetadataPool.DeviceClass == "" {
+				newCephFS.MetadataPool.DeviceClass = poolDefaultClass
+			}
+			for idx, dp := range newCephFS.DataPools {
+				if dp.DeviceClass == "" {
+					newCephFS.DataPools[idx].DeviceClass = poolDefaultClass
+				}
+			}
 			for idx, cephFS := range cd.Spec.SharedFilesystem.CephFS {
 				if cephFS.Name == newCephFS.Name {
 					f.TF.Log.Warn().Msgf("found present CephFS with the same name as for e2e test: %s", cephFS.Name)
