@@ -1,3 +1,10 @@
+---
+description: How to calculate target ratios for Ceph pools to define PG autoscaler
+  behavior and ensure balanced data distribution.
+keywords: pelagia, calculate ceph target ratio, ceph pool target ratio, pg autoscaler,
+  placement group autoscaler, placement group, pg values
+---
+
 <a id="calc-target-ratio-calculate-target-ratios-for-ceph-pools-for-rockoon"></a>
 
 # Calculate target ratios for Ceph pools for Rockoon

@@ -1,3 +1,10 @@
+---
+description: Overview of the Pelagia architecture, including its components,
+  controllers, and how Pelagia deploys and manages a Ceph cluster using Rook.
+keywords: pelagia, pelagia components, rook, ceph cluster, pelagia controller,
+  rook ceph operator, cephdeployment
+---
+
 # Pelagia overview
 
 Pelagia Helm chart deploys the following components:

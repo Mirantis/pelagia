@@ -1,3 +1,8 @@
+---
+description: How to add, remove, or reconfigure Ceph nodes using the CephDeployment CR.
+keywords: pelagia, add ceph node, remove ceph node, ceph lcm, cephdeployment
+---
+
 <a id="add-rm-ceph-node-add-remove-or-reconfigure-ceph-nodes"></a>
 # Add, remove, or reconfigure Ceph nodes
 

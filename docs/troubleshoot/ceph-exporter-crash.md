@@ -1,3 +1,9 @@
+---
+description: How to fix ceph-exporter pods appearing in Ceph crash list after cluster update.
+keywords: pelagia, ceph, ceph exporter crash, ceph crash list, rook ceph exporter, ceph crash
+  archive, cluster update
+---
+
 <a id="ceph-exporter-crash-the-ceph-exporter-pods-are-present-in-the-ceph-crash-list"></a>
 
 # The ceph-exporter pods are present in the Ceph crash list

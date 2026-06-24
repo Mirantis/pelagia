@@ -1,3 +1,8 @@
+---
+description: Reference for Pelagia Helm chart configuration parameters and their default values.
+keywords: pelagia, helm chart, helm values, pelagia configuration, rook configuration, csi placement, ceph images
+---
+
 <a id="helm-values-helm-chart-configuration"></a>
 
 # Helm chart configuration

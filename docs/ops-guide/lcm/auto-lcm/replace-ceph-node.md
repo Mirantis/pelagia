@@ -1,3 +1,10 @@
+---
+description: How to replace a failed Ceph node by removing the old node and
+  deploying a new one using the Pelagia LCM API.
+keywords: pelagia, replace ceph node, failed ceph node, ceph node, pelagia lcm,
+  remove failed ceph node, deploy new ceph node, cephosdremovetask
+---
+
 <a id="replace-ceph-node-replace-a-failed-ceph-node"></a>
 
 # Replace a failed Ceph node

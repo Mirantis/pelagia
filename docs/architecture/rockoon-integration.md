@@ -1,3 +1,9 @@
+---
+description: Overview of Pelagia integration with Rockoon OpenStack Controller.
+keywords: ceph openstack integration, rockoon controllers, storage integration,
+  openstack-ceph-shared namespace
+---
+
 # Pelagia integration with Rockoon
 
 The integration between Pelagia and Rockoon OpenStack Controller

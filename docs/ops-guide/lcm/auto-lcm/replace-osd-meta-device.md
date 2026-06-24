@@ -1,3 +1,9 @@
+---
+description: How to replace a failed Ceph OSD that uses a metadata device specified as a device name.
+keywords: pelagia, replace osd old metadata, osd metadata, osd metadata device name,
+  device metadata partition, remove osd, re-create osd
+---
+
 <a id="replace-osd-meta-device-replace-a-failed-ceph-osd-with-a-metadata-device-as-a-device-name"></a>
 
 # Replace a failed Ceph OSD disk with a metadata device as a device name

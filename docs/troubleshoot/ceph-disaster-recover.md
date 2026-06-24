@@ -1,3 +1,9 @@
+---
+description: How to recover failed or accidentally removed Ceph cluster using disaster recovery procedures.
+keywords: ceph, ceph disaster recovery, ceph cluster recovery, ceph monitor recovery,
+  ceph osd recovery, ceph authentication, rook ceph cluster
+---
+
 <a id="ceph-disaster-recover-ceph-disaster-recovery"></a>
 
 # Ceph disaster recovery
