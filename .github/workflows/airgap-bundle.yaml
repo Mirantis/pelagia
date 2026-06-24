@@ -5,6 +5,7 @@
 name: Airgap bundle
 
 on:
+  workflow_dispatch:
   push:
     tags: ["*"]
 
