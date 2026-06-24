@@ -15,9 +15,9 @@ jobs:
     env:
       REPO_ROOT: ${{ github.workspace }}
       # Set repo variable REGISTRY to override (e.g. ghcr.io/owner/pelagia-charts)
-      REGISTRY: ${{ github.ref_type == 'tag' && vars.REGISTRY_PROD || vars.REGISTRY_CI }}
+      REGISTRY: ${{ vars.REGISTRY_PROD }}
       DEV_VERSION: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || '' }}
-      HELM_REPO: ${{ github.event_name == 'push' && 'pelagia' || 'pelagia/pr' }}
+      HELM_REPO: "pelagia"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
