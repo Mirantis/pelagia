@@ -1,3 +1,10 @@
+---
+description: How to replace a failed Ceph metadata device by removing affected
+  OSDs and re‑creating them.
+keywords: pelagia, replace metadata device, failed metadata device, ceph
+  metadata, remove failed osd, re-create osd
+---
+
 <a id="replace-meta-replace-a-failed-metadata-device"></a>
 
 # Replace a failed metadata device

@@ -1,3 +1,9 @@
+---
+description: How to migrate a Ceph Monitor on bare metal-based clusters before node replacement.
+keywords: pelagia, migrate ceph monitor, ceph mon migration, ceph mon, machine
+  replacement, ceph manager, ceph monitor, ceph daemon
+---
+
 <a id="move-mon-node-replace-move-ceph-monitor-before-node-replacement"></a>
 
 # Move Ceph Monitor before node replacement

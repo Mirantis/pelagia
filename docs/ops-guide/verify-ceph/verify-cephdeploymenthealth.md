@@ -1,3 +1,9 @@
+---
+description: How to verify Ceph cluster state to assess component health and identify potential issues.
+keywords: pelagia, verify ceph cluster state, ceph cluster health, ceph state,
+  cephdeployment, cephdeploymenthealth
+---
+
 <a id="verify-cephdeploymenthealth-verify-ceph-cluster-state"></a>
 
 # Verify Ceph cluster state

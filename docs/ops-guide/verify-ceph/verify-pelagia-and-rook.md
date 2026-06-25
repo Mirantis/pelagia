@@ -1,3 +1,9 @@
+---
+description: How to verify Pelagia Controllers and Rook Ceph Operator by checking
+  pod status, logs, and Ceph cluster configuration.
+keywords: pelagia, verify rook ceph operator, ceph controller, verify rook, rook operator logs
+---
+
 <a id="verify-pelagia-and-rook-verify-pelagia-controllers-and-rook-ceph-operator"></a>
 
 # Verify Pelagia Controllers and Rook Ceph Operator

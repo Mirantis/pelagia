@@ -1,3 +1,10 @@
+---
+description: API reference for the CephDeployment custom resource used to configure and manage
+  Ceph cluster deployment with Pelagia.
+keywords: pelagia, cephdeployment, ceph cluster configuration, ceph nodes, ceph pools,
+  ceph object storage, cephfs, rbd mirroring
+---
+
 <a id="cephdeployment-cephdeployment-custom-resource"></a>
 # CephDeployment custom resource
 

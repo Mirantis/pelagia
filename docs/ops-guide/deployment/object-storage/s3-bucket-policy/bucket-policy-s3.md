@@ -1,3 +1,8 @@
+---
+description: How to set an S3 bucket policy for Ceph Object Storage users to grant access permissions.
+keywords: pelagia, set s3 bucket policy, ceph bucket policy, rgw bucket policy, s3 access policy
+---
+
 <a id="bucket-policy-s3-set-a-bucket-policy-for-a-ceph-object-storage-user"></a>
 # Set a bucket policy for a Ceph Object Storage user
 

@@ -1,3 +1,9 @@
+---
+description: Overview of Ceph cluster configuration limitations in Pelagia.
+keywords: pelagia, ceph cluster limitations, ceph configuration, ceph
+  constraints, cephdeployment
+---
+
 # Pelagia limitations
 
 A Pelagia `CephDeployment` configuration includes but is

@@ -1,3 +1,10 @@
+---
+description: How to recover failed Ceph Monitors when monitors cannot start and
+  hang in Error or CrashLoopBackOff state.
+keywords: pelagia, ceph, ceph monitor recovery, failed ceph monitors, monitor quorum,
+  monitor data recovery, ceph cluster quorum
+---
+
 <a id="ceph-mon-recover-ceph-monitors-recovery"></a>
 
 # Ceph Monitors recovery

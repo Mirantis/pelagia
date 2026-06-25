@@ -1,3 +1,10 @@
+---
+description: How to fix CephOsdRemoveTask timeout during rebalance when OSD
+  removal takes longer than 30 minutes.
+keywords: pelagia, ceph, cephosdremovetask, ceph osd removal, pg rebalance, ceph
+  rebalance timeout, ceph operation timeout
+---
+
 <a id="cephosdremovetask-timeout-cephosdremovetask-failure-with-a-timeout-during-rebalance"></a>
 
 # CephOsdRemoveTask failure with a timeout during rebalance

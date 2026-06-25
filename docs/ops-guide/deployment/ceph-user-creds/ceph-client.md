@@ -1,3 +1,10 @@
+---
+description: How to manage Ceph RBD and CephFS clients using the CephDeployment CR,
+  including creating, accessing, and removing clients.
+keywords: pelagia, manage ceph clients, ceph clients, ceph rbd clients, cephdeployment,
+  create rbd client, create cephfs client, access data, remove rbd client, remove cephfs client
+---
+
 <a id="ceph-client-manage-ceph-rbd-or-cephfs-clients"></a>
 
 # Manage Ceph RBD or CephFS clients

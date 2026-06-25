@@ -1,3 +1,9 @@
+---
+description: How to configure Ceph Shared File System (CephFS) to enable shared read/write file system volumes.
+keywords: pelagia, enable cephfs, configure cephfs, cephfs spec, pvs, ceph file system, shared file system,
+  persistent volumes, cephfs, sharedfilesystem
+---
+
 <a id="cephfs-configure-ceph-shared-file-system-cephfs"></a>
 
 # Configure Ceph Shared File System (CephFS)

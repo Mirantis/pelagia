@@ -1,3 +1,9 @@
+---
+description: Reference for Pelagia LCM ConfigMap configuration options, including
+  parameters configurable through Helm chart values and manually.
+keywords: pelagia, pelagia-lcmconfig, configmap, pelagia configuration, lcm configuration
+---
+
 <a id="lcmconfig-configmap-pelagia-lcmconfig"></a>
 
 # ConfigMap pelagia-lcmconfig

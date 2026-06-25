@@ -1,3 +1,10 @@
+---
+description: How to enable Ceph RBD mirroring for pool replication between
+  clusters using the CephDeployment CR.
+keywords: pelagia, enable rbd mirroring, ceph rbd mirror, pool replication,
+  rbd mirroring, rbd mirror, ceph mirroring, rbdmirror, enable ceph rbd
+---
+
 <a id="rbd-mirror-enable-ceph-rbd-mirroring"></a>
 # Enable Ceph RBD mirroring
 

@@ -1,3 +1,10 @@
+---
+description: How to replace a failed Ceph OSD that uses a metadata device
+  defined as a logical volume path.
+keywords: pelagia, failed ceph osd, replace osd bmhp metadata, osd metadata,
+  osd metadata logical volume
+---
+
 <a id="replace-osd-meta-lvm-replace-a-failed-ceph-osd-with-a-metadata-device-as-a-logical-volume-path"></a>
 
 # Replace a failed Ceph OSD with a metadata device as a logical volume path

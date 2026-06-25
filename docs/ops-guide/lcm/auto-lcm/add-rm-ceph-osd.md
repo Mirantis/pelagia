@@ -1,3 +1,8 @@
+---
+description: How to add, remove, or reconfigure Ceph OSDs using the CephDeployment CR.
+keywords: pelagia, add ceph osd, remove ceph osd, ceph lcm, cephdeployment
+---
+
 <a id="add-rm-ceph-osd-add-remove-or-reconfigure-ceph-osds"></a>
 # Add, remove, or reconfigure Ceph OSDs
 

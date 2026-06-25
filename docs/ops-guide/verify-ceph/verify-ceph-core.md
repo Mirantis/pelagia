@@ -1,3 +1,8 @@
+---
+description: How to verify Ceph core services by checking the status of mon, mgr, osd, and rgw components.
+keywords: pelagia, verify ceph core services, ceph mon, ceph mgr, ceph osd, ceph rgw verification
+---
+
 <a id="verify-ceph-core-verify-the-ceph-core-services"></a>
 
 # Verify the Ceph core services
