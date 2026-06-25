@@ -37,6 +37,12 @@ data:
   {{- if (.Values.lcmConfig.cephDaemonsetLabelExclude) }}
   DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS: {{ .Values.lcmConfig.cephDaemonsetLabelExclude }}
   {{- end }}
+  {{- if (.Values.cephDeployment.drainRequestLabelKey) }}
+  DEPLOYMENT_DRAIN_REQUEST_LABEL_KEY: {{ .Values.cephDeployment.drainRequestLabelKey }}
+  {{- end }}
+  {{- if (.Values.cephDeployment.drainReadyLabelKey) }}
+  DEPLOYMENT_DRAIN_READY_LABEL_KEY: {{ .Values.cephDeployment.drainReadyLabelKey }}
+  {{- end }}
 {{- end }}
 {{- if .Values.global.namespace }}
 ---

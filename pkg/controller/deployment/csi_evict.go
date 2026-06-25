@@ -41,7 +41,6 @@ var (
 	waitForDaemonsetsPodsInterval     = 5 * time.Second
 )
 
-// TODO: labels are used from kaas maintenance - ?
 func (c *cephDeploymentConfig) ensureDaemonsetLabels() {
 	c.log.Debug().Msg("run check daemonsets label ensure")
 	nodes, err := c.api.Kubeclientset.CoreV1().Nodes().List(c.context, metav1.ListOptions{})
@@ -50,8 +49,8 @@ func (c *cephDeploymentConfig) ensureDaemonsetLabels() {
 		return
 	}
 	for _, node := range nodes.Items {
-		if node.Annotations != nil && node.Annotations[cephDaemonsetDrainRequest] == "true" {
-			c.log.Info().Msgf("ceph daemonset ensure: found lcm drain request '%s' for node %s", cephDaemonsetDrainRequest, node.Name)
+		if node.Annotations != nil && node.Annotations[c.lcmConfig.DeployParams.DrainRequestLabelKey] == "true" {
+			c.log.Info().Msgf("ceph daemonset ensure: found lcm drain request '%s' for node %s", c.lcmConfig.DeployParams.DrainRequestLabelKey, node.Name)
 			if node.Labels[cephDaemonsetLabel] != "" {
 				c.log.Info().Msgf("ceph daemonset ensure: found label '%s' to delete", cephDaemonsetLabel)
 				_, err = c.checkCSIVolumes(node.Name, true)
@@ -82,17 +81,17 @@ func (c *cephDeploymentConfig) ensureDaemonsetLabels() {
 				c.log.Error().Err(err).Msgf("ceph daemonsets label ensure failed: daemonset pods not evicted from %s node", node.Name)
 				continue
 			}
-			c.log.Info().Msgf("ceph daemonset ensure: setting annotation '%s' for %s node", cephDaemonsetDrainReady, node.Name)
+			c.log.Info().Msgf("ceph daemonset ensure: setting annotation '%s' for %s node", c.lcmConfig.DeployParams.DrainReadyLabelKey, node.Name)
 			nodeAnnotationsCsi, err := c.api.Kubeclientset.CoreV1().Nodes().Get(c.context, node.Name, metav1.GetOptions{})
 			if err != nil {
 				c.log.Error().Err(err).Msgf("ceph daemonsets label ensure failed: failed to get node %s", node.Name)
 				continue
 			}
-			if nodeAnnotationsCsi.Annotations[cephDaemonsetDrainReady] != "true" {
-				nodeAnnotationsCsi.Annotations[cephDaemonsetDrainReady] = "true"
+			if nodeAnnotationsCsi.Annotations[c.lcmConfig.DeployParams.DrainReadyLabelKey] != "true" {
+				nodeAnnotationsCsi.Annotations[c.lcmConfig.DeployParams.DrainReadyLabelKey] = "true"
 				_, err = c.api.Kubeclientset.CoreV1().Nodes().Update(c.context, nodeAnnotationsCsi, metav1.UpdateOptions{})
 				if err != nil {
-					c.log.Error().Err(err).Msgf("ceph daemonsets label ensure failed: failed to add drain ready annotation %s to node %s", cephDaemonsetDrainReady, node.Name)
+					c.log.Error().Err(err).Msgf("ceph daemonsets label ensure failed: failed to add drain ready annotation %s to node %s", c.lcmConfig.DeployParams.DrainReadyLabelKey, node.Name)
 					continue
 				}
 			}

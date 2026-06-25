@@ -12,6 +12,9 @@ cephDeployment:
   netpolEnabled: true
   installSharedNamespace: true
   openstackSharedNamespace: openstack-ceph-shared
+  # drain request and readiness label keys
+  drainRequestLabelKey: ""
+  drainReadyLabelKey: ""
 lcmConfig:
   rgwPublicAccessServiceSelector: "external_access=rgw"
   diskDaemonPortParameter: 9999

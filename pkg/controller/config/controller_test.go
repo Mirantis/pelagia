@@ -129,6 +129,8 @@ func TestInitReconcile(t *testing.T) {
 					"DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE":  "custom-openstack-ns",
 					"DEPLOYMENT_MULTISITE_CABUNDLE_SECRET":        "secret-with-ca-bundle",
 					"DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS": "no-ceph=true",
+					"DEPLOYMENT_DRAIN_REQUEST_LABEL_KEY":          "custom-label/drain-request",
+					"DEPLOYMENT_DRAIN_READY_LABEL_KEY":            "custom-label/csi-drain-ready",
 				},
 			},
 			controlParams:  ControlParamsAll,
@@ -161,6 +163,8 @@ func TestInitReconcile(t *testing.T) {
 						OpenstackCephSharedNamespace:       "custom-openstack-ns",
 						MultisiteCabundleSecretRef:         "secret-with-ca-bundle",
 						CephDaemonsetPlacementLabelExclude: "no-ceph=true",
+						DrainRequestLabelKey:               "custom-label/drain-request",
+						DrainReadyLabelKey:                 "custom-label/csi-drain-ready",
 					}
 					return newConfig
 				}(),
