@@ -101,6 +101,7 @@ nav:
       - CephDeployment custom resource: custom-resources/cephdeployment.md
       - CephDeploymentHealth custom resource: custom-resources/cephdeploymenthealth.md
       - CephDeploymentSecret custom resource: custom-resources/cephdeploymentsecret.md
+      - CephOsdRemoveMaintenance custom resource: custom-resources/cephdeploymentmaintenance.md
       - CephOsdRemoveTask custom resource: custom-resources/cephosdremovetask.md
   - Configuration Reference:
       - Configuration Reference: configuration/index.md
