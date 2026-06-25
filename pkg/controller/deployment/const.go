@@ -46,10 +46,8 @@ const (
 	rookRBDProvisionerName    = "rook-ceph.rbd.csi.ceph.com"
 	rookCephFSProvisionerName = "rook-ceph.cephfs.csi.ceph.com"
 
-	cephDaemonsetLabel        = "ceph-daemonset-available-node"
-	cephDaemonsetDrainRequest = "kaas.mirantis.com/lcm-drained"
-	cephDaemonsetDrainReady   = "kaas.mirantis.com/csi-drained"
-	cephVolumeAttachmentType  = "rook-ceph.rbd.csi.ceph.com"
+	cephDaemonsetLabel       = "ceph-daemonset-available-node"
+	cephVolumeAttachmentType = "rook-ceph.rbd.csi.ceph.com"
 
 	cephKubeTopologyLabelTemplate = "cephdpl-prev-%s"
 	nodeWithOSDSelectorTemplate   = "app=rook-ceph-osd,failure-domain=%s"
