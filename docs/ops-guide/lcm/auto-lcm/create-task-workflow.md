@@ -1,3 +1,10 @@
+---
+description: Overview of the Ceph OSD removal task workflow using CephOsdRemoveTask CR,
+  including validation, approval, and cleanup steps.
+keywords: pelagia, ceph osd removal, cephosdremovetask, remove ceph osd, osd cleanup,
+  ceph lcm, cephdeployment
+---
+
 <a id="create-task-workflow-create-a-ceph-osd-remove-task"></a>
 # Create a Ceph OSD remove task
 

@@ -1,3 +1,10 @@
+---
+description: API reference for the CephDeploymentSecret custom resource used to store
+  Ceph RBD and RGW credential secrets for Ceph cluster access.
+keywords: pelagia, cephdeploymentsecret, ceph secrets, ceph credentials, ceph rbd,
+  rados gateway
+---
+
 # CephDeploymentSecret custom resource
 
 `CephDeploymentSecret` (`cephdeploymentsecrets.lcm.mirantis.com`) custom resource (CR)

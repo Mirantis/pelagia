@@ -1,3 +1,9 @@
+---
+description: How to enable Ceph RGW multisite Object Storage, including configuration steps.
+keywords: pelagia, enable ceph multisite, rgw multisite, object storage, ceph replication,
+  multi-zone multisite, ceph multisite, ceph multisite configuration
+---
+
 <a id="rgw-multisite-enable-multisite-for-ceph-object-storage"></a>
 # Enable Multisite for Ceph Object Storage
 

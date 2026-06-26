@@ -1,3 +1,10 @@
+---
+description: How to create Ceph Object Storage users using the CephDeployment
+  CR and configure their S3 credentials.
+keywords: pelagia, create ceph rgw user, ceph rgw user, ceph object storage
+  user, cephdeployment, configure s3 credentials
+---
+
 <a id="s3-create-user-create-ceph-object-storage-users"></a>
 
 # Create Ceph Object Storage users

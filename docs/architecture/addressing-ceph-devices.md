@@ -1,3 +1,9 @@
+---
+description: Overview of addressing Ceph storage devices.
+keywords: ceph device addressing, storage device formats, ceph storage devices,
+  device identifier by name, by-id, by-path
+---
+
 <a id="addressing-ceph-devices-addressing-ceph-storage-devices"></a>
 # Addressing Ceph storage devices
 

@@ -1,3 +1,10 @@
+---
+description: How to move a Ceph Monitor daemon to another node without changing
+  the count of Ceph Monitors.
+keywords: pelagia, move ceph monitor, migrate ceph mon daemon, ceph mon, ceph
+  monitor placement, cephdeployment
+---
+
 <a id="move-mon-daemon-move-a-ceph-monitor-daemon-to-another-node"></a>
 # Move a Ceph Monitor daemon to another node
 

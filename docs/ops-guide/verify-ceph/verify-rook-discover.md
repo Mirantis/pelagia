@@ -1,3 +1,8 @@
+---
+description: How to verify rook-discover by checking that a local-device ConfigMap is created for each Ceph node.
+keywords: pelagia, verify rook discover, rook-discover, local-device configmap, ceph node discovery
+---
+
 <a id="verify-rook-discover-verify-rook-discover"></a>
 
 # Verify rook-discover

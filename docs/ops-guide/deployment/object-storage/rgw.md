@@ -1,3 +1,10 @@
+---
+description: How to enable RADOS Gateway Object Storage, including configuration steps,
+  RADOS Gateway deployment details, and key considerations for RGW enablement.
+keywords: pelagia, ceph rgw, enable ceph rgw, rados gateway, ceph object storage,
+  ceph rgw deployment, swift, rgw configuration
+---
+
 <a id="rgw-enable-ceph-rgw-object-storage"></a>
 
 # Enable Ceph RADOS Gateway Object Storage

@@ -1,3 +1,8 @@
+---
+description: How to add, remove, or reconfigure Ceph OSDs with metadata devices using the CephDeployment CR.
+keywords: pelagia, add ceph osd, remove ceph osd, ceph osd metadata, osd with metadata device, cephdeployment
+---
+
 <a id="add-rm-ceph-osd-with-meta-add-remove-or-reconfigure-ceph-osds-with-metadata-devices"></a>
 
 # Add, remove, or reconfigure Ceph OSDs with metadata devices

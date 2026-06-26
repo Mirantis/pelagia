@@ -1,3 +1,8 @@
+---
+description: How to fix Ceph Monitor store.db size rapidly growing when MON_DISK_LOW health message appears.
+keywords: pelagia, ceph, ceph monitor store, store.db size, mon disk low, ceph mon_disk_low, logm keys, ceph compaction
+---
+
 <a id="ceph-mon-store-size-grow-ceph-monitors-storedb-size-rapidly-growing"></a>
 
 # Ceph Monitors store.db size rapidly growing

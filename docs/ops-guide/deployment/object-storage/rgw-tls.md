@@ -1,3 +1,9 @@
+---
+description: How to configure TLS for Ceph Object Gateway (RGW) endpoints using built‑in or custom ingress settings.
+keywords: pelagia, configure rgw tls, ceph rgw tls, rgw tls, configure tls, rados gateway tls, rgw certificates,
+  cephdeployment, configure ceph object gateway tls, ingressconfig, ingress
+---
+
 <a id="rgw-tls-configure-ceph-object-gateway-tls"></a>
 
 # Configure Ceph Object Gateway TLS

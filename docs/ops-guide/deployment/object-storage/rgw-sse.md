@@ -1,3 +1,9 @@
+---
+description: How to use object storage server-side encryption in Ceph RGW with Barbican.
+keywords: pelagia, rgw server-side encryption, ceph rgw sse, object storage encryption,
+  rgw encryption, barbican integration
+---
+
 <a id="rgw-sse-configure-ceph-object-storage-server-side-encryption"></a>
 
 # Configure Ceph Object Storage server-side encryption

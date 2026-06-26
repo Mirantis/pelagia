@@ -1,3 +1,10 @@
+---
+description: API reference for the CephDeploymentHealth custom resource used to verify Ceph
+  cluster health and identify problematic components.
+keywords: pelagia, cephdeploymenthealth, ceph cluster health, ceph daemons, rook ceph
+  objects, osd analysis
+---
+
 <a id="cephdeploymenthealth-cephdeploymenthealth-custom-resource"></a>
 # CephDeploymentHealth custom resource
 

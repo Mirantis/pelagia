@@ -1,3 +1,11 @@
+---
+description: How to fix Ceph PG_DAMAGED health error after disk or node replacement
+  by repairing damaged placement groups.
+keywords: pelagia, ceph, ceph pg damaged, placement group repair,
+  ceph health error, osd scrub errors, pg inconsistent, ceph data damage, pg_damaged,
+  health_err ceph, osd_scrub_errors
+---
+
 <a id="ceph-pg-damaged-ceph-health-reports-pg_damaged_after-a-failed-disk-or-node-replacement"></a>
 
 # Ceph health reports *PG_DAMAGED* after a failed disk or node replacement

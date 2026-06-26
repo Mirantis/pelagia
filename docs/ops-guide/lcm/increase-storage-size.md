@@ -1,3 +1,8 @@
+---
+description: How to increase Ceph cluster storage capacity by adding new Ceph OSDs.
+keywords: pelagia, increase ceph storage, ceph storage, add ceph osd, device class, osd, osd pod
+---
+
 <a id="increase-storage-size-increase-ceph-cluster-storage-size"></a>
 
 # Increase Ceph cluster storage size

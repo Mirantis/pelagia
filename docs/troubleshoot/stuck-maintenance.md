@@ -1,3 +1,10 @@
+---
+description: How to resolve a maintenance operation stuck on a compact Ceph cluster due
+  to incomplete OSD rebalancing.
+keywords: pelagia, ceph maintenance, ceph rebalancing, compact ceph cluster, ceph osd
+  reweight, cephdeployment maintenance
+---
+
 <a id="stuck-maintenance-maintenance-stuck-on-a-compact-ceph-cluster"></a>
 
 # Maintenance stuck on a compact Ceph cluster
