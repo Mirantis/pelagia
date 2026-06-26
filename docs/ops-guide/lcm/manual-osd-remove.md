@@ -1,3 +1,9 @@
+---
+description: How to manually remove one or multiple Ceph OSDs from a Ceph cluster.
+keywords: pelagia, remove ceph osd, manual osd removal, ceph osd, remove osd,
+  ceph osd deletion, kaascephcluster, ceph-tools
+---
+
 <a id="manual-osd-remove-remove-ceph-osd-manually"></a>
 
 # Remove Ceph OSD manually

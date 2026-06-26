@@ -1,3 +1,9 @@
+---
+description: How to create, access, and remove Ceph Object Storage users through the CephDeployment CR.
+keywords: pelagia, manage ceph rgw users, ceph rgw users, ceph object storage users, cephdeployment,
+  create user, access user, remove user
+---
+
 <a id="ceph-rgw-user-manage-ceph-object-storage-users"></a>
 
 # Manage Ceph Object Storage users

@@ -1,3 +1,8 @@
+---
+description: How to configure Ceph pools to enable Cinder multi-backend support.
+keywords: pelagia, cinder multi-backend, ceph pools, cinder backend, ceph volumes pools, cephdeployment
+---
+
 <a id="cinder-multi-backend-ceph-pools-for-cinder-multi-backend"></a>
 
 # Configure Ceph pools for Cinder multiple backends

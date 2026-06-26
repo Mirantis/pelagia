@@ -1,3 +1,8 @@
+---
+description: Overview of default Ceph configuration options applied when the rookConfig section is empty.
+keywords: pelagia, ceph default config, ceph configuration options, ceph defaults
+---
+
 <a id="default-ceph-conf-ceph-default-configuration"></a>
 # Ceph default configuration
 

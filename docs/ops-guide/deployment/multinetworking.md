@@ -1,3 +1,8 @@
+---
+description: How to enable and configure Ceph multinetwork (L3) for using multiple IP networks for Ceph daemons.
+keywords: pelagia, enable ceph multinetwork, ceph multi-network, ceph networks, ceph l3 network, ceph daemons
+---
+
 <a id="multinetworking-enable-ceph-multinetwork"></a>
 # Enable Ceph multinetwork
 

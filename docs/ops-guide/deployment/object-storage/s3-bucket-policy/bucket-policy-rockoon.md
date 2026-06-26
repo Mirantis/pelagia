@@ -1,3 +1,10 @@
+---
+description: How to set an S3 bucket policy for OpenStack users by configuring
+  permissions through OpenStack projects.
+keywords: pelagia, openstack bucket policy, s3 bucket policy, openstack s3
+  policy, bucket policy for openstack users
+---
+
 <a id="bucket-policy-rockoon-set-a-bucket-policy-for-openstack-users"></a>
 
 # Set a bucket policy for OpenStack users

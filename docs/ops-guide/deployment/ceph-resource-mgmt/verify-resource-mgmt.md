@@ -1,3 +1,9 @@
+---
+description: How to verify Ceph tolerations and resource settings after enabling resource management.
+keywords: pelagia, verify ceph resources, ceph resources, verify ceph tolerations,
+  verify resource requests, verify resource limits
+---
+
 <a id="verify-resource-mgmt-verify-ceph-tolerations-and-resources"></a>
 # Verify Ceph tolerations and resources
 

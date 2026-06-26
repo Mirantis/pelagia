@@ -1,3 +1,11 @@
+---
+description: How to share a Ceph cluster between two Kubernetes clusters within the same
+  management cluster and manage the shared resources.
+keywords: pelagia, share ceph cluster, producer cluster, consumer cluster, shared
+  ceph storage, ceph sharing, plan shared ceph cluster, connect producer to consumer,
+  create ceph non-admin client, consume ceph cluster pools, enable cephfs
+---
+
 <a id="external-ceph-share-ceph-across-two-clusters"></a>
 # Share Ceph across two clusters
 

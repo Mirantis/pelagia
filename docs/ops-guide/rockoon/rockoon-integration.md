@@ -1,3 +1,9 @@
+---
+description: How to integrate Pelagia with Rockoon OpenStack Controller.
+keywords: pelagia, rockoon, pelagia rockoon integration, ceph pools, openstack
+  integration, cephdeployment
+---
+
 <a id="rockoon-integration-integrate-pelagia-with-rockoon"></a>
 # Integrate Pelagia with Rockoon
 

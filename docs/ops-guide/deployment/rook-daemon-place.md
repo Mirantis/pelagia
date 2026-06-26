@@ -1,3 +1,10 @@
+---
+description: How to specify placement of Rook daemons and Ceph CSI pods using
+  Pelagia Helm chart values.
+keywords: pelagia, rook daemon placement, ceph csi placement, rook-ceph-operator,
+  rook-discover, csi pods, helm chart
+---
+
 <a id="rook-daemon-place-specify-rook-daemons-placement"></a>
 
 # Specify Rook daemons placement

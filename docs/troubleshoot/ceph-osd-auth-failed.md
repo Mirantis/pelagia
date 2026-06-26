@@ -1,3 +1,10 @@
+---
+description: How to fix replaced Ceph OSD authorization failure when keyring
+  values differ between cluster and host path.
+keywords: pelagia, ceph, ceph osd authorization, osd keyring, osd authentication,
+  replaced osd, osd startup failure, ceph osd keyring mismatch
+---
+
 <a id="ceph-osd-auth-failed-replaced-ceph-osd-fails-to-start-on-authorization"></a>
 
 # Replaced Ceph OSD fails to start on authorization

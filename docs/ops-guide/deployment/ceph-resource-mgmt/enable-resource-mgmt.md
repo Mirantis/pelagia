@@ -1,3 +1,8 @@
+---
+description: How to enable and configure Ceph tolerations and resource management.
+keywords: pelagia, enable ceph resources, ceph resources, ceph tolerations, ceph resource management
+---
+
 <a id="enable-resource-mgmt-enable-management-of-ceph-tolerations-and-resources"></a>
 # Enable management of Ceph tolerations and resources
 

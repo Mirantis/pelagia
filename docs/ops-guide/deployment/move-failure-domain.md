@@ -1,3 +1,10 @@
+---
+description: How to migrate Ceph pools from one failure domain to another within
+  a Ceph cluster.
+keywords: pelagia, migrate ceph pools, failure domain migration, ceph pools,
+  change failure domain, cephdeployment
+---
+
 <a id="move-failure-domain-migrate-ceph-pools-from-one-failure-domain-to-another"></a>
 
 # Migrate Ceph pools from one failure domain to another

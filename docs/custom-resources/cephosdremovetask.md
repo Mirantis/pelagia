@@ -1,3 +1,9 @@
+---
+description: API reference for the CephOsdRemoveTask custom resource used to define and
+  track Ceph OSD removal operations.
+keywords: pelagia, cephosdremovetask, ceph osd removal, osd remove, ceph osd
+---
+
 <a id="cephosdremovetask-cephosdremovetask-custom-resource"></a>
 # CephOsdRemoveTask custom resource
 

@@ -1,3 +1,10 @@
+---
+description: How to replace a failed Ceph OSD by removing the old device and
+  redeploying a new OSD using the Pelagia LCM API.
+keywords: pelagia, replace ceph osd, failed ceph osd, ceph osd, pelagia lcm,
+  remove failed osd, deploy new device, cephosdremovetask
+---
+
 <a id="replace-ceph-osd-replace-a-failed-ceph-osd"></a>
 
 # Replace a failed Ceph OSD
