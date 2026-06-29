@@ -46,20 +46,21 @@ the `CephOsdRemoveTask` resource for automated LCM of Rook Ceph OSD nodes.
 The only thing you need to create is empty `CephDeploymentHealth` CR.
 
 You can find the detailed documentation on how to install and use Pelagia
-in the [Quick start guide](https://mirantis.github.io/pelagia/quick-start/installation/).
+in the [Quick start guide](https://mirantis.github.io/pelagia/latest/quick-start/installation/).
 
 # Version compatibility
 
 | Pelagia version | [Ceph](https://docs.ceph.com/en/latest/releases/) version | [Rook](https://github.com/rook/rook/releases) version | [Ceph-CSI](https://github.com/ceph/ceph-csi/releases) version |
 |-----------------|-----------------------------------------------------------|-------------------------------------------------------|---------------------------------------------------------------|
-| 1.0.0           | 19.2.3 (Squid), 18.2.7 (Reef)                             | 1.17.4                                                | 3.14.0                                                        |
+| 1.x.0           | 19.2.4 (Squid), 18.2.7 (Reef)                             | 1.18.8                                                | 3.15.0                                                        |
+| 2.x.0           | 20.2.2 (Tentacle), 19.2.4 (Squid)                         | 1.19.6                                                | 3.16.2                                                        |
 
 
 # Documentation
 
 For installation, deployment, and administration, see our
-[Documentation](https://mirantis.github.io/pelagia/) and
-[Quick start guide](https://mirantis.github.io/pelagia/quick-start/installation/).
+[Documentation](https://mirantis.github.io/pelagia/latest/) and
+[Quick start guide](https://mirantis.github.io/pelagia/latest/quick-start/installation/).
 Have some questions? Use our
 [GitHub Discussions](https://github.com/Mirantis/pelagia/discussions) or join the [#pelagia channel](https://cloud-native.slack.com/archives/C09K5TEC9JN) in CNCF Slack.
 
