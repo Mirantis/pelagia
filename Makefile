@@ -33,24 +33,19 @@ HELM_REGISTRY ?= oci://localhost/pelagia/pelagia-ceph
 # Helm stuff #
 #============#
 
-.PHONY: pelagia-ceph-chart rook-crds-chart snapshot-controller-chart publish-chart
-pelagia-ceph-chart: snapshot-controller-chart rook-crds-chart ## Build helm package
-	@printf "\n=== PACKAGING PELAGIA-CEPH CHART ===\n"
+.PHONY: package-chart
+package-chart: package-dep/rook-crds package-dep/snapshot-controller package-dep/ceph-csi-operator ## Build pelagia chart
+	@printf "\n=== PACKAGING pelagia-ceph CHART ===\n"
 	@cp charts/pelagia-ceph/Chart.yaml charts/pelagia-ceph/.Chart.yaml.bckp
 	@sed -i 's/^  version:.*$$/  version: $(VERSION)/g' charts/pelagia-ceph/Chart.yaml
 	helm lint charts/pelagia-ceph
 	helm package charts/pelagia-ceph --version $(VERSION) --app-version $(VERSION)
 	@mv charts/pelagia-ceph/.Chart.yaml.bckp charts/pelagia-ceph/Chart.yaml
 
-rook-crds-chart: ## Build helm package with rook-crds deps
-	printf "\n=== PACKAGING ROOK-CRDS CHART ===\n"
-	helm lint charts/rook-crds
-	helm package charts/rook-crds --version $(VERSION) -d charts/pelagia-ceph/charts
-
-snapshot-controller-chart: ## Build helm package with snapshot-controller deps
-	printf "\n=== PACKAGING SNAPSHOT-CONTROLLER CHART ===\n"
-	helm lint charts/snapshot-controller
-	helm package charts/snapshot-controller --version $(VERSION) -d charts/pelagia-ceph/charts
+package-dep/%: ## Build helm chart dependency
+	printf "\n=== PACKAGING $* CHART ===\n"
+	helm lint charts/$*
+	helm package charts/$* --version $(VERSION) -d charts/pelagia-ceph/charts
 
 publish-chart: ## Push chart to helm registry
 	helm push pelagia-ceph-$(VERSION).tgz $(HELM_REGISTRY)

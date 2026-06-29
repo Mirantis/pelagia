@@ -1,3 +1,4 @@
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -12,7 +13,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-cephfs-ctrlplugin-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -28,7 +29,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-cephfs-nodeplugin-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -44,7 +45,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-controller-manager
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -60,7 +61,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-controller-manager
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -76,7 +77,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-nfs-ctrlplugin-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -92,7 +93,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-nfs-nodeplugin-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -108,7 +109,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-nvmeof-ctrlplugin-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -124,7 +125,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-nvmeof-nodeplugin-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -140,7 +141,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-rbd-ctrlplugin-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -156,4 +157,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-rbd-nodeplugin-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}

@@ -1,8 +1,9 @@
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: ceph-csi-cephfs-ctrlplugin-rb
-  namespace: {{ .Values.rookConfig.rookNamespace }}
+  namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
   labels:
 {{ include "chart.labels" . | indent 4 }}
 {{ include "ceph-csi-operator.labels" . | indent 4 }}
@@ -13,13 +14,13 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-cephfs-ctrlplugin-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: ceph-csi-cephfs-nodeplugin-rb
-  namespace: {{ .Values.rookConfig.rookNamespace }}
+  namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
   labels:
 {{ include "chart.labels" . | indent 4 }}
 {{ include "ceph-csi-operator.labels" . | indent 4 }}
@@ -30,13 +31,13 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-cephfs-nodeplugin-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: ceph-csi-leader-election-rolebinding
-  namespace: {{ .Values.rookConfig.rookNamespace }}
+  namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
   labels:
 {{ include "chart.labels" . | indent 4 }}
 {{ include "ceph-csi-operator.labels" . | indent 4 }}
@@ -47,13 +48,13 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-controller-manager
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: ceph-csi-nvmeof-ctrlplugin-rb
-  namespace: {{ .Values.rookConfig.rookNamespace }}
+  namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
   labels:
 {{ include "chart.labels" . | indent 4 }}
 {{ include "ceph-csi-operator.labels" . | indent 4 }}
@@ -64,13 +65,13 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-nvmeof-ctrlplugin-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: ceph-csi-nvmeof-nodeplugin-rb
-  namespace: {{ .Values.rookConfig.rookNamespace }}
+  namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
   labels:
 {{ include "chart.labels" . | indent 4 }}
 {{ include "ceph-csi-operator.labels" . | indent 4 }}
@@ -81,13 +82,13 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-nvmeof-nodeplugin-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: ceph-csi-rbd-ctrlplugin-rb
-  namespace: {{ .Values.rookConfig.rookNamespace }}
+  namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
   labels:
 {{ include "chart.labels" . | indent 4 }}
 {{ include "ceph-csi-operator.labels" . | indent 4 }}
@@ -98,13 +99,13 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-rbd-ctrlplugin-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: ceph-csi-rbd-nodeplugin-rb
-  namespace: {{ .Values.rookConfig.rookNamespace }}
+  namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
   labels:
 {{ include "chart.labels" . | indent 4 }}
 {{ include "ceph-csi-operator.labels" . | indent 4 }}
@@ -115,4 +116,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: ceph-csi-rbd-nodeplugin-sa
-    namespace: {{ .Values.rookConfig.rookNamespace }}
+    namespace: {{ .Values.csiOperatorConfig.rookNamespace }}

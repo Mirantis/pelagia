@@ -6,6 +6,9 @@ global:
 snapshot-controller:
   enabled: true
 
+ceph-csi-operator:
+  enabled: true
+
 productSetup: "mke"
 cephDeployment:
   enabled: true
@@ -110,12 +113,6 @@ images:
       squid: v19.2.4-2.cve
       tentacle: *latestImageCeph
   csi:
-    operator:
-      repository: pelagia/cephcsi-operator
-      tag:
-        latest: &latestImageCSIOperator v0.6.0-4.release
-        squid: *latestImageCSIOperator
-        tentacle: *latestImageCSIOperator
     ceph:
       repository: pelagia/cephcsi
       tag:

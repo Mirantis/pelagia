@@ -1,10 +1,11 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ceph-csi-controller-manager
-  namespace: {{ .Values.rookConfig.rookNamespace }}
+  namespace: {{ .Values.csiOperatorConfig.rookNamespace }}
   labels:
-{{ include "rook.labels" . | indent 4 }}
+{{ include "ceph-csi-operator.labels" . | indent 4 }}
 {{ include "chart.labels" . | indent 4 }}
 spec:
   replicas: 1
@@ -31,8 +32,9 @@ spec:
             - name: CSI_SERVICE_ACCOUNT_PREFIX
               value: ceph-csi-
             - name: WATCH_NAMESPACE
-              value: {{ .Values.rookConfig.rookNamespace }}
-          image: {{ template "csi.ceph.operator.image" . }}
+              value: {{ .Values.csiOperatorConfig.rookNamespace }}
+          image: {{ template "operator.image" . }}
+          imagePullPolicy: {{ .Values.images.operator.pullPolicy }}
           livenessProbe:
             httpGet:
               path: /healthz
@@ -53,11 +55,18 @@ spec:
             requests:
               cpu: 10m
               memory: 64Mi
-          {{- with $.Values.controllers.securityContextControllers }}
+          {{- with $.Values.csiOperatorConfig.securityContext }}
           securityContext:
-            readOnlyRootFilesystem: true
             {{- toYaml . | nindent 12 }}
           {{- end }}
+    {{- if .Values.csiOperatorConfig.placement.affinity }}
+      affinity:
+{{ toYaml .Values.csiOperatorConfig.placement.affinity | indent 8 }}
+    {{- end }}
+    {{- if .Values.csiOperatorConfig.placement.tolerations }}
+      tolerations:
+{{ toYaml .Values.csiOperatorConfig.placement.tolerations | indent 6 }}
+    {{- end }}
       securityContext:
         runAsNonRoot: true
       serviceAccountName: ceph-csi-controller-manager
