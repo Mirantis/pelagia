@@ -46,7 +46,7 @@ the `CephOsdRemoveTask` resource for automated LCM of Rook Ceph OSD nodes.
 The only thing you need to create is empty `CephDeploymentHealth` CR.
 
 You can find the detailed documentation on how to install and use Pelagia
-in the [Quick start guide](https://mirantis.github.io/pelagia/quick-start/installation/).
+in the [Quick start guide](https://mirantis.github.io/pelagia/1.x/quick-start/installation/).
 
 # Version compatibility
 
@@ -60,8 +60,8 @@ in the [Quick start guide](https://mirantis.github.io/pelagia/quick-start/instal
 # Documentation
 
 For installation, deployment, and administration, see our
-[Documentation](https://mirantis.github.io/pelagia/) and
-[Quick start guide](https://mirantis.github.io/pelagia/quick-start/installation/).
+[Documentation](https://mirantis.github.io/pelagia/1.x/) and
+[Quick start guide](https://mirantis.github.io/pelagia/1.x/quick-start/installation/).
 Have some questions? Use our
 [GitHub Discussions](https://github.com/Mirantis/pelagia/discussions).
 
