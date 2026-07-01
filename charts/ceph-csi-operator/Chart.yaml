@@ -1,0 +1,8 @@
+apiVersion: v2
+appVersion: "0.6.0"
+description: A Helm chart to distribute the project ceph-csi-operator
+name: ceph-csi-operator
+version: 1.0.0
+maintainers:
+- name: Mirantis Inc.
+  url: https://github.com/Mirantis/pelagia

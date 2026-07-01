@@ -1,0 +1,37 @@
+global:
+  dockerBaseUrl: registry.mirantis.com
+
+images:
+  operator:
+    repository: pelagia/cephcsi-operator
+    tag: v0.6.0-4.release
+    fullName: ""
+    pullPolicy: "Always"
+
+csiOperatorConfig:
+  rookNamespace: "rook-ceph"
+  securityContext:
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: true
+  placement:
+    # k8s affinity rules for Ceph CSI Operator
+    # affinity:
+    #   nodeAffinity:
+    #     preferredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 100
+    #       preference:
+    #         matchExpressions:
+    #         - key: "ceph_role_mon"
+    #           operator: In
+    #           values:
+    #           - "true"
+    affinity: {}
+    # k8s toleration rules for Ceph CSI Operator
+    # tolerations:
+    # - effect: NoSchedule
+    #   key: node-role.kubernetes.io/controlplane
+    #   operator: Exists
+    tolerations: {}
