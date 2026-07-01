@@ -7,7 +7,7 @@ metadata:
   labels:
 {{ include "chart.labels" . | indent 4 }}
 data:
-  ROOK_NAMESPACE: {{ .Values.rookConfig.rookNamespace }}
+  ROOK_NAMESPACE: {{ .Values.lcmConfig.rookNamespace }}
   GATEWAY_API_ENABLED: {{ .Values.lcmConfig.gatewayAPIEnabled | quote }}
   {{- if (.Values.lcmConfig.gatewayAPIEnabled) }}
     {{- if (.Values.lcmConfig.gatewayName)}}
@@ -26,13 +26,10 @@ data:
 {{- if (.Values.cephDeployment.enabled) }}
   DEPLOYMENT_CEPH_RELEASE: {{ .Values.cephRelease }}
   DEPLOYMENT_CEPH_IMAGE: {{ template "ceph.image" . }}
-  DEPLOYMENT_ROOK_IMAGE: {{ template "rook.image" . }}
+  DEPLOYMENT_ROOK_IMAGE: {{ printf "%s/%s:%s" .Values.global.dockerBaseUrl .Values.images.rook.repository .Values.images.rook.tag }}
   DEPLOYMENT_NETPOL_ENABLED: {{ .Values.cephDeployment.netpolEnabled | quote }}
   {{- if .Values.cephDeployment.installSharedNamespace }}
   DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE: {{ .Values.cephDeployment.openstackSharedNamespace }}
-  {{- end }}
-  {{- if (.Values.rookConfig.caBundleRef)}}
-  DEPLOYMENT_MULTISITE_CABUNDLE_SECRET: {{ .Values.rookConfig.caBundleRef }}
   {{- end }}
   {{- if (.Values.lcmConfig.cephDaemonsetLabelExclude) }}
   DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS: {{ .Values.lcmConfig.cephDaemonsetLabelExclude }}

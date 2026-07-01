@@ -13,10 +13,15 @@ dependencies:
   version: 1.0.0
   tags:
     - csi
-- name: rook-crds
-  repository: file://charts/rook-crds
-  condition: rookConfig.configureRook
+- name: rook
+  repository: file://charts/rook
+  condition: rook.enabled
   version: 1.0.0
+  import-values:
+    - child: images.operator
+      parent: images.rook
+  tags:
+    - rook
 - name: snapshot-controller
   repository: file://charts/snapshot-controller
   condition: snapshot-controller.enabled

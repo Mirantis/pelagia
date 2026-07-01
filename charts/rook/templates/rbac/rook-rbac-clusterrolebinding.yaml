@@ -1,4 +1,3 @@
-{{ if .Values.rookConfig.configureRook }}
 ---
 # Allow the ceph mgr to access cluster-wide resources necessary for the mgr modules
 kind: ClusterRoleBinding
@@ -224,4 +223,3 @@ subjects:
     name: rook-ceph-mgr
     namespace: {{ .Values.rookConfig.rookNamespace }}
   {{- end }}
-{{- end }}

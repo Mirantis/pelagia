@@ -33,8 +33,10 @@ HELM_REGISTRY ?= oci://localhost/pelagia/pelagia-ceph
 # Helm stuff #
 #============#
 
-.PHONY: package-chart
-package-chart: package-dep/rook-crds package-dep/snapshot-controller package-dep/ceph-csi-operator ## Build pelagia chart
+.PHONY: helm-chart helm-all
+helm-all: helm-dep/rook helm-dep/snapshot-controller helm-dep/ceph-csi-operator helm-pelagia ## Build full helm chart
+
+helm-pelagia: ## Build pelagia chart
 	@printf "\n=== PACKAGING pelagia-ceph CHART ===\n"
 	@cp charts/pelagia-ceph/Chart.yaml charts/pelagia-ceph/.Chart.yaml.bckp
 	@sed -i 's/^  version:.*$$/  version: $(VERSION)/g' charts/pelagia-ceph/Chart.yaml
@@ -42,7 +44,7 @@ package-chart: package-dep/rook-crds package-dep/snapshot-controller package-dep
 	helm package charts/pelagia-ceph --version $(VERSION) --app-version $(VERSION)
 	@mv charts/pelagia-ceph/.Chart.yaml.bckp charts/pelagia-ceph/Chart.yaml
 
-package-dep/%: ## Build helm chart dependency
+helm-dep/%: ## Build helm chart dependency
 	printf "\n=== PACKAGING $* CHART ===\n"
 	helm lint charts/$*
 	helm package charts/$* --version $(VERSION) -d charts/pelagia-ceph/charts
