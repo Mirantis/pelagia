@@ -37,6 +37,8 @@ The following Pelagia controller options are set in [Pelagia Helm chart values](
 | DEPLOYMENT_NETPOL_ENABLED | Enable creation of network policy. | `"true"` | `cephDeployment.netpolEnabled` |
 | DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE | Namespace for the Openstack-Ceph communication and secrets sharing. | `"openstack-ceph-shared"` | `cephDeployment.openstackSharedNamespace` |
 | DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS | Label for nodes where no Ceph daemons must be scheduled. | `""` | `lcmConfig.cephDaemonsetLabelExclude` |
+| DEPLOYMENT_DRAIN_REQUEST_LABEL_KEY | Label key marking node as drained. | `"kaas.mirantis.com/lcm-drained"` | `"cephDeployment.drainRequestLabelKey"` |
+| DEPLOYMENT_DRAIN_READY_LABEL_KEY | Label key marking node as drain ready. | `"kaas.mirantis.com/csi-drained"` | `"cephDeployment.drainReadyLabelKey"` |
 
 The `DEPLOYMENT_CEPH_IMAGE` and `DEPLOYMENT_ROOK_IMAGE` options are derived from the values of the `images` section.
 For details, see [Configuration example for Ceph and Rook images](./helm-values.md) during chart update.
