@@ -9,6 +9,8 @@ For Pelagia release notes, refer to [Pelagia Releases](https://github.com/Mirant
 
 * Rook is upgraded to v1.19. For upgrade details, see [Rook upgrade](https://rook.io/docs/rook/v1.19/Upgrade/rook-upgrade/).
 
+* Pelagia now has Rook as a separate chart allowing the user to disable the Pelagia-based Rook setup and use a different Rook chart.
+
 * Ceph CSI operator is enabled by default.
 
     Previously, the CSI driver was automatically configured by Rook.
@@ -52,7 +54,9 @@ For Pelagia release notes, refer to [Pelagia Releases](https://github.com/Mirant
 
 ## Pre-upgrade steps
 
-No specific pre-upgrade steps are required for the 1.x → 2.x upgrade.
+In this release, the Rook setup is moved to a separate chart and is used as a dependency in Pelagia. Therefore, if your current setup
+contains custom settings in `values.rookConfig` for the Helm chart, copy them under `values.rook.rookConfig`.
+Keep the old `values.rookConfig` settings until the upgrade is complete.
 
 ## Post-upgrade steps
 
@@ -68,3 +72,5 @@ of the changes that require these steps, see the *Breaking changes* section abov
 
      To configure Pelagia after switching to the Gateway API, use the corresponding `Gateway` object.
      For details, see [Configuration Reference](../configuration/index.md) and [CephDeployment resource](../custom-resources/cephdeployment.md).
+
+4. If the current Helm values contain the `rookConfig` section, you can safely remove it.

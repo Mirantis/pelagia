@@ -1,7 +1,6 @@
 global:
   dockerBaseUrl: registry.mirantis.com
 
-cephRelease: ""
 images:
   operator:
     repository: pelagia/rook
