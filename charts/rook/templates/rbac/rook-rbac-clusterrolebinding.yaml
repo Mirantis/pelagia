@@ -201,25 +201,3 @@ roleRef:
   kind: ClusterRole
   name: objectstorage-provisioner-role
   apiGroup: rbac.authorization.k8s.io
-  {{- if eq .Values.productSetup "mke" }}
----
-# required for MKE since rook operator makes action around pods/deploys/replicas
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  labels:
-{{ include "rook.labels" . | indent 4 }}
-{{ include "chart.labels" . | indent 4 }}
-  name: {{ .Values.rookConfig.rookNamespace }}-rook-ceph:cluster-admin
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: cluster-admin
-subjects:
-  - kind: ServiceAccount
-    name: rook-ceph-system
-    namespace: {{ .Values.rookConfig.rookNamespace }}
-  - kind: ServiceAccount
-    name: rook-ceph-mgr
-    namespace: {{ .Values.rookConfig.rookNamespace }}
-  {{- end }}
