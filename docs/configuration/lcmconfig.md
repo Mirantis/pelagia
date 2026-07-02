@@ -25,7 +25,7 @@ The following Pelagia controller options are set in [Pelagia Helm chart values](
 
 | Parameter | Description | Default | Chart value |
 |-----------|-------------|---------|----------------------------|
-| ROOK_NAMESPACE | Rook namespace. | `"rook-ceph"` | `rookConfig.rookNamespace` |
+| ROOK_NAMESPACE | Rook namespace. | `"rook-ceph"` | `lcmConfig.rookNamespace` |
 | DISK_DAEMON_API_PORT | Port for the disk daemon API. | `9999` | `lcmConfig.diskDaemonPortParameter` |
 | DISK_DAEMON_PLACEMENT_NODES_SELECTOR | Label for disk daemon placement. | `"pelagia-disk-daemon=true"` | `lcmConfig.diskDaemonNodeSelector` |
 | GATEWAY_API_ENABLED | Enable usage of the Gateway API. | `true` | `lcmConfig.gatewayAPIEnabled` |
