@@ -25,6 +25,8 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `cephDeployment.netpolEnabled` | Enable creation of network policy. | `true` |
 | `cephDeployment.installSharedNamespace` | Install a namespace for the Openstack-Ceph communication. | `true` |
 | `cephDeployment.openstackSharedNamespace` | Namespace for the Openstack-Ceph communication and secrets sharing. | `"openstack-ceph-shared"` |
+| `cephDeployment.drainRequestLabelKey` | Label key marking node as drained. | `""` |
+| `cephDeployment.drainReadyLabelKey` | Label key marking node as drain ready . | `""` |
 | `lcmConfig.rgwPublicAccessServiceSelector` | Label of the service or proxy exposing RGW to public access. | `"external_access=rgw"` |
 | `lcmConfig.diskDaemonPortParameter` | Port for the disk daemon API. | `9999` |
 | `lcmConfig.diskDaemonNodeSelector` | Label for disk daemon placement. | `"ceph_role_osd=true"` |
@@ -54,6 +56,7 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `rookConfig.csiAddonsEnabled` | Enable CSI add-ons support in Rook. | `false` |
 | `rookConfig.volumeSnapshotsEnabled` | Enable volume snapshots classes support in Rook. | `false` |
 | `snapshot-controller.enabled` | Enable the `snapshot-controller` deployment. For available `snapshot-controller` options, see [values.yaml](https://github.com/Mirantis/pelagia/blob/main/charts/snapshot-controller/values.yaml). | `true` |
+| `ceph-csi-operator.enabled` | Enable the `ceph-csi-operator` deployment. For available `ceph-csi-operator` options, see [values.yaml](https://github.com/Mirantis/pelagia/blob/main/charts/ceph-csi-operator/values.yaml). | `true` |
 
 You can also specify custom images for deployment of test environments.
 Ceph and Rook images are derived from the `cephRelease` value.
@@ -81,12 +84,6 @@ Ceph and Rook images are derived from the `cephRelease` value.
           squid: v19.2.3-25.cve
           tentacle: *latestImageCeph
       csi:
-        operator:
-          repository: pelagia/cephcsi-operator
-          tag:
-            latest: &latestImageCSIOperator v0.6.0-3.release
-            squid: *latestImageCSIOperator
-            tentacle: *latestImageCSIOperator
         ceph:
           repository: pelagia/cephcsi
           tag:
