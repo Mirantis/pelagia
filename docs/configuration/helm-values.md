@@ -26,7 +26,7 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `cephDeployment.installSharedNamespace` | Install a namespace for the Openstack-Ceph communication. | `true` |
 | `cephDeployment.openstackSharedNamespace` | Namespace for the Openstack-Ceph communication and secrets sharing. | `"openstack-ceph-shared"` |
 | `cephDeployment.drainRequestLabelKey` | Label key marking node as drained. | `""` |
-| `cephDeployment.drainReadyLabelKey` | Label key marking node as drain ready . | `""` |
+| `cephDeployment.drainReadyLabelKey` | Label key marking node as ready to be drained. | `""` |
 | `lcmConfig.rgwPublicAccessServiceSelector` | Label of the service or proxy exposing RGW to public access. | `"external_access=rgw"` |
 | `lcmConfig.diskDaemonPortParameter` | Port for the disk daemon API. | `9999` |
 | `lcmConfig.diskDaemonNodeSelector` | Label for disk daemon placement. | `"ceph_role_osd=true"` |
