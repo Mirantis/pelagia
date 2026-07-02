@@ -1,0 +1,114 @@
+global:
+  dockerBaseUrl: registry.mirantis.com
+
+cephRelease: ""
+images:
+  operator:
+    repository: pelagia/rook
+    tag: v1.19.6-6
+  csi:
+    ceph:
+      repository: pelagia/cephcsi
+      tag: v3.16.2-4.release
+    registrar:
+      repository: pelagia/cephcsi-registrar
+      tag: v2.16.0-4.release
+    provisioner:
+      repository: pelagia/cephcsi-provisioner
+      tag: v6.1.1-4.release
+    snapshotter:
+      repository: pelagia/cephcsi-snapshotter
+      tag: v8.5.0-4.release
+    attacher:
+      repository: pelagia/cephcsi-attacher
+      tag: v4.11.0-4.release
+    resizer:
+      repository: pelagia/cephcsi-resizer
+      tag: v2.1.0-4.release
+
+rookConfig:
+  rookNamespace: rook-ceph
+  netpolEnabled: true
+  rookOperatorReplicas: 1
+  rookOperatorPlacement:
+    affinity:
+    # affinity is a group of affinity scheduling for rook-pelagia-deploy Deployment
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+            - key: "ceph_role_mon"
+              operator: In
+              values:
+              - "true"
+    nodeSelector: {}
+    # constraint rook-pelagia-deploy Deployment to nodes with specific labels
+    # Example:
+    #   nodeSelector:
+    #     disktype: ssd
+    tolerations: []
+    # tolerations for the rook-pelagia-deploy to allow it to run on nodes with particular taints
+    # Example:
+    #   tolerations:
+    #   - effect: NoSchedule
+    #     key: node-role.kubernetes.io/controlplane
+    #     operator: Exists
+  csiPlacement:
+    nodeAffinity:
+      # k8s node affinity rules for Ceph Provisioner
+      # csiprovisioner: "role=storage-node; storage=rook, ceph"
+      csiprovisioner:
+      # k8s node affinity rules for Ceph CSI plugins
+      # csiplugin: "role=storage-node; csiplugin=true"
+      csiplugin: "ceph-daemonset-available-node=true"
+    tolerations:
+      # k8s toleration rules for Ceph CSI plugin daemon-sets
+      # csiplugin: |
+      # - effect: NoSchedule
+      #   key: node-role.kubernetes.io/controlplane
+      #   operator: Exists
+      csiplugin:
+      # k8s toleration rules for Ceph CSI provisioner deployment
+      # csiprovisioner: |
+      # - effect: NoSchedule
+      #   key: node-role.kubernetes.io/controlplane
+      #   operator: Exists
+      csiprovisioner:
+  rookDiscoverPlacement:
+    # k8s node affinity rules for Rook discover daemon
+    # nodeAffinity: "role=storage-node; discover=true"
+    nodeAffinity: "ceph-daemonset-available-node=true;ceph_role_osd=true"
+    # k8s toleration rules for rook discover daemon
+    # tolerations: |
+    # - effect: NoSchedule
+    #   key: node-role.kubernetes.io/controlplane
+    #   operator: Exists
+    tolerations:
+  csiKubeletPath: "/var/lib/kubelet"
+  csiCephFsLivenessMetricsPort: "9082"
+  csiCephFsEnabled: true
+  csiNfsEnabled: false
+  csiAddonsEnabled: false
+  enableOBCs: false
+  enableMonitoring: false
+  # extra cabundle targeted to use with multisite, when pull endpoint is https endpoint
+  caBundleRef: ""
+  livenessProbe:
+    exec:
+      command:
+        - /bin/sh
+        - -c
+        - pidof rook
+    failureThreshold: 3
+    periodSeconds: 10
+    initialDelaySeconds: 5
+  readinessProbe:
+    exec:
+      command:
+        - /bin/sh
+        - -c
+        - pidof rook
+    failureThreshold: 3
+    periodSeconds: 10
+  volumeSnapshotsEnabled: false

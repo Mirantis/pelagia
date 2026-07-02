@@ -1,4 +1,4 @@
-{{ if and .Values.cephDeployment.netpolEnabled .Values.rookConfig.configureRook }}
+{{ if .Values.rookConfig.netpolEnabled }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

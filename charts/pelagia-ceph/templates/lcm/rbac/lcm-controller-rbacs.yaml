@@ -91,7 +91,7 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  namespace: {{ .Values.rookConfig.rookNamespace }}
+  namespace: {{ .Values.lcmConfig.rookNamespace }}
   name: {{ .Values.controllers.lcm.account.role }}
   labels:
 {{ include "chart.labels" . | indent 4 }}
@@ -138,7 +138,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  namespace: {{ .Values.rookConfig.rookNamespace }}
+  namespace: {{ .Values.lcmConfig.rookNamespace }}
   name: {{ .Values.controllers.lcm.account.name }}-rolebinding
   labels:
 {{ include "chart.labels" . | indent 4 }}

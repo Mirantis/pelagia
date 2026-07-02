@@ -3,22 +3,17 @@ global:
   clusterRelease: ""
   namespace: ""
 
-snapshot-controller:
-  enabled: true
-
-ceph-csi-operator:
-  enabled: true
-
 productSetup: "mke"
 cephDeployment:
   enabled: true
-  netpolEnabled: true
+  netpolEnabled: &netpolEnabled true
   installSharedNamespace: true
   openstackSharedNamespace: openstack-ceph-shared
   # drain request and readiness label keys
   drainRequestLabelKey: ""
   drainReadyLabelKey: ""
 lcmConfig:
+  rookNamespace: &rookNamespace rook-ceph
   rgwPublicAccessServiceSelector: "external_access=rgw"
   diskDaemonPortParameter: 9999
   diskDaemonNodeSelector: "ceph_role_osd=true"
@@ -99,139 +94,23 @@ images:
     # fullName is mostly used for test purposes
     fullName: ""
     pullPolicy: Always
-  rook:
-    operator:
-      repository: pelagia/rook
-      tag:
-        latest: &latestImageRook v1.19.6-6
-        squid: *latestImageRook
-        tentacle: *latestImageRook
   ceph:
     repository: pelagia/ceph
     tag:
       latest: &latestImageCeph v20.2.2-1.release
       squid: v19.2.4-2.cve
       tentacle: *latestImageCeph
-  csi:
-    ceph:
-      repository: pelagia/cephcsi
-      tag:
-        latest: &latestImageCephCSI v3.16.2-4.release
-        squid: *latestImageCephCSI
-        tentacle: *latestImageCephCSI
-    registrar:
-      repository: pelagia/cephcsi-registrar
-      tag:
-        latest: &latestImageRegistar v2.16.0-4.release
-        squid: *latestImageRegistar
-        tentacle: *latestImageRegistar
-    provisioner:
-      repository: pelagia/cephcsi-provisioner
-      tag:
-        latest: &latestImageProvisioner v6.1.1-4.release
-        squid: *latestImageProvisioner
-        tentacle: *latestImageProvisioner
-    snapshotter:
-      repository: pelagia/cephcsi-snapshotter
-      tag:
-        latest: &latestImageSnapshotter v8.5.0-4.release
-        squid: *latestImageSnapshotter
-        tentacle: *latestImageSnapshotter
-    attacher:
-      repository: pelagia/cephcsi-attacher
-      tag:
-        latest: &latestImageAttacher v4.11.0-4.release
-        squid: *latestImageAttacher
-        tentacle: *latestImageAttacher
-    resizer:
-      repository: pelagia/cephcsi-resizer
-      tag:
-        latest: &latestImageResizer v2.1.0-4.release
-        squid: *latestImageResizer
-        tentacle: *latestImageResizer
-rookConfig:
-  configureRook: true
-  rookNamespace: rook-ceph
-  rookOperatorReplicas: 1
-  rookOperatorPlacement:
-    affinity:
-    # affinity is a group of affinity scheduling for rook-pelagia-deploy Deployment
-      nodeAffinity:
-        preferredDuringSchedulingIgnoredDuringExecution:
-        - weight: 100
-          preference:
-            matchExpressions:
-            - key: "ceph_role_mon"
-              operator: In
-              values:
-              - "true"
-    nodeSelector: {}
-    # constraint rook-pelagia-deploy Deployment to nodes with specific labels
-    # Example:
-    #   nodeSelector:
-    #     disktype: ssd
-    tolerations: []
-    # tolerations for the rook-pelagia-deploy to allow it to run on nodes with particular taints
-    # Example:
-    #   tolerations:
-    #   - effect: NoSchedule
-    #     key: node-role.kubernetes.io/controlplane
-    #     operator: Exists
-  csiPlacement:
-    nodeAffinity:
-      # k8s node affinity rules for Ceph Provisioner
-      # csiprovisioner: "role=storage-node; storage=rook, ceph"
-      csiprovisioner:
-      # k8s node affinity rules for Ceph CSI plugins
-      # csiplugin: "role=storage-node; csiplugin=true"
-      csiplugin: "ceph-daemonset-available-node=true"
-    tolerations:
-      # k8s toleration rules for Ceph CSI plugin daemon-sets
-      # csiplugin: |
-      # - effect: NoSchedule
-      #   key: node-role.kubernetes.io/controlplane
-      #   operator: Exists
-      csiplugin:
-      # k8s toleration rules for Ceph CSI provisioner deployment
-      # csiprovisioner: |
-      # - effect: NoSchedule
-      #   key: node-role.kubernetes.io/controlplane
-      #   operator: Exists
-      csiprovisioner:
-  rookDiscoverPlacement:
-    # k8s node affinity rules for Rook discover daemon
-    # nodeAffinity: "role=storage-node; discover=true"
-    nodeAffinity: "ceph-daemonset-available-node=true;ceph_role_osd=true"
-    # k8s toleration rules for rook discover daemon
-    # tolerations: |
-    # - effect: NoSchedule
-    #   key: node-role.kubernetes.io/controlplane
-    #   operator: Exists
-    tolerations:
-  csiKubeletPath: "/var/lib/kubelet"
-  csiCephFsLivenessMetricsPort: "9082"
-  csiCephFsEnabled: true
-  csiNfsEnabled: false
-  csiAddonsEnabled: false
-  enableOBCs: false
-  enableMonitoring: false
-  # extra cabundle targeted to use with multisite, when pull endpoint is https endpoint
-  caBundleRef: ""
-  livenessProbe:
-    exec:
-      command:
-        - /bin/sh
-        - -c
-        - pidof rook
-    failureThreshold: 3
-    periodSeconds: 10
-    initialDelaySeconds: 5
-  readinessProbe:
-    exec:
-      command:
-        - /bin/sh
-        - -c
-        - pidof rook
-    failureThreshold: 3
-    periodSeconds: 10
-  volumeSnapshotsEnabled: false
+
+snapshot-controller:
+  enabled: true
+
+ceph-csi-operator:
+  enabled: true
+  csiOperatorConfig:
+    rookNamespace: *rookNamespace
+
+rook:
+  enabled: true
+  rookConfig:
+    rookNamespace: *rookNamespace
+    netpolEnabled: *netpolEnabled

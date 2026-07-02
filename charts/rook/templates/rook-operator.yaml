@@ -16,7 +16,6 @@
 #       Operator Deployment.
 # To move a configuration(s) from the Operator Deployment to this ConfigMap, add the config
 # here. It is recommended to then remove it from the Deployment to eliminate any future confusion.
-{{ if .Values.rookConfig.configureRook }}
 ---
 kind: ConfigMap
 apiVersion: v1
@@ -438,4 +437,3 @@ spec:
         name: rook-ceph-ca-bundle-updated
   {{- end }}
 # OLM: END OPERATOR DEPLOYMENT
-{{- end }}

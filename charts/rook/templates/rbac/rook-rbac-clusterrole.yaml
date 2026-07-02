@@ -1,4 +1,3 @@
-{{ if .Values.rookConfig.configureRook }}
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
@@ -736,4 +735,3 @@ rules:
   - apiGroups: ["events.k8s.io"]
     resources: ["events"]
     verbs: ["create", "patch", "update"]
-{{- end }}

@@ -8,11 +8,6 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
-{{- define "rook.labels" -}}
-operator: rook
-storage-backend: ceph
-{{- end -}}
-
 {{- define "release.namespace" -}}
 {{- if .Values.global.namespace -}}
 {{- .Values.global.namespace -}}
@@ -41,34 +36,6 @@ storage-backend: ceph
   {{- end -}}
 {{- end -}}
 
-{{- define "rook.image" -}}
-{{- printf "%s/%s" .Values.global.dockerBaseUrl (include "get.image" (dict "release" .Values.cephRelease "values" .Values.images.rook.operator)) }}
-{{- end -}}
-
 {{- define "ceph.image" -}}
 {{- printf "%s/%s" .Values.global.dockerBaseUrl (include "get.image" (dict "release" .Values.cephRelease "values" .Values.images.ceph)) }}
-{{- end -}}
-
-{{- define "csi.ceph.image" -}}
-{{- printf "%s/%s" .Values.global.dockerBaseUrl (include "get.image" (dict "release" .Values.cephRelease "values" .Values.images.csi.ceph)) }}
-{{- end -}}
-
-{{- define "csiregistrar.ceph.image" -}}
-{{- printf "%s/%s" .Values.global.dockerBaseUrl (include "get.image" (dict "release" .Values.cephRelease "values" .Values.images.csi.registrar)) }}
-{{- end -}}
-
-{{- define "csiprovisioner.ceph.image" -}}
-{{- printf "%s/%s" .Values.global.dockerBaseUrl (include "get.image" (dict "release" .Values.cephRelease "values" .Values.images.csi.provisioner)) }}
-{{- end -}}
-
-{{- define "csisnapshotter.ceph.image" -}}
-{{- printf "%s/%s" .Values.global.dockerBaseUrl (include "get.image" (dict "release" .Values.cephRelease "values" .Values.images.csi.snapshotter)) }}
-{{- end -}}
-
-{{- define "csiattacher.ceph.image" -}}
-{{- printf "%s/%s" .Values.global.dockerBaseUrl (include "get.image" (dict "release" .Values.cephRelease "values" .Values.images.csi.attacher)) }}
-{{- end -}}
-
-{{- define "csiresizer.ceph.image" -}}
-{{- printf "%s/%s" .Values.global.dockerBaseUrl (include "get.image" (dict "release" .Values.cephRelease "values" .Values.images.csi.resizer)) }}
 {{- end -}}

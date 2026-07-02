@@ -11,11 +11,9 @@
 ###################################################################################################################
 
 # Namespace where the operator and other rook resources are created
-{{ if .Values.rookConfig.configureRook }}
 apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ .Values.rookConfig.rookNamespace }}
   labels:
 {{ include "chart.labels" . | indent 4 }}
-{{ end }}
