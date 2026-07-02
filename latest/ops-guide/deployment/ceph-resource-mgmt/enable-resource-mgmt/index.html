@@ -1320,24 +1320,6 @@
         
       
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Enable management of Ceph tolerations and resources
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -1354,36 +1336,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#enable-management-of-ceph-tolerations-and-resources_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Enable management of Ceph tolerations and resources
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -3330,25 +3282,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#enable-management-of-ceph-tolerations-and-resources_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Enable management of Ceph tolerations and resources
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -3467,11 +3400,17 @@ configuration values:</p>
 <li>Configuring tolerations for taint nodes for the Ceph Monitor, Ceph Manager,
   and Ceph OSD daemons. For details, see
   <a href="https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/">Kubernetes documentation: Taints and Tolerations</a>.</li>
-<li>Configuring node resource requests or limits for the Ceph daemons and for
+<li>
+<p>Configuring node resource requests or limits for the Ceph daemons and for
   each Ceph OSD device class such as HDD, SSD, or NVMe. For details, see
-  <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">Kubernetes documentation: Managing Resources for Containers</a>.</li>
+  <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">Kubernetes documentation: Managing Resources for Containers</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Affinity placement settings specified in the <code>CephDeployment</code> spec for Ceph daemons will ignored in favor of using node roles.</p>
+</div>
+</li>
 </ul>
-<h2 id="enable-management-of-ceph-tolerations-and-resources_1">Enable management of Ceph tolerations and resources<a class="headerlink" href="#enable-management-of-ceph-tolerations-and-resources_1" title="Permanent link">#</a></h2>
+<p><strong>To enable management of Ceph tolerations and resources:</strong></p>
 <ol>
 <li>
 <p>To avoid Ceph cluster health issues during daemon configuration changes,
@@ -3496,73 +3435,39 @@ ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">set</spa
 </code></pre></div></p>
 </li>
 <li>
-<p>Specify the parameters in the <code>hyperconverge</code> section as required. The
-   <code>hyperconverge</code> section includes the following parameters:</p>
-<ul>
-<li>
-<p><code>tolerations</code> - Specifies tolerations for taint nodes for the defined daemon type.
-   Each daemon type key contains the following parameters:
-   <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">hyperconverge</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">tolerations</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">&lt;daemonType&gt;</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">rules</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
-<span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
-<span class="w">          </span><span class="nt">value</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
-<span class="w">          </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
-<span class="w">          </span><span class="nt">tolerationSeconds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
-</code></pre></div></p>
-<p>Possible values for <code>&lt;daemonType&gt;</code> are <code>osd</code>, <code>mon</code>, <code>mgr</code>, and <code>rgw</code>. The following values are also supported:</p>
-<ul>
-<li><code>all</code> - specifies general toleration rules for all daemons if no separate daemon rule is specified.</li>
-<li><code>mds</code> - specifies the CephFS Metadata Server daemons.</li>
-</ul>
+<p>In the <code>cluster.placement</code> section, specify the placement parameters as required.
+   For reference, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/#placement-configuration-settings">Rook API documentation: Placement Configuration Settings</a>.</p>
 <details>
 <summary>Example configuration</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">hyperconverge</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">tolerations</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">mon</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">rules</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
-<span class="w">          </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/controlplane</span>
-<span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
-<span class="w">      </span><span class="nt">mgr</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">rules</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
-<span class="w">          </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/controlplane</span>
-<span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
-<span class="w">      </span><span class="nt">osd</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">rules</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
-<span class="w">          </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/controlplane</span>
-<span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
-<span class="w">      </span><span class="nt">rgw</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">rules</span><span class="p">:</span>
-<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
-<span class="w">          </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/controlplane</span>
-<span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
+<span class="w">  </span><span class="nt">cluster</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">placement</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">tolerations</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">mon</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">rules</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
+<span class="w">            </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/controlplane</span>
+<span class="w">            </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
+<span class="w">        </span><span class="nt">mgr</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">rules</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
+<span class="w">            </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/controlplane</span>
+<span class="w">            </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
+<span class="w">        </span><span class="nt">osd</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">rules</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
+<span class="w">            </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/controlplane</span>
+<span class="w">            </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
 </code></pre></div>
 </details>
 </li>
 <li>
-<p><code>resources</code> - Specifies resource requests or limits. The parameter is a map with the
-   daemon type as a key and the following structure as a value:
-   <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">hyperconverge</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">&lt;daemonType&gt;</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;kubernetes valid spec of daemon resource requests&gt;</span>
-<span class="w">        </span><span class="nt">limits</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;kubernetes valid spec of daemon resource limits&gt;</span>
-</code></pre></div></p>
-<p>Possible values for <code>&lt;daemonType&gt;</code> are <code>mon</code>, <code>mgr</code>, <code>osd</code>, <code>osd-hdd</code>, <code>osd-ssd</code>, <code>osd-nvme</code>, <code>prepareosd</code>,
- <code>rgw</code>, and <code>mds</code>. The <code>osd-hdd</code>, <code>osd-ssd</code>, and <code>osd-nvme</code> resource requirements handle only the Ceph OSDs
- with a corresponding device class.</p>
+<p>In the <code>cluster.resources</code> section, specify the resource requirement parameters as required.
+   For reference, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/#resource-requirementslimits">Rook API documentation: Resource Requirements/Limits</a>.</p>
 <details>
 <summary>Example configuration</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">hyperconverge</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cluster</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">mon</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">requests</span><span class="p">:</span>
@@ -3609,11 +3514,8 @@ ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">set</spa
 </code></pre></div>
 </details>
 </li>
-</ul>
-</li>
 <li>
-<p>For the Ceph node-specific resource settings, specify the <code>resources</code>
-   section in the corresponding <code>nodes</code> spec of <code>CephDeployment</code> CR:
+<p>In the <code>spec.nodes</code> section, specify the <code>resources</code> parameters for the Ceph node-specific resources:
    <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;nodeName&gt;</span>
@@ -3636,34 +3538,60 @@ ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">set</spa
 </code></pre></div></p>
 </li>
 <li>
-<p>For the RADOS Gateway instances specific resource settings, specify the
-   <code>resources</code> section in the <code>rgw</code> spec of <code>CephDeployment</code> CR:
+<p>In the <code>spec.objectStorage</code> section, specify the <code>resources</code> and <code>placement</code> parameters for the RADOS Gateway instances:
    <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">gateway</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">resources</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;kubernetes valid spec of daemon resource requests&gt;</span>
-<span class="w">          </span><span class="nt">limits</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;kubernetes valid spec of daemon resource limits&gt;</span>
+<span class="w">    </span><span class="nt">objectStore</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store</span>
+<span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">gateway</span><span class="p p-Indicator">:</span>
+<span class="w">          </span><span class="nt">resources</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">requests</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;kubernetes valid spec of daemon resource requests&gt;</span>
+<span class="w">            </span><span class="nt">limits</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;kubernetes valid spec of daemon resource limits&gt;</span>
+<span class="w">          </span><span class="nt">placement</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">tolerations</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
+<span class="w">              </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/control-plane</span>
+<span class="w">              </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/master</span>
+<span class="w">              </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
+<span class="w">              </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
 </code></pre></div></p>
-<p>For example:
- <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">rgw</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">gateway</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">resources</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">requests</span><span class="p">:</span>
-<span class="w">            </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1Gi</span>
-<span class="w">            </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-<span class="w">          </span><span class="nt">limits</span><span class="p">:</span>
-<span class="w">            </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2Gi</span>
-<span class="w">            </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<p>For reference, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-crd/#gateway-settings">Rook API documentation: Gateway Settings</a>.</p>
+</li>
+<li>
+<p>In the <code>spec.sharedFilesystems</code> section, specify the <code>resources</code> and <code>placement</code> parameters for the CephFS daemons:
+    <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">sharedFilesystem</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cephFilesystems</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-store</span>
+<span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">metadataServer</span><span class="p p-Indicator">:</span>
+<span class="w">          </span><span class="nt">placement</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">tolerations</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
+<span class="w">              </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/control-plane</span>
+<span class="w">              </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/master</span>
+<span class="w">              </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
+<span class="w">              </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
+<span class="w">          </span><span class="nt">resources</span><span class="p">:</span><span class="w"> </span><span class="c1"># example, non-prod values</span>
+<span class="w">            </span><span class="nt">requests</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1Gi</span>
+<span class="w">              </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">            </span><span class="nt">limits</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">memory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2Gi</span>
+<span class="w">              </span><span class="nt">cpu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 </code></pre></div></p>
+<p>For reference, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Shared-Filesystem/ceph-filesystem-crd/#metadata-server-settings">Rook API documentation: CephFilesystem</a>.</p>
 </li>
 <li>
 <p>Save the reconfigured <code>CephDeployment</code> CR and wait for Pelagia Deployment Controller to apply the updated
-   Ceph configuration to Rook. Rook will recreate Ceph Monitors, Ceph Managers, or Ceph OSDs according to the
-   specified <code>hyperconverge</code> configuration.</p>
+   Ceph configuration to Rook.
+   Rook will recreate Ceph Monitors, Ceph Managers, and Ceph OSDs according to the
+   specified configuration.</p>
 </li>
 <li>Specify tolerations for different Rook resources using Pelagia Helm chart values. For details, see
    <a href="../../rook-daemon-place/#rook-daemon-place-specify-rook-daemons-placement">Specify Rook daemons placement</a>.</li>

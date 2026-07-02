@@ -3454,14 +3454,26 @@ which Pelagia manages:</p>
 <span class="w">  </span><span class="nt">status</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">healthReport</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">cephDaemons</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">cephCSIPluginDaemons</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">csi-cephfsplugin</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">cephCSIDaemons</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">ceph-csi-operator</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">info</span><span class="p">:</span>
-<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3/3 ready</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1/1 ready</span>
 <span class="w">            </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
-<span class="w">          </span><span class="nt">csi-rbdplugin</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">rook-ceph.cephfs.csi.ceph.com-ctrlplugin</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">info</span><span class="p">:</span>
-<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3/3 ready</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2/2 ready</span>
+<span class="w">            </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
+<span class="w">          </span><span class="nt">rook-ceph.cephfs.csi.ceph.com-nodeplugin</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">info</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4/4 ready</span>
+<span class="w">            </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
+<span class="w">          </span><span class="nt">rook-ceph.rbd.csi.ceph.com-ctrlplugin</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">info</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2/2 ready</span>
+<span class="w">            </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
+<span class="w">          </span><span class="nt">rook-ceph.rbd.csi.ceph.com-nodeplugin</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">info</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4/4 ready</span>
 <span class="w">            </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
 <span class="w">        </span><span class="nt">cephDaemons</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">mds</span><span class="p">:</span>
@@ -3478,11 +3490,11 @@ which Pelagia manages:</p>
 <span class="w">            </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
 <span class="w">          </span><span class="nt">osd</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">info</span><span class="p">:</span>
-<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3 osds, 3 up, 3 in</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4 osds, 4 up, 4 in</span>
 <span class="w">            </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
 <span class="w">          </span><span class="nt">rgw</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">info</span><span class="p">:</span>
-<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;2</span><span class="nv"> </span><span class="s">rgws</span><span class="nv"> </span><span class="s">running,</span><span class="nv"> </span><span class="s">daemons:</span><span class="nv"> </span><span class="s">[21273</span><span class="nv"> </span><span class="s">38213]&#39;</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3/3 rgws running [449141 704126 714144], rgw &#39;rgw-store&#39;</span>
 <span class="w">            </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
 <span class="w">      </span><span class="nt">clusterDetails</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">cephEvents</span><span class="p">:</span>
@@ -3491,7 +3503,9 @@ which Pelagia manages:</p>
 <span class="w">          </span><span class="nt">rebalanceDetails</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Idle</span>
 <span class="w">        </span><span class="nt">rgwInfo</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">publicEndpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://192.10.1.101:443</span>
+<span class="w">          </span><span class="nt">publicEndpoints</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">rgw-store</span><span class="p">:</span>
+<span class="w">            </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://10.13.76.3:443</span>
 <span class="w">        </span><span class="nt">usageDetails</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">deviceClasses</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">hdd</span><span class="p">:</span>
@@ -3764,22 +3778,35 @@ which Pelagia manages:</p>
 <li><code>cephDaemons</code> - Map of statuses for each Ceph cluster daemon type. Indicates the
   expected and actual number of Ceph daemons on the cluster. Available
   daemon types are: <code>mgr</code>, <code>mon</code>, <code>osd</code>, and <code>rgw</code>.</li>
-<li><code>cephCSIPluginDaemons</code> - Contains information, similar to the <code>daemonsStatus</code> format, for each
-  Ceph CSI plugin deployed in the Ceph cluster: <code>rbd</code> and <code>cephfs</code>.</li>
+<li><code>cephCSIDaemons</code> - Map of statuses in the same format as <code>cephDaemons</code>, for each
+  Ceph CSI application deployed in the Ceph cluster: the <code>rbd</code> and <code>cephfs</code>
+  provisioners, their plugins, and <code>ceph-csi-operator</code>.</li>
 </ul>
 <details>
 <summary>Example <code>cephDaemons</code> status</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">healthReport</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">cephDaemons</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">cephCSIPluginDaemons</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">csi-cephfsplugin</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cephCSIDaemons</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">ceph-csi-operator</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">info</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3/3 ready</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1/1 ready</span>
 <span class="w">          </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
-<span class="w">        </span><span class="nt">csi-rbdplugin</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">rook-ceph.cephfs.csi.ceph.com-ctrlplugin</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">info</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3/3 ready</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2/2 ready</span>
+<span class="w">          </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
+<span class="w">        </span><span class="nt">rook-ceph.cephfs.csi.ceph.com-nodeplugin</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">info</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4/4 ready</span>
+<span class="w">          </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
+<span class="w">        </span><span class="nt">rook-ceph.rbd.csi.ceph.com-ctrlplugin</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">info</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2/2 ready</span>
+<span class="w">          </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
+<span class="w">        </span><span class="nt">rook-ceph.rbd.csi.ceph.com-nodeplugin</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">info</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4/4 ready</span>
 <span class="w">          </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
 <span class="w">      </span><span class="nt">cephDaemons</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">mds</span><span class="p">:</span>
@@ -3808,12 +3835,11 @@ which Pelagia manages:</p>
 <li>
 <p><code>clusterDetails</code> - Verbose details of the Ceph cluster state. Contains the following fields:</p>
 <ul>
-<li><code>usageDetails</code> - Describes the used, available, and total storage size for each
-  <code>deviceClass</code> and <code>pool</code>.</li>
-<li><code>cephEvents</code> - Contains info about current ceph events happen in Ceph cluster
-  if progress events module is enabled.</li>
-<li><code>rgwInfo</code> - represents additional Ceph Object Storage Multisite information like public endpoint
-  to connect external zone and sync statuses.</li>
+<li><code>usageDetails</code> - Used, available, and total storage size for each <code>deviceClass</code> and <code>pool</code>.</li>
+<li><code>cephEvents</code> - Details about current Ceph events running in the Ceph cluster
+  if the progress events module is enabled.</li>
+<li><code>rgwInfo</code> - Additional details about Ceph Object Storage such as public endpoints
+  for available <code>CephObjectStore</code> objects (RGW) and multisite sync status.</li>
 </ul>
 <details>
 <summary>Example <code>clusterDetails</code> status</summary>
@@ -3826,7 +3852,9 @@ which Pelagia manages:</p>
 <span class="w">        </span><span class="nt">rebalanceDetails</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Idle</span>
 <span class="w">      </span><span class="nt">rgwInfo</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">publicEndpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://192.10.1.101:443</span>
+<span class="w">        </span><span class="nt">publicEndpoints</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">rgw-store</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://10.13.76.3:443</span>
 <span class="w">      </span><span class="nt">usageDetails</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">deviceClasses</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">hdd</span><span class="p">:</span>

@@ -3856,6 +3856,7 @@ For details, see <a href="../../ops-guide/deployment/multinetworking/#multinetwo
 <span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
 </code></pre></div>
 </details>
+<p>For an example usage of <code>cluster.placement</code>, see <a href="../../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt/">Enable management of Ceph tolerations and resources</a>.</p>
 </li>
 <li>
 <p><code>blockStorage</code> - Specifies the Ceph block storage configuration. Contains the <code>pools</code> parameter that specifies the list of Ceph pools. For details, see <a href="./#cephdeployment-pools-parameters">Pools parameters</a>.</p>
@@ -4217,6 +4218,10 @@ permission on the mount point of persistent volumes based on any
 <span class="w">      </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile rbd pool=kubernetes-nvme</span>
 </code></pre></div>
 </details>
+<div class="admonition info">
+<p class="admonition-title">See also</p>
+<p><a href="../../ops-guide/deployment/ceph-user-creds/ceph-client/">Manage Ceph RBD or CephFS clients</a></p>
+</div>
 <p><a name="cephdeployment-object-storage-parameters"></a></p>
 <h3 id="objectstorage-parameters">ObjectStorage parameters<a class="headerlink" href="#objectstorage-parameters" title="Permanent link">#</a></h3>
 <ul>
@@ -4273,6 +4278,10 @@ permission on the mount point of persistent volumes based on any
 <span class="w">        </span><span class="nt">preservePoolsOnDelete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 </code></pre></div>
 </details>
+<div class="admonition info">
+<p class="admonition-title">See also</p>
+<p><a href="../../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt/">Enable management of Ceph tolerations and resources</a></p>
+</div>
 <p><a name="cephdeployment-rgw-users-parameters"></a></p>
 <h4 id="rgw-users-parameters">RGW users parameters<a class="headerlink" href="#rgw-users-parameters" title="Permanent link">#</a></h4>
 <p>The RGW <code>users</code> parameters represent the Rook <code>CephObjectStoreUser</code> specification.
@@ -4298,8 +4307,19 @@ For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ce
 <span class="w">          </span><span class="nt">maxSize</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10G</span>
 </code></pre></div>
 </details>
+<div class="admonition info">
+<p class="admonition-title">See also</p>
+<ul>
+<li><a href="../../ops-guide/deployment/ceph-user-creds/ceph-rgw-user/">Manage Ceph Object Storage users</a></li>
+<li><a href="../../ops-guide/deployment/object-storage/s3-bucket-policy/">RADOS Gateway bucket policy</a></li>
+</ul>
+</div>
 <p><a name="cephdeployment-rados-gateway-multisite-parameters"></a></p>
 <h4 id="rgw-multisite-parameters">RGW multisite parameters<a class="headerlink" href="#rgw-multisite-parameters" title="Permanent link">#</a></h4>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This feature is in Technical Preview, use it at your own risk.</p>
+</div>
 <ul>
 <li>
 <p><code>realms</code> - List of realms to use. Each item represents the Rook <code>CephObjectRealm</code> specification.</p>
@@ -4356,6 +4376,10 @@ For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ce
 <span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div>
 </details>
+<div class="admonition info">
+<p class="admonition-title">See also</p>
+<p><a href="../../ops-guide/deployment/object-storage/rgw-tls/#rgw-tls-configure-ceph-object-gateway-using-the-gateway-api">Configure TLS for Ceph Object Gateway with Gateway API</a></p>
+</div>
 <p><a name="cephdeployment-cephfs-parameters"></a></p>
 <h3 id="cephfilesystems-parameters">CephFilesystems parameters<a class="headerlink" href="#cephfilesystems-parameters" title="Permanent link">#</a></h3>
 <ul>
@@ -4450,6 +4474,10 @@ However, for any changes in pools, we recommend re-creating CephFS.</p>
 <span class="w">          </span><span class="nt">activeCount</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </code></pre></div>
 </details>
+<div class="admonition info">
+<p class="admonition-title">See also</p>
+<p><a href="../../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt/">Enable management of Ceph tolerations and resources</a></p>
+</div>
 <p><a name="cephdeployment-rookconfig-parameters"></a></p>
 <h3 id="rookconfig-parameters">RookConfig parameters<a class="headerlink" href="#rookconfig-parameters" title="Permanent link">#</a></h3>
 <p><code>RookConfig</code> is a string key-value parameter that allows overriding Ceph configuration options.</p>

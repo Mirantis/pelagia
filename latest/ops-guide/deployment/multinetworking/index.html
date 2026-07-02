@@ -3435,9 +3435,9 @@
 <h1 id="enable-ceph-multinetwork">Enable Ceph multinetwork<a class="headerlink" href="#enable-ceph-multinetwork" title="Permanent link">#</a></h1>
 <p>Ceph allows establishing multiple IP networks and subnet masks for clusters
 with configured L3 network rules. You can configure multi-network through the
-<code>network</code> section of the <code>CephDeployment</code> custom resource (CR). Pelagia Deployment Controller uses this section
+<code>cluster.network.addressRanges</code> section of the <code>CephDeployment</code> custom resource (CR). Pelagia Deployment Controller uses this section
 to specify the Ceph networks for external access and internal daemon
-communication. The parameters in the <code>network</code> section use the CIDR notation,
+communication. The parameters in the <code>cluster.network.addressRanges</code> section use the CIDR notation,
 for example, <code>10.0.0.0/24</code>.</p>
 <p>Before enabling multiple networks for a Ceph cluster, consider the following
 requirements:</p>
@@ -3453,9 +3453,10 @@ requirements:</p>
   to verify that the entire Ceph cluster is healthy. Therefore, each CIDR must
   be accessible inside Ceph pods.</li>
 <li>Avoid using the <code>0.0.0.0/0</code> CIDR in the <code>network</code> section. With a zero
-  range in <code>publicNet</code> and/or <code>clusterNet</code>, the Ceph daemons behavior
+  range in <code>public</code> and/or <code>cluster</code>, the Ceph daemons behavior
   is unpredictable.</li>
 </ul>
+<p>For reference, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/#network-configuration-settings">Rook documentation: Network Configuration Settings</a>.</p>
 <h2 id="enable-multinetwork-for-ceph">Enable multinetwork for Ceph<a class="headerlink" href="#enable-multinetwork-for-ceph" title="Permanent link">#</a></h2>
 <ol>
 <li>
@@ -3464,12 +3465,18 @@ requirements:</p>
 </code></pre></div></p>
 </li>
 <li>
-<p>In the <code>clusterNet</code> and/or <code>publicNet</code> parameters of the <code>network</code> section, define a comma-separated array of CIDRs.
+<p>In the <code>cluster</code> and/or <code>public</code> parameters of the <code>cluster.network.addressRanges</code> section, define a comma-separated array of CIDRs.
    For example:
    <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w"> </span><span class="nt">cluster</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">network</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">publicNet</span><span class="p">:</span><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">10.12.0.0/24,10.13.0.0/24</span>
-<span class="w">    </span><span class="nt">clusterNet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.10.0.0/24,10.11.0.0/24</span>
+<span class="w">    </span><span class="nt">addressRanges</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">public</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.12.0.0/24</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.13.0.0/24</span>
+<span class="w">      </span><span class="nt">cluster</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.10.0.0/24</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.11.0.0/24</span>
 </code></pre></div></p>
 </li>
 <li>
