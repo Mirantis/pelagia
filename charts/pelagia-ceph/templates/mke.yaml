@@ -33,6 +33,7 @@ subjects:
     name: {{ .Values.controllers.cephdeployment.account.name }}
     namespace: {{ template "release.namespace" . }}
   {{- end }}
+  {{- if (index .Values "ceph-csi-operator" "enabled") }}
 ---
 # required for CephCSI operator since controller makes action around deployments and daemonset
 apiVersion: rbac.authorization.k8s.io/v1
@@ -49,6 +50,7 @@ subjects:
   - kind: ServiceAccount
     name: ceph-csi-controller-manager
     namespace: {{ .Values.lcmConfig.rookNamespace }}
+  {{- end }}
 ---
 # required for MKE https://mirantis.jira.com/browse/MKE-7825
 apiVersion: rbac.authorization.k8s.io/v1
@@ -65,4 +67,25 @@ subjects:
 - kind: ServiceAccount
   name: generic-garbage-collector
   namespace: kube-system
+  {{- if .Values.rook.enabled }}
+---
+# required for MKE since rook operator makes action around pods/deploys/replicas
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+{{ include "chart.labels" $ | indent 4}}
+  name: {{ .Values.lcmConfig.rookNamespace }}-rook-ceph:cluster-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: rook-ceph-system
+    namespace: {{ .Values.lcmConfig.rookNamespace }}
+  - kind: ServiceAccount
+    name: rook-ceph-mgr
+    namespace: {{ .Values.lcmConfig.rookNamespace }}
+  {{- end }}
 {{- end }}
