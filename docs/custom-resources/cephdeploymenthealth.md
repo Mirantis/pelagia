@@ -31,14 +31,26 @@ kubectl -n pelagia get cephdeploymenthealth -o yaml
       status:
         healthReport:
           cephDaemons:
-            cephCSIPluginDaemons:
-              csi-cephfsplugin:
+            cephCSIDaemons:
+              ceph-csi-operator:
                 info:
-                - 3/3 ready
+                - 1/1 ready
                 status: ok
-              csi-rbdplugin:
+              rook-ceph.cephfs.csi.ceph.com-ctrlplugin:
                 info:
-                - 3/3 ready
+                - 2/2 ready
+                status: ok
+              rook-ceph.cephfs.csi.ceph.com-nodeplugin:
+                info:
+                - 4/4 ready
+                status: ok
+              rook-ceph.rbd.csi.ceph.com-ctrlplugin:
+                info:
+                - 2/2 ready
+                status: ok
+              rook-ceph.rbd.csi.ceph.com-nodeplugin:
+                info:
+                - 4/4 ready
                 status: ok
             cephDaemons:
               mds:
@@ -55,11 +67,11 @@ kubectl -n pelagia get cephdeploymenthealth -o yaml
                 status: ok
               osd:
                 info:
-                - 3 osds, 3 up, 3 in
+                - 4 osds, 4 up, 4 in
                 status: ok
               rgw:
                 info:
-                - '2 rgws running, daemons: [21273 38213]'
+                - 3/3 rgws running [449141 704126 714144], rgw 'rgw-store'
                 status: ok
           clusterDetails:
             cephEvents:
@@ -68,7 +80,9 @@ kubectl -n pelagia get cephdeploymenthealth -o yaml
               rebalanceDetails:
                 state: Idle
             rgwInfo:
-              publicEndpoint: https://192.10.1.101:443
+              publicEndpoints:
+                rgw-store:
+                - https://10.13.76.3:443
             usageDetails:
               deviceClasses:
                 hdd:
@@ -338,8 +352,9 @@ kubectl -n pelagia get cephdeploymenthealth -o yaml
     - `cephDaemons` - Map of statuses for each Ceph cluster daemon type. Indicates the
       expected and actual number of Ceph daemons on the cluster. Available
       daemon types are: ``mgr``, ``mon``, ``osd``, and ``rgw``.
-    - `cephCSIPluginDaemons` - Contains information, similar to the ``daemonsStatus`` format, for each
-      Ceph CSI plugin deployed in the Ceph cluster: ``rbd`` and ``cephfs``.
+    - `cephCSIDaemons` - Map of statuses in the same format as `cephDaemons`, for each
+      Ceph CSI application deployed in the Ceph cluster: the ``rbd`` and ``cephfs``
+      provisioners, their plugins, and ``ceph-csi-operator``.
 
     ??? "Example `cephDaemons` status"
 
@@ -347,14 +362,26 @@ kubectl -n pelagia get cephdeploymenthealth -o yaml
         status:
           healthReport:
             cephDaemons:
-              cephCSIPluginDaemons:
-                csi-cephfsplugin:
+              cephCSIDaemons:
+                ceph-csi-operator:
                   info:
-                  - 3/3 ready
+                  - 1/1 ready
                   status: ok
-                csi-rbdplugin:
+                rook-ceph.cephfs.csi.ceph.com-ctrlplugin:
                   info:
-                  - 3/3 ready
+                  - 2/2 ready
+                  status: ok
+                rook-ceph.cephfs.csi.ceph.com-nodeplugin:
+                  info:
+                  - 4/4 ready
+                  status: ok
+                rook-ceph.rbd.csi.ceph.com-ctrlplugin:
+                  info:
+                  - 2/2 ready
+                  status: ok
+                rook-ceph.rbd.csi.ceph.com-nodeplugin:
+                  info:
+                  - 4/4 ready
                   status: ok
               cephDaemons:
                 mds:
@@ -381,12 +408,11 @@ kubectl -n pelagia get cephdeploymenthealth -o yaml
 
 - `clusterDetails` - Verbose details of the Ceph cluster state. Contains the following fields:
 
-    - `usageDetails` - Describes the used, available, and total storage size for each
-      `deviceClass` and `pool`.
-    - `cephEvents` - Contains info about current ceph events happen in Ceph cluster
-      if progress events module is enabled.
-    - `rgwInfo` - represents additional Ceph Object Storage Multisite information like public endpoint
-      to connect external zone and sync statuses.
+    - `usageDetails` - Used, available, and total storage size for each `deviceClass` and `pool`.
+    - `cephEvents` - Details about current Ceph events running in the Ceph cluster
+      if the progress events module is enabled.
+    - `rgwInfo` - Additional details about Ceph Object Storage such as public endpoints
+      for available `CephObjectStore` objects (RGW) and multisite sync status.
 
     ??? "Example `clusterDetails` status"
 
@@ -400,7 +426,9 @@ kubectl -n pelagia get cephdeploymenthealth -o yaml
                 rebalanceDetails:
                   state: Idle
               rgwInfo:
-                publicEndpoint: https://192.10.1.101:443
+                publicEndpoints:
+                  rgw-store:
+                  - https://10.13.76.3:443
               usageDetails:
                 deviceClasses:
                   hdd:

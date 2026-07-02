@@ -27,15 +27,15 @@ For all supported parameters of Ceph Object Storage users, refer to
      ```yaml
      spec:
        objectStorage:
-         rgw:
-           name: rgw-store
-           objectUsers:
-           - capabilities:
+         users:
+         - name: user-a
+           spec:
+             store: rgw-store
+             capabilities:
                bucket: '*'
                metadata: read
                user: read
              displayName: user-a
-             name: userA
              quotas:
                maxBuckets: 10
                maxSize: 10G

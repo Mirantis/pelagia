@@ -22,19 +22,22 @@ configure their S3 credentials.
    kubectl -n pelagia edit cephdpl
    ```
 
-2. In the `spec.objectStorage.rgw` section, add new Ceph Object Storage users.
+2. In the `spec.objectStorage.objectUsers` section, add new Ceph Object Storage users.
    For example:
    ```yaml
    spec:
      objectStorage:
-       rgw:
-         objectUsers:
-         - name: user-b
+       objectUsers:
+       - name: user-b
+         spec:
+           store: rgw-store
            displayName: user-a
            capabilities:
              bucket: "*"
              user: read
-         - name: user-t
+       - name: user-t
+         spec:
+           store: rgw-store
            displayName: user-t
            capabilities:
              bucket: "*"
