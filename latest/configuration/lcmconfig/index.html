@@ -3560,6 +3560,18 @@ others are not updated by the chart and must be edited directly in <code>pelagia
 <td><code>""</code></td>
 <td><code>lcmConfig.cephDaemonsetLabelExclude</code></td>
 </tr>
+<tr>
+<td>DEPLOYMENT_DRAIN_REQUEST_LABEL_KEY</td>
+<td>Label key marking node as drained.</td>
+<td><code>"kaas.mirantis.com/lcm-drained"</code></td>
+<td><code>"cephDeployment.drainRequestLabelKey"</code></td>
+</tr>
+<tr>
+<td>DEPLOYMENT_DRAIN_READY_LABEL_KEY</td>
+<td>Label key marking node as drain ready.</td>
+<td><code>"kaas.mirantis.com/csi-drained"</code></td>
+<td><code>"cephDeployment.drainReadyLabelKey"</code></td>
+</tr>
 </tbody>
 </table>
 <p>The <code>DEPLOYMENT_CEPH_IMAGE</code> and <code>DEPLOYMENT_ROOK_IMAGE</code> options are derived from the values of the <code>images</code> section.

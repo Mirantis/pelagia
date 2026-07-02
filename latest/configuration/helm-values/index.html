@@ -3467,6 +3467,16 @@
 <td><code>"openstack-ceph-shared"</code></td>
 </tr>
 <tr>
+<td><code>cephDeployment.drainRequestLabelKey</code></td>
+<td>Label key marking node as drained.</td>
+<td><code>""</code></td>
+</tr>
+<tr>
+<td><code>cephDeployment.drainReadyLabelKey</code></td>
+<td>Label key marking node as drain ready .</td>
+<td><code>""</code></td>
+</tr>
+<tr>
 <td><code>lcmConfig.rgwPublicAccessServiceSelector</code></td>
 <td>Label of the service or proxy exposing RGW to public access.</td>
 <td><code>"external_access=rgw"</code></td>
@@ -3611,6 +3621,11 @@
 <td>Enable the <code>snapshot-controller</code> deployment. For available <code>snapshot-controller</code> options, see <a href="https://github.com/Mirantis/pelagia/blob/main/charts/snapshot-controller/values.yaml">values.yaml</a>.</td>
 <td><code>true</code></td>
 </tr>
+<tr>
+<td><code>ceph-csi-operator.enabled</code></td>
+<td>Enable the <code>ceph-csi-operator</code> deployment. For available <code>ceph-csi-operator</code> options, see <a href="https://github.com/Mirantis/pelagia/blob/main/charts/ceph-csi-operator/values.yaml">values.yaml</a>.</td>
+<td><code>true</code></td>
+</tr>
 </tbody>
 </table>
 <p>You can also specify custom images for deployment of test environments.
@@ -3637,12 +3652,6 @@ Ceph and Rook images are derived from the <code>cephRelease</code> value.</p>
 <span class="w">      </span><span class="nt">squid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v19.2.3-25.cve</span>
 <span class="w">      </span><span class="nt">tentacle</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageCeph</span>
 <span class="w">  </span><span class="nt">csi</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">operator</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia/cephcsi-operator</span>
-<span class="w">      </span><span class="nt">tag</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">latest</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;latestImageCSIOperator</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.6.0-3.release</span>
-<span class="w">        </span><span class="nt">squid</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageCSIOperator</span>
-<span class="w">        </span><span class="nt">tentacle</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageCSIOperator</span>
 <span class="w">    </span><span class="nt">ceph</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia/cephcsi</span>
 <span class="w">      </span><span class="nt">tag</span><span class="p">:</span>
