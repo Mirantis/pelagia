@@ -46,7 +46,7 @@ Use the following Pelagia Helm chart values to specify Ceph CSI pods placement:
 - `rookConfig.csiPlacement.nodeAffinity.csiprovisioner` is a valid Kubernetes label selector expression.
 - `rookConfig.csiPlacement.nodeAffinity.csiplugin` is a valid Kubernetes label selector expression. Default is
   `ceph-daemonset-available-node=true`.
-- `rookConfig.csiPlacement.csiplugin.tolerations` is a string which contains a valid list of Kubernetes `toleration`
+- `rookConfig.csiPlacement.tolerations.csiplugin` is a string which contains a valid list of Kubernetes `toleration`
   items. For example:
   ```yaml
   csiplugin: |
