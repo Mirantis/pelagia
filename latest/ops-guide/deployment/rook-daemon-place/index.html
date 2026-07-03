@@ -3507,7 +3507,7 @@ extra values to Pelagia Helm chart release.</p>
 <li><code>rookConfig.csiPlacement.nodeAffinity.csiplugin</code> is a valid Kubernetes label selector expression. Default is
   <code>ceph-daemonset-available-node=true</code>.</li>
 <li>
-<p><code>rookConfig.csiPlacement.csiplugin.tolerations</code> is a string which contains a valid list of Kubernetes <code>toleration</code>
+<p><code>rookConfig.csiPlacement.tolerations.csiplugin</code> is a string which contains a valid list of Kubernetes <code>toleration</code>
   items. For example:
   <div class="highlight"><pre><span></span><code><span class="nt">csiplugin</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">  </span><span class="no">- effect: NoSchedule</span>

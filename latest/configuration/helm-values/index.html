@@ -970,6 +970,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#custom-images-and-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom images and settings
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3343,6 +3354,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#custom-images-and-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom images and settings
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3477,6 +3499,11 @@
 <td><code>""</code></td>
 </tr>
 <tr>
+<td><code>lcmConfig.rookNamespace</code></td>
+<td>Rook namespace name used across the Pelagia deployment.</td>
+<td><code>"rook-ceph"</code></td>
+</tr>
+<tr>
 <td><code>lcmConfig.rgwPublicAccessServiceSelector</code></td>
 <td>Label of the service or proxy exposing RGW to public access.</td>
 <td><code>"external_access=rgw"</code></td>
@@ -3532,89 +3559,109 @@
 <td><code>""</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.configureRook</code></td>
-<td>Configure Rook using the Pelagia Helm chart.</td>
+<td><code>rook.enabled</code></td>
+<td>Enable the <code>rook</code> deployment using the Pelagia Helm chart. For available <code>rook</code> options, see <a href="https://github.com/Mirantis/pelagia/blob/main/charts/rook/values.yaml">values.yaml</a>.</td>
 <td><code>true</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.rookNamespace</code></td>
-<td>Rook namespace.</td>
+<td><code>rook.rookConfig.rookNamespace</code></td>
+<td>Rook namespace. By default, inherited from the <code>lcmConfig.rookNamespace</code> value defined in the main Pelagia chart.</td>
 <td><code>"rook-ceph"</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.rookOperatorReplicas</code></td>
+<td><code>rook.rookConfig.rookOperatorReplicas</code></td>
 <td>Replica count for Rook Operator.</td>
 <td><code>1</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.rookOperatorPlacement.affinity</code></td>
+<td><code>rook.rookConfig.rookOperatorPlacement.affinity</code></td>
 <td>Affinity settings for the Rook Operator placement.</td>
 <td><code>{"nodeAffinity": {"preferredDuringSchedulingIgnoredDuringExecution": [{"weight": 100, "preference": {"matchExpressions": [{"key": "ceph_role_mon","operator": "In","values": ["true"]}]}}]}}</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.rookOperatorPlacement.nodeSelector</code></td>
+<td><code>rook.rookConfig.rookOperatorPlacement.nodeSelector</code></td>
 <td>Node selector for the Rook Operator placement.</td>
 <td><code>{}</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.rookOperatorPlacement.tolerations</code></td>
+<td><code>rook.rookConfig.rookOperatorPlacement.tolerations</code></td>
 <td>Toleration settings for the Rook Operator placement.</td>
 <td><code>[]</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.csiPlacement.nodeAffinity.csiprovisioner</code></td>
+<td><code>rook.rookConfig.csiPlacement.nodeAffinity.csiprovisioner</code></td>
 <td>Node affinity settings for CSI provisioner.</td>
 <td><code>""</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.csiPlacement.nodeAffinity.csiplugin</code></td>
+<td><code>rook.rookConfig.csiPlacement.nodeAffinity.csiplugin</code></td>
 <td>Node affinity settings for CSI plugins.</td>
 <td><code>"ceph-daemonset-available-node=true"</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.csiPlacement.tolerations.csiprovisioner</code></td>
+<td><code>rook.rookConfig.csiPlacement.tolerations.csiprovisioner</code></td>
 <td>Toleration settings for CSI provisioner.</td>
 <td><code>""</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.csiPlacement.tolerations.csiplugin</code></td>
+<td><code>rook.rookConfig.csiPlacement.tolerations.csiplugin</code></td>
 <td>Toleration settings for CSI plugins.</td>
 <td><code>""</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.rookDiscoverPlacement.nodeAffinity</code></td>
-<td>Node affinity settings for Rook discover daemon.</td>
+<td><code>rook.rookConfig.rookDiscoverPlacement.nodeAffinity</code></td>
+<td>Node affinity settings for the <code>rook-discover</code> daemon.</td>
 <td><code>"ceph-daemonset-available-node=true;ceph_role_osd=true"</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.rookDiscoverPlacement.tolerations</code></td>
-<td>Toleration settings for Rook discover daemon.</td>
+<td><code>rook.rookConfig.rookDiscoverPlacement.tolerations</code></td>
+<td>Toleration settings for the <code>rook-discover</code> daemon.</td>
 <td><code>""</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.csiKubeletPath</code></td>
+<td><code>rook.rookConfig.csiKubeletPath</code></td>
 <td>Path to kubelet on a host.</td>
 <td><code>""</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.csiCephFsEnabled</code></td>
+<td><code>rook.rookConfig.csiCephFsEnabled</code></td>
 <td>Enable CephFS support in Rook.</td>
 <td><code>true</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.csiNfsEnabled</code></td>
+<td><code>rook.rookConfig.csiNfsEnabled</code></td>
 <td>Enable NFS support in Rook.</td>
 <td><code>false</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.csiAddonsEnabled</code></td>
+<td><code>rook.rookConfig.csiAddonsEnabled</code></td>
 <td>Enable CSI add-ons support in Rook.</td>
 <td><code>false</code></td>
 </tr>
 <tr>
-<td><code>rookConfig.volumeSnapshotsEnabled</code></td>
-<td>Enable volume snapshots classes support in Rook.</td>
+<td><code>rook.rookConfig.volumeSnapshotsEnabled</code></td>
+<td>Enable volume snapshot classes support in Rook.</td>
 <td><code>false</code></td>
+</tr>
+<tr>
+<td><code>ceph-csi-operator.enabled</code></td>
+<td>Enable the <code>ceph-csi-operator</code> deployment. For available <code>ceph-csi-operator</code> options, see <a href="https://github.com/Mirantis/pelagia/blob/main/charts/ceph-csi-operator/values.yaml">values.yaml</a>.</td>
+<td><code>true</code></td>
+</tr>
+<tr>
+<td><code>ceph-csi-operator.csiOperatorConfig.rookNamespace</code></td>
+<td>Rook namespace. By default, inherited from the <code>lcmConfig.rookNamespace</code> value defined in the main Pelagia chart.</td>
+<td><code>"rook-ceph"</code></td>
+</tr>
+<tr>
+<td><code>ceph-csi-operator.csiOperatorConfig.placement.affinity</code></td>
+<td>Affinity settings for the <code>ceph-csi-operator</code> deployment placement.</td>
+<td><code>{}</code></td>
+</tr>
+<tr>
+<td><code>ceph-csi-operator.csiOperatorConfig.placement.tolerations</code></td>
+<td>Tolerations for the <code>ceph-csi-operator</code> deployment to enable running on nodes with particular taints.</td>
+<td><code>[]</code></td>
 </tr>
 <tr>
 <td><code>snapshot-controller.enabled</code></td>
@@ -3622,74 +3669,57 @@
 <td><code>true</code></td>
 </tr>
 <tr>
-<td><code>ceph-csi-operator.enabled</code></td>
-<td>Enable the <code>ceph-csi-operator</code> deployment. For available <code>ceph-csi-operator</code> options, see <a href="https://github.com/Mirantis/pelagia/blob/main/charts/ceph-csi-operator/values.yaml">values.yaml</a>.</td>
-<td><code>true</code></td>
+<td><code>snapshot-controller.snapshotControllerConfig.affinity</code></td>
+<td>Affinity settings for the <code>snapshot-controller</code> placement.</td>
+<td><code>{}</code></td>
+</tr>
+<tr>
+<td><code>snapshot-controller.snapshotControllerConfig.nodeSelector</code></td>
+<td>Node selector for the <code>snapshot-controller</code> deployment to run on nodes with specific labels.</td>
+<td><code>{}</code></td>
+</tr>
+<tr>
+<td><code>snapshot-controller.snapshotControllerConfig.tolerations</code></td>
+<td>Tolerations for the <code>snapshot-controller</code> deployment to enable running on nodes with particular taints.</td>
+<td><code>[]</code></td>
 </tr>
 </tbody>
 </table>
-<p>You can also specify custom images for deployment of test environments.
-Ceph and Rook images are derived from the <code>cephRelease</code> value.</p>
-<details>
-<summary>Configuration example for Ceph and Rook images</summary>
+<h2 id="custom-images-and-settings">Custom images and settings<a class="headerlink" href="#custom-images-and-settings" title="Permanent link">#</a></h2>
+<p>You can specify custom images for testing environments.
+Ceph images are derived from the <code>cephRelease</code> value.
+The following example illustrates available Ceph images based on the Ceph release:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">images</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">pelagia</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia/pelagia</span>
-<span class="w">    </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">latest</span>
-<span class="w">    </span><span class="nt">fullName</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
-<span class="w">    </span><span class="nt">pullPolicy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Always</span>
-<span class="w">  </span><span class="nt">rook</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">operator</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia/rook</span>
-<span class="w">      </span><span class="nt">tag</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">latest</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;latestImageRook</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1.19.4-6</span>
-<span class="w">        </span><span class="nt">squid</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageRook</span>
-<span class="w">        </span><span class="nt">tentacle</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageRook</span>
 <span class="w">  </span><span class="nt">ceph</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia/ceph</span>
 <span class="w">    </span><span class="nt">tag</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">latest</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;latestImageCeph</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v20.2.1-3.release</span>
 <span class="w">      </span><span class="nt">squid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v19.2.3-25.cve</span>
 <span class="w">      </span><span class="nt">tentacle</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageCeph</span>
-<span class="w">  </span><span class="nt">csi</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">ceph</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia/cephcsi</span>
-<span class="w">      </span><span class="nt">tag</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">latest</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;latestImageCephCSI</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v3.16.2-3.release</span>
-<span class="w">        </span><span class="nt">squid</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageCephCSI</span>
-<span class="w">        </span><span class="nt">tentacle</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageCephCSI</span>
-<span class="w">    </span><span class="nt">registrar</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia/cephcsi-registrar</span>
-<span class="w">      </span><span class="nt">tag</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">latest</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;latestImageRegistar</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v2.16.0-3.release</span>
-<span class="w">        </span><span class="nt">squid</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageRegistar</span>
-<span class="w">        </span><span class="nt">tentacle</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageRegistar</span>
-<span class="w">    </span><span class="nt">provisioner</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia/cephcsi-provisioner</span>
-<span class="w">      </span><span class="nt">tag</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">latest</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;latestImageProvisioner</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v6.1.1-3.release</span>
-<span class="w">        </span><span class="nt">squid</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageProvisioner</span>
-<span class="w">        </span><span class="nt">tentacle</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageProvisioner</span>
-<span class="w">    </span><span class="nt">snapshotter</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia/cephcsi-snapshotter</span>
-<span class="w">      </span><span class="nt">tag</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">latest</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;latestImageSnapshotter</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v8.5.0-3.release</span>
-<span class="w">        </span><span class="nt">squid</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageSnapshotter</span>
-<span class="w">        </span><span class="nt">tentacle</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageSnapshotter</span>
-<span class="w">    </span><span class="nt">attacher</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia/cephcsi-attacher</span>
-<span class="w">      </span><span class="nt">tag</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">latest</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;latestImageAttacher</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v4.11.0-3.release</span>
-<span class="w">        </span><span class="nt">squid</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageAttacher</span>
-<span class="w">        </span><span class="nt">tentacle</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageAttacher</span>
-<span class="w">    </span><span class="nt">resizer</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia/cephcsi-resizer</span>
-<span class="w">      </span><span class="nt">tag</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">latest</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;latestImageResizer</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v2.1.0-3.release</span>
-<span class="w">        </span><span class="nt">squid</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageResizer</span>
-<span class="w">        </span><span class="nt">tentacle</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageResizer</span>
 </code></pre></div>
-</details>
+<p>Also, you can specify custom settings for dependency charts, such as Rook, snapshot controller, and Ceph CSI operator
+if they are installed by the Pelagia chart. For example:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">ceph-csi-operator</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">csiOperatorConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">placement</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">tolerations</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
+<span class="w">        </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/controlplane</span>
+<span class="w">        </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
+<span class="nt">rook</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">rookConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">csiCephFsEnabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">csiPlacement</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">tolerations</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">csiplugin</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">effect</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">NoSchedule</span>
+<span class="w">          </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">node-role.kubernetes.io/controlplane</span>
+<span class="w">          </span><span class="nt">operator</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Exists</span>
+<span class="nt">snapshot-controller</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">snapshotControllerConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">nodeSelector</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">disktype</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ssd</span>
+</code></pre></div>
 
 
 

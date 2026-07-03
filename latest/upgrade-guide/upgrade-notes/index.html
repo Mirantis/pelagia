@@ -3339,6 +3339,9 @@ For Pelagia release notes, refer to <a href="https://github.com/Mirantis/pelagia
 <p>Rook is upgraded to v1.19. For upgrade details, see <a href="https://rook.io/docs/rook/v1.19/Upgrade/rook-upgrade/">Rook upgrade</a>.</p>
 </li>
 <li>
+<p>Pelagia now has Rook as a separate chart allowing the user to disable the Pelagia-based Rook setup and use a different Rook chart.</p>
+</li>
+<li>
 <p>Ceph CSI operator is enabled by default.</p>
 <p>Previously, the CSI driver was automatically configured by Rook.
 Now, the CSI operator has been factored out of Rook to run independently to manage the Ceph-CSI driver.
@@ -3388,7 +3391,9 @@ For details, see the post-upgrade steps below.</p>
 </li>
 </ul>
 <h2 id="pre-upgrade-steps">Pre-upgrade steps<a class="headerlink" href="#pre-upgrade-steps" title="Permanent link">#</a></h2>
-<p>No specific pre-upgrade steps are required for the 1.x → 2.x upgrade.</p>
+<p>In this release, the Rook setup is moved to a separate chart and is used as a dependency in Pelagia. Therefore, if your current setup
+contains custom settings in <code>values.rookConfig</code> for the Helm chart, copy them under <code>values.rook.rookConfig</code>.
+Keep the old <code>values.rookConfig</code> settings until the upgrade is complete.</p>
 <h2 id="post-upgrade-steps">Post-upgrade steps<a class="headerlink" href="#post-upgrade-steps" title="Permanent link">#</a></h2>
 <p>Complete the following steps after upgrading Pelagia to 2.x. For description
 of the changes that require these steps, see the <em>Breaking changes</em> section above.</p>
@@ -3402,6 +3407,9 @@ of the changes that require these steps, see the <em>Breaking changes</em> secti
    the deprecation of the Ingress NGINX controller. The <code>Gateway</code> object and Controller must be configured separately.</p>
 <p>To configure Pelagia after switching to the Gateway API, use the corresponding <code>Gateway</code> object.
  For details, see <a href="../../configuration/">Configuration Reference</a> and <a href="../../custom-resources/cephdeployment/">CephDeployment resource</a>.</p>
+</li>
+<li>
+<p>If the current Helm values contain the <code>rookConfig</code> section, you can safely remove it.</p>
 </li>
 </ol>
 
