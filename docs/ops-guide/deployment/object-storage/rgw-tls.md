@@ -12,8 +12,8 @@ Once you enable Ceph Object Gateway (`radosgw`) as described in [Enable Ceph RGW
 
 !!! note
 
-    For clusters integrated with Rockoon, Pelagia can use domain and certificates defined in the Rockoon configuration but always prioritizes configuration provided in the `CephDeployment` spec (such as `objectStorage.gatewayHTTPRoute` or deprecated `ingressConfig`).
-    Mirantis recommends not defining the `ingressConfig` or `objectStorage.gatewayHTTPRoute` section if Rockoon has `tls-proxy` enabled. In that case, common certificates are applied to all ingresses/gateways from the `OpenStackDeployment` object. This implies that Pelagia will use the public domain and the common certificate from the `OpenStackDeployment` object.
+    For clusters integrated with Rockoon, Pelagia can use domain and certificates defined in the Rockoon configuration but always prioritizes configuration provided in the `CephDeployment` spec (such as `objectStorage.gatewayHTTPRoutes` or deprecated `ingressConfig`).
+    Mirantis recommends not defining the `ingressConfig` or `objectStorage.gatewayHTTPRoutes` section if Rockoon has `tls-proxy` enabled. In that case, common certificates are applied to all ingresses/gateways from the `OpenStackDeployment` object. This implies that Pelagia will use the public domain and the common certificate from the `OpenStackDeployment` object.
 
 This section describes how to specify a custom public endpoint for the Ceph Object Storage.
 
@@ -35,7 +35,7 @@ For configuration details, see [CephDeployment API: HTTPRoute parameters](../../
 
 !!! warning
 
-    The `tlsConfig` section is deprecated. Use the `objectStorage.gatewayHTTPRoute` section instead.
+    The `tlsConfig` section is deprecated. Use the `objectStorage.gatewayHTTPRoutes` section instead.
 
 - `tlsConfig` - Defines TLS configuration for the Ceph Object Gateway public endpoint.
 - `controllerClassName` - Name of Ingress Controller class. The default value for Pelagia integrated Rockoon is `openstack-ingress-nginx`
@@ -86,7 +86,7 @@ For configuration details, see [CephDeployment API: HTTPRoute parameters](../../
 
 ### The `controllerClassName` parameter
 
-`controllClassName` defines the name of the custom Ingress Controller. Pelagia does not support deploying Ingress
+`controllerClassName` defines the name of the custom Ingress Controller. Pelagia does not support deploying Ingress
 Controllers, so you must deploy the Ingress Controller before configuring the `ingressConfig` section in the
 `CephDeployment` CR.
 
@@ -138,7 +138,7 @@ For the ability to access RGW with a public hostname, you must set the expected 
           nginx.ingress.kubernetes.io/proxy-body-size: 100m
     ```
 
-<a id="rgw-tls-configure-ceph-object-gateway-using-the-gateway-api"></a>
+<a id="rgw-tls-configure-tls-for-object-gateway-using-the-gateway-api"></a>
 ## Configure TLS for Object Gateway using the Gateway API
 
 Pelagia uses the `gatewayHTTPRoutes` section to manage `HTTPRoute` of the Gateway/TLS settings that were previously configured by the operator.
@@ -189,7 +189,7 @@ With the provided `HTTPRoute`, Ceph Object Gateway will use the SSL certificate 
 
 !!! warning
 
-    TLS configuration for Ceph Object Gateway using Ingress is deprecated. Use the Gateway API instead. For details, see [Configure TLS for Ceph Object Gateway using the Gateway API](#rgw-tls-configure-ceph-object-gateway-using-the-gateway-api).
+    TLS configuration for Ceph Object Gateway using Ingress is deprecated. Use the Gateway API instead. For details, see [Configure TLS for Ceph Object Gateway using the Gateway API](#rgw-tls-configure-tls-for-object-gateway-using-the-gateway-api).
 
 1. To generate an SSL certificate for internal usage, verify that the
 RADOS Gateway `spec.objectStorage.rgw.gateway.securePort` parameter is specified in the `CephDeployment` CR.
@@ -281,8 +281,8 @@ For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-o
 
 1. Verify that at least one of the following requirements is met:
 
-     - The public hostname matches the public domain name set by the `spec.ingressConfig.tlsConfig.     publicDomain` field
-     - The public hostname matches the public domain name set by the `spec.objectStorage.  gatewayHTTPRoutes` field
+     - The public hostname matches the public domain name set by the `spec.ingressConfig.tlsConfig.publicDomain` field
+     - The public hostname matches the public domain name set by the `spec.objectStorage.gatewayHTTPRoutes` field
      - The OpenStack configuration has been applied
 
 2. Find the RGW deployment in the `rook-ceph` namespace:
@@ -301,7 +301,7 @@ For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-o
 
      Example of a successful system response:
      ```bash
-     rgw-dns-name: rgw-store.public.domain.name
+     - --rgw-dns-name: rgw-store.public.domain.name
      ```
 
 Once done, Ceph Object Gateway becomes available by the custom public endpoint

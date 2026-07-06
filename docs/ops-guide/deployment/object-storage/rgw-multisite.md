@@ -134,7 +134,7 @@ and the current cluster represents the master zone, modify the current
               name: openstack-store
     ```
 
-2. Create the multiSite configuration where the names of realm, zone group,
+2. Create the multisite configuration where the names of realm, zone group,
    and zone must match the current RGW name.
 
     Specify the `customEndpoints` parameter according to your
