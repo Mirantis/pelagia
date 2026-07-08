@@ -56,7 +56,7 @@ Therefore, to control maintenance using Pelagia, you must implement and use an e
 
     - `Idle` - No maintenance in progress
     - `Acting` - Maintenance is in progress
-    - `Failing` - Some critical issues occur during maintenance
+    - `Failing` - Critical issues occur during maintenance
 
 - `lastStateCheck` - `DateTime` when the previous cluster state check occurred.
 - `message` - Additional information about the current maintenance state.
@@ -68,5 +68,5 @@ Pelagia controllers inspect the `CephDeploymentMaintenance` object state and per
 
 - `pelagia-lcm-controller` - controls the Rook Operator deployment and scales it down to `0` when
   `CephDeploymentMaintenance` is in the `Acting` or `Failing` state, treating it as the cluster maintenance state.
-  Scales the Rook Operator back to `1` once the maintenance is completed.
+  Once the maintenance is completed, the controller scales the Rook Operator back to `1`.
 - `pelagia-deployment-controller` - stops `CephDeployment` reconciliation, when `CephDeploymentMaintenance` is in the `Acting` or `Failing` state, treating it as the cluster maintenance state. Once the maintenance is completed, it continues the `CephDeployment` reconciliation.
