@@ -25,8 +25,8 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `cephDeployment.netpolEnabled` | Enable creation of network policy. | `true` |
 | `cephDeployment.installSharedNamespace` | Install a namespace for the Openstack-Ceph communication. | `true` |
 | `cephDeployment.openstackSharedNamespace` | Namespace for the Openstack-Ceph communication and secrets sharing. | `"openstack-ceph-shared"` |
-| `cephDeployment.drainRequestLabelKey` | Label key marking node as drained. | `""` |
-| `cephDeployment.drainReadyLabelKey` | Label key marking node as ready to be drained. | `""` |
+| `cephDeployment.drainRequestLabelKey` | Label key marking a node as drained. | `""` |
+| `cephDeployment.drainReadyLabelKey` | Label key marking a node as ready to be drained. | `""` |
 | `lcmConfig.rookNamespace` | Rook namespace name used across the Pelagia deployment. | `"rook-ceph"` |
 | `lcmConfig.rgwPublicAccessServiceSelector` | Label of the service or proxy exposing RGW to public access. | `"external_access=rgw"` |
 | `lcmConfig.diskDaemonPortParameter` | Port for the disk daemon API. | `9999` |

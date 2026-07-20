@@ -165,7 +165,7 @@ advanced configuration.
 
     The Ceph cluster placement affinity and anti-affinity will be ignored in favor of the provided `nodes` roles.
 
-- `cluster` - Specifies the complete Ceph cluster configuration and represents the Rook `CephCluster` object specification. For available configuration options, see Rook documentation: [CephCluster CRD](https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/) and [CephCluster API](https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.ClusterSpec).
+- `cluster` - Specifies the complete Ceph cluster configuration and represents the Rook `CephCluster` object specification. For available configuration options, see Rook documentation: [CephCluster CRD](https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/) and [CephCluster API](https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.ClusterSpec). For an example usage of `cluster.placement`, see [Enable management of Ceph tolerations and resources](../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md).
 
     ??? "Example configuration of cluster specification"
         ```yaml
@@ -195,8 +195,6 @@ advanced configuration.
                   effect: NoSchedule
                   operator: Exists
         ```
-
-      For an example usage of `cluster.placement`, see [Enable management of Ceph tolerations and resources](../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md).
 
 - `blockStorage` - Specifies the Ceph block storage configuration. Contains the `pools` parameter that specifies the list of Ceph pools. For details, see [Pools parameters](./cephdeployment.md#cephdeployment-pools-parameters).
 - `clients` - Specifies the list of Ceph clients. For details, see [Clients parameters](./cephdeployment.md#cephdeployment-clients-parameters).
@@ -690,7 +688,7 @@ The `gatewayHTTPRoutes` parameters represent the Gateway API `HTTPRoute` specifi
 
 !!! info "See also"
 
-    [Configure TLS for Ceph Object Gateway with Gateway API](../ops-guide/deployment/object-storage/rgw-tls.md#rgw-tls-configure-ceph-object-gateway-using-the-gateway-api)
+    [Configure TLS for Ceph Object Gateway with Gateway API](../ops-guide/deployment/object-storage/rgw-tls.md#rgw-tls-configure-tls-for-object-gateway-using-the-gateway-api)
 
 <a name="cephdeployment-cephfs-parameters"></a>
 ### CephFilesystems parameters

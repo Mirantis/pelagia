@@ -69,13 +69,8 @@ spec:
 
 !!! warning
 
-    Modifying of `dataPools` on a deployed CephFS has no effect. You can manually adjust pool settings
-    through the Ceph CLI. However, for any changes in `dataPools`, we recommend re-creating CephFS.
-
-!!! warning
-
-    Modifying of `metadataPool` on a deployed CephFS has no effect. You can manually adjust pool settings
-    through the Ceph CLI. However, for any changes in `metadataPool`, we recommend re-creating CephFS.
+    Modifying `dataPools` or `metadataPool` on a deployed CephFS has no effect. You can manually adjust pool settings
+    through the Ceph CLI. However, for any changes in `dataPools` or `metadataPool`, we recommend re-creating CephFS.
 
 ## Configure CephFS
 

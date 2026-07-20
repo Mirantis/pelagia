@@ -184,12 +184,13 @@ status:
        connection: <base64_encoded_output>
      ```
 
-      And apply the secret. For example:
-        ```bash
-        kubectl apply -f pelagia-connection.yaml
-        ```
+     And apply the secret. For example:
 
-5. Apply the file to the consumer cluster. For example:
+     ```bash
+     kubectl apply -f pelagia-connection.yaml
+     ```
+
+6. Apply the file to the consumer cluster. For example:
    ```bash
    kubectl apply -f consumer-cephdpl.yaml
    ```
@@ -201,17 +202,17 @@ Once the Ceph cluster is specified in the `CephDeployment` CR of the consumer cl
 In the `spec.pools` of the consumer `CephDeployment`, specify pools from the producer cluster to be used by the consumer cluster. For example:
 
 ```yaml
- blockStorage:
-   pools:
-    - name: kubernetes-hdd
-      role: kubernetes
-      useAsFullName: true
-      storageClassOpts:
-        default: true 
-      spec:
-        deviceClass: hdd
-        replicated:
-          size: 2
+blockStorage:
+  pools:
+   - name: kubernetes-hdd
+     role: kubernetes
+     useAsFullName: true
+     storageClassOpts:
+       default: true
+     spec:
+       deviceClass: hdd
+       replicated:
+         size: 2
 ```
 
 !!! danger
@@ -231,16 +232,16 @@ In the `sharedFilesystem` section of the consumer `CephDeployment`, specify the 
 
 For example:
 ```yaml
- sharedFilesystem:
-   cephFilesystems:
-   - name: cephfs-store
-     spec:
-       dataPools:
-       - name: cephfs-pool-1
-         deviceClass: hdd
-         replicated:
-           size: 3
-         failureDomain: host
+sharedFilesystem:
+  cephFilesystems:
+  - name: cephfs-store
+    spec:
+      dataPools:
+      - name: cephfs-pool-1
+        deviceClass: hdd
+        replicated:
+          size: 3
+        failureDomain: host
 ```
 
 After specifying CephFS in the `CephDeployment` CR of the consumer cluster, Pelagia creates a corresponding `StorageClass` that allows creating `ReadWriteMany` (RWX) PVs in the consumer cluster.

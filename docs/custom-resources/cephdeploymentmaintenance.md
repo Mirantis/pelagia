@@ -69,4 +69,4 @@ Pelagia controllers inspect the `CephDeploymentMaintenance` object state and per
 - `pelagia-lcm-controller` - controls the Rook Operator deployment and scales it down to `0` when
   `CephDeploymentMaintenance` is in the `Acting` or `Failing` state, treating it as the cluster maintenance state.
   Scales the Rook Operator back to `1` once the maintenance is completed.
-- `pelagia-deployment-controller` - stops `CephDeployment` reconciliation, when `CephDeploymentMaintenance` is in the `Acting` or `Failing` state, treating it as the cluster maintenance state. Once the maintenance is completed, it continues the `CephDeployment` reconciliation.
+- `pelagia-deployment-controller` - stops `CephDeployment` reconciliation, when `CephDeploymentMaintenance` is in the `Acting` or `Failing` state, treating it as the cluster maintenance state. Once the maintenance is completed, the controller continues the `CephDeployment` reconciliation.

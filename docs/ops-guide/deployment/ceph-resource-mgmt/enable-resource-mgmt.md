@@ -26,7 +26,7 @@ configuration values:
 
     !!! warning
 
-        Affinity placement settings specified in the `CephDeployment` spec for Ceph daemons will ignored in favor of using node roles.
+        Affinity placement settings specified in the `CephDeployment` spec for Ceph daemons will be ignored in favor of using node roles.
 
 **To enable management of Ceph tolerations and resources:**
 
@@ -52,7 +52,7 @@ configuration values:
    kubectl -n pelagia edit cephdpl
    ```
 
-3. In the `cluster.placement` section, specify the placement parameters as required.
+3. In the `cluster.placement` section, specify the placement parameters.
    For reference, see [Rook API documentation: Placement Configuration Settings](https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/#placement-configuration-settings).
 
     ??? "Example configuration"
@@ -79,7 +79,7 @@ configuration values:
                     operator: Exists
         ```
 
-4. In the `cluster.resources` section, specify the resource requirement parameters as required.
+4. In the `cluster.resources` section, specify the resource requirement parameters.
    For reference, see [Rook API documentation: Resource Requirements/Limits](https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/#resource-requirementslimits).
 
     ??? "Example configuration"
@@ -216,16 +216,16 @@ configuration values:
 9. Specify tolerations for different Rook resources using Pelagia Helm chart values. For details, see
    [Specify Rook daemons placement](../rook-daemon-place.md#rook-daemon-place-specify-rook-daemons-placement).
 10. After a successful Ceph reconfiguration, unset the flags set in step 1
-   through the `pelagia-ceph-toolbox` pod:
-   ```bash
-   kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- bash
-   ceph osd unset
-   ceph osd unset noout
-   ceph osd unset nobackfill
-   ceph osd unset norebalance
-   ceph osd unset norecover
-   exit
-   ```
+    through the `pelagia-ceph-toolbox` pod:
+    ```bash
+    kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- bash
+    ceph osd unset
+    ceph osd unset noout
+    ceph osd unset nobackfill
+    ceph osd unset norebalance
+    ceph osd unset norecover
+    exit
+    ```
 
     !!! note
 
