@@ -277,7 +277,7 @@ var ToolBoxDeploymentBase = GetToolBoxDeployment(false)
 var ToolBoxDeploymentExternal = GetToolBoxDeployment(true)
 var ToolBoxDeploymentWithRgwSecret = func() *appsv1.Deployment {
 	deploy := GetToolBoxDeployment(false)
-	deploy.Spec.Template.Annotations = map[string]string{"rgw-store-ssl-cert/sha256": "c448d82eeaebb5ab538f49a14a57ec788abffd242b43f8eba7b757a22c555005"}
+	deploy.Spec.Template.Annotations = map[string]string{"rgw-store-ssl-cert/sha256": "8f3e6104b8309efe124dd7a7b660ce9419e9c6155dd7a36e880bb3a6d68c2015"}
 	deploy.Spec.Template.Spec.InitContainers = []corev1.Container{
 		{
 			Name:    "cabundle-update",
