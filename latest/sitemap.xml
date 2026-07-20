@@ -2,318 +2,318 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/developer/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/architecture/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/architecture/addressing-ceph-devices/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/architecture/limitations/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/architecture/overview/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/architecture/rockoon-integration/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/configuration/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/configuration/helm-values/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/configuration/lcmconfig/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/custom-resources/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/custom-resources/cephdeployment/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/custom-resources/cephdeploymenthealth/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/custom-resources/cephdeploymentmaintenance/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/custom-resources/cephdeploymentsecret/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/custom-resources/cephosdremovetask/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/cephfs/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/default-ceph-conf/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/external-ceph/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/move-failure-domain/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/multinetworking/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/rbd-mirror/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/rook-daemon-place/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/ceph-resource-mgmt/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/ceph-resource-mgmt/verify-resource-mgmt/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/ceph-user-creds/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/ceph-user-creds/ceph-client/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/ceph-user-creds/ceph-rgw-user/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/object-storage/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/object-storage/rgw-multisite/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/object-storage/rgw-sse/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/object-storage/rgw-tls/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/object-storage/rgw/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/object-storage/s3-bucket-policy/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/object-storage/s3-bucket-policy/bucket-policy-rockoon/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/object-storage/s3-bucket-policy/bucket-policy-s3/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/deployment/object-storage/s3-bucket-policy/s3-create-user/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/lcm/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/lcm/increase-storage-size/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/lcm/manual-osd-remove/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/lcm/move-mon-daemon/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/lcm/move-mon-node-replace/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/lcm/auto-lcm/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/lcm/auto-lcm/add-rm-ceph-node/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/lcm/auto-lcm/add-rm-ceph-osd-with-meta/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/lcm/auto-lcm/add-rm-ceph-osd/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/lcm/auto-lcm/create-task-workflow/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/lcm/auto-lcm/replace-ceph-node/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/lcm/auto-lcm/replace-ceph-osd/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/lcm/auto-lcm/replace-meta/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/lcm/auto-lcm/replace-osd-meta-device/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/lcm/auto-lcm/replace-osd-meta-lvm/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/rockoon/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/rockoon/calc-target-ratio/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/rockoon/cinder-multi-backend/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/rockoon/rockoon-integration/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/verify-ceph/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/verify-ceph/verify-ceph-core/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/verify-ceph/verify-cephdeploymenthealth/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/verify-ceph/verify-pelagia-and-rook/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/ops-guide/verify-ceph/verify-rook-discover/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/quick-start/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/quick-start/installation/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/quick-start/lcm-installation/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/troubleshoot/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/troubleshoot/ceph-disaster-recover/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/troubleshoot/ceph-exporter-crash/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/troubleshoot/ceph-mon-recover/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/troubleshoot/ceph-mon-store-size-grow/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/troubleshoot/ceph-osd-auth-failed/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/troubleshoot/ceph-pg-damaged/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/troubleshoot/cephosdremovetask-timeout/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/troubleshoot/stuck-maintenance/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/upgrade-guide/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/upgrade-guide/upgrade-notes/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
     <url>
          <loc>https://mirantis.github.io/pelagia/latest/upgrade-guide/upgrade/</loc>
-         <lastmod>2026-07-03</lastmod>
+         <lastmod>2026-07-20</lastmod>
     </url>
 </urlset>

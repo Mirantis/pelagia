@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3622,8 +3622,8 @@
 <p>Once you enable Ceph Object Gateway (<code>radosgw</code>) as described in <a href="../rgw/#rgw-enable-ceph-rgw-object-storage">Enable Ceph RGW Object Storage</a>, you can configure the Transport Layer Security (TLS) protocol for a Ceph Object Gateway public endpoint using custom <code>ingressConfig</code> specified in the <code>CephDeployment</code> custom resource (CR). In this case, Ceph Object Gateway public endpoint will use the public domain specified using the <code>ingressConfig</code> parameters.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>For clusters integrated with Rockoon, Pelagia can use domain and certificates defined in the Rockoon configuration but always prioritizes configuration provided in the <code>CephDeployment</code> spec (such as <code>objectStorage.gatewayHTTPRoute</code> or deprecated <code>ingressConfig</code>).
-Mirantis recommends not defining the <code>ingressConfig</code> or <code>objectStorage.gatewayHTTPRoute</code> section if Rockoon has <code>tls-proxy</code> enabled. In that case, common certificates are applied to all ingresses/gateways from the <code>OpenStackDeployment</code> object. This implies that Pelagia will use the public domain and the common certificate from the <code>OpenStackDeployment</code> object.</p>
+<p>For clusters integrated with Rockoon, Pelagia can use domain and certificates defined in the Rockoon configuration but always prioritizes configuration provided in the <code>CephDeployment</code> spec (such as <code>objectStorage.gatewayHTTPRoutes</code> or deprecated <code>ingressConfig</code>).
+Mirantis recommends not defining the <code>ingressConfig</code> or <code>objectStorage.gatewayHTTPRoutes</code> section if Rockoon has <code>tls-proxy</code> enabled. In that case, common certificates are applied to all ingresses/gateways from the <code>OpenStackDeployment</code> object. This implies that Pelagia will use the public domain and the common certificate from the <code>OpenStackDeployment</code> object.</p>
 </div>
 <p>This section describes how to specify a custom public endpoint for the Ceph Object Storage.</p>
 <h2 id="gateway-httproute-parameters">Gateway HTTPRoute parameters<a class="headerlink" href="#gateway-httproute-parameters" title="Permanent link">#</a></h2>
@@ -3642,7 +3642,7 @@ For configuration details, see <a href="../../../../custom-resources/cephdeploym
 <h2 id="ingress-configuration-parameters">Ingress configuration parameters<a class="headerlink" href="#ingress-configuration-parameters" title="Permanent link">#</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The <code>tlsConfig</code> section is deprecated. Use the <code>objectStorage.gatewayHTTPRoute</code> section instead.</p>
+<p>The <code>tlsConfig</code> section is deprecated. Use the <code>objectStorage.gatewayHTTPRoutes</code> section instead.</p>
 </div>
 <ul>
 <li><code>tlsConfig</code> - Defines TLS configuration for the Ceph Object Gateway public endpoint.</li>
@@ -3697,7 +3697,7 @@ public domain as your OpenStack endpoints.</p>
 </li>
 </ul>
 <h3 id="the-controllerclassname-parameter">The <code>controllerClassName</code> parameter<a class="headerlink" href="#the-controllerclassname-parameter" title="Permanent link">#</a></h3>
-<p><code>controllClassName</code> defines the name of the custom Ingress Controller. Pelagia does not support deploying Ingress
+<p><code>controllerClassName</code> defines the name of the custom Ingress Controller. Pelagia does not support deploying Ingress
 Controllers, so you must deploy the Ingress Controller before configuring the <code>ingressConfig</code> section in the
 <code>CephDeployment</code> CR.</p>
 <p>For Pelagia integrated with Rockoon, the default Ingress Controller has <code>openstack-ingress-nginx</code> class name and Ceph
@@ -3743,7 +3743,7 @@ to add or override ingress rule annotations. For details, see
 <span class="w">      </span><span class="nt">nginx.ingress.kubernetes.io/proxy-body-size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100m</span>
 </code></pre></div>
 </details>
-<p><a id="rgw-tls-configure-ceph-object-gateway-using-the-gateway-api"></a></p>
+<p><a id="rgw-tls-configure-tls-for-object-gateway-using-the-gateway-api"></a></p>
 <h2 id="configure-tls-for-object-gateway-using-the-gateway-api">Configure TLS for Object Gateway using the Gateway API<a class="headerlink" href="#configure-tls-for-object-gateway-using-the-gateway-api" title="Permanent link">#</a></h2>
 <p>Pelagia uses the <code>gatewayHTTPRoutes</code> section to manage <code>HTTPRoute</code> of the Gateway/TLS settings that were previously configured by the operator.
 With the provided <code>HTTPRoute</code>, Ceph Object Gateway will use the SSL certificate provided by the Gateway Controller.</p>
@@ -3788,7 +3788,7 @@ openstack-store-openstack-route<span class="w">   </span><span class="o">[</span
 <h2 id="configure-tls-for-object-gateway-using-ingress">Configure TLS for Object Gateway using Ingress<a class="headerlink" href="#configure-tls-for-object-gateway-using-ingress" title="Permanent link">#</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>TLS configuration for Ceph Object Gateway using Ingress is deprecated. Use the Gateway API instead. For details, see <a href="#rgw-tls-configure-ceph-object-gateway-using-the-gateway-api">Configure TLS for Ceph Object Gateway using the Gateway API</a>.</p>
+<p>TLS configuration for Ceph Object Gateway using Ingress is deprecated. Use the Gateway API instead. For details, see <a href="#rgw-tls-configure-tls-for-object-gateway-using-the-gateway-api">Configure TLS for Ceph Object Gateway using the Gateway API</a>.</p>
 </div>
 <ol>
 <li>To generate an SSL certificate for internal usage, verify that the
@@ -3878,8 +3878,8 @@ in the <code>CephDeployment</code> CR.</p>
 <li>
 <p>Verify that at least one of the following requirements is met:</p>
 <ul>
-<li>The public hostname matches the public domain name set by the <code>spec.ingressConfig.tlsConfig.     publicDomain</code> field</li>
-<li>The public hostname matches the public domain name set by the <code>spec.objectStorage.  gatewayHTTPRoutes</code> field</li>
+<li>The public hostname matches the public domain name set by the <code>spec.ingressConfig.tlsConfig.publicDomain</code> field</li>
+<li>The public hostname matches the public domain name set by the <code>spec.objectStorage.gatewayHTTPRoutes</code> field</li>
 <li>The OpenStack configuration has been applied</li>
 </ul>
 </li>
@@ -3896,7 +3896,7 @@ in the <code>CephDeployment</code> CR.</p>
  Substitute <code>&lt;rgw-dns-name&gt;</code> with the expected DNS name provided in
  <code>&lt;rgw-object-store-name&gt;.&lt;value from spec&gt;.ingressConfig.tlsConfig.publicDomain&gt;</code> or <code>spec.objectStorage.gatewayHTTPRoutes</code>.</p>
 <p>Example of a successful system response:
- <div class="highlight"><pre><span></span><code>rgw-dns-name:<span class="w"> </span>rgw-store.public.domain.name
+ <div class="highlight"><pre><span></span><code>-<span class="w"> </span>--rgw-dns-name:<span class="w"> </span>rgw-store.public.domain.name
 </code></pre></div></p>
 </li>
 </ol>
@@ -4008,7 +4008,7 @@ plugin.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

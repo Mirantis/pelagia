@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3711,9 +3711,9 @@ cluster, the Ceph client requires the following <code>caps</code> (permissions):
 <span class="nt">data</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">connection</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64_encoded_output&gt;</span>
 </code></pre></div></p>
-<p>And apply the secret. For example:
-    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>pelagia-connection.yaml
-</code></pre></div></p>
+<p>And apply the secret. For example:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>pelagia-connection.yaml
+</code></pre></div>
 </li>
 <li>
 <p>Apply the file to the consumer cluster. For example:
@@ -3724,17 +3724,17 @@ cluster, the Ceph client requires the following <code>caps</code> (permissions):
 <p>Once the Ceph cluster is specified in the <code>CephDeployment</code> CR of the consumer cluster, Pelagia validates it and requests Rook to connect the consumer and producer.</p>
 <h2 id="consume-pools-from-the-ceph-cluster">Consume pools from the Ceph cluster<a class="headerlink" href="#consume-pools-from-the-ceph-cluster" title="Permanent link">#</a></h2>
 <p>In the <code>spec.pools</code> of the consumer <code>CephDeployment</code>, specify pools from the producer cluster to be used by the consumer cluster. For example:</p>
-<div class="highlight"><pre><span></span><code><span class="w"> </span><span class="nt">blockStorage</span><span class="p">:</span>
-<span class="w">   </span><span class="nt">pools</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes-hdd</span>
-<span class="w">      </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes</span>
-<span class="w">      </span><span class="nt">useAsFullName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">      </span><span class="nt">storageClassOpts</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w"> </span>
-<span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
-<span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<div class="highlight"><pre><span></span><code><span class="nt">blockStorage</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">pools</span><span class="p">:</span>
+<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes-hdd</span>
+<span class="w">     </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes</span>
+<span class="w">     </span><span class="nt">useAsFullName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">     </span><span class="nt">storageClassOpts</span><span class="p">:</span>
+<span class="w">       </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">     </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">       </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
+<span class="w">       </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">         </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 </code></pre></div>
 <div class="admonition danger">
 <p class="admonition-title">Danger</p>
@@ -3749,16 +3749,16 @@ You can find full pools <code>name</code> in the <code>CephDeploymentHealth</cod
 <p>Sharing <code>CephFS</code> also requires specifying the <code>metadataPool</code> and <code>metadataServer</code> sections similarly to the corresponding sections of the producer cluster.</p>
 </div>
 <p>For example:
-<div class="highlight"><pre><span></span><code><span class="w"> </span><span class="nt">sharedFilesystem</span><span class="p">:</span>
-<span class="w">   </span><span class="nt">cephFilesystems</span><span class="p">:</span>
-<span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-store</span>
-<span class="w">     </span><span class="nt">spec</span><span class="p">:</span>
-<span class="w">       </span><span class="nt">dataPools</span><span class="p">:</span>
-<span class="w">       </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-pool-1</span>
-<span class="w">         </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
-<span class="w">         </span><span class="nt">replicated</span><span class="p">:</span>
-<span class="w">           </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
-<span class="w">         </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
+<div class="highlight"><pre><span></span><code><span class="nt">sharedFilesystem</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cephFilesystems</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-store</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">dataPools</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-pool-1</span>
+<span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
+<span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">        </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
 </code></pre></div></p>
 <p>After specifying CephFS in the <code>CephDeployment</code> CR of the consumer cluster, Pelagia creates a corresponding <code>StorageClass</code> that allows creating <code>ReadWriteMany</code> (RWX) PVs in the consumer cluster.</p>
 
@@ -3866,7 +3866,7 @@ You can find full pools <code>name</code> in the <code>CephDeploymentHealth</cod
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>

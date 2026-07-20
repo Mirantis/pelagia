@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
@@ -33,7 +33,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3406,7 +3406,7 @@ configuration values:</p>
   <a href="https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/">Kubernetes documentation: Managing Resources for Containers</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Affinity placement settings specified in the <code>CephDeployment</code> spec for Ceph daemons will ignored in favor of using node roles.</p>
+<p>Affinity placement settings specified in the <code>CephDeployment</code> spec for Ceph daemons will be ignored in favor of using node roles.</p>
 </div>
 </li>
 </ul>
@@ -3435,7 +3435,7 @@ ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">set</spa
 </code></pre></div></p>
 </li>
 <li>
-<p>In the <code>cluster.placement</code> section, specify the placement parameters as required.
+<p>In the <code>cluster.placement</code> section, specify the placement parameters.
    For reference, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/#placement-configuration-settings">Rook API documentation: Placement Configuration Settings</a>.</p>
 <details>
 <summary>Example configuration</summary>
@@ -3462,7 +3462,7 @@ ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">set</spa
 </details>
 </li>
 <li>
-<p>In the <code>cluster.resources</code> section, specify the resource requirement parameters as required.
+<p>In the <code>cluster.resources</code> section, specify the resource requirement parameters.
    For reference, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/#resource-requirementslimits">Rook API documentation: Resource Requirements/Limits</a>.</p>
 <details>
 <summary>Example configuration</summary>
@@ -3597,8 +3597,8 @@ ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">set</spa
    <a href="../../rook-daemon-place/#rook-daemon-place-specify-rook-daemons-placement">Specify Rook daemons placement</a>.</li>
 <li>
 <p>After a successful Ceph reconfiguration, unset the flags set in step 1
-   through the <code>pelagia-ceph-toolbox</code> pod:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>bash
+    through the <code>pelagia-ceph-toolbox</code> pod:
+    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>bash
 ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">unset</span>
 ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">unset</span><span class="w"> </span>noout
 ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">unset</span><span class="w"> </span>nobackfill
@@ -3718,7 +3718,7 @@ ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">unset</s
       <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
