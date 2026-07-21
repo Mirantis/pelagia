@@ -17,7 +17,7 @@ To obtain the current maintenance status, run the following command:
 kubectl -n pelagia get cephdeploymentmaintenance -o yaml
 ```
 
-??? "Example `CephDeploymentMaintenance` status"
+??? "Example `CephDeploymentMaintenance` resource"
 
     ```yaml
     apiVersion: v1
@@ -40,6 +40,9 @@ kubectl -n pelagia get cephdeploymentmaintenance -o yaml
           uid: df1e26ab-e324-418f-b623-8df318ea79df
         resourceVersion: "1210614"
         uid: d96a4e52-f6d4-457c-a12b-ab5ab909d6a5
+      status:
+        lastStateCheck: "2026-07-21T10:08:54Z"
+        state: Idle
     kind: List
     metadata:
       resourceVersion: ""
@@ -56,10 +59,10 @@ Therefore, to control maintenance using Pelagia, you must implement and use an e
 
     - `Idle` - No maintenance in progress
     - `Acting` - Maintenance is in progress
-    - `Failing` - Some critical issues occur during maintenance
+    - `Failing` - Critical issues occur during maintenance
 
 - `lastStateCheck` - `DateTime` when the previous cluster state check occurred.
-- `message` - Additional information about the current maintenance state.
+- `message` - Additional information about the current maintenance state, if any.
 
 <a name="cephdeploymentmaintenance-maintenance-flow-overview"></a>
 ## Maintenance flow overview
@@ -68,5 +71,5 @@ Pelagia controllers inspect the `CephDeploymentMaintenance` object state and per
 
 - `pelagia-lcm-controller` - controls the Rook Operator deployment and scales it down to `0` when
   `CephDeploymentMaintenance` is in the `Acting` or `Failing` state, treating it as the cluster maintenance state.
-  Scales the Rook Operator back to `1` once the maintenance is completed.
-- `pelagia-deployment-controller` - stops `CephDeployment` reconciliation, when `CephDeploymentMaintenance` is in the `Acting` or `Failing` state, treating it as the cluster maintenance state. Once the maintenance is completed, the controller continues the `CephDeployment` reconciliation.
+  Once the maintenance is completed, the controller scales the Rook Operator back to `1`.
+- `pelagia-deployment-controller` - stops `CephDeployment` reconciliation, when `CephDeploymentMaintenance` is in the `Acting` or `Failing` state, treating it as the cluster maintenance state. Once the maintenance is completed, it continues the `CephDeployment` reconciliation.
