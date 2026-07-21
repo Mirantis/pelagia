@@ -4,7 +4,7 @@ global:
 images:
   snapshotController:
     repository: pelagia/snapshot-controller
-    tag: v8.2.1-4.cve
+    tag: v8.2.1-5.cve
     fullName: ""
 
 snapshotControllerConfig:
