@@ -3491,12 +3491,13 @@ Therefore, to control maintenance using Pelagia, you must implement and use an e
 </ul>
 <p><a name="cephdeploymentmaintenance-maintenance-flow-overview"></a></p>
 <h2 id="maintenance-flow-overview">Maintenance flow overview<a class="headerlink" href="#maintenance-flow-overview" title="Permanent link">#</a></h2>
-<p>Pelagia controllers inspect the <code>CephDeploymentMaintenance</code> object state and perform the following actions:</p>
+<p>Pelagia controllers monitor the <code>CephDeploymentMaintenance</code> object state.
+When the <code>CephDeploymentMaintenance</code> object enters the <code>Acting</code> or <code>Failing</code> state, Pelagia controllers treat this as the cluster maintenance state and perform the following actions:</p>
 <ul>
-<li><code>pelagia-lcm-controller</code> - controls the Rook Operator deployment and scales it down to <code>0</code> when
-  <code>CephDeploymentMaintenance</code> is in the <code>Acting</code> or <code>Failing</code> state, treating it as the cluster maintenance state.
-  Once the maintenance is completed, the controller scales the Rook Operator back to <code>1</code>.</li>
-<li><code>pelagia-deployment-controller</code> - stops <code>CephDeployment</code> reconciliation, when <code>CephDeploymentMaintenance</code> is in the <code>Acting</code> or <code>Failing</code> state, treating it as the cluster maintenance state. Once the maintenance is completed, it continues the <code>CephDeployment</code> reconciliation.</li>
+<li><code>pelagia-lcm-controller</code> - scales down the Rook Operator deployment to <code>0</code>.
+  Once the maintenance is completed, the controller scales the Rook Operator deployment back to <code>1</code>.</li>
+<li><code>pelagia-deployment-controller</code> - stops <code>CephDeployment</code> reconciliation.
+  Once the maintenance is completed, the controller continues <code>CephDeployment</code> reconciliation.</li>
 </ul>
 
 
