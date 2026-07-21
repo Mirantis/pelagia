@@ -4,7 +4,7 @@ global:
 images:
   operator:
     repository: pelagia/cephcsi-operator
-    tag: v0.6.0-4.release
+    tag: v0.6.0-5.release
     fullName: ""
     pullPolicy: "Always"
 
