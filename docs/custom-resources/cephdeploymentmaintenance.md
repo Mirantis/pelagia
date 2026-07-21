@@ -67,9 +67,10 @@ Therefore, to control maintenance using Pelagia, you must implement and use an e
 <a name="cephdeploymentmaintenance-maintenance-flow-overview"></a>
 ## Maintenance flow overview
 
-Pelagia controllers inspect the `CephDeploymentMaintenance` object state and perform the following actions:
+Pelagia controllers monitor the `CephDeploymentMaintenance` object state.
+When the `CephDeploymentMaintenance` object enters the `Acting` or `Failing` state, Pelagia controllers treat this as the cluster maintenance state and perform the following actions:
 
-- `pelagia-lcm-controller` - controls the Rook Operator deployment and scales it down to `0` when
-  `CephDeploymentMaintenance` is in the `Acting` or `Failing` state, treating it as the cluster maintenance state.
-  Once the maintenance is completed, the controller scales the Rook Operator back to `1`.
-- `pelagia-deployment-controller` - stops `CephDeployment` reconciliation, when `CephDeploymentMaintenance` is in the `Acting` or `Failing` state, treating it as the cluster maintenance state. Once the maintenance is completed, it continues the `CephDeployment` reconciliation.
+- `pelagia-lcm-controller` - scales down the Rook Operator deployment to `0`.
+  Once the maintenance is completed, the controller scales the Rook Operator deployment back to `1`.
+- `pelagia-deployment-controller` - stops `CephDeployment` reconciliation.
+  Once the maintenance is completed, the controller continues `CephDeployment` reconciliation.
