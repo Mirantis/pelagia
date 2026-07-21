@@ -3441,7 +3441,7 @@ The <code>CephDeploymentMaintenance</code> (<code>cephdeploymentmaintenances.lcm
 <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephdeploymentmaintenance<span class="w"> </span>-o<span class="w"> </span>yaml
 </code></pre></div>
 <details>
-<summary>Example <code>CephDeploymentMaintenance</code> status</summary>
+<summary>Example <code>CephDeploymentMaintenance</code> resource</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
 <span class="nt">items</span><span class="p">:</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
@@ -3462,6 +3462,9 @@ The <code>CephDeploymentMaintenance</code> (<code>cephdeploymentmaintenances.lcm
 <span class="w">      </span><span class="nt">uid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">df1e26ab-e324-418f-b623-8df318ea79df</span>
 <span class="w">    </span><span class="nt">resourceVersion</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1210614&quot;</span>
 <span class="w">    </span><span class="nt">uid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">d96a4e52-f6d4-457c-a12b-ab5ab909d6a5</span>
+<span class="w">  </span><span class="nt">status</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">lastStateCheck</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2026-07-21T10:08:54Z&quot;</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Idle</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">List</span>
 <span class="nt">metadata</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">resourceVersion</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&quot;</span>
@@ -3478,13 +3481,13 @@ Therefore, to control maintenance using Pelagia, you must implement and use an e
 <ul>
 <li><code>Idle</code> - No maintenance in progress</li>
 <li><code>Acting</code> - Maintenance is in progress</li>
-<li><code>Failing</code> - Some critical issues occur during maintenance</li>
+<li><code>Failing</code> - Critical issues occur during maintenance</li>
 </ul>
 </li>
 <li>
 <p><code>lastStateCheck</code> - <code>DateTime</code> when the previous cluster state check occurred.</p>
 </li>
-<li><code>message</code> - Additional information about the current maintenance state.</li>
+<li><code>message</code> - Additional information about the current maintenance state, if any.</li>
 </ul>
 <p><a name="cephdeploymentmaintenance-maintenance-flow-overview"></a></p>
 <h2 id="maintenance-flow-overview">Maintenance flow overview<a class="headerlink" href="#maintenance-flow-overview" title="Permanent link">#</a></h2>
@@ -3492,8 +3495,8 @@ Therefore, to control maintenance using Pelagia, you must implement and use an e
 <ul>
 <li><code>pelagia-lcm-controller</code> - controls the Rook Operator deployment and scales it down to <code>0</code> when
   <code>CephDeploymentMaintenance</code> is in the <code>Acting</code> or <code>Failing</code> state, treating it as the cluster maintenance state.
-  Scales the Rook Operator back to <code>1</code> once the maintenance is completed.</li>
-<li><code>pelagia-deployment-controller</code> - stops <code>CephDeployment</code> reconciliation, when <code>CephDeploymentMaintenance</code> is in the <code>Acting</code> or <code>Failing</code> state, treating it as the cluster maintenance state. Once the maintenance is completed, the controller continues the <code>CephDeployment</code> reconciliation.</li>
+  Once the maintenance is completed, the controller scales the Rook Operator back to <code>1</code>.</li>
+<li><code>pelagia-deployment-controller</code> - stops <code>CephDeployment</code> reconciliation, when <code>CephDeploymentMaintenance</code> is in the <code>Acting</code> or <code>Failing</code> state, treating it as the cluster maintenance state. Once the maintenance is completed, it continues the <code>CephDeployment</code> reconciliation.</li>
 </ul>
 
 
