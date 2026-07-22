@@ -212,45 +212,43 @@ func TestCephFS(t *testing.T) {
 		t.Fatal("failed to find default pool")
 	}
 	toUpdate := false
-	if cd.Spec.SharedFilesystem != nil {
-		for _, newCephFS := range sharedFS.CephFS {
-			found := false
-			if newCephFS.MetadataPool.DeviceClass == "" {
-				newCephFS.MetadataPool.DeviceClass = poolDefaultClass
-			}
-			for idx, dp := range newCephFS.DataPools {
-				if dp.DeviceClass == "" {
-					newCephFS.DataPools[idx].DeviceClass = poolDefaultClass
-				}
-			}
-			for idx, cephFS := range cd.Spec.SharedFilesystem.CephFS {
-				if cephFS.Name == newCephFS.Name {
-					f.TF.Log.Warn().Msgf("found present CephFS with the same name as for e2e test: %s", cephFS.Name)
-					found = true
-					// check data pools required for tests present
-					for _, dataPool := range newCephFS.DataPools {
-						foundPool := false
-						for _, presentDataPool := range cephFS.DataPools {
-							if dataPool.Name == presentDataPool.Name {
-								foundPool = true
-							}
-						}
-						if !foundPool {
-							toUpdate = true
-							cd.Spec.SharedFilesystem.CephFS[idx].DataPools = append(cd.Spec.SharedFilesystem.CephFS[idx].DataPools, dataPool)
-						}
-					}
-					break
-				}
-			}
-			if !found {
-				toUpdate = true
-				cd.Spec.SharedFilesystem.CephFS = append(cd.Spec.SharedFilesystem.CephFS, newCephFS)
+	if cd.Spec.SharedFilesystem == nil {
+		cd.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{}
+	}
+	for _, newCephFS := range sharedFS.CephFS {
+		found := false
+		if newCephFS.MetadataPool.DeviceClass == "" {
+			newCephFS.MetadataPool.DeviceClass = poolDefaultClass
+		}
+		for idx, dp := range newCephFS.DataPools {
+			if dp.DeviceClass == "" {
+				newCephFS.DataPools[idx].DeviceClass = poolDefaultClass
 			}
 		}
-	} else {
-		cd.Spec.SharedFilesystem = sharedFS
-		toUpdate = true
+		for idx, cephFS := range cd.Spec.SharedFilesystem.CephFS {
+			if cephFS.Name == newCephFS.Name {
+				f.TF.Log.Warn().Msgf("found present CephFS with the same name as for e2e test: %s", cephFS.Name)
+				found = true
+				// check data pools required for tests present
+				for _, dataPool := range newCephFS.DataPools {
+					foundPool := false
+					for _, presentDataPool := range cephFS.DataPools {
+						if dataPool.Name == presentDataPool.Name {
+							foundPool = true
+						}
+					}
+					if !foundPool {
+						toUpdate = true
+						cd.Spec.SharedFilesystem.CephFS[idx].DataPools = append(cd.Spec.SharedFilesystem.CephFS[idx].DataPools, dataPool)
+					}
+				}
+				break
+			}
+		}
+		if !found {
+			toUpdate = true
+			cd.Spec.SharedFilesystem.CephFS = append(cd.Spec.SharedFilesystem.CephFS, newCephFS)
+		}
 	}
 	for idx := range cd.Spec.Nodes {
 		if lcmcommon.Contains(cd.Spec.Nodes[idx].Roles, "mon") && !lcmcommon.Contains(cd.Spec.Nodes[idx].Roles, "mds") {
