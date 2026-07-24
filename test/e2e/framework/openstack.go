@@ -308,7 +308,8 @@ func (c *ManagedConfig) NovaServerDelete(name string, waiting bool) error {
 		if !waiting {
 			return true, nil
 		}
-		if err != nil && strings.Contains(stderr, fmt.Sprintf("No server with a name or ID of '%s' exists.", name)) {
+		if err != nil && (strings.Contains(stderr, fmt.Sprintf("No server with a name or ID of '%s' exists.", name)) ||
+			strings.Contains(stderr, fmt.Sprintf("No Server found for %s", name))) {
 			return true, nil
 		}
 		TF.Log.Info().Msgf("'openstack server delete %s' is not complete yet", name)
