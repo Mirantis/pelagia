@@ -42,10 +42,6 @@ func buildRGWName(name, suffix string) string {
 	return fmt.Sprintf("rook-ceph-rgw-%s-%s", name, suffix)
 }
 
-func rgwSyncDaemonName(rgwName string) string {
-	return fmt.Sprintf("%s-sync", rgwName)
-}
-
 func isKubeCrush(key string) bool {
 	return key == "region" || key == "zone"
 }

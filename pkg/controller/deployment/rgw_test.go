@@ -49,7 +49,6 @@ func TestGenerateRgwStore(t *testing.T) {
 		cephDplRGW        cephlcmv1alpha1.CephObjectStore
 		useDedicatedNodes bool
 		syncRgwDaemon     bool
-		hyperconverge     *cephlcmv1alpha1.CephDeploymentHyperConverge
 		expected          *cephv1.CephObjectStore
 	}{
 		{

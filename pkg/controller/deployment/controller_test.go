@@ -1197,6 +1197,7 @@ func TestReconcile(t *testing.T) {
 				LastRun: "2021-08-15T14:30:42+04:00",
 			},
 		},
+		/* TODO: uncomment if any deprecation appear
 		{
 			name: "reconcile cephdeployment - failed to update deprecated fields",
 			inputResources: map[string]runtime.Object{
@@ -1221,7 +1222,7 @@ func TestReconcile(t *testing.T) {
 			testclient:     faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.CephDeploymentDeprecated.DeepCopy()).WithObjects(unitinputs.CephDeploymentDeprecated.DeepCopy()),
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{},
 			result:         noRequeue,
-		},
+		},*/
 	}
 
 	oldTriesLeft := failTriesLeft
