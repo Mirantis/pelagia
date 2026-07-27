@@ -37,7 +37,7 @@ jobs:
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.7.0
       - name: Show current version
-        run: make get-version
+        run: make get-helm-version
       - name: Run helm package
         run: make
       - name: Login to registry CI
