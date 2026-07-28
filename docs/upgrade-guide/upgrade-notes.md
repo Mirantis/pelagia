@@ -73,4 +73,6 @@ of the changes that require these steps, see the *Breaking changes* section abov
      To configure Pelagia after switching to the Gateway API, use the corresponding `Gateway` object.
      For details, see [Configuration Reference](../configuration/index.md) and [CephDeployment resource](../custom-resources/cephdeployment.md).
 
+     Once the Gateway API HTTPRoute is enrolled, you can completely remove the `ingressConfig` section.
+
 4. If the current Helm values contain the `rookConfig` section, you can safely remove it.
