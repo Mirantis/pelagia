@@ -1,5 +1,5 @@
 apiVersion: v2
-appVersion: "v1.19.6"
+appVersion: "v1.19.7"
 description: A Helm chart to deploy Rook
 name: rook
 version: 1.0.0
