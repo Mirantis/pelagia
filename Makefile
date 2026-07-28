@@ -15,10 +15,11 @@ DISK_DAEMON_CMD := ./cmd/disk-daemon
 CONNECTOR_NAME := pelagia-connector
 CONNECTOR_CMD := ./cmd/connector
 CEPH_E2E_NAME := pelagia-e2e
-CURRENT_RELEASE_VERSION := "2.0.0"
+CURRENT_RELEASE_VERSION := "v2.0.0"
 CODE_VERSION := $(shell build/scripts/get_version.sh)
 DEV_VERSION ?= "dev-$(CODE_VERSION)"
 VERSION := $(shell build/scripts/get_version.sh $(CURRENT_RELEASE_VERSION) $(DEV_VERSION))
+HELM_VERSION := $(shell echo $(VERSION) | sed -e 's/^v//')
 E2E_TESTLIST_LOCAL ?= $(shell ls ./test/e2e/ | grep _test.go | grep -v entrypoint_test | xargs printf "./test/e2e/%s " $1)
 LDFLAGS := "-X 'github.com/Mirantis/pelagia/codeversion.Version=${VERSION}'"
 IMAGE_NAME ?= localdocker:5000/$(CONTROLLER_NAME)
@@ -39,18 +40,18 @@ helm-all: helm-dep/rook helm-dep/snapshot-controller helm-dep/ceph-csi-operator 
 helm-pelagia: ## Build pelagia chart
 	@printf "\n=== PACKAGING pelagia-ceph CHART ===\n"
 	@cp charts/pelagia-ceph/Chart.yaml charts/pelagia-ceph/.Chart.yaml.bckp
-	@sed -i 's/^  version:.*$$/  version: $(VERSION)/g' charts/pelagia-ceph/Chart.yaml
+	@sed -i 's/^  version:.*$$/  version: $(HELM_VERSION)/g' charts/pelagia-ceph/Chart.yaml
 	helm lint charts/pelagia-ceph
-	helm package charts/pelagia-ceph --version $(VERSION) --app-version $(VERSION)
+	helm package charts/pelagia-ceph --version $(HELM_VERSION) --app-version $(VERSION)
 	@mv charts/pelagia-ceph/.Chart.yaml.bckp charts/pelagia-ceph/Chart.yaml
 
 helm-dep/%: ## Build helm chart dependency
 	printf "\n=== PACKAGING $* CHART ===\n"
 	helm lint charts/$*
-	helm package charts/$* --version $(VERSION) -d charts/pelagia-ceph/charts
+	helm package charts/$* --version $(HELM_VERSION) -d charts/pelagia-ceph/charts
 
 publish-chart: ## Push chart to helm registry
-	helm push pelagia-ceph-$(VERSION).tgz $(HELM_REGISTRY)
+	helm push pelagia-ceph-$(HELM_VERSION).tgz $(HELM_REGISTRY)
 
 #================#
 # Go build stuff #
@@ -138,9 +139,12 @@ clean-all: clean clean-docker ## Clean everything.
 # CI and tests stuff #
 #====================#
 
-.PHONY: get-version
-get-version:
+.PHONY: get-code-version get-helm-version
+get-code-version:
 	@printf $(VERSION)
+
+get-helm-version:
+	@printf $(HELM_VERSION)
 
 golangci-lint-install:
 ifeq (,$(shell $$GOPATH/golangci-lint version 2>/dev/null))

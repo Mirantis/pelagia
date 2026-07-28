@@ -49,7 +49,7 @@ jobs:
       - name: Check lint
         run: make lint
       - name: Get image version
-        run: make get-version
+        run: make get-code-version
       - name: Login to registry CI
         uses: docker/login-action@v3
         with:
