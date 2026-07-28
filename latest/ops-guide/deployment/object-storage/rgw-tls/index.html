@@ -996,6 +996,8 @@
       
         
       
+        
+      
     
     
     
@@ -1060,6 +1062,34 @@
     
   
     Upgrade Pelagia
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../upgrade-guide/upgrade-notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrade notes 1.x to 2.x
   
 
     
@@ -3619,7 +3649,7 @@
 
 <p><a id="rgw-tls-configure-ceph-object-gateway-tls"></a></p>
 <h1 id="configure-ceph-object-gateway-tls">Configure Ceph Object Gateway TLS<a class="headerlink" href="#configure-ceph-object-gateway-tls" title="Permanent link">#</a></h1>
-<p>Once you enable Ceph Object Gateway (<code>radosgw</code>) as described in <a href="../rgw/#rgw-enable-ceph-rgw-object-storage">Enable Ceph RGW Object Storage</a>, you can configure the Transport Layer Security (TLS) protocol for a Ceph Object Gateway public endpoint using custom <code>ingressConfig</code> specified in the <code>CephDeployment</code> custom resource (CR). In this case, Ceph Object Gateway public endpoint will use the public domain specified using the <code>ingressConfig</code> parameters.</p>
+<p>Once you enable Ceph Object Gateway (<code>radosgw</code>) as described in <a href="../rgw/#rgw-enable-ceph-rgw-object-storage">Enable Ceph RGW Object Storage</a>, you can configure the Transport Layer Security (TLS) protocol for a Ceph Object Gateway public endpoint using <code>objectStorage.gatewayHTTPRoutes</code> or custom <code>ingressConfig</code> (deprecated) specified in the <code>CephDeployment</code> custom resource (CR). In this case, Ceph Object Gateway public endpoint will use the public domain specified in the <code>objectStorage.gatewayHTTPRoutes</code> or <code>ingressConfig</code> parameters.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>For clusters integrated with Rockoon, Pelagia can use domain and certificates defined in the Rockoon configuration but always prioritizes configuration provided in the <code>CephDeployment</code> spec (such as <code>objectStorage.gatewayHTTPRoutes</code> or deprecated <code>ingressConfig</code>).
@@ -3628,7 +3658,8 @@ Mirantis recommends not defining the <code>ingressConfig</code> or <code>objectS
 <p>This section describes how to specify a custom public endpoint for the Ceph Object Storage.</p>
 <h2 id="gateway-httproute-parameters">Gateway HTTPRoute parameters<a class="headerlink" href="#gateway-httproute-parameters" title="Permanent link">#</a></h2>
 <p>With Pelagia supporting the Gateway API, you can use <code>CephDeployment</code> to configure the <code>HTTPRoute</code> specification for Ceph Object Storage.
-For configuration details, see <a href="../../../../custom-resources/cephdeployment/#cephdeployment-httproute-parameters">CephDeployment API: HTTPRoute parameters</a>.</p>
+For configuration details, see <a href="./#rgw-tls-configure-tls-for-object-gateway-using-the-gateway-api">Configure Gateway API HTTPRoute</a>.
+For API reference, see <a href="../../../../custom-resources/cephdeployment/#cephdeployment-httproute-parameters">CephDeployment API: HTTPRoute parameters</a>.</p>
 <div class="admonition info">
 <p class="admonition-title">See also</p>
 <p>Gateway API documentation:</p>
@@ -3649,6 +3680,10 @@ For configuration details, see <a href="../../../../custom-resources/cephdeploym
 <li><code>controllerClassName</code> - Name of Ingress Controller class. The default value for Pelagia integrated Rockoon is <code>openstack-ingress-nginx</code></li>
 <li><code>annotations</code> - Extra annotations for the ingress proxy.</li>
 </ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The related ObjectStore defined in the <code>objectStorage.objectStores</code> section must contain the <code>usedByIngress: true</code> parameter. Only one ObjectStore with public access through Ingress is supported.</p>
+</div>
 <h3 id="the-tlsconfig-section-parameters">The <code>tlsConfig</code> section parameters<a class="headerlink" href="#the-tlsconfig-section-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li>
@@ -3829,6 +3864,20 @@ For details, see <a href="../rgw/#rgw-enable-ceph-rgw-object-storage">Enable Cep
 <span class="w">       </span><span class="s">&quot;nginx.ingress.kubernetes.io/force-ssl-redirect&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span>
 <span class="w">       </span><span class="s">&quot;nginx.ingress.kubernetes.io/ssl-redirect&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span>
 </code></pre></div></p>
+</li>
+<li>
+<p>In the <code>objectStorage.objectStores</code> section, set the <code>usedByIngress: true</code> parameter for the ObjectStore with public access through Ingress:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">objectStorage</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">objectStores</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store</span>
+<span class="w">    </span><span class="nt">usedByIngress</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Only one ObjectStore with public access through Ingress is supported.</p>
+</div>
 </li>
 <li>
 <p>In the <code>objectStorage.objectStores.name.spec.hosting.dnsNames</code> section, set the public domain name provided in <code>spec.ingressConfig.tlsConfig.publicDomain</code>:</p>
