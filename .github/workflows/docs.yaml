@@ -4,15 +4,15 @@ name: Docs CI
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
+  # Triggers the workflow on push or pull request events but only for the release-2.x branch
   push:
-    branches: [ "main", "release-*" ]
+    branches: [ "release-2.x" ]
     tags: ['*']
     paths:
     - 'mkdocs.yml'
     - 'docs/**'
   pull_request:
-    branches: [ "main", "release-*" ]
+    branches: [ "release-2.x" ]
     paths:
     - 'mkdocs.yml'
     - 'docs/**'
@@ -52,6 +52,4 @@ jobs:
           retention-days: 5
       - name: Publish docs
         if: ${{ github.event_name == 'push' && github.ref_type == 'branch' }}
-        env:
-          DOCS_VERSION: ${{ github.ref_name == 'main' && 'latest' || github.ref_name }}
-        run: mike deploy --push "${DOCS_VERSION#release-}"
+        run: mike deploy --push 2.x

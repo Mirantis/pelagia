@@ -179,8 +179,3 @@ nav:
     - Ceph health reports *PG_DAMAGED* after a failed disk or node replacement: troubleshoot/ceph-pg-damaged.md
     - CephOsdRemoveTask failure with a timeout during rebalance: troubleshoot/cephosdremovetask-timeout.md
     - Maintenance stuck on a compact Ceph cluster: troubleshoot/stuck-maintenance.md
-
-#  - Operations Guide:
-#      - Upgrade OpenStack: ops/openstack/upgrade.md
-#      - Run tempest: ops/openstack/tempest.md
-#  - Troubleshoot: ops/openstack/troubleshoot.md
