@@ -4,14 +4,14 @@ Collects chart names from charts/*/Chart.yaml and writes refs to charts.list:
   <registry>/<repo>/<chart-name>:<version>
 (no oci:// prefix; make_bundle.sh uses oci: transport when copying.)
 
-Chart version is taken from VERSION env if set, otherwise from `make get-version`
+Chart version is taken from VERSION env if set, otherwise from `make get-helm-version`
 (run from repo root; same version logic as the rest of the build).
 
 Requires: PyYAML (pip install pyyaml)
 Env:
   REPO_ROOT           - repo root (default: parent of build/ parent)
   OCI_CHARTS_REGISTRY - e.g. ghcr.io/owner/pelagia-charts (no oci:// prefix)
-  VERSION             - chart version (optional; if unset, runs make get-version)
+  VERSION             - chart version (optional; if unset, runs make get-helm-version)
   OUTPUT_FILE         - output path (default: charts.list in repo root)
 """
 
@@ -41,7 +41,7 @@ def main() -> None:
     if not version:
         try:
             result = subprocess.run(
-                ["make", "get-version"],
+                ["make", "get-helm-version"],
                 cwd=repo_root,
                 capture_output=True,
                 text=True,
@@ -49,10 +49,10 @@ def main() -> None:
             )
             version = (result.stdout or "").strip()
         except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            sys.stderr.write(f"Error: VERSION env unset and 'make get-version' failed: {e}\n")
+            sys.stderr.write(f"Error: VERSION env unset and 'make get-helm-version' failed: {e}\n")
             sys.exit(1)
         if not version:
-            sys.stderr.write("Error: VERSION env is required or run from repo with 'make get-version' available\n")
+            sys.stderr.write("Error: VERSION env is required or run from repo with 'make get-helm-version' available\n")
             sys.exit(1)
 
     refs: list[str] = []
