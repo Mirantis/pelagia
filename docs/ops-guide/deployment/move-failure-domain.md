@@ -334,17 +334,18 @@ other types of failure domains, migrate pools separately, and so on.
    match the manually created configuration. For example:
    ```yaml
    spec:
-     pools:
-     - name: images
-       ...
-       spec:
+     blockStorage:
+       pools:
+       - name: images
          ...
-         failureDomain: rack
-     - name: volumes
-       ...
-       spec:
+         spec:
+           ...
+           failureDomain: rack
+       - name: volumes
          ...
-         failureDomain: rack
+         spec:
+           ...
+           failureDomain: rack
      ...
      objectStorage:
        objectStores:

@@ -15,12 +15,12 @@ the Ceph cluster through the `rookConfig` key-value section of the
 However, if `rookConfig` is empty, Pelagia Deployment Controller still specifies the
 following default configuration options for each Ceph cluster:
 
-* Required network parameters that you can change through the `network`
+* Required network parameters that you can change through the `cluster.network`
   section:
   ```ini
   [global]
-  cluster network = <spec.network.clusterNet>
-  public network = <spec.network.publicNet>
+  cluster network = <spec.cluster.network.addressRanges.cluster>
+  public network = <spec.cluster.network.addressRanges.public>
   ```
 * General default configuration options that you can override using the
   `rookConfig` parameter:

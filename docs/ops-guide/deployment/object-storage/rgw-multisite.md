@@ -151,30 +151,29 @@ and the current cluster represents the master zone, modify the current
 
     ```yaml
     objectStorage:
-      multiSite:
-        realms:
-        - name: openstack-store
-          spec:
-            default: true
-        zonegroups:
-        - name: openstack-store
-          spec:
-            realm: openstack-store
-        zones:
-        - name: openstack-store
-          spec:
-            zoneGroup: openstack-store
-            customEndpoints:
-            - http://10.11.0.75:8080
-            metadataPool:
-              failureDomain: host
-                replicated:
-                  size: 3
-            dataPool:
-              erasureCoded:
-                codingChunks: 1
-                dataChunks: 2
-              failureDomain: host
+      realms:
+      - name: openstack-store
+        spec:
+          default: true
+      zonegroups:
+      - name: openstack-store
+        spec:
+          realm: openstack-store
+      zones:
+      - name: openstack-store
+        spec:
+          zoneGroup: openstack-store
+          customEndpoints:
+          - http://10.11.0.75:8080
+          metadataPool:
+            failureDomain: host
+            replicated:
+              size: 3
+          dataPool:
+            erasureCoded:
+              codingChunks: 1
+              dataChunks: 2
+            failureDomain: host
       objectStores:
       - name: openstack-store
         usedForOpenstack: true
