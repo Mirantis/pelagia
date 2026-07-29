@@ -65,7 +65,8 @@ def main() -> None:
         with open(chart_yaml, encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
         name = (data.get("name") or "").strip()
-        if not name:
+        # need to collect only main chart, all deps are already inside
+        if name != "pelagia-ceph":
             continue
         refs.append(f"{registry}/{name}:{version}")
 
