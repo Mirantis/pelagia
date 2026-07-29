@@ -79,8 +79,6 @@ type CephDaemonsStatus struct {
 	// Supported statuses for CSI operator, CephFS, RBD node plugins and controllers.
 	// +optional
 	CephCSIDaemons map[string]DaemonStatus `json:"cephCSIDaemons,omitempty"`
-	// CephCSIPluginDaemons is deprecated in favor cephCSIDaemons section
-	CephCSIPluginDaemons map[string]DaemonStatus `json:"cephCSIPluginDaemons,omitempty"`
 }
 
 type DaemonStatus struct {

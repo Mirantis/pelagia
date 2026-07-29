@@ -75,10 +75,6 @@ const (
 	poolPreserveOnDeleteAnnotation = "cephdeployment.lcm.mirantis.com/preserve-on-delete"
 	// subVolumeGroupName is default subvolumegroup name to create for cephfs csi
 	subVolumeGroupName = "csi"
-
-	// DEPRECATED
-	rgwStorageClassName  = "rgw-storage-class"
-	rgwSslCertSecretName = "rgw-ssl-certificate"
 )
 
 type objectProcess string
