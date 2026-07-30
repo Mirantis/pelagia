@@ -28,7 +28,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
+	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
 )
 
 func (c *cephDeploymentInfraConfig) checkLabelsAndOwnerRefs(cur *metav1.ObjectMeta, expected *metav1.ObjectMeta, kind string) bool {

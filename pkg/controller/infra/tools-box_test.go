@@ -27,8 +27,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	faketestclients "github.com/Mirantis/pelagia/test/unit/clients"
-	unitinputs "github.com/Mirantis/pelagia/test/unit/inputs"
+	faketestclients "github.com/Mirantis/pelagia/v3/test/unit/clients"
+	unitinputs "github.com/Mirantis/pelagia/v3/test/unit/inputs"
 )
 
 func TestEnsureToolBox(t *testing.T) {

@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"sort"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
+	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
 )
 
 func (d *diskDaemon) checkOsds() []string {

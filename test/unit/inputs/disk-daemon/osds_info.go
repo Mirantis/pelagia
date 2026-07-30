@@ -17,7 +17,7 @@ limitations under the License.
 package input
 
 import (
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
+	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
 )
 
 var OsdDevicesInfoNode1 = map[string][]lcmcommon.OsdDaemonInfo{

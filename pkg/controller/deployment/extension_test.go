@@ -22,8 +22,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	unitinputs "github.com/Mirantis/pelagia/test/unit/inputs"
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v3/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	unitinputs "github.com/Mirantis/pelagia/v3/test/unit/inputs"
 )
 
 func TestCastExtensions(t *testing.T) {

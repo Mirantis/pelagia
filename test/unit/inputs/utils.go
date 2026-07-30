@@ -21,7 +21,7 @@ import (
 
 	"sigs.k8s.io/yaml"
 
-	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v3/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 )
 
 func ConvertJSONToYaml(data []byte) []byte {

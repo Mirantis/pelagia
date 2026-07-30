@@ -23,9 +23,9 @@ import (
 
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
-	lcmversion "github.com/Mirantis/pelagia/codeversion"
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
-	"github.com/Mirantis/pelagia/pkg/connector"
+	lcmversion "github.com/Mirantis/pelagia/v3/codeversion"
+	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
+	"github.com/Mirantis/pelagia/v3/pkg/connector"
 )
 
 func main() {

@@ -32,9 +32,9 @@ import (
 	fakestorage "k8s.io/client-go/kubernetes/typed/storage/v1/fake"
 	gotesting "k8s.io/client-go/testing"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
-	faketestclients "github.com/Mirantis/pelagia/test/unit/clients"
-	unitinputs "github.com/Mirantis/pelagia/test/unit/inputs"
+	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
+	faketestclients "github.com/Mirantis/pelagia/v3/test/unit/clients"
+	unitinputs "github.com/Mirantis/pelagia/v3/test/unit/inputs"
 )
 
 func TestCheckCSIVolumes(t *testing.T) {
