@@ -23,9 +23,9 @@ import (
 	sync "sync"
 	time "time"
 
-	versioned "github.com/Mirantis/pelagia/pkg/client/clientset/versioned"
-	cephpelagialcm "github.com/Mirantis/pelagia/pkg/client/informers/externalversions/ceph.pelagia.lcm"
-	internalinterfaces "github.com/Mirantis/pelagia/pkg/client/informers/externalversions/internalinterfaces"
+	versioned "github.com/Mirantis/pelagia/v3/pkg/client/clientset/versioned"
+	cephpelagialcm "github.com/Mirantis/pelagia/v3/pkg/client/informers/externalversions/ceph.pelagia.lcm"
+	internalinterfaces "github.com/Mirantis/pelagia/v3/pkg/client/informers/externalversions/internalinterfaces"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

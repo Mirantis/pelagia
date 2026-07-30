@@ -23,8 +23,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
-	lcmdiskdaemoninput "github.com/Mirantis/pelagia/test/unit/inputs/disk-daemon"
+	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
+	lcmdiskdaemoninput "github.com/Mirantis/pelagia/v3/test/unit/inputs/disk-daemon"
 )
 
 func TestProcessLsblkInfo(t *testing.T) {

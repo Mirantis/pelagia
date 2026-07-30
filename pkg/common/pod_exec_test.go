@@ -25,7 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/rest"
 
-	faketestclients "github.com/Mirantis/pelagia/test/unit/clients"
+	faketestclients "github.com/Mirantis/pelagia/v3/test/unit/clients"
 )
 
 func TestRunPodCommandWithValidation(t *testing.T) {

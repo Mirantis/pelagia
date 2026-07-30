@@ -33,9 +33,9 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 	gatewayapi "sigs.k8s.io/gateway-api/apis/v1"
 
-	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
-	f "github.com/Mirantis/pelagia/test/e2e/framework"
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v3/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
+	f "github.com/Mirantis/pelagia/v3/test/e2e/framework"
 )
 
 func verifyRgwConnection(t *testing.T, rgwName string, httpPort int32, httpsPort int32) {

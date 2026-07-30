@@ -23,8 +23,8 @@ import (
 
 	csiopapi "github.com/ceph/ceph-csi-operator/api/v1"
 
-	faketestclients "github.com/Mirantis/pelagia/test/unit/clients"
-	unitinputs "github.com/Mirantis/pelagia/test/unit/inputs"
+	faketestclients "github.com/Mirantis/pelagia/v3/test/unit/clients"
+	unitinputs "github.com/Mirantis/pelagia/v3/test/unit/inputs"
 )
 
 func TestDropCsiOperatorResources(t *testing.T) {

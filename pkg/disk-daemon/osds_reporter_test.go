@@ -21,9 +21,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
-	unitinputs "github.com/Mirantis/pelagia/test/unit/inputs"
-	lcmdiskdaemoninput "github.com/Mirantis/pelagia/test/unit/inputs/disk-daemon"
+	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
+	unitinputs "github.com/Mirantis/pelagia/v3/test/unit/inputs"
+	lcmdiskdaemoninput "github.com/Mirantis/pelagia/v3/test/unit/inputs/disk-daemon"
 )
 
 func TestPrepareOsdReport(t *testing.T) {

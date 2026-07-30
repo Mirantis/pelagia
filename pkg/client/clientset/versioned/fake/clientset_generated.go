@@ -19,9 +19,9 @@ limitations under the License.
 package fake
 
 import (
-	clientset "github.com/Mirantis/pelagia/pkg/client/clientset/versioned"
-	lcmv1alpha1 "github.com/Mirantis/pelagia/pkg/client/clientset/versioned/typed/ceph.pelagia.lcm/v1alpha1"
-	fakelcmv1alpha1 "github.com/Mirantis/pelagia/pkg/client/clientset/versioned/typed/ceph.pelagia.lcm/v1alpha1/fake"
+	clientset "github.com/Mirantis/pelagia/v3/pkg/client/clientset/versioned"
+	lcmv1alpha1 "github.com/Mirantis/pelagia/v3/pkg/client/clientset/versioned/typed/ceph.pelagia.lcm/v1alpha1"
+	fakelcmv1alpha1 "github.com/Mirantis/pelagia/v3/pkg/client/clientset/versioned/typed/ceph.pelagia.lcm/v1alpha1/fake"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"

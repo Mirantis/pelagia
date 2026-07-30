@@ -28,8 +28,8 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	lcmclient "github.com/Mirantis/pelagia/pkg/client/clientset/versioned"
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v3/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	lcmclient "github.com/Mirantis/pelagia/v3/pkg/client/clientset/versioned"
 )
 
 func IsClusterMaintenanceActing(ctx context.Context, cephLcmclientset lcmclient.Interface, namespace, name string) (bool, error) {

@@ -39,9 +39,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 
-	cephlcmclient "github.com/Mirantis/pelagia/pkg/client/clientset/versioned/typed/ceph.pelagia.lcm/v1alpha1"
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
-	lcmconfig "github.com/Mirantis/pelagia/pkg/controller/config"
+	cephlcmclient "github.com/Mirantis/pelagia/v3/pkg/client/clientset/versioned/typed/ceph.pelagia.lcm/v1alpha1"
+	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
+	lcmconfig "github.com/Mirantis/pelagia/v3/pkg/controller/config"
 )
 
 var (

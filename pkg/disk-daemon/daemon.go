@@ -20,7 +20,7 @@ import (
 	"sync"
 	"time"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
+	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
 )
 
 var (

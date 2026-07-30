@@ -23,9 +23,9 @@ import (
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"github.com/rs/zerolog"
 
-	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
-	lcmconfig "github.com/Mirantis/pelagia/pkg/controller/config"
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v3/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
+	lcmconfig "github.com/Mirantis/pelagia/v3/pkg/controller/config"
 )
 
 var (

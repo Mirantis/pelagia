@@ -21,8 +21,8 @@ import (
 
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 
-	cephlcmv1alpha "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	f "github.com/Mirantis/pelagia/test/e2e/framework"
+	cephlcmv1alpha "github.com/Mirantis/pelagia/v3/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	f "github.com/Mirantis/pelagia/v3/test/e2e/framework"
 )
 
 func TestUpdateStorageNodes(t *testing.T) {

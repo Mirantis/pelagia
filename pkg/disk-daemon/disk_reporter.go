@@ -23,7 +23,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
+	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
 )
 
 func (d *diskDaemon) checkDisks() (bool, error) {
