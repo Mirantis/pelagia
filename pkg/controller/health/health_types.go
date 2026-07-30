@@ -22,7 +22,7 @@ import (
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"github.com/rs/zerolog"
 
-	lcmconfig "github.com/Mirantis/pelagia/pkg/controller/config"
+	lcmconfig "github.com/Mirantis/pelagia/v2/pkg/controller/config"
 )
 
 // cephDeploymentHealthConfig main type for health reconcilation for each CephDeploymentHealth object

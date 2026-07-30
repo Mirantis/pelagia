@@ -19,8 +19,8 @@ limitations under the License.
 package ceph
 
 import (
-	v1alpha1 "github.com/Mirantis/pelagia/pkg/client/informers/externalversions/ceph.pelagia.lcm/v1alpha1"
-	internalinterfaces "github.com/Mirantis/pelagia/pkg/client/informers/externalversions/internalinterfaces"
+	v1alpha1 "github.com/Mirantis/pelagia/v2/pkg/client/informers/externalversions/ceph.pelagia.lcm/v1alpha1"
+	internalinterfaces "github.com/Mirantis/pelagia/v2/pkg/client/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to each of this group's versions.

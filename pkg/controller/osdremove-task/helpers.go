@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"strings"
 
-	lcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
+	lcmv1alpha1 "github.com/Mirantis/pelagia/v2/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	lcmcommon "github.com/Mirantis/pelagia/v2/pkg/common"
 )
 
 // func to check provided disk is in provided osd daemon info

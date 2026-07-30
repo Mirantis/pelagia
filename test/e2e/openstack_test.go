@@ -26,7 +26,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	f "github.com/Mirantis/pelagia/test/e2e/framework"
+	f "github.com/Mirantis/pelagia/v2/test/e2e/framework"
 )
 
 func TestCreateServerWithVolume(t *testing.T) {

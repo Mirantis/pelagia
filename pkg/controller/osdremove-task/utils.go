@@ -25,7 +25,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
+	lcmcommon "github.com/Mirantis/pelagia/v2/pkg/common"
 )
 
 var diskDaemonRetryTimeout = 10 * time.Second

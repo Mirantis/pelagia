@@ -23,8 +23,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	faketestclients "github.com/Mirantis/pelagia/test/unit/clients"
-	unitinputs "github.com/Mirantis/pelagia/test/unit/inputs"
+	faketestclients "github.com/Mirantis/pelagia/v2/test/unit/clients"
+	unitinputs "github.com/Mirantis/pelagia/v2/test/unit/inputs"
 )
 
 func TestCephUpgradeAllowed(t *testing.T) {

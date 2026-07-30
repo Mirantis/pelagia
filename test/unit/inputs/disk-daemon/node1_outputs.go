@@ -16,7 +16,7 @@ limitations under the License.
 
 package input
 
-import lcmcommon "github.com/Mirantis/pelagia/pkg/common"
+import lcmcommon "github.com/Mirantis/pelagia/v2/pkg/common"
 
 var LsblkReportFromNode1 = `{
    "blockdevices": [

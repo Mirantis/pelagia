@@ -26,7 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
+	lcmcommon "github.com/Mirantis/pelagia/v2/pkg/common"
 )
 
 const (

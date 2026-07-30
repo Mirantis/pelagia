@@ -24,7 +24,7 @@ import (
 	"github.com/rs/zerolog"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	lcmconfig "github.com/Mirantis/pelagia/pkg/controller/config"
+	lcmconfig "github.com/Mirantis/pelagia/v2/pkg/controller/config"
 )
 
 const (

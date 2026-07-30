@@ -26,7 +26,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 
-	cephlcmv1alpha "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	cephlcmv1alpha "github.com/Mirantis/pelagia/v2/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 )
 
 func (c *ManagedConfig) CreateOsdRemoveTask(task *cephlcmv1alpha.CephOsdRemoveTask) error {

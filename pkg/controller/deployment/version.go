@@ -32,7 +32,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
+	lcmcommon "github.com/Mirantis/pelagia/v2/pkg/common"
 )
 
 var (

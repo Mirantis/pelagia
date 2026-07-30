@@ -41,10 +41,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 	gatewayclient "sigs.k8s.io/gateway-api/pkg/client/clientset/versioned"
 
-	lcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	lcmclient "github.com/Mirantis/pelagia/pkg/client/clientset/versioned"
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
-	lcmconfig "github.com/Mirantis/pelagia/pkg/controller/config"
+	lcmv1alpha1 "github.com/Mirantis/pelagia/v2/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	lcmclient "github.com/Mirantis/pelagia/v2/pkg/client/clientset/versioned"
+	lcmcommon "github.com/Mirantis/pelagia/v2/pkg/common"
+	lcmconfig "github.com/Mirantis/pelagia/v2/pkg/controller/config"
 )
 
 const ControllerName = "pelagia-health-controller"

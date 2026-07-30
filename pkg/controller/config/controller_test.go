@@ -27,8 +27,8 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	faketestclients "github.com/Mirantis/pelagia/test/unit/clients"
-	faketestscheme "github.com/Mirantis/pelagia/test/unit/scheme"
+	faketestclients "github.com/Mirantis/pelagia/v2/test/unit/clients"
+	faketestscheme "github.com/Mirantis/pelagia/v2/test/unit/scheme"
 )
 
 func FakeReconciler(configmap *corev1.ConfigMap) *ReconcileCephDeploymentHealthConfig {

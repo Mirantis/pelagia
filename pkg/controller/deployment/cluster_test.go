@@ -30,10 +30,10 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	gotesting "k8s.io/client-go/testing"
 
-	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
-	faketestclients "github.com/Mirantis/pelagia/test/unit/clients"
-	unitinputs "github.com/Mirantis/pelagia/test/unit/inputs"
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v2/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	lcmcommon "github.com/Mirantis/pelagia/v2/pkg/common"
+	faketestclients "github.com/Mirantis/pelagia/v2/test/unit/clients"
+	unitinputs "github.com/Mirantis/pelagia/v2/test/unit/inputs"
 )
 
 func TestGenerateCephCluster(t *testing.T) {

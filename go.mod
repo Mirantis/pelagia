@@ -1,4 +1,4 @@
-module github.com/Mirantis/pelagia
+module github.com/Mirantis/pelagia/v2
 
 go 1.26.5
 

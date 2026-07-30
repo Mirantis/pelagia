@@ -20,11 +20,11 @@ import (
 	"github.com/pkg/errors"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
-	lcmdeployment "github.com/Mirantis/pelagia/pkg/controller/deployment"
-	lcmhealth "github.com/Mirantis/pelagia/pkg/controller/health"
-	lcminfra "github.com/Mirantis/pelagia/pkg/controller/infra"
-	lcmosdremove "github.com/Mirantis/pelagia/pkg/controller/osdremove-task"
-	lcmsecret "github.com/Mirantis/pelagia/pkg/controller/secret"
+	lcmdeployment "github.com/Mirantis/pelagia/v2/pkg/controller/deployment"
+	lcmhealth "github.com/Mirantis/pelagia/v2/pkg/controller/health"
+	lcminfra "github.com/Mirantis/pelagia/v2/pkg/controller/infra"
+	lcmosdremove "github.com/Mirantis/pelagia/v2/pkg/controller/osdremove-task"
+	lcmsecret "github.com/Mirantis/pelagia/v2/pkg/controller/secret"
 )
 
 // AddToManagerFuncs is a map of functions to add all Controllers to the Manager

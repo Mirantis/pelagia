@@ -27,8 +27,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 
-	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	f "github.com/Mirantis/pelagia/test/e2e/framework"
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v2/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	f "github.com/Mirantis/pelagia/v2/test/e2e/framework"
 )
 
 func TestCreateCephClient(t *testing.T) {

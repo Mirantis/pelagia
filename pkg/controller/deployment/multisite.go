@@ -21,14 +21,14 @@ import (
 	"reflect"
 	"strings"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
+	lcmcommon "github.com/Mirantis/pelagia/v2/pkg/common"
 
 	"github.com/pkg/errors"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v2/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 )
 
 func (c *cephDeploymentConfig) ensureRgwMultiSite() (bool, error) {
