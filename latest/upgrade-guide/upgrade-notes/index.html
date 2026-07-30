@@ -3563,7 +3563,8 @@ of the changes that require these steps, see the <em>Breaking changes</em> secti
    the deprecation of the Ingress NGINX controller. The <code>Gateway</code> object and Controller must be configured separately.</p>
 <p>To configure Pelagia after switching to the Gateway API, use the corresponding <code>Gateway</code> object.
  For details, see <a href="../../configuration/">Configuration Reference</a> and <a href="../../custom-resources/cephdeployment/">CephDeployment resource</a>.</p>
-<p>Once the Gateway API HTTPRoute is enrolled, you can completely remove the <code>ingressConfig</code> section.</p>
+<p>Once the Gateway API HTTPRoute is enrolled, disable Ingress in Helm values <code>lcmConfig.useIngress: false</code> and completely
+ remove the <code>ingressConfig</code> section from <code>CephDeployment</code> spec if present.</p>
 </li>
 <li>
 <p>If the current Helm values contain the <code>rookConfig</code> section, you can safely remove it.</p>
