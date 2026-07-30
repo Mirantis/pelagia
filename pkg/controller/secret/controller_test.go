@@ -28,12 +28,12 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
-	lcmconfig "github.com/Mirantis/pelagia/pkg/controller/config"
-	faketestclients "github.com/Mirantis/pelagia/test/unit/clients"
-	unitinputs "github.com/Mirantis/pelagia/test/unit/inputs"
-	fscheme "github.com/Mirantis/pelagia/test/unit/scheme"
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v2/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	lcmcommon "github.com/Mirantis/pelagia/v2/pkg/common"
+	lcmconfig "github.com/Mirantis/pelagia/v2/pkg/controller/config"
+	faketestclients "github.com/Mirantis/pelagia/v2/test/unit/clients"
+	unitinputs "github.com/Mirantis/pelagia/v2/test/unit/inputs"
+	fscheme "github.com/Mirantis/pelagia/v2/test/unit/scheme"
 )
 
 func FakeReconciler() *ReconcileCephSecrets {

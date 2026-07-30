@@ -28,7 +28,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/util/wait"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
+	lcmcommon "github.com/Mirantis/pelagia/v2/pkg/common"
 )
 
 var (

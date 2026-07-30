@@ -26,8 +26,8 @@ import (
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v2/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	lcmcommon "github.com/Mirantis/pelagia/v2/pkg/common"
 )
 
 func (c *cephDeploymentConfig) isMigrationRequired() bool {

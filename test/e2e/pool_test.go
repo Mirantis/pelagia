@@ -35,8 +35,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
-	f "github.com/Mirantis/pelagia/test/e2e/framework"
+	lcmcommon "github.com/Mirantis/pelagia/v2/pkg/common"
+	f "github.com/Mirantis/pelagia/v2/test/e2e/framework"
 )
 
 func TestAddRemovePool(t *testing.T) {

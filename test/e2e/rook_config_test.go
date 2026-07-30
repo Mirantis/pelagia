@@ -24,7 +24,7 @@ import (
 	"github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v2"
 
-	f "github.com/Mirantis/pelagia/test/e2e/framework"
+	f "github.com/Mirantis/pelagia/v2/test/e2e/framework"
 )
 
 func verifyCephAvailable(t *testing.T) []error {

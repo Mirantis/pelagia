@@ -29,9 +29,9 @@ import (
 	"k8s.io/client-go/rest"
 	gotesting "k8s.io/client-go/testing"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
-	faketestclients "github.com/Mirantis/pelagia/test/unit/clients"
-	unitinputs "github.com/Mirantis/pelagia/test/unit/inputs"
+	lcmcommon "github.com/Mirantis/pelagia/v2/pkg/common"
+	faketestclients "github.com/Mirantis/pelagia/v2/test/unit/clients"
+	unitinputs "github.com/Mirantis/pelagia/v2/test/unit/inputs"
 )
 
 func FakeConnector() *CephConnector {

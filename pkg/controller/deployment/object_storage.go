@@ -21,7 +21,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v2/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 )
 
 func (c *cephDeploymentConfig) ensureObjectStorage() (bool, error) {

@@ -11,8 +11,8 @@ import (
 	csiopapi "github.com/ceph/ceph-csi-operator/api/v1"
 	gatewayapi "sigs.k8s.io/gateway-api/apis/v1"
 
-	"github.com/Mirantis/pelagia/pkg/apis"
-	lcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	"github.com/Mirantis/pelagia/v2/pkg/apis"
+	lcmv1alpha1 "github.com/Mirantis/pelagia/v2/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 )
 
 var Scheme = runtime.NewScheme()

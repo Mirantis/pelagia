@@ -27,9 +27,9 @@ import (
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	cephlcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	faketestclients "github.com/Mirantis/pelagia/test/unit/clients"
-	unitinputs "github.com/Mirantis/pelagia/test/unit/inputs"
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v2/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	faketestclients "github.com/Mirantis/pelagia/v2/test/unit/clients"
+	unitinputs "github.com/Mirantis/pelagia/v2/test/unit/inputs"
 )
 
 func TestLabelNodes(t *testing.T) {

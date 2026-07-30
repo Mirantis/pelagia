@@ -21,8 +21,8 @@ package v1alpha1
 import (
 	http "net/http"
 
-	cephpelagialcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	scheme "github.com/Mirantis/pelagia/pkg/client/clientset/versioned/scheme"
+	cephpelagialcmv1alpha1 "github.com/Mirantis/pelagia/v2/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	scheme "github.com/Mirantis/pelagia/v2/pkg/client/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
 )
 

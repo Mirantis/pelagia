@@ -19,8 +19,8 @@ package input
 import (
 	"encoding/json"
 
-	lcmcommon "github.com/Mirantis/pelagia/pkg/common"
-	lcmdiskdaemoninput "github.com/Mirantis/pelagia/test/unit/inputs/disk-daemon"
+	lcmcommon "github.com/Mirantis/pelagia/v2/pkg/common"
+	lcmdiskdaemoninput "github.com/Mirantis/pelagia/v2/test/unit/inputs/disk-daemon"
 )
 
 var CephDiskDaemonDiskReportStringNode1 = GetDiskDaemonReportToString(&DiskDaemonReportOkNode1)

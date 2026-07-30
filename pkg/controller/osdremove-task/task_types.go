@@ -23,8 +23,8 @@ import (
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"github.com/rs/zerolog"
 
-	lcmv1alpha1 "github.com/Mirantis/pelagia/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	lcmconfig "github.com/Mirantis/pelagia/pkg/controller/config"
+	lcmv1alpha1 "github.com/Mirantis/pelagia/v2/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	lcmconfig "github.com/Mirantis/pelagia/v2/pkg/controller/config"
 )
 
 const diskCleanupJobLabel = "pelagia-lcm-cleanup-disks"

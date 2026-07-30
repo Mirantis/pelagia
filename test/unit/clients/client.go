@@ -38,10 +38,10 @@ import (
 	fakegateway "sigs.k8s.io/gateway-api/pkg/client/clientset/versioned/fake"
 	fakegatewayv1 "sigs.k8s.io/gateway-api/pkg/client/clientset/versioned/typed/apis/v1/fake"
 
-	lcmclient "github.com/Mirantis/pelagia/pkg/client/clientset/versioned"
-	fakelcm "github.com/Mirantis/pelagia/pkg/client/clientset/versioned/fake"
-	fakelcmv1alpha1 "github.com/Mirantis/pelagia/pkg/client/clientset/versioned/typed/ceph.pelagia.lcm/v1alpha1/fake"
-	fscheme "github.com/Mirantis/pelagia/test/unit/scheme"
+	lcmclient "github.com/Mirantis/pelagia/v2/pkg/client/clientset/versioned"
+	fakelcm "github.com/Mirantis/pelagia/v2/pkg/client/clientset/versioned/fake"
+	fakelcmv1alpha1 "github.com/Mirantis/pelagia/v2/pkg/client/clientset/versioned/typed/ceph.pelagia.lcm/v1alpha1/fake"
+	fscheme "github.com/Mirantis/pelagia/v2/test/unit/scheme"
 )
 
 var supportedKinds = map[string]bool{
