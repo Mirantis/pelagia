@@ -92,10 +92,6 @@ type DeployParams struct {
 	NetPolEnabled bool
 	// namespace for sharing secrets between openstack and ceph
 	OpenstackCephSharedNamespace string
-	// TODO: deprecated, since can be replaced by CaBundleRef directly
-	// for related cephobjectstore config
-	// secret with cabundle for multisite public access between zones
-	MultisiteCabundleSecretRef string
 	// excluding label to place ceph daemonsets
 	CephDaemonsetPlacementLabelExclude string
 	// drain request label for nodes
@@ -188,7 +184,6 @@ var (
 	cephDplRookImage                 = "DEPLOYMENT_ROOK_IMAGE"
 	cephDplNetPolEnabled             = "DEPLOYMENT_NETPOL_ENABLED"
 	cephDplOpenstackCephSharedNs     = "DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE"
-	cephDplMultisiteCabundleRef      = "DEPLOYMENT_MULTISITE_CABUNDLE_SECRET"
 	cephDplCephDaemonsetLabelExclude = "DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS"
 	cephDplDrainRequestLabelKeyName  = "DEPLOYMENT_DRAIN_REQUEST_LABEL_KEY"
 	cephDplDrainReadyLabelKeyName    = "DEPLOYMENT_DRAIN_READY_LABEL_KEY"
@@ -328,11 +323,6 @@ func loadCephDeploymentConfiguration(objLog zerolog.Logger, configData map[strin
 	if openstackCephNs, present := configData[cephDplOpenstackCephSharedNs]; present {
 		objLog.Debug().Msgf(debugMsgTmpl, cephDplOpenstackCephSharedNs, openstackCephNs)
 		newCephDplConfig.OpenstackCephSharedNamespace = openstackCephNs
-	}
-
-	if multisiteCaBundle, present := configData[cephDplMultisiteCabundleRef]; present {
-		objLog.Debug().Msgf(debugMsgTmpl, cephDplMultisiteCabundleRef, multisiteCaBundle)
-		newCephDplConfig.MultisiteCabundleSecretRef = multisiteCaBundle
 	}
 
 	if drainRequestLabel, present := configData[cephDplDrainRequestLabelKeyName]; present {
