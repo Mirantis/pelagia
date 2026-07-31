@@ -1,7 +1,7 @@
 ---
-description: How to configure TLS for Ceph Object Gateway (RGW) endpoints using built‑in or custom ingress settings.
+description: How to configure TLS for Ceph Object Gateway (RGW) endpoints using the Gateway API or legacy ingress settings.
 keywords: pelagia, configure rgw tls, ceph rgw tls, rgw tls, configure tls, rados gateway tls, rgw certificates,
-  cephdeployment, configure ceph object gateway tls, ingressconfig, ingress
+  cephdeployment, configure ceph object gateway tls, ingressconfig, ingress, gateway api
 ---
 
 <a id="rgw-tls-configure-ceph-object-gateway-tls"></a>
@@ -32,11 +32,11 @@ For API reference, see [CephDeployment API: HTTPRoute parameters](../../../custo
       - [HTTPRoute API](https://gateway-api.sigs.k8s.io/reference/api-types/httproute/)
 
 <a name="rgw-tls-ingress-config-parameters"></a>
-## Ingress configuration parameters
+## Ingress configuration parameters (deprecated)
 
 !!! warning
 
-    The `tlsConfig` section is deprecated. Use the `objectStorage.gatewayHTTPRoutes` section instead.
+    The `ingressConfig` section is deprecated. Use the `objectStorage.gatewayHTTPRoutes` section instead.
 
 - `tlsConfig` - Defines TLS configuration for the Ceph Object Gateway public endpoint.
 - `controllerClassName` - Name of Ingress Controller class. The default value for Pelagia integrated Rockoon is `openstack-ingress-nginx`
@@ -44,7 +44,7 @@ For API reference, see [CephDeployment API: HTTPRoute parameters](../../../custo
 
 !!! warning
 
-    The related ObjectStore defined in the `objectStorage.objectStores` section must contain the `usedByIngress: true` parameter. Only one ObjectStore with public access through Ingress is supported.
+    The related ObjectStore defined in the `objectStorage.objectStores` section must contain the `servedByIngress: true` parameter. Only one ObjectStore with public access through Ingress is supported.
 
 ### The `tlsConfig` section parameters
 
@@ -126,7 +126,7 @@ For the ability to access RGW with a public hostname, you must set the expected 
       objectStorage:
         objectStores:
         - name: rgw-store
-          usedByIngress: true
+          servedByIngress: true
           spec:
             ...
             hosting:
@@ -146,17 +146,25 @@ For the ability to access RGW with a public hostname, you must set the expected 
 <a id="rgw-tls-configure-tls-for-object-gateway-using-the-gateway-api"></a>
 ## Configure TLS for Object Gateway using the Gateway API
 
+!!! note
+
+    In this section, the term "Gateway" refers to the Kubernetes Gateway API resource, not the Ceph Object Gateway.
+
 Pelagia uses the `gatewayHTTPRoutes` section to manage `HTTPRoute` of the Gateway/TLS settings that were previously configured by the operator.
 With the provided `HTTPRoute`, Ceph Object Gateway will use the SSL certificate provided by the Gateway Controller.
 
 **To configure TLS using the Gateway API:**
 
 1. Configure the Gateway Controller and the `Gateway` object with TLS using the [Gateway API documentation: TLS Configuration](https://gateway-api.sigs.k8s.io/guides/user-guides/tls/).
-2. Open the `CephDeployment` CR for editing.
-3. Configure the `objectStorage` section:
+
+2. Ensure the Gateway API is enabled in Pelagia using the default `lcmConfig.gatewayAPIEnabled: true`. Pelagia binds to that Gateway using the `lcmConfig.gatewayName` and `lcmConfig.gatewayNamespace` parameters. For details, see [Helm chart configuration](../../../configuration/helm-values.md#configuration-options).
+3. Open the `CephDeployment` CR for editing.
+4. Configure the `objectStorage` section:
 
     - In `gatewayHTTPRoutes`, create an `HTTPRoute` with the required parameters. For reference, see [Gateway API documentation: HTTPRoute](https://gateway-api.sigs.k8s.io/reference/api-types/httproute/).
     - In `gatewayHTTPRoutes.name.spec.hostnames` and `objectStores.name.spec.hosting.dnsNames`, add a hostname to be used for the RGW public access, respecting the Gateway TLS configuration.
+
+    Only `spec.hostnames` is required, omitted fields fall back to Pelagia defaults. For details, see [CephDeployment API: HTTPRoute parameters](../../../custom-resources/cephdeployment.md#cephdeployment-httproute-parameters).
 
     For example:
 
@@ -178,7 +186,7 @@ With the provided `HTTPRoute`, Ceph Object Gateway will use the SSL certificate 
           ...
     ```
 
-4. Verify that `HTTPRoute` is configured:
+5. Verify that `HTTPRoute` is configured:
 
     ```bash
     kubectl get httproute -n rook-ceph
@@ -190,7 +198,35 @@ With the provided `HTTPRoute`, Ceph Object Gateway will use the SSL certificate 
      openstack-store-openstack-route   ["openstack-store.it.just.works"]   125m
      ```
 
-## Configure TLS for Object Gateway using Ingress
+6. Obtain the public Ceph Object Gateway endpoint address from the `CephDeploymentHealth` object:
+
+    ```bash
+    kubectl get cdh -n ceph-lcm-mirantis cephcluster -o jsonpath='{.status.healthReport.clusterDetails.rgwInfo}' | jq -r
+    {
+      "publicEndpoints": {
+        "openstack-store": [
+          "https://openstack-store.it.just.works"
+        ]
+      }
+    }
+    ```
+
+    Substitute the following values in the command above:
+
+    - `ceph-lcm-mirantis` with the namespace of your `CephDeployment` object
+    - `cephcluster` with the name of your `CephDeployment` object
+    - `openstack-store` with the name of your `CephObjectStore` object
+
+    The public Ceph Object Gateway endpoint has the `https://<hostname>` format, where `<hostname>` is
+    the name specified in `gatewayHTTPRoutes.spec.hostnames`.
+
+7. Obtain the public endpoint TLS CA certificate from the related listener in the `Gateway` object:
+
+    ```bash
+    kubectl -n <gatewayNamespace> get gateway <gatewayName> -o yaml
+    ```
+
+## Configure TLS for Object Gateway using Ingress (deprecated)
 
 !!! warning
 
@@ -237,13 +273,13 @@ For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-o
             "nginx.ingress.kubernetes.io/ssl-redirect": "false"
      ```
 
-6. In the `objectStorage.objectStores` section, set the `usedByIngress: true` parameter for the ObjectStore with public access through Ingress:
+6. In the `objectStorage.objectStores` section, set the `servedByIngress: true` parameter for the ObjectStore with public access through Ingress:
 
     ```yaml
     objectStorage:
       objectStores:
       - name: rgw-store
-        usedByIngress: true
+        servedByIngress: true
         spec:
           ...
     ```
