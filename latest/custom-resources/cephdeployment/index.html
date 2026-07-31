@@ -4383,7 +4383,21 @@ For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ce
 <ul>
 <li><code>name</code> - Name of <code>HTTPRoute</code>. Mandatory.</li>
 <li><code>objectStoreName</code> - Name of the related <code>CephObjectStore</code> object. Mandatory.</li>
-<li><code>spec</code> - Represents the Gateway API <code>HTTPRoute</code> specification. For details, see <a href="https://gateway-api.sigs.k8s.io/reference/api-types/httproute/">Gateway API documentation: HTTPRoute</a>.</li>
+<li>
+<p><code>spec</code> - Represents the Gateway API <code>HTTPRoute</code> specification. For details, see <a href="https://gateway-api.sigs.k8s.io/reference/api-types/httproute/">Gateway API documentation: HTTPRoute</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Within <code>spec</code>, only <code>hostnames</code> is mandatory. If you omit other
+<code>HTTPRoute</code> fields, Pelagia applies the following defaults:</p>
+<ul>
+<li><code>parentRefs</code> - the default <code>Gateway</code> object defined by
+    <code>lcmConfig.gatewayName</code> and <code>lcmConfig.gatewayNamespace</code></li>
+<li><code>rules</code> - a single rule matching the <code>/</code> path prefix</li>
+<li><code>backendRefs</code> - the RGW service of the related <code>CephObjectStore</code>
+    on its <code>spec.gateway.port</code></li>
+</ul>
+</div>
+</li>
 </ul>
 <details>
 <summary>Example configuration of gatewayHTTPRoutes specification</summary>

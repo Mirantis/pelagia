@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="How to configure TLS for Ceph Object Gateway (RGW) endpoints using built‑in or custom ingress settings.">
+        <meta name="description" content="How to configure TLS for Ceph Object Gateway (RGW) endpoints using the Gateway API or legacy ingress settings.">
       
       
         <meta name="author" content="Mirantis">
@@ -1902,15 +1902,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#ingress-configuration-parameters" class="md-nav__link">
+  <a href="#ingress-configuration-parameters-deprecated" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Ingress configuration parameters
+        Ingress configuration parameters (deprecated)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Ingress configuration parameters">
+    <nav class="md-nav" aria-label="Ingress configuration parameters (deprecated)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1963,10 +1963,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configure-tls-for-object-gateway-using-ingress" class="md-nav__link">
+  <a href="#configure-tls-for-object-gateway-using-ingress-deprecated" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configure TLS for Object Gateway using Ingress
+        Configure TLS for Object Gateway using Ingress (deprecated)
       
     </span>
   </a>
@@ -3461,15 +3461,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#ingress-configuration-parameters" class="md-nav__link">
+  <a href="#ingress-configuration-parameters-deprecated" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Ingress configuration parameters
+        Ingress configuration parameters (deprecated)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Ingress configuration parameters">
+    <nav class="md-nav" aria-label="Ingress configuration parameters (deprecated)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -3522,10 +3522,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#configure-tls-for-object-gateway-using-ingress" class="md-nav__link">
+  <a href="#configure-tls-for-object-gateway-using-ingress-deprecated" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Configure TLS for Object Gateway using Ingress
+        Configure TLS for Object Gateway using Ingress (deprecated)
       
     </span>
   </a>
@@ -3670,10 +3670,10 @@ For API reference, see <a href="../../../../custom-resources/cephdeployment/#cep
 </ul>
 </div>
 <p><a name="rgw-tls-ingress-config-parameters"></a></p>
-<h2 id="ingress-configuration-parameters">Ingress configuration parameters<a class="headerlink" href="#ingress-configuration-parameters" title="Permanent link">#</a></h2>
+<h2 id="ingress-configuration-parameters-deprecated">Ingress configuration parameters (deprecated)<a class="headerlink" href="#ingress-configuration-parameters-deprecated" title="Permanent link">#</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The <code>tlsConfig</code> section is deprecated. Use the <code>objectStorage.gatewayHTTPRoutes</code> section instead.</p>
+<p>The <code>ingressConfig</code> section is deprecated. Use the <code>objectStorage.gatewayHTTPRoutes</code> section instead.</p>
 </div>
 <ul>
 <li><code>tlsConfig</code> - Defines TLS configuration for the Ceph Object Gateway public endpoint.</li>
@@ -3682,7 +3682,7 @@ For API reference, see <a href="../../../../custom-resources/cephdeployment/#cep
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The related ObjectStore defined in the <code>objectStorage.objectStores</code> section must contain the <code>usedByIngress: true</code> parameter. Only one ObjectStore with public access through Ingress is supported.</p>
+<p>The related ObjectStore defined in the <code>objectStorage.objectStores</code> section must contain the <code>servedByIngress: true</code> parameter. Only one ObjectStore with public access through Ingress is supported.</p>
 </div>
 <h3 id="the-tlsconfig-section-parameters">The <code>tlsConfig</code> section parameters<a class="headerlink" href="#the-tlsconfig-section-parameters" title="Permanent link">#</a></h3>
 <ul>
@@ -3761,7 +3761,7 @@ to add or override ingress rule annotations. For details, see
 <span class="w">  </span><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">objectStores</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store</span>
-<span class="w">      </span><span class="nt">usedByIngress</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">servedByIngress</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
 <span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">hosting</span><span class="p p-Indicator">:</span>
@@ -3780,11 +3780,20 @@ to add or override ingress rule annotations. For details, see
 </details>
 <p><a id="rgw-tls-configure-tls-for-object-gateway-using-the-gateway-api"></a></p>
 <h2 id="configure-tls-for-object-gateway-using-the-gateway-api">Configure TLS for Object Gateway using the Gateway API<a class="headerlink" href="#configure-tls-for-object-gateway-using-the-gateway-api" title="Permanent link">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In this section, the term "Gateway" refers to the Kubernetes Gateway API resource, not the Ceph Object Gateway.</p>
+</div>
 <p>Pelagia uses the <code>gatewayHTTPRoutes</code> section to manage <code>HTTPRoute</code> of the Gateway/TLS settings that were previously configured by the operator.
 With the provided <code>HTTPRoute</code>, Ceph Object Gateway will use the SSL certificate provided by the Gateway Controller.</p>
 <p><strong>To configure TLS using the Gateway API:</strong></p>
 <ol>
-<li>Configure the Gateway Controller and the <code>Gateway</code> object with TLS using the <a href="https://gateway-api.sigs.k8s.io/guides/user-guides/tls/">Gateway API documentation: TLS Configuration</a>.</li>
+<li>
+<p>Configure the Gateway Controller and the <code>Gateway</code> object with TLS using the <a href="https://gateway-api.sigs.k8s.io/guides/user-guides/tls/">Gateway API documentation: TLS Configuration</a>.</p>
+</li>
+<li>
+<p>Ensure the Gateway API is enabled in Pelagia using the default <code>lcmConfig.gatewayAPIEnabled: true</code>. Pelagia binds to that Gateway using the <code>lcmConfig.gatewayName</code> and <code>lcmConfig.gatewayNamespace</code> parameters. For details, see <a href="../../../../configuration/helm-values/#configuration-options">Helm chart configuration</a>.</p>
+</li>
 <li>Open the <code>CephDeployment</code> CR for editing.</li>
 <li>
 <p>Configure the <code>objectStorage</code> section:</p>
@@ -3792,6 +3801,7 @@ With the provided <code>HTTPRoute</code>, Ceph Object Gateway will use the SSL c
 <li>In <code>gatewayHTTPRoutes</code>, create an <code>HTTPRoute</code> with the required parameters. For reference, see <a href="https://gateway-api.sigs.k8s.io/reference/api-types/httproute/">Gateway API documentation: HTTPRoute</a>.</li>
 <li>In <code>gatewayHTTPRoutes.name.spec.hostnames</code> and <code>objectStores.name.spec.hosting.dnsNames</code>, add a hostname to be used for the RGW public access, respecting the Gateway TLS configuration.</li>
 </ul>
+<p>Only <code>spec.hostnames</code> is required, omitted fields fall back to Pelagia defaults. For details, see <a href="../../../../custom-resources/cephdeployment/#cephdeployment-httproute-parameters">CephDeployment API: HTTPRoute parameters</a>.</p>
 <p>For example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">gatewayHTTPRoutes</span><span class="p">:</span>
@@ -3819,8 +3829,33 @@ With the provided <code>HTTPRoute</code>, Ceph Object Gateway will use the SSL c
 openstack-store-openstack-route<span class="w">   </span><span class="o">[</span><span class="s2">&quot;openstack-store.it.just.works&quot;</span><span class="o">]</span><span class="w">   </span>125m
 </code></pre></div></p>
 </li>
+<li>
+<p>Obtain the public Ceph Object Gateway endpoint address from the <code>CephDeploymentHealth</code> object:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>cdh<span class="w"> </span>-n<span class="w"> </span>ceph-lcm-mirantis<span class="w"> </span>cephcluster<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.status.healthReport.clusterDetails.rgwInfo}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r
+<span class="o">{</span>
+<span class="w">  </span><span class="s2">&quot;publicEndpoints&quot;</span>:<span class="w"> </span><span class="o">{</span>
+<span class="w">    </span><span class="s2">&quot;openstack-store&quot;</span>:<span class="w"> </span><span class="o">[</span>
+<span class="w">      </span><span class="s2">&quot;https://openstack-store.it.just.works&quot;</span>
+<span class="w">    </span><span class="o">]</span>
+<span class="w">  </span><span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div>
+<p>Substitute the following values in the command above:</p>
+<ul>
+<li><code>ceph-lcm-mirantis</code> with the namespace of your <code>CephDeployment</code> object</li>
+<li><code>cephcluster</code> with the name of your <code>CephDeployment</code> object</li>
+<li><code>openstack-store</code> with the name of your <code>CephObjectStore</code> object</li>
+</ul>
+<p>The public Ceph Object Gateway endpoint has the <code>https://&lt;hostname&gt;</code> format, where <code>&lt;hostname&gt;</code> is
+the name specified in <code>gatewayHTTPRoutes.spec.hostnames</code>.</p>
+</li>
+<li>
+<p>Obtain the public endpoint TLS CA certificate from the related listener in the <code>Gateway</code> object:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;gatewayNamespace&gt;<span class="w"> </span>get<span class="w"> </span>gateway<span class="w"> </span>&lt;gatewayName&gt;<span class="w"> </span>-o<span class="w"> </span>yaml
+</code></pre></div>
+</li>
 </ol>
-<h2 id="configure-tls-for-object-gateway-using-ingress">Configure TLS for Object Gateway using Ingress<a class="headerlink" href="#configure-tls-for-object-gateway-using-ingress" title="Permanent link">#</a></h2>
+<h2 id="configure-tls-for-object-gateway-using-ingress-deprecated">Configure TLS for Object Gateway using Ingress (deprecated)<a class="headerlink" href="#configure-tls-for-object-gateway-using-ingress-deprecated" title="Permanent link">#</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>TLS configuration for Ceph Object Gateway using Ingress is deprecated. Use the Gateway API instead. For details, see <a href="#rgw-tls-configure-tls-for-object-gateway-using-the-gateway-api">Configure TLS for Ceph Object Gateway using the Gateway API</a>.</p>
@@ -3866,11 +3901,11 @@ For details, see <a href="../rgw/#rgw-enable-ceph-rgw-object-storage">Enable Cep
 </code></pre></div></p>
 </li>
 <li>
-<p>In the <code>objectStorage.objectStores</code> section, set the <code>usedByIngress: true</code> parameter for the ObjectStore with public access through Ingress:</p>
+<p>In the <code>objectStorage.objectStores</code> section, set the <code>servedByIngress: true</code> parameter for the ObjectStore with public access through Ingress:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">objectStores</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store</span>
-<span class="w">    </span><span class="nt">usedByIngress</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">servedByIngress</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
 <span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div>
