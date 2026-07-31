@@ -50,3 +50,7 @@ Pelagia has an integration for Ceph Object Storage with OpenStack Object Storage
          preservePoolsOnDelete: false
      ```
 3. Save the changes and exit the editor.
+
+To expose the Ceph Object Gateway on a public endpoint and configure TLS,
+use the Gateway API. For details, see
+[Configure Ceph Object Gateway TLS](./rgw-tls.md#rgw-tls-configure-ceph-object-gateway-tls).
