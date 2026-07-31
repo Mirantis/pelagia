@@ -665,6 +665,17 @@ The `gatewayHTTPRoutes` parameters represent the Gateway API `HTTPRoute` specifi
 - `objectStoreName` - Name of the related `CephObjectStore` object. Mandatory.
 - `spec` - Represents the Gateway API `HTTPRoute` specification. For details, see [Gateway API documentation: HTTPRoute](https://gateway-api.sigs.k8s.io/reference/api-types/httproute/).
 
+    !!! note
+
+        Within `spec`, only `hostnames` is mandatory. If you omit other
+        `HTTPRoute` fields, Pelagia applies the following defaults:
+
+          - `parentRefs` - the default `Gateway` object defined by
+            `lcmConfig.gatewayName` and `lcmConfig.gatewayNamespace`
+          - `rules` - a single rule matching the `/` path prefix
+          - `backendRefs` - the RGW service of the related `CephObjectStore`
+            on its `spec.gateway.port`
+
 ??? "Example configuration of gatewayHTTPRoutes specification"
 
     ```yaml
