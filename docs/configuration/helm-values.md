@@ -33,7 +33,7 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `lcmConfig.diskDaemonNodeSelector` | Label for disk daemon placement. | `"ceph_role_osd=true"` |
 | `lcmConfig.cephDaemonsetLabelExclude` | Label for nodes where no Ceph daemons must be scheduled. | `""` |
 | `lcmConfig.gatewayAPIEnabled` | Enable usage of the Gateway API. | `true` |
-| `lcmConfig.gatewayName` | Name of the `Gateway` object used by default. | `""` |
+| `lcmConfig.gatewayName` | Name of the `Gateway` object used by default. When `gatewayName` and/or `gatewayNamespace` is left empty, the controller falls back to the `lcmConfig` default `app-gateway` name and `openstack` namespace respectively. | `""` |
 | `lcmConfig.gatewayNamespace` | Namespace of the `Gateway` object used by default. | `""` |
 | `lcmConfig.useIngress` | Deprecated. Enable support for Ingress usage. Will be removed in the following release due to [Ingress deprecation](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/). | `true` |
 | `controllers.cephdeployment.replicas` | Replica count for Pelagia deployment controllers. | `3` |
