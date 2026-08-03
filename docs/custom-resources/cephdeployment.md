@@ -141,11 +141,6 @@ For the default `CephDeployment` CR, see the following example:
 The following subsections contain a description of `CephDeployment` parameters for an
 advanced configuration.
 
-!!! warning
-
-    `CephDeployment` has changed since version 1.x. Deprecated parameters are automatically migrated
-    to the new API fields during the Pelagia upgrade. No manual steps are required.
-
 <a name="cephdeployment-general-parameters"></a>
 ### General parameters
 
@@ -205,22 +200,8 @@ advanced configuration.
 - `rookConfig` - Specifies the string key-value that allows overriding Ceph configuration options. For details, see [RookConfig parameters](./cephdeployment.md#cephdeployment-rookconfig-parameters).
 - `sharedFilesystem` - Enables Ceph Filesystem. For details, see [CephFS parameters](./cephdeployment.md#cephdeployment-cephfs-parameters).
 
-**Deprecated top-level parameters migrated under `cluster`**
-
-The following top-level general parameters were moved under the `cluster` field during the `CephDeployment` API refactoring.
-Their previous locations in the specification are deprecated.
-If you continue using a deprecated location, the parameter is automatically migrated to its new location during `CephDeployment` reconciliation.
-Using both the old and new locations simultaneously causes a reconciliation failure. Therefore, we highly recommend using the new specification structure.
-
-- `network` - Specifies access and public networks for the Ceph cluster.
-- `healthCheck` - Configures health checks and liveness probe settings for Ceph daemons.
-- `mgr` - Specifies the list of Ceph Manager modules to be enabled or disabled.
-- `dashboard` - Intended to enable Ceph Dashboard. Currently, Pelagia does not support Ceph Dashboard.
-- `external` - Enables external Ceph cluster mode. If enabled, Pelagia reads a dedicated `Secret` containing the connection credentials for the external Ceph cluster.
-
 **Deprecated top-level parameters migrated to dedicated fields**
 
-- `pools` - Specifies the list of Ceph pools. Automatically migrated to `blockStorage.pools` during `CephDeployment` reconciliation.
 - `ingressConfig` - Enables a custom ingress rule for public access to Ceph services, for example, Ceph RADOS Gateway. For details, see [Configure Ceph Object Gateway TLS](../ops-guide/deployment/object-storage/rgw-tls.md#rgw-tls-configure-ceph-object-gateway-tls).
 
     Deprecated in favor of `objectStorage.gatewayHTTPRoutes` due to [Ingress deprecation](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/).
@@ -568,12 +549,6 @@ For details about Ceph client capabilities (`caps`), refer to [Ceph documentatio
 - `zonegroups` - List of Ceph `ObjectStorage` zone groups. Each `zonegroup` item represents the Rook `CephObjectZoneGroup` specification. Currently, only one zone group is supported, so the list must contain exactly one item. For details, see [RGW multisite parameters](./cephdeployment.md#cephdeployment-rados-gateway-multisite-parameters).
 - `zones` - List of Ceph `ObjectStorage` zones. Each `zone` item represents the Rook `CephObjectZone` specification. Currently, only one zone is supported, so the list must contain exactly one item. For details, see [RGW multisite parameters](./cephdeployment.md#cephdeployment-rados-gateway-multisite-parameters)..
 - `gatewayHTTPRoutes` - List of Gateway API HTTP routes. Each item represents the `HTTPRoute` specification. For details, see [RGW HTTPRoutes](./cephdeployment.md#cephdeployment-httproute-parameters).
-- `rgw` - Single definition of the Ceph `ObjectStorage` RGW object. Deprecated and automatically migrated to `objectStores` and `users` fields during `CephDeployment` reconciliation.
-- `multiSite` - Definition of Ceph `ObjectStorage` RGW multisite configuration. Deprecated and automatically migrated to the `objectStorage` field during `CephDeployment` reconciliation. For example, `multisite.realms` is migrated to `objectStorage.realms`.
-
-    !!! warning
-
-        The realm access keys defined in the deprecated `multiSite.realms` field are removed from the spec during migration. For the `objectStorage.realms` field on new deployments, the operator must manually create a new secret with realm keys. For the procedure, see [Rook documentation: Getting Realm Access Key and Secret Key](https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key).
 
 <a name="cephdeployment-rados-gateway-parameters"></a>
 #### RGW objectStores parameters
@@ -704,7 +679,6 @@ The `gatewayHTTPRoutes` parameters represent the Gateway API `HTTPRoute` specifi
 <a name="cephdeployment-cephfs-parameters"></a>
 ### CephFilesystems parameters
 
-- `cephFS` - Contains a list of Ceph file systems. Deprecated, automatically migrated to the `cephFilesystems` field during `CephDeployment` reconciliation.
 - `cephFilesystems` - Contains a list of Ceph file systems. Each `cephFilesystem` item represents the Rook `CephFilesystem` specification:
 
     - `name` - Mandatory. CephFS instance name.
@@ -845,9 +819,6 @@ spec:
         - <node_name>
         - <node_name_n>
     ```
-
-- `customDeviceClasses` - Deprecated and automatically removed during cluster update.
-  List of custom device class names to use in the specification. The parameter no longer has any effect because you can set custom device classes in the node specification directly.
 
 <a name="cephdeployment-rbd-mirroring-parameters"></a>
 ### RBD mirroring parameters
