@@ -23,7 +23,6 @@ import (
 
 	"github.com/pkg/errors"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
-	rookUtils "github.com/rook/rook/pkg/operator/k8sutil"
 	v1 "k8s.io/api/core/v1"
 	v1storage "k8s.io/api/storage/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -383,7 +382,7 @@ func (c *cephDeploymentConfig) ensureRgwUsers(rgwName string) (bool, error) {
 			Spec: userCasted,
 		}
 		if presentUser, ok := presentUsers[newUser.Name]; ok {
-			if presentUser.Status == nil || presentUser.Status.Phase == rookUtils.ProcessingStatus {
+			if presentUser.Status == nil {
 				err := fmt.Sprintf("found not ready CephObjectStoreUser %s/%s, waiting for readiness", c.lcmConfig.RookNamespace, presentUser.Name)
 				if presentUser.Status != nil {
 					err = fmt.Sprintf("%s (current phase is '%v')", err, presentUser.Status.Phase)

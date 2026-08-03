@@ -288,7 +288,7 @@ spec:
                     pgHealthyRegex:
                       description: |-
                         PgHealthyRegex is the regular expression that is used to determine which PG states should be considered healthy.
-                        The default is `^(active\+clean|active\+clean\+scrubbing|active\+clean\+scrubbing\+deep)$`
+                        The default is `^active(\+(clean|deep|scrubbing|snaptrim|snaptrim_wait))+$`
                       type: string
                   type: object
                 external:
@@ -495,6 +495,26 @@ spec:
                         type: object
                       description: LivenessProbe allows changing the livenessProbe configuration for a given daemon
                       type: object
+                    muteHealthWarning:
+                      additionalProperties:
+                        description: MuteHealthWarningSpec configures muting of a Ceph health warning.
+                        properties:
+                          policy:
+                            description: Policy controls whether to mute or unmute a Ceph health warning.
+                            enum:
+                              - mute
+                              - unmute
+                            type: string
+                        required:
+                          - policy
+                        type: object
+                      description: MuteHealthWarning configures muting of Ceph health warnings.
+                      maxProperties: 10
+                      minProperties: 0
+                      type: object
+                      x-kubernetes-validations:
+                        - message: keys must be valid Ceph health check codes
+                          rule: self.all(k, k.matches('^[A-Z]+(_[A-Z]+)+$'))
                     startupProbe:
                       additionalProperties:
                         description: ProbeSpec is a wrapper around Probe so it can be enabled or disabled for a Ceph daemon
@@ -740,6 +760,30 @@ spec:
                       type: array
                     failureDomainLabel:
                       type: string
+                    floatingMon:
+                      description: |-
+                        FloatingMon is the specification of the floating monitor for two-node clusters.
+                        The floating mon is backed by a synchronously replicated store (e.g. DRBD)
+                        and can be scheduled on either node. Template variables are supplied via a ConfigMap.
+                      minProperties: 2
+                      properties:
+                        configmapName:
+                          description: |-
+                            ConfigMapName is the name of the ConfigMap containing key-value pairs
+                            of template variables for the floating mon deployment.
+                          maxLength: 253
+                          minLength: 1
+                          type: string
+                        name:
+                          description: Name is the identifier for the floating monitor (recommended "c")
+                          maxLength: 1
+                          minLength: 1
+                          pattern: ^[a-z]$
+                          type: string
+                      required:
+                        - configmapName
+                        - name
+                      type: object
                     stretchCluster:
                       description: StretchCluster is the stretch cluster specification
                       properties:
@@ -4461,7 +4505,7 @@ spec:
                     WaitTimeoutForHealthyOSDInMinutes defines the time the operator would wait before an OSD can be stopped for upgrade or restart.
                     If the timeout exceeds and OSD is not ok to stop, then the operator would skip upgrade for the current OSD and proceed with the next one
                     if `continueUpgradeAfterChecksEvenIfNotHealthy` is `false`. If `continueUpgradeAfterChecksEvenIfNotHealthy` is `true`, then operator would
-                    continue with the upgrade of an OSD even if its not ok to stop after the timeout. This timeout won't be applied if `skipUpgradeChecks` is `true`.
+                    continue with the upgrade of an OSD even if it's not ok to stop after the timeout. This timeout won't be applied if `skipUpgradeChecks` is `true`.
                     The default wait timeout is 10 minutes.
                   format: int64
                   type: integer
@@ -4695,7 +4739,7 @@ spec:
                           type: integer
                       type: object
                     osd:
-                      description: OSD shows the CephX key status of of OSDs
+                      description: OSD shows the CephX key status of OSDs
                       properties:
                         keyCephVersion:
                           description: |-
