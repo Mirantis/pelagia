@@ -157,7 +157,7 @@ With the provided `HTTPRoute`, Ceph Object Gateway will use the SSL certificate 
 
 1. Configure the Gateway Controller and the `Gateway` object with TLS using the [Gateway API documentation: TLS Configuration](https://gateway-api.sigs.k8s.io/guides/user-guides/tls/).
 
-2. Ensure the Gateway API is enabled in Pelagia using the default `lcmConfig.gatewayAPIEnabled: true`. Pelagia binds to that Gateway using the `lcmConfig.gatewayName` and `lcmConfig.gatewayNamespace` parameters. For details, see [Helm chart configuration](../../../configuration/helm-values.md#configuration-options).
+2. Ensure the Gateway API is enabled in Pelagia using the default `lcmConfig.gatewayAPIEnabled: true`. Pelagia binds to that Gateway using the `lcmConfig.gatewayName` and `lcmConfig.gatewayNamespace` parameters. For details, see [Helm chart configuration](../../../configuration/helm-values.md).
 3. Open the `CephDeployment` CR for editing.
 4. Configure the `objectStorage` section:
 
