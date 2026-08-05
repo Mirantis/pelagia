@@ -4,18 +4,35 @@ global:
 images:
   operator:
     repository: pelagia/cephcsi-operator
-    tag: v0.6.0-5.release
+    tag: v1.0.4-1.release
     fullName: ""
     pullPolicy: "Always"
 
 csiOperatorConfig:
   rookNamespace: "rook-ceph"
+  managerArgs:
+  - --leader-elect
+  replicas: 1
+  # default is cluster.local
+  kubernetesClusterDomain: ""
+  resources:
+    limits:
+      cpu: 500m
+      memory: 128Mi
+    requests:
+      cpu: 10m
+      memory: 64Mi
   securityContext:
     allowPrivilegeEscalation: false
     capabilities:
       drop:
       - ALL
     readOnlyRootFilesystem: true
+  # list of image pull secret names for pulling container images
+  # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  imagePullSecrets: []
+  # priority class name for csi operator pod
+  priorityClassName: ""
   placement:
     # k8s affinity rules for Ceph CSI Operator
     # affinity:
@@ -35,3 +52,15 @@ csiOperatorConfig:
     #   key: node-role.kubernetes.io/controlplane
     #   operator: Exists
     tolerations: []
+    # node selector for csi operator pod
+    # nodeSelector:
+    #   nodeLabel: true
+    nodeSelector: {}
+  # topology spread constraints for csi operator pod
+  topologySpreadConstraints: []
+
+csiDriversRBAC:
+  rbd: true
+  cephfs: true
+  nvmeof: false
+  nfs: false
