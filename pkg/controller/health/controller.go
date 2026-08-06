@@ -207,7 +207,6 @@ func (r *ReconcileCephDeploymentHealth) updateCephDeploymentHealthStatus(ctx con
 		}
 		if !reflect.DeepEqual(deploymentHealth.Status, newStatus) {
 			objlog.Debug().Msgf("updating health status with new health info")
-			lcmcommon.ShowObjectDiff(objlog, deploymentHealth.Status, newStatus)
 			newStatus.LastHealthUpdate = timeNow
 		} else {
 			objlog.Debug().Msgf("updating health status with new check timestamps")
