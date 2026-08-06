@@ -4830,6 +4830,14 @@ for <code>mon</code>, <code>mgr</code>, <code>osd</code>, and <code>mds</code> (
 <span class="w">    </span><span class="nt">failureDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">host</span>
 </code></pre></div>
 </li>
+<li>
+<p><code>osdRestartReason</code> - Optional. A string parameter used to restart all Ceph OSDs after configuration changes that require a daemon restart.
+  The value must contain a description of why the restart is required.</p>
+<p>Example usage:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">extraOpts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">osdRestartReason</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;reason&gt;</span>
+</code></pre></div>
+</li>
 </ul>
 <p><a name="cephdeployment-manager-modules-parameters"></a></p>
 <h3 id="manager-modules-parameters">Manager modules parameters<a class="headerlink" href="#manager-modules-parameters" title="Permanent link">#</a></h3>
@@ -4858,20 +4866,10 @@ parameters:</p>
 <p>Most Ceph Manager modules require additional configuration that you can perform through the <code>pelagia-lcm-tooblox</code>
 pod.</p>
 </div>
-<ul>
-<li>
-<p><code>osdRestartReason</code> - Optional. A string parameter used to restart all Ceph OSDs after configuration changes that require a daemon restart.
-  The value must contain a description of why the restart is required.</p>
-<p>Example usage:</p>
-<div class="highlight"><pre><span></span><code><span class="nt">extraOpts</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">osdRestartReason</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;reason&gt;</span>
-</code></pre></div>
-</li>
-</ul>
 <p><a name="cephdeployment-rbd-mirroring-parameters"></a></p>
 <h3 id="rbd-mirroring-parameters">RBD Mirroring parameters<a class="headerlink" href="#rbd-mirroring-parameters" title="Permanent link">#</a></h3>
 <ul>
-<li><code>daemonsCount</code> - Count of <code>rbd-mirror</code> daemons to spawn. We recommend using one instance of the <code>rbd-mirror</code> daemon.                                                                                                                                                                                                                                                                                                                                                                                                                  |</li>
+<li><code>daemonsCount</code> - Count of <code>rbd-mirror</code> daemons to spawn. We recommend using one instance of the <code>rbd-mirror</code> daemon.</li>
 <li>
 <p><code>peers</code> - Optional. List of mirroring peers of an external cluster to connect to. Only a single peer is supported.
    The <code>peer</code> section includes the following parameters:</p>
