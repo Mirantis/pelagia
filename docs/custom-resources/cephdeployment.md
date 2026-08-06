@@ -849,6 +849,17 @@ spec:
 - `customDeviceClasses` - Deprecated and automatically removed during cluster update.
   List of custom device class names to use in the specification. The parameter no longer has any effect because you can set custom device classes in the node specification directly.
 
+
+- ``osdRestartReason`` - Optional. A string parameter used to restart all Ceph OSDs after configuration changes that require a daemon restart.
+  The value must contain a description of why the restart is required.
+
+    Example usage:
+
+    ```yaml
+    extraOpts:
+      osdRestartReason: <reason>
+    ```
+
 <a name="cephdeployment-rbd-mirroring-parameters"></a>
 ### RBD mirroring parameters
 
