@@ -816,6 +816,17 @@ parameters:
     Most Ceph Manager modules require additional configuration that you can perform through the `pelagia-lcm-tooblox`
     pod.
 
+
+- ``osdRestartReason`` - Optional. A string parameter used to restart all Ceph OSDs after configuration changes that require a daemon restart.
+  The value must contain a description of why the restart is required.
+
+    Example usage:
+
+    ```yaml
+    extraOpts:
+      osdRestartReason: <reason>
+    ```
+
 <a name="cephdeployment-rbd-mirroring-parameters"></a>
 ### RBD Mirroring parameters
 
