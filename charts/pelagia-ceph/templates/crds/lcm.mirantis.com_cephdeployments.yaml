@@ -164,6 +164,57 @@ spec:
                   Required to be specified.
                 type: object
                 x-kubernetes-preserve-unknown-fields: true
+              csi:
+                description: CSI provides an ability to specify CephCSI Drivers and
+                  OperatorConfig objects
+                properties:
+                  drivers:
+                    description: Drivers provides CephCSI Drivers spec description
+                    items:
+                      properties:
+                        fullOverride:
+                          description: |-
+                            FullOverride fully override default or manually created Driver
+                            if present. Otherwise, provided spec will be merged with existed.
+                          type: boolean
+                        spec:
+                          description: |-
+                            Spec represents Driver configuration
+                            https://github.com/ceph/ceph-csi-operator/blob/v1.0.4/docs/design/operator.md#driver-crd
+                          type: object
+                          x-kubernetes-preserve-unknown-fields: true
+                        type:
+                          description: Driver type, could be one of "nvmeof,rbd,cephfs,nfs"
+                          enum:
+                          - rbd
+                          - cephfs
+                          - nfs
+                          - nvmeof
+                          type: string
+                      required:
+                      - spec
+                      - type
+                      type: object
+                    type: array
+                  operatorConfig:
+                    description: OperatorConfig provides CephCSI OperatorConfig spec
+                      description
+                    properties:
+                      fullOverride:
+                        description: |-
+                          FullOverride fully override default or manually created OperatorConfig
+                          if present. Otherwise, provided spec will be merged with existed.
+                        type: boolean
+                      spec:
+                        description: |-
+                          Spec represents OperatorConfig configuration
+                          https://github.com/ceph/ceph-csi-operator/blob/v1.0.4/docs/design/operator.md#operatorconfig-crd
+                        type: object
+                        x-kubernetes-preserve-unknown-fields: true
+                    required:
+                    - spec
+                    type: object
+                type: object
               extraOpts:
                 description: ExtraOpts contains some extra options for managing Ceph
                   cluster, like devices labels

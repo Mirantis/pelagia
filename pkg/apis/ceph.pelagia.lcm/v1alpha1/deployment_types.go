@@ -69,6 +69,9 @@ type CephDeploymentSpec struct {
 	// SharedFilesystem enables such system as CephFS
 	// +optional
 	SharedFilesystem *CephSharedFilesystem `json:"sharedFilesystem,omitempty"`
+	// CSI provides an ability to specify CephCSI Drivers and OperatorConfig objects
+	// +optional
+	CSIResources *CephCSI `json:"csi,omitempty"`
 
 	// Deprecated parameter, objectStorage.gatewayHTTPRoutes should be used instead.
 	// Ingress became deprecated and going to be replaced by Gateway API, for more information
@@ -335,6 +338,48 @@ type CephFilesystem struct {
 	// for available options
 	FsSpec runtime.RawExtension `json:"spec"`
 }
+
+// CSI provides an ability to specify CephCSI Drivers and OperatorConfig objects
+type CephCSI struct {
+	// OperatorConfig provides CephCSI OperatorConfig spec description
+	// +optional
+	OperatorConfig *CephCSIOperatorConfig `json:"operatorConfig,omitempty"`
+	// Drivers provides CephCSI Drivers spec description
+	// +optional
+	Drivers []CephCSIDriver `json:"drivers,omitempty"`
+}
+
+type CephCSIOperatorConfig struct {
+	// FullOverride fully override default or manually created OperatorConfig
+	// if present. Otherwise, provided spec will be merged with existed.
+	// +optional
+	FullOverride bool `json:"fullOverride,omitempty"`
+	// Spec represents OperatorConfig configuration
+	// https://github.com/ceph/ceph-csi-operator/blob/v1.0.4/docs/design/operator.md#operatorconfig-crd
+	Spec runtime.RawExtension `json:"spec"`
+}
+
+type CephCSIDriver struct {
+	// Driver type, could be one of "nvmeof,rbd,cephfs,nfs"
+	// +kubebuilder:validation:Enum=rbd;cephfs;nfs;nvmeof
+	Type CSIDriverType `json:"type"`
+	// FullOverride fully override default or manually created Driver
+	// if present. Otherwise, provided spec will be merged with existed.
+	// +optional
+	FullOverride bool `json:"fullOverride,omitempty"`
+	// Spec represents Driver configuration
+	// https://github.com/ceph/ceph-csi-operator/blob/v1.0.4/docs/design/operator.md#driver-crd
+	Spec runtime.RawExtension `json:"spec"`
+}
+
+type CSIDriverType string
+
+const (
+	RBDCSIDriver    CSIDriverType = "rbd"
+	CephFSCSIDriver CSIDriverType = "cephfs"
+	NFSCSIDriver    CSIDriverType = "nfs"
+	NVMEoFCSIDriver CSIDriverType = "nvmeof"
+)
 
 type CephDeploymentPhase string
 

@@ -12,6 +12,37 @@ cephDeployment:
   # drain request and readiness label keys
   drainRequestLabelKey: ""
   drainReadyLabelKey: ""
+  # default values for csi drivers
+  csi:
+    manage: true
+    keepExisting: true
+    kubeletPath: "/var/lib/kubelet"
+    defaultDriversCreate:
+      rbd: true
+      cephfs: true
+      nfs: false
+    placement:
+      nodeAffinity:
+        # k8s node affinity rules for CSI Controller plugin deployment (ex. provisioner)
+        # controllerPlugin: "role=storage-node; storage=rook, ceph"
+        controllerPlugin:
+        # k8s node affinity rules for Ceph CSI node plugin daemonset
+        # nodePlugin: "role=storage-node; nodeplugin=true"
+        nodePlugin: "ceph-daemonset-available-node=true"
+      tolerations:
+        # k8s toleration rules for Ceph CSI node plugin daemonset
+        # nodePlugin: |
+        # - effect: NoSchedule
+        #   key: node-role.kubernetes.io/controlplane
+        #   operator: Exists
+        nodePlugin:
+        # k8s toleration rules for CSI Controller plugin deployment (ex. provisioner)
+        # controllerPlugin: |
+        # - effect: NoSchedule
+        #   key: node-role.kubernetes.io/controlplane
+        #   operator: Exists
+        controllerPlugin:
+    addons: false
 lcmConfig:
   rookNamespace: &rookNamespace rook-ceph
   rgwPublicAccessServiceSelector: "external_access=rgw"

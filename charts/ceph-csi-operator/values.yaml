@@ -62,5 +62,5 @@ csiOperatorConfig:
 csiDriversRBAC:
   rbd: true
   cephfs: true
-  nvmeof: false
-  nfs: false
+  nvmeof: true
+  nfs: true

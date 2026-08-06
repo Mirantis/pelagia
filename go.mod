@@ -12,7 +12,7 @@ replace (
 )
 
 require (
-	github.com/ceph/ceph-csi-operator/api v0.0.0-20260527105556-70b2f7cfddf0
+	github.com/ceph/ceph-csi-operator/api v0.0.0-20260707073631-29a66b683aa8
 	github.com/google/go-cmp v0.7.0
 	github.com/kube-object-storage/lib-bucket-provisioner v0.0.0-20221122204822-d1a8c34382f1
 	github.com/kubernetes-csi/external-snapshotter/client/v8 v8.4.0

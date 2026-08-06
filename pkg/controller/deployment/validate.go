@@ -32,6 +32,12 @@ import (
 
 func (c *cephDeploymentConfig) validateSpec() cephlcmv1alpha1.CephDeploymentValidation {
 	errMsgs := make([]string, 0)
+	if c.cdConfig.cephDpl.Spec.CSIResources != nil {
+		if errs := validateCSIDrivers(c.cdConfig.cephDpl.Spec.CSIResources.Drivers); len(errs) > 0 {
+			c.log.Error().Msgf("failed to validate CSI drivers spec: %v", errs)
+			errMsgs = append(errMsgs, errs...)
+		}
+	}
 	if !c.cdConfig.clusterSpec.External.Enable {
 		if errs := validateNetworkSpec(c.cdConfig.clusterSpec.Network); len(errs) > 0 {
 			c.log.Error().Msgf("failed to validate cluster network spec: %v", errs)
@@ -72,6 +78,22 @@ func (c *cephDeploymentConfig) validateSpec() cephlcmv1alpha1.CephDeploymentVali
 		validationResult.Messages = errMsgs
 	}
 	return validationResult
+}
+
+func validateCSIDrivers(drivers []cephlcmv1alpha1.CephCSIDriver) []string {
+	if len(drivers) == 0 {
+		return nil
+	}
+	presentTypes := map[cephlcmv1alpha1.CSIDriverType]bool{}
+	errMsgs := []string{}
+	for _, driver := range drivers {
+		if presentTypes[driver.Type] {
+			errMsgs = append(errMsgs, fmt.Sprintf("driver with type '%s' specified multiple times", driver.Type))
+		} else {
+			presentTypes[driver.Type] = true
+		}
+	}
+	return errMsgs
 }
 
 func validateNetworkSpec(clusterNetwork cephv1.NetworkSpec) []string {

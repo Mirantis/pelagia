@@ -163,10 +163,10 @@ rules:
     verbs: ["delete", "list"]
   - apiGroups: ["csi.ceph.io"]
     resources: ["operatorconfigs"]
-    verbs: ["delete", "list"]
+    verbs: ["get", "create", "update", "delete", "list"]
   - apiGroups: ["csi.ceph.io"]
     resources: ["drivers"]
-    verbs: ["delete", "list"]
+    verbs: ["get", "create", "update", "delete", "list"]
   {{- if (.Values.lcmConfig.gatewayAPIEnabled) }}
   # permissions for gateway API
   - apiGroups: [gateway.networking.k8s.io]
