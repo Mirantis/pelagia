@@ -786,6 +786,16 @@ spec:
         failureDomain: host
     ```
 
+- ``osdRestartReason`` - Optional. A string parameter used to restart all Ceph OSDs after configuration changes that require a daemon restart.
+  The value must contain a description of why the restart is required.
+
+    Example usage:
+
+    ```yaml
+    extraOpts:
+      osdRestartReason: <reason>
+    ```
+
 <a name="cephdeployment-manager-modules-parameters"></a>
 ### Manager modules parameters
 
@@ -816,21 +826,10 @@ parameters:
     Most Ceph Manager modules require additional configuration that you can perform through the `pelagia-lcm-tooblox`
     pod.
 
-
-- ``osdRestartReason`` - Optional. A string parameter used to restart all Ceph OSDs after configuration changes that require a daemon restart.
-  The value must contain a description of why the restart is required.
-
-    Example usage:
-
-    ```yaml
-    extraOpts:
-      osdRestartReason: <reason>
-    ```
-
 <a name="cephdeployment-rbd-mirroring-parameters"></a>
 ### RBD Mirroring parameters
 
-- `daemonsCount` - Count of `rbd-mirror` daemons to spawn. We recommend using one instance of the `rbd-mirror` daemon.                                                                                                                                                                                                                                                                                                                                                                                                                  |
+- `daemonsCount` - Count of `rbd-mirror` daemons to spawn. We recommend using one instance of the `rbd-mirror` daemon.
 - `peers` - Optional. List of mirroring peers of an external cluster to connect to. Only a single peer is supported.
    The `peer` section includes the following parameters:
 
