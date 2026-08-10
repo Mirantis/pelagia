@@ -215,7 +215,7 @@ blockStorage:
          size: 2
 ```
 
-!!! danger
+!!! warning
 
     Each `name` in the `pools` section must match the corresponding full pool `name` of the producer cluster.
     You can find full pools `name` in the `CephDeploymentHealth` CR.
