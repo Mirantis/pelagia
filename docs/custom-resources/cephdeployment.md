@@ -460,7 +460,7 @@ spec:
   possible recommended values includes: `host`, `rack`, `room`,
   and `datacenter`.
 
-    !!! danger
+    !!! warning
 
         We do not recommend using the following intermediate topology keys: `pdu`, `row`, `chassis`. Consider
         the `rack` topology instead. The `osd` failure domain is prohibited.
@@ -505,7 +505,7 @@ As a result, the following Ceph pools will be created: `kubernetes-hdd`, `kubern
 To configure additional required pools for Rockoon, see
 [Integrate Pelagia with Rockoon](../ops-guide/rockoon/rockoon-integration.md#rockoon-integration-integrate-pelagia-with-rockoon).
 
-!!! danger
+!!! warning
 
     Since Ceph Pacific, Ceph CSI driver does not propagate the `777`
     permission on the mount point of persistent volumes based on any
