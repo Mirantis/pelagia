@@ -58,14 +58,14 @@ For API reference, see [CephDeployment API: HTTPRoute parameters](../../../custo
       tls.key: <base64encodedTlsKey>
     ```
 
-    !!! danger
+    !!! warning
 
         When using `tlsSecretRefName`, remove `certs` section.
 
 - `certs` - TLS configuration for ingress including certificates.
   Contains the following parameters:
 
-    !!! danger
+    !!! warning
 
         `certs` parameters section is insecure because it stores
         TLS certificates in plain text. Consider using the
@@ -79,7 +79,7 @@ For API reference, see [CephDeployment API: HTTPRoute parameters](../../../custo
 
 - `publicDomain` -  Mandatory. The domain name to use for public endpoints.
 
-    !!! danger
+    !!! warning
 
         For Pelagia integrated with Rockoon, the default ingress controller does not support `publicDomain` values
         different from the OpenStack ingress public domain. Therefore, if you intend to use the default OpenStack
