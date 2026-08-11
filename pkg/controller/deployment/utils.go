@@ -161,6 +161,20 @@ func checkOpenstackNamespaceSetForRgw(rgw, ns string) error {
 	return nil
 }
 
+func resourceCreatedByPelagia(currentLabels map[string]string) bool {
+	if len(currentLabels) == 0 {
+		return false
+	}
+	allLabels := true
+	for k, v := range baseResourceLabels {
+		if value, ok := currentLabels[k]; !ok || v != value {
+			allLabels = false
+			break
+		}
+	}
+	return allLabels
+}
+
 // CLI utils
 
 type cephConfigOptionDump struct {

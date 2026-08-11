@@ -19,10 +19,12 @@ package deployment
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
 
+	csiopapi "github.com/ceph/ceph-csi-operator/api/v1"
 	"github.com/pkg/errors"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"github.com/stretchr/testify/assert"
@@ -36,6 +38,7 @@ import (
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	fakeclient "sigs.k8s.io/controller-runtime/pkg/client/fake"
+	"sigs.k8s.io/controller-runtime/pkg/client/interceptor"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	gatewayapi "sigs.k8s.io/gateway-api/apis/v1"
 
@@ -658,7 +661,7 @@ func TestReconcile(t *testing.T) {
 			result:          requeueAfterInterval,
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
 				Phase:   cephlcmv1alpha1.PhaseDeploying,
-				Message: "Ceph cluster configuration apply is in progress: label nodes, cephcluster, cephblockpools, shared filesystems, storageclasses, cephclients, ceph object storage, cluster state",
+				Message: "Ceph cluster configuration apply is in progress: label nodes, cephcsi, cephcluster, cephblockpools, shared filesystems, storageclasses, cephclients, ceph object storage, cluster state",
 				Validation: cephlcmv1alpha1.CephDeploymentValidation{
 					Result:                  "Succeed",
 					LastValidatedGeneration: 10,
@@ -1948,6 +1951,8 @@ func TestCheckLCMStuff(t *testing.T) {
 func TestApplyConfiguration(t *testing.T) {
 	lcmconfig := unitinputs.PelagiaConfig.Data
 	lcmconfig["KEEP_INGRESS"] = "true"
+	lcmconfig["DEPLOYMENT_CSI_DRIVERS_MANAGE"] = "true"
+	lcmconfig["DEPLOYMENT_CSI_CEPHFS_DEFAULT_DRIVER_CREATE"] = "false"
 
 	fullCephDplSpec := unitinputs.CephDeployMosk.DeepCopy()
 	fullCephDplSpec.Spec.RBDMirror = unitinputs.CephDeployEnsureRbdMirror.Spec.RBDMirror.DeepCopy()
@@ -2026,6 +2031,11 @@ func TestApplyConfiguration(t *testing.T) {
 			},
 		},
 		"cephobjectstoreusers": unitinputs.CephObjectStoreUserListMetrics.DeepCopy(),
+		// csi res
+		"operatorconfigs": unitinputs.OperatorConfigsRook.DeepCopy(),
+		"drivers": &csiopapi.DriverList{
+			Items: []csiopapi.Driver{unitinputs.DriverRBDDefault},
+		},
 	}
 
 	inputResourcesForExternalApply := map[string]runtime.Object{
@@ -2054,6 +2064,11 @@ func TestApplyConfiguration(t *testing.T) {
 		},
 		"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{
 			Items: []cephv1.CephObjectStoreUser{},
+		},
+		// csi res
+		"operatorconfigs": unitinputs.OperatorConfigsRook.DeepCopy(),
+		"drivers": &csiopapi.DriverList{
+			Items: []csiopapi.Driver{unitinputs.DriverRBDDefault},
 		},
 	}
 
@@ -2098,10 +2113,11 @@ func TestApplyConfiguration(t *testing.T) {
 			lcmconfig: lcmconfig,
 			apiErrors: map[string]error{
 				"get-cephclusters":     errors.New("get cluster api error"),
+				"get-operatorconfigs":  errors.New("get operatorconfig api error"),
 				"cluster-not-verified": errors.New("not verified"),
 			},
 			inProgressMsg: "configuration apply is in progress: label nodes",
-			failedMsg:     "configuration apply is failed: failed to ensure cephcluster, cephblockpools, shared filesystems, storageclasses, cephclients, ceph object storage, RBD Mirroring, Openstack secret, ingress proxy, cluster state",
+			failedMsg:     "configuration apply is failed: failed to ensure cephcsi, cephcluster, cephblockpools, shared filesystems, storageclasses, cephclients, ceph object storage, RBD Mirroring, Openstack secret, ingress proxy, cluster state",
 		},
 		{
 			name:    "apply cephdeployment - apply configuration is started and waiting for netpol",
@@ -2139,7 +2155,7 @@ func TestApplyConfiguration(t *testing.T) {
 				"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{},
 			},
 			lcmconfig:     lcmconfig,
-			inProgressMsg: "configuration apply is in progress: cephcluster, cephblockpools, shared filesystems, cephclients, ceph object storage, RBD Mirroring, ingress proxy, cluster state",
+			inProgressMsg: "configuration apply is in progress: cephcsi, cephcluster, cephblockpools, shared filesystems, cephclients, ceph object storage, RBD Mirroring, ingress proxy, cluster state",
 			failedMsg:     "configuration apply is failed: failed to ensure storageclasses, Openstack secret",
 		},
 		{
@@ -2162,7 +2178,7 @@ func TestApplyConfiguration(t *testing.T) {
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
 				"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{},
 			},
-			inProgressMsg: "configuration apply is in progress: label nodes, cephcluster, cephblockpools, shared filesystems, cephclients, ceph object storage, RBD Mirroring, cluster state",
+			inProgressMsg: "configuration apply is in progress: label nodes, cephcsi, cephcluster, cephblockpools, shared filesystems, cephclients, ceph object storage, RBD Mirroring, cluster state",
 			failedMsg:     "configuration apply is failed: failed to ensure storageclasses, Openstack secret",
 		},
 		{
@@ -2207,7 +2223,7 @@ func TestApplyConfiguration(t *testing.T) {
 				"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{},
 			},
 			lcmconfig:     lcmconfig,
-			inProgressMsg: "configuration apply is in progress: cephcluster, storageclasses, ceph object storage",
+			inProgressMsg: "configuration apply is in progress: cephcsi, cephcluster, storageclasses, ceph object storage",
 		},
 		{
 			name:           "apply reconcile cephdeployment external - apply configuration is in progress",
@@ -2257,6 +2273,29 @@ func TestApplyConfiguration(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Rookclientset, "update", cephAPIResources, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Gatewayclientset, "list", []string{"httproutes"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Gatewayclientset, "create", []string{"httproutes"}, test.inputResources, test.apiErrors)
+
+			builder := faketestclients.GetClientBuilder()
+			if test.inputResources != nil {
+				if op, ok := test.inputResources["operatorconfigs"]; ok {
+					builder = builder.WithLists(op.(*csiopapi.OperatorConfigList))
+				}
+				if dr, ok := test.inputResources["drivers"]; ok {
+					builder = builder.WithLists(dr.(*csiopapi.DriverList))
+				}
+			}
+			if test.apiErrors != nil {
+				interceptorFuncs := interceptor.Funcs{}
+				if v, ok := test.apiErrors["get-operatorconfigs"]; ok {
+					interceptorFuncs.Get = func(ctx context.Context, client client.WithWatch, key client.ObjectKey, obj client.Object, opts ...client.GetOption) error {
+						if strings.ToLower(reflect.TypeOf(obj).Elem().Name()) == "operatorconfig" {
+							return v
+						}
+						return client.Get(ctx, key, obj, opts...)
+					}
+				}
+				builder = builder.WithInterceptorFuncs(interceptorFuncs)
+			}
+			c.api.ClientNoCache = faketestclients.GetClient(builder)
 			//--- common function actions ---//
 			lcmcommon.GenerateSelfSignedCert = func(_, _ string, _ []string) (string, string, string, error) {
 				return "fake-key", "fake-crt", "fake-ca", nil

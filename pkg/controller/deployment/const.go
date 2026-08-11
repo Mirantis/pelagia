@@ -34,6 +34,9 @@ const (
 
 	rookConfigOverrideName      = "rook-config-override"
 	rookCephMonEndpointsMapName = "rook-ceph-mon-endpoints"
+	// ceph csi operator resources
+	cephCsiOperatorConfigName         = "ceph-csi-operator-config"
+	cephCsiOperatorImageConfigMapName = "rook-csi-operator-image-set-configmap"
 
 	// label for policies created by cephdeployment
 	rookNetworkPolicyLabel = "cephdeployment.lcm.mirantis.com/networkpolicy"
@@ -116,6 +119,8 @@ var (
 	cephConfigParametersUpdateTimestampLabel = "cephdeployment.lcm.mirantis.com/config-%s-updated"
 	// valid pool reclaim policies
 	poolReclaimPolicies = []string{"Retain", "Delete"}
+	// cephcsi driver name' tmpl
+	cephCsiDriverNameTemplate = "%s.%s.csi.ceph.com"
 )
 
 func getCrushKeys() []string {

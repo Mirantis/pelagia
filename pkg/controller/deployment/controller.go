@@ -645,6 +645,10 @@ func (c *cephDeploymentConfig) applyConfiguration() (string, string) {
 
 	// continue if labeling/netpool are not failed and no netpool changes
 	if len(errCollector) == 0 && !netPoolChanged {
+		// Ensure CephCSI resources
+		changed, err := c.ensureCsiResources()
+		handleEnsureResult(changed, err, "cephcsi")
+
 		// Ensure ceph cluster processing
 		changed, err = c.ensureCluster()
 		handleEnsureResult(changed, err, "cephcluster")
