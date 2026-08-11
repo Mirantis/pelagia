@@ -4182,8 +4182,8 @@ For details, see <a href="https://docs.ceph.com/en/latest/rados/operations/pools
 <p>Target ratios for the pools required for Rockoon are described in
 <a href="../../ops-guide/rockoon/rockoon-integration/#rockoon-integration-integrate-pelagia-with-rockoon">Integrate Pelagia with Rockoon</a>.</p>
 </div>
-<div class="admonition danger">
-<p class="admonition-title">Danger</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>We do not recommend using the following intermediate topology keys as a failure domain: <code>pdu</code>, <code>row</code>, and <code>chassis</code>. Consider
 the <code>rack</code> topology instead. The <code>osd</code> failure domain is allowed only for single-node deployments.</p>
 </div>
@@ -4223,8 +4223,8 @@ the <code>rack</code> topology instead. The <code>osd</code> failure domain is a
 <p>As a result of <code>pools</code> configuration, the following Ceph pools will be created: <code>kubernetes-hdd</code>, <code>kubernetes-nvme</code>, and <code>archive</code>.</p>
 <p>To configure additional required pools for Rockoon, see
 <a href="../../ops-guide/rockoon/rockoon-integration/#rockoon-integration-integrate-pelagia-with-rockoon">Integrate Pelagia with Rockoon</a>.</p>
-<div class="admonition danger">
-<p class="admonition-title">Danger</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>Since Ceph Pacific, Ceph CSI driver does not propagate the <code>777</code>
 permission on the mount point of persistent volumes based on any
 <code>StorageClass</code> of the Ceph pool.</p>
