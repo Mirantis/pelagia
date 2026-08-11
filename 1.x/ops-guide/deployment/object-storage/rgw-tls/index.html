@@ -3508,16 +3508,16 @@ Mirantis recommends not defining the <code>ingressConfig</code> section if Rocko
 <span class="w">  </span><span class="nt">tls.crt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64encodedTlsCert&gt;</span>
 <span class="w">  </span><span class="nt">tls.key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64encodedTlsKey&gt;</span>
 </code></pre></div>
-<div class="admonition danger">
-<p class="admonition-title">Danger</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>When using <code>tlsSecretRefName</code>, remove <code>certs</code> section.</p>
 </div>
 </li>
 <li>
 <p><code>certs</code> - TLS configuration for ingress including certificates.
   Contains the following parameters:</p>
-<div class="admonition danger">
-<p class="admonition-title">Danger</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p><code>certs</code> parameters section is insecure because it stores
 TLS certificates in plain text. Consider using the
 <code>tlsSecretRefName</code> parameter instead to avoid exposing
@@ -3532,8 +3532,8 @@ TLS certificates in the <code>CephDeployment</code> CR.</p>
 </li>
 <li>
 <p><code>publicDomain</code> -  Mandatory. The domain name to use for public endpoints.</p>
-<div class="admonition danger">
-<p class="admonition-title">Danger</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>For Pelagia integrated with Rockoon, the default ingress controller does not support <code>publicDomain</code> values
 different from the OpenStack ingress public domain. Therefore, if you intend to use the default OpenStack
 Ingress Controller for your Ceph Object Storage public endpoint, plan to use the same

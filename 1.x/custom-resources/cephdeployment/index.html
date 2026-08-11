@@ -4154,8 +4154,8 @@ or <code>nvme</code> disks.</p>
   of data will be spread. Set to <code>host</code> by default. The list of
   possible recommended values includes: <code>host</code>, <code>rack</code>, <code>room</code>,
   and <code>datacenter</code>.</p>
-<div class="admonition danger">
-<p class="admonition-title">Danger</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>We do not recommend using the following intermediate topology keys: <code>pdu</code>, <code>row</code>, <code>chassis</code>. Consider
 the <code>rack</code> topology instead. The <code>osd</code> failure domain is prohibited.</p>
 </div>
@@ -4199,8 +4199,8 @@ the <code>rack</code> topology instead. The <code>osd</code> failure domain is p
 <p>As a result, the following Ceph pools will be created: <code>kubernetes-hdd</code>, <code>kubernetes-nvme</code>, and <code>archive</code>.</p>
 <p>To configure additional required pools for Rockoon, see
 <a href="../../ops-guide/rockoon/rockoon-integration/#rockoon-integration-integrate-pelagia-with-rockoon">Integrate Pelagia with Rockoon</a>.</p>
-<div class="admonition danger">
-<p class="admonition-title">Danger</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>Since Ceph Pacific, Ceph CSI driver does not propagate the <code>777</code>
 permission on the mount point of persistent volumes based on any
 <code>StorageClass</code> of the Ceph pool.</p>
