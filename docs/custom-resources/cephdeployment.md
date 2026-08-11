@@ -486,7 +486,7 @@ The `pools` parameters contain the Ceph block pool specification that represents
         Target ratios for the pools required for Rockoon are described in
         [Integrate Pelagia with Rockoon](../ops-guide/rockoon/rockoon-integration.md#rockoon-integration-integrate-pelagia-with-rockoon).
 
-    !!! danger
+    !!! warning
 
         We do not recommend using the following intermediate topology keys as a failure domain: `pdu`, `row`, and `chassis`. Consider
         the `rack` topology instead. The `osd` failure domain is allowed only for single-node deployments.
@@ -528,7 +528,7 @@ As a result of `pools` configuration, the following Ceph pools will be created: 
 To configure additional required pools for Rockoon, see
 [Integrate Pelagia with Rockoon](../ops-guide/rockoon/rockoon-integration.md#rockoon-integration-integrate-pelagia-with-rockoon).
 
-!!! danger
+!!! warning
 
     Since Ceph Pacific, Ceph CSI driver does not propagate the `777`
     permission on the mount point of persistent volumes based on any
