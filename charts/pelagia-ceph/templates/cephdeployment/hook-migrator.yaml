@@ -1,0 +1,38 @@
+{{- if and .Values.cephDeployment.enabled .Values.cephDeployment.pelagiaMigrator }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pelagia-migrator
+  namespace: {{ template "release.namespace" . }}
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.controllers.cephdeployment.appName }}
+    spec:
+      serviceAccountName: {{ .Values.controllers.cephdeployment.account.name }}
+  {{- with .Values.controllers.securityContext }}
+      securityContext:
+    {{- toYaml . | nindent 8 }}
+  {{- end }}
+      restartPolicy: Never
+      containers:
+      - name: pelagia-migrator
+        image: {{ template "controller.image" $ }}
+        imagePullPolicy: {{ $.Values.images.pelagia.pullPolicy }}
+        command:
+        - /usr/local/bin/pelagia-migrator
+        args:
+        - --rook-namespace
+        - {{ .Values.lcmConfig.rookNamespace }}
+    {{- with $.Values.controllers.securityContextControllers }}
+        securityContext:
+        {{- toYaml . | nindent 10 }}
+    {{- end }}
+{{- end }}

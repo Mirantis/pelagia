@@ -14,6 +14,8 @@ DISK_DAEMON_NAME := pelagia-disk-daemon
 DISK_DAEMON_CMD := ./cmd/disk-daemon
 CONNECTOR_NAME := pelagia-connector
 CONNECTOR_CMD := ./cmd/connector
+MIGRATOR_NAME := pelagia-migrator
+MIGRATOR_CMD := ./cmd/migrator
 CEPH_E2E_NAME := pelagia-e2e
 CURRENT_RELEASE_VERSION := "v3.0.0"
 CODE_VERSION := $(shell build/scripts/get_version.sh)
@@ -68,14 +70,17 @@ go.build/disk-daemon.%: vendor ## Build 'disk-daemon' binary for platform
 go.build/connector.%: vendor ## Build 'connector' binary for platform
 	env GOARCH=$(word 2, $(subst /, ,$*)) GOOS=$(word 1, $(subst /, ,$*)) go build -o $(OUTPUT)/$*/$(CONNECTOR_NAME) -trimpath -ldflags $(LDFLAGS) -mod=vendor $(CONNECTOR_CMD)
 
+go.build/migrator.%: vendor ## Build 'migrator' binary for platform
+	env GOARCH=$(word 2, $(subst /, ,$*)) GOOS=$(word 1, $(subst /, ,$*)) go build -o $(OUTPUT)/$*/$(MIGRATOR_NAME) -trimpath -ldflags $(LDFLAGS) -mod=vendor $(MIGRATOR_CMD)
+
 go.build/e2e.%: vendor ## Build 'e2e' binary for platform 
 	@go clean -testcache
 	env GOOS=linux GOARCH=$(word 2, $(subst /, ,$*)) go test -test.v -timeout 0 -ldflags $(LDFLAGS) $(E2E_TESTLIST_LOCAL) -c -o $(OUTPUT)/$*/$(CEPH_E2E_NAME)
 
-go.build/%: ## Build binary (controller, disk-daemon, e2e, connector) for all specified platforms
+go.build/%: ## Build binary (controller, disk-daemon, e2e, connector, migrator) for all specified platforms
 	@$(MAKE) $(foreach plat,$(subst $(comma), ,$(PLATFORMS)), go.build/$*.$(plat))
 
-go.build: go.build/controller go.build/disk-daemon go.build/connector ## Build Pelagia (controller, disk-daemon, connector) binaries for all specified platforms
+go.build: go.build/controller go.build/disk-daemon go.build/connector go.build/migrator ## Build Pelagia (controller, disk-daemon, connector, migrator) binaries for all specified platforms
 
 go.build/all: go.build go.build/e2e ## Build all binaries for all specified platforms
 
@@ -84,7 +89,7 @@ go.build/all: go.build go.build/e2e ## Build all binaries for all specified plat
 #===================#
 
 .PHONY: docker.build docker.build/controller docker.build/e2e docker.publish/controller docker.publish/e2e
-docker.build/controller.%: go.build/controller.% go.build/disk-daemon.% go.build/connector.% ## Build Pelagia docker image for platform
+docker.build/controller.%: go.build/controller.% go.build/disk-daemon.% go.build/connector.% go.build/migrator.% ## Build Pelagia docker image for platform
 	docker image build --build-arg REF=$(CODE_VERSION) --platform $* -t $(IMAGE_NAME):$(IMAGE_TAG) -f controller.Dockerfile .
 
 docker.build/controller: go.build ## Build Pelagia docker image for all specified platforms

@@ -16,10 +16,15 @@
 #       Operator Deployment.
 # To move a configuration(s) from the Operator Deployment to this ConfigMap, add the config
 # here. It is recommended to then remove it from the Deployment to eliminate any future confusion.
+#
+# TODO: use basic configmap name without suffix -migration
+# due to conflict with Rook upstream helm annotations
+# used as source to copy to origin
+#
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: rook-csi-operator-image-set-configmap
+  name: rook-csi-operator-image-set-configmap-migration
   # should be in the namespace of the operator
   namespace: {{ .Values.rookConfig.rookNamespace }}
   labels:

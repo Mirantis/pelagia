@@ -43,6 +43,8 @@ cephDeployment:
         #   operator: Exists
         controllerPlugin:
     addons: false
+  # run hook pelagia migrator
+  pelagiaMigrator: true
 lcmConfig:
   rookNamespace: &rookNamespace rook-ceph
   rgwPublicAccessServiceSelector: "external_access=rgw"
