@@ -34,6 +34,22 @@ func (c *cephDeploymentConfig) castExtensions() error {
 		errs = append(errs, msg)
 	}
 
+	if c.cdConfig.cephDpl.Spec.CSIResources != nil {
+		if c.cdConfig.cephDpl.Spec.CSIResources.OperatorConfig != nil {
+			_, err := c.cdConfig.cephDpl.Spec.CSIResources.OperatorConfig.GetSpec()
+			if err != nil {
+				putError("failed to cast CSI operatorConfig to CephCSI API", err)
+			}
+		}
+
+		for idx, driver := range c.cdConfig.cephDpl.Spec.CSIResources.Drivers {
+			_, err := driver.GetSpec()
+			if err != nil {
+				putError(fmt.Sprintf("failed to cast CSI driver #%d to CephCSI API", idx), err)
+			}
+		}
+	}
+
 	castedClusterSpec, err := c.cdConfig.cephDpl.Spec.Cluster.GetSpec()
 	if err != nil {
 		putError("failed to cast cephdeployment fields to Rook API", err)

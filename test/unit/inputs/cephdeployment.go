@@ -19,6 +19,7 @@ package input
 import (
 	"time"
 
+	cephcsi "github.com/ceph/ceph-csi-operator/api/v1"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -790,6 +791,62 @@ var CephDeploySingleNode = cephlcmv1alpha1.CephDeployment{
 		ObjectsRefs: CephDeploymentObjectsRefs,
 	},
 }
+
+var CephDeployWithCSI = func() cephlcmv1alpha1.CephDeployment {
+	cd := BaseCephDeployment.DeepCopy()
+	cd.Spec.BlockStorage = CephDeployNonMosk.Spec.BlockStorage.DeepCopy()
+	cd.Spec.CSIResources = &cephlcmv1alpha1.CephCSI{
+		OperatorConfig: &cephlcmv1alpha1.CephCSIOperatorConfig{
+			Spec: runtime.RawExtension{
+				Raw: ConvertStructToRaw(
+					cephcsi.OperatorConfigSpec{
+						DriverSpecDefaults: &cephcsi.DriverSpec{
+							ClusterName: &BaseCephDeployment.Name,
+						},
+					},
+				)},
+		},
+		Drivers: []cephlcmv1alpha1.CephCSIDriver{
+			{
+				Type: cephlcmv1alpha1.RBDCSIDriver,
+				Spec: runtime.RawExtension{
+					Raw: ConvertStructToRaw(
+						cephcsi.DriverSpec{
+							ClusterName: &BaseCephDeployment.Name,
+						},
+					)},
+			},
+			{
+				Type: cephlcmv1alpha1.CephFSCSIDriver,
+				Spec: runtime.RawExtension{
+					Raw: ConvertStructToRaw(
+						cephcsi.DriverSpec{
+							ClusterName: &BaseCephDeployment.Name,
+						},
+					)},
+			},
+			{
+				Type: cephlcmv1alpha1.NFSCSIDriver,
+				Spec: runtime.RawExtension{
+					Raw: ConvertStructToRaw(
+						cephcsi.DriverSpec{
+							ClusterName: &BaseCephDeployment.Name,
+						},
+					)},
+			},
+			{
+				Type: cephlcmv1alpha1.NVMEoFCSIDriver,
+				Spec: runtime.RawExtension{
+					Raw: ConvertStructToRaw(
+						cephcsi.DriverSpec{
+							ClusterName: &BaseCephDeployment.Name,
+						},
+					)},
+			},
+		},
+	}
+	return *cd
+}()
 
 // spec fixtures
 

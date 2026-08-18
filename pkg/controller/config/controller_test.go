@@ -56,7 +56,10 @@ func TestInitReconcile(t *testing.T) {
 			namespace: "some-namespace",
 			configMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{Name: LcmConfigMapName, Namespace: "some-namespace"},
-				Data:       map[string]string{"ROOK_NAMESPACE": "another-rook-ceph"},
+				Data: map[string]string{
+					"ROOK_NAMESPACE":                "another-rook-ceph",
+					"DEPLOYMENT_CSI_DRIVERS_MANAGE": "false",
+				},
 			},
 			controlParams:  ControlParamsAll,
 			expectedResult: reconcile.Result{},
@@ -66,7 +69,9 @@ func TestInitReconcile(t *testing.T) {
 					newConfig.RookNamespace = "another-rook-ceph"
 					newConfig.HealthParams = &defaultHealthConfig
 					newConfig.TaskParams = &defaultTaskConfig
-					newConfig.DeployParams = &defaultDeployParams
+					deployParams := defaultDeployParams
+					deployParams.CSIParams.Manage = false
+					newConfig.DeployParams = &deployParams
 					return newConfig
 				}(),
 			},
@@ -85,7 +90,9 @@ func TestInitReconcile(t *testing.T) {
 					newConfig.RookNamespace = "another-rook-ceph"
 					newConfig.HealthParams = &defaultHealthConfig
 					newConfig.TaskParams = &defaultTaskConfig
-					newConfig.DeployParams = &defaultDeployParams
+					deployParams := defaultDeployParams
+					deployParams.CSIParams.Manage = false
+					newConfig.DeployParams = &deployParams
 					return newConfig
 				}(),
 				"some-namespace-2": defaultConfig,
@@ -109,27 +116,44 @@ func TestInitReconcile(t *testing.T) {
 			configMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{Name: LcmConfigMapName, Namespace: "some-namespace-2"},
 				Data: map[string]string{
-					"ROOK_NAMESPACE":                              "custom-rook-ceph",
-					"GATEWAY_API_ENABLED":                         "false",
-					"GATEWAY_BASE_NAME":                           "custom-gateway",
-					"GATEWAY_BASE_NAMESPACE":                      "custom-namespace",
-					"KEEP_INGRESS":                                "true",
-					"DISK_DAEMON_API_PORT":                        "9998",
-					"DISK_DAEMON_PLACEMENT_NODES_SELECTOR":        "custom-node-label=true",
-					"HEALTH_CHECKS_CEPH_ISSUES_TO_IGNORE":         "MON_DOWN,HOST_DOWN",
-					"HEALTH_CHECKS_SKIP":                          "ceph_daemons,rgw_info",
-					"HEALTH_CHECKS_USAGE_CLASS_FILTER":            "hdd",
-					"HEALTH_CHECKS_USAGE_POOLS_FILTER":            "pool-.+",
-					"RGW_PUBLIC_ACCESS_SERVICE_SELECTOR":          "custom-access-label=true",
-					"HEALTH_LOG_LEVEL":                            "warn",
-					"TASK_LOG_LEVEL":                              "warn",
-					"DEPLOYMENT_LOG_LEVEL":                        "warn",
-					"TASK_OSD_PG_REBALANCE_TIMEOUT_MIN":           "10",
-					"TASK_ALLOW_REMOVE_MANUALLY_CREATED_LVMS":     "true",
-					"DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE":  "custom-openstack-ns",
-					"DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS": "no-ceph=true",
-					"DEPLOYMENT_DRAIN_REQUEST_LABEL_KEY":          "custom-label/drain-request",
-					"DEPLOYMENT_DRAIN_READY_LABEL_KEY":            "custom-label/csi-drain-ready",
+					"ROOK_NAMESPACE":                                "custom-rook-ceph",
+					"GATEWAY_API_ENABLED":                           "false",
+					"GATEWAY_BASE_NAME":                             "custom-gateway",
+					"GATEWAY_BASE_NAMESPACE":                        "custom-namespace",
+					"KEEP_INGRESS":                                  "true",
+					"DISK_DAEMON_API_PORT":                          "9998",
+					"DISK_DAEMON_PLACEMENT_NODES_SELECTOR":          "custom-node-label=true",
+					"HEALTH_CHECKS_CEPH_ISSUES_TO_IGNORE":           "MON_DOWN,HOST_DOWN",
+					"HEALTH_CHECKS_SKIP":                            "ceph_daemons,rgw_info",
+					"HEALTH_CHECKS_USAGE_CLASS_FILTER":              "hdd",
+					"HEALTH_CHECKS_USAGE_POOLS_FILTER":              "pool-.+",
+					"RGW_PUBLIC_ACCESS_SERVICE_SELECTOR":            "custom-access-label=true",
+					"HEALTH_LOG_LEVEL":                              "warn",
+					"TASK_LOG_LEVEL":                                "warn",
+					"DEPLOYMENT_LOG_LEVEL":                          "warn",
+					"TASK_OSD_PG_REBALANCE_TIMEOUT_MIN":             "10",
+					"TASK_ALLOW_REMOVE_MANUALLY_CREATED_LVMS":       "true",
+					"DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE":    "custom-openstack-ns",
+					"DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS":   "no-ceph=true",
+					"DEPLOYMENT_DRAIN_REQUEST_LABEL_KEY":            "custom-label/drain-request",
+					"DEPLOYMENT_DRAIN_READY_LABEL_KEY":              "custom-label/csi-drain-ready",
+					"DEPLOYMENT_CSI_DRIVERS_MANAGE":                 "true",
+					"DEPLOYMENT_CSI_RBD_DEFAULT_DRIVER_CREATE":      "false",
+					"DEPLOYMENT_CSI_CEPHFS_DEFAULT_DRIVER_CREATE":   "false",
+					"DEPLOYMENT_CSI_NFS_DEFAULT_DRIVER_CREATE":      "true",
+					"DEPLOYMENT_CSI_KEEP_EXISTING_ON_UPGRADE":       "false",
+					"DEPLOYMENT_CSI_KUBELET_PATH":                   "/var/lib/kubelet-custom",
+					"DEPLOYMENT_CSI_ENABLE_CSIADDONS":               "true",
+					"DEPLOYMENT_CSI_CONTROLLER_PLUGIN_NODEAFFINITY": "some-label=true",
+					"DEPLOYMENT_CSI_NODE_PLUGIN_NODEAFFINITY":       "some-label-2=true",
+					"DEPLOYMENT_CSI_CONTROLLER_PLUGIN_TOLERATIONS": `
+- effect: NoSchedule
+  key: node-role.kubernetes.io/controlplane
+  operator: Exist`,
+					"DEPLOYMENT_CSI_NODE_PLUGIN_TOLERATIONS": `
+- effect: NoSchedule
+  key: node-role.kubernetes.io/controlplane2
+  operator: Exist`,
 				},
 			},
 			controlParams:  ControlParamsAll,
@@ -163,6 +187,60 @@ func TestInitReconcile(t *testing.T) {
 						CephDaemonsetPlacementLabelExclude: "no-ceph=true",
 						DrainRequestLabelKey:               "custom-label/drain-request",
 						DrainReadyLabelKey:                 "custom-label/csi-drain-ready",
+						CSIParams: CSIDeployParams{
+							Manage:                 true,
+							KubeletPath:            "/var/lib/kubelet-custom",
+							CreateDefaultNFSDriver: true,
+							DeployCSIAddons:        true,
+							ControllerPluginNodeAffinity: &corev1.NodeAffinity{
+								RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
+									NodeSelectorTerms: []corev1.NodeSelectorTerm{
+										{
+											MatchExpressions: []corev1.NodeSelectorRequirement{
+												{
+													Key:      "some-label",
+													Operator: "In",
+													Values: []string{
+														"true",
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+							ControllerPluginToleration: []corev1.Toleration{
+								{
+									Key:      "node-role.kubernetes.io/controlplane",
+									Operator: "Exist",
+									Effect:   "NoSchedule",
+								},
+							},
+							NodePluginNodeAffinity: &corev1.NodeAffinity{
+								RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
+									NodeSelectorTerms: []corev1.NodeSelectorTerm{
+										{
+											MatchExpressions: []corev1.NodeSelectorRequirement{
+												{
+													Key:      "some-label-2",
+													Operator: "In",
+													Values: []string{
+														"true",
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+							NodePluginToleration: []corev1.Toleration{
+								{
+									Key:      "node-role.kubernetes.io/controlplane2",
+									Operator: "Exist",
+									Effect:   "NoSchedule",
+								},
+							},
+						},
 					}
 					return newConfig
 				}(),
@@ -174,18 +252,28 @@ func TestInitReconcile(t *testing.T) {
 			configMap: &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{Name: LcmConfigMapName, Namespace: "some-namespace-2"},
 				Data: map[string]string{
-					"DISK_DAEMON_API_PORT":                        "99ww98",
-					"DISK_DAEMON_PLACEMENT_NODES_SELECTOR":        "custom-^^-label=true,asss",
-					"HEALTH_CHECKS_USAGE_CLASS_FILTER":            "(hdd|",
-					"HEALTH_CHECKS_USAGE_POOLS_FILTER":            "(pool-|",
-					"RGW_PUBLIC_ACCESS_SERVICE_SELECTOR":          "custom&^^^-access-label",
-					"GATEWAY_API_ENABLED":                         "fa;sfla",
-					"KEEP_INGRESS":                                "asr32",
-					"HEALTH_LOG_LEVEL":                            "fakelevel",
-					"TASK_LOG_LEVEL":                              "fakelevel",
-					"TASK_OSD_PG_REBALANCE_TIMEOUT_MIN":           "10asdasd",
-					"TASK_ALLOW_REMOVE_MANUALLY_CREATED_LVMS":     "dsf3",
-					"DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS": "no-ceph@@@true",
+					"DISK_DAEMON_API_PORT":                          "99ww98",
+					"DISK_DAEMON_PLACEMENT_NODES_SELECTOR":          "custom-^^-label=true,asss",
+					"HEALTH_CHECKS_USAGE_CLASS_FILTER":              "(hdd|",
+					"HEALTH_CHECKS_USAGE_POOLS_FILTER":              "(pool-|",
+					"RGW_PUBLIC_ACCESS_SERVICE_SELECTOR":            "custom&^^^-access-label",
+					"GATEWAY_API_ENABLED":                           "fa;sfla",
+					"KEEP_INGRESS":                                  "asr32",
+					"HEALTH_LOG_LEVEL":                              "fakelevel",
+					"TASK_LOG_LEVEL":                                "fakelevel",
+					"TASK_OSD_PG_REBALANCE_TIMEOUT_MIN":             "10asdasd",
+					"TASK_ALLOW_REMOVE_MANUALLY_CREATED_LVMS":       "dsf3",
+					"DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS":   "no-ceph@@@true",
+					"DEPLOYMENT_CSI_DRIVERS_MANAGE":                 "true",
+					"DEPLOYMENT_CSI_RBD_DEFAULT_DRIVER_CREATE":      "faasdsadlse",
+					"DEPLOYMENT_CSI_CEPHFS_DEFAULT_DRIVER_CREATE":   "faasslse",
+					"DEPLOYMENT_CSI_NFS_DEFAULT_DRIVER_CREATE":      "trdsdue",
+					"DEPLOYMENT_CSI_KEEP_EXISTING_ON_UPGRADE":       "falssdsde",
+					"DEPLOYMENT_CSI_ENABLE_CSIADDONS":               "trusdsde",
+					"DEPLOYMENT_CSI_CONTROLLER_PLUGIN_NODEAFFINITY": "s@#$ome-label=true",
+					"DEPLOYMENT_CSI_NODE_PLUGIN_NODEAFFINITY":       "some-label-2W@@$=true",
+					"DEPLOYMENT_CSI_CONTROLLER_PLUGIN_TOLERATIONS":  "|asdasd",
+					"DEPLOYMENT_CSI_NODE_PLUGIN_TOLERATIONS":        "|asdasd",
 				},
 			},
 			controlParams:  ControlParamsAll,

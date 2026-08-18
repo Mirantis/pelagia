@@ -23,6 +23,7 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 
+	cephcsi "github.com/ceph/ceph-csi-operator/api/v1"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	gatewayapi "sigs.k8s.io/gateway-api/apis/v1"
 )
@@ -229,6 +230,46 @@ func (httpRoute CephDeploymentHTTPRoute) GetSpec() (gatewayapi.HTTPRouteSpec, er
 		return httpRouteSpec, errors.New("spec: http route field has failed to convert to GatewayAPI HTTPRoute object")
 	}
 	return httpRouteObj.Spec, nil
+}
+
+func (operatorConfig CephCSIOperatorConfig) GetSpec() (cephcsi.OperatorConfigSpec, error) {
+	var opCfgSpec cephcsi.OperatorConfigSpec
+	if operatorConfig.Spec.Raw == nil && operatorConfig.Spec.Object == nil {
+		return opCfgSpec, errors.New("spec: operatorConfig spec no any data provided")
+	}
+
+	if operatorConfig.Spec.Raw != nil {
+		if err := DecodeRawToStruct(operatorConfig.Spec.Raw, &opCfgSpec); err != nil {
+			return opCfgSpec, errors.Wrap(err, "spec: operatorConfig spec has failed to decode to CephCSI OperatorConfigSpec struct")
+		}
+		return opCfgSpec, nil
+	}
+
+	opCfgObj, ok := operatorConfig.Spec.Object.(*cephcsi.OperatorConfig)
+	if !ok {
+		return opCfgSpec, errors.New("spec: operatorConfig field has failed to convert to CephCSI OperatorConfig object")
+	}
+	return opCfgObj.Spec, nil
+}
+
+func (csiDriver CephCSIDriver) GetSpec() (cephcsi.DriverSpec, error) {
+	var csiDriverSpec cephcsi.DriverSpec
+	if csiDriver.Spec.Raw == nil && csiDriver.Spec.Object == nil {
+		return csiDriverSpec, errors.New("spec: driver spec no any data provided")
+	}
+
+	if csiDriver.Spec.Raw != nil {
+		if err := DecodeRawToStruct(csiDriver.Spec.Raw, &csiDriverSpec); err != nil {
+			return csiDriverSpec, errors.Wrap(err, "spec: driver spec has failed to decode to CephCSI DriverSpec struct")
+		}
+		return csiDriverSpec, nil
+	}
+
+	driverObj, ok := csiDriver.Spec.Object.(*cephcsi.Driver)
+	if !ok {
+		return csiDriverSpec, errors.New("spec: driver field has failed to convert to CephCSI Driver object")
+	}
+	return driverObj.Spec, nil
 }
 
 // Method SetRawSpec is used to directly put Raw spec in related

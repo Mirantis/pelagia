@@ -23,7 +23,9 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+	corev1 "k8s.io/api/core/v1"
 
+	"github.com/rook/rook/pkg/operator/k8sutil"
 	"k8s.io/apimachinery/pkg/labels"
 )
 
@@ -98,6 +100,33 @@ type DeployParams struct {
 	DrainRequestLabelKey string
 	// drain ready label for nodes
 	DrainReadyLabelKey string
+	// csi related params
+	CSIParams CSIDeployParams
+}
+
+type CSIDeployParams struct {
+	// Manage by Pelagia CSI resources OperatorConfig/Drivers
+	Manage bool
+	// CSI Kubelet path
+	KubeletPath string
+	// Create default RBD driver
+	CreateDefaultRBDDriver bool
+	// Create default CephFS driver
+	CreateDefaultCephFSDriver bool
+	// Create default RBD driver
+	CreateDefaultNFSDriver bool
+	// Do not override CSI resources present on env and not present in spec
+	KeepExisting bool
+	// Deploy CSI addons
+	DeployCSIAddons bool
+	// Controller plugin node affinity
+	ControllerPluginNodeAffinity *corev1.NodeAffinity
+	// Controller plugin tolerations
+	ControllerPluginToleration []corev1.Toleration
+	// Node plugin node affinity
+	NodePluginNodeAffinity *corev1.NodeAffinity
+	// Node plugin tolerations
+	NodePluginToleration []corev1.Toleration
 }
 
 type ControlParams string
@@ -152,6 +181,13 @@ var (
 		LogLevel:             zerolog.InfoLevel,
 		DrainRequestLabelKey: "kaas.mirantis.com/lcm-drained",
 		DrainReadyLabelKey:   "kaas.mirantis.com/csi-drained",
+		CSIParams: CSIDeployParams{
+			Manage:                    true,
+			KubeletPath:               "/var/lib/kubelet",
+			CreateDefaultRBDDriver:    true,
+			CreateDefaultCephFSDriver: true,
+			KeepExisting:              true,
+		},
 	}
 )
 
@@ -187,6 +223,18 @@ var (
 	cephDplCephDaemonsetLabelExclude = "DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS"
 	cephDplDrainRequestLabelKeyName  = "DEPLOYMENT_DRAIN_REQUEST_LABEL_KEY"
 	cephDplDrainReadyLabelKeyName    = "DEPLOYMENT_DRAIN_READY_LABEL_KEY"
+	// csi related params for deployment controller
+	cephDplCSIManageKeyName                       = "DEPLOYMENT_CSI_DRIVERS_MANAGE"
+	cephDplCSIRBDDefaultCreateKeyName             = "DEPLOYMENT_CSI_RBD_DEFAULT_DRIVER_CREATE"
+	cephDplCSICephFSDefaultCreateKeyName          = "DEPLOYMENT_CSI_CEPHFS_DEFAULT_DRIVER_CREATE"
+	cephDplCSINFSDefaultCreateKeyName             = "DEPLOYMENT_CSI_NFS_DEFAULT_DRIVER_CREATE"
+	cephDplCSIKeepExisting                        = "DEPLOYMENT_CSI_KEEP_EXISTING_ON_UPGRADE"
+	cephDplCSIKubeletPath                         = "DEPLOYMENT_CSI_KUBELET_PATH"
+	cephDplCSIDeployAddons                        = "DEPLOYMENT_CSI_ENABLE_CSIADDONS"
+	cephDplCSIControllerPluginNodeAffinityKeyName = "DEPLOYMENT_CSI_CONTROLLER_PLUGIN_NODEAFFINITY"
+	cephDplCSIControllerPluginTolerationsKeyName  = "DEPLOYMENT_CSI_CONTROLLER_PLUGIN_TOLERATIONS"
+	cephDplCSINodePluginNodeAffinityKeyName       = "DEPLOYMENT_CSI_NODE_PLUGIN_NODEAFFINITY"
+	cephDplCSINodePluginTolerationsKeyName        = "DEPLOYMENT_CSI_NODE_PLUGIN_TOLERATIONS"
 )
 
 func dropConfiguration(namespace string) {
@@ -333,6 +381,113 @@ func loadCephDeploymentConfiguration(objLog zerolog.Logger, configData map[strin
 	if drainReadyLabel, present := configData[cephDplDrainReadyLabelKeyName]; present {
 		objLog.Debug().Msgf(debugMsgTmpl, cephDplDrainReadyLabelKeyName, drainReadyLabel)
 		newCephDplConfig.DrainReadyLabelKey = drainReadyLabel
+	}
+
+	if csiManage, present := configData[cephDplCSIManageKeyName]; present {
+		val, err := strconv.ParseBool(csiManage)
+		if err != nil {
+			objLog.Error().Msgf(errorMsgTmpl, cephDplCSIManageKeyName, csiManage, "bool")
+		} else {
+			objLog.Debug().Msgf(debugMsgTmpl, cephDplCSIManageKeyName, csiManage)
+			newCephDplConfig.CSIParams.Manage = val
+		}
+
+		if val {
+			if createDefaultRBD, present := configData[cephDplCSIRBDDefaultCreateKeyName]; present {
+				val, err := strconv.ParseBool(createDefaultRBD)
+				if err != nil {
+					objLog.Error().Msgf(errorMsgTmpl, cephDplCSIRBDDefaultCreateKeyName, createDefaultRBD, "bool")
+				} else {
+					objLog.Debug().Msgf(debugMsgTmpl, cephDplCSIRBDDefaultCreateKeyName, createDefaultRBD)
+					newCephDplConfig.CSIParams.CreateDefaultRBDDriver = val
+				}
+			}
+
+			if createDefaultCephFS, present := configData[cephDplCSICephFSDefaultCreateKeyName]; present {
+				val, err := strconv.ParseBool(createDefaultCephFS)
+				if err != nil {
+					objLog.Error().Msgf(errorMsgTmpl, cephDplCSICephFSDefaultCreateKeyName, createDefaultCephFS, "bool")
+				} else {
+					objLog.Debug().Msgf(debugMsgTmpl, cephDplCSICephFSDefaultCreateKeyName, createDefaultCephFS)
+					newCephDplConfig.CSIParams.CreateDefaultCephFSDriver = val
+				}
+			}
+
+			if createDefaultNFS, present := configData[cephDplCSINFSDefaultCreateKeyName]; present {
+				val, err := strconv.ParseBool(createDefaultNFS)
+				if err != nil {
+					objLog.Error().Msgf(errorMsgTmpl, cephDplCSINFSDefaultCreateKeyName, createDefaultNFS, "bool")
+				} else {
+					objLog.Debug().Msgf(debugMsgTmpl, cephDplCSINFSDefaultCreateKeyName, createDefaultNFS)
+					newCephDplConfig.CSIParams.CreateDefaultNFSDriver = val
+				}
+			}
+
+			if keepExisting, present := configData[cephDplCSIKeepExisting]; present {
+				val, err := strconv.ParseBool(keepExisting)
+				if err != nil {
+					objLog.Error().Msgf(errorMsgTmpl, cephDplCSIKeepExisting, keepExisting, "bool")
+				} else {
+					objLog.Debug().Msgf(debugMsgTmpl, cephDplCSIKeepExisting, keepExisting)
+					newCephDplConfig.CSIParams.KeepExisting = val
+				}
+			}
+
+			if kubeletPath, present := configData[cephDplCSIKubeletPath]; present {
+				objLog.Debug().Msgf(debugMsgTmpl, cephDplCSIKubeletPath, kubeletPath)
+				newCephDplConfig.CSIParams.KubeletPath = kubeletPath
+			}
+
+			if deployAddons, present := configData[cephDplCSIDeployAddons]; present {
+				val, err := strconv.ParseBool(deployAddons)
+				if err != nil {
+					objLog.Error().Msgf(errorMsgTmpl, cephDplCSIDeployAddons, deployAddons, "bool")
+				} else {
+					objLog.Debug().Msgf(debugMsgTmpl, cephDplCSIDeployAddons, deployAddons)
+					newCephDplConfig.CSIParams.DeployCSIAddons = val
+				}
+			}
+
+			if controllerPluginNodeAffinity, present := configData[cephDplCSIControllerPluginNodeAffinityKeyName]; present {
+				nodeAffinity, err := k8sutil.GenerateNodeAffinity(controllerPluginNodeAffinity)
+				if err != nil {
+					objLog.Error().Msgf(errorMsgTmpl, cephDplCSIControllerPluginNodeAffinityKeyName, controllerPluginNodeAffinity, "valid nodeAffinity definition")
+				} else {
+					objLog.Debug().Msgf(debugMsgTmpl, cephDplCSIControllerPluginNodeAffinityKeyName, controllerPluginNodeAffinity)
+					newCephDplConfig.CSIParams.ControllerPluginNodeAffinity = nodeAffinity
+				}
+			}
+
+			if controllerPluginTolerations, present := configData[cephDplCSIControllerPluginTolerationsKeyName]; present {
+				tolerations, err := k8sutil.YamlToTolerations(controllerPluginTolerations)
+				if err != nil {
+					objLog.Error().Msgf(errorMsgTmpl, cephDplCSIControllerPluginTolerationsKeyName, controllerPluginTolerations, "valid tolerations definition")
+				} else {
+					objLog.Debug().Msgf(debugMsgTmpl, cephDplCSIControllerPluginTolerationsKeyName, controllerPluginTolerations)
+					newCephDplConfig.CSIParams.ControllerPluginToleration = tolerations
+				}
+			}
+
+			if nodePluginNodeAffinity, present := configData[cephDplCSINodePluginNodeAffinityKeyName]; present {
+				nodeAffinity, err := k8sutil.GenerateNodeAffinity(nodePluginNodeAffinity)
+				if err != nil {
+					objLog.Error().Msgf(errorMsgTmpl, cephDplCSINodePluginNodeAffinityKeyName, nodePluginNodeAffinity, "valid nodeAffinity definition")
+				} else {
+					objLog.Debug().Msgf(debugMsgTmpl, cephDplCSINodePluginNodeAffinityKeyName, nodePluginNodeAffinity)
+					newCephDplConfig.CSIParams.NodePluginNodeAffinity = nodeAffinity
+				}
+			}
+
+			if nodePluginTolerations, present := configData[cephDplCSINodePluginTolerationsKeyName]; present {
+				tolerations, err := k8sutil.YamlToTolerations(nodePluginTolerations)
+				if err != nil {
+					objLog.Error().Msgf(errorMsgTmpl, cephDplCSINodePluginTolerationsKeyName, nodePluginTolerations, "valid tolerations definition")
+				} else {
+					objLog.Debug().Msgf(debugMsgTmpl, cephDplCSINodePluginTolerationsKeyName, nodePluginTolerations)
+					newCephDplConfig.CSIParams.NodePluginToleration = tolerations
+				}
+			}
+		}
 	}
 
 	return &newCephDplConfig

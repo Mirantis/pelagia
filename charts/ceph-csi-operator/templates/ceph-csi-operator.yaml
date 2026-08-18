@@ -8,7 +8,7 @@ metadata:
 {{ include "ceph-csi-operator.labels" . | indent 4 }}
 {{ include "chart.labels" . | indent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.csiOperatorConfig.replicas }}
   selector:
     matchLabels:
       control-plane: ceph-csi-op-controller-manager
@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - args:
-            - --leader-elect
+{{- toYaml .Values.csiOperatorConfig.managerArgs | nindent 12 }}
           command:
             - /manager
           env:
@@ -33,6 +33,10 @@ spec:
               value: ceph-csi-
             - name: WATCH_NAMESPACE
               value: {{ .Values.csiOperatorConfig.rookNamespace }}
+            {{- if .Values.csiOperatorConfig.kubernetesClusterDomain }}
+            - name: KUBERNETES_CLUSTER_DOMAIN
+              value: {{ .Values.csiOperatorConfig.kubernetesClusterDomain }}
+            {{- end }}
           image: {{ template "operator.image" . }}
           imagePullPolicy: {{ .Values.images.operator.pullPolicy }}
           livenessProbe:
@@ -48,13 +52,10 @@ spec:
               port: 8081
             initialDelaySeconds: 5
             periodSeconds: 10
+          {{- with $.Values.csiOperatorConfig.resources }}
           resources:
-            limits:
-              cpu: 500m
-              memory: 128Mi
-            requests:
-              cpu: 10m
-              memory: 64Mi
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with $.Values.csiOperatorConfig.securityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
@@ -69,5 +70,17 @@ spec:
     {{- end }}
       securityContext:
         runAsNonRoot: true
+    {{- if .Values.csiOperatorConfig.imagePullSecrets }}
+      imagePullSecrets: {{- toYaml .Values.csiOperatorConfig.imagePullSecrets | nindent 6 }}
+    {{- end }}
+    {{- if .Values.csiOperatorConfig.placement.nodeSelector }}
+      nodeSelector: {{- toYaml .Values.csiOperatorConfig.placement.nodeSelector | nindent 8 }}
+    {{- end }}
+    {{- if .Values.csiOperatorConfig.priorityClassName }}
+      priorityClassName: {{ .Values.csiOperatorConfig.priorityClassName }}
+    {{- end }}
       serviceAccountName: ceph-csi-controller-manager
       terminationGracePeriodSeconds: 10
+    {{- if .Values.csiOperatorConfig.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- toYaml .Values.csiOperatorConfig.topologySpreadConstraints | nindent 6 }}
+    {{- end }}

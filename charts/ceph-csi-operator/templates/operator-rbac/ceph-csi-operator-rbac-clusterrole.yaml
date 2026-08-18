@@ -1,0 +1,396 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ceph-csi-cephconnection-viewer-role
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{ include "ceph-csi-operator.labels" . | indent 4 }}
+rules:
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - cephconnections
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - cephconnections/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ceph-csi-cephconnections-editor-role
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{ include "ceph-csi-operator.labels" . | indent 4 }}
+rules:
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - cephconnections
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - cephconnections/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ceph-csi-clientprofile-viewer-role
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{ include "ceph-csi-operator.labels" . | indent 4 }}
+rules:
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - clientprofiles
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - clientprofiles/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ceph-csi-clientprofilemapping-editor-role
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{ include "ceph-csi-operator.labels" . | indent 4 }}
+rules:
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - clientprofilemappings
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - clientprofilemappings/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ceph-csi-clientprofilemapping-viewer-role
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{ include "ceph-csi-operator.labels" . | indent 4 }}
+rules:
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - clientprofilemappings
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - clientprofilemappings/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ceph-csi-clientprofiles-editor-role
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{ include "ceph-csi-operator.labels" . | indent 4 }}
+rules:
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - clientprofiles
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - clientprofiles/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ceph-csi-driver-editor-role
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{ include "ceph-csi-operator.labels" . | indent 4 }}
+rules:
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - drivers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - drivers/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ceph-csi-driver-viewer-role
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{ include "ceph-csi-operator.labels" . | indent 4 }}
+rules:
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - drivers
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - drivers/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ceph-csi-manager-role
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{ include "ceph-csi-operator.labels" . | indent 4 }}
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - daemonsets
+  - deployments
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cbt.storage.k8s.io
+  resources:
+  - snapshotmetadataservices
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - cephconnections
+  verbs:
+  - delete
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - clientprofilemappings
+  - clientprofiles
+  - drivers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - clientprofilemappings/finalizers
+  - clientprofiles/finalizers
+  - drivers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - clientprofilemappings/status
+  - clientprofiles/status
+  - drivers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - operatorconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - storage.k8s.io
+  resources:
+  - csidrivers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ceph-csi-metrics-auth-role
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{ include "ceph-csi-operator.labels" . | indent 4 }}
+rules:
+- apiGroups:
+  - authentication.k8s.io
+  resources:
+  - tokenreviews
+  verbs:
+  - create
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ceph-csi-metrics-reader
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{ include "ceph-csi-operator.labels" . | indent 4 }}
+rules:
+- nonResourceURLs:
+  - /metrics
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ceph-csi-operatorconfig-editor-role
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{ include "ceph-csi-operator.labels" . | indent 4 }}
+rules:
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - operatorconfigs
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - operatorconfigs/status
+  verbs:
+  - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: ceph-csi-operatorconfig-viewer-role
+  labels:
+{{ include "chart.labels" . | indent 4 }}
+{{ include "ceph-csi-operator.labels" . | indent 4 }}
+rules:
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - operatorconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - csi.ceph.io
+  resources:
+  - operatorconfigs/status
+  verbs:
+  - get

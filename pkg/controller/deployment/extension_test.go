@@ -100,9 +100,14 @@ func TestCastExtensions(t *testing.T) {
 						},
 					},
 					Nodes: unitinputs.CephDeployWithWrongNodes.Spec.Nodes,
+					CSIResources: &cephlcmv1alpha1.CephCSI{
+						Drivers: []cephlcmv1alpha1.CephCSIDriver{
+							{Type: cephlcmv1alpha1.RBDCSIDriver},
+						},
+					},
 				},
 			},
-			expectedError: "failed to cast spec fields: failed to cast cephdeployment fields to Rook API, failed to cast block storage pool 'testpool' fields to Rook API, failed to cast client #0 to Rook API, failed to cast rgw 'testrgw' to Rook API, failed to cast user 'testuser' to Rook API, failed to cast realm 'testrealm' to Rook API, failed to cast zonegroup 'testzonegroup' to Rook API, failed to cast zone 'testzone' to Rook API, failed to cast http route 'test' to Gateway API, failed to cast ceph filesystem 'testfilesystem' to Rook API, failed to expand nodes list",
+			expectedError: "failed to cast spec fields: failed to cast CSI driver #0 to CephCSI API, failed to cast cephdeployment fields to Rook API, failed to cast block storage pool 'testpool' fields to Rook API, failed to cast client #0 to Rook API, failed to cast rgw 'testrgw' to Rook API, failed to cast user 'testuser' to Rook API, failed to cast realm 'testrealm' to Rook API, failed to cast zonegroup 'testzonegroup' to Rook API, failed to cast zone 'testzone' to Rook API, failed to cast http route 'test' to Gateway API, failed to cast ceph filesystem 'testfilesystem' to Rook API, failed to expand nodes list",
 		},
 		{
 			name:    "validate base cephdeployment",
@@ -121,12 +126,16 @@ func TestCastExtensions(t *testing.T) {
 			cephDpl: unitinputs.CephDeployMosk.DeepCopy(),
 		},
 		{
-			name:    "validate mosk cephdeployment",
+			name:    "validate external cephdeployment",
 			cephDpl: unitinputs.CephDeployExternal.DeepCopy(),
 		},
 		{
-			name:    "validate mosk cephdeployment",
+			name:    "validate rgw multisite cephdeployment",
 			cephDpl: unitinputs.CephDeployMultisiteRgw.DeepCopy(),
+		},
+		{
+			name:    "validate cephdeployment with csi",
+			cephDpl: unitinputs.CephDeployWithCSI.DeepCopy(),
 		},
 	}
 	for _, test := range tests {

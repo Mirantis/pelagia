@@ -40,6 +40,31 @@ data:
   {{- if (.Values.cephDeployment.drainReadyLabelKey) }}
   DEPLOYMENT_DRAIN_READY_LABEL_KEY: {{ .Values.cephDeployment.drainReadyLabelKey }}
   {{- end }}
+  {{- if .Values.cephDeployment.csi.manage }}
+  DEPLOYMENT_CSI_DRIVERS_MANAGE: "true"
+  DEPLOYMENT_CSI_RBD_DEFAULT_DRIVER_CREATE: {{ .Values.cephDeployment.csi.defaultDriversCreate.rbd | quote }}
+  DEPLOYMENT_CSI_CEPHFS_DEFAULT_DRIVER_CREATE: {{ .Values.cephDeployment.csi.defaultDriversCreate.cephfs | quote }}
+  DEPLOYMENT_CSI_NFS_DEFAULT_DRIVER_CREATE: {{ .Values.cephDeployment.csi.defaultDriversCreate.nfs | quote }}
+    {{- if .Values.cephDeployment.csi.keepExisting }}
+  DEPLOYMENT_CSI_KEEP_EXISTING: {{ .Values.cephDeployment.csi.keepExisting | quote }}
+    {{- end }}
+  DEPLOYMENT_CSI_KUBELET_PATH: {{ .Values.cephDeployment.csi.kubeletPath }}
+  DEPLOYMENT_CSI_ENABLE_CSIADDONS: {{ .Values.cephDeployment.csi.addons | quote }}
+    {{- if .Values.cephDeployment.csi.placement.nodeAffinity.controllerPlugin }}
+  DEPLOYMENT_CSI_CONTROLLER_PLUGIN_NODEAFFINITY: {{ toJson .Values.cephDeployment.csi.placement.nodeAffinity.controllerPlugin }}
+    {{- end }}
+    {{- if .Values.cephDeployment.csi.placement.tolerations.controllerPlugin }}
+  DEPLOYMENT_CSI_CONTROLLER_PLUGIN_TOLERATIONS: |
+{{ .Values.cephDeployment.csi.placement.tolerations.controllerPlugin | indent 4 }}
+    {{- end }}
+    {{- if .Values.cephDeployment.csi.placement.nodeAffinity.nodePlugin }}
+  DEPLOYMENT_CSI_NODE_PLUGIN_NODEAFFINITY: {{ toJson .Values.cephDeployment.csi.placement.nodeAffinity.nodePlugin }}
+    {{- end }}
+    {{- if .Values.cephDeployment.csi.placement.tolerations.nodePlugin }}
+  DEPLOYMENT_CSI_NODE_PLUGIN_TOLERATIONS: |
+{{ .Values.cephDeployment.csi.placement.tolerations.nodePlugin | indent 4 }}
+    {{- end }}
+  {{- end }}
 {{- end }}
 {{- if .Values.global.namespace }}
 ---

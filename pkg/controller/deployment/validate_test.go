@@ -19,6 +19,7 @@ package deployment
 import (
 	"testing"
 
+	cephcsi "github.com/ceph/ceph-csi-operator/api/v1"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/api/core/v1"
@@ -29,6 +30,45 @@ import (
 	faketestclients "github.com/Mirantis/pelagia/v3/test/unit/clients"
 	unitinputs "github.com/Mirantis/pelagia/v3/test/unit/inputs"
 )
+
+func TestValidateCSIDrivers(t *testing.T) {
+	tests := []struct {
+		name           string
+		drivers        []cephlcmv1alpha1.CephCSIDriver
+		expectedIssues []string
+	}{
+		{
+			name:    "no drivers",
+			drivers: nil,
+		},
+		{
+			name: "drivers failed",
+			drivers: []cephlcmv1alpha1.CephCSIDriver{
+				{Type: cephlcmv1alpha1.RBDCSIDriver}, {Type: cephlcmv1alpha1.RBDCSIDriver},
+				{Type: cephlcmv1alpha1.CephFSCSIDriver}, {Type: cephlcmv1alpha1.CephFSCSIDriver},
+				{Type: cephlcmv1alpha1.NFSCSIDriver}, {Type: cephlcmv1alpha1.NFSCSIDriver},
+				{Type: cephlcmv1alpha1.NVMEoFCSIDriver}, {Type: cephlcmv1alpha1.NVMEoFCSIDriver},
+			},
+			expectedIssues: []string{
+				"driver with type 'rbd' specified multiple times",
+				"driver with type 'cephfs' specified multiple times",
+				"driver with type 'nfs' specified multiple times",
+				"driver with type 'nvmeof' specified multiple times",
+			},
+		},
+		{
+			name:           "drivers ok",
+			drivers:        unitinputs.CephDeployWithCSI.Spec.CSIResources.Drivers,
+			expectedIssues: []string{},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			errs := validateCSIDrivers(test.drivers)
+			assert.Equal(t, test.expectedIssues, errs)
+		})
+	}
+}
 
 func TestValidateNetworkSpec(t *testing.T) {
 	tests := []struct {
@@ -1054,6 +1094,28 @@ func TestValidateSpec(t *testing.T) {
 					Token: "fake-token",
 					Pools: []string{"pool-1", "pool-2"},
 				})
+				cd.Spec.CSIResources = &cephlcmv1alpha1.CephCSI{
+					Drivers: []cephlcmv1alpha1.CephCSIDriver{
+						{
+							Type: cephlcmv1alpha1.NFSCSIDriver,
+							Spec: runtime.RawExtension{
+								Raw: unitinputs.ConvertStructToRaw(
+									cephcsi.DriverSpec{
+										ClusterName: &unitinputs.BaseCephDeployment.Name,
+									},
+								)},
+						},
+						{
+							Type: cephlcmv1alpha1.NFSCSIDriver,
+							Spec: runtime.RawExtension{
+								Raw: unitinputs.ConvertStructToRaw(
+									cephcsi.DriverSpec{
+										ClusterName: &unitinputs.BaseCephDeployment.Name,
+									},
+								)},
+						},
+					},
+				}
 				return cd
 			}(),
 			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3", "node-4", "node-5", "node-6"}),
@@ -1061,6 +1123,7 @@ func TestValidateSpec(t *testing.T) {
 				Result:                  cephlcmv1alpha1.ValidationFailed,
 				LastValidatedGeneration: 0,
 				Messages: []string{
+					"driver with type 'nfs' specified multiple times",
 					"cluster network addressRanges parameter is not specified",
 					"monitor nodes in spec (with roles 'mon') count is 2, but should be odd for a healthy quorum",
 					"multiple RBD Peers aren't supported yet",
@@ -1127,6 +1190,15 @@ func TestValidateSpec(t *testing.T) {
 		{
 			name:     "validate multisite pull cephdeployment, success",
 			cephDpl:  unitinputs.CephDeployMultisiteRgw.DeepCopy(),
+			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),
+			expectedStatus: cephlcmv1alpha1.CephDeploymentValidation{
+				Result:                  cephlcmv1alpha1.ValidationSucceed,
+				LastValidatedGeneration: 0,
+			},
+		},
+		{
+			name:     "validate cephcsi cephdeployment, success",
+			cephDpl:  unitinputs.CephDeployWithCSI.DeepCopy(),
 			nodeList: unitinputs.GetOsdNodesList([]string{"node-1", "node-2", "node-3"}),
 			expectedStatus: cephlcmv1alpha1.CephDeploymentValidation{
 				Result:                  cephlcmv1alpha1.ValidationSucceed,
