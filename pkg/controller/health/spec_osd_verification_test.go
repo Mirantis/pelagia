@@ -556,6 +556,30 @@ func TestPrepareSpecAnalysis(t *testing.T) {
 			},
 		},
 		{
+			name: "disk daemon daemonset report contains not described nodes",
+			cephCluster: func() *cephv1.CephCluster {
+				cl := unitinputs.CephClusterReady.DeepCopy()
+				cl.Spec.Storage.Nodes = unitinputs.StorageNodesForRequestReduced
+				return cl
+			}(),
+			daemonReport: map[string]string{
+				"node-1": unitinputs.CephDiskDaemonDiskReportStringNode1,
+				"node-2": unitinputs.CephDiskDaemonDiskReportStringNode2,
+			},
+			expectedStatus: map[string]lcmv1alpha1.DaemonStatus{
+				"node-2": {
+					Status: lcmv1alpha1.DaemonStateOk,
+					Messages: []string{
+						"found ceph block partition '/dev/ceph-0e03d5c6-d0e9-4f04-b9af-38d15e14369f/osd-block-61869d90-2c45-4f02-b7c3-96955f41e2ca', belongs to osd '2' (osd fsid '61869d90-2c45-4f02-b7c3-96955f41e2ca'), placed on '/dev/vde' device, which seems to be stray, can be cleaned up",
+						"found ceph block partition '/dev/ceph-c5628abe-ae41-4c3d-bdc6-ef86c54bf78c/osd-block-69481cd1-38b1-42fd-ac07-06bf4d7c0e19', belongs to osd '0' (osd fsid '06bf4d7c-9603-41a4-b250-284ecf3ecb2f'), placed on '/dev/vdc' device, which seems to be stray, can be cleaned up",
+					},
+				},
+			},
+			expectedIssues: []string{
+				"node 'node-1' present in cluster and has running osd(s), but not present in spec",
+			},
+		},
+		{
 			name:        "disk daemon daemonset report contains no issues found",
 			cephCluster: &unitinputs.CephClusterReady,
 			daemonReport: map[string]string{
