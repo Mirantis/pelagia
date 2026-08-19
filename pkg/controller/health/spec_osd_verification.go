@@ -228,6 +228,13 @@ func (c *cephDeploymentHealthConfig) prepareSpecAnalysis(osdClusterInfo map[stri
 			statusThreads.issues = append(statusThreads.issues, nodeIssue)
 		}
 	}
+	verifiedNodes := map[string]bool{}
+	for node := range osdClusterInfo {
+		if node == lcmcommon.StrayOsdNodeMarker {
+			continue
+		}
+		verifiedNodes[node] = false
+	}
 	for _, node := range c.healthConfig.cephCluster.Spec.Storage.Nodes {
 		// should not happen, but since name field is optional
 		// double check and skip if any found
@@ -254,10 +261,18 @@ func (c *cephDeploymentHealthConfig) prepareSpecAnalysis(osdClusterInfo map[stri
 			}
 			updateStatus(node.Name, status, issue)
 		}()
+		verifiedNodes[node.Name] = true
 	}
 	wg.Wait()
 	if len(statusThreads.issues) > 0 {
 		issues = append(issues, statusThreads.issues...)
+	}
+	for node, verified := range verifiedNodes {
+		if !verified {
+			issues = append(issues, fmt.Sprintf("node '%s' present in cluster and has running osd(s), but not present in spec", node))
+		}
+	}
+	if len(issues) > 0 {
 		sort.Strings(issues)
 	}
 	return statusThreads.daemonsStatus, issues
