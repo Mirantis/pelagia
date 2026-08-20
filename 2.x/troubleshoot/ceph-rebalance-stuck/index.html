@@ -6,19 +6,19 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Overview of verifying Ceph cluster health and components after deployment, including core services, cluster state, and troubleshooting with Pelagia Controllers and Rook Ceph Operator logs.">
+        <meta name="description" content="How to fix Ceph rebalancing that gets stuck during disabled node removal by reweighting the OSD.">
       
       
         <meta name="author" content="Mirantis">
       
       
-        <link rel="canonical" href="https://mirantis.github.io/pelagia/2.x/ops-guide/verify-ceph/">
+        <link rel="canonical" href="https://mirantis.github.io/pelagia/2.x/troubleshoot/ceph-rebalance-stuck/">
       
       
-        <link rel="prev" href="../rockoon/cinder-multi-backend/">
+        <link rel="prev" href="../ceph-pg-damaged/">
       
       
-        <link rel="next" href="verify-ceph-core/">
+        <link rel="next" href="../cephosdremovetask-timeout/">
       
       
         
@@ -29,7 +29,7 @@
     
     
       
-        <title>Verify Ceph cluster - Pelagia for Rook Ceph management</title>
+        <title>Ceph rebalancing gets stuck during disabled node removal - Pelagia for Rook Ceph management</title>
       
     
     
@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#verify-ceph" class="md-skip">
+        <a href="#ceph-rebalancing-gets-stuck-during-disabled-node-removal" class="md-skip">
           Skip to content
         </a>
       
@@ -121,7 +121,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Verify Ceph cluster
+              Ceph rebalancing gets stuck during disabled node removal
             
           </span>
         </div>
@@ -1114,8 +1114,6 @@
       
   
   
-    
-  
   
   
     
@@ -1137,15 +1135,15 @@
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../ops-guide/" class="md-nav__link ">
               
   
   
@@ -1169,7 +1167,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1227,7 +1225,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../deployment/" class="md-nav__link ">
+            <a href="../../ops-guide/deployment/" class="md-nav__link ">
               
   
   
@@ -1293,7 +1291,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../deployment/ceph-resource-mgmt/" class="md-nav__link ">
+            <a href="../../ops-guide/deployment/ceph-resource-mgmt/" class="md-nav__link ">
               
   
   
@@ -1337,7 +1335,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/ceph-resource-mgmt/enable-resource-mgmt/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt/" class="md-nav__link">
         
   
   
@@ -1365,7 +1363,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/ceph-resource-mgmt/verify-resource-mgmt/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/ceph-resource-mgmt/verify-resource-mgmt/" class="md-nav__link">
         
   
   
@@ -1423,7 +1421,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../deployment/ceph-user-creds/" class="md-nav__link ">
+            <a href="../../ops-guide/deployment/ceph-user-creds/" class="md-nav__link ">
               
   
   
@@ -1467,7 +1465,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/ceph-user-creds/ceph-client/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/ceph-user-creds/ceph-client/" class="md-nav__link">
         
   
   
@@ -1495,7 +1493,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
         
   
   
@@ -1531,7 +1529,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/cephfs/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/cephfs/" class="md-nav__link">
         
   
   
@@ -1559,7 +1557,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/default-ceph-conf/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/default-ceph-conf/" class="md-nav__link">
         
   
   
@@ -1587,7 +1585,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/external-ceph/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/external-ceph/" class="md-nav__link">
         
   
   
@@ -1615,7 +1613,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/move-failure-domain/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/move-failure-domain/" class="md-nav__link">
         
   
   
@@ -1643,7 +1641,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/multinetworking/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/multinetworking/" class="md-nav__link">
         
   
   
@@ -1699,7 +1697,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../deployment/object-storage/" class="md-nav__link ">
+            <a href="../../ops-guide/deployment/object-storage/" class="md-nav__link ">
               
   
   
@@ -1743,7 +1741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/object-storage/rgw/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/object-storage/rgw/" class="md-nav__link">
         
   
   
@@ -1771,7 +1769,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/object-storage/rgw-multisite/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/object-storage/rgw-multisite/" class="md-nav__link">
         
   
   
@@ -1799,7 +1797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/object-storage/rgw-sse/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/object-storage/rgw-sse/" class="md-nav__link">
         
   
   
@@ -1827,7 +1825,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/object-storage/rgw-tls/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/object-storage/rgw-tls/" class="md-nav__link">
         
   
   
@@ -1879,7 +1877,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../deployment/object-storage/s3-bucket-policy/" class="md-nav__link ">
+            <a href="../../ops-guide/deployment/object-storage/s3-bucket-policy/" class="md-nav__link ">
               
   
   
@@ -1923,7 +1921,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/object-storage/s3-bucket-policy/s3-create-user/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/object-storage/s3-bucket-policy/s3-create-user/" class="md-nav__link">
         
   
   
@@ -1951,7 +1949,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/object-storage/s3-bucket-policy/bucket-policy-s3/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/object-storage/s3-bucket-policy/bucket-policy-s3/" class="md-nav__link">
         
   
   
@@ -1979,7 +1977,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/object-storage/s3-bucket-policy/bucket-policy-rockoon/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/object-storage/s3-bucket-policy/bucket-policy-rockoon/" class="md-nav__link">
         
   
   
@@ -2023,7 +2021,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/rbd-mirror/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/rbd-mirror/" class="md-nav__link">
         
   
   
@@ -2051,7 +2049,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../deployment/rook-daemon-place/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/rook-daemon-place/" class="md-nav__link">
         
   
   
@@ -2115,7 +2113,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../lcm/" class="md-nav__link ">
+            <a href="../../ops-guide/lcm/" class="md-nav__link ">
               
   
   
@@ -2195,7 +2193,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../lcm/auto-lcm/" class="md-nav__link ">
+            <a href="../../ops-guide/lcm/auto-lcm/" class="md-nav__link ">
               
   
   
@@ -2239,7 +2237,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lcm/auto-lcm/create-task-workflow/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/create-task-workflow/" class="md-nav__link">
         
   
   
@@ -2267,7 +2265,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lcm/auto-lcm/add-rm-ceph-node/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/add-rm-ceph-node/" class="md-nav__link">
         
   
   
@@ -2295,7 +2293,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lcm/auto-lcm/add-rm-ceph-osd/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/add-rm-ceph-osd/" class="md-nav__link">
         
   
   
@@ -2323,7 +2321,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lcm/auto-lcm/add-rm-ceph-osd-with-meta/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/add-rm-ceph-osd-with-meta/" class="md-nav__link">
         
   
   
@@ -2351,7 +2349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lcm/auto-lcm/replace-ceph-node/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/replace-ceph-node/" class="md-nav__link">
         
   
   
@@ -2379,7 +2377,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lcm/auto-lcm/replace-ceph-osd/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/replace-ceph-osd/" class="md-nav__link">
         
   
   
@@ -2407,7 +2405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lcm/auto-lcm/replace-meta/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/replace-meta/" class="md-nav__link">
         
   
   
@@ -2435,7 +2433,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lcm/auto-lcm/replace-osd-meta-device/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/replace-osd-meta-device/" class="md-nav__link">
         
   
   
@@ -2463,7 +2461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lcm/auto-lcm/replace-osd-meta-lvm/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/replace-osd-meta-lvm/" class="md-nav__link">
         
   
   
@@ -2499,7 +2497,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lcm/increase-storage-size/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/increase-storage-size/" class="md-nav__link">
         
   
   
@@ -2527,7 +2525,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lcm/move-mon-daemon/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/move-mon-daemon/" class="md-nav__link">
         
   
   
@@ -2555,7 +2553,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lcm/move-mon-node-replace/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/move-mon-node-replace/" class="md-nav__link">
         
   
   
@@ -2583,7 +2581,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../lcm/manual-osd-remove/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/manual-osd-remove/" class="md-nav__link">
         
   
   
@@ -2643,7 +2641,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../rockoon/" class="md-nav__link ">
+            <a href="../../ops-guide/rockoon/" class="md-nav__link ">
               
   
   
@@ -2687,7 +2685,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rockoon/rockoon-integration/" class="md-nav__link">
+      <a href="../../ops-guide/rockoon/rockoon-integration/" class="md-nav__link">
         
   
   
@@ -2715,7 +2713,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rockoon/calc-target-ratio/" class="md-nav__link">
+      <a href="../../ops-guide/rockoon/calc-target-ratio/" class="md-nav__link">
         
   
   
@@ -2743,7 +2741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rockoon/cinder-multi-backend/" class="md-nav__link">
+      <a href="../../ops-guide/rockoon/cinder-multi-backend/" class="md-nav__link">
         
   
   
@@ -2776,8 +2774,6 @@
                 
   
   
-    
-  
   
   
     
@@ -2799,15 +2795,15 @@
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_5" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="./" class="md-nav__link md-nav__link--active">
+            <a href="../../ops-guide/verify-ceph/" class="md-nav__link ">
               
   
   
@@ -2825,13 +2821,13 @@
             </a>
             
               
-              <label class="md-nav__link md-nav__link--active" for="__nav_8_5" id="__nav_8_5_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_8_5" id="__nav_8_5_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -2851,7 +2847,7 @@
   
   
     <li class="md-nav__item">
-      <a href="verify-ceph-core/" class="md-nav__link">
+      <a href="../../ops-guide/verify-ceph/verify-ceph-core/" class="md-nav__link">
         
   
   
@@ -2879,7 +2875,7 @@
   
   
     <li class="md-nav__item">
-      <a href="verify-cephdeploymenthealth/" class="md-nav__link">
+      <a href="../../ops-guide/verify-ceph/verify-cephdeploymenthealth/" class="md-nav__link">
         
   
   
@@ -2907,7 +2903,7 @@
   
   
     <li class="md-nav__item">
-      <a href="verify-pelagia-and-rook/" class="md-nav__link">
+      <a href="../../ops-guide/verify-ceph/verify-pelagia-and-rook/" class="md-nav__link">
         
   
   
@@ -2935,7 +2931,7 @@
   
   
     <li class="md-nav__item">
-      <a href="verify-rook-discover/" class="md-nav__link">
+      <a href="../../ops-guide/verify-ceph/verify-rook-discover/" class="md-nav__link">
         
   
   
@@ -2975,6 +2971,8 @@
       
   
   
+    
+  
   
   
     
@@ -3008,15 +3006,15 @@
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../troubleshoot/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -3040,7 +3038,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
@@ -3060,7 +3058,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../troubleshoot/ceph-disaster-recover/" class="md-nav__link">
+      <a href="../ceph-disaster-recover/" class="md-nav__link">
         
   
   
@@ -3088,7 +3086,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../troubleshoot/ceph-exporter-crash/" class="md-nav__link">
+      <a href="../ceph-exporter-crash/" class="md-nav__link">
         
   
   
@@ -3116,7 +3114,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../troubleshoot/ceph-mon-recover/" class="md-nav__link">
+      <a href="../ceph-mon-recover/" class="md-nav__link">
         
   
   
@@ -3144,7 +3142,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../troubleshoot/ceph-mon-store-size-grow/" class="md-nav__link">
+      <a href="../ceph-mon-store-size-grow/" class="md-nav__link">
         
   
   
@@ -3172,7 +3170,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../troubleshoot/osd-slow-op-bluestore/" class="md-nav__link">
+      <a href="../osd-slow-op-bluestore/" class="md-nav__link">
         
   
   
@@ -3200,7 +3198,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../troubleshoot/ceph-osd-auth-failed/" class="md-nav__link">
+      <a href="../ceph-osd-auth-failed/" class="md-nav__link">
         
   
   
@@ -3228,7 +3226,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../troubleshoot/ceph-pg-damaged/" class="md-nav__link">
+      <a href="../ceph-pg-damaged/" class="md-nav__link">
         
   
   
@@ -3253,10 +3251,19 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../troubleshoot/ceph-rebalance-stuck/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -3272,6 +3279,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -3284,7 +3292,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../troubleshoot/cephosdremovetask-timeout/" class="md-nav__link">
+      <a href="../cephosdremovetask-timeout/" class="md-nav__link">
         
   
   
@@ -3312,7 +3320,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../troubleshoot/stuck-maintenance/" class="md-nav__link">
+      <a href="../stuck-maintenance/" class="md-nav__link">
         
   
   
@@ -3404,25 +3412,7 @@
         <a href="../" class="md-path__link">
           
   <span class="md-ellipsis">
-    Operations Guide
-  </span>
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-    
-    
-      <li class="md-path__item">
-        <a href="./" class="md-path__link">
-          
-  <span class="md-ellipsis">
-    Verify Ceph cluster
+    Troubleshoot
   </span>
 
         </a>
@@ -3444,10 +3434,18 @@
   
 
 
-<p><a id="index-verify-ceph"></a></p>
-<h1 id="verify-ceph">Verify Ceph<a class="headerlink" href="#verify-ceph" title="Permanent link">#</a></h1>
-<p>This section describes how to verify the components of a Ceph cluster after
-deployment.</p>
+<p><a id="ceph-rebalance-stuck-ceph-rebalancing-gets-stuck-during-disabled-node-removal"></a></p>
+<h1 id="ceph-rebalancing-gets-stuck-during-disabled-node-removal">Ceph rebalancing gets stuck during disabled node removal<a class="headerlink" href="#ceph-rebalancing-gets-stuck-during-disabled-node-removal" title="Permanent link">#</a></h1>
+<p>When disabling or removing a Ceph node during operations such as a rolling
+reboot, Ceph may not finish rebalancing if only two of three OSD nodes remain
+active. The <code>CephDeployment</code> object can remain in <code>Maintenance</code>, causing
+the rebalance process to wait indefinitely for Ceph to become ready. The issue
+may only affect environments with a small number of Ceph OSD nodes, pool
+replica count set to one less than the number of storage nodes
+(<code>replicas=storage_nodes_count-1</code>), and failure domain <code>host</code>.</p>
+<p>To resolve the issue, run the following command on the affected Ceph OSD node:</p>
+<div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>osd<span class="w"> </span>reweight<span class="w"> </span>&lt;osdId&gt;<span class="w"> </span><span class="m">0</span>
+</code></pre></div>
 
 
 
@@ -3486,7 +3484,7 @@ deployment.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../rockoon/cinder-multi-backend/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Ceph pools for Cinder multi-backend">
+          <a href="../ceph-pg-damaged/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Ceph health reports PG_DAMAGED after a failed disk or node replacement">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3496,20 +3494,20 @@ deployment.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Ceph pools for Cinder multi-backend
+                Ceph health reports PG_DAMAGED after a failed disk or node replacement
               </div>
             </div>
           </a>
         
         
           
-          <a href="verify-ceph-core/" class="md-footer__link md-footer__link--next" aria-label="Next: Verify the Ceph core services">
+          <a href="../cephosdremovetask-timeout/" class="md-footer__link md-footer__link--next" aria-label="Next: CephOsdRemoveTask failure with a timeout during rebalance">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Verify the Ceph core services
+                CephOsdRemoveTask failure with a timeout during rebalance
               </div>
             </div>
             <div class="md-footer__button md-icon">
