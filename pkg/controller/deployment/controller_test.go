@@ -612,7 +612,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 10,
 				},
-				ClusterVersion: "v20.2.2",
+				ClusterVersion: "v20.2.3",
 				LastRun:        "2021-08-15T14:30:31+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -666,7 +666,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 10,
 				},
-				ClusterVersion: "v20.2.2",
+				ClusterVersion: "v20.2.3",
 				LastRun:        "2021-08-15T14:30:32+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -764,7 +764,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 10,
 				},
-				ClusterVersion: "v20.2.2",
+				ClusterVersion: "v20.2.3",
 				LastRun:        "2021-08-15T14:30:33+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -773,7 +773,7 @@ func TestReconcile(t *testing.T) {
 			name: "reconcile cephdeployment - update non-mosk ceph cluster",
 			inputResources: map[string]runtime.Object{
 				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{
-					*unitinputs.GetUpdatedClusterVersionCephDeploy(unitinputs.CephDeployNonMosk.DeepCopy(), "v20.2.2")}},
+					*unitinputs.GetUpdatedClusterVersionCephDeploy(unitinputs.CephDeployNonMosk.DeepCopy(), "v20.2.3")}},
 				"cephdeploymentsecrets":      &cephlcmv1alpha1.CephDeploymentSecretList{Items: []cephlcmv1alpha1.CephDeploymentSecret{*unitinputs.EmptyCephSecret}},
 				"cephdeploymenthealths":      &cephlcmv1alpha1.CephDeploymentHealthList{Items: []cephlcmv1alpha1.CephDeploymentHealth{unitinputs.CephDeploymentHealth}},
 				"cephdeploymentmaintenances": unitinputs.CephDeploymentMaintenanceListIdle,
@@ -791,7 +791,7 @@ func TestReconcile(t *testing.T) {
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
 					func() cephv1.CephCluster {
 						cluster := unitinputs.TestCephCluster.DeepCopy()
-						cluster.Spec.CephVersion.Image = "fake/fake:v20.2.2-0"
+						cluster.Spec.CephVersion.Image = "fake/fake:v20.2.3-0"
 						return *cluster
 					}(),
 				}},
@@ -813,7 +813,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 10,
 				},
-				ClusterVersion: "v20.2.2",
+				ClusterVersion: "v20.2.3",
 				LastRun:        "2021-08-15T14:30:34+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -917,7 +917,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,
 				},
-				ClusterVersion: "v20.2.2",
+				ClusterVersion: "v20.2.3",
 				LastRun:        "2021-08-15T14:30:36+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -1043,7 +1043,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,
 				},
-				ClusterVersion: "v20.2.2",
+				ClusterVersion: "v20.2.3",
 				LastRun:        "2021-08-15T14:30:39+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -1115,7 +1115,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,
 				},
-				ClusterVersion: "v20.2.2",
+				ClusterVersion: "v20.2.3",
 				LastRun:        "2021-08-15T14:30:40+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -1147,7 +1147,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,
 				},
-				ClusterVersion: "v20.2.2",
+				ClusterVersion: "v20.2.3",
 				LastRun:        "2021-08-15T14:30:41+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},

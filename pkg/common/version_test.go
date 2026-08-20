@@ -74,7 +74,7 @@ func TestGetCephVersionByReleaseName(t *testing.T) {
 				Name:            "Tentacle",
 				MajorVersion:    "v20.2",
 				Order:           20,
-				SupportedMinors: []string{"0", "1", "2"},
+				SupportedMinors: []string{"0", "1", "2", "3"},
 			},
 		},
 		{
@@ -84,7 +84,7 @@ func TestGetCephVersionByReleaseName(t *testing.T) {
 				Name:            "Tentacle",
 				MajorVersion:    "v20.2",
 				Order:           20,
-				SupportedMinors: []string{"0", "1", "2"},
+				SupportedMinors: []string{"0", "1", "2", "3"},
 			},
 		},
 		{
@@ -146,8 +146,8 @@ func TestParseCephVersion(t *testing.T) {
 		},
 		{
 			name:          "check ceph version tentacle- image is not in list supported minors",
-			cephVersion:   "ceph version 20.2.20 (safmsdgldfhglkfdhdlstet) custom",
-			expectedError: "specified Ceph version 'v20.2.20' is not supported. Please use one of: [v20.2.0 v20.2.1 v20.2.2]",
+			cephVersion:   "ceph version 20.2.30 (safmsdgldfhglkfdhdlstet) custom",
+			expectedError: "specified Ceph version 'v20.2.30' is not supported. Please use one of: [v20.2.0 v20.2.1 v20.2.2 v20.2.3]",
 		},
 		{
 			name:        "check ceph version - tentacle image version passed",
