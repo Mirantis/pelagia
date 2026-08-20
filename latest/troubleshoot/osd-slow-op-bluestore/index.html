@@ -6,37 +6,37 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="How to verify Ceph tolerations and resource settings after enabling resource management.">
+        <meta name="description" content="How to fix Ceph OSD experiencing slow operations in BlueStore during cluster deployment.">
       
       
         <meta name="author" content="Mirantis">
       
       
-        <link rel="canonical" href="https://mirantis.github.io/pelagia/latest/ops-guide/deployment/ceph-resource-mgmt/verify-resource-mgmt/">
+        <link rel="canonical" href="https://mirantis.github.io/pelagia/latest/troubleshoot/osd-slow-op-bluestore/">
       
       
-        <link rel="prev" href="../enable-resource-mgmt/">
+        <link rel="prev" href="../ceph-mon-store-size-grow/">
       
       
-        <link rel="next" href="../../ceph-user-creds/">
+        <link rel="next" href="../ceph-osd-auth-failed/">
       
       
         
       
       
-      <link rel="icon" href="../../../../assets/favicon.ico">
+      <link rel="icon" href="../../assets/favicon.ico">
       <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
     
     
       
-        <title>Verify Ceph tolerations and resources - Pelagia for Rook Ceph management</title>
+        <title>Ceph OSD experiencing slow operations in BlueStore - Pelagia for Rook Ceph management</title>
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -55,9 +55,9 @@
       
     
     
-      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#verify-ceph-tolerations-and-resources" class="md-skip">
+        <a href="#ceph-osd-experiencing-slow-operations-in-bluestore" class="md-skip">
           Skip to content
         </a>
       
@@ -102,9 +102,9 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../.." title="Pelagia for Rook Ceph management" class="md-header__button md-logo" aria-label="Pelagia for Rook Ceph management" data-md-component="logo">
+    <a href="../.." title="Pelagia for Rook Ceph management" class="md-header__button md-logo" aria-label="Pelagia for Rook Ceph management" data-md-component="logo">
       
-  <img src="../../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
+  <img src="../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -121,7 +121,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Verify Ceph tolerations and resources
+              Ceph OSD experiencing slow operations in BlueStore
             
           </span>
         </div>
@@ -239,9 +239,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../.." title="Pelagia for Rook Ceph management" class="md-nav__button md-logo" aria-label="Pelagia for Rook Ceph management" data-md-component="logo">
+    <a href="../.." title="Pelagia for Rook Ceph management" class="md-nav__button md-logo" aria-label="Pelagia for Rook Ceph management" data-md-component="logo">
       
-  <img src="../../../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
+  <img src="../../assets/mirantis-logo-inverted-horizontal-one-color.svg" alt="logo">
 
     </a>
     Pelagia for Rook Ceph management
@@ -268,7 +268,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../.." class="md-nav__link">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -317,7 +317,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../quick-start/" class="md-nav__link ">
+            <a href="../../quick-start/" class="md-nav__link ">
               
   
   
@@ -361,7 +361,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../quick-start/installation/" class="md-nav__link">
+      <a href="../../quick-start/installation/" class="md-nav__link">
         
   
   
@@ -389,7 +389,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../quick-start/lcm-installation/" class="md-nav__link">
+      <a href="../../quick-start/lcm-installation/" class="md-nav__link">
         
   
   
@@ -450,7 +450,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../architecture/" class="md-nav__link ">
+            <a href="../../architecture/" class="md-nav__link ">
               
   
   
@@ -494,7 +494,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/overview/" class="md-nav__link">
+      <a href="../../architecture/overview/" class="md-nav__link">
         
   
   
@@ -522,7 +522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/limitations/" class="md-nav__link">
+      <a href="../../architecture/limitations/" class="md-nav__link">
         
   
   
@@ -550,7 +550,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/rockoon-integration/" class="md-nav__link">
+      <a href="../../architecture/rockoon-integration/" class="md-nav__link">
         
   
   
@@ -578,7 +578,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../architecture/addressing-ceph-devices/" class="md-nav__link">
+      <a href="../../architecture/addressing-ceph-devices/" class="md-nav__link">
         
   
   
@@ -641,7 +641,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../custom-resources/" class="md-nav__link ">
+            <a href="../../custom-resources/" class="md-nav__link ">
               
   
   
@@ -685,7 +685,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../custom-resources/cephdeployment/" class="md-nav__link">
+      <a href="../../custom-resources/cephdeployment/" class="md-nav__link">
         
   
   
@@ -713,7 +713,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../custom-resources/cephdeploymenthealth/" class="md-nav__link">
+      <a href="../../custom-resources/cephdeploymenthealth/" class="md-nav__link">
         
   
   
@@ -741,7 +741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../custom-resources/cephdeploymentsecret/" class="md-nav__link">
+      <a href="../../custom-resources/cephdeploymentsecret/" class="md-nav__link">
         
   
   
@@ -769,7 +769,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../custom-resources/cephdeploymentmaintenance/" class="md-nav__link">
+      <a href="../../custom-resources/cephdeploymentmaintenance/" class="md-nav__link">
         
   
   
@@ -797,7 +797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../custom-resources/cephosdremovetask/" class="md-nav__link">
+      <a href="../../custom-resources/cephosdremovetask/" class="md-nav__link">
         
   
   
@@ -854,7 +854,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../configuration/" class="md-nav__link ">
+            <a href="../../configuration/" class="md-nav__link ">
               
   
   
@@ -898,7 +898,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configuration/helm-values/" class="md-nav__link">
+      <a href="../../configuration/helm-values/" class="md-nav__link">
         
   
   
@@ -926,7 +926,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../configuration/lcmconfig/" class="md-nav__link">
+      <a href="../../configuration/lcmconfig/" class="md-nav__link">
         
   
   
@@ -961,7 +961,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../developer/" class="md-nav__link">
+      <a href="../../developer/" class="md-nav__link">
         
   
   
@@ -1010,7 +1010,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../upgrade-guide/" class="md-nav__link ">
+            <a href="../../upgrade-guide/" class="md-nav__link ">
               
   
   
@@ -1054,7 +1054,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../upgrade-guide/upgrade/" class="md-nav__link">
+      <a href="../../upgrade-guide/upgrade/" class="md-nav__link">
         
   
   
@@ -1082,7 +1082,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../upgrade-guide/upgrade-notes/" class="md-nav__link">
+      <a href="../../upgrade-guide/upgrade-notes/" class="md-nav__link">
         
   
   
@@ -1114,8 +1114,6 @@
       
   
   
-    
-  
   
   
     
@@ -1137,15 +1135,15 @@
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../" class="md-nav__link ">
+            <a href="../../ops-guide/" class="md-nav__link ">
               
   
   
@@ -1169,7 +1167,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1186,8 +1184,6 @@
                 
   
   
-    
-  
   
   
     
@@ -1221,15 +1217,15 @@
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../" class="md-nav__link ">
+            <a href="../../ops-guide/deployment/" class="md-nav__link ">
               
   
   
@@ -1253,7 +1249,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_8_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1270,8 +1266,6 @@
                 
   
   
-    
-  
   
   
     
@@ -1289,15 +1283,15 @@
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8_2_2" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../ops-guide/deployment/ceph-resource-mgmt/" class="md-nav__link ">
               
   
   
@@ -1321,7 +1315,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_2_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_8_2_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8_2_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1341,7 +1335,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../enable-resource-mgmt/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt/" class="md-nav__link">
         
   
   
@@ -1366,37 +1360,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Verify Ceph tolerations and resources
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../ops-guide/deployment/ceph-resource-mgmt/verify-resource-mgmt/" class="md-nav__link">
         
   
   
@@ -1412,37 +1379,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#verify-ceph-tolerations-and-resources_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Verify Ceph tolerations and resources
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1485,7 +1421,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../ceph-user-creds/" class="md-nav__link ">
+            <a href="../../ops-guide/deployment/ceph-user-creds/" class="md-nav__link ">
               
   
   
@@ -1529,7 +1465,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ceph-user-creds/ceph-client/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/ceph-user-creds/ceph-client/" class="md-nav__link">
         
   
   
@@ -1557,7 +1493,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/ceph-user-creds/ceph-rgw-user/" class="md-nav__link">
         
   
   
@@ -1593,7 +1529,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../cephfs/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/cephfs/" class="md-nav__link">
         
   
   
@@ -1621,7 +1557,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../default-ceph-conf/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/default-ceph-conf/" class="md-nav__link">
         
   
   
@@ -1649,7 +1585,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../external-ceph/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/external-ceph/" class="md-nav__link">
         
   
   
@@ -1677,7 +1613,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../move-failure-domain/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/move-failure-domain/" class="md-nav__link">
         
   
   
@@ -1705,7 +1641,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../multinetworking/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/multinetworking/" class="md-nav__link">
         
   
   
@@ -1761,7 +1697,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../object-storage/" class="md-nav__link ">
+            <a href="../../ops-guide/deployment/object-storage/" class="md-nav__link ">
               
   
   
@@ -1805,7 +1741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../object-storage/rgw/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/object-storage/rgw/" class="md-nav__link">
         
   
   
@@ -1833,7 +1769,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../object-storage/rgw-multisite/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/object-storage/rgw-multisite/" class="md-nav__link">
         
   
   
@@ -1861,7 +1797,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../object-storage/rgw-sse/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/object-storage/rgw-sse/" class="md-nav__link">
         
   
   
@@ -1889,7 +1825,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../object-storage/rgw-tls/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/object-storage/rgw-tls/" class="md-nav__link">
         
   
   
@@ -1941,7 +1877,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../object-storage/s3-bucket-policy/" class="md-nav__link ">
+            <a href="../../ops-guide/deployment/object-storage/s3-bucket-policy/" class="md-nav__link ">
               
   
   
@@ -1985,7 +1921,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../object-storage/s3-bucket-policy/s3-create-user/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/object-storage/s3-bucket-policy/s3-create-user/" class="md-nav__link">
         
   
   
@@ -2013,7 +1949,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../object-storage/s3-bucket-policy/bucket-policy-s3/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/object-storage/s3-bucket-policy/bucket-policy-s3/" class="md-nav__link">
         
   
   
@@ -2041,7 +1977,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../object-storage/s3-bucket-policy/bucket-policy-rockoon/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/object-storage/s3-bucket-policy/bucket-policy-rockoon/" class="md-nav__link">
         
   
   
@@ -2085,7 +2021,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rbd-mirror/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/rbd-mirror/" class="md-nav__link">
         
   
   
@@ -2113,7 +2049,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../rook-daemon-place/" class="md-nav__link">
+      <a href="../../ops-guide/deployment/rook-daemon-place/" class="md-nav__link">
         
   
   
@@ -2177,7 +2113,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../lcm/" class="md-nav__link ">
+            <a href="../../ops-guide/lcm/" class="md-nav__link ">
               
   
   
@@ -2257,7 +2193,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../lcm/auto-lcm/" class="md-nav__link ">
+            <a href="../../ops-guide/lcm/auto-lcm/" class="md-nav__link ">
               
   
   
@@ -2301,7 +2237,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/auto-lcm/create-task-workflow/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/create-task-workflow/" class="md-nav__link">
         
   
   
@@ -2329,7 +2265,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/auto-lcm/add-rm-ceph-node/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/add-rm-ceph-node/" class="md-nav__link">
         
   
   
@@ -2357,7 +2293,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/auto-lcm/add-rm-ceph-osd/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/add-rm-ceph-osd/" class="md-nav__link">
         
   
   
@@ -2385,7 +2321,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/auto-lcm/add-rm-ceph-osd-with-meta/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/add-rm-ceph-osd-with-meta/" class="md-nav__link">
         
   
   
@@ -2413,7 +2349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/auto-lcm/replace-ceph-node/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/replace-ceph-node/" class="md-nav__link">
         
   
   
@@ -2441,7 +2377,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/auto-lcm/replace-ceph-osd/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/replace-ceph-osd/" class="md-nav__link">
         
   
   
@@ -2469,7 +2405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/auto-lcm/replace-meta/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/replace-meta/" class="md-nav__link">
         
   
   
@@ -2497,7 +2433,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/auto-lcm/replace-osd-meta-device/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/replace-osd-meta-device/" class="md-nav__link">
         
   
   
@@ -2525,7 +2461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/auto-lcm/replace-osd-meta-lvm/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/auto-lcm/replace-osd-meta-lvm/" class="md-nav__link">
         
   
   
@@ -2561,7 +2497,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/increase-storage-size/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/increase-storage-size/" class="md-nav__link">
         
   
   
@@ -2589,7 +2525,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/move-mon-daemon/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/move-mon-daemon/" class="md-nav__link">
         
   
   
@@ -2617,7 +2553,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/move-mon-node-replace/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/move-mon-node-replace/" class="md-nav__link">
         
   
   
@@ -2645,7 +2581,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../lcm/manual-osd-remove/" class="md-nav__link">
+      <a href="../../ops-guide/lcm/manual-osd-remove/" class="md-nav__link">
         
   
   
@@ -2705,7 +2641,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../rockoon/" class="md-nav__link ">
+            <a href="../../ops-guide/rockoon/" class="md-nav__link ">
               
   
   
@@ -2749,7 +2685,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../rockoon/rockoon-integration/" class="md-nav__link">
+      <a href="../../ops-guide/rockoon/rockoon-integration/" class="md-nav__link">
         
   
   
@@ -2777,7 +2713,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../rockoon/calc-target-ratio/" class="md-nav__link">
+      <a href="../../ops-guide/rockoon/calc-target-ratio/" class="md-nav__link">
         
   
   
@@ -2805,7 +2741,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../rockoon/cinder-multi-backend/" class="md-nav__link">
+      <a href="../../ops-guide/rockoon/cinder-multi-backend/" class="md-nav__link">
         
   
   
@@ -2867,7 +2803,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../verify-ceph/" class="md-nav__link ">
+            <a href="../../ops-guide/verify-ceph/" class="md-nav__link ">
               
   
   
@@ -2911,7 +2847,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../verify-ceph/verify-ceph-core/" class="md-nav__link">
+      <a href="../../ops-guide/verify-ceph/verify-ceph-core/" class="md-nav__link">
         
   
   
@@ -2939,7 +2875,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../verify-ceph/verify-cephdeploymenthealth/" class="md-nav__link">
+      <a href="../../ops-guide/verify-ceph/verify-cephdeploymenthealth/" class="md-nav__link">
         
   
   
@@ -2967,7 +2903,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../verify-ceph/verify-pelagia-and-rook/" class="md-nav__link">
+      <a href="../../ops-guide/verify-ceph/verify-pelagia-and-rook/" class="md-nav__link">
         
   
   
@@ -2995,7 +2931,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../verify-ceph/verify-rook-discover/" class="md-nav__link">
+      <a href="../../ops-guide/verify-ceph/verify-rook-discover/" class="md-nav__link">
         
   
   
@@ -3035,6 +2971,8 @@
       
   
   
+    
+  
   
   
     
@@ -3066,15 +3004,15 @@
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../troubleshoot/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -3098,7 +3036,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
@@ -3118,7 +3056,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/ceph-disaster-recover/" class="md-nav__link">
+      <a href="../ceph-disaster-recover/" class="md-nav__link">
         
   
   
@@ -3146,7 +3084,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/ceph-exporter-crash/" class="md-nav__link">
+      <a href="../ceph-exporter-crash/" class="md-nav__link">
         
   
   
@@ -3174,7 +3112,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/ceph-mon-recover/" class="md-nav__link">
+      <a href="../ceph-mon-recover/" class="md-nav__link">
         
   
   
@@ -3202,7 +3140,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/ceph-mon-store-size-grow/" class="md-nav__link">
+      <a href="../ceph-mon-store-size-grow/" class="md-nav__link">
         
   
   
@@ -3227,10 +3165,19 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../../../troubleshoot/osd-slow-op-bluestore/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -3246,6 +3193,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -3258,7 +3206,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/ceph-osd-auth-failed/" class="md-nav__link">
+      <a href="../ceph-osd-auth-failed/" class="md-nav__link">
         
   
   
@@ -3286,7 +3234,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/ceph-pg-damaged/" class="md-nav__link">
+      <a href="../ceph-pg-damaged/" class="md-nav__link">
         
   
   
@@ -3314,7 +3262,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/cephosdremovetask-timeout/" class="md-nav__link">
+      <a href="../cephosdremovetask-timeout/" class="md-nav__link">
         
   
   
@@ -3342,7 +3290,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../troubleshoot/stuck-maintenance/" class="md-nav__link">
+      <a href="../stuck-maintenance/" class="md-nav__link">
         
   
   
@@ -3390,25 +3338,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#verify-ceph-tolerations-and-resources_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Verify Ceph tolerations and resources
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -3432,7 +3361,7 @@
   
   
     <li class="md-path__item">
-      <a href="../../../.." class="md-path__link">
+      <a href="../.." class="md-path__link">
         
   <span class="md-ellipsis">
     Welcome to Pelagia
@@ -3450,46 +3379,10 @@
     
     
       <li class="md-path__item">
-        <a href="../../../" class="md-path__link">
-          
-  <span class="md-ellipsis">
-    Operations Guide
-  </span>
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-    
-    
-      <li class="md-path__item">
-        <a href="../../" class="md-path__link">
-          
-  <span class="md-ellipsis">
-    CephDeployment operations
-  </span>
-
-        </a>
-      </li>
-    
-  
-
-      
-        
-  
-  
-    
-    
-      <li class="md-path__item">
         <a href="../" class="md-path__link">
           
   <span class="md-ellipsis">
-    Ceph resources management
+    Troubleshoot
   </span>
 
         </a>
@@ -3511,60 +3404,83 @@
   
 
 
-<p><a id="verify-resource-mgmt-verify-ceph-tolerations-and-resources"></a></p>
-<h1 id="verify-ceph-tolerations-and-resources">Verify Ceph tolerations and resources<a class="headerlink" href="#verify-ceph-tolerations-and-resources" title="Permanent link">#</a></h1>
-<p>After you enable Ceph resources management as described in
-<a href="../enable-resource-mgmt/#enable-resource-mgmt-enable-management-of-ceph-tolerations-and-resources">Enable management of Ceph tolerations and resources</a>,
-perform the steps below to verify that the configured tolerations, requests, or limits have been successfully
-specified in the Ceph cluster.</p>
-<h2 id="verify-ceph-tolerations-and-resources_1">Verify Ceph tolerations and resources<a class="headerlink" href="#verify-ceph-tolerations-and-resources_1" title="Permanent link">#</a></h2>
+<p><a id="osd-slow-op-bluestore-ceph-osd-experiencing-slow-operations-in-bluestore"></a></p>
+<h1 id="ceph-osd-experiencing-slow-operations-in-bluestore">Ceph OSD experiencing slow operations in BlueStore<a class="headerlink" href="#ceph-osd-experiencing-slow-operations-in-bluestore" title="Permanent link">#</a></h1>
+<p>During cluster deployment, the following false-positive example alert for
+Ceph may raise:
+<div class="highlight"><pre><span></span><code>Failed<span class="w"> </span>to<span class="w"> </span>configure<span class="w"> </span>Ceph<span class="w"> </span>cluster:<span class="w"> </span>ceph<span class="w"> </span>cluster<span class="w"> </span>verification<span class="w"> </span>is<span class="w"> </span>failed:
+<span class="o">[</span>BLUESTORE_SLOW_OP_ALERT:<span class="w"> </span><span class="m">3</span><span class="w"> </span>OSD<span class="o">(</span>s<span class="o">)</span><span class="w"> </span>experiencing<span class="w"> </span>slow<span class="w"> </span>operations<span class="w"> </span><span class="k">in</span><span class="w"> </span>BlueStore<span class="o">]</span>
+</code></pre></div></p>
+<p>The issue occurs due to the following upstream Ceph issues:</p>
 <ul>
-<li>
-<p>To verify that the required tolerations are specified in the Ceph cluster,
-  inspect the output of the following commands:
-  <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>cephcluster<span class="w"> </span>-o<span class="w"> </span>name<span class="k">)</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.placement.mon.tolerations}&#39;</span>
-kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>cephcluster<span class="w"> </span>-o<span class="w"> </span>name<span class="k">)</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.placement.mgr.tolerations}&#39;</span>
-kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>cephcluster<span class="w"> </span>-o<span class="w"> </span>name<span class="k">)</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.placement.osd.tolerations}&#39;</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>To verify RADOS Gateway tolerations:
-  <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>cephobjectstore<span class="w"> </span>-o<span class="w"> </span>name<span class="k">)</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.gateway.placement.tolerations}&#39;</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>To verify that the required resource requests or limits are specified for
-  the Ceph <code>mon</code>, <code>mgr</code>, or <code>osd</code> daemons, inspect the output of the
-  following command:
-  <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>cephcluster<span class="w"> </span>-o<span class="w"> </span>name<span class="k">)</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.resources}&#39;</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>To verify that the required resource requests and limits are specified for
-  the RADOS Gateway daemons, inspect the output of the following command:
-  <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>cephobjectstore<span class="w"> </span>-o<span class="w"> </span>name<span class="k">)</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.gateway.resources}&#39;</span>
-</code></pre></div></p>
-</li>
-<li>
-<p>To verify that the required resource requests or limits are specified for
-  the Ceph OSDs <code>hdd</code>, <code>ssd</code>, or <code>nvme</code> device classes, perform the
-  following steps:</p>
+<li><a href="https://github.com/rook/rook/discussions/15403">Discussion 15403</a></li>
+<li><a href="https://tracker.ceph.com/issues/68337">Bug 68337</a></li>
+<li><a href="https://tracker.ceph.com/issues/70940">Bug 70940</a></li>
+<li><a href="https://tracker.ceph.com/issues/71168">Bug 71168</a></li>
+</ul>
+<p><strong>To verify whether the cluster is affected:</strong></p>
 <ol>
+<li>Enter the <code>pelagia-ceph-tools</code> pod:</li>
 <li>
-<p>Identify which Ceph OSDs belong to the <code>&lt;deviceClass&gt;</code> device class in
-   question:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/rook-ceph-tools<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>osd<span class="w"> </span>crush<span class="w"> </span>class<span class="w"> </span>ls-osd<span class="w"> </span>&lt;deviceClass&gt;
+<p>Verify the Ceph cluster status:</p>
+</li>
+<li>
+<p>Verify Ceph health:
+     <div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>-s
+</code></pre></div></p>
+<p>Example of a positive system response in the affected cluster:
+ <div class="highlight"><pre><span></span><code>cluster:
+<span class="w">  </span>id:<span class="w">     </span>6ae41eb3-262e-4da9-8847-25efed2fcaa2
+<span class="w">  </span>health:<span class="w"> </span>HEALTH_WARN
+<span class="w">          </span><span class="m">2</span><span class="w"> </span>OSD<span class="o">(</span>s<span class="o">)</span><span class="w"> </span>experiencing<span class="w"> </span>slow<span class="w"> </span>operations<span class="w"> </span><span class="k">in</span><span class="w"> </span>BlueStore
+
+services:
+<span class="w">  </span>mon:<span class="w"> </span><span class="m">3</span><span class="w"> </span>daemons,<span class="w"> </span>quorum<span class="w"> </span>a,b,c<span class="w"> </span><span class="o">(</span>age<span class="w"> </span>9h<span class="o">)</span>
+<span class="w">  </span>mgr:<span class="w"> </span>a<span class="o">(</span>active,<span class="w"> </span>since<span class="w"> </span>9h<span class="o">)</span>,<span class="w"> </span>standbys:<span class="w"> </span>b
+<span class="w">  </span>osd:<span class="w"> </span><span class="m">4</span><span class="w"> </span>osds:<span class="w"> </span><span class="m">4</span><span class="w"> </span>up<span class="w"> </span><span class="o">(</span>since<span class="w"> </span>9h<span class="o">)</span>,<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">(</span>since<span class="w"> </span>9h<span class="o">)</span>
+<span class="w">  </span>rgw:<span class="w"> </span><span class="m">2</span><span class="w"> </span>daemons<span class="w"> </span>active<span class="w"> </span><span class="o">(</span><span class="m">2</span><span class="w"> </span>hosts,<span class="w"> </span><span class="m">1</span><span class="w"> </span>zones<span class="o">)</span>
+
+data:
+<span class="w">  </span>pools:<span class="w">   </span><span class="m">15</span><span class="w"> </span>pools,<span class="w"> </span><span class="m">409</span><span class="w"> </span>pgs
+<span class="w">  </span>objects:<span class="w"> </span><span class="m">1</span>.67k<span class="w"> </span>objects,<span class="w"> </span><span class="m">4</span>.6<span class="w"> </span>GiB
+<span class="w">  </span>usage:<span class="w">   </span><span class="m">11</span><span class="w"> </span>GiB<span class="w"> </span>used,<span class="w"> </span><span class="m">2</span>.1<span class="w"> </span>TiB<span class="w"> </span>/<span class="w"> </span><span class="m">2</span>.1<span class="w"> </span>TiB<span class="w"> </span>avail
+<span class="w">  </span>pgs:<span class="w">     </span><span class="m">409</span><span class="w"> </span>active+clean
+
+io:
+<span class="w">  </span>client:<span class="w">   </span><span class="m">85</span><span class="w"> </span>B/s<span class="w"> </span>rd,<span class="w"> </span><span class="m">500</span><span class="w"> </span>KiB/s<span class="w"> </span>wr,<span class="w"> </span><span class="m">0</span><span class="w"> </span>op/s<span class="w"> </span>rd,<span class="w"> </span><span class="m">27</span><span class="w"> </span>op/s<span class="w"> </span>wr
 </code></pre></div></p>
 </li>
 <li>
-<p>For each <code>&lt;osdID&gt;</code> obtained in the previous step, run the following
-   command. Compare the output with the desired result.
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>deploy<span class="w"> </span>rook-ceph-osd-&lt;osdID&gt;<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.spec.template.spec.containers[].resources}&#39;</span>
+<p>Verify Ceph health details:
+     <div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>health<span class="w"> </span>detail
 </code></pre></div></p>
+<p>Example of a positive system response in the affected cluster:
+ <div class="highlight"><pre><span></span><code>HEALTH_WARN<span class="w"> </span><span class="m">2</span><span class="w"> </span>OSD<span class="o">(</span>s<span class="o">)</span><span class="w"> </span>experiencing<span class="w"> </span>slow<span class="w"> </span>operations<span class="w"> </span><span class="k">in</span><span class="w"> </span>BlueStore
+<span class="o">[</span>WRN<span class="o">]</span><span class="w"> </span>BLUESTORE_SLOW_OP_ALERT:<span class="w"> </span><span class="m">2</span><span class="w"> </span>OSD<span class="o">(</span>s<span class="o">)</span><span class="w"> </span>experiencing<span class="w"> </span>slow<span class="w"> </span>operations<span class="w"> </span><span class="k">in</span><span class="w"> </span>BlueStore
+<span class="w">     </span>osd.2<span class="w"> </span>observed<span class="w"> </span>slow<span class="w"> </span>operation<span class="w"> </span>indications<span class="w"> </span><span class="k">in</span><span class="w"> </span>BlueStore
+<span class="w">     </span>osd.3<span class="w"> </span>observed<span class="w"> </span>slow<span class="w"> </span>operation<span class="w"> </span>indications<span class="w"> </span><span class="k">in</span><span class="w"> </span>BlueStore
+</code></pre></div></p>
+</li>
+<li>
+<p>Exit the <code>pelagia-ceph-tools</code> pod.</p>
 </li>
 </ol>
-</li>
-</ul>
+<p><strong>To resolve the issue:</strong></p>
+<p>Configure the <code>bluestore_slow_ops_warn</code> options as follows:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>ceph-lcm-mirantis<span class="w"> </span>edit<span class="w"> </span>cephdeployment
+</code></pre></div></p>
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cephClusterSpec</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">rookConfig</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">osd|bluestore_slow_ops_warn_lifetime</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;600&quot;</span>
+<span class="w">      </span><span class="nt">osd|bluestore_slow_ops_warn_threshold</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;10&quot;</span>
+</code></pre></div>
+<p>Wait for up to five minutes for the change to apply and the alert to disappear
+during cluster deployment.</p>
+<p>This configuration triggers the alert only if at least 10 BlueStore slow
+operations occur during last 10 minutes. If triggered, it indicates a potential
+hardware disk issue on the BlueStore host that must be verified and
+reconfigured accordingly.</p>
 
 
 
@@ -3603,7 +3519,7 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../enable-resource-mgmt/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Enable management of Ceph tolerations and resources">
+          <a href="../ceph-mon-store-size-grow/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Ceph Monitors store.db size rapidly growing">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3613,20 +3529,20 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
                 Previous
               </span>
               <div class="md-ellipsis">
-                Enable management of Ceph tolerations and resources
+                Ceph Monitors store.db size rapidly growing
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../ceph-user-creds/" class="md-footer__link md-footer__link--next" aria-label="Next: Ceph user credentials">
+          <a href="../ceph-osd-auth-failed/" class="md-footer__link md-footer__link--next" aria-label="Next: Replaced Ceph OSD fails to start on authorization">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Ceph user credentials
+                Replaced Ceph OSD fails to start on authorization
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -3667,10 +3583,10 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
