@@ -155,7 +155,7 @@ func (r *ReconcileCephSecrets) Reconcile(ctx context.Context, request reconcile.
 			r.setFailedState(ctx, sublog, request.Namespace, request.Name, fmt.Sprintf("failed to update CephDeploymentSecret: %v", err))
 			return reconcile.Result{RequeueAfter: requeueAfterInterval}, nil
 		}
-		return reconcile.Result{Requeue: true}, nil
+		return reconcile.Result{RequeueAfter: lcmcommon.DefaultImmediateRequeueInterval}, nil
 	}
 
 	secretConfig := &cephDeploymentSecretConfig{

@@ -18,6 +18,7 @@ package lcmcommon
 
 import (
 	"fmt"
+	"time"
 
 	corev1 "k8s.io/api/core/v1"
 )
@@ -68,6 +69,8 @@ var (
 	// csi operator plugin names
 	CephCSIRBDPlugin    = "%s.rbd.csi.ceph.com-%s"
 	CephCSICephFSPlugin = "%s.cephfs.csi.ceph.com-%s"
+
+	DefaultImmediateRequeueInterval = 1 * time.Second
 )
 
 var (

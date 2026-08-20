@@ -201,7 +201,7 @@ func (r *ReconcileCephOsdRemoveTask) Reconcile(ctx context.Context, request reco
 			sublog.Error().Err(err).Msg("")
 			return reconcile.Result{RequeueAfter: requeueAfterInterval}, nil
 		}
-		return reconcile.Result{Requeue: true}, nil
+		return reconcile.Result{RequeueAfter: lcmcommon.DefaultImmediateRequeueInterval}, nil
 	}
 
 	cephTask.Status.PhaseInfo = ""
@@ -244,7 +244,7 @@ func (r *ReconcileCephOsdRemoveTask) Reconcile(ctx context.Context, request reco
 			sublog.Error().Err(err).Msg("")
 			return reconcile.Result{RequeueAfter: requeueAfterInterval}, nil
 		}
-		return reconcile.Result{Requeue: true}, nil
+		return reconcile.Result{RequeueAfter: lcmcommon.DefaultImmediateRequeueInterval}, nil
 	}
 
 	// do not abort on api error, since cephdeploymenthealth contains cephcluster status
@@ -352,7 +352,7 @@ func (r *ReconcileCephOsdRemoveTask) Reconcile(ctx context.Context, request reco
 		}
 	}
 	if removeConfig.taskConfig.requeueNow {
-		return reconcile.Result{Requeue: true}, nil
+		return reconcile.Result{RequeueAfter: lcmcommon.DefaultImmediateRequeueInterval}, nil
 	}
 	sublog.Info().Msg("processing is not finished yet")
 	return reconcile.Result{RequeueAfter: requeueAfterInterval}, nil

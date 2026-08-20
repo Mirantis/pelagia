@@ -133,7 +133,7 @@ func TestReconcile(t *testing.T) {
 	request := reconcile.Request{NamespacedName: types.NamespacedName{Namespace: unitinputs.LcmObjectMeta.Namespace, Name: unitinputs.LcmObjectMeta.Name}}
 	requeueAfterInterval := reconcile.Result{RequeueAfter: requeueAfterInterval}
 	noRequeue := reconcile.Result{}
-	immediateRequeue := reconcile.Result{Requeue: true}
+	immediateRequeue := reconcile.Result{RequeueAfter: lcmcommon.DefaultImmediateRequeueInterval}
 	//latestClusterVersion = lcmcommon.LatestRelease
 	latestClusterVersion := &lcmcommon.CephVersion{
 		Name:            "Tentacle",
