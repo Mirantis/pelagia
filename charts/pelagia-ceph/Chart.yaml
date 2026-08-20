@@ -2,7 +2,7 @@ apiVersion: v2
 appVersion: dev
 description: A Helm chart to deploy Ceph Pelagia resources
 name: pelagia-ceph
-version: 2.0.0
+version: 2.1.0
 maintainers:
 - name: Mirantis Inc.
   url: https://github.com/Mirantis/pelagia
@@ -10,13 +10,13 @@ dependencies:
 - name: ceph-csi-operator
   repository: file://charts/ceph-csi-operator
   condition: ceph-csi-operator.enabled
-  version: 2.0.0
+  version: 2.1.0
   tags:
     - csi
 - name: rook
   repository: file://charts/rook
   condition: rook.enabled
-  version: 2.0.0
+  version: 2.1.0
   import-values:
     - child: images.operator
       parent: images.rook
@@ -25,6 +25,6 @@ dependencies:
 - name: snapshot-controller
   repository: file://charts/snapshot-controller
   condition: snapshot-controller.enabled
-  version: 2.0.0
+  version: 2.1.0
   tags:
     - snapshot-controller
