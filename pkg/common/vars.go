@@ -18,6 +18,7 @@ package lcmcommon
 
 import (
 	"fmt"
+	"time"
 
 	corev1 "k8s.io/api/core/v1"
 )
@@ -61,6 +62,8 @@ const (
 )
 
 var (
+	DefaultImmediateRequeueInterval = 1 * time.Second
+
 	CephDaemonKeys   = []string{"mds", "mgr", "mon", "osd", "rgw"}
 	DefaultCephProbe = &corev1.Probe{
 		TimeoutSeconds:   5,
