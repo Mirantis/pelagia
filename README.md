@@ -53,6 +53,7 @@ in the [Quick start guide](https://mirantis.github.io/pelagia/latest/quick-start
 | Pelagia version | [Ceph](https://docs.ceph.com/en/latest/releases/) version | [Rook](https://github.com/rook/rook/releases) version | [Ceph-CSI](https://github.com/ceph/ceph-csi/releases) version |
 |-----------------|-----------------------------------------------------------|-------------------------------------------------------|---------------------------------------------------------------|
 | 2.0.0           | 20.2.2 (Tentacle), 19.2.4 (Squid)                         | 1.19.7                                                | 3.16.2                                                        |
+| 2.1.0           | 20.2.3 (Tentacle), 19.2.4 (Squid)                         | 1.19.7                                                | 3.16.2                                                        |
 
 
 # Documentation
