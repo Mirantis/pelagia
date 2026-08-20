@@ -130,7 +130,7 @@ func TestCephDeploymentSecretReconcile(t *testing.T) {
 				"cephdeploymentsecrets": &cephlcmv1alpha1.CephDeploymentSecretList{Items: []cephlcmv1alpha1.CephDeploymentSecret{*unitinputs.EmptyCephSecret.DeepCopy()}},
 				"cephdeployments":       &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{unitinputs.CephDeployNonMoskForSecret}},
 			},
-			expectedResult: reconcile.Result{Requeue: true},
+			expectedResult: reconcile.Result{RequeueAfter: lcmcommon.DefaultImmediateRequeueInterval},
 		},
 		{
 			name: "reconcile cephdeploymentsecret - update ownerRefs failed",

@@ -227,7 +227,7 @@ func (r *ReconcileCephDeployment) Reconcile(ctx context.Context, request reconci
 						sublog.Error().Err(err).Msgf("failed to update CephDeployment %s/%s status", cephDpl.Namespace, cephDpl.Name)
 						return reconcile.Result{RequeueAfter: requeueAfterInterval}, nil
 					}
-					return reconcile.Result{Requeue: true}, nil
+					return reconcile.Result{RequeueAfter: lcmcommon.DefaultImmediateRequeueInterval}, nil
 				}
 				deleted, delErr := cephDplConfig.cleanCephDeployment()
 				if delErr != nil {
@@ -274,7 +274,7 @@ func (r *ReconcileCephDeployment) Reconcile(ctx context.Context, request reconci
 			sublog.Error().Err(err).Msg("failed to write CephDeployment status")
 			return reconcile.Result{RequeueAfter: requeueAfterInterval}, nil
 		}
-		return reconcile.Result{Requeue: true}, nil
+		return reconcile.Result{RequeueAfter: lcmcommon.DefaultImmediateRequeueInterval}, nil
 	}
 	if cephDpl.Status.Validation.Result == cephlcmv1alpha1.ValidationFailed {
 		sublog.Error().Msgf("validation of CephDeployment spec is failed, fix it first: %s", strings.Join(cephDpl.Status.Validation.Messages, ","))
@@ -286,7 +286,7 @@ func (r *ReconcileCephDeployment) Reconcile(ctx context.Context, request reconci
 		if cephDplConfig.updateFinalizer(true) != nil {
 			return reconcile.Result{RequeueAfter: requeueAfterInterval}, nil
 		}
-		return reconcile.Result{Requeue: true}, nil
+		return reconcile.Result{RequeueAfter: lcmcommon.DefaultImmediateRequeueInterval}, nil
 	}
 
 	cephRuntimeVersion, cephImageToUse, cephStatusVersion, err := cephDplConfig.verifyCephVersions()
@@ -305,7 +305,7 @@ func (r *ReconcileCephDeployment) Reconcile(ctx context.Context, request reconci
 			sublog.Error().Err(err).Msg("failed to update CephDeployment cluster version status")
 			return reconcile.Result{RequeueAfter: requeueAfterInterval}, nil
 		}
-		return reconcile.Result{Requeue: true}, nil
+		return reconcile.Result{RequeueAfter: lcmcommon.DefaultImmediateRequeueInterval}, nil
 	}
 	cephDplConfig.cdConfig.currentCephImage = cephImageToUse
 
