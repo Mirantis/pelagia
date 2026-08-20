@@ -178,5 +178,6 @@ nav:
     - Ceph OSD experiencing slow operations in BlueStore: troubleshoot/osd-slow-op-bluestore.md
     - Replaced Ceph OSD fails to start on authorization: troubleshoot/ceph-osd-auth-failed.md
     - Ceph health reports PG_DAMAGED after a failed disk or node replacement: troubleshoot/ceph-pg-damaged.md
+    - Ceph rebalancing gets stuck during disabled node removal: troubleshoot/ceph-rebalance-stuck.md
     - CephOsdRemoveTask failure with a timeout during rebalance: troubleshoot/cephosdremovetask-timeout.md
     - Maintenance stuck on a compact Ceph cluster: troubleshoot/stuck-maintenance.md
