@@ -8,7 +8,7 @@ keywords: pelagia, ceph, ceph pg damaged, placement group repair,
 
 <a id="ceph-pg-damaged-ceph-health-reports-pg_damaged_after-a-failed-disk-or-node-replacement"></a>
 
-# Ceph health reports `PG_DAMAGED` after a failed disk or node replacement
+# Ceph health reports *PG_DAMAGED* after a failed disk or node replacement
 
 After adding a new OSD node on a compact cluster, Ceph health may report
 `HEALTH_ERR` with the `ceph health detail` command output containing
