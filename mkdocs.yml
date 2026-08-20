@@ -175,8 +175,9 @@ nav:
     - The ceph-exporter pods are present in the Ceph crash list: troubleshoot/ceph-exporter-crash.md
     - Ceph Monitors recovery: troubleshoot/ceph-mon-recover.md
     - Ceph Monitors store.db size rapidly growing: troubleshoot/ceph-mon-store-size-grow.md
+    - Ceph OSD experiencing slow operations in BlueStore: troubleshoot/osd-slow-op-bluestore.md
     - Replaced Ceph OSD fails to start on authorization: troubleshoot/ceph-osd-auth-failed.md
-    - Ceph health reports *PG_DAMAGED* after a failed disk or node replacement: troubleshoot/ceph-pg-damaged.md
+    - Ceph health reports PG_DAMAGED after a failed disk or node replacement: troubleshoot/ceph-pg-damaged.md
     - CephOsdRemoveTask failure with a timeout during rebalance: troubleshoot/cephosdremovetask-timeout.md
     - Maintenance stuck on a compact Ceph cluster: troubleshoot/stuck-maintenance.md
 
