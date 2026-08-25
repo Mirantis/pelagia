@@ -250,7 +250,8 @@ var cephVolumeNode1 = map[string][]OsdVolumeInfo{
 			Type: "block",
 		},
 		{
-			Devices: []string{"/dev/vdd1"},
+			// check segmented lvm within one device
+			Devices: []string{"/dev/vdd1", "/dev/vdd1"},
 			LvPath:  "/dev/ceph-metadata/part-2",
 			Path:    "/dev/ceph-metadata/part-2",
 			Tags: OsdVolumeTags{

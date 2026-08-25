@@ -18,6 +18,7 @@ package diskdaemon
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 
 	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
@@ -33,6 +34,10 @@ func (d *diskDaemon) checkOsds() []string {
 		pathToIdxMap := map[string]int{}
 		for _, osdVolumeInfo := range osdsVolumesInfo {
 			var osdDeviceName string
+			// if multiple devices, try to compact, may be it is segmented lvm only for one device
+			if len(osdVolumeInfo.Devices) > 1 {
+				osdVolumeInfo.Devices = slices.Compact(osdVolumeInfo.Devices)
+			}
 			if len(osdVolumeInfo.Devices) > 1 {
 				issue := fmt.Sprintf("multidisk setup detected for osd '%s', partition '%s', which is not supported", osd, osdVolumeInfo.Path)
 				log.Error().Msg(issue)

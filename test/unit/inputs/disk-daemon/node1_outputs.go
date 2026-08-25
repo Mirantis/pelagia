@@ -751,6 +751,7 @@ var CephVolumeLvmReportFromNode1 = `{
         },
         {
             "devices": [
+                "/dev/vdd1",
                 "/dev/vdd1"
             ],
             "lv_name": "part-2",
