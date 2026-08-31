@@ -25,7 +25,7 @@ import (
 )
 
 func (d *diskDaemon) checkOsds() []string {
-	log.Info().Msg("Preparing osd disk's usage report")
+	log.Info().Msgf("[node '%s'] preparing osd disk's usage report", d.nodeName)
 	osdsReport := map[string][]lcmcommon.OsdDaemonInfo{}
 	issues := []string{}
 	warnings := []string{}
@@ -205,6 +205,6 @@ func (d *diskDaemon) checkOsds() []string {
 		lcmcommon.ShowObjectDiff(log, d.data.runtime.osdsReport, newOsdReport)
 	}
 	d.data.runtime.osdsReport = newOsdReport
-	log.Info().Msg("Osd disk's usage report is prepared")
+	log.Info().Msgf("[node '%s'] osd disk's usage report is prepared", d.nodeName)
 	return issues
 }

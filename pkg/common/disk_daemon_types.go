@@ -47,6 +47,8 @@ const (
 type DiskDaemonReport struct {
 	// current osd report state
 	State DiskDaemonState `json:"state"`
+	// Last disk-daemon report update time
+	LastRun string `json:"lastRun,omitempty"`
 	// current issues for node
 	Issues []string `json:"issues,omitempty"`
 	// current ready disk report

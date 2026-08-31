@@ -213,6 +213,15 @@ func (c *cephDeploymentInfraConfig) generateDiskDaemon() *apps.DaemonSet {
 									Name:  "DM_DISABLE_UDEV",
 									Value: "0",
 								},
+								{
+									Name: "NODE_NAME",
+									ValueFrom: &v1.EnvVarSource{
+										FieldRef: &v1.ObjectFieldSelector{
+											APIVersion: "v1",
+											FieldPath:  "spec.nodeName",
+										},
+									},
+								},
 							},
 							SecurityContext: &v1.SecurityContext{
 								Privileged:   &trueVar,

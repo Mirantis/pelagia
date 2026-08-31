@@ -17,6 +17,7 @@ limitations under the License.
 package diskdaemon
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -30,7 +31,8 @@ import (
 
 func TestPrepareReport(t *testing.T) {
 	newDaemon := diskDaemon{
-		data: initDaemonData(),
+		nodeName: "node-1",
+		data:     initDaemonData(),
 	}
 	tests := []struct {
 		name             string
@@ -56,6 +58,7 @@ func TestPrepareReport(t *testing.T) {
 				Issues: []string{
 					"daemon is failed to prepare block device report: no blockdevices found for 'lsblk' output",
 				},
+				LastRun: "2026-09-22T14:30:11+04:00",
 			},
 		},
 		{
@@ -64,7 +67,11 @@ func TestPrepareReport(t *testing.T) {
 			udevadmOutput:    lcmdiskdaemoninput.UdevadmReportFromNode1,
 			cephVolumeOutput: lcmdiskdaemoninput.CephVolumeLvmReportFromNode1,
 			lvmLvsOutput:     lcmdiskdaemoninput.LvmLvsReportFromNode1,
-			expectedReport:   unitinputs.DiskDaemonReportOkNode1WithParted,
+			expectedReport: func() lcmcommon.DiskDaemonReport {
+				rp := unitinputs.DiskDaemonReportOkNode1WithParted
+				rp.LastRun = "2026-09-22T14:30:12+04:00"
+				return rp
+			}(),
 		},
 		{
 			name:          "daemon report failed for osd report",
@@ -100,13 +107,19 @@ func TestPrepareReport(t *testing.T) {
 						"2": {},
 					},
 				},
+				LastRun: "2026-09-22T14:30:13+04:00",
 			},
 		},
 	}
 
 	oldCmd := runShellCmd
-	for _, test := range tests {
+	oldTimeFunc := lcmcommon.GetCurrentTimeString
+	for idx, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			lcmcommon.GetCurrentTimeString = func() string {
+				return fmt.Sprintf("2026-09-22T14:30:%d+04:00", 10+idx)
+			}
+
 			runShellCmd = func(command string) (string, string, error) {
 				if command == "lsblk -J -p -O" {
 					return test.lsblkOutput, "", nil
@@ -132,4 +145,5 @@ func TestPrepareReport(t *testing.T) {
 		})
 	}
 	runShellCmd = oldCmd
+	lcmcommon.GetCurrentTimeString = oldTimeFunc
 }
