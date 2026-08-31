@@ -17,8 +17,11 @@ limitations under the License.
 package diskdaemon
 
 import (
+	"os"
 	"sync"
 	"time"
+
+	"github.com/pkg/errors"
 
 	lcmcommon "github.com/Mirantis/pelagia/v2/pkg/common"
 )
@@ -29,6 +32,8 @@ var (
 )
 
 type diskDaemon struct {
+	// current node name
+	nodeName string
 	// critical error lead to panic error
 	criticalError error
 	// main data used by daemon
@@ -76,15 +81,20 @@ func initDaemonData() daemonData {
 
 func Daemon(daemonPort int) error {
 	log.Info().Msg("initializing disk-daemon")
-	diskDaemon := &diskDaemon{
-		data: initDaemonData(),
-		quit: make(chan struct{}),
+	nodeName, found := os.LookupEnv("NODE_NAME")
+	if !found || nodeName == "" {
+		return errors.New("failed to find env var 'NODE_NAME'")
 	}
-	log.Info().Msg("initializing local API server")
+	diskDaemon := &diskDaemon{
+		nodeName: nodeName,
+		data:     initDaemonData(),
+		quit:     make(chan struct{}),
+	}
+	log.Info().Msgf("[node '%s'] initializing local API server", diskDaemon.nodeName)
 	// run very simple api server to handle requests only inside container itself
 	// to always get reports from in-memory
 	go diskDaemon.serveAPIServer(int32(daemonPort))
-	log.Info().Msg("running disk-daemon")
+	log.Info().Msgf("[node '%s'] running disk-daemon", diskDaemon.nodeName)
 	ticker := time.NewTicker(checkInterval)
 	for {
 		select {
@@ -129,4 +139,5 @@ func (d *diskDaemon) updateNodeReportState(ready bool, disksReport *lcmcommon.Di
 			d.data.report.node.State = lcmcommon.DiskDaemonStateInProgress
 		}
 	}
+	d.data.report.node.LastRun = lcmcommon.GetCurrentTimeString()
 }

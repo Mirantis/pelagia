@@ -28,7 +28,8 @@ import (
 
 func TestPrepareOsdReport(t *testing.T) {
 	newDaemon := diskDaemon{
-		data: initDaemonData(),
+		nodeName: "test-node",
+		data:     initDaemonData(),
 	}
 
 	cephVolumeNode1Lost := map[string][]OsdVolumeInfo{
