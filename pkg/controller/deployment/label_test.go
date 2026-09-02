@@ -32,192 +32,91 @@ import (
 	unitinputs "github.com/Mirantis/pelagia/v2/test/unit/inputs"
 )
 
-func TestLabelNodes(t *testing.T) {
+func TestBuildNodeLabels(t *testing.T) {
 	tests := []struct {
-		name          string
-		labels        []string
-		nodes         *v1.NodeList
-		expectedNodes *v1.NodeList
-		apiErrors     map[string]error
-		expectedError string
+		name           string
+		currentLabels  map[string]string
+		nodeRoles      []string
+		nodeTopology   map[string]string
+		expectedLabels map[string]string
+		changed        bool
 	}{
 		{
-			name:          "label nodes - get node failed",
-			labels:        []string{},
-			nodes:         &v1.NodeList{},
-			expectedNodes: &v1.NodeList{},
-			expectedError: "failed to get 'node1' node: nodes \"node1\" not found",
+			name:           "roles provided, not exist and set, topology not provided",
+			nodeRoles:      []string{"mon"},
+			expectedLabels: map[string]string{"ceph_role_mon": "true"},
+			changed:        true,
 		},
 		{
-			name:          "label nodes - no labels, update skipped",
-			labels:        []string{},
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
-			apiErrors:     map[string]error{"update-nodes": errors.New("unexpected update call")},
+			name:          "roles provided and changed, topology provided and set",
+			currentLabels: map[string]string{"ceph_role_osd": "true"},
+			nodeRoles:     []string{"mon"},
+			nodeTopology:  map[string]string{"rack": "rack1"},
+			expectedLabels: map[string]string{
+				"ceph_role_mon":         "true",
+				"topology.rook.io/rack": "rack1",
+			},
+			changed: true,
 		},
 		{
-			name:          "label nodes - all labels, update skipped",
-			labels:        []string{"mon", "mgr", "osd", "rgw", "mds"},
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.RoleLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{*unitinputs.RoleLabelsNode.DeepCopy()}},
-			apiErrors:     map[string]error{"update-nodes": errors.New("unexpected update call")},
+			name:           "roles not provided and unset, topology provided and changed",
+			currentLabels:  map[string]string{"ceph_role_osd": "true", "topology.rook.io/rack": "rack1"},
+			nodeTopology:   map[string]string{"rack": "rack2"},
+			expectedLabels: map[string]string{"topology.rook.io/rack": "rack2"},
+			changed:        true,
 		},
 		{
-			name:          "label nodes - remove all labels, update success",
-			labels:        []string{},
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.RoleLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
+			name:           "topology provided from aws and set prev flag only",
+			currentLabels:  map[string]string{"topology.kubernetes.io/region": "region1"},
+			nodeTopology:   map[string]string{"region": "region1"},
+			expectedLabels: map[string]string{"topology.kubernetes.io/region": "region1", "cephdpl-prev-topology.kubernetes.io/region": "region1"},
+			changed:        true,
 		},
 		{
-			name:          "label nodes - add all labels, update success",
-			labels:        []string{"mon", "mgr", "osd", "rgw", "mds"},
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{*unitinputs.RoleLabelsNode.DeepCopy()}},
+			name:           "topology not provided but restored for aws",
+			currentLabels:  map[string]string{"topology.kubernetes.io/region": "region1", "cephdpl-prev-topology.kubernetes.io/region": "region"},
+			expectedLabels: map[string]string{"topology.kubernetes.io/region": "region"},
+			changed:        true,
 		},
 		{
-			name:          "label nodes - update failed",
-			labels:        []string{"mon", "mgr", "osd", "rgw", "mds"},
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
-			apiErrors:     map[string]error{"update-nodes": errors.New("update failed")},
-			expectedError: "failed to update 'node1' node labels: update failed",
+			name:           "topology provided and not present before",
+			currentLabels:  map[string]string{},
+			nodeTopology:   map[string]string{"region": "region1"},
+			expectedLabels: map[string]string{"topology.kubernetes.io/region": "region1", "cephdpl-prev-topology.kubernetes.io/region": ""},
+			changed:        true,
+		},
+		{
+			name:           "topology provided and updated",
+			currentLabels:  map[string]string{"topology.kubernetes.io/region": "region1", "cephdpl-prev-topology.kubernetes.io/region": ""},
+			nodeTopology:   map[string]string{"region": "region2"},
+			expectedLabels: map[string]string{"topology.kubernetes.io/region": "region2", "cephdpl-prev-topology.kubernetes.io/region": ""},
+			changed:        true,
+		},
+		{
+			name:           "topology not provided and fully unset",
+			currentLabels:  map[string]string{"topology.kubernetes.io/region": "region1", "cephdpl-prev-topology.kubernetes.io/region": ""},
+			expectedLabels: map[string]string{},
+			changed:        true,
+		},
+		{
+			name: "roles and topology are not changed",
+			currentLabels: map[string]string{
+				"ceph_role_mon":         "true",
+				"topology.rook.io/rack": "rack1",
+			},
+			nodeRoles:    []string{"mon"},
+			nodeTopology: map[string]string{"rack": "rack1"},
+			expectedLabels: map[string]string{
+				"ceph_role_mon":         "true",
+				"topology.rook.io/rack": "rack1",
+			},
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(nil, nil)
-			changeExpected := !reflect.DeepEqual(test.nodes, test.expectedNodes)
-			res := map[string]runtime.Object{"nodes": test.nodes}
-			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"nodes"}, res, test.apiErrors)
-			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "update", []string{"nodes"}, res, test.apiErrors)
-
-			changed, err := c.labelNodes(test.labels, "node1")
-			if test.expectedError != "" {
-				assert.NotNil(t, err)
-				assert.Equal(t, test.expectedError, err.Error())
-			} else {
-				assert.Nil(t, err)
-			}
-			assert.Equal(t, test.expectedNodes, test.nodes)
-			assert.Equal(t, changeExpected, changed)
-			// clean reactions before next test
-			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
-		})
-	}
-}
-
-func TestAddTopology(t *testing.T) {
-	tests := []struct {
-		name          string
-		topology      map[string]string
-		nodes         *v1.NodeList
-		expectedNodes *v1.NodeList
-		apiErrors     map[string]error
-		expectedError string
-	}{
-		{
-			name:          "add topology to nodes - get node failed",
-			topology:      map[string]string{},
-			nodes:         &v1.NodeList{},
-			expectedNodes: &v1.NodeList{},
-			expectedError: "failed to get 'node1' node: nodes \"node1\" not found",
-		},
-		{
-			name:          "add topology to nodes - no topology, update skipped",
-			topology:      map[string]string{},
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
-			apiErrors:     map[string]error{"update-nodes": errors.New("unexpected update call")},
-		},
-		{
-			name:          "add topology to nodes - add all topology, update success",
-			topology:      map[string]string{"region": "region1", "zone": "zone1", "rack": "rack1"},
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{*unitinputs.TopologyLabelsNode.DeepCopy()}},
-		},
-		{
-			name:          "add topology to nodes - remove all topology, update success",
-			topology:      map[string]string{},
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.TopologyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
-		},
-		{
-			name:     "add topology to nodes - remove all topology, update region and zone skipped",
-			topology: map[string]string{},
-			nodes:    &v1.NodeList{Items: []v1.Node{*unitinputs.TopologyLabelsNodeNoRoles.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{
-				func() v1.Node {
-					expected := unitinputs.TopologyLabelsNodeNoRoles.DeepCopy()
-					delete(expected.Labels, "topology.rook.io/rack")
-					return *expected
-				}(),
-			}},
-		},
-		{
-			name:     "add topology to nodes - remove all topology, return region and zone to original values",
-			topology: map[string]string{},
-			nodes:    &v1.NodeList{Items: []v1.Node{*unitinputs.TopologyLabelsNodeOrigRoles.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{
-				func() v1.Node {
-					expected := unitinputs.TopologyLabelsNodeOrigRoles.DeepCopy()
-					delete(expected.Labels, "topology.rook.io/rack")
-					delete(expected.Labels, "cephdpl-prev-topology.kubernetes.io/region")
-					delete(expected.Labels, "cephdpl-prev-topology.kubernetes.io/zone")
-					expected.Labels["topology.kubernetes.io/region"] = "orig-region"
-					expected.Labels["topology.kubernetes.io/zone"] = "orig-zone"
-					return *expected
-				}(),
-			}},
-		},
-		{
-			name:          "add topology to nodes - update failed",
-			topology:      map[string]string{},
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.TopologyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{*unitinputs.TopologyLabelsNode.DeepCopy()}},
-			apiErrors:     map[string]error{"update-nodes": errors.New("failed update")},
-			expectedError: "failed to update 'node1' node crush topology labels: failed update",
-		},
-		{
-			name:     "add topology to nodes - change topology, update success",
-			topology: map[string]string{"zone": "zone1", "rack": "rack-new"},
-			nodes:    &v1.NodeList{Items: []v1.Node{*unitinputs.NotAllTopologyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{
-				func() v1.Node {
-					expected := unitinputs.TopologyLabelsNode.DeepCopy()
-					delete(expected.Labels, "topology.kubernetes.io/region")
-					delete(expected.Labels, "cephdpl-prev-topology.kubernetes.io/region")
-					expected.Labels["topology.rook.io/rack"] = "rack-new"
-					return *expected
-				}(),
-			}},
-		},
-		{
-			name:          "add topology to nodes - invalid topology failed",
-			topology:      map[string]string{"fake": "fake"},
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
-			expectedError: "crush topology labels do not changed due to error(s) found in node 'node1' crush section",
-		},
-	}
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(nil, nil)
-			changeExpected := !reflect.DeepEqual(test.nodes, test.expectedNodes)
-			res := map[string]runtime.Object{"nodes": test.nodes}
-			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"nodes"}, res, test.apiErrors)
-			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "update", []string{"nodes"}, res, test.apiErrors)
-
-			changed, err := c.addTopology("node1", test.topology)
-			if test.expectedError != "" {
-				assert.NotNil(t, err)
-				assert.Equal(t, test.expectedError, err.Error())
-			} else {
-				assert.Nil(t, err)
-			}
-			assert.Equal(t, test.expectedNodes, test.nodes)
-			assert.Equal(t, changeExpected, changed)
-			// clean reactions before next test
-			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
+			newLabels, changed := buildNodeLabels(test.currentLabels, test.nodeRoles, test.nodeTopology)
+			assert.Equal(t, test.expectedLabels, newLabels)
+			assert.Equal(t, test.changed, changed)
 		})
 	}
 }
@@ -225,18 +124,11 @@ func TestAddTopology(t *testing.T) {
 func TestDeleteLabelNodes(t *testing.T) {
 	tests := []struct {
 		name          string
-		excludeNode   string
 		nodes         *v1.NodeList
 		expectedNodes *v1.NodeList
 		apiErrors     map[string]error
 		expectedError string
 	}{
-		{
-			name:          "delete node ceph labels - node excluded, skipped",
-			excludeNode:   "node1",
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.RolesTopologyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.RolesTopologyLabelsNode}},
-		},
 		{
 			name:          "delete node ceph labels - node list failed",
 			expectedError: "failed to list nodes: failed to list nodes",
@@ -263,6 +155,30 @@ func TestDeleteLabelNodes(t *testing.T) {
 			expectedError: "failed to delete ceph role or crush topology labels from obsolete node(s)",
 		},
 		{
+			name: "delete node ceph labels - keep k8s topology labels previously set",
+			nodes: &v1.NodeList{Items: []v1.Node{unitinputs.GetNodeWithLabels("node1", map[string]string{
+				"topology.kubernetes.io/region":              "region1",
+				"topology.kubernetes.io/zone":                "zone1",
+				"cephdpl-prev-topology.kubernetes.io/zone":   "some-zone1",
+				"cephdpl-prev-topology.kubernetes.io/region": "some-region1",
+			}, nil), unitinputs.GetAvailableNode("node-a")}},
+			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.GetNodeWithLabels("node1", map[string]string{
+				"topology.kubernetes.io/region": "some-region1",
+				"topology.kubernetes.io/zone":   "some-zone1",
+			}, nil), unitinputs.GetAvailableNode("node-a")}},
+		},
+		{
+			name: "delete node ceph labels - keep k8s topology labels previously set w/o controller",
+			nodes: &v1.NodeList{Items: []v1.Node{unitinputs.GetNodeWithLabels("node1", map[string]string{
+				"topology.kubernetes.io/region": "region1",
+				"topology.kubernetes.io/zone":   "zone1",
+			}, nil), unitinputs.GetAvailableNode("node-a")}},
+			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.GetNodeWithLabels("node1", map[string]string{
+				"topology.kubernetes.io/region": "region1",
+				"topology.kubernetes.io/zone":   "zone1",
+			}, nil), unitinputs.GetAvailableNode("node-a")}},
+		},
+		{
 			name:          "delete node ceph labels - success",
 			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.RolesTopologyLabelsNode.DeepCopy(), unitinputs.GetAvailableNode("node-a")}},
 			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.EmptyLabelsNode, unitinputs.GetAvailableNode("node-a")}},
@@ -285,7 +201,7 @@ func TestDeleteLabelNodes(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"nodes"}, res, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "update", []string{"nodes"}, res, test.apiErrors)
 
-			deleted, err := c.deleteLabelNodes(test.excludeNode)
+			deleted, err := c.deleteLabelNodes()
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
@@ -375,13 +291,14 @@ func TestDeleteDaemonSetLabels(t *testing.T) {
 
 func TestEnsureLabelNodes(t *testing.T) {
 	tests := []struct {
-		name          string
-		cephDpl       *cephlcmv1alpha1.CephDeployment
-		nodes         *v1.NodeList
-		deployments   *appsv1.DeploymentList
-		expectedNodes *v1.NodeList
-		apiErrors     map[string]error
-		expectedError string
+		name           string
+		cephDpl        *cephlcmv1alpha1.CephDeployment
+		nodes          *v1.NodeList
+		deployments    *appsv1.DeploymentList
+		expectedNodes  *v1.NodeList
+		changeExpected bool
+		apiErrors      map[string]error
+		expectedError  string
 	}{
 		{
 			name:          "ensure node ceph labels - failed to list nodes",
@@ -389,44 +306,45 @@ func TestEnsureLabelNodes(t *testing.T) {
 			expectedError: "failed to list nodes: failed to list nodes",
 		},
 		{
-			name:          "ensure node ceph labels - failed to check deployments on a node",
-			cephDpl:       unitinputs.CephDeployEnsureRolesCrush.DeepCopy(),
+			name: "ensure node ceph labels - failed to check deployments on a node",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cdpl := unitinputs.CephDeployEnsureRolesCrush.DeepCopy()
+				cdpl.Spec.Nodes[0].Name = "node-2"
+				return cdpl
+			}(),
 			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.RolesTopologyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.RolesTopologyLabelsNode}},
-			expectedError: "failed to check osd deployments for some node(s) with osd role",
+			expectedError: "failed to verify node(s) labels",
 		},
 		{
 			name:          "ensure node ceph labels - role and topology labels update error",
 			cephDpl:       unitinputs.CephDeployEnsureRolesCrush.DeepCopy(),
 			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.EmptyLabelsNode}},
 			deployments:   &appsv1.DeploymentList{},
 			apiErrors:     map[string]error{"update-nodes": errors.New("node update failed")},
-			expectedError: "failed to set role or crush topology labels for some node(s)",
+			expectedError: "failed to verify node(s) labels",
 		},
 		{
 			name:          "ensure node ceph labels - cleanup obsolete ceph labels error",
 			cephDpl:       &unitinputs.CephDeployExternal,
 			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.RolesTopologyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.RolesTopologyLabelsNode}},
 			deployments:   &appsv1.DeploymentList{},
 			apiErrors:     map[string]error{"update-nodes": errors.New("node update failed")},
-			expectedError: "failed to delete ceph role or crush topology labels from obsolete node(s)",
+			expectedError: "failed to verify node(s) labels",
 		},
 		{
-			name:          "ensure node ceph labels  - no changes, success",
-			cephDpl:       unitinputs.CephDeployEnsureRolesCrush.DeepCopy(),
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.RolesTopologyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.RolesTopologyLabelsNode}},
-			deployments:   &appsv1.DeploymentList{},
-			apiErrors:     map[string]error{"update-nodes": errors.New("unexpected update failed")},
+			name:        "ensure node ceph labels  - no changes, success",
+			cephDpl:     unitinputs.CephDeployEnsureRolesCrush.DeepCopy(),
+			nodes:       &v1.NodeList{Items: []v1.Node{*unitinputs.RolesTopologyLabelsNode.DeepCopy()}},
+			deployments: &appsv1.DeploymentList{},
+			apiErrors:   map[string]error{"update-nodes": errors.New("unexpected update failed")},
 		},
 		{
-			name:          "ensure node ceph labels  - roles, topology updated, success",
-			cephDpl:       unitinputs.CephDeployEnsureRolesCrush.DeepCopy(),
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.RolesTopologyLabelsNode}},
-			deployments:   &appsv1.DeploymentList{},
+			name:           "ensure node ceph labels  - roles, topology updated, success",
+			cephDpl:        unitinputs.CephDeployEnsureRolesCrush.DeepCopy(),
+			nodes:          &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
+			expectedNodes:  &v1.NodeList{Items: []v1.Node{unitinputs.RolesTopologyLabelsNode}},
+			deployments:    &appsv1.DeploymentList{},
+			changeExpected: true,
 		},
 		{
 			name: "ensure node ceph labels  - roles only updated, success",
@@ -442,16 +360,18 @@ func TestEnsureLabelNodes(t *testing.T) {
 				}
 				return mc
 			}(),
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.RoleLabelsNode}},
-			deployments:   &appsv1.DeploymentList{},
+			nodes:          &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
+			expectedNodes:  &v1.NodeList{Items: []v1.Node{unitinputs.RoleLabelsNode}},
+			deployments:    &appsv1.DeploymentList{},
+			changeExpected: true,
 		},
 		{
-			name:          "ensure node ceph labels  - topology updated, success",
-			cephDpl:       unitinputs.CephDeployEnsureRolesCrush.DeepCopy(),
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.RoleLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.RolesTopologyLabelsNode}},
-			deployments:   &appsv1.DeploymentList{},
+			name:           "ensure node ceph labels  - topology updated, success",
+			cephDpl:        unitinputs.CephDeployEnsureRolesCrush.DeepCopy(),
+			nodes:          &v1.NodeList{Items: []v1.Node{*unitinputs.RoleLabelsNode.DeepCopy()}},
+			expectedNodes:  &v1.NodeList{Items: []v1.Node{unitinputs.RolesTopologyLabelsNode}},
+			deployments:    &appsv1.DeploymentList{},
+			changeExpected: true,
 		},
 		{
 			name: "ensure node ceph labels when no osd role but configuration - success",
@@ -475,12 +395,13 @@ func TestEnsureLabelNodes(t *testing.T) {
 				}
 				return mc
 			}(),
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.RoleLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.RolesTopologyLabelsNode}},
-			deployments:   &appsv1.DeploymentList{},
+			nodes:          &v1.NodeList{Items: []v1.Node{*unitinputs.RoleLabelsNode.DeepCopy()}},
+			expectedNodes:  &v1.NodeList{Items: []v1.Node{unitinputs.RolesTopologyLabelsNode}},
+			deployments:    &appsv1.DeploymentList{},
+			changeExpected: true,
 		},
 		{
-			name: "ensure node ceph labels no osd configuration, but osd deployment is not removed - success",
+			name: "ensure node ceph labels no osd configuration, but osd deployment is exist, drop topology",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployEnsureRolesCrush.DeepCopy()
 				mc.Spec.Nodes = []cephlcmv1alpha1.CephDeploymentNode{
@@ -493,31 +414,30 @@ func TestEnsureLabelNodes(t *testing.T) {
 				}
 				return mc
 			}(),
-			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.RolesTopologyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.RolesTopologyLabelsNode}},
+			nodes: &v1.NodeList{Items: []v1.Node{*unitinputs.RolesTopologyLabelsNode.DeepCopy()}},
 			deployments: &appsv1.DeploymentList{Items: []appsv1.Deployment{
 				*unitinputs.GetDeployment("rook-ceph-osd-1", "rook-ceph", map[string]string{"app": "rook-ceph-osd", "failure-domain": "node1"}, nil)}},
-			apiErrors: map[string]error{"update-nodes": errors.New("unexpected update failed")},
+			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.GetNodeWithLabels("node1", map[string]string{
+				"ceph_role_mon": "true",
+				"ceph_role_mgr": "true",
+				"ceph_role_osd": "true",
+				"ceph_role_rgw": "true",
+				"ceph_role_mds": "true",
+			}, nil)}},
+			changeExpected: true,
 		},
 		{
-			name: "ensure node ceph labels when it is removed from spec, but osd deployment is not removed - success",
+			name: "ensure node ceph labels when it is removed from spec, but osd deployment is exist, keep only osd role",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				mc := unitinputs.CephDeployEnsureRolesCrush.DeepCopy()
 				mc.Spec.Nodes = []cephlcmv1alpha1.CephDeploymentNode{}
 				return mc
 			}(),
 			nodes: &v1.NodeList{Items: []v1.Node{*unitinputs.RolesTopologyLabelsNode.DeepCopy()}},
-			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.GetNodeWithLabels(unitinputs.RolesTopologyLabelsNode.Name,
-				map[string]string{
-					"ceph_role_osd":                              "true",
-					"topology.kubernetes.io/region":              "region1",
-					"cephdpl-prev-topology.kubernetes.io/region": "region1",
-					"topology.kubernetes.io/zone":                "zone1",
-					"cephdpl-prev-topology.kubernetes.io/zone":   "zone1",
-					"topology.rook.io/rack":                      "rack1",
-				}, nil)}},
 			deployments: &appsv1.DeploymentList{Items: []appsv1.Deployment{
 				*unitinputs.GetDeployment("rook-ceph-osd-1", "rook-ceph", map[string]string{"app": "rook-ceph-osd", "failure-domain": "node1"}, nil)}},
+			expectedNodes:  &v1.NodeList{Items: []v1.Node{unitinputs.GetNodeWithLabels("node1", map[string]string{"ceph_role_osd": "true"}, nil)}},
+			changeExpected: true,
 		},
 	}
 
@@ -525,7 +445,6 @@ func TestEnsureLabelNodes(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(nil, nil)
 			c.cdConfig.nodesListExpanded = test.cephDpl.Spec.Nodes
-			changeExpected := !reflect.DeepEqual(test.nodes, test.expectedNodes)
 
 			res := map[string]runtime.Object{}
 			if test.nodes != nil {
@@ -538,6 +457,9 @@ func TestEnsureLabelNodes(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "list", []string{"nodes"}, res, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"nodes"}, res, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "update", []string{"nodes"}, res, test.apiErrors)
+			if test.expectedNodes == nil {
+				test.expectedNodes = test.nodes.DeepCopy()
+			}
 
 			changed, err := c.ensureLabelNodes()
 			if test.expectedError != "" {
@@ -546,7 +468,7 @@ func TestEnsureLabelNodes(t *testing.T) {
 				assert.Equal(t, false, changed)
 			} else {
 				assert.Nil(t, err)
-				assert.Equal(t, changeExpected, changed)
+				assert.Equal(t, test.changeExpected, changed)
 			}
 			if test.nodes != nil {
 				assert.Equal(t, test.expectedNodes, test.nodes)
@@ -578,7 +500,7 @@ func TestEnsureNodesAnnotation(t *testing.T) {
 			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.EmptyLabelsNode.DeepCopy()}},
 			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.EmptyLabelsNode}},
 			apiErrors:     map[string]error{"update-nodes": errors.New("node update failed")},
-			expectedError: "failed to set rook annotations for some node(s)",
+			expectedError: "failed to verify node(s) annotations",
 		},
 		{
 			name:          "ensure node ceph annotations - cleanup obsolete ceph annotations error",
@@ -586,7 +508,7 @@ func TestEnsureNodesAnnotation(t *testing.T) {
 			nodes:         &v1.NodeList{Items: []v1.Node{*unitinputs.NodeMonitorIPAnnotation.DeepCopy()}},
 			expectedNodes: &v1.NodeList{Items: []v1.Node{unitinputs.NodeMonitorIPAnnotation}},
 			apiErrors:     map[string]error{"update-nodes": errors.New("node update failed")},
-			expectedError: "failed to delete rook annotations from obsolete node(s)",
+			expectedError: "failed to verify node(s) annotations",
 		},
 		{
 			name:          "ensure node ceph annotations - cleanup obsolete ceph annotations, success",

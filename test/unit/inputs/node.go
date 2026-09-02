@@ -39,9 +39,9 @@ var RoleLabelsNode = GetNodeWithLabels("node1", map[string]string{
 
 var TopologyLabelsNode = GetNodeWithLabels("node1", map[string]string{
 	"topology.kubernetes.io/region":              "region1",
-	"cephdpl-prev-topology.kubernetes.io/region": "region1",
+	"cephdpl-prev-topology.kubernetes.io/region": "",
 	"topology.kubernetes.io/zone":                "zone1",
-	"cephdpl-prev-topology.kubernetes.io/zone":   "zone1",
+	"cephdpl-prev-topology.kubernetes.io/zone":   "",
 	"topology.rook.io/rack":                      "rack1",
 }, nil)
 
@@ -72,9 +72,9 @@ var RolesTopologyLabelsNode = GetNodeWithLabels("node1", map[string]string{
 	"ceph_role_rgw":                 "true",
 	"ceph_role_mds":                 "true",
 	"topology.kubernetes.io/region": "region1",
-	"cephdpl-prev-topology.kubernetes.io/region": "region1",
+	"cephdpl-prev-topology.kubernetes.io/region": "",
 	"topology.kubernetes.io/zone":                "zone1",
-	"cephdpl-prev-topology.kubernetes.io/zone":   "zone1",
+	"cephdpl-prev-topology.kubernetes.io/zone":   "",
 	"topology.rook.io/rack":                      "rack1",
 }, nil)
 

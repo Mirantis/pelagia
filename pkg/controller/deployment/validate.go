@@ -156,9 +156,12 @@ func validateNodesSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExpande
 			continue
 		}
 		// check node crush topology
-		for crush := range node.Crush {
+		for crush, crushValue := range node.Crush {
 			if _, ok := crushTopologyAllowedKeys[crush]; !ok {
 				err := fmt.Sprintf("nodes item %s '%s' contains invalid crush topology key '%s'. Valid are: %v", nodeType, node.Name, crush, validCrushKeys)
+				errMsgs = append(errMsgs, err)
+			} else if crushValue == "" {
+				err := fmt.Sprintf("nodes item %s '%s' contains empty crush topology key '%s': must be non-empty", nodeType, node.Name, crush)
 				errMsgs = append(errMsgs, err)
 			}
 		}
