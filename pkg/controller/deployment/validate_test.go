@@ -194,7 +194,7 @@ func TestValidateNodesSpec(t *testing.T) {
 						},
 						{
 							NodeGroup: []string{"node-3", "node-4"},
-							Crush:     map[string]string{"fake": "value"},
+							Crush:     map[string]string{"fake": "value", "rack": ""},
 							Node:      cephv1.Node{Name: "node-group-1"},
 						},
 						{
@@ -226,7 +226,8 @@ func TestValidateNodesSpec(t *testing.T) {
 			expectedIssues: []string{
 				"found 'useAllDevices' field for nodes item node 'node-1', which is not supported, remove field",
 				"found 'volumeClaimTemplates' field for nodes item node 'node-2', which is not supported, remove field",
-				"nodes item nodeGroup 'node-group-1' contains invalid crush topology key 'fake'. Valid are: chassis, datacenter, pdu, rack, region, room, row, zone",
+				"nodes item nodeGroup 'node-group-1' contains invalid crush topology key 'fake'. Valid are: chassis, datacenter, pdu, pod, rack, region, room, row, zone",
+				"nodes item nodeGroup 'node-group-1' contains empty crush topology key 'rack': must be non-empty",
 				"failed to parse config parameter 'osdsPerDevice' from nodes item node 'node-6': strconv.Atoi: parsing \"aas\": invalid syntax",
 				"config parameter 'deviceClass' is not specified for nodes item node 'node-7', but it is required",
 				"no nodes with 'mon' roles specified",
