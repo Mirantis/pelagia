@@ -104,14 +104,15 @@ var (
 		"RECENT_CRASH",
 	}
 	crushTopologyAllowedKeys = map[string]string{
+		"region":     "topology.kubernetes.io/region",
+		"zone":       "topology.kubernetes.io/zone",
 		"datacenter": "topology.rook.io/datacenter",
 		"room":       "topology.rook.io/room",
+		"pod":        "topology.rook.io/pod",
 		"pdu":        "topology.rook.io/pdu",
 		"row":        "topology.rook.io/row",
 		"rack":       "topology.rook.io/rack",
 		"chassis":    "topology.rook.io/chassis",
-		"region":     "topology.kubernetes.io/region",
-		"zone":       "topology.kubernetes.io/zone",
 	}
 	// template for config map to track section changes
 	cephConfigSectionHashLabel = "cephdeployment.lcm.mirantis.com/config-%s-hash"

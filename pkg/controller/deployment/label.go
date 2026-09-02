@@ -20,6 +20,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
@@ -36,99 +37,92 @@ func (c *cephDeploymentConfig) ensureNodesAnnotation() (bool, error) {
 			nodeMonitorIPs[node.Name] = node.MonitorIP
 		}
 	}
-	excludeNodes := []string{}
-	for nodeName, ip := range nodeMonitorIPs {
-		changed, err := c.annotateNodes(map[string]string{monIPAnnotation: ip}, nodeName)
+	nodes, err := c.api.Kubeclientset.CoreV1().Nodes().List(c.context, metav1.ListOptions{})
+	if err != nil {
+		return false, errors.Wrap(err, "failed to list nodes")
+	}
+	for _, node := range nodes.Items {
+		annotations := map[string]string{}
+		if ip, ok := nodeMonitorIPs[node.Name]; ok {
+			annotations[monIPAnnotation] = ip
+		}
+		changed, err := c.annotateNode(annotations, node)
 		if err != nil {
-			c.log.Error().Err(err).Msg("failed to annotate node with monitor ip address")
+			c.log.Error().Err(err).Msg("")
 			errCollector++
 		}
 		changedNodes = changedNodes || changed
-		excludeNodes = append(excludeNodes, nodeName)
 	}
 	if errCollector > 0 {
-		return false, errors.New("failed to set rook annotations for some node(s)")
+		return false, errors.New("failed to verify node(s) annotations")
 	}
-	// Remove annotations from other obsolete nodes
-	noChanges, err := c.deleteNodesAnnotations(excludeNodes...)
-	if err != nil {
-		return false, err
-	}
-	changedNodes = changedNodes || !noChanges
 	return changedNodes, nil
 }
 
 func (c *cephDeploymentConfig) ensureLabelNodes() (bool, error) {
-	c.log.Debug().Msg("ensure nodes labels (ceph roles) and topology")
+	c.log.Debug().Msg("ensure nodes labels for ceph roles and topology")
+	nodesRoles := map[string][]string{}
+	nodesCrushTopology := map[string]map[string]string{}
+	for _, node := range c.cdConfig.nodesListExpanded {
+		roles := node.Roles
+		if lcmcommon.IsCephOsdNode(node.Node) {
+			roles = append(roles, "osd")
+			nodesCrushTopology[node.Name] = node.Crush
+		}
+		nodesRoles[node.Name] = roles
+	}
 	nodes, err := c.api.Kubeclientset.CoreV1().Nodes().List(c.context, metav1.ListOptions{})
 	if err != nil {
 		return false, errors.Wrap(err, "failed to list nodes")
 	}
 	errCollector := 0
-	nodeRoles := map[string][]string{}
-	osdDeploymentExists := map[string]bool{}
-	// check all nodes with osd role label does it have or not any osd deployment right now
-	// this will help to determine keep or not keep osd role label if node is not specified
-	// in spec, but may continue running osd pods (even if they are in crashed)
+	labelsUpdated := false
 	for _, node := range nodes.Items {
+		nodeRoles, nodeInSpec := nodesRoles[node.Name]
+		nodeTopology, storageNodeInSpec := nodesCrushTopology[node.Name]
+		// check all nodes with osd role label does it have or not any osd deployment right now
+		// this will help to determine keep or not keep osd role label if node is not specified
+		// in spec or specified w/o devices, but may continue running osd pods (even if they are in crashed)
+		// ceph osd label allows running ceph disk daemon, so if some pods are running, but node not in spec
+		// means it is getting removed and we need to keep label until removed
 		if _, osdLabelPresent := node.Labels[fmt.Sprintf(lcmcommon.CephNodeLabelTemplate, "osd")]; osdLabelPresent {
-			labelSelector := fmt.Sprintf(nodeWithOSDSelectorTemplate, node.Name)
-			osdDeployments, err := c.api.Kubeclientset.AppsV1().Deployments(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{LabelSelector: labelSelector})
+			if !storageNodeInSpec {
+				labelSelector := fmt.Sprintf(nodeWithOSDSelectorTemplate, node.Name)
+				osdDeployments, err := c.api.Kubeclientset.AppsV1().Deployments(c.lcmConfig.RookNamespace).List(c.context, metav1.ListOptions{LabelSelector: labelSelector})
+				if err != nil {
+					c.log.Error().Err(err).Msgf("failed to check node '%s' for present osd deployments", node.Name)
+					errCollector++
+					continue
+				}
+				if len(osdDeployments.Items) > 0 {
+					if nodeInSpec {
+						nodeRoles = append(nodeRoles, "osd")
+					} else {
+						nodeRoles = []string{"osd"}
+					}
+				}
+			}
+		}
+		newLabels, updated := buildNodeLabels(node.Labels, nodeRoles, nodeTopology)
+		if updated {
+			c.log.Info().Msgf("update node '%s' labels", node.Name)
+			lcmcommon.ShowObjectDiff(*c.log, node.Labels, newLabels)
+			node.Labels = newLabels
+			_, err = c.api.Kubeclientset.CoreV1().Nodes().Update(c.context, &node, metav1.UpdateOptions{})
 			if err != nil {
-				c.log.Error().Err(err).Msgf("failed to check node '%s' for present osd deployments", node.Name)
+				c.log.Error().Err(err).Msgf("failed to update '%s' node labels", node.Name)
 				errCollector++
-				continue
 			}
-			if len(osdDeployments.Items) > 0 {
-				osdDeploymentExists[node.Name] = true
-				// put role right now, in case if current node is not in spec
-				nodeRoles[node.Name] = []string{"osd"}
-			}
+			labelsUpdated = true
 		}
 	}
 	if errCollector > 0 {
-		return false, errors.New("failed to check osd deployments for some node(s) with osd role")
+		return false, errors.New("failed to verify node(s) labels")
 	}
-	changedNodes := false
-	for _, node := range c.cdConfig.nodesListExpanded {
-		roles := node.Roles
-		// if node has storage configuration - it may have crush topology as well
-		if lcmcommon.IsCephOsdNode(node.Node) {
-			roles = append(roles, "osd")
-			changed, err := c.addTopology(node.Name, node.Crush)
-			if err != nil {
-				c.log.Error().Err(err).Msgf("failed to set crush topology labels for node %q", node.Name)
-				errCollector++
-			}
-			changedNodes = changedNodes || changed
-		} else if osdDeploymentExists[node.Name] {
-			roles = append(roles, "osd")
-		}
-		nodeRoles[node.Name] = roles
-	}
-	excludeNodes := []string{}
-	for nodeName, roles := range nodeRoles {
-		changed, err := c.labelNodes(roles, nodeName)
-		if err != nil {
-			c.log.Error().Err(err).Msgf("failed to set role labels for node %q", nodeName)
-			errCollector++
-		}
-		changedNodes = changedNodes || changed
-		excludeNodes = append(excludeNodes, nodeName)
-	}
-	if errCollector > 0 {
-		return false, errors.New("failed to set role or crush topology labels for some node(s)")
-	}
-	// Remove roles from other obsolete nodes
-	noChanges, err := c.deleteLabelNodes(excludeNodes...)
-	if err != nil {
-		return false, err
-	}
-	changedNodes = changedNodes && noChanges
-	return changedNodes, nil
+	return labelsUpdated, nil
 }
 
-func (c *cephDeploymentConfig) deleteLabelNodes(excludeNode ...string) (bool, error) {
+func (c *cephDeploymentConfig) deleteLabelNodes() (bool, error) {
 	nodes, err := c.api.Kubeclientset.CoreV1().Nodes().List(c.context, metav1.ListOptions{})
 	if err != nil {
 		return false, errors.Wrap(err, "failed to list nodes")
@@ -136,20 +130,16 @@ func (c *cephDeploymentConfig) deleteLabelNodes(excludeNode ...string) (bool, er
 	errCollector := 0
 	changed := false
 	for _, node := range nodes.Items {
-		if lcmcommon.Contains(excludeNode, node.Name) {
-			continue
-		}
-		updated, err := c.labelNodes([]string{}, node.Name)
-		changed = changed || updated
-		if err != nil {
-			c.log.Error().Err(err).Msgf("failed to unlabel node '%s' from needless ceph role labels", node.Name)
-			errCollector++
-		}
-		updated, err = c.addTopology(node.Name, map[string]string{})
-		changed = changed || updated
-		if err != nil {
-			c.log.Error().Err(err).Msgf("failed to unlabel node '%s' from crush topology labels", node.Name)
-			errCollector++
+		if newLabels, updated := buildNodeLabels(node.Labels, nil, nil); updated {
+			c.log.Info().Msgf("removing ceph related labels from node '%s'", node.Name)
+			lcmcommon.ShowObjectDiff(*c.log, node.Labels, newLabels)
+			node.Labels = newLabels
+			_, err = c.api.Kubeclientset.CoreV1().Nodes().Update(c.context, &node, metav1.UpdateOptions{})
+			if err != nil {
+				c.log.Error().Err(err).Msgf("failed to update '%s' node labels", node.Name)
+				errCollector++
+			}
+			changed = true
 		}
 	}
 	if errCollector > 0 {
@@ -158,7 +148,7 @@ func (c *cephDeploymentConfig) deleteLabelNodes(excludeNode ...string) (bool, er
 	return !changed, nil
 }
 
-func (c *cephDeploymentConfig) deleteNodesAnnotations(excludeNode ...string) (bool, error) {
+func (c *cephDeploymentConfig) deleteNodesAnnotations() (bool, error) {
 	nodes, err := c.api.Kubeclientset.CoreV1().Nodes().List(c.context, metav1.ListOptions{})
 	if err != nil {
 		return false, errors.Wrap(err, "failed to list nodes")
@@ -166,15 +156,12 @@ func (c *cephDeploymentConfig) deleteNodesAnnotations(excludeNode ...string) (bo
 	errCollector := 0
 	changed := false
 	for _, node := range nodes.Items {
-		if lcmcommon.Contains(excludeNode, node.Name) {
-			continue
-		}
-		updated, err := c.annotateNodes(map[string]string{}, node.Name)
-		changed = changed || updated
+		updated, err := c.annotateNode(map[string]string{}, node)
 		if err != nil {
 			c.log.Error().Err(err).Msgf("failed to cleanup node '%s' from redundant annotations", node.Name)
 			errCollector++
 		}
+		changed = changed || updated
 	}
 	if errCollector > 0 {
 		return false, errors.New("failed to delete rook annotations from obsolete node(s)")
@@ -192,7 +179,7 @@ func (c *cephDeploymentConfig) deleteDaemonSetLabels() (bool, error) {
 	for _, node := range nodes.Items {
 		if _, ok := node.Labels[cephDaemonsetLabel]; ok {
 			noLabels = false
-			c.log.Info().Msgf("remove node '%s' label %s", node.Name, cephDaemonsetLabel)
+			c.log.Info().Msgf("remove cephdeployment label '%s' from node '%s'", cephDaemonsetLabel, node.Name)
 			delete(node.Labels, cephDaemonsetLabel)
 			_, err = c.api.Kubeclientset.CoreV1().Nodes().Update(c.context, &node, metav1.UpdateOptions{})
 			if err != nil {
@@ -207,118 +194,73 @@ func (c *cephDeploymentConfig) deleteDaemonSetLabels() (bool, error) {
 	return noLabels, nil
 }
 
-func (c *cephDeploymentConfig) labelNodes(roles []string, nodeName string) (bool, error) {
-	node, err := c.api.Kubeclientset.CoreV1().Nodes().Get(c.context, nodeName, metav1.GetOptions{})
-	if err != nil {
-		return false, errors.Wrapf(err, "failed to get '%s' node", nodeName)
-	}
-	newLabels, updateLabels := lcmcommon.BuildCephNodeLabels(node.Labels, roles)
-	if updateLabels {
-		c.log.Info().Msgf("update node '%s' labels (ceph roles)", nodeName)
-		lcmcommon.ShowObjectDiff(*c.log, node.Labels, newLabels)
-		node.Labels = newLabels
-		_, err = c.api.Kubeclientset.CoreV1().Nodes().Update(c.context, node, metav1.UpdateOptions{})
-		if err != nil {
-			return false, errors.Wrapf(err, "failed to update '%s' node labels", nodeName)
-		}
-	}
-	return updateLabels, nil
-}
-
-func (c *cephDeploymentConfig) annotateNodes(annotations map[string]string, nodeName string) (bool, error) {
-	node, err := c.api.Kubeclientset.CoreV1().Nodes().Get(c.context, nodeName, metav1.GetOptions{})
-	if err != nil {
-		return false, errors.Wrapf(err, "failed to get '%s' node", nodeName)
-	}
+func (c *cephDeploymentConfig) annotateNode(annotations map[string]string, node v1.Node) (bool, error) {
 	newAnnotations, updateAnnotations := buildCephNodeAnnotations(node.Annotations, annotations)
 	if updateAnnotations {
-		c.log.Info().Msgf("update node '%s' annotations", nodeName)
+		c.log.Info().Msgf("update node '%s' annotations", node.Name)
 		lcmcommon.ShowObjectDiff(*c.log, node.Annotations, newAnnotations)
 		node.Annotations = newAnnotations
-		_, err = c.api.Kubeclientset.CoreV1().Nodes().Update(c.context, node, metav1.UpdateOptions{})
-		if err != nil {
-			return false, errors.Wrapf(err, "failed to update '%s' node annotations", nodeName)
+		if _, err := c.api.Kubeclientset.CoreV1().Nodes().Update(c.context, &node, metav1.UpdateOptions{}); err != nil {
+			return false, errors.Wrapf(err, "failed to update '%s' node annotations", node.Name)
 		}
 	}
 	return updateAnnotations, nil
 }
 
-func (c *cephDeploymentConfig) addTopology(nodeName string, crush map[string]string) (bool, error) {
-	node, err := c.api.Kubeclientset.CoreV1().Nodes().Get(c.context, nodeName, metav1.GetOptions{})
-	if err != nil {
-		return false, errors.Wrapf(err, "failed to get '%s' node", nodeName)
-	}
-	updateLabels := false
-	oldLabels := map[string]string{}
-	if len(node.Labels) > 0 { // len check to avoid nil for map
-		for k, v := range node.Labels {
-			oldLabels[k] = v
-		}
-	}
-	var key string
-
-	isError := false
-	for crushroot, crushtopology := range crush {
-		if key = crushTopologyAllowedKeys[crushroot]; key == "" {
-			c.log.Error().Msgf("crush topology label not specified for '%s' node: crushroot '%s' is invalid", nodeName, crushroot)
-			isError = true
-			continue
-		}
-		if _, ok := node.Labels[key]; !ok {
-			updateLabels = true
+func buildNodeLabels(currentLables map[string]string, nodeRoles []string, newNodeTopology map[string]string) (map[string]string, bool) {
+	newLabels, updatedLabels := lcmcommon.BuildCephNodeLabels(currentLables, nodeRoles)
+	for crushroot, crushtopology := range newNodeTopology {
+		topology := crushTopologyAllowedKeys[crushroot]
+		currentTopology, present := newLabels[topology]
+		// for AWS topology.kubernetes.io labels may be used w/o ceph
+		// so need to previous value to have an ability to restore it
+		// in case of dropping node from ceph cluster
+		if !present {
 			if isKubeCrush(crushroot) {
-				node.Labels[fmt.Sprintf(cephKubeTopologyLabelTemplate, key)] = crushtopology
+				newLabels[fmt.Sprintf(cephKubeTopologyLabelTemplate, topology)] = ""
 			}
-			node.Labels[key] = crushtopology
-			c.log.Info().Msgf("add label '%s=%s' on %s", key, crushtopology, node.Name)
-		} else if node.Labels[key] != crushtopology {
-			updateLabels = true
-			origLabel := node.Labels[key]
+			newLabels[topology] = crushtopology
+			updatedLabels = true
+		} else {
 			if isKubeCrush(crushroot) {
-				node.Labels[fmt.Sprintf(cephKubeTopologyLabelTemplate, key)] = origLabel
+				_, ok := newLabels[fmt.Sprintf(cephKubeTopologyLabelTemplate, topology)]
+				// if we dont have prev topology, topology set initially not by our controller, so keep it
+				if !ok {
+					newLabels[fmt.Sprintf(cephKubeTopologyLabelTemplate, topology)] = currentTopology
+					updatedLabels = true
+				}
 			}
-			node.Labels[key] = crushtopology
-			c.log.Info().Msgf("change label '%s' from '%s' to '%s' on %s", key, origLabel, crushtopology, node.Name)
-		} else if _, ok = node.Labels[fmt.Sprintf(cephKubeTopologyLabelTemplate, key)]; !ok && isKubeCrush(crushroot) {
-			node.Labels[fmt.Sprintf(cephKubeTopologyLabelTemplate, key)] = crushtopology
+			if currentTopology != crushtopology {
+				newLabels[topology] = crushtopology
+				updatedLabels = true
+			}
 		}
-	}
-	if isError {
-		return false, errors.Errorf("crush topology labels do not changed due to error(s) found in node '%s' crush section", nodeName)
 	}
 	// remove obsolete crush topology labels
 	for allowedKey, topologyPath := range crushTopologyAllowedKeys {
-		if v, ok := crush[allowedKey]; ok && v != "" {
+		if _, ok := newNodeTopology[allowedKey]; ok {
 			continue
 		}
-		actualValue, found := node.Labels[topologyPath]
-
-		var originalValue string
-		allowed := true
-		if isKubeCrush(allowedKey) {
-			originalValue, allowed = node.Labels[fmt.Sprintf(cephKubeTopologyLabelTemplate, topologyPath)]
-		}
-		if found && allowed {
+		if _, ok := newLabels[topologyPath]; ok {
 			if isKubeCrush(allowedKey) {
-				if actualValue != originalValue {
-					node.Labels[topologyPath] = originalValue
-				} else {
-					delete(node.Labels, topologyPath)
+				prevKey := fmt.Sprintf(cephKubeTopologyLabelTemplate, topologyPath)
+				originalValue, exist := newLabels[prevKey]
+				if !exist {
+					// if no prev value - means controller not set it ever, keep it
+					continue
 				}
-				delete(node.Labels, fmt.Sprintf(cephKubeTopologyLabelTemplate, topologyPath))
+				// if prev value is empty - it is only ceph topology, otherwise set it back
+				if originalValue == "" {
+					delete(newLabels, topologyPath)
+				} else {
+					newLabels[topologyPath] = originalValue
+				}
+				delete(newLabels, prevKey)
 			} else {
-				delete(node.Labels, topologyPath)
+				delete(newLabels, topologyPath)
 			}
-			updateLabels = true
+			updatedLabels = true
 		}
 	}
-	if updateLabels {
-		c.log.Info().Msgf("update node '%s' crush topology labels", nodeName)
-		lcmcommon.ShowObjectDiff(*c.log, oldLabels, node.Labels)
-		_, err := c.api.Kubeclientset.CoreV1().Nodes().Update(c.context, node, metav1.UpdateOptions{})
-		if err != nil {
-			return false, errors.Wrapf(err, "failed to update '%s' node crush topology labels", nodeName)
-		}
-	}
-	return updateLabels, nil
+	return newLabels, updatedLabels
 }
