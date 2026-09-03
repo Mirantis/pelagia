@@ -1,6 +1,6 @@
 testSettings:
   namespace: ${TEST_NAMESPACE}
-  keepAfter: true
+  keepAfter: false
   caseSettings:
   - name: TestExternalCephCluster
     config:
