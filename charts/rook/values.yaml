@@ -4,26 +4,26 @@ global:
 images:
   operator:
     repository: pelagia/rook
-    tag: v1.20.3-4
+    tag: v1.20.3-5
   csi:
     ceph:
       repository: pelagia/cephcsi
-      tag: v3.17.0-2.release
+      tag: v3.17.0-3.release
     registrar:
       repository: pelagia/cephcsi-registrar
-      tag: v2.17.0-2.release
+      tag: v2.17.0-3.release
     provisioner:
       repository: pelagia/cephcsi-provisioner
-      tag: v6.2.0-2.release
+      tag: v6.2.0-3.release
     snapshotter:
       repository: pelagia/cephcsi-snapshotter
-      tag: v8.5.0-6.release
+      tag: v8.5.0-7.cve
     attacher:
       repository: pelagia/cephcsi-attacher
-      tag: v4.12.0-2.release
+      tag: v4.12.0-3.release
     resizer:
       repository: pelagia/cephcsi-resizer
-      tag: v2.1.0-6.release
+      tag: v2.1.0-7.cve
 
 rookConfig:
   rookNamespace: rook-ceph
