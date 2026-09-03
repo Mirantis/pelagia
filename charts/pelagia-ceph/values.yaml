@@ -57,7 +57,7 @@ lcmConfig:
   gatewayNamespace: ""
   # useIngress used only for backward compatibility with ingress deprecation
   # if no ingress required - set to false
-  useIngress: true
+  useIngress: false
 
 controllers:
   securityContext:
