@@ -224,14 +224,14 @@ func TestValidateNodesSpec(t *testing.T) {
 				},
 			},
 			expectedIssues: []string{
+				"config parameter 'deviceClass' is not specified for nodes item node 'node-7', but it is required",
+				"failed to parse config parameter 'osdsPerDevice' from nodes item node 'node-6': strconv.Atoi: parsing \"aas\": invalid syntax",
 				"found 'useAllDevices' field for nodes item node 'node-1', which is not supported, remove field",
 				"found 'volumeClaimTemplates' field for nodes item node 'node-2', which is not supported, remove field",
-				"nodes item nodeGroup 'node-group-1' contains invalid crush topology key 'fake'. Valid are: chassis, datacenter, pdu, pod, rack, region, room, row, zone",
-				"nodes item nodeGroup 'node-group-1' contains empty crush topology key 'rack': must be non-empty",
-				"failed to parse config parameter 'osdsPerDevice' from nodes item node 'node-6': strconv.Atoi: parsing \"aas\": invalid syntax",
-				"config parameter 'deviceClass' is not specified for nodes item node 'node-7', but it is required",
-				"no nodes with 'mon' roles specified",
 				"no nodes with 'mgr' roles specified, required at least one",
+				"no nodes with 'mon' roles specified",
+				"nodes item nodeGroup 'node-group-1' contains empty crush topology key 'rack': must be non-empty",
+				"nodes item nodeGroup 'node-group-1' contains invalid crush topology key 'fake'. Valid are: chassis, datacenter, pdu, pod, rack, region, room, row, zone",
 			},
 		},
 		{
@@ -291,10 +291,10 @@ func TestValidateNodesSpec(t *testing.T) {
 				},
 			},
 			expectedIssues: []string{
-				"failed to parse config parameter 'osdsPerDevice' for device 'sdb' from node 'node-1': strconv.Atoi: parsing \"ss\": invalid syntax",
 				"config parameter 'deviceClass' is not specified for device 'sdb' from nodes item node 'node-1', but it is required",
-				"nodes item nodeGroup 'labeled-nodes' has device without name or fullpath specified",
+				"failed to parse config parameter 'osdsPerDevice' for device 'sdb' from node 'node-1': strconv.Atoi: parsing \"ss\": invalid syntax",
 				"monitor nodes in spec (with roles 'mon') count is 2, but should be odd for a healthy quorum",
+				"nodes item nodeGroup 'labeled-nodes' has device without name or fullpath specified",
 			},
 		},
 		{
