@@ -260,6 +260,9 @@ func validateNodesSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesListExpande
 	if mgrCount == 0 {
 		errMsgs = append(errMsgs, "no nodes with 'mgr' roles specified, required at least one")
 	}
+	if len(errMsgs) > 0 {
+		sort.Strings(errMsgs)
+	}
 	return errMsgs
 }
 
