@@ -149,10 +149,13 @@ rules:
   - apiGroups: [networking.k8s.io]
     resources: [networkpolicies]
     verbs: [list, get, create, update, delete]
-  {{- if (.Values.lcmConfig.useIngress) }}
   - apiGroups: [networking.k8s.io]
     resources: [ingresses]
+  # keep list and delete for cleanup
+  {{- if (.Values.lcmConfig.useIngress) }}
     verbs: [list, get, create, update, delete]
+  {{- else }}
+    verbs: [list, delete]
   {{- end }}
   # permissions for ceph-csi-operator resources
   - apiGroups: ["csi.ceph.io"]
