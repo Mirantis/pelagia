@@ -344,7 +344,7 @@ func TestValidationFailure(t *testing.T) {
 	expectedMsg := []string{
 		"cluster network address ranges public parameter should not be empty or contain range 0.0.0.0",
 		"cluster network addressRanges cluster parameter not specified",
-		fmt.Sprintf("nodes item node '%s' contains invalid crush topology key 'datcentr'. Valid are: chassis, datacenter, pdu, rack, region, room, row, zone", nodeNameToCheck),
+		fmt.Sprintf("nodes item node '%s' contains invalid crush topology key 'datcentr'. Valid are: chassis, datacenter, pdu, pod, rack, region, room, row, zone", nodeNameToCheck),
 		fmt.Sprintf("failed to parse config parameter 'osdsPerDevice' for device '%s' from node '%s': strconv.Atoi: parsing \"fake\": invalid syntax", deviceNameToCheck, nodeNameToCheck),
 		fmt.Sprintf("monitor nodes in spec (with roles 'mon') count is %d, but should be odd for a healthy quorum", monCnt),
 		fmt.Sprintf("%s pool should be either replicated or erasureCoded", poolName),
