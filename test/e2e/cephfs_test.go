@@ -587,6 +587,11 @@ func TestCephFSManila(t *testing.T) {
 	} else {
 		cd.Spec.SharedFilesystem = &cephlcmv1alpha1.CephSharedFilesystem{Filesystems: []cephlcmv1alpha1.CephFilesystem{cephFS}}
 	}
+	for idx := range cd.Spec.Nodes {
+		if lcmcommon.Contains(cd.Spec.Nodes[idx].Roles, "mon") && !lcmcommon.Contains(cd.Spec.Nodes[idx].Roles, "mds") {
+			cd.Spec.Nodes[idx].Roles = append(cd.Spec.Nodes[idx].Roles, "mds")
+		}
+	}
 	f.Step(t, "update CephDeployment with Manila CephFS changes")
 	err = f.UpdateCephDeploymentSpec(cd, true)
 	if err != nil {
