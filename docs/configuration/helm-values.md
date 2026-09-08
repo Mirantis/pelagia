@@ -27,6 +27,17 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `cephDeployment.openstackSharedNamespace` | Namespace for the Openstack-Ceph communication and secrets sharing. | `"openstack-ceph-shared"` |
 | `cephDeployment.drainRequestLabelKey` | Label key marking a node as drained. | `""` |
 | `cephDeployment.drainReadyLabelKey` | Label key marking a node as ready to be drained. | `""` |
+| `cephDeployment.csi.manage` | Enable CSI resources management by Pelagia controller, such as CSI Drivers, OperatorConfig. | `true` |
+| `cephDeployment.csi.keepExisting` | When enabled all existing CSI Drivers and OperatorConfig resources will not be changed by Pelagia. | `true` |
+| `cephDeployment.csi.kubeletPath` | Path to kubelet on a host. | `"/var/lib/kubelet"` |
+| `cephDeployment.csi.defaultDriversCreate.rbd` | Create default CSI Driver for RBD if not specified in `CephDeployment` spec. | `true` |
+| `cephDeployment.csi.defaultDriversCreate.cephfs` | Create default CSI Driver for CephFS if not specified in `CephDeployment` spec. | `true` |
+| `cephDeployment.csi.defaultDriversCreate.nfs` | Create default CSI Driver for NFS if not specified in `CephDeployment` spec. | `false` |
+| `cephDeployment.csi.placement.nodeAffinity.controllerPlugin` | Node affinity settings for CSI Controller plugin deployment (ex. provisioner) | `""` |
+| `cephDeployment.csi.placement.nodeAffinity.nodePlugin` | Node affinity settings for CSI plugins. | `"ceph-daemonset-available-node=true"` |
+| `cephDeployment.csi.placement.tolerations.controllerPlugin` | Toleration settings for CSI Controller plugin deployment (ex. provisioner) | `""` |
+| `cephDeployment.csi.placement.tolerations.nodePlugin` | Toleration settings for CSI plugins. | `""` |
+| `cephDeployment.csi.addons` | Deploy CSI addons. | `false` |
 | `lcmConfig.rookNamespace` | Rook namespace name used across the Pelagia deployment. | `"rook-ceph"` |
 | `lcmConfig.rgwPublicAccessServiceSelector` | Label of the service or proxy exposing RGW to public access. | `"external_access=rgw"` |
 | `lcmConfig.diskDaemonPortParameter` | Port for the disk daemon API. | `9999` |
@@ -35,7 +46,7 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `lcmConfig.gatewayAPIEnabled` | Enable usage of the Gateway API. | `true` |
 | `lcmConfig.gatewayName` | Name of the `Gateway` object used by default. When `gatewayName` and/or `gatewayNamespace` is left empty, the controller falls back to the `lcmConfig` default `app-gateway` name and `openstack` namespace respectively. | `""` |
 | `lcmConfig.gatewayNamespace` | Namespace of the `Gateway` object used by default. | `""` |
-| `lcmConfig.useIngress` | Deprecated. Enable support for Ingress usage. Will be removed in the following release due to [Ingress deprecation](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/). | `true` |
+| `lcmConfig.useIngress` | Deprecated. Enable support for Ingress usage. Will be removed in the following release due to [Ingress deprecation](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/). | `false` |
 | `controllers.cephdeployment.replicas` | Replica count for Pelagia deployment controllers. | `3` |
 | `controllers.lcm.replicas` | Replica count for Pelagia LCM controllers. | `3` |
 | `cephRelease` | Pin the Ceph release for the current setup. If empty, uses the latest available release for the current version. | `""` |
@@ -45,21 +56,17 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `rook.rookConfig.rookOperatorPlacement.affinity` | Affinity settings for the Rook Operator placement. | `{"nodeAffinity": {"preferredDuringSchedulingIgnoredDuringExecution": [{"weight": 100, "preference": {"matchExpressions": [{"key": "ceph_role_mon","operator": "In","values": ["true"]}]}}]}}` |
 | `rook.rookConfig.rookOperatorPlacement.nodeSelector` | Node selector for the Rook Operator placement. | `{}` |
 | `rook.rookConfig.rookOperatorPlacement.tolerations` | Toleration settings for the Rook Operator placement. | `[]` |
-| `rook.rookConfig.csiPlacement.nodeAffinity.csiprovisioner` | Node affinity settings for CSI provisioner. | `""` |
-| `rook.rookConfig.csiPlacement.nodeAffinity.csiplugin` | Node affinity settings for CSI plugins. | `"ceph-daemonset-available-node=true"` |
-| `rook.rookConfig.csiPlacement.tolerations.csiprovisioner` | Toleration settings for CSI provisioner. | `""` |
-| `rook.rookConfig.csiPlacement.tolerations.csiplugin` | Toleration settings for CSI plugins. | `""` |
 | `rook.rookConfig.rookDiscoverPlacement.nodeAffinity` | Node affinity settings for the `rook-discover` daemon. | `"ceph-daemonset-available-node=true;ceph_role_osd=true"` |
 | `rook.rookConfig.rookDiscoverPlacement.tolerations` | Toleration settings for the `rook-discover` daemon. | `""` |
-| `rook.rookConfig.csiKubeletPath` | Path to kubelet on a host. | `""` |
-| `rook.rookConfig.csiCephFsEnabled` | Enable CephFS support in Rook. | `true` |
-| `rook.rookConfig.csiNfsEnabled` | Enable NFS support in Rook. | `false` |
-| `rook.rookConfig.csiAddonsEnabled` | Enable CSI add-ons support in Rook. | `false` |
 | `rook.rookConfig.volumeSnapshotsEnabled` | Enable volume snapshot classes support in Rook. | `false` |
 | `ceph-csi-operator.enabled` | Enable the `ceph-csi-operator` deployment. For available `ceph-csi-operator` options, see [values.yaml](https://github.com/Mirantis/pelagia/blob/main/charts/ceph-csi-operator/values.yaml). | `true` |
 | `ceph-csi-operator.csiOperatorConfig.rookNamespace` | Rook namespace. By default, inherited from the `lcmConfig.rookNamespace` value defined in the main Pelagia chart. | `"rook-ceph"` |
 | `ceph-csi-operator.csiOperatorConfig.placement.affinity` | Affinity settings for the `ceph-csi-operator` deployment placement. | `{}` |
 | `ceph-csi-operator.csiOperatorConfig.placement.tolerations` | Tolerations for the `ceph-csi-operator` deployment to enable running on nodes with particular taints. | `[]` |
+| `ceph-csi-operator.csiDriversRBAC.rbd` | Create all RBAC resources for CSI RBD plugin. | `true` |
+| `ceph-csi-operator.csiDriversRBAC.cephfs` | Create all RBAC resources for CSI CephFS plugin. | `true` |
+| `ceph-csi-operator.csiDriversRBAC.nfs` | Create all RBAC resources for CSI NFS plugin. | `true` |
+| `ceph-csi-operator.csiDriversRBAC.nvmeof` | Create all RBAC resources for CSI NVMEoF plugin. | `true` |
 | `snapshot-controller.enabled` | Enable the `snapshot-controller` deployment. For available `snapshot-controller` options, see [values.yaml](https://github.com/Mirantis/pelagia/blob/main/charts/snapshot-controller/values.yaml). | `true` |
 | `snapshot-controller.snapshotControllerConfig.affinity` | Affinity settings for the `snapshot-controller` placement. | `{}` |
 | `snapshot-controller.snapshotControllerConfig.nodeSelector` | Node selector for the `snapshot-controller` deployment to run on nodes with specific labels. | `{}` |
@@ -94,10 +101,8 @@ ceph-csi-operator:
         operator: Exists
 rook:
   rookConfig:
-    csiCephFsEnabled: false
-    csiPlacement:
-      tolerations:
-        csiplugin: |
+    rookDiscoverPlacement:
+      tolerations: |
         - effect: NoSchedule
           key: node-role.kubernetes.io/controlplane
           operator: Exists
