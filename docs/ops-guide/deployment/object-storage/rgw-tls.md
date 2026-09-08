@@ -95,8 +95,7 @@ For API reference, see [CephDeployment API: HTTPRoute parameters](../../../custo
 Controllers, so you must deploy the Ingress Controller before configuring the `ingressConfig` section in the
 `CephDeployment` CR.
 
-For Pelagia integrated with Rockoon, the default Ingress Controller has `openstack-ingress-nginx` class name and Ceph
-uses the Rockoon OpenStack Ingress Controller based on NGINX.
+Due to the NGINX Ingress retirement, Pelagia integrated with Rockoon uses Envoy Proxy by default on newly deployed clusters. On existing clusters, disable ingress as described in [Upgrade notes](../../../upgrade-guide/upgrade-notes.md#upgrade-notes-post-upgrade-steps).
 
 ### The `annotations` parameter
 

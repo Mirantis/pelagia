@@ -32,7 +32,7 @@ The following Pelagia controller options are set in [Pelagia Helm chart values](
 | GATEWAY_BASE_NAME | Name of the `Gateway` object used by default. | `"app-gateway"` | `lcmConfig.gatewayName` |
 | GATEWAY_BASE_NAMESPACE | Namespace of the `Gateway` object used by default. | `"openstack"` | `lcmConfig.gatewayNamespace` |
 | RGW_PUBLIC_ACCESS_SERVICE_SELECTOR | Label of the service or proxy exposing RGW to public access. | `"external_access=rgw"` | `lcmConfig.rgwPublicAccessServiceSelector` |
-| KEEP_INGRESS | Deprecated. Enable support for Ingress usage. Will be removed in the following release due to [Ingress deprecation](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/). | `true` | `lcmConfig.useIngress` |
+| KEEP_INGRESS | Deprecated. Enable support for Ingress usage. Will be removed in the following release due to [NGINX Ingress retirement](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/). | `true` | `lcmConfig.useIngress` |
 | DEPLOYMENT_CEPH_RELEASE | Pin the Ceph release for the current setup. If empty, uses the latest available release for the current version. | `""` | `cephRelease` |
 | DEPLOYMENT_NETPOL_ENABLED | Enable creation of network policy. | `"true"` | `cephDeployment.netpolEnabled` |
 | DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE | Namespace for the Openstack-Ceph communication and secrets sharing. | `"openstack-ceph-shared"` | `cephDeployment.openstackSharedNamespace` |

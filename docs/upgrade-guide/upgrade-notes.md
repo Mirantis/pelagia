@@ -47,7 +47,7 @@ For Pelagia release notes, refer to [Pelagia Releases](https://github.com/Mirant
 
 * Gateway API support.
 
-    Ingress NGINX controller is [deprecated](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/), but
+    NGINX Ingress controller is [deprecated](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/), but
     continues operating after Pelagia upgrade.
     However, its support will be removed in following release. Therefore, consider switching to the Gateway API after upgrade.
     For details, see the post-upgrade steps below.
@@ -57,6 +57,8 @@ For Pelagia release notes, refer to [Pelagia Releases](https://github.com/Mirant
 In this release, the Rook setup is moved to a separate chart and is used as a dependency in Pelagia. Therefore, if your current setup
 contains custom settings in `values.rookConfig` for the Helm chart, copy them under `values.rook.rookConfig`.
 Keep the old `values.rookConfig` settings until the upgrade is complete.
+
+<a id="upgrade-notes-post-upgrade-steps"></a>
 
 ## Post-upgrade steps
 
@@ -68,7 +70,7 @@ of the changes that require these steps, see the *Breaking changes* section abov
    This enables a more flexible configuration.
    For details, see [Rook documentation: Hosting Settings](https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-crd/#hosting-settings).
 3. Switch to the [Gateway API](https://gateway-api.sigs.k8s.io/guides/getting-started/introduction/) due to
-   the deprecation of the Ingress NGINX controller. The `Gateway` object and Controller must be configured separately.
+   the deprecation of the NGINX Ingress controller. The `Gateway` object and Controller must be configured separately.
 
      To configure Pelagia after switching to the Gateway API, use the corresponding `Gateway` object.
      For details, see [Configuration Reference](../configuration/index.md) and [CephDeployment resource](../custom-resources/cephdeployment.md).
