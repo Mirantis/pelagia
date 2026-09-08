@@ -223,7 +223,7 @@ Using both the old and new locations simultaneously causes a reconciliation fail
 - `pools` - Specifies the list of Ceph pools. Automatically migrated to `blockStorage.pools` during `CephDeployment` reconciliation.
 - `ingressConfig` - Enables a custom ingress rule for public access to Ceph services, for example, Ceph RADOS Gateway. For details, see [Configure Ceph Object Gateway TLS](../ops-guide/deployment/object-storage/rgw-tls.md#rgw-tls-configure-ceph-object-gateway-tls).
 
-    Deprecated in favor of `objectStorage.gatewayHTTPRoutes` due to [Ingress deprecation](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/).
+    Deprecated in favor of `objectStorage.gatewayHTTPRoutes` due to [NGINX Ingress retirement](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/).
 
 <a name="cephdeployment-nodes-parameters"></a>
 ### Nodes parameters
