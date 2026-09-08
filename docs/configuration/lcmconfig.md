@@ -32,13 +32,24 @@ The following Pelagia controller options are set in [Pelagia Helm chart values](
 | GATEWAY_BASE_NAME | Name of the `Gateway` object used by default. | `"app-gateway"` | `lcmConfig.gatewayName` |
 | GATEWAY_BASE_NAMESPACE | Namespace of the `Gateway` object used by default. | `"openstack"` | `lcmConfig.gatewayNamespace` |
 | RGW_PUBLIC_ACCESS_SERVICE_SELECTOR | Label of the service or proxy exposing RGW to public access. | `"external_access=rgw"` | `lcmConfig.rgwPublicAccessServiceSelector` |
-| KEEP_INGRESS | Deprecated. Enable support for Ingress usage. Will be removed in the following release due to [Ingress deprecation](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/). | `true` | `lcmConfig.useIngress` |
+| KEEP_INGRESS | Deprecated. Enable support for Ingress usage. Will be removed in the following release due to [Ingress deprecation](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/). | `false` | `lcmConfig.useIngress` |
 | DEPLOYMENT_CEPH_RELEASE | Pin the Ceph release for the current setup. If empty, uses the latest available release for the current version. | `""` | `cephRelease` |
 | DEPLOYMENT_NETPOL_ENABLED | Enable creation of network policy. | `"true"` | `cephDeployment.netpolEnabled` |
 | DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE | Namespace for the Openstack-Ceph communication and secrets sharing. | `"openstack-ceph-shared"` | `cephDeployment.openstackSharedNamespace` |
 | DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS | Label for nodes where no Ceph daemons must be scheduled. | `""` | `lcmConfig.cephDaemonsetLabelExclude` |
 | DEPLOYMENT_DRAIN_REQUEST_LABEL_KEY | Label key marking a node as drained. | `"kaas.mirantis.com/lcm-drained"` | `"cephDeployment.drainRequestLabelKey"` |
 | DEPLOYMENT_DRAIN_READY_LABEL_KEY | Label key marking a node as drain ready. | `"kaas.mirantis.com/csi-drained"` | `"cephDeployment.drainReadyLabelKey"` |
+| DEPLOYMENT_CSI_DRIVERS_MANAGE | Enable CSI resources management by Pelagia controller, such as CSI Drivers, OperatorConfig. | `"true"` | `"cephDeployment.csi.manage"` |
+| DEPLOYMENT_CSI_RBD_DEFAULT_DRIVER_CREATE | Create default CSI Driver for RBD if not specified in `CephDeployment` spec. | `"true"` | `"cephDeployment.csi.defaultDriversCreate.rbd"` |
+| DEPLOYMENT_CSI_CEPHFS_DEFAULT_DRIVER_CREATE | Create default CSI Driver for CephFS if not specified in `CephDeployment` spec. | `"true"` | `"cephDeployment.csi.defaultDriversCreate.cephfs"` |
+| DEPLOYMENT_CSI_NFS_DEFAULT_DRIVER_CREATE | Create default CSI Driver for NFS if not specified in `CephDeployment` spec. | `"false"` | `"cephDeployment.csi.defaultDriversCreate.nfs"` |
+| DEPLOYMENT_CSI_KEEP_EXISTING | When enabled all existing CSI Drivers and OperatorConfig resources will not be changed by Pelagia. | `"true"` | `"cephDeployment.csi.keepExisting"` |
+| DEPLOYMENT_CSI_KUBELET_PATH | Path to kubelet on a host. | `"/var/lib/kubelet"` | | `"cephDeployment.csi.kubeletPath"` |
+| DEPLOYMENT_CSI_ENABLE_CSIADDONS | Deploy CSI addons. | `false` | `cephDeployment.csi.addons` |
+| DEPLOYMENT_CSI_CONTROLLER_PLUGIN_NODEAFFINITY | Node affinity settings for CSI Controller plugin deployment (ex. provisioner) | `"" | `cephDeployment.csi.placement.nodeAffinity.controllerPlugin` |
+| DEPLOYMENT_CSI_CONTROLLER_PLUGIN_TOLERATIONS | Toleration settings for CSI Controller plugin deployment (ex. provisioner) | `""` | `cephDeployment.csi.placement.tolerations.controllerPlugin` |
+| DEPLOYMENT_CSI_NODE_PLUGIN_NODEAFFINITY | Node affinity settings for CSI plugins. | `""` | `cephDeployment.csi.placement.nodeAffinity.nodePlugin` |
+| DEPLOYMENT_CSI_NODE_PLUGIN_TOLERATIONS | Toleration settings for CSI plugins. | `""` | `cephDeployment.csi.placement.tolerations.nodePlugin` |
 
 The `DEPLOYMENT_CEPH_IMAGE` and `DEPLOYMENT_ROOK_IMAGE` options are derived from the values of the `images` section.
 For details, see [Configuration example for Ceph and Rook images](./helm-values.md) during chart update.

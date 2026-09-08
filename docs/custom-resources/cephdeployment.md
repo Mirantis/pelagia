@@ -204,6 +204,7 @@ advanced configuration.
 - `rbdMirror` - Specifies the parameters for RBD mirroring. For details, see [RBD Mirroring parameters](./cephdeployment.md#cephdeployment-rbd-mirroring-parameters).
 - `rookConfig` - Specifies the string key-value that allows overriding Ceph configuration options. For details, see [RookConfig parameters](./cephdeployment.md#cephdeployment-rookconfig-parameters).
 - `sharedFilesystem` - Enables Ceph Filesystem. For details, see [CephFS parameters](./cephdeployment.md#cephdeployment-cephfs-parameters).
+- `csi` - Manages CSI resources, such as Drivers and OperatorConfig. For details, see [CSI parameters](./cephdeployment.md#cephdeployment-csi-parameters).
 
 **Deprecated top-level parameters migrated under `cluster`**
 
@@ -871,6 +872,20 @@ spec:
      - `token` - Token to be used by one site (Ceph cluster) to pull images from another site.
        To obtain the token, use the `rbd mirror pool peer bootstrap create` command.
      - `pools` - Optional. A list of pool names to mirror.
+
+<a name="cephdeployment-csi-parameters"></a>
+### CSI parameters
+
+- `operatorConfig` - Optional. Represents the CSI `OperatorConfig` specification:
+
+    - `fullOverride` - Optional. Fully override present on env `OperatorConfig` resource with provided spec.
+    - `spec` - Represents [`OperatorConfig` API specification](https://github.com/ceph/ceph-csi-operator/blob/v1.0.4/docs/design/operator.md#operatorconfig-crd).
+
+- `drivers` - Optional. Contains list of CSI `Driver` resources.
+
+    - `fullOverride` - Optional. Fully override present on env `Driver` resource with provided spec.
+    - `type` - Driver type, could be one of nvmeof, rbd, cephfs, nfs. Must be specified.
+    - `spec` - Represent the CSI [`Driver` specification](https://github.com/ceph/ceph-csi-operator/blob/v1.0.4/docs/design/operator.md#driver-crd).
 
 <a name="cephdeployment-status-fields"></a>
 ## Status fields
