@@ -2,5 +2,5 @@
 
 # Upgrade
 
-This section provides information about Pelagia upgrades and
-possible steps required.
+This section provides Pelagia upgrade notes as well as required and optional
+upgrade steps, when available.

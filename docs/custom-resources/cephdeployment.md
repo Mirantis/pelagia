@@ -192,6 +192,7 @@ advanced configuration.
         ```
 
 - `blockStorage` - Specifies the Ceph block storage configuration. Contains the `pools` parameter that specifies the list of Ceph pools. For details, see [Pools parameters](./cephdeployment.md#cephdeployment-pools-parameters).
+- `csi` - Manages CSI resources such as drivers and OperatorConfig. For details, see [CSI parameters](./cephdeployment.md#cephdeployment-csi-parameters).
 - `clients` - Specifies the list of Ceph clients. For details, see [Clients parameters](./cephdeployment.md#cephdeployment-clients-parameters).
 - `extraOpts` - Enables specification of extra options for a Ceph cluster setup, includes the `deviceLabels` parameter. For details, see [ExtraOpts parameters](./cephdeployment.md#cephdeployment-extraopts-parameters).
 - `nodes` - Specifies the list of Ceph nodes with node specifications. Each list item can define a Ceph node specification for a single node or a group of nodes specified by an explicit list, a label, or a combination of both. For details, see [Nodes parameters](./cephdeployment.md#cephdeployment-nodes-parameters).
@@ -837,10 +838,26 @@ spec:
        To obtain the token, use the `rbd mirror pool peer bootstrap create` command.
      - `pools` - Optional. A list of pool names to mirror.
 
+<a name="cephdeployment-csi-parameters"></a>
+### CSI parameters
+
+The `csi` section applies only if CSI resources management is enabled in Helm values with `cephDeployment.csi.manage: true`, which is the default. Otherwise, Pelagia ignores this section.
+
+- `operatorConfig` - Optional. Represents the CSI `OperatorConfig` specification:
+
+    - `fullOverride` - Optional. Fully overrides the existing `OperatorConfig` resource with the provided spec. Otherwise, the spec is merged with the existing one.
+    - `spec` - Represents the CSI [OperatorConfig API specification](https://github.com/ceph/ceph-csi-operator/blob/v1.0.4/docs/design/operator.md#operatorconfig-crd).
+
+- `drivers` - Optional. Contains a list of CSI `Driver` resources.
+
+    - `fullOverride` - Optional. Fully overrides the existing `Driver` resource with the provided spec. Otherwise, the spec is merged with the existing one.
+    - `type` - Mandatory. Driver type. Allowed values: `nvmeof`, `rbd`, `cephfs`, or `nfs`.
+    - `spec` - Represents the CSI [Driver API specification](https://github.com/ceph/ceph-csi-operator/blob/v1.0.4/docs/design/operator.md#driver-crd).
+
 <a name="cephdeployment-status-fields"></a>
 ## Status fields
 
-- `phase` - Current handling phase of the applied Ceph cluster spec. Can equal to `Creating`, `Deploying`, `Validation`, `Ready`, `Deleting`, `OnHold` or `Failed`.
+- `phase` - Current handling phase of the applied Ceph cluster spec. Allowed values: `Creating`, `Deploying`, `Validation`, `Ready`, `Deleting`, `OnHold`, or `Failed`.
 - `message` - Detailed description of the current phase or an error message if the phase is `Failed`.
 - `lastRun` - `DateTime` of the previous spec reconciliation.
 - `clusterVersion` - Current Ceph cluster version, for example, `v19.2.3`.
