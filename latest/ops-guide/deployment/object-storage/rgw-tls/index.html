@@ -3795,8 +3795,7 @@ public domain as your OpenStack endpoints.</p>
 <p><code>controllerClassName</code> defines the name of the custom Ingress Controller. Pelagia does not support deploying Ingress
 Controllers, so you must deploy the Ingress Controller before configuring the <code>ingressConfig</code> section in the
 <code>CephDeployment</code> CR.</p>
-<p>For Pelagia integrated with Rockoon, the default Ingress Controller has <code>openstack-ingress-nginx</code> class name and Ceph
-uses the Rockoon OpenStack Ingress Controller based on NGINX.</p>
+<p>Due to the NGINX Ingress retirement, Pelagia integrated with Rockoon uses Envoy Proxy by default on newly deployed clusters. On existing clusters, disable ingress as described in <a href="../../../../upgrade-guide/upgrade-notes/#upgrade-notes-post-upgrade-steps">Upgrade notes</a>.</p>
 <h3 id="the-annotations-parameter">The <code>annotations</code> parameter<a class="headerlink" href="#the-annotations-parameter" title="Permanent link">#</a></h3>
 <p><code>annotations</code> parameter defines extra annotations for the ingress proxy that are a key-value mapping of strings
 to add or override ingress rule annotations. For details, see

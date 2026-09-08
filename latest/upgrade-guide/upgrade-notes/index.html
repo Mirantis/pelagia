@@ -3600,7 +3600,7 @@ Specifying plain SSL certificates directly in the <code>CephDeployment</code> sp
 </li>
 <li>
 <p>Gateway API support.</p>
-<p>Ingress NGINX controller is <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">deprecated</a>, but
+<p>NGINX Ingress controller is <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">deprecated</a>, but
 continues operating after Pelagia upgrade.
 However, its support will be removed in following release. Therefore, consider switching to the Gateway API after upgrade.
 For details, see the post-upgrade steps below.</p>
@@ -3610,6 +3610,7 @@ For details, see the post-upgrade steps below.</p>
 <p>In this release, the Rook setup is moved to a separate chart and is used as a dependency in Pelagia. Therefore, if your current setup
 contains custom settings in <code>values.rookConfig</code> for the Helm chart, copy them under <code>values.rook.rookConfig</code>.
 Keep the old <code>values.rookConfig</code> settings until the upgrade is complete.</p>
+<p><a id="upgrade-notes-post-upgrade-steps"></a></p>
 <h2 id="post-upgrade-steps">Post-upgrade steps<a class="headerlink" href="#post-upgrade-steps" title="Permanent link">#</a></h2>
 <p>Complete the following steps after upgrading Pelagia to 2.x. For description
 of the changes that require these steps, see the <em>Breaking changes</em> section above.</p>
@@ -3620,7 +3621,7 @@ of the changes that require these steps, see the <em>Breaking changes</em> secti
    For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-crd/#hosting-settings">Rook documentation: Hosting Settings</a>.</li>
 <li>
 <p>Switch to the <a href="https://gateway-api.sigs.k8s.io/guides/getting-started/introduction/">Gateway API</a> due to
-   the deprecation of the Ingress NGINX controller. The <code>Gateway</code> object and Controller must be configured separately.</p>
+   the deprecation of the NGINX Ingress controller. The <code>Gateway</code> object and Controller must be configured separately.</p>
 <p>To configure Pelagia after switching to the Gateway API, use the corresponding <code>Gateway</code> object.
  For details, see <a href="../../configuration/">Configuration Reference</a> and <a href="../../custom-resources/cephdeployment/">CephDeployment resource</a>.</p>
 <p>Once the Gateway API HTTPRoute is enrolled, disable Ingress in Helm values <code>lcmConfig.useIngress: false</code> and completely

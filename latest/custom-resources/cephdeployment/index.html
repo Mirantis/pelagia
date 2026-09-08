@@ -3975,7 +3975,7 @@ Using both the old and new locations simultaneously causes a reconciliation fail
 <li><code>pools</code> - Specifies the list of Ceph pools. Automatically migrated to <code>blockStorage.pools</code> during <code>CephDeployment</code> reconciliation.</li>
 <li>
 <p><code>ingressConfig</code> - Enables a custom ingress rule for public access to Ceph services, for example, Ceph RADOS Gateway. For details, see <a href="../../ops-guide/deployment/object-storage/rgw-tls/#rgw-tls-configure-ceph-object-gateway-tls">Configure Ceph Object Gateway TLS</a>.</p>
-<p>Deprecated in favor of <code>objectStorage.gatewayHTTPRoutes</code> due to <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">Ingress deprecation</a>.</p>
+<p>Deprecated in favor of <code>objectStorage.gatewayHTTPRoutes</code> due to <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">NGINX Ingress retirement</a>.</p>
 </li>
 </ul>
 <p><a name="cephdeployment-nodes-parameters"></a></p>
