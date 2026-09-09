@@ -32,7 +32,7 @@ kubectl -n pelagia get cephdeploymentmaintenance -o yaml
           app.kubernetes.io/managed-by: pelagia-deployment-controller
           app.kubernetes.io/part-of: ceph.pelagia.lcm
         name: rook-ceph
-        namespace: ceph-lcm-mirantis
+        namespace: pelagia
         ownerReferences:
         - apiVersion: lcm.mirantis.com/v1alpha1
           kind: CephDeployment

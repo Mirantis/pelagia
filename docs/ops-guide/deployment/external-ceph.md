@@ -144,14 +144,15 @@ status:
 3. On the producer cluster, generate the connection string:
 
      ```bash
-     kubectl -n <pelagiaNamespace> exec -it deploy/pelagia-deployment-controller -- sh
+     kubectl -n <producerPelagiaNamespace> exec -it deploy/pelagia-deployment-controller -- sh
      /usr/local/bin/pelagia-connector --rook-namespace <rookNamespace> --client-name <clientName> --use-rbd --use-cephfs --base64
      ```
 
      Substitute the following parameters:
 
-     - `rookNamespace` with Rook namespace
-     - `clientName` with the created Ceph non-admin client
+     - `<producerPelagiaNamespace>` with the Pelagia namespace on the producer cluster
+     - `<rookNamespace>` with Rook namespace
+     - `<clientName>` with the created Ceph non-admin client
 
      Example of system response:
      ```bash
