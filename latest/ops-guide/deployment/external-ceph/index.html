@@ -3765,13 +3765,14 @@ cluster, the Ceph client requires the following <code>caps</code> (permissions):
 </li>
 <li>
 <p>On the producer cluster, generate the connection string:</p>
-<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;pelagiaNamespace&gt;<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-deployment-controller<span class="w"> </span>--<span class="w"> </span>sh
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;producerPelagiaNamespace&gt;<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-deployment-controller<span class="w"> </span>--<span class="w"> </span>sh
 /usr/local/bin/pelagia-connector<span class="w"> </span>--rook-namespace<span class="w"> </span>&lt;rookNamespace&gt;<span class="w"> </span>--client-name<span class="w"> </span>&lt;clientName&gt;<span class="w"> </span>--use-rbd<span class="w"> </span>--use-cephfs<span class="w"> </span>--base64
 </code></pre></div>
 <p>Substitute the following parameters:</p>
 <ul>
-<li><code>rookNamespace</code> with Rook namespace</li>
-<li><code>clientName</code> with the created Ceph non-admin client</li>
+<li><code>&lt;producerPelagiaNamespace&gt;</code> with the Pelagia namespace on the producer cluster</li>
+<li><code>&lt;rookNamespace&gt;</code> with Rook namespace</li>
+<li><code>&lt;clientName&gt;</code> with the created Ceph non-admin client</li>
 </ul>
 <p>Example of system response:
  <div class="highlight"><pre><span></span><code><span class="nv">eyJjbGllbnRfbmFtZSI6ImFkbWluIiwiY2xpZW50X2tleXJpbmciOiJBUUJabW5kcE9HNkhMUkFBUFBQT0tQWkcxTEI0N2EwWmpLQ0t6dz09IiwiZnNpZCI6IjYzNDg1MzQwLWJkNzMtNDNiOS1iNWQyLTY5ZjQ0OTM4N2I3OSIsIm1vbl9lbmRwb2ludHNfbWFwIjoiYT0xMC4xMC4wLjE3OjY3ODksYj0xMC4xMC4wLjE3MDo2Nzg5LGM9MTAuMTAuMC4xMzY6Njc4OSIsInJnd19hZG1pbl9rZXlzIjp7ImFjY2Vzc0tleSI6IjJOVlVTM0xKMDMwTEMzUTE4TTY0Iiwic2VjcmV0S2V5Ijoia0FPU2l3Q2xEeWVpdHpiT3prbGlySEVqWlNBN0JVUnZ6dzh1RExIcCJ9fQ</span><span class="o">==</span>
