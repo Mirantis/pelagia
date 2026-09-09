@@ -3890,7 +3890,7 @@ openstack-store-openstack-route<span class="w">   </span><span class="o">[</span
 </li>
 <li>
 <p>Obtain the public Ceph Object Gateway endpoint address from the <code>CephDeploymentHealth</code> object:</p>
-<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>cdh<span class="w"> </span>-n<span class="w"> </span>ceph-lcm-mirantis<span class="w"> </span>cephcluster<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.status.healthReport.clusterDetails.rgwInfo}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>cdh<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>cephcluster<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.status.healthReport.clusterDetails.rgwInfo}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r
 <span class="o">{</span>
 <span class="w">  </span><span class="s2">&quot;publicEndpoints&quot;</span>:<span class="w"> </span><span class="o">{</span>
 <span class="w">    </span><span class="s2">&quot;openstack-store&quot;</span>:<span class="w"> </span><span class="o">[</span>
@@ -3901,7 +3901,6 @@ openstack-store-openstack-route<span class="w">   </span><span class="o">[</span
 </code></pre></div>
 <p>Substitute the following values in the command above:</p>
 <ul>
-<li><code>ceph-lcm-mirantis</code> with the namespace of your <code>CephDeployment</code> object</li>
 <li><code>cephcluster</code> with the name of your <code>CephDeployment</code> object</li>
 <li><code>openstack-store</code> with the name of your <code>CephObjectStore</code> object</li>
 </ul>
