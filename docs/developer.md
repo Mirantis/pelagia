@@ -30,7 +30,7 @@ need an environment with Pelagia installed. To be able to run E2E tests, the fol
 parameters must be specified:
 
 ```bash
-export TEST_NAMESPACE=ceph-lcm-mirantis
+export TEST_NAMESPACE=pelagia
 export KUBECONFIG=./kubeconfig
 export E2E_TESTCONFIG=cephfs.yaml
 ```
