@@ -75,7 +75,7 @@ The issue occurs due to the following upstream Ceph issues:
 
 Configure the `bluestore_slow_ops_warn` options as follows:
 ```bash
-kubectl -n ceph-lcm-mirantis edit cephdeployment
+kubectl -n pelagia edit cephdeployment
 ```
 
 ```yaml

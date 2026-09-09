@@ -14,7 +14,7 @@ To configure Ceph pools for Cinder multiple backends:
 
 1. In the `CephDeployment` CR, add the desired number of Ceph pools to the `pools` section with the `volumes` role:
    ```bash
-   kubectl -n ceph-lcm-mirantis edit cephdeployment
+   kubectl -n pelagia edit cephdeployment
    ```
 
      Example configuration:
