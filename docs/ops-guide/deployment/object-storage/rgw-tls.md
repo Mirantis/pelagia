@@ -200,7 +200,7 @@ With the provided `HTTPRoute`, Ceph Object Gateway will use the SSL certificate 
 6. Obtain the public Ceph Object Gateway endpoint address from the `CephDeploymentHealth` object:
 
     ```bash
-    kubectl get cdh -n ceph-lcm-mirantis cephcluster -o jsonpath='{.status.healthReport.clusterDetails.rgwInfo}' | jq -r
+    kubectl get cdh -n pelagia cephcluster -o jsonpath='{.status.healthReport.clusterDetails.rgwInfo}' | jq -r
     {
       "publicEndpoints": {
         "openstack-store": [
@@ -212,7 +212,6 @@ With the provided `HTTPRoute`, Ceph Object Gateway will use the SSL certificate 
 
     Substitute the following values in the command above:
 
-    - `ceph-lcm-mirantis` with the namespace of your `CephDeployment` object
     - `cephcluster` with the name of your `CephDeployment` object
     - `openstack-store` with the name of your `CephObjectStore` object
 
