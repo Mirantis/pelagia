@@ -130,8 +130,8 @@ images:
   ceph:
     repository: pelagia/ceph
     tag:
-      latest: &latestImageCeph v20.2.3-1.release
-      squid: v19.2.4-5.release
+      latest: &latestImageCeph v20.2.4-1.release
+      squid: v19.2.6-1.release
       tentacle: *latestImageCeph
 
 snapshot-controller:
