@@ -123,8 +123,23 @@ func (c *cephDeploymentConfig) ensureCluster() (bool, error) {
 
 	labelsUpdated := lcmcommon.AlignBaseLabels(*c.log, "CephCluster", &cephCluster.ObjectMeta, baseResourceLabels)
 	specUpdated := !reflect.DeepEqual(cephCluster.Spec, generatedClusterSpec)
+	// wait operator update cephdeployment after aes256k rollout during upgrade
+	if _, ok := cephCluster.Labels[aes256kApplied]; ok {
+		if cephCluster.Status.CephVersion != nil && cephCluster.Status.CephVersion.Image == cephCluster.Spec.CephVersion.Image {
+			if cephCluster.Status.Cephx.Mon.KeyCephVersion == cephCluster.Status.CephVersion.Version {
+				c.cdConfig.cephxConfigWithAes256k = &cephCluster.Spec.Security.CephX
+			}
+		}
+		if _, ok := c.cdConfig.cephDpl.Labels[aes256kApplied]; !ok {
+			c.log.Warn().Msgf("cephcluster '%s/%s' contains label '%s', waiting alignment CephDeployment with CephCluster on spec.security.cephx section, skipping any further updates",
+				c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Name, aes256kApplied)
+			return false, nil
+		}
+		delete(cephCluster.Labels, aes256kApplied)
+		labelsUpdated = true
+	}
 	if specUpdated || labelsUpdated {
-		c.log.Info().Msgf("updating cephcluster %s/%s", c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Name)
+		c.log.Info().Msgf("updating cephcluster '%s/%s'", c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Name)
 		if specUpdated {
 			lcmcommon.ShowObjectDiff(*c.log, cephCluster.Spec, generatedClusterSpec)
 			cephCluster.Spec = generatedClusterSpec

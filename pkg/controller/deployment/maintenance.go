@@ -17,15 +17,19 @@ limitations under the License.
 package deployment
 
 import (
+	"encoding/json"
 	"os"
 
 	"github.com/pkg/errors"
+	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v3/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
 )
 
@@ -125,4 +129,64 @@ func (c *cephDeploymentConfig) getOpenstackDeploymentStatus() (string, string, e
 
 func (c *cephDeploymentConfig) isMaintenanceActing() (bool, error) {
 	return lcmcommon.IsClusterMaintenanceActing(c.context, c.api.CephLcmclientset, c.cdConfig.cephDpl.Namespace, c.cdConfig.cephDpl.Name)
+}
+
+func (c *cephDeploymentConfig) alignSpecForAES256k() error {
+	if c.cdConfig.cephDpl.Spec.Cluster.Raw == nil {
+		return errors.New("spec.cluster does not contain raw CephCluster spec")
+	}
+	// go with map-interface to avoid empty structures marchalled from CephCluster CRD
+	var specMap map[string]interface{}
+	err := json.Unmarshal(c.cdConfig.cephDpl.Spec.Cluster.Raw, &specMap)
+	if err != nil {
+		return err
+	}
+	if s, ok := specMap["security"]; ok {
+		securityMap := s.(map[string]interface{})
+		securityMap["cephx"] = c.cdConfig.cephxConfigWithAes256k
+		specMap["security"] = securityMap
+	} else {
+		specMap["security"] = map[string]interface{}{"cephx": c.cdConfig.cephxConfigWithAes256k}
+	}
+	healthCheckMutes := map[string]cephv1.MuteHealthWarningSpec{
+		"AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE": {Policy: "mute"},
+		"AUTH_INSECURE_CLIENT_KEY_TYPE":           {Policy: "mute"},
+		"AUTH_INSECURE_KEYS_ALLOWED":              {Policy: "mute"},
+		"AUTH_INSECURE_KEYS_CREATABLE":            {Policy: "mute"},
+		"AUTH_EMERGENCY_CIPHERS_SET":              {Policy: "mute"},
+	}
+	if h, ok := specMap["healthCheck"]; ok {
+		healthMap := h.(map[string]interface{})
+		newMutes := map[string]interface{}{"muteHealthWarning": healthCheckMutes}
+		if _, ok := healthMap["muteHealthWarning"]; ok {
+			mutes := healthMap["muteHealthWarning"].(map[string]interface{})
+			for k, v := range healthCheckMutes {
+				mutes[k] = v
+			}
+			newMutes = mutes
+		}
+		healthMap["muteHealthWarning"] = newMutes
+		specMap["healthCheck"] = healthMap
+	} else {
+		specMap["healthCheck"] = map[string]interface{}{"muteHealthWarning": healthCheckMutes}
+	}
+	rawDataUpdated, err := cephlcmv1alpha1.DecodeStructToRaw(specMap)
+	if err != nil {
+		return errors.Wrap(err, "failed to update CephDeployment spec with updated aes256 config")
+	}
+	cdpl, getErr := c.api.CephLcmclientset.LcmV1alpha1().CephDeployments(c.cdConfig.cephDpl.Namespace).Get(c.context, c.cdConfig.cephDpl.Name, metav1.GetOptions{})
+	if getErr != nil {
+		return errors.Wrapf(getErr, "failed to get CephDeployment for update")
+	}
+	if cdpl.Labels == nil {
+		cdpl.Labels = map[string]string{}
+	}
+	cdpl.Labels[aes256kApplied] = "true"
+	_ = cephlcmv1alpha1.SetRawSpec(&cdpl.Spec.Cluster.RawExtension, rawDataUpdated, nil)
+	c.log.Info().Msgf("updating CephDeployment '%s/%s' spec with new cephx aes256k params", c.cdConfig.cephDpl.Namespace, c.cdConfig.cephDpl.Name)
+	_, updateErr := c.api.CephLcmclientset.LcmV1alpha1().CephDeployments(c.cdConfig.cephDpl.Namespace).Update(c.context, cdpl, metav1.UpdateOptions{})
+	if updateErr != nil {
+		return errors.Wrapf(updateErr, "failed to update CephDeployment spec")
+	}
+	return nil
 }

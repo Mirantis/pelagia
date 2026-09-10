@@ -67,6 +67,15 @@ type deployConfig struct {
 	currentCephVersion *lcmcommon.CephVersion
 	// parsed ceph image for current cephDpl
 	currentCephImage string
+	// flag for determining upgrade on version with aes256k support
+	// actual only during current reconcile to detect proper upgrade
+	// TODO: remove once tentacle (or below 20.2.4) is not supported
+	// and aes256k is default one
+	aes256kUpgrade bool
+	// flag determining aes256k inrolled
+	// TODO: remove once tentacle (or below 20.2.4) is not supported
+	// and aes256k is default one
+	cephxConfigWithAes256k *cephv1.ClusterCephxConfig
 }
 
 type updateTimestamps struct {
