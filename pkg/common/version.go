@@ -19,6 +19,7 @@ package lcmcommon
 import (
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -30,11 +31,11 @@ type CephVersion struct {
 	// ceph major version
 	MajorVersion string
 	// ceph minor version
-	MinorVersion string
+	MinorVersion int
 	// major version for simple compare with other versions
 	Order int
 	// minor versions supported and available to use
-	SupportedMinors []string
+	SupportedMinors []int
 }
 
 var AvailableCephVersions = []*CephVersion{Tentacle, Squid}
@@ -44,13 +45,13 @@ var (
 		Name:            "Tentacle",
 		MajorVersion:    "v20.2",
 		Order:           20,
-		SupportedMinors: []string{"0", "1", "2", "3", "4"},
+		SupportedMinors: []int{0, 1, 2, 3, 4},
 	}
 	Squid = &CephVersion{
 		Name:            "Squid",
 		MajorVersion:    "v19.2",
 		Order:           19,
-		SupportedMinors: []string{"3", "4", "5", "6"},
+		SupportedMinors: []int{3, 4, 5, 6},
 	}
 	LatestRelease = Tentacle
 )
@@ -75,8 +76,12 @@ func ParseCephVersion(cephVersion string) (*CephVersion, error) {
 	}
 	cephVersionCLI := &CephVersion{
 		MajorVersion: fmt.Sprintf("v%s.%s", versionMatch[1], versionMatch[2]),
-		MinorVersion: versionMatch[3],
 	}
+	minor, err := strconv.Atoi(versionMatch[3])
+	if err != nil {
+		return nil, errors.Errorf("failed to parse ceph version minor part: '%q'", versionMatch[3])
+	}
+	cephVersionCLI.MinorVersion = minor
 	supportedMajors := []string{}
 	for _, supported := range AvailableCephVersions {
 		supportedMajors = append(supportedMajors, fmt.Sprintf("%s (%s)", supported.Name, supported.MajorVersion))
@@ -89,9 +94,9 @@ func ParseCephVersion(cephVersion string) (*CephVersion, error) {
 			// TODO: get rid of supported minors and keep list supported for major only?
 			supportedMinors := []string{}
 			for _, minor := range supported.SupportedMinors {
-				supportedMinors = append(supportedMinors, fmt.Sprintf("%s.%s", supported.MajorVersion, minor))
+				supportedMinors = append(supportedMinors, fmt.Sprintf("%s.%d", supported.MajorVersion, minor))
 			}
-			return nil, errors.Errorf("specified Ceph version '%s.%s' is not supported. Please use one of: %v", cephVersionCLI.MajorVersion, cephVersionCLI.MinorVersion, supportedMinors)
+			return nil, errors.Errorf("specified Ceph version '%s.%d' is not supported. Please use one of: %v", cephVersionCLI.MajorVersion, cephVersionCLI.MinorVersion, supportedMinors)
 		}
 	}
 	return nil, errors.Errorf("unsupported Ceph major version '%s' provided. Supported are: %v", cephVersionCLI.MajorVersion, supportedMajors)

@@ -27,8 +27,8 @@ import (
 	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
 )
 
-var LatestCephVersionImage = fmt.Sprintf("%s.%s", lcmcommon.LatestRelease.MajorVersion, lcmcommon.LatestRelease.SupportedMinors[len(lcmcommon.LatestRelease.SupportedMinors)-1])
-var PreviousCephVersionImage = fmt.Sprintf("%s.%s", previousRelease.MajorVersion, previousRelease.SupportedMinors[len(previousRelease.SupportedMinors)-1])
+var LatestCephVersionImage = fmt.Sprintf("%s.%d", lcmcommon.LatestRelease.MajorVersion, lcmcommon.LatestRelease.SupportedMinors[len(lcmcommon.LatestRelease.SupportedMinors)-1])
+var PreviousCephVersionImage = fmt.Sprintf("%s.%d", previousRelease.MajorVersion, previousRelease.SupportedMinors[len(previousRelease.SupportedMinors)-1])
 var LatestCephVersion = strings.ToLower(lcmcommon.LatestRelease.Name)
 var PreviousCephVersion = strings.ToLower(previousRelease.Name)
 

@@ -87,23 +87,27 @@ func (c *cephDeploymentConfig) verifyCephVersions() (*lcmcommon.CephVersion, str
 			currentCephImage = c.lcmConfig.DeployParams.CephImage
 		} else {
 			if newCephVersion.Order < currentCephVersion.Order {
-				return nil, "", "", errors.Errorf("detected Ceph version downgrade from '%s.%s' to '%s.%s': major downgrade is not possible",
+				return nil, "", "", errors.Errorf("detected Ceph version downgrade from '%s.%d' to '%s.%d': major downgrade is not possible",
 					currentCephVersion.MajorVersion, currentCephVersion.MinorVersion, newCephVersion.MajorVersion, newCephVersion.MinorVersion)
 			}
 			if newCephVersion.Order-currentCephVersion.Order > 1 {
-				return nil, "", "", errors.Errorf("detected Ceph version upgrade from '%s.%s' to '%s.%s': upgrade with step over one major version is not possible",
+				return nil, "", "", errors.Errorf("detected Ceph version upgrade from '%s.%d' to '%s.%d': upgrade with step over one major version is not possible",
 					currentCephVersion.MajorVersion, currentCephVersion.MinorVersion, newCephVersion.MajorVersion, newCephVersion.MinorVersion)
 			}
 			// no major/minor Ceph version - no Ceph version change -> use new image
 			// otherwise check version change is allowed
 			if newCephVersion.Order != currentCephVersion.Order || newCephVersion.MinorVersion != currentCephVersion.MinorVersion {
-				c.log.Info().Msgf("detected Ceph version change: current is '%s.%s', new '%s.%s'",
+				c.log.Info().Msgf("detected Ceph version change: current is '%s.%d', new '%s.%d'",
 					currentCephVersion.MajorVersion, currentCephVersion.MinorVersion, newCephVersion.MajorVersion, newCephVersion.MinorVersion)
 				upgradeAllowed, upgradeErr := c.cephUpgradeAllowed()
 				if upgradeErr != nil {
 					return nil, "", "", errors.Wrap(upgradeErr, "failed to check is Ceph upgrade allowed")
 				}
 				if upgradeAllowed {
+					if upgradeWithNewAes256(currentCephVersion, newCephVersion) {
+						c.log.Info().Msgf("detected upgrade on version with support aes256k (CVE-2025-30156), Ceph daemons keys will be rotated")
+						c.cdConfig.aes256kUpgrade = true
+					}
 					// updating current image to use and wait until it is updated in cephcluster
 					return currentCephVersion, c.lcmConfig.DeployParams.CephImage, cephVersionStatus, nil
 				}
@@ -129,6 +133,21 @@ func (c *cephDeploymentConfig) verifyCephVersions() (*lcmcommon.CephVersion, str
 		}
 	}
 	return currentCephVersion, currentCephImage, cephVersionStatus, nil
+}
+
+// TODO: used only for detection upgrade from versions below 20.2.4 or 19.2.6
+func upgradeWithNewAes256(currentV, newV *lcmcommon.CephVersion) bool {
+	if newV.Order == lcmcommon.Tentacle.Order && newV.MinorVersion > 3 || newV.Order == lcmcommon.Squid.Order && newV.MinorVersion > 5 || newV.Order > lcmcommon.Tentacle.Order {
+		// if current version is also higher than 20.2.3 or 19.2.5 - aes256k should be already there
+		if currentV.Order == lcmcommon.Tentacle.Order && currentV.MinorVersion > 3 {
+			return false
+		}
+		if currentV.Order == lcmcommon.Squid.Order && currentV.MinorVersion > 5 {
+			return false
+		}
+		return true
+	}
+	return false
 }
 
 func (c *cephDeploymentConfig) prepareVersionCheckDeployment(targetImage string) error {
@@ -267,7 +286,7 @@ func (c *cephDeploymentConfig) getClusterCephVersion() (*lcmcommon.CephVersion, 
 		if err != nil {
 			return nil, "", errors.Wrap(err, "failed to verify Ceph version in cluster")
 		}
-		versionsForStatus = append(versionsForStatus, fmt.Sprintf("%s.%s", cephVersion.MajorVersion, cephVersion.MinorVersion))
+		versionsForStatus = append(versionsForStatus, fmt.Sprintf("%s.%d", cephVersion.MajorVersion, cephVersion.MinorVersion))
 		if clusterCephVersion == nil || clusterCephVersion.Order > cephVersion.Order {
 			clusterCephVersion = cephVersion
 		}
@@ -288,6 +307,27 @@ func (c *cephDeploymentConfig) ensureCephClusterVersion() error {
 	}
 	if cephCluster.Spec.CephVersion.Image != c.cdConfig.currentCephImage {
 		c.log.Info().Msgf("updating CephCluster image from '%s' to '%s'", cephCluster.Spec.CephVersion.Image, c.cdConfig.currentCephImage)
+		if c.cdConfig.aes256kUpgrade {
+			c.log.Info().Msgf("adding CephCluster ceph auhx aes256k rotation request")
+			// if rotation for ceph daemons is enabled - increment, if not - set it
+			if cephCluster.Spec.Security.CephX.Daemon.KeyGeneration > 0 && cephCluster.Spec.Security.CephX.Daemon.KeyRotationPolicy == cephv1.KeyGenerationCephxKeyRotationPolicy {
+				cephCluster.Spec.Security.CephX.Daemon.KeyGeneration++
+			} else {
+				cephCluster.Spec.Security.CephX.Daemon.KeyGeneration = 2
+				cephCluster.Spec.Security.CephX.Daemon.KeyRotationPolicy = cephv1.KeyGenerationCephxKeyRotationPolicy
+			}
+			cephCluster.Spec.Security.CephX.AllowedCiphers = []cephv1.CephxKeyType{cephv1.CephxKeyTypeAes, cephv1.CephxKeyTypeAes256k}
+			cephCluster.Spec.Security.CephX.Daemon.KeyType = cephv1.CephxKeyTypeAes256k
+			// if CSI keys has enabled rotation - pin AES. Operator should manually rotate them to aes256k after upgrade
+			if cephCluster.Spec.Security.CephX.CSI.KeyGeneration > 0 && cephCluster.Spec.Security.CephX.CSI.KeyRotationPolicy == cephv1.KeyGenerationCephxKeyRotationPolicy {
+				cephCluster.Spec.Security.CephX.CSI.KeyType = cephv1.CephxKeyTypeAes
+			}
+			if cephCluster.Labels == nil {
+				cephCluster.Labels = map[string]string{aes256kApplied: "true"}
+			} else {
+				cephCluster.Labels[aes256kApplied] = "true"
+			}
+		}
 		cephCluster.Spec.CephVersion.Image = c.cdConfig.currentCephImage
 		// Remove hostNetwork because Rook now fails validation if it is set within
 		// provider=host

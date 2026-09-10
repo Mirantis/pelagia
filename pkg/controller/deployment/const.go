@@ -71,6 +71,8 @@ const (
 	// labels identifying osd restart reason and timestamp
 	cephRestartOsdLabel          = "cephdeployment.lcm.mirantis.com/restart-osd-reason"
 	cephRestartOsdTimestampLabel = "cephdeployment.lcm.mirantis.com/restart-osd-requested"
+	// labels identifying aes256k upgrade
+	aes256kApplied = "cephdeployment.lcm.mirantis.com/aes256kApplied"
 
 	cephIngressLabel = "cephdeployment.lcm.mirantis.com/ingress"
 

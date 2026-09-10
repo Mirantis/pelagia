@@ -74,7 +74,7 @@ func TestGetCephVersionByReleaseName(t *testing.T) {
 				Name:            "Tentacle",
 				MajorVersion:    "v20.2",
 				Order:           20,
-				SupportedMinors: []string{"0", "1", "2", "3", "4"},
+				SupportedMinors: []int{0, 1, 2, 3, 4},
 			},
 		},
 		{
@@ -84,7 +84,7 @@ func TestGetCephVersionByReleaseName(t *testing.T) {
 				Name:            "Tentacle",
 				MajorVersion:    "v20.2",
 				Order:           20,
-				SupportedMinors: []string{"0", "1", "2", "3", "4"},
+				SupportedMinors: []int{0, 1, 2, 3, 4},
 			},
 		},
 		{
@@ -94,7 +94,7 @@ func TestGetCephVersionByReleaseName(t *testing.T) {
 				Name:            "Squid",
 				MajorVersion:    "v19.2",
 				Order:           19,
-				SupportedMinors: []string{"3", "4", "5", "6"},
+				SupportedMinors: []int{3, 4, 5, 6},
 			},
 		},
 		{
@@ -155,7 +155,7 @@ func TestParseCephVersion(t *testing.T) {
 			expectedVersion: &CephVersion{
 				Name:         "Tentacle",
 				MajorVersion: "v20.2",
-				MinorVersion: "1",
+				MinorVersion: 1,
 				Order:        20,
 			},
 		},
@@ -165,7 +165,7 @@ func TestParseCephVersion(t *testing.T) {
 			expectedVersion: &CephVersion{
 				Name:         "Squid",
 				MajorVersion: "v19.2",
-				MinorVersion: "3",
+				MinorVersion: 3,
 				Order:        19,
 			},
 		},

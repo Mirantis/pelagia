@@ -660,6 +660,85 @@ func TestEnsureCluster(t *testing.T) {
 				}},
 			},
 		},
+		{
+			name:    "update cluster postponed after rollout on aes256k",
+			cephDpl: &unitinputs.CephDeployRookConfigNoRuntimeNoOsd,
+			inputResources: map[string]runtime.Object{
+				"cephclusters": &cephv1.CephClusterList{
+					Items: []cephv1.CephCluster{
+						func() cephv1.CephCluster {
+							cl := unitinputs.CephClusterReady.DeepCopy()
+							cl.Labels = map[string]string{aes256kApplied: "true"}
+							return *cl
+						}(),
+					},
+				},
+				"configmaps": &v1.ConfigMapList{Items: []v1.ConfigMap{
+					func() v1.ConfigMap {
+						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-updated"] = "time-6"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-6"
+						return *cm
+					}(),
+					unitinputs.RookCephMonEndpoints,
+				}},
+			},
+		},
+		{
+			name: "update cluster update after rollout on aes256k",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cd := unitinputs.CephDeployRookConfigNoRuntimeNoOsd.DeepCopy()
+				cd.Labels = map[string]string{aes256kApplied: "true"}
+				return cd
+			}(),
+			inputResources: map[string]runtime.Object{
+				"cephclusters": &cephv1.CephClusterList{
+					Items: []cephv1.CephCluster{
+						func() cephv1.CephCluster {
+							cl := *getClusterEnsure.DeepCopy()
+							cl.Labels = map[string]string{aes256kApplied: "true"}
+							cl.Status = cephv1.ClusterStatus{
+								CephStatus: &cephv1.CephStatus{Health: "HEALTH_OK"},
+								CephVersion: &cephv1.ClusterVersion{
+									Image:   cl.Spec.CephVersion.Image,
+									Version: "20.2.4",
+								},
+							}
+							cl.Status.Cephx.Mon.KeyCephVersion = "20.2.4"
+							return cl
+						}(),
+					},
+				},
+				"configmaps": &v1.ConfigMapList{Items: []v1.ConfigMap{
+					func() v1.ConfigMap {
+						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-updated"] = "time-6"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-6"
+						return *cm
+					}(),
+					unitinputs.RookCephMonEndpoints,
+				}},
+			},
+			expectedResources: map[string]runtime.Object{
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
+					func() cephv1.CephCluster {
+						cl := *getClusterEnsure.DeepCopy()
+						cl.Spec.Annotations[cephv1.KeyMon]["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-17"
+						cl.Spec.Annotations[cephv1.KeyMgr]["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-17"
+						cl.Status = cephv1.ClusterStatus{
+							CephStatus: &cephv1.CephStatus{Health: "HEALTH_OK"},
+							CephVersion: &cephv1.ClusterVersion{
+								Image:   cl.Spec.CephVersion.Image,
+								Version: "20.2.4",
+							},
+						}
+						cl.Status.Cephx.Mon.KeyCephVersion = "20.2.4"
+						return cl
+					}(),
+				}},
+			},
+			updated: true,
+		},
 	}
 
 	oldTimeFunc := lcmcommon.GetCurrentTimeString
