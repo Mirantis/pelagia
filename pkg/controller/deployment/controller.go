@@ -371,7 +371,16 @@ func (r *ReconcileCephDeployment) Reconcile(ctx context.Context, request reconci
 		sublog.Error().Err(err).Msg("failed to write CephDeployment status")
 	}
 	applyInProgress, applyFailed := cephDplConfig.applyConfiguration()
-	if applyInProgress != "" || applyFailed != "" || objRefsErr != "" {
+	// required only once after upgrade finished and keyrings rotated
+	aes256kSpecFailed := false
+	if cephDplConfig.cdConfig.cephxConfigWithAes256k != nil {
+		err := cephDplConfig.alignSpecForAES256k()
+		if err != nil {
+			sublog.Error().Err(err).Msg("failed to align CephDeployment spec state for aes256k issue")
+			aes256kSpecFailed = true
+		}
+	}
+	if applyInProgress != "" || applyFailed != "" || objRefsErr != "" || aes256kSpecFailed {
 		cephDpl.Status.Phase = cephlcmv1alpha1.PhaseDeploying
 		msgs := []string{}
 		if objRefsErr != "" {
@@ -382,6 +391,9 @@ func (r *ReconcileCephDeployment) Reconcile(ctx context.Context, request reconci
 		}
 		if applyFailed != "" {
 			msgs = append(msgs, applyFailed)
+		}
+		if aes256kSpecFailed {
+			msgs = append(msgs, "spec CephDeployment alignment for aes256k config failed")
 		}
 		cephDpl.Status.Message = fmt.Sprintf("Ceph cluster %s", strings.Join(msgs, "; "))
 	} else {
@@ -531,7 +543,7 @@ func (c *cephDeploymentConfig) verifySetup() error {
 		return errors.Errorf("current Ceph version is not detected")
 	}
 
-	c.log.Debug().Msgf("running Ceph cluster version %s %s.%s", c.cdConfig.currentCephVersion.Name, c.cdConfig.currentCephVersion.MajorVersion, c.cdConfig.currentCephVersion.MinorVersion)
+	c.log.Debug().Msgf("running Ceph cluster version %s %s.%d", c.cdConfig.currentCephVersion.Name, c.cdConfig.currentCephVersion.MajorVersion, c.cdConfig.currentCephVersion.MinorVersion)
 	// ensure rook image is actual in Rook apps
 	err := c.ensureRookImage()
 	if err != nil {

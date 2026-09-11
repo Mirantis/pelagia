@@ -95,6 +95,7 @@ func GetCleanupJob(host, osd, longName string, devices map[string]string) *batch
 										Drop: []corev1.Capability{"NET_RAW"},
 									},
 									RunAsUser:  &[]int64{0}[0],
+									RunAsGroup: &[]int64{0}[0],
 									Privileged: &[]bool{true}[0],
 								},
 								VolumeMounts: []corev1.VolumeMount{

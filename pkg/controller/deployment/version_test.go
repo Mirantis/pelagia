@@ -17,6 +17,7 @@ limitations under the License.
 package deployment
 
 import (
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -45,6 +46,7 @@ func TestVerifyCephVersions(t *testing.T) {
 		apiErrors             map[string]error
 		osdpl                 *fakeclient.ClientBuilder
 		expectedVersion       *lcmcommon.CephVersion
+		expectedAesUpgrade    bool
 		expectedImage         string
 		expectedStatusVersion string
 		expectedError         string
@@ -85,7 +87,7 @@ func TestVerifyCephVersions(t *testing.T) {
 				"deployments":  &appsv1.DeploymentList{},
 			},
 			apiErrors:     map[string]error{"get-deployments": errors.New("failed to get deployments")},
-			expectedError: "failed to check 'ceph --version' for provided image 'mirantis.azurecr.io/ceph/ceph:v20.2.3': failed to prepare version-check deployment: failed to get 'lcm-namespace/pelagia-check-ceph-version' deployment: failed to get deployments",
+			expectedError: "failed to check 'ceph --version' for provided image 'mirantis.azurecr.io/ceph/ceph:v20.2.4': failed to prepare version-check deployment: failed to get 'lcm-namespace/pelagia-check-ceph-version' deployment: failed to get deployments",
 		},
 		{
 			name:          "cephcluster not found, fresh deployment, incorrect ceph version inside image",
@@ -96,7 +98,7 @@ func TestVerifyCephVersions(t *testing.T) {
 				"deployments":  &appsv1.DeploymentList{Items: []appsv1.Deployment{unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
 			},
 			cmdOutputs:    map[string]string{"ceph --version": "ceph version 3.3.3 (stable)"},
-			expectedError: "failed to check 'ceph --version' for provided image 'mirantis.azurecr.io/ceph/ceph:v20.2.3': unsupported Ceph major version 'v3.3' provided. Supported are: [Tentacle (v20.2) Squid (v19.2)]",
+			expectedError: "failed to check 'ceph --version' for provided image 'mirantis.azurecr.io/ceph/ceph:v20.2.4': unsupported Ceph major version 'v3.3' provided. Supported are: [Tentacle (v20.2) Squid (v19.2)]",
 		},
 		{
 			name:          "cephcluster not found, fresh deployment, version detected",
@@ -110,10 +112,10 @@ func TestVerifyCephVersions(t *testing.T) {
 			expectedVersion: &lcmcommon.CephVersion{
 				Name:         "Tentacle",
 				MajorVersion: "v20.2",
-				MinorVersion: "3",
+				MinorVersion: 4,
 				Order:        20,
 			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.3",
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.4",
 			expectedStatusVersion: "",
 		},
 		{
@@ -125,7 +127,7 @@ func TestVerifyCephVersions(t *testing.T) {
 				"deployments":  &appsv1.DeploymentList{Items: []appsv1.Deployment{unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
 				"configmaps":   &corev1.ConfigMapList{},
 			},
-			expectedError: "failed to check 'ceph --version' for used in cluster image 'mirantis.azurecr.io/ceph/ceph:v20.2.3': failed to run command 'ceph --version': unexpected run ceph command: ceph --version",
+			expectedError: "failed to check 'ceph --version' for used in cluster image 'mirantis.azurecr.io/ceph/ceph:v20.2.4': failed to run command 'ceph --version': unexpected run ceph command: ceph --version",
 		},
 		{
 			name:          "cephcluster found, but not deployed yet, version detected",
@@ -140,10 +142,10 @@ func TestVerifyCephVersions(t *testing.T) {
 			expectedVersion: &lcmcommon.CephVersion{
 				Name:         "Tentacle",
 				MajorVersion: "v20.2",
-				MinorVersion: "3",
+				MinorVersion: 4,
 				Order:        20,
 			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.3",
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.4",
 			expectedStatusVersion: "",
 		},
 		{
@@ -177,7 +179,7 @@ func TestVerifyCephVersions(t *testing.T) {
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
 					func() cephv1.CephCluster {
 						cluster := unitinputs.CephClusterReady.DeepCopy()
-						cluster.Spec.CephVersion.Image = "some-registry.com/ceph:v19.2.4"
+						cluster.Spec.CephVersion.Image = "some-registry.com/ceph:v19.2.6"
 						return *cluster
 					}(),
 				}},
@@ -188,10 +190,10 @@ func TestVerifyCephVersions(t *testing.T) {
 			expectedVersion: &lcmcommon.CephVersion{
 				Name:         "Squid",
 				MajorVersion: "v19.2",
-				MinorVersion: "4",
+				MinorVersion: 6,
 				Order:        19,
 			},
-			expectedImage:         "some-registry.com/ceph:v19.2.4",
+			expectedImage:         "some-registry.com/ceph:v19.2.6",
 			expectedStatusVersion: "",
 		},
 		{
@@ -219,7 +221,7 @@ func TestVerifyCephVersions(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployMosk,
 			lcmConfigData: func() map[string]string {
 				cm := unitinputs.PelagiaConfigForPrevCephVersion.DeepCopy().Data
-				cm["DEPLOYMENT_CEPH_IMAGE"] = "mirantis.azurecr.io/ceph/ceph:v19.2.3"
+				cm["DEPLOYMENT_CEPH_IMAGE"] = "mirantis.azurecr.io/ceph/ceph:v19.2.6"
 				cm["DEPLOYMENT_CEPH_RELEASE"] = "squid"
 				return cm
 			}(),
@@ -232,7 +234,7 @@ func TestVerifyCephVersions(t *testing.T) {
 				"ceph versions --format json": unitinputs.CephVersionsLatest,
 				"ceph --version":              unitinputs.CephVersionPrevious,
 			},
-			expectedError: "detected Ceph version downgrade from 'v20.2.3' to 'v19.2.4': major downgrade is not possible",
+			expectedError: "detected Ceph version downgrade from 'v20.2.4' to 'v19.2.6': major downgrade is not possible",
 		},
 		/* TODO: uncomment if more than 2 releases are supported at the time
 		{
@@ -257,7 +259,7 @@ func TestVerifyCephVersions(t *testing.T) {
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
 					func() cephv1.CephCluster {
 						c := unitinputs.TestCephCluster.DeepCopy()
-						c.Spec.CephVersion.Image = "mirantis.azurecr.io/ceph/ceph:v20.2.3-0"
+						c.Spec.CephVersion.Image = "mirantis.azurecr.io/ceph/ceph:v20.2.4-0"
 						return *c
 					}(),
 				}},
@@ -271,11 +273,11 @@ func TestVerifyCephVersions(t *testing.T) {
 			expectedVersion: &lcmcommon.CephVersion{
 				Name:         "Tentacle",
 				MajorVersion: "v20.2",
-				MinorVersion: "3",
+				MinorVersion: 4,
 				Order:        20,
 			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.3",
-			expectedStatusVersion: "v20.2.3",
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.4",
+			expectedStatusVersion: "v20.2.4",
 		},
 		{
 			name:          "ceph image different from desired image, failed to check upgrade allowed",
@@ -307,7 +309,7 @@ func TestVerifyCephVersions(t *testing.T) {
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
 					func() cephv1.CephCluster {
 						c := unitinputs.TestCephCluster.DeepCopy()
-						c.Spec.CephVersion.Image = "mirantis.azurecr.io/ceph/ceph:v19.2.4"
+						c.Spec.CephVersion.Image = "mirantis.azurecr.io/ceph/ceph:v19.2.6"
 						return *c
 					}(),
 				}},
@@ -321,14 +323,14 @@ func TestVerifyCephVersions(t *testing.T) {
 			expectedVersion: &lcmcommon.CephVersion{
 				Name:         "Squid",
 				MajorVersion: "v19.2",
-				MinorVersion: "4",
+				MinorVersion: 6,
 				Order:        19,
 			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.4",
-			expectedStatusVersion: "v19.2.4",
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v19.2.6",
+			expectedStatusVersion: "v19.2.6",
 		},
 		{
-			name:          "ceph image different from desired image, upgrade is allowed",
+			name:          "ceph image different from desired image, major upgrade is allowed (no aes256k)",
 			cephDpl:       &unitinputs.CephDeployMosk,
 			osdpl:         faketestclients.GetClientBuilder().WithLists(unitinputs.GetOpenstackDeploymentStatusList("cur", "APPLIED", true)),
 			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
@@ -336,7 +338,7 @@ func TestVerifyCephVersions(t *testing.T) {
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
 					func() cephv1.CephCluster {
 						c := unitinputs.TestCephCluster.DeepCopy()
-						c.Spec.CephVersion.Image = "mirantis.azurecr.io/ceph/ceph:v19.2.4"
+						c.Spec.CephVersion.Image = "mirantis.azurecr.io/ceph/ceph:v19.2.6"
 						return *c
 					}(),
 				}},
@@ -350,11 +352,11 @@ func TestVerifyCephVersions(t *testing.T) {
 			expectedVersion: &lcmcommon.CephVersion{
 				Name:         "Squid",
 				MajorVersion: "v19.2",
-				MinorVersion: "4",
+				MinorVersion: 6,
 				Order:        19,
 			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.3",
-			expectedStatusVersion: "v19.2.4",
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.4",
+			expectedStatusVersion: "v19.2.6",
 		},
 		{
 			name:    "ceph image different from desired image, minor downgrade is allowed",
@@ -375,11 +377,11 @@ func TestVerifyCephVersions(t *testing.T) {
 			expectedVersion: &lcmcommon.CephVersion{
 				Name:         "Tentacle",
 				MajorVersion: "v20.2",
-				MinorVersion: "3",
+				MinorVersion: 4,
 				Order:        20,
 			},
 			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.0",
-			expectedStatusVersion: "v20.2.3",
+			expectedStatusVersion: "v20.2.4",
 		},
 		{
 			name:          "image versions aligned, remove check version deployment failed",
@@ -394,11 +396,11 @@ func TestVerifyCephVersions(t *testing.T) {
 			expectedVersion: &lcmcommon.CephVersion{
 				Name:         "Tentacle",
 				MajorVersion: "v20.2",
-				MinorVersion: "3",
+				MinorVersion: 4,
 				Order:        20,
 			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.3",
-			expectedStatusVersion: "v20.2.3",
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.4",
+			expectedStatusVersion: "v20.2.4",
 			apiErrors:             map[string]error{"delete-deployments": errors.New("failed to delete deployment")},
 		},
 		{
@@ -414,11 +416,41 @@ func TestVerifyCephVersions(t *testing.T) {
 			expectedVersion: &lcmcommon.CephVersion{
 				Name:         "Tentacle",
 				MajorVersion: "v20.2",
-				MinorVersion: "3",
+				MinorVersion: 4,
 				Order:        20,
 			},
-			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.3",
-			expectedStatusVersion: "v20.2.3",
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.4",
+			expectedStatusVersion: "v20.2.4",
+		},
+		{
+			name:          "ceph image different from desired image, minor upgrade is allowed with aes256k",
+			cephDpl:       &unitinputs.CephDeployMosk,
+			osdpl:         faketestclients.GetClientBuilder().WithLists(unitinputs.GetOpenstackDeploymentStatusList("cur", "APPLIED", true)),
+			lcmConfigData: unitinputs.PelagiaConfig.DeepCopy().Data,
+			inputResources: map[string]runtime.Object{
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
+					func() cephv1.CephCluster {
+						c := unitinputs.TestCephCluster.DeepCopy()
+						c.Spec.CephVersion.Image = "mirantis.azurecr.io/ceph/ceph:v20.2.2"
+						return *c
+					}(),
+				}},
+				"configmaps":  &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints}},
+				"deployments": &appsv1.DeploymentList{Items: []appsv1.Deployment{*unitinputs.ToolBoxDeploymentReady, unitinputs.VersionCheckDeploymentReady(unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"])}},
+			},
+			cmdOutputs: map[string]string{
+				"ceph versions --format json": fmt.Sprintf(unitinputs.CephVersionsTemplate, "20.2.2"),
+				"ceph --version":              unitinputs.CephVersionLatest,
+			},
+			expectedVersion: &lcmcommon.CephVersion{
+				Name:         "Tentacle",
+				MajorVersion: "v20.2",
+				MinorVersion: 2,
+				Order:        20,
+			},
+			expectedAesUpgrade:    true,
+			expectedImage:         "mirantis.azurecr.io/ceph/ceph:v20.2.4",
+			expectedStatusVersion: "v20.2.2",
 		},
 	}
 	oldRunCmd := lcmcommon.RunPodCommandWithValidation
@@ -464,6 +496,7 @@ func TestVerifyCephVersions(t *testing.T) {
 			assert.Equal(t, test.expectedVersion, cephVersion)
 			assert.Equal(t, test.expectedImage, cephImage)
 			assert.Equal(t, test.expectedStatusVersion, cephStatusVersion)
+			assert.Equal(t, test.expectedAesUpgrade, c.cdConfig.aes256kUpgrade)
 			// clean reactions before next test
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.CoreV1())
 			faketestclients.CleanupFakeClientReactions(c.api.Kubeclientset.AppsV1())
@@ -925,6 +958,115 @@ func TestEnsureCephClusterVersion(t *testing.T) {
 			}
 			assert.Equal(t, test.expectedResources, test.inputResources)
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
+		})
+	}
+}
+
+func TestUpgradeWithNewAes256(t *testing.T) {
+	tests := []struct {
+		name           string
+		currentVersion *lcmcommon.CephVersion
+		newVersion     *lcmcommon.CephVersion
+		aes256kUpgrade bool
+	}{
+		{
+			name: "major upgrade with aes256k",
+			currentVersion: &lcmcommon.CephVersion{
+				Name:         "Squid",
+				MajorVersion: "v19.2",
+				Order:        19,
+				MinorVersion: 5,
+			},
+			newVersion: &lcmcommon.CephVersion{
+				Name:         "Tentacle",
+				MajorVersion: "v20.2",
+				Order:        20,
+				MinorVersion: 4,
+			},
+			aes256kUpgrade: true,
+		},
+		{
+			name: "major upgrade without aes256k",
+			currentVersion: &lcmcommon.CephVersion{
+				Name:         "Squid",
+				MajorVersion: "v19.2",
+				Order:        19,
+				MinorVersion: 5,
+			},
+			newVersion: &lcmcommon.CephVersion{
+				Name:         "Tentacle",
+				MajorVersion: "v20.2",
+				Order:        20,
+				MinorVersion: 3,
+			},
+		},
+		{
+			name: "minor tentacle upgrade with aes256k",
+			currentVersion: &lcmcommon.CephVersion{
+				Name:         "Tentacle",
+				MajorVersion: "v20.2",
+				Order:        20,
+				MinorVersion: 3,
+			},
+			newVersion: &lcmcommon.CephVersion{
+				Name:         "Tentacle",
+				MajorVersion: "v20.2",
+				Order:        20,
+				MinorVersion: 4,
+			},
+			aes256kUpgrade: true,
+		},
+		{
+			name: "minor tentacle upgrade without aes256k",
+			currentVersion: &lcmcommon.CephVersion{
+				Name:         "Tentacle",
+				MajorVersion: "v20.2",
+				Order:        20,
+				MinorVersion: 2,
+			},
+			newVersion: &lcmcommon.CephVersion{
+				Name:         "Tentacle",
+				MajorVersion: "v20.2",
+				Order:        20,
+				MinorVersion: 3,
+			},
+		},
+		{
+			name: "minor squid upgrade with aes256k",
+			currentVersion: &lcmcommon.CephVersion{
+				Name:         "Squid",
+				MajorVersion: "v19.2",
+				Order:        19,
+				MinorVersion: 4,
+			},
+			newVersion: &lcmcommon.CephVersion{
+				Name:         "Squid",
+				MajorVersion: "v19.2",
+				Order:        19,
+				MinorVersion: 6,
+			},
+			aes256kUpgrade: true,
+		},
+		{
+			name: "minor squid upgrade without aes256k",
+			currentVersion: &lcmcommon.CephVersion{
+				Name:         "Squid",
+				MajorVersion: "v19.2",
+				Order:        19,
+				MinorVersion: 4,
+			},
+			newVersion: &lcmcommon.CephVersion{
+				Name:         "Squid",
+				MajorVersion: "v19.2",
+				Order:        19,
+				MinorVersion: 5,
+			},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			aes256k := upgradeWithNewAes256(test.currentVersion, test.newVersion)
+			assert.Equal(t, test.aes256kUpgrade, aes256k)
 		})
 	}
 }

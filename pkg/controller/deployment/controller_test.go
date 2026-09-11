@@ -137,14 +137,7 @@ func TestReconcile(t *testing.T) {
 	requeueAfterInterval := reconcile.Result{RequeueAfter: requeueAfterInterval}
 	noRequeue := reconcile.Result{}
 	immediateRequeue := reconcile.Result{RequeueAfter: lcmcommon.DefaultImmediateRequeueInterval}
-	//latestClusterVersion = lcmcommon.LatestRelease
-	latestClusterVersion := &lcmcommon.CephVersion{
-		Name:            "Tentacle",
-		MajorVersion:    "v20.2",
-		MinorVersion:    "2",
-		Order:           20,
-		SupportedMinors: []string{"0", "1", "2"},
-	}
+	latestClusterVersion := lcmcommon.LatestRelease
 	tests := []struct {
 		name            string
 		result          reconcile.Result
@@ -612,7 +605,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 10,
 				},
-				ClusterVersion: "v20.2.3",
+				ClusterVersion: "v20.2.4",
 				LastRun:        "2021-08-15T14:30:31+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -666,7 +659,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 10,
 				},
-				ClusterVersion: "v20.2.3",
+				ClusterVersion: "v20.2.4",
 				LastRun:        "2021-08-15T14:30:32+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
@@ -764,8 +757,115 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 10,
 				},
-				ClusterVersion: "v20.2.3",
+				ClusterVersion: "v20.2.4",
 				LastRun:        "2021-08-15T14:30:33+04:00",
+				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
+			},
+		},
+		{
+			name: "reconcile cephdeployment - finalize rollout with aes256k stuff failed",
+			inputResources: map[string]runtime.Object{
+				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{
+					func() cephlcmv1alpha1.CephDeployment {
+						mc := unitinputs.CephDeployNonMosk.DeepCopy()
+						mc.Spec.ObjectStorage = nil
+						mc.Status.ClusterVersion = unitinputs.LatestCephVersionImage
+						return *mc
+					}(),
+				}},
+				"cephdeploymenthealths":      &cephlcmv1alpha1.CephDeploymentHealthList{Items: []cephlcmv1alpha1.CephDeploymentHealth{unitinputs.CephDeploymentHealth}},
+				"cephdeploymentsecrets":      &cephlcmv1alpha1.CephDeploymentSecretList{Items: []cephlcmv1alpha1.CephDeploymentSecret{*unitinputs.EmptyCephSecret}},
+				"cephdeploymentmaintenances": unitinputs.CephDeploymentMaintenanceListIdle,
+				"cephosdremovetasks":         &cephlcmv1alpha1.CephOsdRemoveTaskList{Items: []cephlcmv1alpha1.CephOsdRemoveTask{}},
+				"configmaps": &corev1.ConfigMapList{Items: []corev1.ConfigMap{
+					unitinputs.PelagiaConfig, unitinputs.RookCephMonEndpoints,
+					func() corev1.ConfigMap {
+						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-generated"] = "2021-08-15T14:30:45+04:00"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "2021-08-15T14:30:45+04:00"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-updated"] = "2021-08-15T14:30:45+04:00"
+						return *cm
+					}(),
+				}},
+				"httproutes": &gatewayapi.HTTPRouteList{},
+				"networkpolicies": &networkingv1.NetworkPolicyList{Items: []networkingv1.NetworkPolicy{
+					unitinputs.NetworkPolicyMds, unitinputs.NetworkPolicyMgr, unitinputs.NetworkPolicyMon, unitinputs.NetworkPolicyOsd,
+				}},
+				"secrets": &corev1.SecretList{Items: []corev1.Secret{unitinputs.RookCephMonSecret}},
+				"nodes": &corev1.NodeList{
+					Items: []corev1.Node{
+						unitinputs.GetNodeWithLabels("node-1", map[string]string{"ceph_role_mon": "true", "ceph_role_mgr": "true", "ceph_role_osd": "true", "ceph_role_mds": "true"}, nil),
+						unitinputs.GetNodeWithLabels("node-2", map[string]string{"ceph_role_mon": "true", "ceph_role_osd": "true"}, nil),
+						unitinputs.GetNodeWithLabels("node-3", map[string]string{"ceph_role_mon": "true", "ceph_role_osd": "true"}, nil),
+					},
+				},
+				"deployments": &appsv1.DeploymentList{
+					Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy(), *unitinputs.ToolBoxDeploymentReady},
+				},
+				"daemonsets": &appsv1.DaemonSetList{Items: []appsv1.DaemonSet{*unitinputs.RookDiscover.DeepCopy()}},
+				"pods":       unitinputs.ToolBoxPodList,
+				"storageclasses": &storagev1.StorageClassList{
+					Items: []storagev1.StorageClass{
+						*unitinputs.BaseStorageClassDefault.DeepCopy(), *unitinputs.CephFSStorageClass.DeepCopy(),
+					},
+				},
+				"cephblockpools": &cephv1.CephBlockPoolList{Items: []cephv1.CephBlockPool{
+					unitinputs.GetCephBlockPoolWithStatus(unitinputs.CephBlockPoolReplicated, true), *unitinputs.BuiltinMgrPool,
+				}},
+				"cephclients":    &cephv1.CephClientList{Items: []cephv1.CephClient{*unitinputs.TestCephClientReady.DeepCopy()}},
+				"cephrbdmirrors": &cephv1.CephRBDMirrorList{},
+				"cephclusters": &cephv1.CephClusterList{
+					Items: []cephv1.CephCluster{
+						func() cephv1.CephCluster {
+							cluster := unitinputs.TestCephCluster.DeepCopy()
+							cluster.Spec.Annotations = map[cephv1.KeyType]cephv1.Annotations{
+								cephv1.KeyMon: map[string]string{
+									"cephdeployment.lcm.mirantis.com/config-global-updated": "2021-08-15T14:30:45+04:00",
+									"cephdeployment.lcm.mirantis.com/config-mon-updated":    "2021-08-15T14:30:45+04:00",
+								},
+								cephv1.KeyMgr: map[string]string{
+									"cephdeployment.lcm.mirantis.com/config-global-updated": "2021-08-15T14:30:45+04:00",
+								},
+							}
+							cluster.Labels = map[string]string{aes256kApplied: "true"}
+							cluster.Status = cephv1.ClusterStatus{
+								CephStatus: &cephv1.CephStatus{Health: "HEALTH_OK"},
+								CephVersion: &cephv1.ClusterVersion{
+									Image:   cluster.Spec.CephVersion.Image,
+									Version: "20.2.4",
+								},
+							}
+							cluster.Status.Cephx.Mon.KeyCephVersion = "20.2.4"
+							return *cluster
+						}(),
+					},
+				},
+				"cephfilesystems": &cephv1.CephFilesystemList{
+					Items: []cephv1.CephFilesystem{
+						func() cephv1.CephFilesystem {
+							fs := unitinputs.GetCephFsWithStatus(cephv1.ConditionReady)
+							fs.Spec.MetadataServer.Annotations = map[string]string{
+								"cephdeployment.lcm.mirantis.com/config-global-updated": "2021-08-15T14:30:45+04:00",
+							}
+							return *fs
+						}(),
+					},
+				},
+				"cephobjectstores":     &cephv1.CephObjectStoreList{},
+				"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{},
+			},
+			testclient: faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.BaseCephDeployment.DeepCopy()).WithObjects(unitinputs.BaseCephDeployment.DeepCopy()),
+			result:     requeueAfterInterval,
+			apiErrors:  map[string]error{"update-cephdeployments": errors.New("failed to update spec CephDeployment")},
+			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
+				Phase:   cephlcmv1alpha1.PhaseDeploying,
+				Message: "Ceph cluster spec CephDeployment alignment for aes256k config failed",
+				Validation: cephlcmv1alpha1.CephDeploymentValidation{
+					Result:                  "Succeed",
+					LastValidatedGeneration: 10,
+				},
+				ClusterVersion: "v20.2.4",
+				LastRun:        "2021-08-15T14:30:34+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
 		},
@@ -773,7 +873,7 @@ func TestReconcile(t *testing.T) {
 			name: "reconcile cephdeployment - update non-mosk ceph cluster",
 			inputResources: map[string]runtime.Object{
 				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{
-					*unitinputs.GetUpdatedClusterVersionCephDeploy(unitinputs.CephDeployNonMosk.DeepCopy(), "v20.2.3")}},
+					*unitinputs.GetUpdatedClusterVersionCephDeploy(unitinputs.CephDeployNonMosk.DeepCopy(), "v20.2.4")}},
 				"cephdeploymentsecrets":      &cephlcmv1alpha1.CephDeploymentSecretList{Items: []cephlcmv1alpha1.CephDeploymentSecret{*unitinputs.EmptyCephSecret}},
 				"cephdeploymenthealths":      &cephlcmv1alpha1.CephDeploymentHealthList{Items: []cephlcmv1alpha1.CephDeploymentHealth{unitinputs.CephDeploymentHealth}},
 				"cephdeploymentmaintenances": unitinputs.CephDeploymentMaintenanceListIdle,
@@ -791,7 +891,7 @@ func TestReconcile(t *testing.T) {
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
 					func() cephv1.CephCluster {
 						cluster := unitinputs.TestCephCluster.DeepCopy()
-						cluster.Spec.CephVersion.Image = "fake/fake:v20.2.3-0"
+						cluster.Spec.CephVersion.Image = "fake/fake:v20.2.4-0"
 						return *cluster
 					}(),
 				}},
@@ -799,11 +899,11 @@ func TestReconcile(t *testing.T) {
 			},
 			testclient: faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.BaseCephDeployment.DeepCopy()).WithObjects(unitinputs.BaseCephDeployment.DeepCopy()),
 			expectedVersion: &lcmcommon.CephVersion{
-				Name:            "Squid",
+				Name:            "Tentacle",
 				MajorVersion:    "v20.2",
-				MinorVersion:    "1",
+				MinorVersion:    1,
 				Order:           20,
-				SupportedMinors: []string{"0", "1", "2"},
+				SupportedMinors: []int{0, 1, 2, 3, 4},
 			},
 			result: requeueAfterInterval,
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
@@ -813,8 +913,8 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 10,
 				},
-				ClusterVersion: "v20.2.3",
-				LastRun:        "2021-08-15T14:30:34+04:00",
+				ClusterVersion: "v20.2.4",
+				LastRun:        "2021-08-15T14:30:35+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
 		},
@@ -854,7 +954,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,
 				},
-				LastRun:     "2021-08-15T14:30:35+04:00",
+				LastRun:     "2021-08-15T14:30:36+04:00",
 				ObjectsRefs: unitinputs.CephDeploymentObjectsRefs,
 			},
 		},
@@ -917,8 +1017,8 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,
 				},
-				ClusterVersion: "v20.2.3",
-				LastRun:        "2021-08-15T14:30:36+04:00",
+				ClusterVersion: "v20.2.4",
+				LastRun:        "2021-08-15T14:30:37+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
 		},
@@ -959,7 +1059,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,
 				},
-				LastRun:     "2021-08-15T14:30:37+04:00",
+				LastRun:     "2021-08-15T14:30:38+04:00",
 				ObjectsRefs: unitinputs.CephDeploymentObjectsRefs,
 			},
 		},
@@ -998,7 +1098,7 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,
 				},
-				LastRun:     "2021-08-15T14:30:38+04:00",
+				LastRun:     "2021-08-15T14:30:39+04:00",
 				ObjectsRefs: unitinputs.CephDeploymentObjectsRefs,
 			},
 		},
@@ -1043,8 +1143,8 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,
 				},
-				ClusterVersion: "v20.2.3",
-				LastRun:        "2021-08-15T14:30:39+04:00",
+				ClusterVersion: "v20.2.4",
+				LastRun:        "2021-08-15T14:30:40+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
 		},
@@ -1115,8 +1215,8 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,
 				},
-				ClusterVersion: "v20.2.3",
-				LastRun:        "2021-08-15T14:30:40+04:00",
+				ClusterVersion: "v20.2.4",
+				LastRun:        "2021-08-15T14:30:41+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
 		},
@@ -1147,8 +1247,8 @@ func TestReconcile(t *testing.T) {
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,
 				},
-				ClusterVersion: "v20.2.3",
-				LastRun:        "2021-08-15T14:30:41+04:00",
+				ClusterVersion: "v20.2.4",
+				LastRun:        "2021-08-15T14:30:42+04:00",
 				ObjectsRefs:    unitinputs.CephDeploymentObjectsRefs,
 			},
 		},
@@ -1197,7 +1297,7 @@ func TestReconcile(t *testing.T) {
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
 				Phase:   cephlcmv1alpha1.PhaseDeleting,
 				Message: "Ceph cluster deletion is in progress",
-				LastRun: "2021-08-15T14:30:42+04:00",
+				LastRun: "2021-08-15T14:30:43+04:00",
 			},
 		},
 		/* TODO: uncomment if any deprecation appear
@@ -1274,6 +1374,7 @@ func TestReconcile(t *testing.T) {
 			faketestclients.FakeReaction(r.CephLcmclientset, "create", []string{"cephdeploymenthealths", "cephdeploymentsecrets", "cephdeploymentmaintenances"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(r.CephLcmclientset, "delete", []string{"cephdeploymenthealths", "cephdeploymentsecrets", "cephdeploymentmaintenances"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(r.CephLcmclientset, "update", []string{"cephdeployments"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(r.CephLcmclientset, "get", []string{"cephdeployments"}, test.inputResources, test.apiErrors)
 
 			// kube actions
 			faketestclients.FakeReaction(r.Kubeclientset.CoreV1(), "get", []string{"configmaps", "pods", "nodes", "secrets"}, test.inputResources, test.apiErrors)
@@ -1607,14 +1708,16 @@ func TestCleanCephDeployment(t *testing.T) {
 
 func TestVerifySetup(t *testing.T) {
 	tests := []struct {
-		name            string
-		cephDpl         *cephlcmv1alpha1.CephDeployment
-		rookImage       string
-		cephImage       string
-		cephVersion     *lcmcommon.CephVersion
-		rookOverrideSet bool
-		inputResources  map[string]runtime.Object
-		expectedError   string
+		name                string
+		cephDpl             *cephlcmv1alpha1.CephDeployment
+		rookImage           string
+		cephImage           string
+		cephVersion         *lcmcommon.CephVersion
+		rookOverrideSet     bool
+		aes256kUpgrade      bool
+		inputResources      map[string]runtime.Object
+		expectedError       string
+		expectedCephxConfig *cephv1.ClusterCephxConfig
 	}{
 		{
 			name:      "version is updated and images are not consistent",
@@ -1690,6 +1793,79 @@ func TestVerifySetup(t *testing.T) {
 			expectedError:   "failed to ensure consistent Ceph cluster version: update CephCluster rook-ceph/cephcluster version is in progress",
 		},
 		{
+			name:      "ceph image is updated - wait image is updated with aes256k changes",
+			cephDpl:   unitinputs.CephDeployEnsureRbdMirror.DeepCopy(),
+			rookImage: unitinputs.PelagiaConfig.Data["DEPLOYMENT_ROOK_IMAGE"],
+			cephImage: unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"],
+			inputResources: map[string]runtime.Object{
+				"deployments": &appsv1.DeploymentList{
+					Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy(), *unitinputs.ToolBoxDeploymentReady},
+				},
+				"daemonsets": &appsv1.DaemonSetList{Items: []appsv1.DaemonSet{*unitinputs.RookDiscover.DeepCopy()}},
+				"pods":       unitinputs.ToolBoxPodList,
+				"configmaps": &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.BaseRookConfigOverride}},
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
+					func() cephv1.CephCluster {
+						cluster := unitinputs.TestCephCluster.DeepCopy()
+						cluster.Spec.CephVersion.Image = "fake/fake:v.2.3.4"
+						return *cluster
+					}(),
+				}},
+			},
+			cephVersion:     lcmcommon.Tentacle,
+			rookOverrideSet: true,
+			aes256kUpgrade:  true,
+			expectedCephxConfig: &cephv1.ClusterCephxConfig{
+				AllowedCiphers: []cephv1.CephxKeyType{"aes", "aes256k"},
+				Daemon: cephv1.CephxConfig{
+					KeyGeneration:     2,
+					KeyType:           cephv1.CephxKeyTypeAes256k,
+					KeyRotationPolicy: cephv1.KeyGenerationCephxKeyRotationPolicy,
+				},
+			},
+			expectedError: "failed to ensure consistent Ceph cluster version: update CephCluster rook-ceph/cephcluster version is in progress",
+		},
+		{
+			name:      "ceph image is updated - wait image is updated with aes256k changes for existing rotation",
+			cephDpl:   unitinputs.CephDeployEnsureRbdMirror.DeepCopy(),
+			rookImage: unitinputs.PelagiaConfig.Data["DEPLOYMENT_ROOK_IMAGE"],
+			cephImage: unitinputs.PelagiaConfig.Data["DEPLOYMENT_CEPH_IMAGE"],
+			inputResources: map[string]runtime.Object{
+				"deployments": &appsv1.DeploymentList{
+					Items: []appsv1.Deployment{*unitinputs.RookDeploymentLatestVersion.DeepCopy(), *unitinputs.ToolBoxDeploymentReady},
+				},
+				"daemonsets": &appsv1.DaemonSetList{Items: []appsv1.DaemonSet{*unitinputs.RookDiscover.DeepCopy()}},
+				"pods":       unitinputs.ToolBoxPodList,
+				"configmaps": &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.BaseRookConfigOverride}},
+				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
+					func() cephv1.CephCluster {
+						cluster := unitinputs.TestCephCluster.DeepCopy()
+						cluster.Spec.CephVersion.Image = "fake/fake:v.2.3.4"
+						cluster.Spec.Security.CephX = cephv1.ClusterCephxConfig{
+							Daemon: cephv1.CephxConfig{
+								KeyGeneration:     2,
+								KeyType:           cephv1.CephxKeyTypeAes,
+								KeyRotationPolicy: cephv1.KeyGenerationCephxKeyRotationPolicy,
+							},
+						}
+						return *cluster
+					}(),
+				}},
+			},
+			cephVersion:     lcmcommon.Tentacle,
+			rookOverrideSet: true,
+			aes256kUpgrade:  true,
+			expectedCephxConfig: &cephv1.ClusterCephxConfig{
+				AllowedCiphers: []cephv1.CephxKeyType{"aes", "aes256k"},
+				Daemon: cephv1.CephxConfig{
+					KeyGeneration:     3,
+					KeyType:           cephv1.CephxKeyTypeAes256k,
+					KeyRotationPolicy: cephv1.KeyGenerationCephxKeyRotationPolicy,
+				},
+			},
+			expectedError: "failed to ensure consistent Ceph cluster version: update CephCluster rook-ceph/cephcluster version is in progress",
+		},
+		{
 			name:      "verify succeed",
 			cephDpl:   unitinputs.CephDeployEnsureRbdMirror.DeepCopy(),
 			rookImage: unitinputs.PelagiaConfig.Data["DEPLOYMENT_ROOK_IMAGE"],
@@ -1716,7 +1892,11 @@ func TestVerifySetup(t *testing.T) {
 			} else {
 				c.cdConfig.currentCephVersion = nil
 			}
+			if test.aes256kUpgrade {
+				c.cdConfig.aes256kUpgrade = true
+			}
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephclusters"}, test.inputResources, nil)
+			faketestclients.FakeReaction(c.api.Rookclientset, "update", []string{"cephclusters"}, test.inputResources, nil)
 			if test.rookOverrideSet {
 				faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"pods", "configmaps"}, test.inputResources, nil)
 			} else {
@@ -1734,6 +1914,10 @@ func TestVerifySetup(t *testing.T) {
 				assert.Equal(t, test.expectedError, err.Error())
 			} else {
 				assert.Nil(t, err)
+			}
+			if test.aes256kUpgrade {
+				cephClusterAuth := test.inputResources["cephclusters"].(*cephv1.CephClusterList).Items[0].Spec.Security.CephX
+				assert.Equal(t, *test.expectedCephxConfig, cephClusterAuth)
 			}
 			// clean reactions before next test
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)

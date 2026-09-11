@@ -4,11 +4,11 @@ global:
 images:
   operator:
     repository: pelagia/rook
-    tag: v1.20.3-5
+    tag: v1.20.7-6
   csi:
     ceph:
       repository: pelagia/cephcsi
-      tag: v3.17.0-3.release
+      tag: v3.17.1-1.release
     registrar:
       repository: pelagia/cephcsi-registrar
       tag: v2.17.0-3.release
