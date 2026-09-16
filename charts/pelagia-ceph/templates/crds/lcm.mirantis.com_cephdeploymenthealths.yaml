@@ -338,6 +338,13 @@ spec:
                                             Generation `0` indicates that keys existed prior to the implementation of key tracking.
                                           format: int32
                                           type: integer
+                                        keyType:
+                                          description: |-
+                                            KeyType identifies the CephX key type for the current generation's keys, if known.
+                                            If unknown, the value will be empty.
+                                          maxLength: 7
+                                          minLength: 3
+                                          type: string
                                       type: object
                                   type: object
                                 conditions:
@@ -653,6 +660,13 @@ spec:
                                     Generation `0` indicates that keys existed prior to the implementation of key tracking.
                                   format: int32
                                   type: integer
+                                keyType:
+                                  description: |-
+                                    KeyType identifies the CephX key type for the current generation's keys, if known.
+                                    If unknown, the value will be empty.
+                                  maxLength: 7
+                                  minLength: 3
+                                  type: string
                               type: object
                             info:
                               additionalProperties:
@@ -792,6 +806,13 @@ spec:
                                       Generation `0` indicates that keys existed prior to the implementation of key tracking.
                                     format: int32
                                     type: integer
+                                  keyType:
+                                    description: |-
+                                      KeyType identifies the CephX key type for the current generation's keys, if known.
+                                      If unknown, the value will be empty.
+                                    maxLength: 7
+                                    minLength: 3
+                                    type: string
                                 type: object
                               cephExporter:
                                 description: Ceph Exporter represents the cephx key
@@ -815,6 +836,13 @@ spec:
                                       Generation `0` indicates that keys existed prior to the implementation of key tracking.
                                     format: int32
                                     type: integer
+                                  keyType:
+                                    description: |-
+                                      KeyType identifies the CephX key type for the current generation's keys, if known.
+                                      If unknown, the value will be empty.
+                                    maxLength: 7
+                                    minLength: 3
+                                    type: string
                                 type: object
                               crashCollector:
                                 description: Crash Collector represents the cephx
@@ -838,6 +866,13 @@ spec:
                                       Generation `0` indicates that keys existed prior to the implementation of key tracking.
                                     format: int32
                                     type: integer
+                                  keyType:
+                                    description: |-
+                                      KeyType identifies the CephX key type for the current generation's keys, if known.
+                                      If unknown, the value will be empty.
+                                    maxLength: 7
+                                    minLength: 3
+                                    type: string
                                 type: object
                               csi:
                                 description: CSI shows the CephX key status for Ceph-CSI
@@ -861,6 +896,13 @@ spec:
                                       Generation `0` indicates that keys existed prior to the implementation of key tracking.
                                     format: int32
                                     type: integer
+                                  keyType:
+                                    description: |-
+                                      KeyType identifies the CephX key type for the current generation's keys, if known.
+                                      If unknown, the value will be empty.
+                                    maxLength: 7
+                                    minLength: 3
+                                    type: string
                                   priorKeyCount:
                                     description: PriorKeyCount reports the number
                                       of prior-generation CephX keys that remain active
@@ -889,6 +931,13 @@ spec:
                                       Generation `0` indicates that keys existed prior to the implementation of key tracking.
                                     format: int32
                                     type: integer
+                                  keyType:
+                                    description: |-
+                                      KeyType identifies the CephX key type for the current generation's keys, if known.
+                                      If unknown, the value will be empty.
+                                    maxLength: 7
+                                    minLength: 3
+                                    type: string
                                 type: object
                               mon:
                                 description: Mon represents the CephX key status of
@@ -912,6 +961,13 @@ spec:
                                       Generation `0` indicates that keys existed prior to the implementation of key tracking.
                                     format: int32
                                     type: integer
+                                  keyType:
+                                    description: |-
+                                      KeyType identifies the CephX key type for the current generation's keys, if known.
+                                      If unknown, the value will be empty.
+                                    maxLength: 7
+                                    minLength: 3
+                                    type: string
                                 type: object
                               osd:
                                 description: OSD shows the CephX key status of OSDs
@@ -934,6 +990,13 @@ spec:
                                       Generation `0` indicates that keys existed prior to the implementation of key tracking.
                                     format: int32
                                     type: integer
+                                  keyType:
+                                    description: |-
+                                      KeyType identifies the CephX key type for the current generation's keys, if known.
+                                      If unknown, the value will be empty.
+                                    maxLength: 7
+                                    minLength: 3
+                                    type: string
                                 type: object
                               rbdMirrorPeer:
                                 description: RBDMirrorPeer represents the cephx key
@@ -957,6 +1020,13 @@ spec:
                                       Generation `0` indicates that keys existed prior to the implementation of key tracking.
                                     format: int32
                                     type: integer
+                                  keyType:
+                                    description: |-
+                                      KeyType identifies the CephX key type for the current generation's keys, if known.
+                                      If unknown, the value will be empty.
+                                    maxLength: 7
+                                    minLength: 3
+                                    type: string
                                 type: object
                             type: object
                           conditions:
@@ -1121,6 +1191,13 @@ spec:
                                             Generation `0` indicates that keys existed prior to the implementation of key tracking.
                                           format: int32
                                           type: integer
+                                        keyType:
+                                          description: |-
+                                            KeyType identifies the CephX key type for the current generation's keys, if known.
+                                            If unknown, the value will be empty.
+                                          maxLength: 7
+                                          minLength: 3
+                                          type: string
                                       type: object
                                   type: object
                                 conditions:
@@ -1348,6 +1425,13 @@ spec:
                                             Generation `0` indicates that keys existed prior to the implementation of key tracking.
                                           format: int32
                                           type: integer
+                                        keyType:
+                                          description: |-
+                                            KeyType identifies the CephX key type for the current generation's keys, if known.
+                                            If unknown, the value will be empty.
+                                          maxLength: 7
+                                          minLength: 3
+                                          type: string
                                       type: object
                                   type: object
                                 conditions:

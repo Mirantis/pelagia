@@ -28,7 +28,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 )
 
-func Contains(list []string, s string) bool {
+func Contains[T comparable](list []T, s T) bool {
 	for _, v := range list {
 		if v == s {
 			return true

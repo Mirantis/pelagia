@@ -17,8 +17,8 @@ require (
 	github.com/kube-object-storage/lib-bucket-provisioner v0.0.0-20221122204822-d1a8c34382f1
 	github.com/kubernetes-csi/external-snapshotter/client/v8 v8.4.0
 	github.com/pkg/errors v0.9.1
-	github.com/rook/rook v1.20.3
-	github.com/rook/rook/pkg/apis v0.0.0-20260728193059-3b678364c85f
+	github.com/rook/rook v1.20.7
+	github.com/rook/rook/pkg/apis v0.0.0-20260902171512-95a8e2a8b61c
 	github.com/rs/zerolog v1.34.0
 	github.com/stretchr/testify v1.11.1
 	gopkg.in/yaml.v2 v2.4.0
