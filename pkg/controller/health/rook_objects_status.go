@@ -149,6 +149,12 @@ func (c *cephDeploymentHealthConfig) checkClusterStatus() []string {
 				c.log.Debug().Msgf("detected ceph cluster health issue '%s', which is ignored by cephdeploymenthealth config", warning)
 				continue
 			}
+			if len(c.healthConfig.cephCluster.Spec.HealthCheck.MuteHealthWarning) > 0 {
+				if v, ok := c.healthConfig.cephCluster.Spec.HealthCheck.MuteHealthWarning[warning]; ok && v.Policy == "mute" {
+					c.log.Debug().Msgf("detected ceph cluster health issue '%s', which is muted by cephcluster spec", warning)
+					continue
+				}
+			}
 			issues = append(issues, fmt.Sprintf("%s: %s", warning, details.Message))
 		}
 	}
