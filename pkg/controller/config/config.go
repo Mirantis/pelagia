@@ -102,6 +102,8 @@ type DeployParams struct {
 	DrainReadyLabelKey string
 	// csi related params
 	CSIParams CSIDeployParams
+	// manage default vsclasses
+	ManageVolumeSnapshotClasses bool
 }
 
 type CSIDeployParams struct {
@@ -188,6 +190,7 @@ var (
 			CreateDefaultCephFSDriver: true,
 			KeepExisting:              true,
 		},
+		ManageVolumeSnapshotClasses: true,
 	}
 )
 
@@ -235,6 +238,7 @@ var (
 	cephDplCSIControllerPluginTolerationsKeyName  = "DEPLOYMENT_CSI_CONTROLLER_PLUGIN_TOLERATIONS"
 	cephDplCSINodePluginNodeAffinityKeyName       = "DEPLOYMENT_CSI_NODE_PLUGIN_NODEAFFINITY"
 	cephDplCSINodePluginTolerationsKeyName        = "DEPLOYMENT_CSI_NODE_PLUGIN_TOLERATIONS"
+	cephDplManageVSClassesKeyName                 = "DEPLOYMENT_MANAGE_VOLUMESNAPSHOTCLASSES"
 )
 
 func dropConfiguration(namespace string) {
@@ -487,6 +491,16 @@ func loadCephDeploymentConfiguration(objLog zerolog.Logger, configData map[strin
 					newCephDplConfig.CSIParams.NodePluginToleration = tolerations
 				}
 			}
+		}
+	}
+
+	if vscManage, present := configData[cephDplManageVSClassesKeyName]; present {
+		val, err := strconv.ParseBool(vscManage)
+		if err != nil {
+			objLog.Error().Msgf(errorMsgTmpl, cephDplManageVSClassesKeyName, vscManage, "bool")
+		} else {
+			objLog.Debug().Msgf(debugMsgTmpl, cephDplManageVSClassesKeyName, vscManage)
+			newCephDplConfig.ManageVolumeSnapshotClasses = val
 		}
 	}
 

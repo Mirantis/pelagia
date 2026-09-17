@@ -84,4 +84,6 @@ rookConfig:
         - pidof rook
     failureThreshold: 3
     periodSeconds: 10
+  # deprecated in favor pelagia.cephDeployment.manageVolumeSnapshotClasses
+  # and kept for backward compatibility
   volumeSnapshotsEnabled: false

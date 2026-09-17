@@ -49,6 +49,13 @@ func TestEnsureCsiResources(t *testing.T) {
 		expectedUpdate bool
 	}{
 		{
+			name:           "nothing to do - skip manage",
+			cephDeployment: &unitinputs.BaseCephDeployment,
+			lcmConfig: map[string]string{
+				"DEPLOYMENT_CSI_DRIVERS_MANAGE": "false",
+			},
+		},
+		{
 			name:           "failed to ensure operatorconfig",
 			cephDeployment: &unitinputs.BaseCephDeployment,
 			apiErrors: map[string]error{
@@ -805,10 +812,16 @@ func TestDropCsiOperatorResources(t *testing.T) {
 	c.api.ClientNoCache = faketestclients.GetClient(builder)
 
 	tests := []struct {
-		name    string
-		present string
-		removed bool
+		name       string
+		present    string
+		skipManage bool
+		removed    bool
 	}{
+		{
+			name:       "drivers are not managed",
+			skipManage: true,
+			removed:    true,
+		},
 		{
 			name: "removing clientprofile first",
 		},
@@ -822,6 +835,7 @@ func TestDropCsiOperatorResources(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
+			c.lcmConfig.DeployParams.CSIParams.Manage = !test.skipManage
 			removed, err := c.deleteCsiOperatorResources()
 			assert.Nil(t, err)
 			assert.Equal(t, test.removed, removed)

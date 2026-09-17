@@ -154,6 +154,7 @@ func TestInitReconcile(t *testing.T) {
 - effect: NoSchedule
   key: node-role.kubernetes.io/controlplane2
   operator: Exist`,
+					"DEPLOYMENT_MANAGE_VOLUMESNAPSHOTCLASSES": "false",
 				},
 			},
 			controlParams:  ControlParamsAll,
@@ -187,6 +188,7 @@ func TestInitReconcile(t *testing.T) {
 						CephDaemonsetPlacementLabelExclude: "no-ceph=true",
 						DrainRequestLabelKey:               "custom-label/drain-request",
 						DrainReadyLabelKey:                 "custom-label/csi-drain-ready",
+						ManageVolumeSnapshotClasses:        false,
 						CSIParams: CSIDeployParams{
 							Manage:                 true,
 							KubeletPath:            "/var/lib/kubelet-custom",
@@ -274,6 +276,7 @@ func TestInitReconcile(t *testing.T) {
 					"DEPLOYMENT_CSI_NODE_PLUGIN_NODEAFFINITY":       "some-label-2W@@$=true",
 					"DEPLOYMENT_CSI_CONTROLLER_PLUGIN_TOLERATIONS":  "|asdasd",
 					"DEPLOYMENT_CSI_NODE_PLUGIN_TOLERATIONS":        "|asdasd",
+					"DEPLOYMENT_MANAGE_VOLUMESNAPSHOTCLASSES":       "false111",
 				},
 			},
 			controlParams:  ControlParamsAll,

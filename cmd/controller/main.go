@@ -23,6 +23,7 @@ import (
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	csiopapi "github.com/ceph/ceph-csi-operator/api/v1"
+	vsapi "github.com/kubernetes-csi/external-snapshotter/client/v8/apis/volumesnapshot/v1"
 	rookapi "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"sigs.k8s.io/controller-runtime/pkg/cache"
@@ -102,6 +103,10 @@ func main() {
 		os.Exit(1)
 	}
 	if err := csiopapi.AddToScheme(mgr.GetScheme()); err != nil {
+		log.Fatal().Err(err).Msg("")
+		os.Exit(1)
+	}
+	if err := vsapi.AddToScheme(mgr.GetScheme()); err != nil {
 		log.Fatal().Err(err).Msg("")
 		os.Exit(1)
 	}

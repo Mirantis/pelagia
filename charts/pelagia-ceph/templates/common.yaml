@@ -65,6 +65,7 @@ data:
 {{ .Values.cephDeployment.csi.placement.tolerations.nodePlugin | indent 4 }}
     {{- end }}
   {{- end }}
+  DEPLOYMENT_MANAGE_VOLUMESNAPSHOTCLASSES: {{ .Values.cephDeployment.manageVolumeSnapshotClasses | quote }}
 {{- end }}
 {{- if .Values.global.namespace }}
 ---
