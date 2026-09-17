@@ -268,9 +268,18 @@ func TestСheckCephCluster(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"cephclusters": func() *cephv1.CephClusterList {
 					list := unitinputs.CephClusterListReady.DeepCopy()
+					list.Items[0].Spec.HealthCheck.MuteHealthWarning = map[string]cephv1.MuteHealthWarningSpec{
+						"AUTH_INSECURE_KEYS_CREATABLE": {
+							Policy: "mute",
+						},
+					}
 					list.Items[0].Status.CephStatus.Details = map[string]cephv1.CephHealthMessage{
 						"RECENT_CRASH": {
 							Message:  "4 daemons have recently crashed",
+							Severity: "HEALTH_WARN",
+						},
+						"AUTH_INSECURE_KEYS_CREATABLE": {
+							Message:  "Monitors are configured to allow creation of insecure key types",
 							Severity: "HEALTH_WARN",
 						},
 					}
@@ -282,6 +291,10 @@ func TestСheckCephCluster(t *testing.T) {
 				status.CephStatus.Details = map[string]cephv1.CephHealthMessage{
 					"RECENT_CRASH": {
 						Message:  "4 daemons have recently crashed",
+						Severity: "HEALTH_WARN",
+					},
+					"AUTH_INSECURE_KEYS_CREATABLE": {
+						Message:  "Monitors are configured to allow creation of insecure key types",
 						Severity: "HEALTH_WARN",
 					},
 				}
