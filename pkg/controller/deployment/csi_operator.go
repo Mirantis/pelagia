@@ -295,6 +295,10 @@ func (c *cephDeploymentConfig) ensureCsiDrivers() (bool, error) {
 }
 
 func (c *cephDeploymentConfig) deleteCsiOperatorResources() (bool, error) {
+	if !c.lcmConfig.DeployParams.CSIParams.Manage {
+		c.log.Warn().Msg("ensure cephcsi resources is disabled for Pelagia, skipping cleanup")
+		return true, nil
+	}
 	errs := 0
 	removed, err := c.deleteCsiClientProfile()
 	if err != nil {

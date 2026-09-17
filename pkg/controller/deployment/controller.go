@@ -661,6 +661,10 @@ func (c *cephDeploymentConfig) applyConfiguration() (string, string) {
 		changed, err := c.ensureCsiResources()
 		handleEnsureResult(changed, err, "cephcsi")
 
+		// Ensure VolumeSnapshotClasses
+		changed, err = c.ensureVSCResources()
+		handleEnsureResult(changed, err, "volumesnapshotclass")
+
 		// Ensure ceph cluster processing
 		changed, err = c.ensureCluster()
 		handleEnsureResult(changed, err, "cephcluster")
@@ -883,6 +887,10 @@ func (c *cephDeploymentConfig) cleanCephDeployment() (bool, error) {
 		// Delete ceph csi operator resources if cluster removed
 		runRemoveState("ceph csi operator resources", func() (bool, error) {
 			return c.deleteCsiOperatorResources()
+		})
+		// Delete ceph csi operator resources if cluster removed
+		runRemoveState("volumesnapshotclasses resources", func() (bool, error) {
+			return c.deleteVolumeSnapshotClasses()
 		})
 
 		if !c.cdConfig.clusterSpec.External.Enable {

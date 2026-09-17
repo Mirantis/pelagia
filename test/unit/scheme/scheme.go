@@ -11,6 +11,8 @@ import (
 	csiopapi "github.com/ceph/ceph-csi-operator/api/v1"
 	gatewayapi "sigs.k8s.io/gateway-api/apis/v1"
 
+	vsapi "github.com/kubernetes-csi/external-snapshotter/client/v8/apis/volumesnapshot/v1"
+
 	"github.com/Mirantis/pelagia/v3/pkg/apis"
 	lcmv1alpha1 "github.com/Mirantis/pelagia/v3/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 )
@@ -24,6 +26,7 @@ var SchemeBuilder = runtime.SchemeBuilder{
 	apiextenstionsv1.AddToScheme,
 	lcmv1alpha1.AddToScheme,
 	csiopapi.AddToScheme,
+	vsapi.AddToScheme,
 	gatewayapi.Install,
 }
 var Encoder = json.NewSerializerWithOptions(json.DefaultMetaFactory, Scheme, Scheme, json.SerializerOptions{Yaml: true})

@@ -28,6 +28,11 @@ rules:
   - apiGroups: [""]
     resources: [persistentvolumes, persistentvolumeclaims]
     verbs: [list, get, watch]
+  {{- if .Values.cephDeployment.manageVolumeSnapshotClasses }}
+  - apiGroups: [snapshot.storage.k8s.io]
+    resources: [volumesnapshotclasses]
+    verbs: [list, get, create, update, delete]
+  {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role

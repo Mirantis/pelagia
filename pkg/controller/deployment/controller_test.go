@@ -25,6 +25,7 @@ import (
 	"time"
 
 	csiopapi "github.com/ceph/ceph-csi-operator/api/v1"
+	vsapi "github.com/kubernetes-csi/external-snapshotter/client/v8/apis/volumesnapshot/v1"
 	"github.com/pkg/errors"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"github.com/stretchr/testify/assert"
@@ -654,7 +655,7 @@ func TestReconcile(t *testing.T) {
 			result:          requeueAfterInterval,
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
 				Phase:   cephlcmv1alpha1.PhaseDeploying,
-				Message: "Ceph cluster configuration apply is in progress: label nodes, cephcsi, cephcluster, cephblockpools, shared filesystems, storageclasses, cephclients, ceph object storage, cluster state",
+				Message: "Ceph cluster configuration apply is in progress: label nodes, cephcsi, volumesnapshotclass, cephcluster, cephblockpools, shared filesystems, storageclasses, cephclients, ceph object storage, cluster state",
 				Validation: cephlcmv1alpha1.CephDeploymentValidation{
 					Result:                  "Succeed",
 					LastValidatedGeneration: 10,
@@ -1565,13 +1566,15 @@ func TestCleanCephDeployment(t *testing.T) {
 			cephDpl:        cephDplFull.DeepCopy(),
 			inputResources: inputResourcesBase,
 			apiErrors: map[string]error{
-				"delete-cephclusters":          errors.New("failed to delete cephcluster"),
-				"delete-cephdeploymenthealths": errors.New("failed to delete cephdeploymenthealth"),
-				"delete-daemonsets":            errors.New("failed to delete daemonset"),
-				"delete-networkpolicies":       errors.New("failed to delete networkpolicy"),
-				"update-nodes":                 errors.New("failed to update node"),
+				"delete-cephclusters":                  errors.New("failed to delete cephcluster"),
+				"delete-cephdeploymenthealths":         errors.New("failed to delete cephdeploymenthealth"),
+				"delete-daemonsets":                    errors.New("failed to delete daemonset"),
+				"delete-networkpolicies":               errors.New("failed to delete networkpolicy"),
+				"update-nodes":                         errors.New("failed to update node"),
+				"delete-drivers-volumesnapshotclasses": errors.New("failed to delete resource"),
 			},
-			expectedError: "deletion is not completed for CephDeployment: failed to remove CephDeploymentHealth 'lcm-namespace/cephcluster', failed to remove ceph cluster, failed to remove network policies, failed to remove node ceph labels, failed to remove daemonset ceph labels",
+			dropCsiRes:    true,
+			expectedError: "deletion is not completed for CephDeployment: failed to remove CephDeploymentHealth 'lcm-namespace/cephcluster', failed to remove ceph cluster, failed to remove ceph csi operator resources, failed to remove volumesnapshotclasses resources, failed to remove network policies, failed to remove node ceph labels, failed to remove daemonset ceph labels",
 		},
 		{
 			name:           "delete resources is in progress (cluster remove and nodes)",
@@ -1579,7 +1582,7 @@ func TestCleanCephDeployment(t *testing.T) {
 			inputResources: inputResourcesBase,
 		},
 		{
-			name:           "delete resources is in progress (csi res)",
+			name:           "delete resources is in progress (csi and vsc res)",
 			cephDpl:        cephDplFull.DeepCopy(),
 			inputResources: inputResourcesBase,
 			dropCsiRes:     true,
@@ -1657,7 +1660,19 @@ func TestCleanCephDeployment(t *testing.T) {
 			}
 
 			if test.dropCsiRes {
-				c.api.ClientNoCache = faketestclients.GetClient(faketestclients.GetClientBuilder().WithLists(unitinputs.CsiDriversRook.DeepCopy()))
+				builder := faketestclients.GetClientBuilder().WithLists(unitinputs.CsiDriversRook.DeepCopy()).WithLists(unitinputs.VSCListPresent.DeepCopy())
+				interceptorFuncs := interceptor.Funcs{}
+				if v, ok := test.apiErrors["delete-drivers-volumesnapshotclasses"]; ok {
+					interceptorFuncs.List = func(ctx context.Context, client client.WithWatch, list client.ObjectList, opts ...client.ListOption) error {
+						c.log.Info().Msg(strings.ToLower(reflect.TypeOf(list).Elem().Name()))
+						if strings.ToLower(reflect.TypeOf(list).Elem().Name()) == "volumesnapshotclasslist" || strings.ToLower(reflect.TypeOf(list).Elem().Name()) == "driverlist" {
+							return v
+						}
+						return client.List(ctx, list, opts...)
+					}
+				}
+				builder = builder.WithInterceptorFuncs(interceptorFuncs)
+				c.api.ClientNoCache = faketestclients.GetClient(builder)
 				delete(test.inputResources, "drivers")
 			}
 
@@ -2232,6 +2247,9 @@ func TestApplyConfiguration(t *testing.T) {
 		"drivers": &csiopapi.DriverList{
 			Items: []csiopapi.Driver{unitinputs.DriverRBDDefault},
 		},
+		"volumesnapshotclasses": &vsapi.VolumeSnapshotClassList{
+			Items: []vsapi.VolumeSnapshotClass{unitinputs.CsiRBDPluginVSC},
+		},
 	}
 
 	inputResourcesForExternalApply := map[string]runtime.Object{
@@ -2265,6 +2283,9 @@ func TestApplyConfiguration(t *testing.T) {
 		"operatorconfigs": unitinputs.OperatorConfigsRook.DeepCopy(),
 		"drivers": &csiopapi.DriverList{
 			Items: []csiopapi.Driver{unitinputs.DriverRBDDefault},
+		},
+		"volumesnapshotclasses": &vsapi.VolumeSnapshotClassList{
+			Items: []vsapi.VolumeSnapshotClass{unitinputs.CsiRBDPluginVSC},
 		},
 	}
 
@@ -2308,12 +2329,12 @@ func TestApplyConfiguration(t *testing.T) {
 			},
 			lcmconfig: lcmconfig,
 			apiErrors: map[string]error{
-				"get-cephclusters":     errors.New("get cluster api error"),
-				"get-operatorconfigs":  errors.New("get operatorconfig api error"),
-				"cluster-not-verified": errors.New("not verified"),
+				"get-cephclusters":                          errors.New("get cluster api error"),
+				"get-operatorconfigs-volumesnapshotclasses": errors.New("get resource api error"),
+				"cluster-not-verified":                      errors.New("not verified"),
 			},
 			inProgressMsg: "configuration apply is in progress: label nodes",
-			failedMsg:     "configuration apply is failed: failed to ensure cephcsi, cephcluster, cephblockpools, shared filesystems, storageclasses, cephclients, ceph object storage, RBD Mirroring, Openstack secret, ingress proxy, cluster state",
+			failedMsg:     "configuration apply is failed: failed to ensure cephcsi, volumesnapshotclass, cephcluster, cephblockpools, shared filesystems, storageclasses, cephclients, ceph object storage, RBD Mirroring, Openstack secret, ingress proxy, cluster state",
 		},
 		{
 			name:    "apply cephdeployment - apply configuration is started and waiting for netpol",
@@ -2351,7 +2372,7 @@ func TestApplyConfiguration(t *testing.T) {
 				"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{},
 			},
 			lcmconfig:     lcmconfig,
-			inProgressMsg: "configuration apply is in progress: cephcsi, cephcluster, cephblockpools, shared filesystems, cephclients, ceph object storage, RBD Mirroring, ingress proxy, cluster state",
+			inProgressMsg: "configuration apply is in progress: cephcsi, volumesnapshotclass, cephcluster, cephblockpools, shared filesystems, cephclients, ceph object storage, RBD Mirroring, ingress proxy, cluster state",
 			failedMsg:     "configuration apply is failed: failed to ensure storageclasses, Openstack secret",
 		},
 		{
@@ -2374,7 +2395,7 @@ func TestApplyConfiguration(t *testing.T) {
 				"cephobjectstores":     &cephv1.CephObjectStoreList{},
 				"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{},
 			},
-			inProgressMsg: "configuration apply is in progress: label nodes, cephcsi, cephcluster, cephblockpools, shared filesystems, cephclients, ceph object storage, RBD Mirroring, cluster state",
+			inProgressMsg: "configuration apply is in progress: label nodes, cephcsi, volumesnapshotclass, cephcluster, cephblockpools, shared filesystems, cephclients, ceph object storage, RBD Mirroring, cluster state",
 			failedMsg:     "configuration apply is failed: failed to ensure storageclasses, Openstack secret",
 		},
 		{
@@ -2419,7 +2440,7 @@ func TestApplyConfiguration(t *testing.T) {
 				"cephobjectstoreusers": &cephv1.CephObjectStoreUserList{},
 			},
 			lcmconfig:     lcmconfig,
-			inProgressMsg: "configuration apply is in progress: cephcsi, cephcluster, storageclasses, ceph object storage",
+			inProgressMsg: "configuration apply is in progress: cephcsi, volumesnapshotclass, cephcluster, storageclasses, ceph object storage",
 		},
 		{
 			name:           "apply reconcile cephdeployment external - apply configuration is in progress",
@@ -2478,12 +2499,15 @@ func TestApplyConfiguration(t *testing.T) {
 				if dr, ok := test.inputResources["drivers"]; ok {
 					builder = builder.WithLists(dr.(*csiopapi.DriverList))
 				}
+				if vsc, ok := test.inputResources["volumesnapshotclasses"]; ok {
+					builder = builder.WithLists(vsc.(*vsapi.VolumeSnapshotClassList))
+				}
 			}
 			if test.apiErrors != nil {
 				interceptorFuncs := interceptor.Funcs{}
-				if v, ok := test.apiErrors["get-operatorconfigs"]; ok {
+				if v, ok := test.apiErrors["get-operatorconfigs-volumesnapshotclasses"]; ok {
 					interceptorFuncs.Get = func(ctx context.Context, client client.WithWatch, key client.ObjectKey, obj client.Object, opts ...client.GetOption) error {
-						if strings.ToLower(reflect.TypeOf(obj).Elem().Name()) == "operatorconfig" {
+						if strings.ToLower(reflect.TypeOf(obj).Elem().Name()) == "operatorconfig" || strings.ToLower(reflect.TypeOf(obj).Elem().Name()) == "volumesnapshotclass" {
 							return v
 						}
 						return client.Get(ctx, key, obj, opts...)
