@@ -150,3 +150,21 @@ func GetExpandedCephNodeDevicesList(nodeDevices []cephv1.Device, nodeDeviceLabel
 	}
 	return nodeDevices
 }
+
+func GetCephClusterIssues(cephCluster *cephv1.CephCluster) map[string]string {
+	if cephCluster.Status.CephStatus != nil {
+		if cephCluster.Status.CephStatus.Health != "HEALTH_OK" {
+			issues := map[string]string{}
+			for warning, details := range cephCluster.Status.CephStatus.Details {
+				if len(cephCluster.Spec.HealthCheck.MuteHealthWarning) > 0 {
+					if v, ok := cephCluster.Spec.HealthCheck.MuteHealthWarning[warning]; ok && v.Policy == "mute" {
+						continue
+					}
+				}
+				issues[warning] = details.Message
+			}
+			return issues
+		}
+	}
+	return nil
+}

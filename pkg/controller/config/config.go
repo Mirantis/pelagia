@@ -160,6 +160,8 @@ var (
 	}
 	// default health config var
 	defaultHealthConfig = HealthParams{
+		// TODO: deprecated, will be removed in 4.x
+		// keep only OSDMAP_FLAGS and RECENT_CRASH as always ignored in future
 		CephIssuesToIgnore: []string{
 			"OSDMAP_FLAGS",
 			"TOO_FEW_PGS",
@@ -259,6 +261,7 @@ func loadHealthConfiguration(objLog zerolog.Logger, configData map[string]string
 
 	if issuesIgnore, present := configData[healthChecksCephIssuesToIgnoreParameter]; present {
 		objLog.Debug().Msgf(debugMsgTmpl, healthChecksCephIssuesToIgnoreParameter, issuesIgnore)
+		objLog.Warn().Msgf("parameter '%s' is deprecated, mute Ceph health issues via Rook CephCluster spec instead", healthChecksCephIssuesToIgnoreParameter)
 		newHealthConfig.CephIssuesToIgnore = strings.Split(issuesIgnore, ",")
 	}
 
