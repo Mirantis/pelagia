@@ -31,17 +31,6 @@ import (
 	f "github.com/Mirantis/pelagia/v3/test/e2e/framework"
 )
 
-// TODO: keep TestAddCustomDeviceClass and TestRemoveCustomDeviceClass for backward compatibility
-// to be removed in next release
-
-func TestAddCustomDeviceClass(t *testing.T) {
-	t.Skip("Step is not required anymore")
-}
-
-func TestRemoveCustomDeviceClass(t *testing.T) {
-	t.Skip("Step is not required anymore")
-}
-
 func TestVerifyCustomDeviceClass(t *testing.T) {
 	t.Log("#### e2e test: create pool on custom device class and verify it is separate from main storage")
 	defer f.SetupTeardown(t)()
