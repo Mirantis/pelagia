@@ -95,6 +95,7 @@ var (
 	builtinCephPools       = []string{".mgr", ".rgw.root"}
 	cephNodeAnnotationKeys = []string{monIPAnnotation}
 	// cephIgnoredHealthWarnings contains a list of Ceph health warnings that should be ignored during cluster health checks
+	// TODO: to be removed, keep only OSDMAP_FLAGS and RECENT_CRASH
 	cephIgnoredHealthWarnings = []string{
 		"OSDMAP_FLAGS",
 		"TOO_FEW_PGS",

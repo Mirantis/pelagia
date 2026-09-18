@@ -792,50 +792,56 @@ func TestEnsureCluster(t *testing.T) {
 func TestHealthCluster(t *testing.T) {
 	tests := []struct {
 		name           string
-		cephStatus     *cephv1.CephStatus
+		cephCluster    *cephv1.CephCluster
 		expectedResult bool
 	}{
 		{
 			name:           "verify health cluster - ceph cluster is HEALTH_OK",
-			cephStatus:     unitinputs.CephClusterReady.Status.CephStatus,
+			cephCluster:    &unitinputs.CephClusterReady,
 			expectedResult: true,
 		},
 		{
 			name: "verify health cluster - ceph cluster is HEALTH_WARN, allowed issues",
-			cephStatus: &cephv1.CephStatus{
-				Health: "HEALTH_WARN",
-				Details: map[string]cephv1.CephHealthMessage{
-					"RECENT_CRASH": {
-						Message:  "2 daemons have recently crashed",
-						Severity: "HEALTH_WARN",
-					},
-				},
-			},
-			expectedResult: true,
+			cephCluster: func() *cephv1.CephCluster {
+				cl := unitinputs.CephClusterHasHealthIssues.DeepCopy()
+				cl.Status.CephStatus.Details["RECENT_CRASH"] = cephv1.CephHealthMessage{
+					Message:  "2 daemons have recently crashed",
+					Severity: "HEALTH_WARN",
+				}
+				cl.Spec.HealthCheck.MuteHealthWarning = map[string]cephv1.MuteHealthWarningSpec{
+					"RECENT_MGR_MODULE_CRASH": {Policy: "mute"},
+				}
+				return cl
+			}(),
+			expectedResult: false,
 		},
 		{
 			name:           "verify health cluster - ceph cluster is HEALTH_WARN, critical issues",
-			cephStatus:     unitinputs.CephClusterHasHealthIssues.Status.CephStatus,
+			cephCluster:    &unitinputs.CephClusterHasHealthIssues,
 			expectedResult: false,
 		},
 		{
 			name: "verify health cluster - ceph cluster is HEALTH_WARN, allowed issues",
-			cephStatus: &cephv1.CephStatus{
-				Health: "HEALTH_ERR",
-				Details: map[string]cephv1.CephHealthMessage{
-					"PG_DAMAGED": {
-						Message:  "Possible data damage: 5 pgs recovery_unfound",
-						Severity: "HEALTH_ERR",
+			cephCluster: func() *cephv1.CephCluster {
+				cl := unitinputs.CephClusterHasHealthIssues.DeepCopy()
+				cl.Status.CephStatus = &cephv1.CephStatus{
+					Health: "HEALTH_ERR",
+					Details: map[string]cephv1.CephHealthMessage{
+						"PG_DAMAGED": {
+							Message:  "Possible data damage: 5 pgs recovery_unfound",
+							Severity: "HEALTH_ERR",
+						},
 					},
-				},
-			},
+				}
+				return cl
+			}(),
 			expectedResult: false,
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(nil, nil)
-			result := c.healthCluster(test.cephStatus)
+			result := c.healthCluster(test.cephCluster)
 			assert.Equal(t, test.expectedResult, result)
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
 		})
