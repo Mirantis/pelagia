@@ -144,18 +144,15 @@ func (c *cephDeploymentHealthConfig) checkClusterStatus() []string {
 		return issues
 	}
 	if c.healthConfig.cephCluster.Status.CephStatus.Health != "HEALTH_OK" {
-		for warning, details := range c.healthConfig.cephCluster.Status.CephStatus.Details {
-			if lcmcommon.Contains(c.lcmConfig.HealthParams.CephIssuesToIgnore, warning) {
-				c.log.Debug().Msgf("detected ceph cluster health issue '%s', which is ignored by cephdeploymenthealth config", warning)
-				continue
+		cephIssues := lcmcommon.GetCephClusterIssues(c.healthConfig.cephCluster)
+		for _, ignoreIssue := range c.lcmConfig.HealthParams.CephIssuesToIgnore {
+			if _, ok := cephIssues[ignoreIssue]; ok {
+				c.log.Debug().Msgf("ignoring issue '%s' since it's ignored by lcmconfig", ignoreIssue)
+				delete(cephIssues, ignoreIssue)
 			}
-			if len(c.healthConfig.cephCluster.Spec.HealthCheck.MuteHealthWarning) > 0 {
-				if v, ok := c.healthConfig.cephCluster.Spec.HealthCheck.MuteHealthWarning[warning]; ok && v.Policy == "mute" {
-					c.log.Debug().Msgf("detected ceph cluster health issue '%s', which is muted by cephcluster spec", warning)
-					continue
-				}
-			}
-			issues = append(issues, fmt.Sprintf("%s: %s", warning, details.Message))
+		}
+		for warning, details := range cephIssues {
+			issues = append(issues, fmt.Sprintf("%s: %s", warning, details))
 		}
 	}
 	timeProblem := checkStatusIsNotUpdated(c.healthConfig.cephCluster.Status.CephStatus)

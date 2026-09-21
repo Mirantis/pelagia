@@ -17,7 +17,6 @@ limitations under the License.
 package deployment
 
 import (
-	"encoding/json"
 	"fmt"
 	"reflect"
 	"sort"
@@ -190,7 +189,7 @@ func (c *cephDeploymentConfig) statusCluster() error {
 		c.log.Error().Err(err).Msgf("Ceph cluster %s/%s has no cluster status", c.lcmConfig.RookNamespace, c.cdConfig.cephDpl.Name)
 		return nil
 	}
-	isHealthy := c.healthCluster(clusterStatus.CephStatus)
+	isHealthy := c.healthCluster(cluster)
 	isStateOk := isStateReadyToUpdate(clusterStatus.State)
 	isPhaseOk := isTypeReadyToUpdate(clusterStatus.Phase)
 
@@ -206,34 +205,30 @@ func (c *cephDeploymentConfig) statusCluster() error {
 	return nil
 }
 
-func (c *cephDeploymentConfig) healthCluster(cephStatus *cephv1.CephStatus) bool {
-	clusterhealth, _ := json.Marshal(cephStatus.Health)
-	healthdetails := cephStatus.Details
-
-	if string(clusterhealth) == "\"HEALTH_OK\"" {
-		c.log.Info().Msgf("Cluster health: %v", string(clusterhealth))
+func (c *cephDeploymentConfig) healthCluster(cephCluster *cephv1.CephCluster) bool {
+	if cephCluster.Status.CephStatus.Health == "HEALTH_OK" {
+		c.log.Info().Msgf("Cluster health: %v", cephCluster.Status.CephStatus.Health)
 		return true
 	}
-	if string(clusterhealth) == "\"HEALTH_WARN\"" {
-		c.log.Warn().Msgf("Cluster health: %v", string(clusterhealth))
-	} else if string(clusterhealth) == "\"HEALTH_ERR\"" {
-		c.log.Error().Msgf("Cluster health: %v", string(clusterhealth))
+	if cephCluster.Status.CephStatus.Health == "HEALTH_WARN" {
+		c.log.Warn().Msgf("Cluster health: %v", cephCluster.Status.CephStatus.Health)
+	} else {
+		c.log.Error().Msgf("Cluster health: %v", cephCluster.Status.CephStatus.Health)
 	}
-	c.log.Info().Msgf("allowed issues: %v", strings.Join(cephIgnoredHealthWarnings, " "))
-	doNotIgnoreIssues := []string{}
-	for key, message := range healthdetails {
-		if lcmcommon.Contains(cephIgnoredHealthWarnings, key) {
-			c.log.Info().Msgf("found issue %s: %s", key, message)
-		} else {
-			c.log.Warn().Msgf("found issue %s: %s", key, message)
-			doNotIgnoreIssues = append(doNotIgnoreIssues, key)
+	cephIssues := lcmcommon.GetCephClusterIssues(cephCluster)
+	for _, ignoreIssue := range cephIgnoredHealthWarnings {
+		if _, ok := cephIssues[ignoreIssue]; ok {
+			c.log.Warn().Msgf("ignoring health issue '%s' since it's ignored by cephdeployment", ignoreIssue)
+			delete(cephIssues, ignoreIssue)
 		}
 	}
-	if len(doNotIgnoreIssues) > 0 {
-		c.log.Warn().Msgf("found issues, which can't be ignored: %s", strings.Join(doNotIgnoreIssues, " "))
-		return false
+	for warning, message := range cephIssues {
+		c.log.Warn().Msgf("found health issue %s: %s", warning, message)
 	}
-	return true
+	if len(cephIssues) > 0 {
+		c.log.Warn().Msg("found health issues, which can't be ignored")
+	}
+	return false
 }
 
 func generateCephClusterSpec(cephClusterSpec *cephv1.ClusterSpec, image string, nodesExpanded []cephlcmv1alpha1.CephDeploymentNode) cephv1.ClusterSpec {
