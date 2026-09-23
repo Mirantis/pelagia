@@ -172,6 +172,15 @@ var DiskDaemonDaemonset = appsv1.DaemonSet{
 								Name:  "DM_DISABLE_UDEV",
 								Value: "0",
 							},
+							{
+								Name: "NODE_NAME",
+								ValueFrom: &corev1.EnvVarSource{
+									FieldRef: &corev1.ObjectFieldSelector{
+										APIVersion: "v1",
+										FieldPath:  "spec.nodeName",
+									},
+								},
+							},
 						},
 						SecurityContext: &corev1.SecurityContext{
 							Privileged: &[]bool{true}[0],

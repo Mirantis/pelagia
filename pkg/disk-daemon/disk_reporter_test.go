@@ -285,7 +285,8 @@ var cephVolumeNode1 = map[string][]OsdVolumeInfo{
 
 func TestCheckDisks(t *testing.T) {
 	newDaemon := diskDaemon{
-		data: initDaemonData(),
+		nodeName: "node-1",
+		data:     initDaemonData(),
 	}
 
 	tests := []struct {

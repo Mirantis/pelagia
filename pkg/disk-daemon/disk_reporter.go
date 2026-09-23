@@ -36,7 +36,7 @@ func (d *diskDaemon) checkDisks() (bool, error) {
 	changed := false
 	// if block info is change, check that lvm partitions are up to date and update runtime block info
 	if d.data.runtime.disksReport == nil || !reflect.DeepEqual(d.data.runtime.disksReport.BlockInfo, newDisksReport.BlockInfo) {
-		log.Info().Msg("Daemon's disks info report is updating")
+		log.Info().Msgf("[node '%s'] daemon's disks info report is updating", d.nodeName)
 		if !reflect.DeepEqual(d.data.runtime.knownLvms, foundLvms) {
 			if d.data.runtime.knownLvms != nil {
 				log.Info().Msg("Found diff in lvm partitions, checking lvm table")
@@ -67,7 +67,7 @@ func (d *diskDaemon) checkDisks() (bool, error) {
 		return false, err
 	}
 	if !reflect.DeepEqual(d.data.runtime.volumesReport, newVolumesReport) {
-		log.Info().Msg("Daemon's ceph volumes info report is updating")
+		log.Info().Msgf("[node '%s'] daemon's ceph volumes info report is updating", d.nodeName)
 		lcmcommon.ShowObjectDiff(log, d.data.runtime.volumesReport, newVolumesReport)
 		changed = true
 		d.data.runtime.volumesReport = newVolumesReport

@@ -53,6 +53,7 @@ var DiskDaemonReportOkNode1WithParted = lcmcommon.DiskDaemonReport{
 		},
 		Osds: lcmdiskdaemoninput.OsdDevicesInfoNode1WithParted,
 	},
+	LastRun: "2026-09-22T14:30:10+04:00",
 }
 
 var DiskDaemonReportOkNode1SomeDevLost = lcmcommon.DiskDaemonReport{
