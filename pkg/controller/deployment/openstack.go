@@ -17,6 +17,7 @@ limitations under the License.
 package deployment
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"regexp"
@@ -41,6 +42,13 @@ type openstackSecretData struct {
 	rgwSecret        *v1.Secret
 	rgwInternalCert  *v1.Secret
 	rgwMetricsSecret *v1.Secret
+}
+
+type OpenstackClientInfo struct {
+	Name    string   `json:"client_name"`
+	ID      string   `json:"client_id"`
+	Keyring string   `json:"key"`
+	Pools   []string `json:"pools"`
 }
 
 func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
@@ -295,9 +303,24 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 		return fmt.Sprintf("%s:%s:%s", fullPoolName, pool.Role, castedPool.DeviceClass)
 	}
 
-	glance := "client.glance;" + secretData.clientKeys["glance"] + "\n"
-	nova := "client.nova;" + secretData.clientKeys["nova"] + "\n"
-	cinder := "client.cinder;" + secretData.clientKeys["cinder"] + "\n"
+	glance := OpenstackClientInfo{
+		Name:    "client.glance",
+		ID:      "glance",
+		Keyring: secretData.clientKeys["glance"],
+		Pools:   []string{},
+	}
+	nova := OpenstackClientInfo{
+		Name:    "client.nova",
+		ID:      "nova",
+		Keyring: secretData.clientKeys["nova"],
+		Pools:   []string{},
+	}
+	cinder := OpenstackClientInfo{
+		Name:    "client.cinder",
+		ID:      "cinder",
+		Keyring: secretData.clientKeys["cinder"],
+		Pools:   []string{},
+	}
 	for idx, pool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
 		// set basic volumes role
 		if pool.Role == "volumes-backend" {
@@ -306,18 +329,21 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 		poolDescription := buildPoolDescription(c.cdConfig.pools[idx], pool)
 		switch role := pool.Role; role {
 		case "volumes":
-			nova = nova + ";" + poolDescription
-			cinder = cinder + ";" + poolDescription
+			nova.Pools = append(nova.Pools, poolDescription)
+			cinder.Pools = append(cinder.Pools, poolDescription)
 		case "vms":
-			nova = nova + ";" + poolDescription
+			nova.Pools = append(nova.Pools, poolDescription)
 		case "images":
-			nova = nova + ";" + poolDescription
-			glance = glance + ";" + poolDescription
-			cinder = cinder + ";" + poolDescription
+			nova.Pools = append(nova.Pools, poolDescription)
+			glance.Pools = append(glance.Pools, poolDescription)
+			cinder.Pools = append(cinder.Pools, poolDescription)
 		case "backup":
-			cinder = cinder + ";" + poolDescription
+			cinder.Pools = append(cinder.Pools, poolDescription)
 		}
 	}
+	glanceSecret, _ := json.Marshal(glance)
+	novaSecret, _ := json.Marshal(nova)
+	cinderSecret, _ := json.Marshal(cinder)
 
 	var clientAdminSecret []byte
 	if c.cdConfig.clusterSpec.External.Enable {
@@ -334,16 +360,23 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 		},
 		Data: map[string][]byte{
 			"client.admin":  clientAdminSecret,
-			"glance":        []byte(glance),
-			"nova":          []byte(nova),
-			"cinder":        []byte(cinder),
+			"glance":        glanceSecret,
+			"nova":          novaSecret,
+			"cinder":        cinderSecret,
 			"mon_endpoints": []byte(monmapString),
 		},
 	}
 
 	// if manila key is here, add it to openstack-ceph-keys
 	if _, ok := secretData.clientKeys["manila"]; ok {
-		secret.Data["manila"] = []byte("client.manila;" + secretData.clientKeys["manila"] + "\n")
+		manila := OpenstackClientInfo{
+			Name:    "client.manila",
+			ID:      "manila",
+			Keyring: secretData.clientKeys["manila"],
+			Pools:   []string{},
+		}
+		manilaSecret, _ := json.Marshal(manila)
+		secret.Data["manila"] = manilaSecret
 	}
 
 	if c.cdConfig.cephDpl.Spec.ObjectStorage != nil {

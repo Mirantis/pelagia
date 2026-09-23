@@ -203,8 +203,8 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			rgwSecret:   &unitinputs.OpenstackRgwCredsSecret,
 			expected: func() *corev1.Secret {
 				secret := unitinputs.OpenstackSecretGenerated.DeepCopy()
-				secret.Data["nova"] = []byte("client.nova;nova\n;vms-hdd:vms:hdd;images-hdd:images:hdd;volumes-hdd:volumes:hdd;volumes-2-hdd:volumes:hdd;volumes-backend-1-hdd:volumes:hdd")
-				secret.Data["cinder"] = []byte("client.cinder;cinder\n;images-hdd:images:hdd;volumes-hdd:volumes:hdd;volumes-2-hdd:volumes:hdd;volumes-backend-1-hdd:volumes:hdd;backup-hdd:backup:hdd")
+				secret.Data["nova"] = []byte(`{"client_name":"client.nova","client_id":"nova","key":"nova","pools":["vms-hdd:vms:hdd","images-hdd:images:hdd","volumes-hdd:volumes:hdd","volumes-2-hdd:volumes:hdd","volumes-backend-1-hdd:volumes:hdd"]}`)
+				secret.Data["cinder"] = []byte(`{"client_name":"client.cinder","client_id":"cinder","key":"cinder","pools":["images-hdd:images:hdd","volumes-hdd:volumes:hdd","volumes-2-hdd:volumes:hdd","volumes-backend-1-hdd:volumes:hdd","backup-hdd:backup:hdd"]}`)
 				return secret
 			}(),
 		},
