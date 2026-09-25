@@ -50,6 +50,19 @@ var BaseCephDeployment = cephlcmv1alpha1.CephDeployment{
 	},
 }
 
+var DeprecatedCephDeployment = func() cephlcmv1alpha1.CephDeployment {
+	cdpl := BaseCephDeployment.DeepCopy()
+	cdpl.Spec.OldClients = []cephlcmv1alpha1.CephOldClient{
+		{
+			RawExtension: runtime.RawExtension{Raw: []byte(`{"name": "test2", "caps": {"osd": "custom-caps"}}`)},
+		},
+		{
+			RawExtension: runtime.RawExtension{Raw: []byte(`{"name": "nova", "caps": {"osd": "nova-caps"}}`)},
+		},
+	}
+	return *cdpl
+}()
+
 var CephDeploymentObjectsRefs = []v1.ObjectReference{
 	{
 		APIVersion: "lcm.mirantis.com/v1alpha1",
@@ -851,7 +864,7 @@ var CephDeployWithCSI = func() cephlcmv1alpha1.CephDeployment {
 // spec fixtures
 
 var CephDeployClientTest = cephlcmv1alpha1.CephClient{
-	RawExtension: runtime.RawExtension{
+	ClientSpec: runtime.RawExtension{
 		Raw: ConvertStructToRaw(
 			cephv1.ClientSpec{
 				Name: "test",
@@ -864,7 +877,8 @@ var CephDeployClientTest = cephlcmv1alpha1.CephClient{
 }
 
 var CephDeployClientCinder = cephlcmv1alpha1.CephClient{
-	RawExtension: runtime.RawExtension{
+	Role: "cinder",
+	ClientSpec: runtime.RawExtension{
 		Raw: ConvertStructToRaw(
 			cephv1.ClientSpec{
 				Name: "cinder",
@@ -878,7 +892,8 @@ var CephDeployClientCinder = cephlcmv1alpha1.CephClient{
 }
 
 var CephDeployClientGlance = cephlcmv1alpha1.CephClient{
-	RawExtension: runtime.RawExtension{
+	Role: "glance",
+	ClientSpec: runtime.RawExtension{
 		Raw: ConvertStructToRaw(
 			cephv1.ClientSpec{
 				Name: "glance",
@@ -892,7 +907,8 @@ var CephDeployClientGlance = cephlcmv1alpha1.CephClient{
 }
 
 var CephDeployClientNova = cephlcmv1alpha1.CephClient{
-	RawExtension: runtime.RawExtension{
+	Role: "nova",
+	ClientSpec: runtime.RawExtension{
 		Raw: ConvertStructToRaw(
 			cephv1.ClientSpec{
 				Name: "nova",
@@ -906,7 +922,8 @@ var CephDeployClientNova = cephlcmv1alpha1.CephClient{
 }
 
 var CephDeployClientManila = cephlcmv1alpha1.CephClient{
-	RawExtension: runtime.RawExtension{
+	Role: "manila",
+	ClientSpec: runtime.RawExtension{
 		Raw: ConvertStructToRaw(
 			cephv1.ClientSpec{
 				Name: "manila",
