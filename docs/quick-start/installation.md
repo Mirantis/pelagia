@@ -64,10 +64,13 @@ Ceph cluster, it could be managed by `CephDeployment` resource.
       name: pelagia-ceph
       namespace: pelagia
     spec:
-      dashboard: false
-      network:
-        publicNet: ${CEPH_PUBLIC_NET}
-        clusterNet: ${CEPH_CLUSTER_NET}
+      cluster:
+        network:
+          addressRanges:
+            cluster:
+            - ${CEPH_CLUSTER_NET}
+            public:
+            - ${CEPH_PUBLIC_NET}
       nodes:
       - name: ${CEPH_NODE_CP_0}
         roles: [ "mon", "mgr", "mds" ]
@@ -90,44 +93,48 @@ Ceph cluster, it could be managed by `CephDeployment` resource.
         - config:
             deviceClass: hdd
           fullPath: /dev/disk/by-id/${CEPH_OSD_DEVICE_2}
-      pools:
-      - name: kubernetes
-        deviceClass: hdd
-        default: true
-        replicated:
-          size: 3
+      blockStorage:
+        pools:
+        - name: kubernetes
+          storageClassOpts:
+            default: true
+          spec:
+            deviceClass: hdd
+            replicated:
+              size: 3
       objectStorage:
-        rgw:
-          name: rgw-store
-          dataPool:
-            deviceClass: hdd
-            replicated:
-              size: 3
-          metadataPool:
-            deviceClass: hdd
-            replicated:
-              size: 3
-          gateway:
-            allNodes: false
-            instances: 3
-            port: 8081
-            securePort: 8443
-          preservePoolsOnDelete: false
+        objectStores:
+        - name: rgw-store
+          spec:
+            dataPool:
+              deviceClass: hdd
+              replicated:
+                size: 3
+            metadataPool:
+              deviceClass: hdd
+              replicated:
+                size: 3
+            gateway:
+              instances: 3
+              port: 8081
+              securePort: 8443
+            preservePoolsOnDelete: false
       sharedFilesystem:
-        cephFS:
+        cephFilesystems:
         - name: cephfs-store
-          dataPools:
-          - name: cephfs-pool-1
-            deviceClass: hdd
-            replicated:
-              size: 3
-          metadataPool:
-            deviceClass: hdd
-            replicated:
-              size: 3
-          metadataServer:
-            activeCount: 1
-            activeStandby: false
+          spec:
+            dataPools:
+            - name: cephfs-pool-1
+              deviceClass: hdd
+              replicated:
+                size: 3
+            metadataPool:
+              deviceClass: hdd
+              replicated:
+                size: 3
+            metadataServer:
+              activeCount: 1
+              activeStandby: false
     ```
 
 The example above contains `3` control plane nodes and `3` worker nodes in a Ceph cluster.
