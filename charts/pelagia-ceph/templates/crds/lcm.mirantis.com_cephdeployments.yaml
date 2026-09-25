@@ -96,7 +96,7 @@ spec:
                         spec:
                           description: |-
                             PoolSpec represents pool specification
-                            Follow https://rook.io/docs/rook/v1.19/CRDs/Block-Storage/ceph-block-pool-crd
+                            Follow https://rook.io/docs/rook/v1.20/CRDs/Block-Storage/ceph-block-pool-crd
                             for available options
                           type: object
                           x-kubernetes-preserve-unknown-fields: true
@@ -151,12 +151,24 @@ spec:
                   Clients is a list of Ceph Clients used for Ceph Cluster connection by
                   consumer services
                 items:
-                  description: |-
-                    CephClient represents client specification
-                    Follow https://rook.io/docs/rook/v1.19/CRDs/ceph-client-crd/
-                    for available options
+                  description: CephClient represents Ceph client specification
+                  properties:
+                    role:
+                      description: |-
+                        Role represents client role. The following values are reserved for
+                        MOS managed clusters: cinder, glance, manila, nova
+                      nullable: true
+                      type: string
+                    spec:
+                      description: |-
+                        ClientSpec represents client specification
+                        Follow https://rook.io/docs/rook/v1.20/CRDs/ceph-client-crd/
+                        for available options
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                  required:
+                  - spec
                   type: object
-                  x-kubernetes-preserve-unknown-fields: true
                 type: array
               cluster:
                 description: |-
@@ -724,7 +736,7 @@ spec:
                         spec:
                           description: |-
                             Spec represents CephObjectStore configuration
-                            Follow https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-crd/
+                            Follow https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-store-crd/
                             for available options
                           type: object
                           x-kubernetes-preserve-unknown-fields: true
@@ -750,7 +762,7 @@ spec:
                         spec:
                           description: |-
                             Spec stands for realm configuration.
-                            see https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-realm-crd/
+                            see https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-realm-crd/
                             for available options
                           type: object
                           x-kubernetes-preserve-unknown-fields: true
@@ -771,7 +783,7 @@ spec:
                         spec:
                           description: |-
                             Spec represents CephObjectStoreUser configuration
-                            https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-user-crd/
+                            https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-store-user-crd/
                             for available options
                           type: object
                           x-kubernetes-preserve-unknown-fields: true
@@ -794,7 +806,7 @@ spec:
                         spec:
                           description: |-
                             Spec stands for zonegroup configuration.
-                            https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zonegroup-crd/
+                            https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-zonegroup-crd/
                             for available options
                           type: object
                           x-kubernetes-preserve-unknown-fields: true
@@ -818,7 +830,7 @@ spec:
                         spec:
                           description: |-
                             Spec stands for zone configuration.
-                            https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zone-crd/
+                            https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-zone-crd/
                             for available options
                           type: object
                           x-kubernetes-preserve-unknown-fields: true
@@ -885,7 +897,7 @@ spec:
                         spec:
                           description: |-
                             FsSpec represents CephFilesystem configuration
-                            https://rook.io/docs/rook/v1.19/CRDs/Shared-Filesystem/ceph-filesystem-crd/
+                            https://rook.io/docs/rook/v1.20/CRDs/Shared-Filesystem/ceph-filesystem-crd/
                             for available options
                           type: object
                           x-kubernetes-preserve-unknown-fields: true
@@ -907,7 +919,7 @@ spec:
                 nullable: true
                 type: string
               lastRun:
-                description: Last MiraCeph reconcile run time
+                description: Last CephDeployment reconcile run time
                 nullable: true
                 type: string
               message:
@@ -963,7 +975,7 @@ spec:
                 type: array
               phase:
                 default: Creating
-                description: Phase is a current MiraCeph handling phase
+                description: Phase is a current CephDeployment handling phase
                 type: string
               validation:
                 description: Validation reflects validation result for spec
