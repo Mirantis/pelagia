@@ -128,7 +128,6 @@ and the current cluster represents the master zone, modify the current
               instances: 2
               port: 80
               securePort: 8443
-            name: openstack-store
             preservePoolsOnDelete: false
             zone:
               name: openstack-store
