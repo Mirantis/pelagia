@@ -3814,7 +3814,7 @@ cluster, the Ceph client requires the following <code>caps</code> (permissions):
 </ol>
 <p>Once the Ceph cluster is specified in the <code>CephDeployment</code> CR of the consumer cluster, Pelagia validates it and requests Rook to connect the consumer and producer.</p>
 <h2 id="consume-pools-from-the-ceph-cluster">Consume pools from the Ceph cluster<a class="headerlink" href="#consume-pools-from-the-ceph-cluster" title="Permanent link">#</a></h2>
-<p>In the <code>spec.pools</code> of the consumer <code>CephDeployment</code>, specify pools from the producer cluster to be used by the consumer cluster. For example:</p>
+<p>In the <code>spec.blockStorage.pools</code> of the consumer <code>CephDeployment</code>, specify pools from the producer cluster to be used by the consumer cluster. For example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">blockStorage</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">pools</span><span class="p">:</span>
 <span class="w">   </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kubernetes-hdd</span>

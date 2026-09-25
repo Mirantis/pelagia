@@ -3891,11 +3891,6 @@ deployed based on the <code>devices</code> parameter defined for each Ceph node.
 <h2 id="cephdeployment-configuration-options">CephDeployment configuration options<a class="headerlink" href="#cephdeployment-configuration-options" title="Permanent link">#</a></h2>
 <p>The following subsections contain a description of <code>CephDeployment</code> parameters for an
 advanced configuration.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p><code>CephDeployment</code> has changed since version 1.x. Deprecated parameters are automatically migrated
-to the new API fields during the Pelagia upgrade. No manual steps are required.</p>
-</div>
 <p><a name="cephdeployment-general-parameters"></a></p>
 <h3 id="general-parameters">General parameters<a class="headerlink" href="#general-parameters" title="Permanent link">#</a></h3>
 <div class="admonition warning">
@@ -3957,26 +3952,7 @@ For details, see <a href="../../ops-guide/deployment/multinetworking/#multinetwo
 <li><code>rbdMirror</code> - Specifies the parameters for RBD mirroring. For details, see <a href="./#cephdeployment-rbd-mirroring-parameters">RBD Mirroring parameters</a>.</li>
 <li><code>rookConfig</code> - Specifies the string key-value that allows overriding Ceph configuration options. For details, see <a href="./#cephdeployment-rookconfig-parameters">RookConfig parameters</a>.</li>
 <li><code>sharedFilesystem</code> - Enables Ceph Filesystem. For details, see <a href="./#cephdeployment-cephfs-parameters">CephFS parameters</a>.</li>
-</ul>
-<p><strong>Deprecated top-level parameters migrated under <code>cluster</code></strong></p>
-<p>The following top-level general parameters were moved under the <code>cluster</code> field during the <code>CephDeployment</code> API refactoring.
-Their previous locations in the specification are deprecated.
-If you continue using a deprecated location, the parameter is automatically migrated to its new location during <code>CephDeployment</code> reconciliation.
-Using both the old and new locations simultaneously causes a reconciliation failure. Therefore, we highly recommend using the new specification structure.</p>
-<ul>
-<li><code>network</code> - Specifies access and public networks for the Ceph cluster.</li>
-<li><code>healthCheck</code> - Configures health checks and liveness probe settings for Ceph daemons.</li>
-<li><code>mgr</code> - Specifies the list of Ceph Manager modules to be enabled or disabled.</li>
-<li><code>dashboard</code> - Intended to enable Ceph Dashboard. Currently, Pelagia does not support Ceph Dashboard.</li>
-<li><code>external</code> - Enables external Ceph cluster mode. If enabled, Pelagia reads a dedicated <code>Secret</code> containing the connection credentials for the external Ceph cluster.</li>
-</ul>
-<p><strong>Deprecated top-level parameters migrated to dedicated fields</strong></p>
-<ul>
-<li><code>pools</code> - Specifies the list of Ceph pools. Automatically migrated to <code>blockStorage.pools</code> during <code>CephDeployment</code> reconciliation.</li>
-<li>
-<p><code>ingressConfig</code> - Enables a custom ingress rule for public access to Ceph services, for example, Ceph RADOS Gateway. For details, see <a href="../../ops-guide/deployment/object-storage/rgw-tls/#rgw-tls-configure-ceph-object-gateway-tls">Configure Ceph Object Gateway TLS</a>.</p>
-<p>Deprecated in favor of <code>objectStorage.gatewayHTTPRoutes</code> due to <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">NGINX Ingress retirement</a>.</p>
-</li>
+<li><code>ingressConfig</code> - Deprecated in favor of <code>objectStorage.gatewayHTTPRoutes</code> due to <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">NGINX Ingress retirement</a>. Enables a custom ingress rule for public access to Ceph services, for example, Ceph RADOS Gateway. For details, see <a href="../../ops-guide/deployment/object-storage/rgw-tls/#rgw-tls-configure-ceph-object-gateway-tls">Configure Ceph Object Gateway TLS</a>.</li>
 </ul>
 <p><a name="cephdeployment-nodes-parameters"></a></p>
 <h3 id="nodes-parameters">Nodes parameters<a class="headerlink" href="#nodes-parameters" title="Permanent link">#</a></h3>
@@ -4318,16 +4294,8 @@ permission on the mount point of persistent volumes based on any
 <li><code>users</code> - List of Ceph <code>ObjectStorage</code> users. Each <code>user</code> item represents the Rook <code>CephObjectStoreUser</code> specification. For details, see <a href="./#cephdeployment-rgw-users-parameters">RGW users parameters</a>.</li>
 <li><code>realms</code> - List of Ceph <code>ObjectStorage</code> realms. Each <code>realm</code> item represents the Rook <code>CephObjectRealms</code> specification. Currently, only one realm is supported, so the list must contain exactly one item. For details, see <a href="./#cephdeployment-rados-gateway-multisite-parameters">RGW multisite parameters</a>.</li>
 <li><code>zonegroups</code> - List of Ceph <code>ObjectStorage</code> zone groups. Each <code>zonegroup</code> item represents the Rook <code>CephObjectZoneGroup</code> specification. Currently, only one zone group is supported, so the list must contain exactly one item. For details, see <a href="./#cephdeployment-rados-gateway-multisite-parameters">RGW multisite parameters</a>.</li>
-<li><code>zones</code> - List of Ceph <code>ObjectStorage</code> zones. Each <code>zone</code> item represents the Rook <code>CephObjectZone</code> specification. Currently, only one zone is supported, so the list must contain exactly one item. For details, see <a href="./#cephdeployment-rados-gateway-multisite-parameters">RGW multisite parameters</a>..</li>
+<li><code>zones</code> - List of Ceph <code>ObjectStorage</code> zones. Each <code>zone</code> item represents the Rook <code>CephObjectZone</code> specification. Currently, only one zone is supported, so the list must contain exactly one item. For details, see <a href="./#cephdeployment-rados-gateway-multisite-parameters">RGW multisite parameters</a>.</li>
 <li><code>gatewayHTTPRoutes</code> - List of Gateway API HTTP routes. Each item represents the <code>HTTPRoute</code> specification. For details, see <a href="./#cephdeployment-httproute-parameters">RGW HTTPRoutes</a>.</li>
-<li><code>rgw</code> - Single definition of the Ceph <code>ObjectStorage</code> RGW object. Deprecated and automatically migrated to <code>objectStores</code> and <code>users</code> fields during <code>CephDeployment</code> reconciliation.</li>
-<li>
-<p><code>multiSite</code> - Definition of Ceph <code>ObjectStorage</code> RGW multisite configuration. Deprecated and automatically migrated to the <code>objectStorage</code> field during <code>CephDeployment</code> reconciliation. For example, <code>multisite.realms</code> is migrated to <code>objectStorage.realms</code>.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The realm access keys defined in the deprecated <code>multiSite.realms</code> field are removed from the spec during migration. For the <code>objectStorage.realms</code> field on new deployments, the operator must manually create a new secret with realm keys. For the procedure, see <a href="https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key">Rook documentation: Getting Realm Access Key and Secret Key</a>.</p>
-</div>
-</li>
 </ul>
 <p><a name="cephdeployment-rados-gateway-parameters"></a></p>
 <h4 id="rgw-objectstores-parameters">RGW objectStores parameters<a class="headerlink" href="#rgw-objectstores-parameters" title="Permanent link">#</a></h4>
@@ -4486,7 +4454,6 @@ For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ce
 <p><a name="cephdeployment-cephfs-parameters"></a></p>
 <h3 id="cephfilesystems-parameters">CephFilesystems parameters<a class="headerlink" href="#cephfilesystems-parameters" title="Permanent link">#</a></h3>
 <ul>
-<li><code>cephFS</code> - Contains a list of Ceph file systems. Deprecated, automatically migrated to the <code>cephFilesystems</code> field during <code>CephDeployment</code> reconciliation.</li>
 <li>
 <p><code>cephFilesystems</code> - Contains a list of Ceph file systems. Each <code>cephFilesystem</code> item represents the Rook <code>CephFilesystem</code> specification:</p>
 <ul>
@@ -4632,10 +4599,6 @@ of all Ceph daemons except Ceph OSD.</p>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;node_name&gt;</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;node_name_n&gt;</span>
 </code></pre></div>
-</li>
-<li>
-<p><code>customDeviceClasses</code> - Deprecated and automatically removed during cluster update.
-  List of custom device class names to use in the specification. The parameter no longer has any effect because you can set custom device classes in the node specification directly.</p>
 </li>
 <li>
 <p><code>osdRestartReason</code> - Optional. A string parameter used to restart all Ceph OSDs after configuration changes that require a daemon restart.
