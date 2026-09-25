@@ -28,6 +28,16 @@ import (
 )
 
 func TestEnsureDeprecatedFields(t *testing.T) {
+	migratedClients := []cephlcmv1alpha1.CephClient{
+		unitinputs.CephDeployClientTest,
+		{
+			ClientSpec: runtime.RawExtension{Raw: []byte(`{"name": "test2", "caps": {"osd": "custom-caps"}}`)},
+		},
+		{
+			Role:       "nova",
+			ClientSpec: runtime.RawExtension{Raw: []byte(`{"name": "nova", "caps": {"osd": "nova-caps"}}`)},
+		},
+	}
 	tests := []struct {
 		name            string
 		cephDpl         *cephlcmv1alpha1.CephDeployment
@@ -36,7 +46,22 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 		migrated        bool
 	}{
 		{
+			name:    "transform ceph clients",
+			cephDpl: unitinputs.DeprecatedCephDeployment.DeepCopy(),
+			expectedCephDpl: func() cephlcmv1alpha1.CephDeployment {
+				cdpl := unitinputs.BaseCephDeployment.DeepCopy()
+				cdpl.Spec.Clients = migratedClients
+				return *cdpl
+			}(),
+			migrated: true,
+		},
+		{
 			name:            "no transform",
+			cephDpl:         unitinputs.CephDeployNonMosk.DeepCopy(),
+			expectedCephDpl: unitinputs.CephDeployNonMosk,
+		},
+		{
+			name:            "no transform mosk",
 			cephDpl:         unitinputs.CephDeployMosk.DeepCopy(),
 			expectedCephDpl: unitinputs.CephDeployMosk,
 		},

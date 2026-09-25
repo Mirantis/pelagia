@@ -81,7 +81,7 @@ type CephDeploymentSpec struct {
 }
 
 // CephCluster represents cluster specification
-// Follow https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/
+// Follow https://rook.io/docs/rook/v1.20/CRDs/Cluster/ceph-cluster-crd/
 // for available options
 type CephCluster struct {
 	runtime.RawExtension `json:",inline"`
@@ -111,16 +111,24 @@ type CephPool struct {
 	// +optional
 	StorageClassOpts CephStorageClassSpec `json:"storageClassOpts,omitempty"`
 	// PoolSpec represents pool specification
-	// Follow https://rook.io/docs/rook/v1.19/CRDs/Block-Storage/ceph-block-pool-crd
+	// Follow https://rook.io/docs/rook/v1.20/CRDs/Block-Storage/ceph-block-pool-crd
 	// for available options
 	PoolSpec runtime.RawExtension `json:"spec"`
 }
 
-// CephClient represents client specification
-// Follow https://rook.io/docs/rook/v1.19/CRDs/ceph-client-crd/
-// for available options
+// CephClient represents Ceph client specification
 type CephClient struct {
-	runtime.RawExtension `json:",inline"`
+	// Role represents client role. The following values are reserved for
+	// MOS managed clusters: cinder, glance, manila, nova
+	// +nullable
+	Role string `json:"role,omitempty"`
+	// ClientSpec represents client specification
+	// Follow https://rook.io/docs/rook/v1.20/CRDs/ceph-client-crd/
+	// for available options
+	ClientSpec runtime.RawExtension `json:"spec"`
+
+	// deprecated, will be migrated under spec field and removed
+	OldSpec runtime.RawExtension `json:"-"`
 }
 
 type LabeledDevices map[string]string
@@ -221,7 +229,7 @@ type CephObjectStore struct {
 	// +optional
 	AuxiliaryService bool `json:"auxiliaryService,omitempty"`
 	// Spec represents CephObjectStore configuration
-	// Follow https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-crd/
+	// Follow https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-store-crd/
 	// for available options
 	Spec runtime.RawExtension `json:"spec"`
 }
@@ -230,7 +238,7 @@ type CephObjectStore struct {
 type CephObjectStoreUser struct {
 	Name string `json:"name"`
 	// Spec represents CephObjectStoreUser configuration
-	// https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-user-crd/
+	// https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-store-user-crd/
 	// for available options
 	Spec runtime.RawExtension `json:"spec"`
 }
@@ -252,7 +260,7 @@ type CephObjectRealm struct {
 	// Name of realm
 	Name string `json:"name"`
 	// Spec stands for realm configuration.
-	// see https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-realm-crd/
+	// see https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-realm-crd/
 	// for available options
 	Spec runtime.RawExtension `json:"spec,omitempty"`
 }
@@ -262,7 +270,7 @@ type CephObjectZonegroup struct {
 	// Name of zonegroup
 	Name string `json:"name"`
 	// Spec stands for zonegroup configuration.
-	// https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zonegroup-crd/
+	// https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-zonegroup-crd/
 	// for available options
 	Spec runtime.RawExtension `json:"spec"`
 }
@@ -272,7 +280,7 @@ type CephObjectZone struct {
 	// Name of zone
 	Name string `json:"name"`
 	// Spec stands for zone configuration.
-	// https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zone-crd/
+	// https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-zone-crd/
 	// for available options
 	Spec runtime.RawExtension `json:"spec"`
 }
@@ -334,7 +342,7 @@ type CephFilesystem struct {
 	// CephFilesystem name
 	Name string `json:"name"`
 	// FsSpec represents CephFilesystem configuration
-	// https://rook.io/docs/rook/v1.19/CRDs/Shared-Filesystem/ceph-filesystem-crd/
+	// https://rook.io/docs/rook/v1.20/CRDs/Shared-Filesystem/ceph-filesystem-crd/
 	// for available options
 	FsSpec runtime.RawExtension `json:"spec"`
 }
@@ -394,10 +402,10 @@ const (
 	PhaseFailed      CephDeploymentPhase = "Failed"
 )
 
-// CephDeploymentStatus defines the observed state of MiraCeph
+// CephDeploymentStatus defines the observed state of CephDeployment
 type CephDeploymentStatus struct {
 	//+kubebuilder:default=Creating
-	// Phase is a current MiraCeph handling phase
+	// Phase is a current CephDeployment handling phase
 	Phase CephDeploymentPhase `json:"phase"`
 	// Message is a description of a current phase if exists
 	// +nullable
@@ -408,7 +416,7 @@ type CephDeploymentStatus struct {
 	// Current Ceph cluster version(s)
 	// +nullable
 	ClusterVersion string `json:"clusterVersion,omitempty"`
-	// Last MiraCeph reconcile run time
+	// Last CephDeployment reconcile run time
 	// +nullable
 	LastRun string `json:"lastRun,omitempty"`
 	// objects refs
@@ -423,7 +431,7 @@ const (
 	ValidationSucceed ValidationResult = "Succeed"
 )
 
-// CephDeploymentValidation reflects validation result for MiraCeph spec
+// CephDeploymentValidation reflects validation result for CephDeployment spec
 type CephDeploymentValidation struct {
 	// Result is a spec validation result, which could be Succeed or Failed
 	Result ValidationResult `json:"result,omitempty"`

@@ -73,18 +73,18 @@ func (p CephPool) GetSpec() (cephv1.PoolSpec, error) {
 
 func (c CephClient) GetSpec() (cephv1.ClientSpec, error) {
 	var clientSpec cephv1.ClientSpec
-	if c.Raw == nil && c.Object == nil {
+	if c.ClientSpec.Raw == nil && c.ClientSpec.Object == nil {
 		return clientSpec, errors.New("spec: client spec no any data provided")
 	}
 
-	if c.Raw != nil {
-		if err := DecodeRawToStruct(c.Raw, &clientSpec); err != nil {
+	if c.ClientSpec.Raw != nil {
+		if err := DecodeRawToStruct(c.ClientSpec.Raw, &clientSpec); err != nil {
 			return clientSpec, errors.Wrap(err, "spec: client spec has failed to decode to Rook ClientSpec struct")
 		}
 		return clientSpec, nil
 	}
 
-	client, ok := c.Object.(*cephv1.CephClient)
+	client, ok := c.ClientSpec.Object.(*cephv1.CephClient)
 	if !ok {
 		return clientSpec, errors.New("spec: client field has failed to convert to Rook CephClient object")
 	}
