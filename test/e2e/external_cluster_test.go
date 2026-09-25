@@ -293,7 +293,7 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 			clientSpec.Caps["mds"] = "allow rw"
 		}
 		clientRaw, _ := cephlcmv1alpha1.DecodeStructToRaw(clientSpec)
-		client := cephlcmv1alpha1.CephClient{RawExtension: runtime.RawExtension{Raw: clientRaw}}
+		client := cephlcmv1alpha1.CephClient{ClientSpec: runtime.RawExtension{Raw: clientRaw}}
 		if len(cd.Spec.Clients) > 0 {
 			cd.Spec.Clients = append(cd.Spec.Clients, client)
 		} else {

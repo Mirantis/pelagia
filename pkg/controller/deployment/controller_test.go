@@ -1301,32 +1301,31 @@ func TestReconcile(t *testing.T) {
 				LastRun: "2021-08-15T14:30:43+04:00",
 			},
 		},
-		/* TODO: uncomment if any deprecation appear
 		{
 			name: "reconcile cephdeployment - failed to update deprecated fields",
 			inputResources: map[string]runtime.Object{
-				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{unitinputs.CephDeploymentDeprecated}},
+				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{unitinputs.DeprecatedCephDeployment}},
 				"configmaps":      &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.PelagiaConfig}},
 			},
-			testclient: faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.CephDeploymentDeprecated.DeepCopy()).WithObjects(unitinputs.CephDeploymentDeprecated.DeepCopy()),
+			testclient: faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.DeprecatedCephDeployment.DeepCopy()).WithObjects(unitinputs.DeprecatedCephDeployment.DeepCopy()),
 			apiErrors:  map[string]error{"update-cephdeployments": errors.New("update failed")},
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
 				Phase:   cephlcmv1alpha1.PhaseFailed,
 				Message: "failed to ensure deprecated fields for CephDeployment lcm-namespace/cephcluster",
-				LastRun: "2021-08-15T14:30:43+04:00",
+				LastRun: "2021-08-15T14:30:44+04:00",
 			},
 			result: requeueAfterInterval,
 		},
 		{
 			name: "reconcile cephdeployment - update deprecated fields",
 			inputResources: map[string]runtime.Object{
-				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{unitinputs.CephDeploymentDeprecated}},
+				"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{unitinputs.DeprecatedCephDeployment}},
 				"configmaps":      &corev1.ConfigMapList{Items: []corev1.ConfigMap{unitinputs.PelagiaConfig}},
 			},
-			testclient:     faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.CephDeploymentDeprecated.DeepCopy()).WithObjects(unitinputs.CephDeploymentDeprecated.DeepCopy()),
+			testclient:     faketestclients.GetClientBuilder().WithStatusSubresource(unitinputs.DeprecatedCephDeployment.DeepCopy()).WithObjects(unitinputs.DeprecatedCephDeployment.DeepCopy()),
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{},
 			result:         noRequeue,
-		},*/
+		},
 	}
 
 	oldTriesLeft := failTriesLeft
