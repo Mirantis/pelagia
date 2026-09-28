@@ -40,14 +40,12 @@ data:
   {{- if (.Values.cephDeployment.drainReadyLabelKey) }}
   DEPLOYMENT_DRAIN_READY_LABEL_KEY: {{ .Values.cephDeployment.drainReadyLabelKey }}
   {{- end }}
+  DEPLOYMENT_CSI_DRIVERS_MANAGE: {{ .Values.cephDeployment.csi.manage | quote }}
   {{- if .Values.cephDeployment.csi.manage }}
-  DEPLOYMENT_CSI_DRIVERS_MANAGE: "true"
   DEPLOYMENT_CSI_RBD_DEFAULT_DRIVER_CREATE: {{ .Values.cephDeployment.csi.defaultDriversCreate.rbd | quote }}
   DEPLOYMENT_CSI_CEPHFS_DEFAULT_DRIVER_CREATE: {{ .Values.cephDeployment.csi.defaultDriversCreate.cephfs | quote }}
   DEPLOYMENT_CSI_NFS_DEFAULT_DRIVER_CREATE: {{ .Values.cephDeployment.csi.defaultDriversCreate.nfs | quote }}
-    {{- if .Values.cephDeployment.csi.keepExisting }}
-  DEPLOYMENT_CSI_KEEP_EXISTING: {{ .Values.cephDeployment.csi.keepExisting | quote }}
-    {{- end }}
+  DEPLOYMENT_CSI_KEEP_EXISTING_ON_UPGRADE: {{ .Values.cephDeployment.csi.keepExisting | quote }}
   DEPLOYMENT_CSI_KUBELET_PATH: {{ .Values.cephDeployment.csi.kubeletPath }}
   DEPLOYMENT_CSI_ENABLE_CSIADDONS: {{ .Values.cephDeployment.csi.addons | quote }}
     {{- if .Values.cephDeployment.csi.placement.nodeAffinity.controllerPlugin }}
