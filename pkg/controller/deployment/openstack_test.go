@@ -20,10 +20,12 @@ import (
 	"errors"
 	"strings"
 	"testing"
+	"time"
 
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v3/pkg/apis/ceph.pelagia.lcm/v1alpha1"
@@ -203,8 +205,8 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			rgwSecret:   &unitinputs.OpenstackRgwCredsSecret,
 			expected: func() *corev1.Secret {
 				secret := unitinputs.OpenstackSecretGenerated.DeepCopy()
-				secret.Data["nova"] = []byte(`{"client_name":"client.nova","client_id":"nova","key":"nova","pools":["vms-hdd:vms:hdd","images-hdd:images:hdd","volumes-hdd:volumes:hdd","volumes-2-hdd:volumes:hdd","volumes-backend-1-hdd:volumes:hdd"]}`)
-				secret.Data["cinder"] = []byte(`{"client_name":"client.cinder","client_id":"cinder","key":"cinder","pools":["images-hdd:images:hdd","volumes-hdd:volumes:hdd","volumes-2-hdd:volumes:hdd","volumes-backend-1-hdd:volumes:hdd","backup-hdd:backup:hdd"]}`)
+				secret.Data["nova"] = []byte(`{"client_name":"client.novaN9y4kl7t4vTb","client_id":"novaN9y4kl7t4vTb","key":"nova-key","pools":["vms-hdd:vms:hdd","images-hdd:images:hdd","volumes-hdd:volumes:hdd","volumes-2-hdd:volumes:hdd","volumes-backend-1-hdd:volumes:hdd"]}`)
+				secret.Data["cinder"] = []byte(`{"client_name":"client.cinderVMucF_ZXr9Yz","client_id":"cinderVMucF_ZXr9Yz","key":"cinder-key","pools":["images-hdd:images:hdd","volumes-hdd:volumes:hdd","volumes-2-hdd:volumes:hdd","volumes-backend-1-hdd:volumes:hdd","backup-hdd:backup:hdd"]}`)
 				return secret
 			}(),
 		},
@@ -354,10 +356,10 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			assert.Nil(t, err)
 
 			secretData := openstackSecretData{
-				clientKeys: map[string]string{
-					"nova":   "nova",
-					"cinder": "cinder",
-					"glance": "glance",
+				clientsInfo: map[string]OpenstackClientInfo{
+					"nova":   {Name: "client.novaN9y4kl7t4vTb", ID: "novaN9y4kl7t4vTb", Keyring: "nova-key"},
+					"cinder": {Name: "client.cinderVMucF_ZXr9Yz", ID: "cinderVMucF_ZXr9Yz", Keyring: "cinder-key"},
+					"glance": {Name: "client.glanceo1sdvEEqDxxo", ID: "glanceo1sdvEEqDxxo", Keyring: "glance-key"},
 				},
 				monMap:           &unitinputs.RookCephMonEndpoints,
 				adminSecret:      test.adminSecret,
@@ -366,7 +368,9 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 				rgwMetricsSecret: test.rgwMetrics,
 			}
 			if test.cephDpl.Spec.SharedFilesystem != nil {
-				secretData.clientKeys["manila"] = "manila"
+				secretData.clientsInfo["manila"] = OpenstackClientInfo{
+					Name: "client.manilaqnJWCfLAghgC", ID: "manilaqnJWCfLAghgC", Keyring: "manila-key",
+				}
 			}
 
 			inputRes := map[string]runtime.Object{}
@@ -382,42 +386,79 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 	}
 }
 
-func TestOpenstackClientsFound(t *testing.T) {
+func TestGetOpenstackClientNames(t *testing.T) {
 	tests := []struct {
 		name           string
 		inputResources map[string]runtime.Object
 		cephFSDeployed bool
-		found          bool
+		expectedNames  map[string]string
+		expectedError  string
 	}{
+		{
+			name:           "openstack clients failed to list",
+			inputResources: map[string]runtime.Object{},
+			expectedError:  "failed to list CephClients in namespace 'rook-ceph': failed to list cephclients",
+		},
 		{
 			name:           "openstack clients found, no cephfs deployed - success",
 			inputResources: map[string]runtime.Object{"cephclients": &unitinputs.CephClientListOpenstack},
-			found:          true,
+			expectedNames: map[string]string{
+				"nova":   "novaN9y4kl7t4vTb",
+				"glance": "glanceo1sdvEEqDxxo",
+				"cinder": "cinderVMucF_ZXr9Yz",
+			},
 		},
 		{
 			name:           "openstack clients found, cephfs deployed - success",
 			cephFSDeployed: true,
 			inputResources: map[string]runtime.Object{"cephclients": &unitinputs.CephClientListOpenstackFull},
-			found:          true,
+			expectedNames: map[string]string{
+				"nova":   "novaN9y4kl7t4vTb",
+				"glance": "glanceo1sdvEEqDxxo",
+				"cinder": "cinderVMucF_ZXr9Yz",
+				"manila": "manilaqnJWCfLAghgC",
+			},
 		},
 		{
-			name:           "openstack clients found, no cephfs deployed - get cephclient failed",
-			inputResources: map[string]runtime.Object{},
-			found:          false,
+			name: "openstack clients found, multiple client, take last - success",
+			inputResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						unitinputs.CephClientCinder, unitinputs.CephClientGlance, unitinputs.CephClientNova,
+						func() cephv1.CephClient {
+							cl := unitinputs.CephClientCinder.DeepCopy()
+							cl.CreationTimestamp = metav1.NewTime(time.Now())
+							cl.Spec.Name = "cinder-last"
+							return *cl
+						}(),
+					},
+				},
+			},
+			expectedNames: map[string]string{
+				"nova":   "novaN9y4kl7t4vTb",
+				"glance": "glanceo1sdvEEqDxxo",
+				"cinder": "cinder-last",
+			},
 		},
 		{
-			name:           "openstack clients found, cephfs deployed - get cephclient failed",
-			inputResources: map[string]runtime.Object{},
+			name:           "openstack clients failed to find some clients",
+			inputResources: map[string]runtime.Object{"cephclients": &unitinputs.CephClientListOpenstack},
 			cephFSDeployed: true,
-			found:          false,
+			expectedError:  "failed to find some OpenStack CephClient(s)",
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(nil, nil)
-			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephclients"}, test.inputResources, nil)
-			found := c.openstackClientsFound(test.cephFSDeployed)
-			assert.Equal(t, test.found, found)
+			faketestclients.FakeReaction(c.api.Rookclientset, "list", []string{"cephclients"}, test.inputResources, nil)
+			expectedNames, err := c.getOpenstackClientNames(test.cephFSDeployed)
+			if test.expectedError != "" {
+				assert.NotNil(t, err)
+				assert.Equal(t, test.expectedError, err.Error())
+			} else {
+				assert.Nil(t, err)
+				assert.Equal(t, test.expectedNames, expectedNames)
+			}
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
 		})
 	}
@@ -462,7 +503,7 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
 				"cephclients":    &unitinputs.CephClientListEmpty,
 			},
-			expectedError: "skip openstack secret ensure: no required ceph clients",
+			expectedError: "failed to verify Openstack CephClient(s): failed to find some OpenStack CephClient(s)",
 		},
 		{
 			name:    "generate openstack secret - failed to get auth keys",
@@ -472,7 +513,7 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 				"cephclients":    &unitinputs.CephClientListOpenstack,
 			},
 			getAuthKeyError: errors.New("cmd failed"),
-			expectedError:   "failed to get auth keys for ceph clients: some auth keys failed to get: failed to run 'ceph auth get-key client.cinder' command, failed to run 'ceph auth get-key client.glance' command, failed to run 'ceph auth get-key client.nova' command",
+			expectedError:   "failed to get auth keys for ceph clients: some auth keys failed to get: failed to run 'ceph auth get-key client.cinderVMucF_ZXr9Yz' command, failed to run 'ceph auth get-key client.glanceo1sdvEEqDxxo' command, failed to run 'ceph auth get-key client.novaN9y4kl7t4vTb' command",
 		},
 		{
 			name:    "generate openstack secret - get monmap cm error",
@@ -693,7 +734,8 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "create", []string{"secrets"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "update", []string{"secrets"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"secrets"}, test.inputResources, test.apiErrors)
-			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephblockpools", "cephclients", "cephobjectstoreusers"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephblockpools", "cephobjectstoreusers"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Rookclientset, "list", []string{"cephclients"}, test.inputResources, test.apiErrors)
 			test.expectedResources = faketestclients.PrepareExpectedResources(test.inputResources, test.expectedResources)
 
 			lcmcommon.RunPodCommandWithValidation = func(e lcmcommon.ExecConfig) (string, string, error) {
@@ -701,8 +743,14 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 					return "", "", test.getAuthKeyError
 				}
 				cmds := strings.Split(e.Command, ".")
-				if len(cmds) == 2 {
-					return cmds[1], "", nil
+				if strings.HasPrefix(cmds[1], "cinder") {
+					return "cinder-key", "", nil
+				}
+				if strings.HasPrefix(cmds[1], "nova") {
+					return "nova-key", "", nil
+				}
+				if strings.HasPrefix(cmds[1], "glance") {
+					return "glance-key", "", nil
 				}
 				return "fake-keyring", "", nil
 			}
@@ -724,63 +772,72 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 func TestGetCephClientAuthKeys(t *testing.T) {
 	tests := []struct {
 		name               string
-		cephFSDeployed     bool
 		cliCommand         map[string]string
-		expectedClientKeys map[string]string
+		authNames          map[string]string
+		expectedClientKeys map[string]OpenstackClientInfo
 		expectedError      string
 	}{
 		{
-			name:          "get ceph client auth keys - failed to get auth keys",
-			expectedError: "some auth keys failed to get: failed to run 'ceph auth get-key client.cinder' command, failed to run 'ceph auth get-key client.glance' command, failed to run 'ceph auth get-key client.nova' command",
-		},
-		{
-			name:           "get ceph client auth keys - manila get key error",
-			cephFSDeployed: true,
-			cliCommand: map[string]string{
-				"ceph auth get-key client.nova":   "nova",
-				"ceph auth get-key client.cinder": "cinder",
-				"ceph auth get-key client.glance": "glance",
+			name: "get ceph client auth keys - failed to get auth keys",
+			authNames: map[string]string{
+				"nova":   "novaN9y4kl7t4vTb",
+				"glance": "glanceo1sdvEEqDxxo",
+				"cinder": "cinderVMucF_ZXr9Yz",
 			},
-			expectedError: "some auth keys failed to get: failed to run 'ceph auth get-key client.manila' command",
+			expectedError: "some auth keys failed to get: failed to run 'ceph auth get-key client.cinderVMucF_ZXr9Yz' command, failed to run 'ceph auth get-key client.glanceo1sdvEEqDxxo' command, failed to run 'ceph auth get-key client.novaN9y4kl7t4vTb' command",
 		},
 		{
 			name: "openstack clients found no manila - success",
 			cliCommand: map[string]string{
-				"ceph auth get-key client.nova":   "nova",
-				"ceph auth get-key client.cinder": "cinder",
-				"ceph auth get-key client.glance": "glance",
+				"ceph auth get-key client.novaN9y4kl7t4vTb":   "nova-key",
+				"ceph auth get-key client.cinderVMucF_ZXr9Yz": "cinder-key",
+				"ceph auth get-key client.glanceo1sdvEEqDxxo": "glance-key",
 			},
-			expectedClientKeys: map[string]string{
-				"nova":   "nova",
-				"cinder": "cinder",
-				"glance": "glance",
+			authNames: map[string]string{
+				"nova":   "novaN9y4kl7t4vTb",
+				"glance": "glanceo1sdvEEqDxxo",
+				"cinder": "cinderVMucF_ZXr9Yz",
+			},
+			expectedClientKeys: map[string]OpenstackClientInfo{
+				"nova":   {Name: "client.novaN9y4kl7t4vTb", ID: "novaN9y4kl7t4vTb", Keyring: "nova-key"},
+				"cinder": {Name: "client.cinderVMucF_ZXr9Yz", ID: "cinderVMucF_ZXr9Yz", Keyring: "cinder-key"},
+				"glance": {Name: "client.glanceo1sdvEEqDxxo", ID: "glanceo1sdvEEqDxxo", Keyring: "glance-key"},
 			},
 		},
 		{
-			name:           "openstack clients found - empty",
-			cephFSDeployed: true,
-			cliCommand: map[string]string{
-				"ceph auth get-key client.nova":   "",
-				"ceph auth get-key client.cinder": "",
-				"ceph auth get-key client.glance": "",
-				"ceph auth get-key client.manila": "",
+			name: "openstack clients found - empty",
+			authNames: map[string]string{
+				"nova":   "novaN9y4kl7t4vTb",
+				"glance": "glanceo1sdvEEqDxxo",
+				"cinder": "cinderVMucF_ZXr9Yz",
 			},
-			expectedError: "some auth keys failed to get: command 'ceph auth get-key client.cinder' output is empty, command 'ceph auth get-key client.glance' output is empty, command 'ceph auth get-key client.manila' output is empty, command 'ceph auth get-key client.nova' output is empty",
+			cliCommand: map[string]string{
+				"ceph auth get-key client.novaN9y4kl7t4vTb":   "",
+				"ceph auth get-key client.cinderVMucF_ZXr9Yz": "",
+				"ceph auth get-key client.glanceo1sdvEEqDxxo": "",
+				"ceph auth get-key client.manilaqnJWCfLAghgC": "",
+			},
+			expectedError: "some auth keys failed to get: command 'ceph auth get-key client.cinderVMucF_ZXr9Yz' output is empty, command 'ceph auth get-key client.glanceo1sdvEEqDxxo' output is empty, command 'ceph auth get-key client.novaN9y4kl7t4vTb' output is empty",
 		},
 		{
-			name:           "openstack clients found with manila - success",
-			cephFSDeployed: true,
+			name: "openstack clients found with manila - success",
 			cliCommand: map[string]string{
-				"ceph auth get-key client.nova":   "nova",
-				"ceph auth get-key client.cinder": "cinder",
-				"ceph auth get-key client.glance": "glance",
-				"ceph auth get-key client.manila": "manila",
+				"ceph auth get-key client.novaN9y4kl7t4vTb":   "nova-key",
+				"ceph auth get-key client.cinderVMucF_ZXr9Yz": "cinder-key",
+				"ceph auth get-key client.glanceo1sdvEEqDxxo": "glance-key",
+				"ceph auth get-key client.manilaqnJWCfLAghgC": "manila-key",
 			},
-			expectedClientKeys: map[string]string{
-				"nova":   "nova",
-				"cinder": "cinder",
-				"glance": "glance",
-				"manila": "manila",
+			authNames: map[string]string{
+				"nova":   "novaN9y4kl7t4vTb",
+				"glance": "glanceo1sdvEEqDxxo",
+				"cinder": "cinderVMucF_ZXr9Yz",
+				"manila": "manilaqnJWCfLAghgC",
+			},
+			expectedClientKeys: map[string]OpenstackClientInfo{
+				"nova":   {Name: "client.novaN9y4kl7t4vTb", ID: "novaN9y4kl7t4vTb", Keyring: "nova-key"},
+				"cinder": {Name: "client.cinderVMucF_ZXr9Yz", ID: "cinderVMucF_ZXr9Yz", Keyring: "cinder-key"},
+				"glance": {Name: "client.glanceo1sdvEEqDxxo", ID: "glanceo1sdvEEqDxxo", Keyring: "glance-key"},
+				"manila": {Name: "client.manilaqnJWCfLAghgC", ID: "manilaqnJWCfLAghgC", Keyring: "manila-key"},
 			},
 		},
 	}
@@ -795,7 +852,7 @@ func TestGetCephClientAuthKeys(t *testing.T) {
 				return "", "", errors.New("command failed")
 			}
 
-			actual, err := c.getCephClientAuthKeys(test.cephFSDeployed)
+			actual, err := c.getCephClientAuthKeys(test.authNames)
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
