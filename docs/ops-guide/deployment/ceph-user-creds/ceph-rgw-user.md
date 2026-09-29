@@ -117,7 +117,7 @@ For all supported parameters of Ceph Object Storage users, refer to
 ## Remove a Ceph Object Storage user
 
 1. Edit the `CephDeployment` CR by removing the required Ceph
-   Object Storage user from `spec.objectStorage.rgw.objectUsers`:
+   Object Storage user from `spec.objectStorage.users`:
    ```bash
    kubectl -n pelagia edit cephdpl
    ```

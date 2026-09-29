@@ -200,7 +200,7 @@ Once the Ceph cluster is specified in the `CephDeployment` CR of the consumer cl
 
 ## Consume pools from the Ceph cluster
 
-In the `spec.pools` of the consumer `CephDeployment`, specify pools from the producer cluster to be used by the consumer cluster. For example:
+In the `spec.blockStorage.pools` of the consumer `CephDeployment`, specify pools from the producer cluster to be used by the consumer cluster. For example:
 
 ```yaml
 blockStorage:
