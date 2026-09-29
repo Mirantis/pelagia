@@ -658,24 +658,23 @@ func TestEnsureCephClients(t *testing.T) {
 			apiErrors: map[string]error{"update-cephclients": errors.New("update failed")},
 		},
 		{
-			name:    "ensure ceph clients - client ready, nothing todo",
-			cephDpl: unitinputs.CephDeployNonMosk,
-			inputResources: map[string]runtime.Object{
-				"cephclients": &cephv1.CephClientList{
-					Items: []cephv1.CephClient{*unitinputs.TestCephClientReady.DeepCopy()},
-				},
-			},
-		},
-		// TODO: remove next test cases in 4.x once upgrade 2.x -> 3.x completed
-		{
-			name:    "ensure ceph clients - default openstack clients with base names updated only label",
-			cephDpl: unitinputs.CephDeployMosk,
+			name: "ensure ceph clients - default openstack clients should be rotated and not removed old",
+			cephDpl: func() cephlcmv1alpha1.CephDeployment {
+				cdpl := unitinputs.CephDeployMosk.DeepCopy()
+				cdpl.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{
+					RotateOsClients: cephlcmv1alpha1.RotateOsClients{
+						Rotation:     1,
+						KeepPrevious: 1,
+					},
+				}
+				return *cdpl
+			}(),
 			inputResources: map[string]runtime.Object{
 				"cephclients": &cephv1.CephClientList{
 					Items: []cephv1.CephClient{
-						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientOld("nova", unitinputs.CephClientNova, true), true),
-						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientOld("cinder", unitinputs.CephClientCinder, true), true),
-						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientOld("glance", unitinputs.CephClientGlance, true), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova", unitinputs.CephClientNova, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder", unitinputs.CephClientCinder, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance", unitinputs.CephClientGlance, false, false), true),
 					},
 				},
 				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
@@ -683,26 +682,61 @@ func TestEnsureCephClients(t *testing.T) {
 			expectedResources: map[string]runtime.Object{
 				"cephclients": &cephv1.CephClientList{
 					Items: []cephv1.CephClient{
-						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientOld("nova", unitinputs.CephClientNova, false), true),
-						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientOld("cinder", unitinputs.CephClientCinder, false), true),
-						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientOld("glance", unitinputs.CephClientGlance, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova", unitinputs.CephClientNova, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder", unitinputs.CephClientCinder, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance", unitinputs.CephClientGlance, false, false), true),
+						unitinputs.BumpRotationID(unitinputs.CephClientCinder, "1"),
+						unitinputs.BumpRotationID(unitinputs.CephClientGlance, "1"),
+						unitinputs.BumpRotationID(unitinputs.CephClientNova, "1"),
 					},
 				},
+				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
 			},
 			expectedChange: true,
 		},
 		{
-			name:    "ensure ceph clients - default openstack clients with base names not touched",
-			cephDpl: unitinputs.CephDeployMosk,
+			name: "ensure ceph clients - default openstack clients already rotated and removed old",
+			cephDpl: func() cephlcmv1alpha1.CephDeployment {
+				cdpl := unitinputs.CephDeployMosk.DeepCopy()
+				cdpl.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{
+					RotateOsClients: cephlcmv1alpha1.RotateOsClients{
+						Rotation: 1,
+					},
+				}
+				return *cdpl
+			}(),
 			inputResources: map[string]runtime.Object{
 				"cephclients": &cephv1.CephClientList{
 					Items: []cephv1.CephClient{
-						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientOld("nova", unitinputs.CephClientNova, false), true),
-						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientOld("cinder", unitinputs.CephClientCinder, false), true),
-						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientOld("glance", unitinputs.CephClientGlance, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova", unitinputs.CephClientNova, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder", unitinputs.CephClientCinder, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance", unitinputs.CephClientGlance, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientCinder, "1"), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientGlance, "1"), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientNova, "1"), true),
 					},
 				},
 				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
+			},
+			expectedResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientCinder, "1"), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientGlance, "1"), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientNova, "1"), true),
+					},
+				},
+				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
+			},
+			expectedChange: true,
+		},
+		{
+			name:    "ensure ceph clients - client ready, nothing todo",
+			cephDpl: unitinputs.CephDeployNonMosk,
+			inputResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{*unitinputs.TestCephClientReady.DeepCopy()},
+				},
 			},
 		},
 		{
@@ -719,9 +753,9 @@ func TestEnsureCephClients(t *testing.T) {
 			inputResources: map[string]runtime.Object{
 				"cephclients": &cephv1.CephClientList{
 					Items: []cephv1.CephClient{
-						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientOld("nova", unitinputs.CephClientNova, true), true),
-						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientOld("cinder", unitinputs.CephClientCinder, true), true),
-						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientOld("glance", unitinputs.CephClientGlance, true), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova-spec", unitinputs.CephClientNova, true, true), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder-spec", unitinputs.CephClientCinder, true, true), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance-spec", unitinputs.CephClientGlance, true, true), true),
 					},
 				},
 				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
@@ -729,13 +763,52 @@ func TestEnsureCephClients(t *testing.T) {
 			expectedResources: map[string]runtime.Object{
 				"cephclients": &cephv1.CephClientList{
 					Items: []cephv1.CephClient{
-						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientOld("nova", unitinputs.CephClientNova, false), true),
-						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientOld("cinder", unitinputs.CephClientCinder, false), true),
-						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientOld("glance", unitinputs.CephClientGlance, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova-spec", unitinputs.CephClientNova, false, true), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder-spec", unitinputs.CephClientCinder, false, true), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance-spec", unitinputs.CephClientGlance, false, true), true),
 					},
 				},
 			},
 			expectedChange: true,
+		},
+		// TODO: remove next test cases in 4.x once upgrade 2.x -> 3.x completed
+		{
+			name:    "ensure ceph clients - default openstack clients with base names updated only label",
+			cephDpl: unitinputs.CephDeployMosk,
+			inputResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova", unitinputs.CephClientNova, true, true), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder", unitinputs.CephClientCinder, true, true), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance", unitinputs.CephClientGlance, true, true), true),
+					},
+				},
+				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
+			},
+			expectedResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova", unitinputs.CephClientNova, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder", unitinputs.CephClientCinder, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance", unitinputs.CephClientGlance, false, false), true),
+					},
+				},
+			},
+			expectedChange: true,
+		},
+		{
+			name:    "ensure ceph clients - default openstack clients with base names not touched",
+			cephDpl: unitinputs.CephDeployMosk,
+			inputResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova", unitinputs.CephClientNova, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder", unitinputs.CephClientCinder, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance", unitinputs.CephClientGlance, false, false), true),
+					},
+				},
+				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
+			},
 		},
 	}
 	oldFunc := lcmcommon.RandomizedName

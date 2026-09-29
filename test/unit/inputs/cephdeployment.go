@@ -881,7 +881,7 @@ var CephDeployClientCinder = cephlcmv1alpha1.CephClient{
 	ClientSpec: runtime.RawExtension{
 		Raw: ConvertStructToRaw(
 			cephv1.ClientSpec{
-				Name: "cinder",
+				Name: "cinder-spec",
 				Caps: map[string]string{
 					"mon": "allow profile rbd",
 					"osd": "profile rbd pool=volumes-hdd, profile rbd-read-only pool=images-hdd, profile rbd pool=backup-hdd",
@@ -896,7 +896,7 @@ var CephDeployClientGlance = cephlcmv1alpha1.CephClient{
 	ClientSpec: runtime.RawExtension{
 		Raw: ConvertStructToRaw(
 			cephv1.ClientSpec{
-				Name: "glance",
+				Name: "glance-spec",
 				Caps: map[string]string{
 					"mon": "allow profile rbd",
 					"osd": "profile rbd pool=images-hdd",
@@ -911,7 +911,7 @@ var CephDeployClientNova = cephlcmv1alpha1.CephClient{
 	ClientSpec: runtime.RawExtension{
 		Raw: ConvertStructToRaw(
 			cephv1.ClientSpec{
-				Name: "nova",
+				Name: "nova-spec",
 				Caps: map[string]string{
 					"mon": "allow profile rbd",
 					"osd": "profile rbd pool=vms-hdd, profile rbd pool=images-hdd, profile rbd pool=volumes-hdd",
@@ -926,7 +926,7 @@ var CephDeployClientManila = cephlcmv1alpha1.CephClient{
 	ClientSpec: runtime.RawExtension{
 		Raw: ConvertStructToRaw(
 			cephv1.ClientSpec{
-				Name: "manila",
+				Name: "manila-spec",
 				Caps: map[string]string{
 					"mds": "allow rw",
 					"mgr": "allow rw",

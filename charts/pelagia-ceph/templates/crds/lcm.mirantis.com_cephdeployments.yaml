@@ -265,6 +265,29 @@ spec:
                       PreventClusterDestroy option is used to avoid occasional cluster remove.
                       Option should be dropped in case of real cluster remove.
                     type: boolean
+                  rotateOsClients:
+                    description: RotateOsClients allow to rotate prepared by default
+                      Openstack clients.
+                    properties:
+                      keepPrevious:
+                        description: Keep no more than specified count of previous
+                          keyrings.
+                        maximum: 3
+                        minimum: 0
+                        type: integer
+                      rotation:
+                        description: Current rotation number for Openstack clients
+                          prepared by default.
+                        format: int16
+                        maximum: 32767
+                        minimum: 1
+                        type: integer
+                        x-kubernetes-validations:
+                        - message: rotation cannot be decreased
+                          rule: self >= oldSelf
+                    required:
+                    - rotation
+                    type: object
                 type: object
               ingressConfig:
                 description: |-

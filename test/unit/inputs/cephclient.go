@@ -87,10 +87,11 @@ var CephClientCinder = cephv1.CephClient{
 		Namespace: "rook-ceph",
 		Name:      "cindervmucf-zxr9yz",
 		Labels: map[string]string{
-			"app.kubernetes.io/created-by":                "pelagia-deployment-controller",
-			"app.kubernetes.io/managed-by":                "pelagia-deployment-controller",
-			"app.kubernetes.io/part-of":                   "ceph.pelagia.lcm",
-			"cephdeployment.lcm.mirantis.com/client-role": "cinder",
+			"app.kubernetes.io/created-by":                    "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by":                    "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":                       "ceph.pelagia.lcm",
+			"cephdeployment.lcm.mirantis.com/client-role":     "cinder",
+			"cephdeployment.lcm.mirantis.com/client-rotation": "0",
 		},
 	},
 	Spec: cephv1.ClientSpec{
@@ -107,10 +108,11 @@ var CephClientNova = cephv1.CephClient{
 		Namespace: "rook-ceph",
 		Name:      "novan9y4kl7t4vtb",
 		Labels: map[string]string{
-			"app.kubernetes.io/created-by":                "pelagia-deployment-controller",
-			"app.kubernetes.io/managed-by":                "pelagia-deployment-controller",
-			"app.kubernetes.io/part-of":                   "ceph.pelagia.lcm",
-			"cephdeployment.lcm.mirantis.com/client-role": "nova",
+			"app.kubernetes.io/created-by":                    "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by":                    "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":                       "ceph.pelagia.lcm",
+			"cephdeployment.lcm.mirantis.com/client-role":     "nova",
+			"cephdeployment.lcm.mirantis.com/client-rotation": "0",
 		},
 	},
 	Spec: cephv1.ClientSpec{
@@ -127,10 +129,11 @@ var CephClientGlance = cephv1.CephClient{
 		Namespace: "rook-ceph",
 		Name:      "glanceo1sdveeqdxxo",
 		Labels: map[string]string{
-			"app.kubernetes.io/created-by":                "pelagia-deployment-controller",
-			"app.kubernetes.io/managed-by":                "pelagia-deployment-controller",
-			"app.kubernetes.io/part-of":                   "ceph.pelagia.lcm",
-			"cephdeployment.lcm.mirantis.com/client-role": "glance",
+			"app.kubernetes.io/created-by":                    "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by":                    "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":                       "ceph.pelagia.lcm",
+			"cephdeployment.lcm.mirantis.com/client-role":     "glance",
+			"cephdeployment.lcm.mirantis.com/client-rotation": "0",
 		},
 	},
 	Spec: cephv1.ClientSpec{
@@ -147,10 +150,11 @@ var CephClientManila = cephv1.CephClient{
 		Namespace: "rook-ceph",
 		Name:      "manilaqnjwcflaghgc",
 		Labels: map[string]string{
-			"app.kubernetes.io/created-by":                "pelagia-deployment-controller",
-			"app.kubernetes.io/managed-by":                "pelagia-deployment-controller",
-			"app.kubernetes.io/part-of":                   "ceph.pelagia.lcm",
-			"cephdeployment.lcm.mirantis.com/client-role": "manila",
+			"app.kubernetes.io/created-by":                    "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by":                    "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":                       "ceph.pelagia.lcm",
+			"cephdeployment.lcm.mirantis.com/client-role":     "manila",
+			"cephdeployment.lcm.mirantis.com/client-rotation": "0",
 		},
 	},
 	Spec: cephv1.ClientSpec{
@@ -164,13 +168,22 @@ var CephClientManila = cephv1.CephClient{
 	},
 }
 
-func GetOSClientOld(baseName string, osClient cephv1.CephClient, dropLabel bool) cephv1.CephClient {
+func GetOSClientWithName(baseName string, osClient cephv1.CephClient, dropRoleLabel, dropRotationLabel bool) cephv1.CephClient {
 	cl := osClient.DeepCopy()
-	if dropLabel {
+	if dropRoleLabel {
 		delete(cl.Labels, "cephdeployment.lcm.mirantis.com/client-role")
+	}
+	if dropRotationLabel {
+		delete(cl.Labels, "cephdeployment.lcm.mirantis.com/client-rotation")
 	}
 	cl.Name = baseName
 	cl.Spec.Name = baseName
+	return *cl
+}
+
+func BumpRotationID(osClient cephv1.CephClient, id string) cephv1.CephClient {
+	cl := osClient.DeepCopy()
+	cl.Labels["cephdeployment.lcm.mirantis.com/client-rotation"] = id
 	return *cl
 }
 
