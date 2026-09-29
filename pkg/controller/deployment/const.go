@@ -40,6 +40,8 @@ const (
 
 	// label for policies created by cephdeployment
 	rookNetworkPolicyLabel = "cephdeployment.lcm.mirantis.com/networkpolicy"
+	// label for ceph client created by cephdeployment for openstack
+	cephDeploymentClientRoleLabel = "cephdeployment.lcm.mirantis.com/client-role"
 
 	rookStorageClassLabelKey   = "rook-ceph-storage-class"
 	rookDefaultSCAnnotationKey = "storageclass.kubernetes.io/is-default-class"
