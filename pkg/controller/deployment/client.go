@@ -19,6 +19,7 @@ package deployment
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -57,25 +58,51 @@ func (c *cephDeploymentConfig) ensureCephClients() (bool, error) {
 		}
 		for role, clientSpec := range osClients {
 			defaultOsClient := generateClient(c.lcmConfig.RookNamespace, clientSpec, role)
+			expectedRotation := int16(0)
+			minRotationToKeep := int16(0)
+			if c.cdConfig.cephDpl.Spec.ExtraOpts != nil {
+				expectedRotation = c.cdConfig.cephDpl.Spec.ExtraOpts.RotateOsClients.Rotation
+				minRotationToKeep = c.cdConfig.cephDpl.Spec.ExtraOpts.RotateOsClients.Rotation - int16(c.cdConfig.cephDpl.Spec.ExtraOpts.RotateOsClients.KeepPrevious)
+			}
+			// add rotation label for clients created by pelagia
+			newLabels := map[string]string{cephDeploymentClientRotationLabel: fmt.Sprintf("%d", expectedRotation)}
+			defaultOsClient.Labels = lcmcommon.ExtendLabels(newLabels, defaultOsClient.Labels)
 			for _, cephClient := range cephClients.Items {
 				// since clients names are generated - find by label previously generated if exist
 				// or find by raw service name, eg. nova - for clients created before 3.x release
 				clientLabel := ""
+				clientRotation := int16(-1)
 				if cephClient.Labels != nil {
 					clientLabel = cephClient.Labels[cephDeploymentClientRoleLabel]
+					rotationStr, ok := cephClient.Labels[cephDeploymentClientRotationLabel]
+					if ok {
+						rotation, err := strconv.Atoi(rotationStr)
+						if err != nil {
+							return false, errors.Wrapf(err, "failed to check rotation '%s/%s' CephClient: label '%s' must be of int value",
+								cephClient.Namespace, cephClient.Name, cephDeploymentClientRotationLabel)
+						}
+						clientRotation = int16(rotation)
+					}
 				}
 				if clientLabel == role {
-					defaultOsClient.Name = cephClient.Name
-					defaultOsClient.Spec.Name = cephClient.Spec.Name
-					break
-				}
-				// fallback for previous client names
-				// will be used only once after upgrade to set correct labels
-				// TODO: remove in 4.x
-				if cephClient.Spec.Name == role && clientLabel == "" {
-					defaultOsClient.Name = cephClient.Name
-					defaultOsClient.Spec.Name = cephClient.Spec.Name
-					break
+					if expectedRotation == clientRotation {
+						defaultOsClient.Name = cephClient.Name
+						defaultOsClient.Spec.Name = cephClient.Spec.Name
+						break
+					}
+					if minRotationToKeep <= clientRotation {
+						// keep client as is w/o any updates
+						delete(presentClients, cephClient.Name)
+					}
+				} else {
+					// fallback for previous client names
+					// will be used only once after upgrade to set correct labels
+					// TODO: remove in 4.x
+					if cephClient.Spec.Name == role && clientLabel == "" {
+						defaultOsClient.Name = cephClient.Name
+						defaultOsClient.Spec.Name = cephClient.Spec.Name
+						break
+					}
 				}
 			}
 			expectedClients = append(expectedClients, defaultOsClient)

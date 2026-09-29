@@ -154,6 +154,23 @@ type CephDeploymentExtraOpts struct {
 	// Valuable only for MOS managed clusters
 	// +optional
 	DisableOsKeys bool `json:"disableOsSharedKeys,omitempty"`
+	// RotateOsClients allow to rotate prepared by default Openstack clients.
+	// +optional
+	RotateOsClients RotateOsClients `json:"rotateOsClients,omitempty"`
+}
+
+// OpenstackClientRotation stands for rotation of Openstack clients for Rockoon
+type RotateOsClients struct {
+	// Current rotation number for Openstack clients prepared by default.
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=32767
+	// +kubebuilder:validation:XValidation:message="rotation cannot be decreased",rule="self >= oldSelf"
+	// +kubebuilder:validation:Format=int16
+	Rotation int16 `json:"rotation"`
+	// Keep no more than specified count of previous keyrings.
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=3
+	KeepPrevious int8 `json:"keepPrevious,omitempty"`
 }
 
 // CephDeploymentNode contains specific node configuration to use it in Ceph Cluster
