@@ -27,7 +27,7 @@
     
     
       
-        <title>Upgrade notes 1.x to 2.x - Pelagia for Rook Ceph management</title>
+        <title>Upgrade notes 2.x to 3.x - Pelagia for Rook Ceph management</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#upgrade-notes-1x-to-2x" class="md-skip">
+        <a href="#upgrade-notes-2x-to-3x" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Upgrade notes 1.x to 2.x
+              Upgrade notes 2.x to 3.x
             
           </span>
         </div>
@@ -998,6 +998,8 @@
       
         
       
+        
+      
     
     
     
@@ -1098,7 +1100,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade notes 1.x to 2.x
+    Upgrade notes 2.x to 3.x
   
 
     
@@ -1116,7 +1118,7 @@
   <span class="md-ellipsis">
     
   
-    Upgrade notes 1.x to 2.x
+    Upgrade notes 2.x to 3.x
   
 
     
@@ -1178,6 +1180,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://mirantis.github.io/pelagia/2.x/upgrade-guide/upgrade-notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrade notes 1.x to 2.x
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -3543,92 +3573,87 @@
   
 
 
-<h1 id="upgrade-notes-1x-to-2x">Upgrade notes 1.x to 2.x<a class="headerlink" href="#upgrade-notes-1x-to-2x" title="Permanent link">#</a></h1>
-<p>Pelagia 1.x must be upgraded to version 2.x.
+<h1 id="upgrade-notes-2x-to-3x">Upgrade notes 2.x to 3.x<a class="headerlink" href="#upgrade-notes-2x-to-3x" title="Permanent link">#</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This page describes the upgrade to Pelagia 3.x, which is under development
+and not released yet. The instructions below apply only after Pelagia 3.0
+is published. Until then, do not use them on production environments.</p>
+</div>
+<p>This page describes upgrading Pelagia 2.x to 3.x.
 For Pelagia release notes, refer to <a href="https://github.com/Mirantis/pelagia/releases/">Pelagia Releases</a>.</p>
 <h2 id="breaking-changes">Breaking changes<a class="headerlink" href="#breaking-changes" title="Permanent link">#</a></h2>
 <ul>
 <li>
-<p>The default Ceph release is set to <a href="https://docs.ceph.com/en/latest/releases/tentacle/">Ceph Tentacle</a>.</p>
+<p>Rook is upgraded to v1.20. For upgrade details, see <a href="https://rook.io/docs/rook/v1.20/Upgrade/rook-upgrade/">Rook upgrade</a>.</p>
+<p>Pelagia now manages CSI drivers and OperatorConfig through the new <code>spec.csi</code> field of <code>CephDeployment</code>. For details,
+see <a href="../../custom-resources/cephdeployment/">CephDeployment resource</a>.</p>
 </li>
 <li>
-<p>Rook is upgraded to v1.19. For upgrade details, see <a href="https://rook.io/docs/rook/v1.19/Upgrade/rook-upgrade/">Rook upgrade</a>.</p>
+<p>Ceph CSI Operator is updated to v1.0.4.</p>
+<p>For details, see <a href="https://github.com/ceph/ceph-csi-operator/releases#release-v1.0.4">Ceph CSI Operator release notes</a>.</p>
 </li>
 <li>
-<p>Pelagia now has Rook as a separate chart allowing the user to disable the Pelagia-based Rook setup and use a different Rook chart.</p>
-</li>
-<li>
-<p>Ceph CSI operator is enabled by default.</p>
-<p>Previously, the CSI driver was automatically configured by Rook.
-Now, the CSI operator has been factored out of Rook to run independently to manage the Ceph-CSI driver.
-For details, see <a href="https://github.com/ceph/ceph-csi-operator/tree/v0.6.0#ceph-csi-operator">Ceph CSI operator README</a>.</p>
-</li>
-<li>
-<p>CephDeployment API is refactored and now uses pure Rook API for several fields.
-  For details, see <a href="../../custom-resources/cephdeployment/">CephDeployment resource</a>.
-  <code>CephDeployment</code> is automatically migrated to a new API during upgrade, no manual steps are required.</p>
-</li>
-<li>
-<p>After changing the <code>CephDeployment</code> API, Pelagia supports multiple ObjectStore (Ceph RGW) instances.
-  Consider the following changes:</p>
-<ul>
-<li>
-<p>The RGW name of <code>StorageClass</code> created by default has changed to <code>&lt;object-store-name&gt;-bucket</code>.</p>
-<p>The previously created <code>StorageClass</code> for a single ObjectStore (RGW) instance named <code>rgw-storage-class</code> is still present in the environment for backward compatibility.
-All existing buckets are not affected, but for newly created ones a new <code>StorageClass</code> must be used.
-Removal of <code>StorageClass</code> with old names must be done manually.</p>
-</li>
-<li>
-<p>The self-signed ObjectStore (RGW) SSL certificate is regenerated and renamed from <code>rgw-ssl-certificate</code> to
-  <code>&lt;object-store-name&gt;-ssl-certificate</code>.</p>
-<p>If the current description of ObjectStore (RGW) provides certificates in the <code>SSLCert</code> or <code>SSLCertInRef</code> section (for details, see <a href="https://mirantis.github.io/pelagia/1.x/custom-resources/cephdeployment/#rados-gateway-parameters">CephDeployment CephRGW params</a>), these certificates will continue to be used and will be moved to the corresponding new sections.
-The <code>SSLCert</code> and <code>SSLCertInRef</code> sections will be removed.
-Specifying plain SSL certificates directly in the <code>CephDeployment</code> spec is now prohibited, use a secret reference instead.</p>
-</li>
-<li>
-<p>The multisite realm cannot provide plain realm keys in the spec anymore, for security reasons.
-  You must create the corresponding secret as described in <a href="https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key">Rook documentation: Getting Realm Access Key and Secret Key</a>.
-  For existing environments, no actions are required.</p>
-</li>
-<li>
-<p>Serving RGW DNS names must be now set using the ObjectStore (RGW) spec definition.
-  This enables a more flexible configuration.
-  For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-crd/#hosting-settings">Rook documentation: Hosting Settings</a>.
-  Existing environments do not require pre-upgrade steps, but consider switching to the new flow after upgrade.</p>
-</li>
-</ul>
-</li>
-<li>
-<p>Gateway API support.</p>
-<p>NGINX Ingress controller is <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">deprecated</a>, but
-continues operating after Pelagia upgrade.
-However, its support will be removed in following release. Therefore, consider switching to the Gateway API after upgrade.
-For details, see the post-upgrade steps below.</p>
+<p>Ingress support is disabled by default. The default value of <code>lcmConfig.useIngress</code> is changed from <code>true</code> to <code>false</code>
+  due to the <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">NGINX Ingress retirement</a>.</p>
+<p>After the upgrade, Pelagia removes the existing Ingress for Ceph Object Storage (RGW) unless <code>lcmConfig.useIngress: true</code>
+is set explicitly in Helm values. If your setup still uses Ingress, switch to the Gateway API before the upgrade or set
+<code>lcmConfig.useIngress: true</code> to keep Ingress temporarily. For the Gateway API options, see <a href="../../configuration/helm-values/">Helm chart values</a>.</p>
 </li>
 </ul>
 <h2 id="pre-upgrade-steps">Pre-upgrade steps<a class="headerlink" href="#pre-upgrade-steps" title="Permanent link">#</a></h2>
-<p>In this release, the Rook setup is moved to a separate chart and is used as a dependency in Pelagia. Therefore, if your current setup
-contains custom settings in <code>values.rookConfig</code> for the Helm chart, copy them under <code>values.rook.rookConfig</code>.
-Keep the old <code>values.rookConfig</code> settings until the upgrade is complete.</p>
+<p>In this release, Rook no longer configures CSI resources. Pelagia now manages the CSI configuration.
+If your setup has the following chart options:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">rook</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">rookConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">csiPlacement</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">nodeAffinity</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">csiprovisioner</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;csi-provisioner-affinity&gt;&quot;</span>
+<span class="w">        </span><span class="nt">csiplugin</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;csi-plugin-affinity&gt;&quot;</span>
+<span class="w">      </span><span class="nt">tolerations</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">csiplugin</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;csi-plugin-tolerations&gt;&quot;</span>
+<span class="w">        </span><span class="nt">csiprovisioner</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;csi-provisioner-tolerations&gt;&quot;</span>
+<span class="w">    </span><span class="nt">csiKubeletPath</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;kubelet-path&gt;&quot;</span>
+<span class="w">    </span><span class="nt">csiCephFsEnabled</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;cephfs-enabled&gt;&quot;</span>
+<span class="w">    </span><span class="nt">csiNfsEnabled</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;nfs-enabled&gt;&quot;</span>
+<span class="w">    </span><span class="nt">csiAddonsEnabled</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;addons-enabled&gt;&quot;</span>
+</code></pre></div>
+<p>Move them to the following options before the upgrade:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">cephDeployment</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">csi</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">kubeletPath</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;kubelet-path&gt;&quot;</span>
+<span class="w">    </span><span class="nt">defaultDriversCreate</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cephfs</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;cephfs-enabled&gt;&quot;</span>
+<span class="w">      </span><span class="nt">nfs</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;nfs-enabled&gt;&quot;</span>
+<span class="w">    </span><span class="nt">placement</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">nodeAffinity</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">controllerPlugin</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;csi-provisioner-affinity&gt;&quot;</span>
+<span class="w">        </span><span class="nt">nodePlugin</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;csi-plugin-affinity&gt;&quot;</span>
+<span class="w">      </span><span class="nt">tolerations</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">nodePlugin</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;csi-plugin-tolerations&gt;&quot;</span>
+<span class="w">        </span><span class="nt">controllerPlugin</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;csi-provisioner-tolerations&gt;&quot;</span>
+<span class="w">    </span><span class="nt">addons</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;addons-enabled&gt;&quot;</span>
+</code></pre></div>
 <p><a id="upgrade-notes-post-upgrade-steps"></a></p>
 <h2 id="post-upgrade-steps">Post-upgrade steps<a class="headerlink" href="#post-upgrade-steps" title="Permanent link">#</a></h2>
-<p>Complete the following steps after upgrading Pelagia to 2.x. For description
-of the changes that require these steps, see the <em>Breaking changes</em> section above.</p>
+<p>Complete the following steps after upgrading Pelagia to 3.x:</p>
 <ol>
-<li>Optional. Manually remove the existing <code>StorageClass</code> for the ObjectStore (RGW) instances named <code>rgw-storage-class</code>.</li>
-<li>Switch to setting RGW DNS names using the ObjectStore (RGW) spec definition.
-   This enables a more flexible configuration.
-   For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-crd/#hosting-settings">Rook documentation: Hosting Settings</a>.</li>
 <li>
-<p>Switch to the <a href="https://gateway-api.sigs.k8s.io/guides/getting-started/introduction/">Gateway API</a> due to
-   the deprecation of the NGINX Ingress controller. The <code>Gateway</code> object and Controller must be configured separately.</p>
-<p>To configure Pelagia after switching to the Gateway API, use the corresponding <code>Gateway</code> object.
- For details, see <a href="../../configuration/">Configuration Reference</a> and <a href="../../custom-resources/cephdeployment/">CephDeployment resource</a>.</p>
-<p>Once the Gateway API HTTPRoute is enrolled, disable Ingress in Helm values <code>lcmConfig.useIngress: false</code> and completely
- remove the <code>ingressConfig</code> section from <code>CephDeployment</code> spec if present.</p>
-</li>
-<li>
-<p>If the current Helm values contain the <code>rookConfig</code> section, you can safely remove it.</p>
+<p>Remove the following options from the Helm chart if present:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">rook</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">rookConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">csiPlacement</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">nodeAffinity</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">csiprovisioner</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;csi-provisioner-affinity&gt;&quot;</span>
+<span class="w">        </span><span class="nt">csiplugin</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;csi-plugin-affinity&gt;&quot;</span>
+<span class="w">      </span><span class="nt">tolerations</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">csiplugin</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;csi-plugin-tolerations&gt;&quot;</span>
+<span class="w">        </span><span class="nt">csiprovisioner</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;csi-provisioner-tolerations&gt;&quot;</span>
+<span class="w">    </span><span class="nt">csiKubeletPath</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;kubelet-path&gt;&quot;</span>
+<span class="w">    </span><span class="nt">csiCephFsEnabled</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;cephfs-enabled&gt;&quot;</span>
+<span class="w">    </span><span class="nt">csiNfsEnabled</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;nfs-enabled&gt;&quot;</span>
+<span class="w">    </span><span class="nt">csiAddonsEnabled</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;addons-enabled&gt;&quot;</span>
+</code></pre></div>
 </li>
 </ol>
 

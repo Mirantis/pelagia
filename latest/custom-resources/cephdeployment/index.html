@@ -868,6 +868,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#csi-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CSI parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1185,6 +1196,8 @@
       
         
       
+        
+      
     
     
     
@@ -1270,6 +1283,34 @@
   
     <li class="md-nav__item">
       <a href="../../upgrade-guide/upgrade-notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Upgrade notes 2.x to 3.x
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://mirantis.github.io/pelagia/2.x/upgrade-guide/upgrade-notes/" class="md-nav__link">
         
   
   
@@ -3671,6 +3712,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#csi-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CSI parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3945,6 +3997,7 @@ For details, see <a href="../../ops-guide/deployment/multinetworking/#multinetwo
 <li>
 <p><code>blockStorage</code> - Specifies the Ceph block storage configuration. Contains the <code>pools</code> parameter that specifies the list of Ceph pools. For details, see <a href="./#cephdeployment-pools-parameters">Pools parameters</a>.</p>
 </li>
+<li><code>csi</code> - Manages CSI resources such as drivers and OperatorConfig. For details, see <a href="./#cephdeployment-csi-parameters">CSI parameters</a>.</li>
 <li><code>clients</code> - Specifies the list of Ceph clients. For details, see <a href="./#cephdeployment-clients-parameters">Clients parameters</a>.</li>
 <li><code>extraOpts</code> - Enables specification of extra options for a Ceph cluster setup, includes the <code>deviceLabels</code> parameter. For details, see <a href="./#cephdeployment-extraopts-parameters">ExtraOpts parameters</a>.</li>
 <li><code>nodes</code> - Specifies the list of Ceph nodes with node specifications. Each list item can define a Ceph node specification for a single node or a group of nodes specified by an explicit list, a label, or a combination of both. For details, see <a href="./#cephdeployment-nodes-parameters">Nodes parameters</a>.</li>
@@ -4624,10 +4677,30 @@ of all Ceph daemons except Ceph OSD.</p>
 </ul>
 </li>
 </ul>
+<p><a name="cephdeployment-csi-parameters"></a></p>
+<h3 id="csi-parameters">CSI parameters<a class="headerlink" href="#csi-parameters" title="Permanent link">#</a></h3>
+<p>The <code>csi</code> section applies only if CSI resources management is enabled in Helm values with <code>cephDeployment.csi.manage: true</code>, which is the default. Otherwise, Pelagia ignores this section.</p>
+<ul>
+<li>
+<p><code>operatorConfig</code> - Optional. Represents the CSI <code>OperatorConfig</code> specification:</p>
+<ul>
+<li><code>fullOverride</code> - Optional. Fully overrides the existing <code>OperatorConfig</code> resource with the provided spec. Otherwise, the spec is merged with the existing one.</li>
+<li><code>spec</code> - Represents the CSI <a href="https://github.com/ceph/ceph-csi-operator/blob/v1.0.4/docs/design/operator.md#operatorconfig-crd">OperatorConfig API specification</a>.</li>
+</ul>
+</li>
+<li>
+<p><code>drivers</code> - Optional. Contains a list of CSI <code>Driver</code> resources.</p>
+<ul>
+<li><code>fullOverride</code> - Optional. Fully overrides the existing <code>Driver</code> resource with the provided spec. Otherwise, the spec is merged with the existing one.</li>
+<li><code>type</code> - Mandatory. Driver type. Allowed values: <code>nvmeof</code>, <code>rbd</code>, <code>cephfs</code>, or <code>nfs</code>.</li>
+<li><code>spec</code> - Represents the CSI <a href="https://github.com/ceph/ceph-csi-operator/blob/v1.0.4/docs/design/operator.md#driver-crd">Driver API specification</a>.</li>
+</ul>
+</li>
+</ul>
 <p><a name="cephdeployment-status-fields"></a></p>
 <h2 id="status-fields">Status fields<a class="headerlink" href="#status-fields" title="Permanent link">#</a></h2>
 <ul>
-<li><code>phase</code> - Current handling phase of the applied Ceph cluster spec. Can equal to <code>Creating</code>, <code>Deploying</code>, <code>Validation</code>, <code>Ready</code>, <code>Deleting</code>, <code>OnHold</code> or <code>Failed</code>.</li>
+<li><code>phase</code> - Current handling phase of the applied Ceph cluster spec. Allowed values: <code>Creating</code>, <code>Deploying</code>, <code>Validation</code>, <code>Ready</code>, <code>Deleting</code>, <code>OnHold</code>, or <code>Failed</code>.</li>
 <li><code>message</code> - Detailed description of the current phase or an error message if the phase is <code>Failed</code>.</li>
 <li><code>lastRun</code> - <code>DateTime</code> of the previous spec reconciliation.</li>
 <li><code>clusterVersion</code> - Current Ceph cluster version, for example, <code>v19.2.3</code>.</li>
