@@ -48,7 +48,7 @@ type OpenstackClientInfo struct {
 	Name    string   `json:"client_name"`
 	ID      string   `json:"client_id"`
 	Keyring string   `json:"key"`
-	Pools   []string `json:"pools,omitempty"`
+	Pools   []string `json:"pools"`
 }
 
 func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
@@ -66,7 +66,6 @@ func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
 		return false, nil
 	}
 	c.log.Debug().Msgf("ensure Openstack secret %s/%s", c.lcmConfig.DeployParams.OpenstackCephSharedNamespace, openstackSharedSecret)
-	cephFSDeployed := c.cdConfig.cephDpl.Spec.SharedFilesystem != nil
 
 	notReadyOpenStackPools := []string{}
 	for idx, pool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
@@ -81,7 +80,7 @@ func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
 	if len(notReadyOpenStackPools) > 0 {
 		return false, errors.Errorf("skip openstack secret ensure since the following required OpenStack pools are not ready yet: %v", notReadyOpenStackPools)
 	}
-	authNames, err := c.getOpenstackClientNames(cephFSDeployed)
+	authNames, err := c.getOpenstackClientNames()
 	if err != nil {
 		return false, errors.Wrap(err, "failed to verify Openstack CephClient(s)")
 	}
@@ -201,7 +200,7 @@ func (c *cephDeploymentConfig) getCephClientAuthKeys(authNames map[string]string
 		} else if key == "" {
 			errs = append(errs, fmt.Sprintf("command '%s' output is empty", cmd))
 		} else {
-			authKeys[service] = OpenstackClientInfo{Name: clientName, ID: client, Keyring: key}
+			authKeys[service] = OpenstackClientInfo{Name: clientName, ID: client, Keyring: key, Pools: []string{}}
 		}
 	}
 	if len(errs) > 0 {
@@ -211,9 +210,9 @@ func (c *cephDeploymentConfig) getCephClientAuthKeys(authNames map[string]string
 	return authKeys, nil
 }
 
-func (c *cephDeploymentConfig) getOpenstackClientNames(cephFSDeployed bool) (map[string]string, error) {
+func (c *cephDeploymentConfig) getOpenstackClientNames() (map[string]string, error) {
 	osClients := map[string]int{"cinder": -1, "glance": -1, "nova": -1}
-	if cephFSDeployed {
+	if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.Filesystems) > 0 {
 		osClients["manila"] = -1
 	}
 	// find all clients with role
@@ -222,17 +221,25 @@ func (c *cephDeploymentConfig) getOpenstackClientNames(cephFSDeployed bool) (map
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to list CephClients in namespace '%s'", c.lcmConfig.RookNamespace)
 	}
+	currentRotation := int16(0)
+	if c.cdConfig.cephDpl.Spec.ExtraOpts != nil && c.cdConfig.cephDpl.Spec.ExtraOpts.RotateOsClients != nil {
+		currentRotation = c.cdConfig.cephDpl.Spec.ExtraOpts.RotateOsClients.Rotation
+	}
 	for idx, client := range clients.Items {
 		if role, ok := client.Labels[cephDeploymentClientRoleLabel]; ok {
-			if idxPresent, ok := osClients[role]; ok {
-				if idxPresent != -1 {
-					// take latest created client - for rotation
-					prevTime := clients.Items[idxPresent].GetCreationTimestamp()
-					newTime := clients.Items[idx].GetCreationTimestamp()
-					if prevTime.Before(&newTime) {
-						osClients[role] = idx
-					}
-				} else {
+			if _, ok := osClients[role]; !ok {
+				continue
+			}
+			// take by current rotation for default clients
+			// take by latest label for clients specified in spec
+			if rotation, ok := client.Labels[cephDeploymentClientRotationLabel]; ok {
+				if rotation == fmt.Sprintf("%d", currentRotation) {
+					osClients[role] = idx
+				}
+				continue
+			}
+			if latest, ok := client.Labels[cephDeploymentClientLatestLabel]; ok {
+				if latest == "true" {
 					osClients[role] = idx
 				}
 			}
@@ -243,9 +250,14 @@ func (c *cephDeploymentConfig) getOpenstackClientNames(cephFSDeployed bool) (map
 	for role, idx := range osClients {
 		if idx == -1 {
 			errs++
-			c.log.Error().Msgf("failed to find CephClient for '%s' service", role)
+			c.log.Error().Msgf("failed to find actual CephClient for '%s' service", role)
 		} else {
-			authNames[role] = clients.Items[idx].Spec.Name
+			if clients.Items[idx].Status != nil && clients.Items[idx].Status.Phase == cephv1.ConditionReady {
+				authNames[role] = clients.Items[idx].Spec.Name
+			} else {
+				c.log.Warn().Msgf("found not ready Openstack CephClient '%s/%s', waiting readiness...", clients.Items[idx].Namespace, clients.Items[idx].Name)
+				errs++
+			}
 		}
 	}
 	if errs > 0 {

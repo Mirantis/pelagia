@@ -534,7 +534,7 @@ var OpenstackSecretGenerated = corev1.Secret{
 
 var OpenstackSecretGeneratedCephFS = func() corev1.Secret {
 	secret := OpenstackSecretGenerated.DeepCopy()
-	secret.Data["manila"] = []byte(`{"client_name":"client.manilaqnJWCfLAghgC","client_id":"manilaqnJWCfLAghgC","key":"manila-key"}`)
+	secret.Data["manila"] = []byte(`{"client_name":"client.manilaqnJWCfLAghgC","client_id":"manilaqnJWCfLAghgC","key":"manila-key","pools":[]}`)
 	return *secret
 }()
 

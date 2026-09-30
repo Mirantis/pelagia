@@ -20,12 +20,10 @@ import (
 	"errors"
 	"strings"
 	"testing"
-	"time"
 
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	"github.com/stretchr/testify/assert"
 	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v3/pkg/apis/ceph.pelagia.lcm/v1alpha1"
@@ -369,7 +367,7 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			}
 			if test.cephDpl.Spec.SharedFilesystem != nil {
 				secretData.clientsInfo["manila"] = OpenstackClientInfo{
-					Name: "client.manilaqnJWCfLAghgC", ID: "manilaqnJWCfLAghgC", Keyring: "manila-key",
+					Name: "client.manilaqnJWCfLAghgC", ID: "manilaqnJWCfLAghgC", Keyring: "manila-key", Pools: []string{},
 				}
 			}
 
@@ -390,18 +388,47 @@ func TestGetOpenstackClientNames(t *testing.T) {
 	tests := []struct {
 		name           string
 		inputResources map[string]runtime.Object
-		cephFSDeployed bool
+		cephDpl        *cephlcmv1alpha1.CephDeployment
 		expectedNames  map[string]string
 		expectedError  string
 	}{
 		{
 			name:           "openstack clients failed to list",
+			cephDpl:        &unitinputs.BaseCephDeployment,
 			inputResources: map[string]runtime.Object{},
 			expectedError:  "failed to list CephClients in namespace 'rook-ceph': failed to list cephclients",
 		},
 		{
-			name:           "openstack clients found, no cephfs deployed - success",
+			name:           "openstack clients found, but no ready",
+			cephDpl:        &unitinputs.BaseCephDeployment,
 			inputResources: map[string]runtime.Object{"cephclients": &unitinputs.CephClientListOpenstack},
+			expectedNames: map[string]string{
+				"nova":   "novaN9y4kl7t4vTb",
+				"glance": "glanceo1sdvEEqDxxo",
+				"cinder": "cinderVMucF_ZXr9Yz",
+			},
+			expectedError: "failed to find some OpenStack CephClient(s)",
+		},
+		{
+			name:    "openstack clients found, default, failed to find clients with required rotation",
+			cephDpl: &unitinputs.BaseCephDeployment,
+			inputResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientCinder, "1"), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientGlance, "1"), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientNova, "1"), true),
+					},
+				},
+			},
+			expectedError: "failed to find some OpenStack CephClient(s)",
+		},
+		{
+			name:    "openstack clients found, default, no cephfs deployed - success",
+			cephDpl: &unitinputs.BaseCephDeployment,
+			inputResources: map[string]runtime.Object{
+				"cephclients": &unitinputs.CephClientListOpenstackReady,
+			},
 			expectedNames: map[string]string{
 				"nova":   "novaN9y4kl7t4vTb",
 				"glance": "glanceo1sdvEEqDxxo",
@@ -409,9 +436,26 @@ func TestGetOpenstackClientNames(t *testing.T) {
 			},
 		},
 		{
-			name:           "openstack clients found, cephfs deployed - success",
-			cephFSDeployed: true,
-			inputResources: map[string]runtime.Object{"cephclients": &unitinputs.CephClientListOpenstackFull},
+			name: "openstack clients found, default, rotation, cephfs - success",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cdpl := unitinputs.CephDeployNonMosk.DeepCopy()
+				cdpl.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{
+					RotateOsClients: &cephlcmv1alpha1.RotateOsClients{
+						Rotation: 1,
+					},
+				}
+				return cdpl
+			}(),
+			inputResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientCinder, "1"), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientGlance, "1"), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientNova, "1"), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientManila, "1"), true),
+					},
+				},
+			},
 			expectedNames: map[string]string{
 				"nova":   "novaN9y4kl7t4vTb",
 				"glance": "glanceo1sdvEEqDxxo",
@@ -420,38 +464,34 @@ func TestGetOpenstackClientNames(t *testing.T) {
 			},
 		},
 		{
-			name: "openstack clients found, multiple client, take last - success",
+			name:    "openstack clients found, multiple client, take last - success",
+			cephDpl: &unitinputs.BaseCephDeployment,
 			inputResources: map[string]runtime.Object{
 				"cephclients": &cephv1.CephClientList{
 					Items: []cephv1.CephClient{
-						unitinputs.CephClientCinder, unitinputs.CephClientGlance, unitinputs.CephClientNova,
 						func() cephv1.CephClient {
-							cl := unitinputs.CephClientCinder.DeepCopy()
-							cl.CreationTimestamp = metav1.NewTime(time.Now())
-							cl.Spec.Name = "cinder-last"
+							cl := unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder-prev", unitinputs.CephClientCinder, false, true), true)
+							delete(cl.Labels, "cephdeployment.lcm.mirantis.com/client-latest")
 							return *cl
 						}(),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova-spec", unitinputs.CephClientNova, false, true), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder-spec", unitinputs.CephClientCinder, false, true), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance-spec", unitinputs.CephClientGlance, false, true), true),
 					},
 				},
 			},
 			expectedNames: map[string]string{
-				"nova":   "novaN9y4kl7t4vTb",
-				"glance": "glanceo1sdvEEqDxxo",
-				"cinder": "cinder-last",
+				"nova":   "nova-spec",
+				"glance": "glance-spec",
+				"cinder": "cinder-spec",
 			},
-		},
-		{
-			name:           "openstack clients failed to find some clients",
-			inputResources: map[string]runtime.Object{"cephclients": &unitinputs.CephClientListOpenstack},
-			cephFSDeployed: true,
-			expectedError:  "failed to find some OpenStack CephClient(s)",
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeDeploymentConfig(nil, nil)
+			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl}, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", []string{"cephclients"}, test.inputResources, nil)
-			expectedNames, err := c.getOpenstackClientNames(test.cephFSDeployed)
+			expectedNames, err := c.getOpenstackClientNames()
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
@@ -510,7 +550,7 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployMosk,
 			inputResources: map[string]runtime.Object{
 				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
-				"cephclients":    &unitinputs.CephClientListOpenstack,
+				"cephclients":    &unitinputs.CephClientListOpenstackReady,
 			},
 			getAuthKeyError: errors.New("cmd failed"),
 			expectedError:   "failed to get auth keys for ceph clients: some auth keys failed to get: failed to run 'ceph auth get-key client.cinderVMucF_ZXr9Yz' command, failed to run 'ceph auth get-key client.glanceo1sdvEEqDxxo' command, failed to run 'ceph auth get-key client.novaN9y4kl7t4vTb' command",
@@ -520,7 +560,7 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployMosk,
 			inputResources: map[string]runtime.Object{
 				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
-				"cephclients":    &unitinputs.CephClientListOpenstack,
+				"cephclients":    &unitinputs.CephClientListOpenstackReady,
 				"configmaps":     unitinputs.ConfigMapListEmpty,
 			},
 			expectedError: "failed to get ceph monitor endpoints: failed to get rook-ceph/rook-ceph-mon-endpoints configmap: configmaps \"rook-ceph-mon-endpoints\" not found",
@@ -530,7 +570,7 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployMosk,
 			inputResources: map[string]runtime.Object{
 				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
-				"cephclients":    &unitinputs.CephClientListOpenstack,
+				"cephclients":    &unitinputs.CephClientListOpenstackReady,
 				"configmaps": &corev1.ConfigMapList{
 					Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints},
 				},
@@ -543,7 +583,7 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployMosk,
 			inputResources: map[string]runtime.Object{
 				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
-				"cephclients":    &unitinputs.CephClientListOpenstack,
+				"cephclients":    &unitinputs.CephClientListOpenstackReady,
 				"configmaps": &corev1.ConfigMapList{
 					Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints},
 				},
@@ -565,7 +605,7 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployMosk,
 			inputResources: map[string]runtime.Object{
 				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
-				"cephclients":    &unitinputs.CephClientListOpenstack,
+				"cephclients":    &unitinputs.CephClientListOpenstackReady,
 				"configmaps": &corev1.ConfigMapList{
 					Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints},
 				},
@@ -582,7 +622,7 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployMosk,
 			inputResources: map[string]runtime.Object{
 				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
-				"cephclients":    &unitinputs.CephClientListOpenstack,
+				"cephclients":    &unitinputs.CephClientListOpenstackReady,
 				"configmaps": &corev1.ConfigMapList{
 					Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints},
 				},
@@ -599,7 +639,7 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployMosk,
 			inputResources: map[string]runtime.Object{
 				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
-				"cephclients":    &unitinputs.CephClientListOpenstack,
+				"cephclients":    &unitinputs.CephClientListOpenstackReady,
 				"configmaps": &corev1.ConfigMapList{
 					Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints},
 				},
@@ -627,7 +667,7 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployMosk,
 			inputResources: map[string]runtime.Object{
 				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
-				"cephclients":    &unitinputs.CephClientListOpenstack,
+				"cephclients":    &unitinputs.CephClientListOpenstackReady,
 				"configmaps": &corev1.ConfigMapList{
 					Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints},
 				},
@@ -656,7 +696,7 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployMosk,
 			inputResources: map[string]runtime.Object{
 				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
-				"cephclients":    &unitinputs.CephClientListOpenstack,
+				"cephclients":    &unitinputs.CephClientListOpenstackReady,
 				"configmaps": &corev1.ConfigMapList{
 					Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints},
 				},
@@ -676,7 +716,7 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployMosk,
 			inputResources: map[string]runtime.Object{
 				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
-				"cephclients":    &unitinputs.CephClientListOpenstack,
+				"cephclients":    &unitinputs.CephClientListOpenstackReady,
 				"configmaps": &corev1.ConfigMapList{
 					Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints},
 				},
@@ -709,7 +749,7 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployMosk,
 			inputResources: map[string]runtime.Object{
 				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
-				"cephclients":    &unitinputs.CephClientListOpenstack,
+				"cephclients":    &unitinputs.CephClientListOpenstackReady,
 				"configmaps": &corev1.ConfigMapList{
 					Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints},
 				},
@@ -799,9 +839,9 @@ func TestGetCephClientAuthKeys(t *testing.T) {
 				"cinder": "cinderVMucF_ZXr9Yz",
 			},
 			expectedClientKeys: map[string]OpenstackClientInfo{
-				"nova":   {Name: "client.novaN9y4kl7t4vTb", ID: "novaN9y4kl7t4vTb", Keyring: "nova-key"},
-				"cinder": {Name: "client.cinderVMucF_ZXr9Yz", ID: "cinderVMucF_ZXr9Yz", Keyring: "cinder-key"},
-				"glance": {Name: "client.glanceo1sdvEEqDxxo", ID: "glanceo1sdvEEqDxxo", Keyring: "glance-key"},
+				"nova":   {Name: "client.novaN9y4kl7t4vTb", ID: "novaN9y4kl7t4vTb", Keyring: "nova-key", Pools: []string{}},
+				"cinder": {Name: "client.cinderVMucF_ZXr9Yz", ID: "cinderVMucF_ZXr9Yz", Keyring: "cinder-key", Pools: []string{}},
+				"glance": {Name: "client.glanceo1sdvEEqDxxo", ID: "glanceo1sdvEEqDxxo", Keyring: "glance-key", Pools: []string{}},
 			},
 		},
 		{
@@ -834,10 +874,10 @@ func TestGetCephClientAuthKeys(t *testing.T) {
 				"manila": "manilaqnJWCfLAghgC",
 			},
 			expectedClientKeys: map[string]OpenstackClientInfo{
-				"nova":   {Name: "client.novaN9y4kl7t4vTb", ID: "novaN9y4kl7t4vTb", Keyring: "nova-key"},
-				"cinder": {Name: "client.cinderVMucF_ZXr9Yz", ID: "cinderVMucF_ZXr9Yz", Keyring: "cinder-key"},
-				"glance": {Name: "client.glanceo1sdvEEqDxxo", ID: "glanceo1sdvEEqDxxo", Keyring: "glance-key"},
-				"manila": {Name: "client.manilaqnJWCfLAghgC", ID: "manilaqnJWCfLAghgC", Keyring: "manila-key"},
+				"nova":   {Name: "client.novaN9y4kl7t4vTb", ID: "novaN9y4kl7t4vTb", Keyring: "nova-key", Pools: []string{}},
+				"cinder": {Name: "client.cinderVMucF_ZXr9Yz", ID: "cinderVMucF_ZXr9Yz", Keyring: "cinder-key", Pools: []string{}},
+				"glance": {Name: "client.glanceo1sdvEEqDxxo", ID: "glanceo1sdvEEqDxxo", Keyring: "glance-key", Pools: []string{}},
+				"manila": {Name: "client.manilaqnJWCfLAghgC", ID: "manilaqnJWCfLAghgC", Keyring: "manila-key", Pools: []string{}},
 			},
 		},
 	}

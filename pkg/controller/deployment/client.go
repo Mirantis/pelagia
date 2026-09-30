@@ -19,6 +19,7 @@ package deployment
 import (
 	"fmt"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -46,9 +47,18 @@ func (c *cephDeploymentConfig) ensureCephClients() (bool, error) {
 
 	// If there is any additional OpenStack clients required, add them to clients list
 	expectedClients := make([]cephv1.CephClient, len(c.cdConfig.cephDpl.Spec.Clients))
+	clientsLatestByRole := map[string]int{}
 	for idx, cephDplClient := range c.cdConfig.cephDpl.Spec.Clients {
 		clientSpec, _ := cephDplClient.GetSpec()
-		expectedClients[idx] = generateClient(c.lcmConfig.RookNamespace, clientSpec, cephDplClient.Role)
+		client := generateClient(c.lcmConfig.RookNamespace, clientSpec, cephDplClient.Role)
+		if cephDplClient.Role != "" {
+			clientsLatestByRole[cephDplClient.Role] = idx
+		}
+		expectedClients[idx] = client
+	}
+	// mark all clients with roles added to spec last as latest
+	for _, idx := range clientsLatestByRole {
+		expectedClients[idx].Labels[cephDeploymentClientLatestLabel] = "true"
 	}
 
 	if !c.cdConfig.clusterSpec.External.Enable && c.cdConfig.openstackSetup {
@@ -56,17 +66,29 @@ func (c *cephDeploymentConfig) ensureCephClients() (bool, error) {
 		if err != nil {
 			return false, errors.Wrap(err, "failed to verify default OpenStack CephClients")
 		}
-		for role, clientSpec := range osClients {
+		// since osClients is map - lets have sorted slice
+		roles := make([]string, 0, len(osClients))
+		for role := range osClients {
+			roles = append(roles, role)
+		}
+		sort.Strings(roles)
+		for _, role := range roles {
+			clientSpec := osClients[role]
 			defaultOsClient := generateClient(c.lcmConfig.RookNamespace, clientSpec, role)
 			expectedRotation := int16(0)
-			minRotationToKeep := int16(0)
-			if c.cdConfig.cephDpl.Spec.ExtraOpts != nil {
+			keepPrevious := int16(1)
+			if c.cdConfig.cephDpl.Spec.ExtraOpts != nil && c.cdConfig.cephDpl.Spec.ExtraOpts.RotateOsClients != nil {
 				expectedRotation = c.cdConfig.cephDpl.Spec.ExtraOpts.RotateOsClients.Rotation
-				minRotationToKeep = c.cdConfig.cephDpl.Spec.ExtraOpts.RotateOsClients.Rotation - int16(c.cdConfig.cephDpl.Spec.ExtraOpts.RotateOsClients.KeepPrevious)
+				keepPrevious = int16(c.cdConfig.cephDpl.Spec.ExtraOpts.RotateOsClients.KeepPrevious)
 			}
 			// add rotation label for clients created by pelagia
 			newLabels := map[string]string{cephDeploymentClientRotationLabel: fmt.Sprintf("%d", expectedRotation)}
 			defaultOsClient.Labels = lcmcommon.ExtendLabels(newLabels, defaultOsClient.Labels)
+			newRotationForRoleReady := false
+			lastRotationForRoleReady := struct {
+				name     string
+				rotation int16
+			}{}
 			for _, cephClient := range cephClients.Items {
 				// since clients names are generated - find by label previously generated if exist
 				// or find by raw service name, eg. nova - for clients created before 3.x release
@@ -85,14 +107,41 @@ func (c *cephDeploymentConfig) ensureCephClients() (bool, error) {
 					}
 				}
 				if clientLabel == role {
-					if expectedRotation == clientRotation {
-						defaultOsClient.Name = cephClient.Name
-						defaultOsClient.Spec.Name = cephClient.Spec.Name
-						break
-					}
-					if minRotationToKeep <= clientRotation {
-						// keep client as is w/o any updates
-						delete(presentClients, cephClient.Name)
+					if clientRotation >= 0 {
+						if clientRotation > expectedRotation {
+							c.log.Warn().Msgf("detected CephClient '%s/%s' rotation number %d, while current expected is %d, full rotation reset assumed",
+								cephClient.Namespace, cephClient.Name, clientRotation, expectedRotation)
+						} else {
+							if expectedRotation == clientRotation {
+								defaultOsClient.Name = cephClient.Name
+								defaultOsClient.Spec.Name = cephClient.Spec.Name
+								if cephClient.Status != nil && cephClient.Status.Phase == cephv1.ConditionReady {
+									newRotationForRoleReady = true
+								}
+								// continue to search other clients to find clients with lowest rotation
+								// to keep them if needed by keepPrevious param
+								continue
+							}
+							if diff := expectedRotation - clientRotation; diff > 0 && diff <= keepPrevious {
+								// keep client as is w/o any updates
+								delete(presentClients, cephClient.Name)
+							}
+						}
+						// protect last ready rotation from remove just in case
+						// if last actual is not ready to avoid setup damage
+						if cephClient.Status != nil && cephClient.Status.Phase == cephv1.ConditionReady {
+							if lastRotationForRoleReady.name != "" {
+								if clientRotation > lastRotationForRoleReady.rotation {
+									lastRotationForRoleReady.name = cephClient.Name
+									lastRotationForRoleReady.rotation = clientRotation
+								}
+							} else {
+								lastRotationForRoleReady = struct {
+									name     string
+									rotation int16
+								}{name: cephClient.Name, rotation: clientRotation}
+							}
+						}
 					}
 				} else {
 					// fallback for previous client names
@@ -104,6 +153,10 @@ func (c *cephDeploymentConfig) ensureCephClients() (bool, error) {
 						break
 					}
 				}
+			}
+			if lastRotationForRoleReady.name != "" && !newRotationForRoleReady {
+				c.log.Warn().Msgf("keep CephClient '%s/%s' until new rotation is ready", c.lcmConfig.RookNamespace, lastRotationForRoleReady.name)
+				delete(presentClients, lastRotationForRoleReady.name)
 			}
 			expectedClients = append(expectedClients, defaultOsClient)
 		}
@@ -121,6 +174,23 @@ func (c *cephDeploymentConfig) ensureCephClients() (bool, error) {
 				errMsg = append(errMsg, errors.New(err))
 			} else {
 				labelsUpdated := lcmcommon.AlignBaseLabels(*c.log, "CephClient", &presentClient.ObjectMeta, cephClient.Labels)
+
+				verifyLabelsUnset := func(label string) {
+					if _, ok := cephClient.Labels[label]; !ok {
+						if _, ok := presentClient.Labels[label]; ok {
+							c.log.Info().Msgf("removing label '%s' from CephClient '%s/%s'", label, cephClient.Namespace, cephClient.Name)
+							delete(presentClient.Labels, label)
+							labelsUpdated = true
+						}
+					}
+				}
+				// unset client-rotation label in case if default client was moved to spec
+				verifyLabelsUnset(cephDeploymentClientRotationLabel)
+				// unset client-latest label in case if latest client was added to spec
+				verifyLabelsUnset(cephDeploymentClientLatestLabel)
+				// if client has unassigned role - need to remove it
+				verifyLabelsUnset(cephDeploymentClientRoleLabel)
+
 				specUpdated := !reflect.DeepEqual(cephClient.Spec, presentClient.Spec)
 				if specUpdated {
 					lcmcommon.ShowObjectDiff(*c.log, presentClient.Spec, cephClient.Spec)

@@ -63,6 +63,13 @@ var CephClientListOpenstack = cephv1.CephClientList{
 var CephClientListOpenstackFull = cephv1.CephClientList{
 	Items: []cephv1.CephClient{CephClientCinder, CephClientGlance, CephClientNova, CephClientManila},
 }
+var CephClientListOpenstackReady = cephv1.CephClientList{
+	Items: []cephv1.CephClient{
+		*GetCephClientWithStatus(CephClientCinder, true),
+		*GetCephClientWithStatus(CephClientGlance, true),
+		*GetCephClientWithStatus(CephClientNova, true),
+	},
+}
 
 var CephClientTest = cephv1.CephClient{
 	ObjectMeta: metav1.ObjectMeta{
@@ -176,8 +183,13 @@ func GetOSClientWithName(baseName string, osClient cephv1.CephClient, dropRoleLa
 	if dropRotationLabel {
 		delete(cl.Labels, "cephdeployment.lcm.mirantis.com/client-rotation")
 	}
-	cl.Name = baseName
-	cl.Spec.Name = baseName
+	if dropRotationLabel && !dropRoleLabel {
+		cl.Labels["cephdeployment.lcm.mirantis.com/client-latest"] = "true"
+	}
+	if baseName != "" {
+		cl.Name = baseName
+		cl.Spec.Name = baseName
+	}
 	return *cl
 }
 

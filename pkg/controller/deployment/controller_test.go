@@ -1013,7 +1013,7 @@ func TestReconcile(t *testing.T) {
 			result:          requeueAfterInterval,
 			expectedStatus: &cephlcmv1alpha1.CephDeploymentStatus{
 				Phase:   cephlcmv1alpha1.PhaseDeploying,
-				Message: "Ceph cluster configuration apply is in progress: label nodes, cephcluster, storageclasses, ceph object storage, Openstack secret, cluster state; configuration apply is failed: failed to ensure cephclients",
+				Message: "Ceph cluster configuration apply is in progress: label nodes, cephcluster, storageclasses, ceph object storage, cluster state; configuration apply is failed: failed to ensure cephclients, Openstack secret",
 				Validation: cephlcmv1alpha1.CephDeploymentValidation{
 					Result:                  "Succeed",
 					LastValidatedGeneration: 0,

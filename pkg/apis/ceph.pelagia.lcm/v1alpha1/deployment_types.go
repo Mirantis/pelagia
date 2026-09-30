@@ -123,6 +123,8 @@ type CephPool struct {
 type CephClient struct {
 	// Role represents client role. The following values are reserved for
 	// MOS managed clusters: cinder, glance, manila, nova
+	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:Pattern=`^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?$`
 	// +nullable
 	Role string `json:"role,omitempty"`
 	// ClientSpec represents client specification
@@ -154,22 +156,23 @@ type CephDeploymentExtraOpts struct {
 	// Valuable only for MOS managed clusters
 	// +optional
 	DisableOsKeys bool `json:"disableOsSharedKeys,omitempty"`
-	// RotateOsClients allow to rotate prepared by default Openstack clients.
+	// RotateOsClients allows rotating Openstack clients created by default.
 	// +optional
-	RotateOsClients RotateOsClients `json:"rotateOsClients,omitempty"`
+	RotateOsClients *RotateOsClients `json:"rotateOsClients,omitempty"`
 }
 
-// OpenstackClientRotation stands for rotation of Openstack clients for Rockoon
+// RotateOsClients stands for rotation of Openstack clients for Rockoon
 type RotateOsClients struct {
 	// Current rotation number for Openstack clients prepared by default.
-	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=32767
 	// +kubebuilder:validation:XValidation:message="rotation cannot be decreased",rule="self >= oldSelf"
 	// +kubebuilder:validation:Format=int16
 	Rotation int16 `json:"rotation"`
-	// Keep no more than specified count of previous keyrings.
+	// Keep no more than specified count of previous keyrings. Default is 1.
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=3
+	// +kubebuilder:default=1
 	KeepPrevious int8 `json:"keepPrevious,omitempty"`
 }
 
