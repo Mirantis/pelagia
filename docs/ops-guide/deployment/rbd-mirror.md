@@ -49,19 +49,22 @@ To enable Ceph RBD monitoring, follow the procedure below and use the following
    ```
 
 3. In `CephDeployment` CRs of both Ceph clusters where you want to enable
-   mirroring, specify the `spec.pools.mirroring.mode` parameter for all `pools`
+   mirroring, specify the `spec.blockStorage.pools.spec.mirroring.mode` parameter for all `pools`
    that must be mirrored.
    ```yaml
    spec:
-     pools:
-     - name: image-hdd
-       ...
-       mirroring:
-         mode: pool
-     - name: volumes-hdd
-       ...
-       mirroring:
-         mode: pool
+     blockStorage:
+       pools:
+       - name: image-hdd
+         ...
+         spec:
+           mirroring:
+             mode: pool
+       - name: volumes-hdd
+         ...
+         spec:
+           mirroring:
+             mode: pool
    ```
 
 4. Obtain the name of an external site to mirror with. On pools with mirroring
@@ -115,7 +118,7 @@ To enable Ceph RBD monitoring, follow the procedure below and use the following
            - special-pool-ssd
      ```
 
-7. Verify that mirroring is enabled and each pool with `spec.pools.mirroring.mode` defined has an external peer
+7. Verify that mirroring is enabled and each pool with `spec.blockStorage.pools.spec.mirroring.mode` defined has an external peer
    site:
    ```bash
    kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- rbd mirror pool info <mirroringPoolName>

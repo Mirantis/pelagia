@@ -126,46 +126,52 @@ For details, see [Ceph Documentation: Autoscaling Placement Groups](https://docs
    kubectl -n pelagia edit cephdpl
    ```
 
-6. In the `pools` section, specify the calculated relatives as `parameters.target_size_ratio` for each considered
+6. In the `blockStorage.pools` section, specify the calculated relatives as `parameters.target_size_ratio` for each considered
    replicated pool. For example:
    ```yaml
    spec:
-     pools:
-     - name: kubernetes
-       deviceClass: hdd
-       ...
-       replicated:
-         size: 3
-       parameters:
-         target_size_ratio: "1.088"
-     - name: images
-       deviceClass: hdd
-       ...
-       replicated:
-         size: 3
-       parameters:
-         target_size_ratio: "1.088"
-     - name: volumes
-       deviceClass: hdd
-       ...
-       replicated:
-         size: 3
-       parameters:
-         target_size_ratio: "16.259"
-     - name: backup
-       deviceClass: hdd
-       ...
-       replicated:
-         size: 3
-       parameters:
-         target_size_ratio: "81.297"
-     - name: vms
-       deviceClass: hdd
-       ...
-       replicated:
-         size: 3
-       parameters:
-         target_size_ratio: "0.266"
+     blockStorage:
+       pools:
+       - name: kubernetes
+         ...
+         spec:
+           deviceClass: hdd
+           replicated:
+             size: 3
+           parameters:
+             target_size_ratio: "1.088"
+       - name: images
+         ...
+         spec:
+           deviceClass: hdd
+           replicated:
+             size: 3
+           parameters:
+             target_size_ratio: "1.088"
+       - name: volumes
+         ...
+         spec:
+           deviceClass: hdd
+           replicated:
+             size: 3
+           parameters:
+             target_size_ratio: "16.259"
+       - name: backup
+         ...
+         spec:
+           deviceClass: hdd
+           replicated:
+             size: 3
+           parameters:
+             target_size_ratio: "81.297"
+       - name: vms
+         ...
+         spec:
+           deviceClass: hdd
+           replicated:
+             size: 3
+           parameters:
+             target_size_ratio: "0.266"
    ```
 
      If Ceph Object Store `dataPool` is `replicated` and a proper value is
@@ -173,28 +179,32 @@ For details, see [Ceph Documentation: Autoscaling Placement Groups](https://docs
      ```yaml
      spec:
        objectStorage:
-         rgw:
-           name: rgw-store
+         objectStores:
+         - name: rgw-store
            ...
-           dataPool:
-             deviceClass: hdd
-             ...
-             replicated:
-               size: 3
-             parameters:
-               target_size_ratio: "<relative>"
+           spec:
+             dataPool:
+               deviceClass: hdd
+               ...
+               replicated:
+                 size: 3
+               parameters:
+                 target_size_ratio: "<relative>"
      ```
 
-7. In the `pools` section, specify the calculated relatives as
+7. In the `blockStorage.pools` section, specify the calculated relatives as
    `parameters.target_size_ratio` for each considered erasure-coded pool. For example:
     ```yaml
     spec:
-      pools:
-      - name: ec-pool
-        deviceClass: hdd
-        ...
-        parameters:
-          target_size_ratio: "<relative>"
+      blockStorage:
+        pools:
+        - name: ec-pool
+          ...
+          spec:
+            deviceClass: hdd
+            ...
+            parameters:
+              target_size_ratio: "<relative>"
     ```
 
     !!! note
@@ -206,14 +216,15 @@ For details, see [Ceph Documentation: Autoscaling Placement Groups](https://docs
     ```yaml
     spec:
       objectStorage:
-        rgw:
-          name: rgw-store
+        objectStores:
+        - name: rgw-store
           ...
-          dataPool:
-            deviceClass: hdd
-            ...
-            parameters:
-              target_size_ratio: "<relative>"
+          spec:
+            dataPool:
+              deviceClass: hdd
+              ...
+              parameters:
+                target_size_ratio: "<relative>"
     ```
 
 8. Verify that all target ratios have been successfully applied to the Ceph cluster:
