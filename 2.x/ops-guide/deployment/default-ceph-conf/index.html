@@ -3552,11 +3552,11 @@ the Ceph cluster through the <code>rookConfig</code> key-value section of the
 <p>However, if <code>rookConfig</code> is empty, Pelagia Deployment Controller still specifies the
 following default configuration options for each Ceph cluster:</p>
 <ul>
-<li>Required network parameters that you can change through the <code>network</code>
+<li>Required network parameters that you can change through the <code>cluster.network</code>
   section:
   <div class="highlight"><pre><span></span><code><span class="k">[global]</span>
-<span class="na">cluster network</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;spec.network.clusterNet&gt;</span>
-<span class="na">public network</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;spec.network.publicNet&gt;</span>
+<span class="na">cluster network</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;spec.cluster.network.addressRanges.cluster&gt;</span>
+<span class="na">public network</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;spec.cluster.network.addressRanges.public&gt;</span>
 </code></pre></div></li>
 <li>General default configuration options that you can override using the
   <code>rookConfig</code> parameter:

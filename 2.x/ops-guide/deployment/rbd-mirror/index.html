@@ -3590,18 +3590,21 @@ access to all images. For details, see <a href="https://docs.ceph.com/en/latest/
 </li>
 <li>
 <p>In <code>CephDeployment</code> CRs of both Ceph clusters where you want to enable
-   mirroring, specify the <code>spec.pools.mirroring.mode</code> parameter for all <code>pools</code>
+   mirroring, specify the <code>spec.blockStorage.pools.spec.mirroring.mode</code> parameter for all <code>pools</code>
    that must be mirrored.
    <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">pools</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">image-hdd</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">    </span><span class="nt">mirroring</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pool</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">volumes-hdd</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">    </span><span class="nt">mirroring</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pool</span>
+<span class="w">  </span><span class="nt">blockStorage</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">pools</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">image-hdd</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">mirroring</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pool</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">volumes-hdd</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">mirroring</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pool</span>
 </code></pre></div></p>
 </li>
 <li>
@@ -3650,7 +3653,7 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
 </code></pre></div></p>
 </li>
 <li>
-<p>Verify that mirroring is enabled and each pool with <code>spec.pools.mirroring.mode</code> defined has an external peer
+<p>Verify that mirroring is enabled and each pool with <code>spec.blockStorage.pools.spec.mirroring.mode</code> defined has an external peer
    site:
    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>rbd<span class="w"> </span>mirror<span class="w"> </span>pool<span class="w"> </span>info<span class="w"> </span>&lt;mirroringPoolName&gt;
 </code></pre></div>
