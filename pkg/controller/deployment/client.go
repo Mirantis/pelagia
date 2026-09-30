@@ -19,6 +19,7 @@ package deployment
 import (
 	"fmt"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -56,7 +57,14 @@ func (c *cephDeploymentConfig) ensureCephClients() (bool, error) {
 		if err != nil {
 			return false, errors.Wrap(err, "failed to verify default OpenStack CephClients")
 		}
-		for role, clientSpec := range osClients {
+		// since osClients is map - lets have sorted slice
+		roles := make([]string, 0, len(osClients))
+		for role := range osClients {
+			roles = append(roles, role)
+		}
+		sort.Strings(roles)
+		for _, role := range roles {
+			clientSpec := osClients[role]
 			defaultOsClient := generateClient(c.lcmConfig.RookNamespace, clientSpec, role)
 			expectedRotation := int16(0)
 			minRotationToKeep := int16(0)
