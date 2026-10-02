@@ -50,6 +50,7 @@ The following Pelagia controller options are set in [Pelagia Helm chart values](
 | DEPLOYMENT_CSI_CONTROLLER_PLUGIN_TOLERATIONS | Toleration settings for the CSI Controller plugin deployment (for example, provisioner). | `""` | `cephDeployment.csi.placement.tolerations.controllerPlugin` |
 | DEPLOYMENT_CSI_NODE_PLUGIN_NODEAFFINITY | Node affinity settings for CSI plugins. | `""` | `cephDeployment.csi.placement.nodeAffinity.nodePlugin` |
 | DEPLOYMENT_CSI_NODE_PLUGIN_TOLERATIONS | Toleration settings for CSI plugins. | `""` | `cephDeployment.csi.placement.tolerations.nodePlugin` |
+| DEPLOYMENT_MANAGE_VOLUMESNAPSHOTCLASSES | | Create default VolumeSnapshotClasses for CephCSI RBD and CephFS drivers. Requires CRD `volumegroupsnapshotclasses.groupsnapshot.storage.k8s.io` to be present. | `true` | `cephDeployment.manageVolumeSnapshotClasses` |
 
 The `DEPLOYMENT_CEPH_IMAGE` and `DEPLOYMENT_ROOK_IMAGE` options are derived from the values of the `images` section.
 For details, see [Configuration example for Ceph and Rook images](./helm-values.md) during chart update.

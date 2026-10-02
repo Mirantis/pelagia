@@ -38,6 +38,7 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `cephDeployment.csi.placement.tolerations.controllerPlugin` | Toleration settings for the CSI Controller plugin deployment (for example, provisioner). | `""` |
 | `cephDeployment.csi.placement.tolerations.nodePlugin` | Toleration settings for CSI plugins. | `""` |
 | `cephDeployment.csi.addons` | Deploy CSI addons. | `false` |
+| `cephDeployment.manageVolumeSnapshotClasses` | Create default VolumeSnapshotClasses for CephCSI RBD and CephFS drivers. Requires CRD `volumegroupsnapshotclasses.groupsnapshot.storage.k8s.io` to be present. | `true` |
 | `lcmConfig.rookNamespace` | Rook namespace name used across the Pelagia deployment. | `"rook-ceph"` |
 | `lcmConfig.rgwPublicAccessServiceSelector` | Label of the service or proxy exposing RGW to public access. | `"external_access=rgw"` |
 | `lcmConfig.diskDaemonPortParameter` | Port for the disk daemon API. | `9999` |
@@ -58,7 +59,7 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `rook.rookConfig.rookOperatorPlacement.tolerations` | Toleration settings for the Rook Operator placement. | `[]` |
 | `rook.rookConfig.rookDiscoverPlacement.nodeAffinity` | Node affinity settings for the `rook-discover` daemon. | `"ceph-daemonset-available-node=true;ceph_role_osd=true"` |
 | `rook.rookConfig.rookDiscoverPlacement.tolerations` | Toleration settings for the `rook-discover` daemon. | `""` |
-| `rook.rookConfig.volumeSnapshotsEnabled` | Enable volume snapshot classes support in Rook. | `false` |
+| `rook.rookConfig.volumeSnapshotsEnabled` | Deprecated in the favor of `cephDeployment.manageVolumeSnapshotClasses`. Enable volume snapshot classes support in Rook. | `false` |
 | `ceph-csi-operator.enabled` | Enable the `ceph-csi-operator` deployment. For available `ceph-csi-operator` options, see [values.yaml](https://github.com/Mirantis/pelagia/blob/main/charts/ceph-csi-operator/values.yaml). | `true` |
 | `ceph-csi-operator.csiOperatorConfig.rookNamespace` | Rook namespace. By default, inherited from the `lcmConfig.rookNamespace` value defined in the main Pelagia chart. | `"rook-ceph"` |
 | `ceph-csi-operator.csiOperatorConfig.placement.affinity` | Affinity settings for the `ceph-csi-operator` deployment placement. | `{}` |
