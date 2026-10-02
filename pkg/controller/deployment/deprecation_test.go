@@ -28,24 +28,60 @@ import (
 )
 
 func TestEnsureDeprecatedFields(t *testing.T) {
+	migratedClients := []cephlcmv1alpha1.CephClient{
+		{
+			ClientSpec: runtime.RawExtension{Raw: []byte(`{"name": "test2", "caps": {"osd": "custom-caps"}}`)},
+		},
+		{
+			Role:       "nova",
+			ClientSpec: runtime.RawExtension{Raw: []byte(`{"name": "nova", "caps": {"osd": "nova-caps"}}`)},
+		},
+	}
 	tests := []struct {
 		name            string
 		cephDpl         *cephlcmv1alpha1.CephDeployment
-		expectedCephDpl cephlcmv1alpha1.CephDeployment
+		expectedCephDpl *cephlcmv1alpha1.CephDeployment
 		expectedError   string
 		migrated        bool
 	}{
 		{
+			name: "can't transform ceph clients",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cdpl := unitinputs.DeprecatedCephDeployment.DeepCopy()
+				cdpl.Spec.Clients = migratedClients
+				return cdpl
+			}(),
+			expectedError: "failed to verify spec for deprecated fields",
+		},
+		{
+			name:    "transform ceph clients",
+			cephDpl: unitinputs.DeprecatedCephDeployment.DeepCopy(),
+			expectedCephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cdpl := unitinputs.BaseCephDeployment.DeepCopy()
+				cdpl.Spec.Clients = migratedClients
+				return cdpl
+			}(),
+			migrated: true,
+		},
+		{
 			name:            "no transform",
+			cephDpl:         unitinputs.CephDeployNonMosk.DeepCopy(),
+			expectedCephDpl: &unitinputs.CephDeployNonMosk,
+		},
+		{
+			name:            "no transform mosk",
 			cephDpl:         unitinputs.CephDeployMosk.DeepCopy(),
-			expectedCephDpl: unitinputs.CephDeployMosk,
+			expectedCephDpl: &unitinputs.CephDeployMosk,
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: test.cephDpl.DeepCopy()}, nil)
 			inputResources := map[string]runtime.Object{"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{*test.cephDpl}}}
-			expectedResources := map[string]runtime.Object{"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{test.expectedCephDpl}}}
+			if test.expectedCephDpl == nil {
+				test.expectedCephDpl = test.cephDpl.DeepCopy()
+			}
+			expectedResources := map[string]runtime.Object{"cephdeployments": &cephlcmv1alpha1.CephDeploymentList{Items: []cephlcmv1alpha1.CephDeployment{*test.expectedCephDpl}}}
 			faketestclients.FakeReaction(c.api.CephLcmclientset, "update", []string{"cephdeployments"}, inputResources, nil)
 
 			migrated, err := c.ensureDeprecatedFields()

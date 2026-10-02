@@ -17,7 +17,6 @@ limitations under the License.
 package deployment
 
 import (
-	"sort"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -26,6 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v3/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
 	faketestclients "github.com/Mirantis/pelagia/v3/test/unit/clients"
 	unitinputs "github.com/Mirantis/pelagia/v3/test/unit/inputs"
 )
@@ -260,6 +260,7 @@ func TestGenerateOpenStackClient(t *testing.T) {
 			expectedError: "failed to find pool type for 'unknown' client",
 		},
 	}
+	oldFunc := lcmcommon.RandomizedName
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: &test.cephDpl}, nil)
@@ -268,6 +269,7 @@ func TestGenerateOpenStackClient(t *testing.T) {
 
 			inputResources := map[string]runtime.Object{"cephblockpools": test.poolsList}
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephblockpools"}, inputResources, nil)
+			lcmcommon.RandomizedName = unitinputs.RandomizeStub
 
 			actualCephClient, err := c.generateOpenStackClient(test.clientName)
 			if test.expectedError != "" {
@@ -280,9 +282,10 @@ func TestGenerateOpenStackClient(t *testing.T) {
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
 		})
 	}
+	lcmcommon.RandomizedName = oldFunc
 }
 
-func TestCalculateOpenstackClients(t *testing.T) {
+func TestDefaultOpenstackClients(t *testing.T) {
 	basePoolsForSpec := []cephlcmv1alpha1.CephPool{
 		unitinputs.GetCephDeployPool("images", "images"),
 		unitinputs.GetCephDeployPool("volumes", "volumes"),
@@ -293,7 +296,7 @@ func TestCalculateOpenstackClients(t *testing.T) {
 		name                string
 		cephDpl             cephlcmv1alpha1.CephDeployment
 		poolsList           *cephv1.CephBlockPoolList
-		expectedCephClients []cephv1.ClientSpec
+		expectedCephClients map[string]cephv1.ClientSpec
 		expectedError       string
 	}{
 		{
@@ -305,8 +308,10 @@ func TestCalculateOpenstackClients(t *testing.T) {
 						Pools: basePoolsForSpec}},
 			},
 			poolsList: &unitinputs.OpenstackCephBlockPoolsList,
-			expectedCephClients: []cephv1.ClientSpec{
-				unitinputs.CephClientCinder.Spec, unitinputs.CephClientGlance.Spec, unitinputs.CephClientNova.Spec,
+			expectedCephClients: map[string]cephv1.ClientSpec{
+				"cinder": unitinputs.CephClientCinder.Spec,
+				"glance": unitinputs.CephClientGlance.Spec,
+				"nova":   unitinputs.CephClientNova.Spec,
 			},
 		},
 		{
@@ -319,8 +324,9 @@ func TestCalculateOpenstackClients(t *testing.T) {
 				},
 			},
 			poolsList: &unitinputs.OpenstackCephBlockPoolsList,
-			expectedCephClients: []cephv1.ClientSpec{
-				unitinputs.CephClientGlance.Spec, unitinputs.CephClientNova.Spec,
+			expectedCephClients: map[string]cephv1.ClientSpec{
+				"glance": unitinputs.CephClientGlance.Spec,
+				"nova":   unitinputs.CephClientNova.Spec,
 			},
 		},
 		{
@@ -335,8 +341,8 @@ func TestCalculateOpenstackClients(t *testing.T) {
 				},
 			},
 			poolsList: &unitinputs.OpenstackCephBlockPoolsList,
-			expectedCephClients: []cephv1.ClientSpec{
-				unitinputs.CephClientGlance.Spec,
+			expectedCephClients: map[string]cephv1.ClientSpec{
+				"glance": unitinputs.CephClientGlance.Spec,
 			},
 		},
 		{
@@ -351,7 +357,7 @@ func TestCalculateOpenstackClients(t *testing.T) {
 				},
 			},
 			poolsList:           &unitinputs.OpenstackCephBlockPoolsList,
-			expectedCephClients: []cephv1.ClientSpec{},
+			expectedCephClients: nil,
 		},
 		{
 			name: "manila not in spec, cephfs deployed - success",
@@ -370,8 +376,11 @@ func TestCalculateOpenstackClients(t *testing.T) {
 				},
 			},
 			poolsList: &unitinputs.OpenstackCephBlockPoolsList,
-			expectedCephClients: []cephv1.ClientSpec{
-				unitinputs.CephClientCinder.Spec, unitinputs.CephClientGlance.Spec, unitinputs.CephClientNova.Spec, unitinputs.CephClientManila.Spec,
+			expectedCephClients: map[string]cephv1.ClientSpec{
+				"cinder": unitinputs.CephClientCinder.Spec,
+				"glance": unitinputs.CephClientGlance.Spec,
+				"nova":   unitinputs.CephClientNova.Spec,
+				"manila": unitinputs.CephClientManila.Spec,
 			},
 		},
 		{
@@ -386,161 +395,59 @@ func TestCalculateOpenstackClients(t *testing.T) {
 				},
 			},
 			poolsList:           &unitinputs.OpenstackCephBlockPoolsList,
-			expectedCephClients: []cephv1.ClientSpec{},
+			expectedCephClients: nil,
 		},
 		{
-			name: "no openstack clients in spec and backup pool missing in spec - fail",
+			name: "no openstack clients in spec and pool missing in spec - fail",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
 					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
-						Pools: []cephlcmv1alpha1.CephPool{
-							unitinputs.GetCephDeployPool("images", "images"),
-							unitinputs.GetCephDeployPool("volumes", "volumes"),
-							unitinputs.GetCephDeployPool("vms", "vms"),
-						},
+						Pools: []cephlcmv1alpha1.CephPool{},
 					},
 				},
 			},
 			poolsList:     &unitinputs.OpenstackCephBlockPoolsList,
-			expectedError: "failed to generate spec for Ceph openstack client cinder: ceph block pool with role backup not found in pools",
+			expectedError: "failed to generate default Openstack Ceph client(s)",
 		},
 		{
-			name: "no openstack clients in spec and vms pool missing in spec - fail",
+			name: "no clients in spec and pools raises error - failed",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
-					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
-						Pools: []cephlcmv1alpha1.CephPool{
-							unitinputs.GetCephDeployPool("images", "images"),
-							unitinputs.GetCephDeployPool("volumes", "volumes"),
-							unitinputs.GetCephDeployPool("backup", "backup"),
-						},
-					},
-				},
-			},
-			poolsList:     &unitinputs.OpenstackCephBlockPoolsList,
-			expectedError: "failed to generate spec for Ceph openstack client nova: ceph block pool with role vms not found in pools",
-		},
-		{
-			name: "no cinder client in spec and volumes pool missing in spec - fail",
-			cephDpl: cephlcmv1alpha1.CephDeployment{
-				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
-					Clients: []cephlcmv1alpha1.CephClient{
-						unitinputs.CephDeployClientGlance,
-						unitinputs.CephDeployClientNova,
-					},
-					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
-						Pools: []cephlcmv1alpha1.CephPool{
-							unitinputs.GetCephDeployPool("images", "images"),
-							unitinputs.GetCephDeployPool("backup", "backup"),
-							unitinputs.GetCephDeployPool("vms", "vms"),
-						},
-					},
-				},
-			},
-			poolsList:     &unitinputs.CephBlockPoolListEmpty,
-			expectedError: "failed to generate spec for Ceph openstack client cinder: ceph block pool with role volumes not found in pools",
-		},
-		{
-			name: "no glance client in spec and images pool missing in spec - failed",
-			cephDpl: cephlcmv1alpha1.CephDeployment{
-				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
-					Clients: []cephlcmv1alpha1.CephClient{
-						unitinputs.CephDeployClientCinder,
-						unitinputs.CephDeployClientNova,
-					},
-					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
-						Pools: []cephlcmv1alpha1.CephPool{
-							unitinputs.GetCephDeployPool("volumes", "volumes"),
-							unitinputs.GetCephDeployPool("backup", "backup"),
-							unitinputs.GetCephDeployPool("vms", "vms"),
-						},
-					},
-				},
-			},
-			poolsList:     &unitinputs.CephBlockPoolListEmpty,
-			expectedError: "failed to generate spec for Ceph openstack client glance: ceph block pool with role images not found in pools",
-		},
-		{
-			name: "no glance client in spec and images pool raises error - failed",
-			cephDpl: cephlcmv1alpha1.CephDeployment{
-				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
-					Clients: []cephlcmv1alpha1.CephClient{
-						unitinputs.CephDeployClientCinder,
-						unitinputs.CephDeployClientNova,
-					},
+					Cluster:      unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Clients:      []cephlcmv1alpha1.CephClient{},
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: basePoolsForSpec},
 				},
 			},
 			poolsList:     &unitinputs.CephBlockPoolListEmpty,
-			expectedError: "failed to generate spec for Ceph openstack client glance: failed to get one of the required cephblockpools for glance client: cephblockpools \"images-hdd\" not found",
-		},
-		{
-			name: "no cinder client in spec and volumes pool raises error - failed",
-			cephDpl: cephlcmv1alpha1.CephDeployment{
-				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
-					Clients: []cephlcmv1alpha1.CephClient{
-						unitinputs.CephDeployClientGlance,
-						unitinputs.CephDeployClientNova,
-					},
-					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: basePoolsForSpec},
-				},
-			},
-			poolsList:     &unitinputs.CephBlockPoolListEmpty,
-			expectedError: "failed to generate spec for Ceph openstack client cinder: failed to get one of the required cephblockpools for cinder client: cephblockpools \"volumes-hdd\" not found",
-		},
-		{
-			name: "no nova client in spec and vms pool raises error - failed",
-			cephDpl: cephlcmv1alpha1.CephDeployment{
-				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
-					Clients: []cephlcmv1alpha1.CephClient{
-						unitinputs.CephDeployClientGlance,
-						unitinputs.CephDeployClientCinder,
-					},
-					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: basePoolsForSpec},
-				},
-			},
-			poolsList:     &unitinputs.CephBlockPoolListEmpty,
-			expectedError: "failed to generate spec for Ceph openstack client nova: failed to get one of the required cephblockpools for nova client: cephblockpools \"vms-hdd\" not found",
+			expectedError: "failed to generate default Openstack Ceph client(s)",
 		},
 	}
+	oldFunc := lcmcommon.RandomizedName
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: &test.cephDpl}, nil)
 			err := c.castExtensions()
 			assert.Nil(t, err)
 
+			lcmcommon.RandomizedName = unitinputs.RandomizeStub
+
 			inputResources := map[string]runtime.Object{"cephblockpools": test.poolsList}
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephblockpools"}, inputResources, nil)
 
-			cephDplClients := make([]cephv1.ClientSpec, len(test.cephDpl.Spec.Clients))
-			for idx, cephDplClient := range test.cephDpl.Spec.Clients {
-				cephDplClients[idx], _ = cephDplClient.GetSpec()
-			}
-			actualCephClients, err := c.calculateOpenStackClients(cephDplClients)
+			defaultCephClients, err := c.defaultOpenstackClients(test.cephDpl.Spec.Clients)
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())
-				assert.Nil(t, actualCephClients)
+				assert.Nil(t, defaultCephClients)
 			} else {
 				assert.Nil(t, err)
-				sort.SliceStable(test.expectedCephClients, func(i, j int) bool {
-					return test.expectedCephClients[i].Name < test.expectedCephClients[j].Name
-				})
-				sort.SliceStable(actualCephClients, func(i, j int) bool {
-					return actualCephClients[i].Name < actualCephClients[j].Name
-				})
-				assert.Equal(t, test.expectedCephClients, actualCephClients)
+				assert.Equal(t, test.expectedCephClients, defaultCephClients)
 			}
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
 		})
 	}
+	lcmcommon.RandomizedName = oldFunc
 }
 
 func TestDeleteCephClients(t *testing.T) {
@@ -724,7 +631,7 @@ func TestEnsureCephClients(t *testing.T) {
 					Items: []cephv1.CephBlockPool{unitinputs.GetReadyPoolWithRatio("images-hdd", false, 0), unitinputs.GetReadyPoolWithRatio("volumes-hdd", false, 0), unitinputs.GetReadyPoolWithRatio("backup-hdd", false, 0)},
 				},
 			},
-			expectedError: "failed to calculate OpenStack CephClients: failed to generate spec for Ceph openstack client nova: failed to get one of the required cephblockpools for nova client: cephblockpools \"vms-hdd\" not found",
+			expectedError: "failed to verify default OpenStack CephClients: failed to generate default Openstack Ceph client(s)",
 		},
 		{
 			name:    "ensure ceph clients - openstack clients are not ready, multiple issues",
@@ -736,6 +643,94 @@ func TestEnsureCephClients(t *testing.T) {
 			expectedError: "failed to ensure CephClients, multiple errors during CephClients ensure",
 		},
 		{
+			name:    "ensure ceph clients - default openstack clients found by label and not touched",
+			cephDpl: unitinputs.CephDeployMosk,
+			inputResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						*unitinputs.GetCephClientWithStatus(unitinputs.CephClientNova, true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.CephClientCinder, true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.CephClientGlance, true),
+					},
+				},
+				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
+			},
+			apiErrors: map[string]error{"update-cephclients": errors.New("update failed")},
+		},
+		{
+			name: "ensure ceph clients - default openstack clients should be rotated and not removed old",
+			cephDpl: func() cephlcmv1alpha1.CephDeployment {
+				cdpl := unitinputs.CephDeployMosk.DeepCopy()
+				cdpl.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{
+					RotateOsClients: cephlcmv1alpha1.RotateOsClients{
+						Rotation:     1,
+						KeepPrevious: 1,
+					},
+				}
+				return *cdpl
+			}(),
+			inputResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova", unitinputs.CephClientNova, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder", unitinputs.CephClientCinder, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance", unitinputs.CephClientGlance, false, false), true),
+					},
+				},
+				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
+			},
+			expectedResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova", unitinputs.CephClientNova, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder", unitinputs.CephClientCinder, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance", unitinputs.CephClientGlance, false, false), true),
+						unitinputs.BumpRotationID(unitinputs.CephClientCinder, "1"),
+						unitinputs.BumpRotationID(unitinputs.CephClientGlance, "1"),
+						unitinputs.BumpRotationID(unitinputs.CephClientNova, "1"),
+					},
+				},
+				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
+			},
+			expectedChange: true,
+		},
+		{
+			name: "ensure ceph clients - default openstack clients already rotated and removed old",
+			cephDpl: func() cephlcmv1alpha1.CephDeployment {
+				cdpl := unitinputs.CephDeployMosk.DeepCopy()
+				cdpl.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{
+					RotateOsClients: cephlcmv1alpha1.RotateOsClients{
+						Rotation: 1,
+					},
+				}
+				return *cdpl
+			}(),
+			inputResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova", unitinputs.CephClientNova, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder", unitinputs.CephClientCinder, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance", unitinputs.CephClientGlance, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientCinder, "1"), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientGlance, "1"), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientNova, "1"), true),
+					},
+				},
+				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
+			},
+			expectedResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientCinder, "1"), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientGlance, "1"), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.BumpRotationID(unitinputs.CephClientNova, "1"), true),
+					},
+				},
+				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
+			},
+			expectedChange: true,
+		},
+		{
 			name:    "ensure ceph clients - client ready, nothing todo",
 			cephDpl: unitinputs.CephDeployNonMosk,
 			inputResources: map[string]runtime.Object{
@@ -744,12 +739,86 @@ func TestEnsureCephClients(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "ensure ceph clients - openstack clients in spec updated only labels",
+			cephDpl: cephlcmv1alpha1.CephDeployment{
+				Spec: cephlcmv1alpha1.CephDeploymentSpec{
+					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Clients: []cephlcmv1alpha1.CephClient{
+						unitinputs.CephDeployClientCinder, unitinputs.CephDeployClientGlance, unitinputs.CephDeployClientNova,
+					},
+					BlockStorage: unitinputs.CephDeployMosk.Spec.BlockStorage,
+				},
+			},
+			inputResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova-spec", unitinputs.CephClientNova, true, true), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder-spec", unitinputs.CephClientCinder, true, true), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance-spec", unitinputs.CephClientGlance, true, true), true),
+					},
+				},
+				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
+			},
+			expectedResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova-spec", unitinputs.CephClientNova, false, true), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder-spec", unitinputs.CephClientCinder, false, true), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance-spec", unitinputs.CephClientGlance, false, true), true),
+					},
+				},
+			},
+			expectedChange: true,
+		},
+		// TODO: remove next test cases in 4.x once upgrade 2.x -> 3.x completed
+		{
+			name:    "ensure ceph clients - default openstack clients with base names updated only label",
+			cephDpl: unitinputs.CephDeployMosk,
+			inputResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova", unitinputs.CephClientNova, true, true), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder", unitinputs.CephClientCinder, true, true), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance", unitinputs.CephClientGlance, true, true), true),
+					},
+				},
+				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
+			},
+			expectedResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova", unitinputs.CephClientNova, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder", unitinputs.CephClientCinder, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance", unitinputs.CephClientGlance, false, false), true),
+					},
+				},
+			},
+			expectedChange: true,
+		},
+		{
+			name:    "ensure ceph clients - default openstack clients with base names not touched",
+			cephDpl: unitinputs.CephDeployMosk,
+			inputResources: map[string]runtime.Object{
+				"cephclients": &cephv1.CephClientList{
+					Items: []cephv1.CephClient{
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("nova", unitinputs.CephClientNova, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("cinder", unitinputs.CephClientCinder, false, false), true),
+						*unitinputs.GetCephClientWithStatus(unitinputs.GetOSClientWithName("glance", unitinputs.CephClientGlance, false, false), true),
+					},
+				},
+				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
+			},
+		},
 	}
+	oldFunc := lcmcommon.RandomizedName
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeDeploymentConfig(&deployConfig{cephDpl: &test.cephDpl}, nil)
 			err := c.castExtensions()
 			assert.Nil(t, err)
+
+			lcmcommon.RandomizedName = unitinputs.RandomizeStub
 
 			faketestclients.FakeReaction(c.api.Rookclientset, "list", []string{"cephclients"}, test.inputResources, nil)
 			faketestclients.FakeReaction(c.api.Rookclientset, "get", []string{"cephblockpools"}, test.inputResources, test.apiErrors)
@@ -770,4 +839,5 @@ func TestEnsureCephClients(t *testing.T) {
 			faketestclients.CleanupFakeClientReactions(c.api.Rookclientset)
 		})
 	}
+	lcmcommon.RandomizedName = oldFunc
 }

@@ -85,15 +85,17 @@ var CephClientTest = cephv1.CephClient{
 var CephClientCinder = cephv1.CephClient{
 	ObjectMeta: metav1.ObjectMeta{
 		Namespace: "rook-ceph",
-		Name:      "cinder",
+		Name:      "cindervmucf-zxr9yz",
 		Labels: map[string]string{
-			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
-			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
-			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+			"app.kubernetes.io/created-by":                    "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by":                    "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":                       "ceph.pelagia.lcm",
+			"cephdeployment.lcm.mirantis.com/client-role":     "cinder",
+			"cephdeployment.lcm.mirantis.com/client-rotation": "0",
 		},
 	},
 	Spec: cephv1.ClientSpec{
-		Name: "cinder",
+		Name: "cinderVMucF_ZXr9Yz",
 		Caps: map[string]string{
 			"mon": "allow profile rbd",
 			"osd": "profile rbd pool=volumes-hdd, profile rbd-read-only pool=images-hdd, profile rbd pool=backup-hdd",
@@ -104,15 +106,17 @@ var CephClientCinder = cephv1.CephClient{
 var CephClientNova = cephv1.CephClient{
 	ObjectMeta: metav1.ObjectMeta{
 		Namespace: "rook-ceph",
-		Name:      "nova",
+		Name:      "novan9y4kl7t4vtb",
 		Labels: map[string]string{
-			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
-			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
-			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+			"app.kubernetes.io/created-by":                    "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by":                    "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":                       "ceph.pelagia.lcm",
+			"cephdeployment.lcm.mirantis.com/client-role":     "nova",
+			"cephdeployment.lcm.mirantis.com/client-rotation": "0",
 		},
 	},
 	Spec: cephv1.ClientSpec{
-		Name: "nova",
+		Name: "novaN9y4kl7t4vTb",
 		Caps: map[string]string{
 			"mon": "allow profile rbd",
 			"osd": "profile rbd pool=vms-hdd, profile rbd pool=images-hdd, profile rbd pool=volumes-hdd",
@@ -123,15 +127,17 @@ var CephClientNova = cephv1.CephClient{
 var CephClientGlance = cephv1.CephClient{
 	ObjectMeta: metav1.ObjectMeta{
 		Namespace: "rook-ceph",
-		Name:      "glance",
+		Name:      "glanceo1sdveeqdxxo",
 		Labels: map[string]string{
-			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
-			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
-			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+			"app.kubernetes.io/created-by":                    "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by":                    "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":                       "ceph.pelagia.lcm",
+			"cephdeployment.lcm.mirantis.com/client-role":     "glance",
+			"cephdeployment.lcm.mirantis.com/client-rotation": "0",
 		},
 	},
 	Spec: cephv1.ClientSpec{
-		Name: "glance",
+		Name: "glanceo1sdvEEqDxxo",
 		Caps: map[string]string{
 			"mon": "allow profile rbd",
 			"osd": "profile rbd pool=images-hdd",
@@ -142,15 +148,17 @@ var CephClientGlance = cephv1.CephClient{
 var CephClientManila = cephv1.CephClient{
 	ObjectMeta: metav1.ObjectMeta{
 		Namespace: "rook-ceph",
-		Name:      "manila",
+		Name:      "manilaqnjwcflaghgc",
 		Labels: map[string]string{
-			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
-			"app.kubernetes.io/managed-by": "pelagia-deployment-controller",
-			"app.kubernetes.io/part-of":    "ceph.pelagia.lcm",
+			"app.kubernetes.io/created-by":                    "pelagia-deployment-controller",
+			"app.kubernetes.io/managed-by":                    "pelagia-deployment-controller",
+			"app.kubernetes.io/part-of":                       "ceph.pelagia.lcm",
+			"cephdeployment.lcm.mirantis.com/client-role":     "manila",
+			"cephdeployment.lcm.mirantis.com/client-rotation": "0",
 		},
 	},
 	Spec: cephv1.ClientSpec{
-		Name: "manila",
+		Name: "manilaqnJWCfLAghgC",
 		Caps: map[string]string{
 			"mds": "allow rw",
 			"mgr": "allow rw",
@@ -158,6 +166,39 @@ var CephClientManila = cephv1.CephClient{
 			"mon": `allow r, allow command "auth del", allow command "auth caps", allow command "auth get", allow command "auth get-or-create"`,
 		},
 	},
+}
+
+func GetOSClientWithName(baseName string, osClient cephv1.CephClient, dropRoleLabel, dropRotationLabel bool) cephv1.CephClient {
+	cl := osClient.DeepCopy()
+	if dropRoleLabel {
+		delete(cl.Labels, "cephdeployment.lcm.mirantis.com/client-role")
+	}
+	if dropRotationLabel {
+		delete(cl.Labels, "cephdeployment.lcm.mirantis.com/client-rotation")
+	}
+	cl.Name = baseName
+	cl.Spec.Name = baseName
+	return *cl
+}
+
+func BumpRotationID(osClient cephv1.CephClient, id string) cephv1.CephClient {
+	cl := osClient.DeepCopy()
+	cl.Labels["cephdeployment.lcm.mirantis.com/client-rotation"] = id
+	return *cl
+}
+
+func RandomizeStub(s string) string {
+	switch s {
+	case "cinder":
+		return "cinderVMucF_ZXr9Yz"
+	case "glance":
+		return "glanceo1sdvEEqDxxo"
+	case "nova":
+		return "novaN9y4kl7t4vTb"
+	case "manila":
+		return "manilaqnJWCfLAghgC"
+	}
+	return s
 }
 
 var TestCephClient = cephv1.CephClient{

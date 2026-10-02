@@ -197,9 +197,9 @@ var CephKeysOpenstackSecretBase = corev1.Secret{
 	},
 	Data: map[string][]byte{
 		"client.admin":  []byte("AQAcpuJiITYXMhAAXaOoAqOKJ4mhNOAqxFb1Hw=="),
-		"glance":        []byte("client.glance;glance\n;images-hdd:images:hdd"),
-		"nova":          []byte("client.nova;nova\n;vms-hdd:vms:hdd;volumes-hdd:volumes:hdd;images-hdd:images:hdd"),
-		"cinder":        []byte("client.cinder;cinder\n;volumes-hdd:volumes:hdd;images-hdd:images:hdd;backup-hdd:backup:hdd"),
+		"glance":        []byte(`{"client_name":"client.glanceo1sdvEEqDxxo","client_id":"glanceo1sdvEEqDxxo","key":"glance-key","pools":["images-hdd:images:hdd"]}`),
+		"nova":          []byte(`{"client_name":"client.novaN9y4kl7t4vTb","client_id":"novaN9y4kl7t4vTb","key":"nova-key","pools":["vms-hdd:vms:hdd","volumes-hdd:volumes:hdd","images-hdd:images:hdd"]}`),
+		"cinder":        []byte(`{"client_name":"client.cinderVMucF_ZXr9Yz","client_id":"cinderVMucF_ZXr9Yz","key":"cinder-key","pools":["volumes-hdd:volumes:hdd","images-hdd:images:hdd","backup-hdd:backup:hdd"]}`),
 		"mon_endpoints": []byte("127.0.0.1,127.0.0.2,127.0.0.3"),
 	},
 }
@@ -521,9 +521,9 @@ var OpenstackSecretGenerated = corev1.Secret{
 	},
 	Data: map[string][]byte{
 		"client.admin":               []byte("AQAcpuJiITYXMhAAXaOoAqOKJ4mhNOAqxFb1Hw=="),
-		"glance":                     []byte("client.glance;glance\n;images-hdd:images:hdd"),
-		"nova":                       []byte("client.nova;nova\n;vms-hdd:vms:hdd;volumes-hdd:volumes:hdd;images-hdd:images:hdd"),
-		"cinder":                     []byte("client.cinder;cinder\n;volumes-hdd:volumes:hdd;images-hdd:images:hdd;backup-hdd:backup:hdd"),
+		"glance":                     []byte(`{"client_name":"client.glanceo1sdvEEqDxxo","client_id":"glanceo1sdvEEqDxxo","key":"glance-key","pools":["images-hdd:images:hdd"]}`),
+		"nova":                       []byte(`{"client_name":"client.novaN9y4kl7t4vTb","client_id":"novaN9y4kl7t4vTb","key":"nova-key","pools":["vms-hdd:vms:hdd","volumes-hdd:volumes:hdd","images-hdd:images:hdd"]}`),
+		"cinder":                     []byte(`{"client_name":"client.cinderVMucF_ZXr9Yz","client_id":"cinderVMucF_ZXr9Yz","key":"cinder-key","pools":["volumes-hdd:volumes:hdd","images-hdd:images:hdd","backup-hdd:backup:hdd"]}`),
 		"mon_endpoints":              []byte("127.0.0.1,127.0.0.2,127.0.0.3"),
 		"rgw_internal":               []byte("https://rook-ceph-rgw-rgw-store.rook-ceph.svc:8443/"),
 		"rgw_external":               []byte("https://rgw-store.test/"),
@@ -534,7 +534,7 @@ var OpenstackSecretGenerated = corev1.Secret{
 
 var OpenstackSecretGeneratedCephFS = func() corev1.Secret {
 	secret := OpenstackSecretGenerated.DeepCopy()
-	secret.Data["manila"] = []byte("client.manila;manila\n")
+	secret.Data["manila"] = []byte(`{"client_name":"client.manilaqnJWCfLAghgC","client_id":"manilaqnJWCfLAghgC","key":"manila-key"}`)
 	return *secret
 }()
 

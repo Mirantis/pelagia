@@ -50,7 +50,7 @@ func TestCastExtensions(t *testing.T) {
 					},
 					Clients: []cephlcmv1alpha1.CephClient{
 						{
-							RawExtension: runtime.RawExtension{Raw: []byte(`{"unknonwApiField": 1}`)},
+							ClientSpec: runtime.RawExtension{Raw: []byte(`{"unknonwApiField": 1}`)},
 						},
 					},
 					ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
