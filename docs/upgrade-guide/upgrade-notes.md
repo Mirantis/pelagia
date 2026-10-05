@@ -48,11 +48,13 @@ For Pelagia release notes, refer to [Pelagia Releases](https://github.com/Mirant
     is set explicitly in Helm values. If your setup still uses Ingress, switch to the Gateway API before the upgrade or set
     `lcmConfig.useIngress: true` to keep Ingress temporarily. For the Gateway API options, see [Helm chart values](../configuration/helm-values.md).
 
-* Management of VolumeStorageClasses is moved from the Helm chart to the Pelagia Controller.
+* Management of VolumeSnapshotClasses is moved from the Helm chart to the Pelagia Controller.
 
     The new `cephDeployment.manageVolumeSnapshotClasses` Helm option controls this behavior. It is enabled by default and
-    requires the `volumegroupsnapshotclasses.groupsnapshot.storage.k8s.io` CRD, which is present by default when
+    requires the `volumesnapshotclasses.groupsnapshot.storage.k8s.io` CRD, which is present by default when
     `snapshot-controller` is enabled.
+
+    Existing classes with the default names are kept. To manage the classes on your own, set the option to `false`. Pelagia then neither creates nor removes them.
 
     The `rook.rookConfig.volumeSnapshotsEnabled` option is deprecated and will be removed in a future release. Keep it
     until the upgrade is complete, and then remove it from your Helm values.
