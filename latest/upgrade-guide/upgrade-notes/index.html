@@ -3620,10 +3620,11 @@ is set explicitly in Helm values. If your setup still uses Ingress, switch to th
 <code>lcmConfig.useIngress: true</code> to keep Ingress temporarily. For the Gateway API options, see <a href="../../configuration/helm-values/">Helm chart values</a>.</p>
 </li>
 <li>
-<p>Management of VolumeStorageClasses is moved from the Helm chart to the Pelagia Controller.</p>
+<p>Management of VolumeSnapshotClasses is moved from the Helm chart to the Pelagia Controller.</p>
 <p>The new <code>cephDeployment.manageVolumeSnapshotClasses</code> Helm option controls this behavior. It is enabled by default and
-requires the <code>volumegroupsnapshotclasses.groupsnapshot.storage.k8s.io</code> CRD, which is present by default when
+requires the <code>volumesnapshotclasses.groupsnapshot.storage.k8s.io</code> CRD, which is present by default when
 <code>snapshot-controller</code> is enabled.</p>
+<p>Existing classes with the default names are kept. To manage the classes on your own, set the option to <code>false</code>. Pelagia then neither creates nor removes them.</p>
 <p>The <code>rook.rookConfig.volumeSnapshotsEnabled</code> option is deprecated and will be removed in a future release. Keep it
 until the upgrade is complete, and then remove it from your Helm values.</p>
 </li>
