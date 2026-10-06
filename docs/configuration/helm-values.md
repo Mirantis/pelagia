@@ -38,7 +38,7 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `cephDeployment.csi.placement.tolerations.controllerPlugin` | Toleration settings for the CSI Controller plugin deployment (for example, provisioner). | `""` |
 | `cephDeployment.csi.placement.tolerations.nodePlugin` | Toleration settings for CSI plugins. | `""` |
 | `cephDeployment.csi.addons` | Deploy CSI addons. | `false` |
-| `cephDeployment.manageVolumeSnapshotClasses` | Create default VolumeSnapshotClasses for CephCSI RBD and CephFS drivers. Requires the `volumegroupsnapshotclasses.groupsnapshot.storage.k8s.io` CRD. | `true` |
+| `cephDeployment.manageVolumeSnapshotClasses` | Create default VolumeSnapshotClasses for Ceph CSI RBD and CephFS drivers. Requires the `volumesnapshotclasses.snapshot.storage.k8s.io` CRD. | `true` |
 | `lcmConfig.rookNamespace` | Rook namespace name used across the Pelagia deployment. | `"rook-ceph"` |
 | `lcmConfig.rgwPublicAccessServiceSelector` | Label of the service or proxy exposing RGW to public access. | `"external_access=rgw"` |
 | `lcmConfig.diskDaemonPortParameter` | Port for the disk daemon API. | `9999` |
