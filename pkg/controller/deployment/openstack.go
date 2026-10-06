@@ -17,6 +17,7 @@ limitations under the License.
 package deployment
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"regexp"
@@ -35,12 +36,19 @@ import (
 )
 
 type openstackSecretData struct {
-	clientKeys       map[string]string
+	clientsInfo      map[string]OpenstackClientInfo
 	monMap           *v1.ConfigMap
 	adminSecret      *v1.Secret
 	rgwSecret        *v1.Secret
 	rgwInternalCert  *v1.Secret
 	rgwMetricsSecret *v1.Secret
+}
+
+type OpenstackClientInfo struct {
+	Name    string   `json:"client_name"`
+	ID      string   `json:"client_id"`
+	Keyring string   `json:"key"`
+	Pools   []string `json:"pools"`
 }
 
 func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
@@ -58,7 +66,6 @@ func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
 		return false, nil
 	}
 	c.log.Debug().Msgf("ensure Openstack secret %s/%s", c.lcmConfig.DeployParams.OpenstackCephSharedNamespace, openstackSharedSecret)
-	cephFSDeployed := c.cdConfig.cephDpl.Spec.SharedFilesystem != nil
 
 	notReadyOpenStackPools := []string{}
 	for idx, pool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
@@ -73,10 +80,11 @@ func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
 	if len(notReadyOpenStackPools) > 0 {
 		return false, errors.Errorf("skip openstack secret ensure since the following required OpenStack pools are not ready yet: %v", notReadyOpenStackPools)
 	}
-	if !c.openstackClientsFound(cephFSDeployed) {
-		return false, errors.New("skip openstack secret ensure: no required ceph clients")
+	authNames, err := c.getOpenstackClientNames()
+	if err != nil {
+		return false, errors.Wrap(err, "failed to verify Openstack CephClient(s)")
 	}
-	clientKeys, err := c.getCephClientAuthKeys(cephFSDeployed)
+	clientsInfo, err := c.getCephClientAuthKeys(authNames)
 	if err != nil {
 		return false, errors.Wrap(err, "failed to get auth keys for ceph clients")
 	}
@@ -86,12 +94,13 @@ func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
 	if err != nil {
 		return false, errors.Wrap(err, "failed to get ceph monitor endpoints")
 	}
+	// TODO: Is it still needed for Openstack?
 	adminSecret, err := c.getAdminSecret()
 	if err != nil {
 		return false, errors.Wrap(err, "failed to get ceph admin secret")
 	}
 	openstackSecretData := openstackSecretData{
-		clientKeys:  clientKeys,
+		clientsInfo: clientsInfo,
 		monMap:      monMap,
 		adminSecret: adminSecret,
 	}
@@ -178,18 +187,12 @@ func (c *cephDeploymentConfig) deleteOpenstackSecret() (bool, error) {
 	return true, nil
 }
 
-func (c *cephDeploymentConfig) getCephClientAuthKeys(cephFSDeployed bool) (map[string]string, error) {
-	authKeys := map[string]string{
-		"nova":   "",
-		"cinder": "",
-		"glance": "",
-	}
-	if cephFSDeployed {
-		authKeys["manila"] = ""
-	}
+func (c *cephDeploymentConfig) getCephClientAuthKeys(authNames map[string]string) (map[string]OpenstackClientInfo, error) {
+	authKeys := map[string]OpenstackClientInfo{}
 	errs := []string{}
-	for client := range authKeys {
-		cmd := fmt.Sprintf("ceph auth get-key client.%s", client)
+	for service, client := range authNames {
+		clientName := fmt.Sprintf("client.%s", client)
+		cmd := fmt.Sprintf("ceph auth get-key %s", clientName)
 		key, err := lcmcommon.RunCephToolboxCLI(c.context, c.api.Kubeclientset, c.api.Config, c.lcmConfig.RookNamespace, cmd)
 		if err != nil {
 			c.log.Error().Err(err).Msgf("command '%s' failed", cmd)
@@ -197,7 +200,7 @@ func (c *cephDeploymentConfig) getCephClientAuthKeys(cephFSDeployed bool) (map[s
 		} else if key == "" {
 			errs = append(errs, fmt.Sprintf("command '%s' output is empty", cmd))
 		} else {
-			authKeys[client] = key
+			authKeys[service] = OpenstackClientInfo{Name: clientName, ID: client, Keyring: key, Pools: []string{}}
 		}
 	}
 	if len(errs) > 0 {
@@ -207,21 +210,60 @@ func (c *cephDeploymentConfig) getCephClientAuthKeys(cephFSDeployed bool) (map[s
 	return authKeys, nil
 }
 
-func (c *cephDeploymentConfig) openstackClientsFound(cephFSDeployed bool) bool {
-	result := true
-	osClients := []string{"cinder", "glance", "nova"}
-	if cephFSDeployed {
-		osClients = append(osClients, "manila")
+func (c *cephDeploymentConfig) getOpenstackClientNames() (map[string]string, error) {
+	osClients := map[string]int{"cinder": -1, "glance": -1, "nova": -1}
+	if c.cdConfig.cephDpl.Spec.SharedFilesystem != nil && len(c.cdConfig.cephDpl.Spec.SharedFilesystem.Filesystems) > 0 {
+		osClients["manila"] = -1
 	}
-	for _, name := range osClients {
-		_, err := c.api.Rookclientset.CephV1().CephClients(c.lcmConfig.RookNamespace).Get(c.context, name, metav1.GetOptions{})
-		if err != nil {
-			result = false
-			c.log.Error().Err(err).Msgf("can not check ceph client %q", name)
-			continue
+	// find all clients with role
+	listOptions := metav1.ListOptions{LabelSelector: cephDeploymentClientRoleLabel}
+	clients, err := c.api.Rookclientset.CephV1().CephClients(c.lcmConfig.RookNamespace).List(c.context, listOptions)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to list CephClients in namespace '%s'", c.lcmConfig.RookNamespace)
+	}
+	currentRotation := int16(0)
+	if c.cdConfig.cephDpl.Spec.ExtraOpts != nil && c.cdConfig.cephDpl.Spec.ExtraOpts.RotateOsClients != nil {
+		currentRotation = c.cdConfig.cephDpl.Spec.ExtraOpts.RotateOsClients.Rotation
+	}
+	for idx, client := range clients.Items {
+		if role, ok := client.Labels[cephDeploymentClientRoleLabel]; ok {
+			if _, ok := osClients[role]; !ok {
+				continue
+			}
+			// take by current rotation for default clients
+			// take by latest label for clients specified in spec
+			if rotation, ok := client.Labels[cephDeploymentClientRotationLabel]; ok {
+				if rotation == fmt.Sprintf("%d", currentRotation) {
+					osClients[role] = idx
+				}
+				continue
+			}
+			if latest, ok := client.Labels[cephDeploymentClientLatestLabel]; ok {
+				if latest == "true" {
+					osClients[role] = idx
+				}
+			}
 		}
 	}
-	return result
+	authNames := map[string]string{}
+	errs := 0
+	for role, idx := range osClients {
+		if idx == -1 {
+			errs++
+			c.log.Error().Msgf("failed to find actual CephClient for '%s' service", role)
+		} else {
+			if clients.Items[idx].Status != nil && clients.Items[idx].Status.Phase == cephv1.ConditionReady {
+				authNames[role] = clients.Items[idx].Spec.Name
+			} else {
+				c.log.Warn().Msgf("found not ready Openstack CephClient '%s/%s', waiting readiness...", clients.Items[idx].Namespace, clients.Items[idx].Name)
+				errs++
+			}
+		}
+	}
+	if errs > 0 {
+		return nil, errors.New("failed to find some OpenStack CephClient(s)")
+	}
+	return authNames, nil
 }
 
 func (c *cephDeploymentConfig) getMonMapConfigmap() (*v1.ConfigMap, error) {
@@ -295,9 +337,9 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 		return fmt.Sprintf("%s:%s:%s", fullPoolName, pool.Role, castedPool.DeviceClass)
 	}
 
-	glance := "client.glance;" + secretData.clientKeys["glance"] + "\n"
-	nova := "client.nova;" + secretData.clientKeys["nova"] + "\n"
-	cinder := "client.cinder;" + secretData.clientKeys["cinder"] + "\n"
+	glance := secretData.clientsInfo["glance"]
+	nova := secretData.clientsInfo["nova"]
+	cinder := secretData.clientsInfo["cinder"]
 	for idx, pool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
 		// set basic volumes role
 		if pool.Role == "volumes-backend" {
@@ -306,18 +348,21 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 		poolDescription := buildPoolDescription(c.cdConfig.pools[idx], pool)
 		switch role := pool.Role; role {
 		case "volumes":
-			nova = nova + ";" + poolDescription
-			cinder = cinder + ";" + poolDescription
+			nova.Pools = append(nova.Pools, poolDescription)
+			cinder.Pools = append(cinder.Pools, poolDescription)
 		case "vms":
-			nova = nova + ";" + poolDescription
+			nova.Pools = append(nova.Pools, poolDescription)
 		case "images":
-			nova = nova + ";" + poolDescription
-			glance = glance + ";" + poolDescription
-			cinder = cinder + ";" + poolDescription
+			nova.Pools = append(nova.Pools, poolDescription)
+			glance.Pools = append(glance.Pools, poolDescription)
+			cinder.Pools = append(cinder.Pools, poolDescription)
 		case "backup":
-			cinder = cinder + ";" + poolDescription
+			cinder.Pools = append(cinder.Pools, poolDescription)
 		}
 	}
+	glanceSecret, _ := json.Marshal(glance)
+	novaSecret, _ := json.Marshal(nova)
+	cinderSecret, _ := json.Marshal(cinder)
 
 	var clientAdminSecret []byte
 	if c.cdConfig.clusterSpec.External.Enable {
@@ -334,16 +379,17 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 		},
 		Data: map[string][]byte{
 			"client.admin":  clientAdminSecret,
-			"glance":        []byte(glance),
-			"nova":          []byte(nova),
-			"cinder":        []byte(cinder),
+			"glance":        glanceSecret,
+			"nova":          novaSecret,
+			"cinder":        cinderSecret,
 			"mon_endpoints": []byte(monmapString),
 		},
 	}
 
 	// if manila key is here, add it to openstack-ceph-keys
-	if _, ok := secretData.clientKeys["manila"]; ok {
-		secret.Data["manila"] = []byte("client.manila;" + secretData.clientKeys["manila"] + "\n")
+	if manila, ok := secretData.clientsInfo["manila"]; ok {
+		manilaSecret, _ := json.Marshal(manila)
+		secret.Data["manila"] = manilaSecret
 	}
 
 	if c.cdConfig.cephDpl.Spec.ObjectStorage != nil {

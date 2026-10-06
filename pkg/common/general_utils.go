@@ -19,7 +19,9 @@ package lcmcommon
 import (
 	"crypto/sha256"
 	"fmt"
+	"math/rand"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/google/go-cmp/cmp"
@@ -112,4 +114,18 @@ func ExtendLabels(resourceLabels map[string]string, extraLabels map[string]strin
 
 func PtrTo[T any](a T) *T {
 	return &a
+}
+
+var RandomizedName = randomizedName
+
+func randomizedName(s string) string {
+	seed := rand.New(rand.NewSource(time.Now().UnixNano()))
+	chars := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789")
+	length := 12
+	var b strings.Builder
+	b.Write([]byte(s + "_"))
+	for i := 0; i < length; i++ {
+		b.WriteRune(chars[seed.Intn(len(chars))])
+	}
+	return b.String()
 }

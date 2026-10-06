@@ -46,7 +46,7 @@ func TestCreateCephClient(t *testing.T) {
 			Caps: map[string]string{"mon": "allow r, allow command \"osd blacklist\""},
 		},
 	)
-	testClient := cephlcmv1alpha1.CephClient{RawExtension: runtime.RawExtension{Raw: clientRaw}}
+	testClient := cephlcmv1alpha1.CephClient{ClientSpec: runtime.RawExtension{Raw: clientRaw}}
 	if len(cd.Spec.Clients) > 0 {
 		cd.Spec.Clients = append(cd.Spec.Clients, testClient)
 	} else {

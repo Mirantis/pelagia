@@ -19,6 +19,8 @@ package deployment
 import (
 	"fmt"
 	"reflect"
+	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -26,6 +28,7 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v3/pkg/apis/ceph.pelagia.lcm/v1alpha1"
 	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
 )
 
@@ -43,22 +46,125 @@ func (c *cephDeploymentConfig) ensureCephClients() (bool, error) {
 	errMsg := make([]error, 0)
 
 	// If there is any additional OpenStack clients required, add them to clients list
-	cephDplClients := make([]cephv1.ClientSpec, len(c.cdConfig.cephDpl.Spec.Clients))
+	expectedClients := make([]cephv1.CephClient, len(c.cdConfig.cephDpl.Spec.Clients))
+	clientsLatestByRole := map[string]int{}
 	for idx, cephDplClient := range c.cdConfig.cephDpl.Spec.Clients {
-		cephDplClients[idx], _ = cephDplClient.GetSpec()
-	}
-	if !c.cdConfig.clusterSpec.External.Enable && c.cdConfig.openstackSetup {
-		osClients, err := c.calculateOpenStackClients(cephDplClients)
-		if err != nil {
-			return false, errors.Wrap(err, "failed to calculate OpenStack CephClients")
+		clientSpec, _ := cephDplClient.GetSpec()
+		client := generateClient(c.lcmConfig.RookNamespace, clientSpec, cephDplClient.Role)
+		if cephDplClient.Role != "" {
+			clientsLatestByRole[cephDplClient.Role] = idx
 		}
-		cephDplClients = append(cephDplClients, osClients...)
+		expectedClients[idx] = client
+	}
+	// mark all clients with roles added to spec last as latest
+	for _, idx := range clientsLatestByRole {
+		expectedClients[idx].Labels[cephDeploymentClientLatestLabel] = "true"
+	}
+
+	if !c.cdConfig.clusterSpec.External.Enable && c.cdConfig.openstackSetup {
+		osClients, err := c.defaultOpenstackClients(c.cdConfig.cephDpl.Spec.Clients)
+		if err != nil {
+			return false, errors.Wrap(err, "failed to verify default OpenStack CephClients")
+		}
+		// since osClients is map - lets have sorted slice
+		roles := make([]string, 0, len(osClients))
+		for role := range osClients {
+			roles = append(roles, role)
+		}
+		sort.Strings(roles)
+		for _, role := range roles {
+			clientSpec := osClients[role]
+			defaultOsClient := generateClient(c.lcmConfig.RookNamespace, clientSpec, role)
+			expectedRotation := int16(0)
+			keepPrevious := int16(1)
+			if c.cdConfig.cephDpl.Spec.ExtraOpts != nil && c.cdConfig.cephDpl.Spec.ExtraOpts.RotateOsClients != nil {
+				expectedRotation = c.cdConfig.cephDpl.Spec.ExtraOpts.RotateOsClients.Rotation
+				keepPrevious = int16(c.cdConfig.cephDpl.Spec.ExtraOpts.RotateOsClients.KeepPrevious)
+			}
+			// add rotation label for clients created by pelagia
+			newLabels := map[string]string{cephDeploymentClientRotationLabel: fmt.Sprintf("%d", expectedRotation)}
+			defaultOsClient.Labels = lcmcommon.ExtendLabels(newLabels, defaultOsClient.Labels)
+			newRotationForRoleReady := false
+			lastRotationForRoleReady := struct {
+				name     string
+				rotation int16
+			}{}
+			for _, cephClient := range cephClients.Items {
+				// since clients names are generated - find by label previously generated if exist
+				// or find by raw service name, eg. nova - for clients created before 3.x release
+				clientLabel := ""
+				clientRotation := int16(-1)
+				if cephClient.Labels != nil {
+					clientLabel = cephClient.Labels[cephDeploymentClientRoleLabel]
+					rotationStr, ok := cephClient.Labels[cephDeploymentClientRotationLabel]
+					if ok {
+						rotation, err := strconv.Atoi(rotationStr)
+						if err != nil {
+							return false, errors.Wrapf(err, "failed to check rotation '%s/%s' CephClient: label '%s' must be of int value",
+								cephClient.Namespace, cephClient.Name, cephDeploymentClientRotationLabel)
+						}
+						clientRotation = int16(rotation)
+					}
+				}
+				if clientLabel == role {
+					if clientRotation >= 0 {
+						if clientRotation > expectedRotation {
+							c.log.Warn().Msgf("detected CephClient '%s/%s' rotation number %d, while current expected is %d, full rotation reset assumed",
+								cephClient.Namespace, cephClient.Name, clientRotation, expectedRotation)
+						} else {
+							if expectedRotation == clientRotation {
+								defaultOsClient.Name = cephClient.Name
+								defaultOsClient.Spec.Name = cephClient.Spec.Name
+								if cephClient.Status != nil && cephClient.Status.Phase == cephv1.ConditionReady {
+									newRotationForRoleReady = true
+								}
+								// continue to search other clients to find clients with lowest rotation
+								// to keep them if needed by keepPrevious param
+								continue
+							}
+							if diff := expectedRotation - clientRotation; diff > 0 && diff <= keepPrevious {
+								// keep client as is w/o any updates
+								delete(presentClients, cephClient.Name)
+							}
+						}
+						// protect last ready rotation from remove just in case
+						// if last actual is not ready to avoid setup damage
+						if cephClient.Status != nil && cephClient.Status.Phase == cephv1.ConditionReady {
+							if lastRotationForRoleReady.name != "" {
+								if clientRotation > lastRotationForRoleReady.rotation {
+									lastRotationForRoleReady.name = cephClient.Name
+									lastRotationForRoleReady.rotation = clientRotation
+								}
+							} else {
+								lastRotationForRoleReady = struct {
+									name     string
+									rotation int16
+								}{name: cephClient.Name, rotation: clientRotation}
+							}
+						}
+					}
+				} else {
+					// fallback for previous client names
+					// will be used only once after upgrade to set correct labels
+					// TODO: remove in 4.x
+					if cephClient.Spec.Name == role && clientLabel == "" {
+						defaultOsClient.Name = cephClient.Name
+						defaultOsClient.Spec.Name = cephClient.Spec.Name
+						break
+					}
+				}
+			}
+			if lastRotationForRoleReady.name != "" && !newRotationForRoleReady {
+				c.log.Warn().Msgf("keep CephClient '%s/%s' until new rotation is ready", c.lcmConfig.RookNamespace, lastRotationForRoleReady.name)
+				delete(presentClients, lastRotationForRoleReady.name)
+			}
+			expectedClients = append(expectedClients, defaultOsClient)
+		}
 	}
 
 	clientsChanged := false
-	for _, cephDplClientSpec := range cephDplClients {
-		newClient := generateClient(c.lcmConfig.RookNamespace, cephDplClientSpec)
-		if presentClient, ok := presentClients[newClient.Name]; ok {
+	for _, cephClient := range expectedClients {
+		if presentClient, ok := presentClients[cephClient.Name]; ok {
 			if presentClient.Status == nil || !isTypeReadyToUpdate(presentClient.Status.Phase) {
 				err := fmt.Sprintf("found not ready CephClient %s/%s, waiting for readiness", c.lcmConfig.RookNamespace, presentClient.Name)
 				if presentClient.Status != nil {
@@ -67,11 +173,28 @@ func (c *cephDeploymentConfig) ensureCephClients() (bool, error) {
 				c.log.Error().Msg(err)
 				errMsg = append(errMsg, errors.New(err))
 			} else {
-				labelsUpdated := lcmcommon.AlignBaseLabels(*c.log, "CephClient", &presentClient.ObjectMeta, newClient.Labels)
-				specUpdated := !reflect.DeepEqual(newClient.Spec, presentClient.Spec)
+				labelsUpdated := lcmcommon.AlignBaseLabels(*c.log, "CephClient", &presentClient.ObjectMeta, cephClient.Labels)
+
+				verifyLabelsUnset := func(label string) {
+					if _, ok := cephClient.Labels[label]; !ok {
+						if _, ok := presentClient.Labels[label]; ok {
+							c.log.Info().Msgf("removing label '%s' from CephClient '%s/%s'", label, cephClient.Namespace, cephClient.Name)
+							delete(presentClient.Labels, label)
+							labelsUpdated = true
+						}
+					}
+				}
+				// unset client-rotation label in case if default client was moved to spec
+				verifyLabelsUnset(cephDeploymentClientRotationLabel)
+				// unset client-latest label in case if latest client was added to spec
+				verifyLabelsUnset(cephDeploymentClientLatestLabel)
+				// if client has unassigned role - need to remove it
+				verifyLabelsUnset(cephDeploymentClientRoleLabel)
+
+				specUpdated := !reflect.DeepEqual(cephClient.Spec, presentClient.Spec)
 				if specUpdated {
-					lcmcommon.ShowObjectDiff(*c.log, presentClient.Spec, newClient.Spec)
-					presentClient.Spec = newClient.Spec
+					lcmcommon.ShowObjectDiff(*c.log, presentClient.Spec, cephClient.Spec)
+					presentClient.Spec = cephClient.Spec
 				}
 				if specUpdated || labelsUpdated {
 					if err := c.processCephClients(objectUpdate, presentClient); err != nil {
@@ -80,9 +203,9 @@ func (c *cephDeploymentConfig) ensureCephClients() (bool, error) {
 					clientsChanged = true
 				}
 			}
-			delete(presentClients, newClient.Name)
+			delete(presentClients, cephClient.Name)
 		} else {
-			if err := c.processCephClients(objectCreate, newClient); err != nil {
+			if err := c.processCephClients(objectCreate, cephClient); err != nil {
 				errMsg = append(errMsg, err)
 			}
 			clientsChanged = true
@@ -149,37 +272,35 @@ func (c *cephDeploymentConfig) processCephClients(process objectProcess, client 
 	return nil
 }
 
-func (c *cephDeploymentConfig) calculateOpenStackClients(clientSpecs []cephv1.ClientSpec) ([]cephv1.ClientSpec, error) {
-	notUsed := map[string]bool{"cinder": true, "glance": true, "nova": true, "manila": true}
-	for _, clientSpec := range clientSpecs {
-		switch clientSpec.Name {
-		case "cinder":
-			notUsed["cinder"] = false
-		case "glance":
-			notUsed["glance"] = false
-		case "nova":
-			notUsed["nova"] = false
-		case "manila":
-			notUsed["manila"] = false
+func (c *cephDeploymentConfig) defaultOpenstackClients(specClients []cephlcmv1alpha1.CephClient) (map[string]cephv1.ClientSpec, error) {
+	defaultClients := map[string]cephv1.ClientSpec{"cinder": {}, "glance": {}, "nova": {}, "manila": {}}
+	// do not generate manila client if there is no cephfs enabled
+	if c.cdConfig.cephDpl.Spec.SharedFilesystem == nil || len(c.cdConfig.cephDpl.Spec.SharedFilesystem.Filesystems) == 0 {
+		delete(defaultClients, "manila")
+	}
+	for _, client := range specClients {
+		switch client.Role {
+		case "cinder", "glance", "nova", "manila":
+			delete(defaultClients, client.Role)
 		}
+	}
+	if len(defaultClients) == 0 {
+		return nil, nil
 	}
 
-	clients := make([]cephv1.ClientSpec, 0)
-	for client, notUsedStatus := range notUsed {
-		if notUsedStatus {
-			// do not generate manila client if there is no cephfs enabled
-			if client == "manila" && (c.cdConfig.cephDpl.Spec.SharedFilesystem == nil || len(c.cdConfig.cephDpl.Spec.SharedFilesystem.Filesystems) == 0) {
-				continue
-			}
-			osClient, err := c.generateOpenStackClient(client)
-			if err != nil {
-				c.log.Error().Err(err).Msgf("failed to generate spec for Ceph openstack client %s", client)
-				return nil, errors.Wrapf(err, "failed to generate spec for Ceph openstack client %s", client)
-			}
-			clients = append(clients, osClient)
+	errs := 0
+	for client := range defaultClients {
+		osClientSpec, err := c.generateOpenStackClient(client)
+		if err != nil {
+			c.log.Error().Err(err).Msgf("failed to generate spec for Ceph Openstack client %s", client)
+			errs++
 		}
+		defaultClients[client] = osClientSpec
 	}
-	return clients, nil
+	if errs > 0 {
+		return nil, errors.New("failed to generate default Openstack Ceph client(s)")
+	}
+	return defaultClients, nil
 }
 
 func (c *cephDeploymentConfig) generateOpenStackClient(name string) (cephv1.ClientSpec, error) {
@@ -230,52 +351,53 @@ func (c *cephDeploymentConfig) generateOpenStackClient(name string) (cephv1.Clie
 		if err := checkPoolsFn(name, []string{"volumes", "images", "backup"}); err != nil {
 			return client, err
 		}
-		client.Name = name
 		client.Caps = map[string]string{
 			"mon": "allow profile rbd",
 			"osd": fmt.Sprintf("%s, profile rbd-read-only pool=%s, profile rbd pool=%s", volumeBackendsProfile, pools["images"][0], pools["backup"][0]),
 		}
-		return client, nil
 	case "glance":
 		if err := checkPoolsFn(name, []string{"images"}); err != nil {
 			return client, err
 		}
-		client.Name = name
 		client.Caps = map[string]string{
 			"mon": "allow profile rbd",
 			"osd": `profile rbd pool=` + pools["images"][0],
 		}
-		return client, nil
 	case "nova":
 		if err := checkPoolsFn(name, []string{"vms", "images", "volumes"}); err != nil {
 			return client, err
 		}
-		client.Name = name
 		client.Caps = map[string]string{
 			"mon": "allow profile rbd",
 			"osd": fmt.Sprintf("profile rbd pool=%s, profile rbd pool=%s, %s", pools["vms"][0], pools["images"][0], volumeBackendsProfile),
 		}
-		return client, nil
 	case "manila":
-		client.Name = name
 		client.Caps = map[string]string{
 			"mds": "allow rw",
 			"mgr": "allow rw",
 			"osd": "allow rw tag cephfs *=*",
 			"mon": `allow r, allow command "auth del", allow command "auth caps", allow command "auth get", allow command "auth get-or-create"`,
 		}
-		return client, nil
+	default:
+		return client, errors.Errorf("failed to find pool type for '%s' client", name)
 	}
-	return client, errors.Errorf("failed to find pool type for '%s' client", name)
+	client.Name = lcmcommon.RandomizedName(name)
+	return client, nil
 }
 
-func generateClient(namespace string, clientSpec cephv1.ClientSpec) cephv1.CephClient {
-	return cephv1.CephClient{
+func generateClient(namespace string, clientSpec cephv1.ClientSpec, role string) cephv1.CephClient {
+	// remove dots and underscores
+	clientName := strings.ReplaceAll(strings.ReplaceAll(clientSpec.Name, ".", "-"), "_", "-")
+	client := cephv1.CephClient{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      strings.ReplaceAll(clientSpec.Name, ".", "-"),
+			Name:      strings.ToLower(clientName),
 			Namespace: namespace,
 			Labels:    baseResourceLabels,
 		},
 		Spec: clientSpec,
 	}
+	if role != "" {
+		client.Labels = lcmcommon.ExtendLabels(map[string]string{cephDeploymentClientRoleLabel: role}, baseResourceLabels)
+	}
+	return client
 }
