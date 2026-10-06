@@ -13,21 +13,21 @@ For Pelagia release notes, refer to [Pelagia Releases](https://github.com/Mirant
 
 * Rook is upgraded to v1.20. For upgrade details, see [Rook upgrade](https://rook.io/docs/rook/v1.20/Upgrade/rook-upgrade/).
 
-    Pelagia now manages CSI drivers and OperatorConfig through the new `spec.csi` field of `CephDeployment`. For details,
+    Pelagia now manages Ceph CSI drivers and OperatorConfig through the new `spec.csi` field of `CephDeployment`. For details,
     see [CephDeployment resource](../custom-resources/cephdeployment.md).
 
 * Ceph Tentacle is upgraded to v20.2.4 and Ceph Squid - to v19.2.6.
 
-    Ceph Tentacle introduced a new client authentication method with a more secure aes256k cipher type.
-    For details, see [Ceph blog post](https://ceph.io/en/news/blog/2026/v20-2-4-v19-2-6-combo-released/).
+    This version of Ceph Tentacle introduces a new client authentication method with a more secure AES256K cipher type.
+    For details, see [Ceph blog: Tentacle 20.2.4 and Squid 19.2.6 hotfixes for CVEs](https://ceph.io/en/news/blog/2026/v20-2-4-v19-2-6-combo-released/).
 
-    During upgrade, Pelagia automatically sets backward compatibility with all existing keys based on aes encryption.
-    All Ceph related keyrings for daemons (`mon`, `mgr`, `osd`, `rgw`, `mds`) are rotated automatically. All other clients (including
-    CSI) remain on the legacy aes encryption method and must be rotated manually after upgrade.
-    For details, see [Rook key rotation](https://rook.io/docs/rook/v1.20/Storage-Configuration/Advanced/cephx-key-rotation/).
+    During upgrade, Pelagia automatically ensures backward compatibility with all existing keys based on AES encryption.
+    All Ceph-related keyrings for daemons (`mon`, `mgr`, `osd`, `rgw`, `mds`) are rotated automatically. All other clients (including
+    Ceph CSI) remain on the legacy AES encryption method and must be rotated manually after upgrade.
+    For details, see [Rook documentation: CephX Keys and Rotation](https://rook.io/docs/rook/v1.20/Storage-Configuration/Advanced/cephx-key-rotation/).
 
-    CSI plugins require kernel version 7.0+ to support aes256k. Pelagia pins the legacy aes for CSI during upgrade.
-    Since the legacy aes remains active, as well as some keyrings, Pelagia mutes the following Ceph health warnings during upgrade:
+    Ceph CSI plugins require kernel version 7.0+ to support AES256K. Pelagia pins the legacy AES for Ceph CSI during upgrade.
+    Because the legacy cipher and some legacy keyrings remain active, Pelagia mutes the following Ceph health warnings during upgrade:
 
     - AUTH_INSECURE_ROTATING_SERVICE_KEY_TYPE
     - AUTH_INSECURE_CLIENT_KEY_TYPE
@@ -35,11 +35,11 @@ For Pelagia release notes, refer to [Pelagia Releases](https://github.com/Mirant
     - AUTH_INSECURE_KEYS_CREATABLE
     - AUTH_EMERGENCY_CIPHERS_SET
 
-    You can remove these mutes once all keyrings are switched to the new aes256k format.
+    You can remove these mutes once all keyrings are switched to the new AES256K format.
 
 * Ceph CSI Operator is updated to v1.0.4.
 
-    For details, see [Ceph CSI Operator release notes](https://github.com/ceph/ceph-csi-operator/releases#release-v1.0.4).
+    For details, see [Ceph CSI Operator GitHub project: Release notes](https://github.com/ceph/ceph-csi-operator/releases#release-v1.0.4).
 
 * Ingress support is disabled by default. The default value of `lcmConfig.useIngress` is changed from `true` to `false`
   due to the [NGINX Ingress retirement](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/).
@@ -51,8 +51,8 @@ For Pelagia release notes, refer to [Pelagia Releases](https://github.com/Mirant
 * Management of VolumeSnapshotClasses is moved from the Helm chart to the Pelagia Controller.
 
     The new `cephDeployment.manageVolumeSnapshotClasses` Helm option controls this behavior. It is enabled by default and
-    requires the `volumesnapshotclasses.groupsnapshot.storage.k8s.io` CRD, which is present by default when
-    `snapshot-controller` is enabled.
+    requires the `volumesnapshotclasses.snapshot.storage.k8s.io` CRD, which is installed by default with
+    `snapshot-controller`.
 
     Existing classes with the default names are kept. To manage the classes on your own, set the option to `false`. Pelagia then neither creates nor removes them.
 
@@ -104,7 +104,7 @@ Complete the following steps before upgrading Pelagia to 3.x:
       ```
 
 2. Define how Pelagia handles `VolumeSnapshotClasses` after the upgrade. Pelagia Controller now manages default
-   `VolumeSnapshotClasses` for the CephCSI RBD and CephFS drivers, and the `cephDeployment.manageVolumeSnapshotClasses`
+   `VolumeSnapshotClasses` for the Ceph CSI RBD and CephFS drivers, and the `cephDeployment.manageVolumeSnapshotClasses`
    option, which is enabled by default, controls this behavior. Depending on your current configuration, do the following:
 
     * If `rook.rookConfig.volumeSnapshotsEnabled` is not set or is explicitly set to `false` in the Helm chart values, disable the management of
