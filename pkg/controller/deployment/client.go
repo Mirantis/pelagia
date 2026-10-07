@@ -386,8 +386,8 @@ func (c *cephDeploymentConfig) generateOpenStackClient(name string) (cephv1.Clie
 }
 
 func generateClient(namespace string, clientSpec cephv1.ClientSpec, role string) cephv1.CephClient {
-	// remove dots and underscores
-	clientName := strings.ReplaceAll(strings.ReplaceAll(clientSpec.Name, ".", "-"), "_", "-")
+	// remove underscores
+	clientName := strings.ReplaceAll(clientSpec.Name, "_", "-")
 	client := cephv1.CephClient{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      strings.ToLower(clientName),
