@@ -31,13 +31,14 @@ import (
 func main() {
 	log := lcmcommon.InitLogger(false)
 
-	var rookNamespace, clientName, rgwUserName string
+	var rookNamespace, clientName, rgwUserName, rgwRealm string
 	var useRbd, useCephFS, useRgw, encodedBase64, version bool
 	flag.StringVar(&rookNamespace, "rook-namespace", "rook-ceph", "Rook namespace")
 	flag.StringVar(&clientName, "client-name", "", "name of ceph client which will be used for connecting to cluster, without 'client' prefix")
 	flag.BoolVar(&useRbd, "use-rbd", true, "allow to consume Ceph RBD")
 	flag.BoolVar(&useCephFS, "use-cephfs", false, "allow to consume CephFS")
 	flag.StringVar(&rgwUserName, "rgw-username", "rgw-admin-ops-user", "rgw username to share keys for RGW connection")
+	flag.StringVar(&rgwRealm, "rgw-realm", "", "rgw realm where user is created, default realm will be used if not provided")
 	flag.BoolVar(&useRgw, "use-rgw", false, "allow to consume Ceph RGW")
 	flag.BoolVar(&encodedBase64, "base64", false, "show connection string as base64 encoded")
 	flag.BoolVar(&version, "version", false, "show binary version")
@@ -72,6 +73,7 @@ func main() {
 		UseCephFS:     useCephFS,
 		UseRgw:        useRgw,
 		RgwUserName:   rgwUserName,
+		RgwRealm:      rgwRealm,
 		EncodedBase64: encodedBase64,
 	}
 

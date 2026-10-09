@@ -801,7 +801,6 @@ spec:
                       required:
                       - name
                       type: object
-                    maxItems: 1
                     type: array
                   users:
                     description: Users is a list of user to create for object storage
@@ -846,7 +845,6 @@ spec:
                       - name
                       - spec
                       type: object
-                    maxItems: 1
                     type: array
                   zones:
                     description: |-
@@ -870,7 +868,6 @@ spec:
                       - name
                       - spec
                       type: object
-                    maxItems: 1
                     type: array
                 type: object
               rbdMirror:
