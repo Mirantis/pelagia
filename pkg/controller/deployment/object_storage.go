@@ -77,7 +77,7 @@ func (c *cephDeploymentConfig) ensureObjectStorage() (bool, error) {
 			}
 		} else {
 			if len(c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws) == 0 && len(c.cdConfig.cephDpl.Spec.ObjectStorage.Zones) == 0 {
-				builtInPoolRemoved, err := c.deleteRgwBuiltInPool()
+				builtInPoolRemoved, err := c.deleteRgwBuiltInPool(false)
 				if err != nil {
 					msg := "failed to delete builtin .rgw.root pool"
 					c.log.Error().Err(err).Msg(msg)
@@ -128,7 +128,7 @@ func (c *cephDeploymentConfig) deleteObjectStorage() (bool, error) {
 			rgwRemoved = rgwRemoved && multisiteRemoved
 			// remove built-in pool only after multisite cleanup if present
 			if multisiteRemoved {
-				builtInPoolRemoved, err := c.deleteRgwBuiltInPool()
+				builtInPoolRemoved, err := c.deleteRgwBuiltInPool(true)
 				if err != nil {
 					c.log.Error().Err(err).Msg("error deleting builtin .rgw.root pool")
 					errorsNumber++

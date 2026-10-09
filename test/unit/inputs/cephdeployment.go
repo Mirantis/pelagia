@@ -1017,6 +1017,22 @@ func GetCephDeployPool(name string, role string) cephlcmv1alpha1.CephPool {
 	}
 }
 
+var CephDeployRgwRootPool = cephlcmv1alpha1.CephPool{
+	Name:          ".rgw.root",
+	UseAsFullName: true,
+	PoolSpec: runtime.RawExtension{
+		Raw: ConvertStructToRaw(
+			cephv1.PoolSpec{
+				EnableCrushUpdates: &TrueVarForPointer,
+				DeviceClass:        "hdd",
+				Replicated: cephv1.ReplicatedSpec{
+					Size: 3,
+				},
+			},
+		),
+	},
+}
+
 var CephNodesOk = []cephlcmv1alpha1.CephDeploymentNode{
 	{
 		Node: cephv1.Node{

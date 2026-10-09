@@ -133,6 +133,9 @@ func (c *cephDeploymentConfig) ensureStorageClasses() (bool, error) {
 
 	if c.cdConfig.cephDpl.Spec.BlockStorage != nil {
 		for idx, cephDplPool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
+			if lcmcommon.Contains(builtinCephPools, cephDplPool.Name) {
+				continue
+			}
 			poolName := c.cdConfig.pools[idx]
 			storageResource := generateStorageClassPoolBased(c.lcmConfig.RookNamespace, poolName, cephDplPool.StorageClassOpts, c.lcmConfig.RookNamespace, c.cdConfig.clusterSpec.External.Enable)
 			found := false
