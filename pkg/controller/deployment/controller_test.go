@@ -2216,7 +2216,9 @@ func TestApplyConfiguration(t *testing.T) {
 		},
 		"cephblockpools": &cephv1.CephBlockPoolList{
 			Items: append(unitinputs.OpenstackCephBlockPoolsListReady.DeepCopy().Items,
-				unitinputs.GetCephBlockPoolWithStatus(unitinputs.CephBlockPoolReplicated, true), *unitinputs.BuiltinMgrPool.DeepCopy(), *unitinputs.BuiltinRgwRootPool.DeepCopy()),
+				unitinputs.GetCephBlockPoolWithStatus(unitinputs.CephBlockPoolReplicated, true),
+				*unitinputs.BuiltinMgrPool.DeepCopy(),
+				unitinputs.GetCephBlockPoolWithStatus(*unitinputs.BuiltinRgwRootPool, true)),
 		},
 		"cephclients": &cephv1.CephClientList{
 			Items: []cephv1.CephClient{
@@ -2409,6 +2411,17 @@ func TestApplyConfiguration(t *testing.T) {
 		{
 			name:           "apply cephdeployment - nothing to do",
 			cephDpl:        fullCephDplSpec.DeepCopy(),
+			inputResources: inputResourcesForApply,
+			lcmconfig:      lcmconfig,
+			inProgressMsg:  "",
+		},
+		{
+			name: "apply cephdeployment - nothing to do (with rgw root in spec)",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cephDpl := fullCephDplSpec.DeepCopy()
+				cephDpl.Spec.BlockStorage.Pools = append(cephDpl.Spec.BlockStorage.Pools, unitinputs.CephDeployRgwRootPool)
+				return cephDpl
+			}(),
 			inputResources: inputResourcesForApply,
 			lcmconfig:      lcmconfig,
 			inProgressMsg:  "",

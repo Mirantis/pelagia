@@ -44,6 +44,7 @@ type Opts struct {
 	UseCephFS     bool
 	UseRgw        bool
 	RgwUserName   string
+	RgwRealm      string
 	EncodedBase64 bool
 }
 
@@ -131,7 +132,7 @@ func (c *CephConnector) getConnectionInfo(opts Opts) (*lcmcommon.CephConnection,
 	}
 
 	if opts.UseRgw {
-		rgwAdminOpsUserKeys, err := c.getRgwKeys(opts.RookNamespace, opts.RgwUserName)
+		rgwAdminOpsUserKeys, err := c.getRgwKeys(opts.RookNamespace, opts.RgwUserName, opts.RgwRealm)
 		if err != nil {
 			return nil, err
 		}

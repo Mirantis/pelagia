@@ -136,10 +136,24 @@ func (c *cephDeploymentConfig) verifyBuiltinPools() (bool, error) {
 	changed := false
 	errMsgs := []string{}
 
+	poolInSpec := func(poolName string) bool {
+		if c.cdConfig.cephDpl.Spec.BlockStorage != nil {
+			for _, cephDplPool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
+				if cephDplPool.Name == poolName {
+					return true
+				}
+			}
+		}
+		return false
+	}
+
 	// Build cephblockpool spec only for builtin pools exist in ceph cluster
 	builtinPoolsToProcess := []cephv1.CephBlockPool{}
 	for _, cephpool := range cephPools {
 		if lcmcommon.Contains(builtinCephPools, cephpool) {
+			if poolInSpec(cephpool) {
+				continue
+			}
 			if cephpool == ".rgw.root" {
 				// skip processing .rgw.root pool if there is no rgw metadata pool defined
 				// in a cluster because we cannot predict what .rgw.root we are observing
