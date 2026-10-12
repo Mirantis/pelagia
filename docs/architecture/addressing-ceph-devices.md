@@ -10,7 +10,7 @@ keywords: ceph device addressing, storage device formats, ceph storage devices,
 Selecting the correct identifier for storage devices is critical for ensuring system stability, particularly when configuring mount points or managing hardware-dependent services.
 
 The list of supported formats for device identification includes `by-id`, `name`, and `by-path`.
-The default and recommended device identification methods is `/dev/disk/by-id`.
+The default and recommended device identification method is `/dev/disk/by-id`.
 This format is reliable and unaffected by the disk controller actions, for example, device name shuffling on boot.
 
 This section explains each method in detail.

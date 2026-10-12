@@ -15,7 +15,7 @@ Pelagia Helm chart deploys the following components:
 
 ## Pelagia Deployment Controller
 
-Pelagia Controller contains the following containers:
+Pelagia Deployment Controller contains the following containers:
 
 ### Pelagia Deployment Controller
 
@@ -73,12 +73,13 @@ A Kubernetes controller that manages the Pelagia infrastructure resources.
 It creates and manages Ceph toolbox with Ceph CLI tools and deploys LCM infrastructure
 pods that allow processing disk cleanup.
 
-Pelagia Task Controller operations include:
+Pelagia Infra Controller operations include:
 
 - Creating and managing the Ceph toolbox pod with the Ceph CLI tools
 - Creating and managing the `disk-daemon` DaemonSet that is used to perform disk cleanup
   operations on the Ceph OSD disks
-- Pausing the regular Rook Ceph Operator orchestration until all requests are finished
+- Stopping the Rook Ceph Operator while Ceph OSD removal tasks are in progress or failed
+  and unresolved, or while maintenance mode is active, and starting it again afterwards
 
 ## Rook Ceph Operator
 
