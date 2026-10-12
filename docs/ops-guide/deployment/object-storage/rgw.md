@@ -43,7 +43,6 @@ Pelagia has an integration for Ceph Object Storage with OpenStack Object Storage
            replicated:
              size: 3
          gateway:
-           allNodes: false
            instances: 3
            port: 80
            securePort: 8443

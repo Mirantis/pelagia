@@ -36,7 +36,7 @@ Only the multi-zone multisite setup is currently supported. For more details, se
 
     Also, you can split the RGW daemon into daemons serving clients and daemons
     running synchronization.
-    To enable this option, create a separate ObjectStore with `auxilaryService: true` and set `disableMultisiteSyncTraffic` to `true` in the `gateway` section. For reference, see [Rook documentation: Scaling a Multisite](https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#scaling-a-multisite).
+    To enable this option, create a separate ObjectStore with `auxiliaryService: true` and set `disableMultisiteSyncTraffic` to `true` in the `gateway` section. For reference, see [Rook documentation: Scaling a Multisite](https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#scaling-a-multisite).
 
     ??? "Example configuration"
 
@@ -46,7 +46,7 @@ Only the multi-zone multisite setup is currently supported. For more details, se
             realms:
             - name: openstack-store
               spec:
-                default: true
+                defaultRealm: true
                 pull:
                   endpoint: http://10.11.0.75:8080
             zonegroups:
@@ -79,7 +79,7 @@ Only the multi-zone multisite setup is currently supported. For more details, se
                zone:
                  name: openstack-store-backup
             - name: rgw-store-replication
-              auxilaryService: true
+              auxiliaryService: true
               spec:
                gateway:
                  instances: 1
@@ -153,7 +153,7 @@ and the current cluster represents the master zone, modify the current
       realms:
       - name: openstack-store
         spec:
-          default: true
+          defaultRealm: true
       zonegroups:
       - name: openstack-store
         spec:
@@ -181,7 +181,6 @@ and the current cluster represents the master zone, modify the current
             instances: 2
             port: 80
             securePort: 8443
-          name: openstack-store
           preservePoolsOnDelete: false
           zone:
             name: openstack-store
@@ -231,7 +230,7 @@ to replicate data. For details, see the steps below.
         realms:
         - name: openstack-store
           spec:
-            default: true
+            defaultRealm: true
             pull:
               endpoint: http://10.11.0.75:8080
         zonegroups:

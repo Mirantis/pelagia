@@ -61,22 +61,21 @@ configuration values:
         spec:
           cluster:
             placement:
-              tolerations:
-                mon:
-                  rules:
-                  - effect: NoSchedule
-                    key: node-role.kubernetes.io/controlplane
-                    operator: Exists
-                mgr:
-                  rules:
-                  - effect: NoSchedule
-                    key: node-role.kubernetes.io/controlplane
-                    operator: Exists
-                osd:
-                  rules:
-                  - effect: NoSchedule
-                    key: node-role.kubernetes.io/controlplane
-                    operator: Exists
+              mon:
+                tolerations:
+                - effect: NoSchedule
+                  key: node-role.kubernetes.io/controlplane
+                  operator: Exists
+              mgr:
+                tolerations:
+                - effect: NoSchedule
+                  key: node-role.kubernetes.io/controlplane
+                  operator: Exists
+              osd:
+                tolerations:
+                - effect: NoSchedule
+                  key: node-role.kubernetes.io/controlplane
+                  operator: Exists
         ```
 
 4. In the `cluster.resources` section, specify the resource requirement parameters.
@@ -161,7 +160,7 @@ configuration values:
    ```yaml
    spec:
      objectStorage:
-       objectStore:
+       objectStores:
        - name: rgw-store
          spec:
            ...
