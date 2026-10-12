@@ -15,6 +15,10 @@ For the complete list of available options, refer to [values.yaml](https://githu
 
 The following table lists the most commonly configured Pelagia chart parameters and their default values. For an example configuration procedure, refer to [Specify Rook daemons placement](../ops-guide/deployment/rook-daemon-place.md).
 
+!!! note
+
+    In LCM-only mode, `cephDeployment.enabled` is set to `false`, which disables all other `cephDeployment.*` parameters.
+
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `global.dockerBaseUrl` | Global address of Docker registry. | `"registry.mirantis.com"` |
@@ -84,8 +88,8 @@ images:
   ceph:
     repository: pelagia/ceph
     tag:
-      latest: &latestImageCeph v20.2.1-3.release
-      squid: v19.2.3-25.cve
+      latest: &latestImageCeph v20.2.4-5.release
+      squid: v19.2.6-3.release
       tentacle: *latestImageCeph
 ```
 

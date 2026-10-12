@@ -269,7 +269,7 @@ advanced configuration.
   should be placed on the node. If not defined, Ceph Monitor on the node will
   use the default `hostNetwork` address of a node. We recommend using an IP
   address from the Ceph public network address range, which is defined in the
-  `publicNet` parameter.
+  `cluster.network.addressRanges.public` parameter.
 
     !!! note
 
@@ -514,10 +514,12 @@ To configure additional required pools for Rockoon, see
 <a name="cephdeployment-clients-parameters"></a>
 ### Clients parameters
 
-The `clients` parameters contain the Ceph client specification that represents the Rook `CephClient` specification.
+The `clients` parameters contain a list of Ceph clients. Each item represents the Rook `CephClient` specification (`ClientSpec`) directly, without an additional wrapper:
 
 - `name` - Mandatory. Ceph client name.
-- `spec` - Represents the Rook `CephClient` specification. For details see the following Rook documentation: [CephClient CRD](https://rook.io/docs/rook/v1.19/CRDs/ceph-client-crd/) and [CephClient API specification](https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.ClientSpec).
+- `caps` - Mandatory. Ceph client capabilities as a map of a Ceph daemon type to the capabilities string.
+
+For details, see the following Rook documentation: [CephClient CRD](https://rook.io/docs/rook/v1.19/CRDs/ceph-client-crd/) and [CephClient API specification](https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.ClientSpec).
 
 For details about Ceph client capabilities (`caps`), refer to [Ceph documentation: Authorization (capabilities)](https://docs.ceph.com/en/latest/rados/operations/user-management/#authorization-capabilities).
 
@@ -811,7 +813,7 @@ spec:
         devices:
         - name: <dev_label>
         - name: <dev_label_n>
-        nodes:
+        nodeGroup:
         - <node_name>
         - <node_name_n>
     ```
