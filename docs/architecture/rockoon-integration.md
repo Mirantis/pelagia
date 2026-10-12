@@ -18,14 +18,15 @@ For the required pools, see [Integrate Pelagia with Rockoon](../ops-guide/rockoo
 
 Once the Ceph cluster is deployed, Pelagia Deployment Controller posts the
 information required by Rockoon OpenStack services to be properly configured
-as a `kind: Secret` object into the `openstack-ceph-shared` namespace.
-Rockoon Controller watches this namespace. Once the corresponding
+as a `kind: Secret` object into the `openstack-ceph-shared` (default)
+namespace. Rockoon Controller watches this namespace. Once the corresponding
 secret is created, Rockoon Controller transforms this secret to the
 data structures expected by the OpenStack Helm charts. Even if an OpenStack
 installation is triggered at the same time as a Ceph cluster deployment,
 Rockoon Controller halts the deployment of the OpenStack services that
-depend on Ceph availability until Pelagia Deployment Controller
-creates the secret in the shared namespace.
+depend on Ceph availability until Pelagia Deployment Controller creates the
+secret in the shared namespace. If required, you can disable the creation of
+this secret.
 
 For the configuration of Ceph Object Gateway as an OpenStack Object
 Storage, the reverse process takes place. Rockoon Controller waits
