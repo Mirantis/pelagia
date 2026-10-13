@@ -110,7 +110,7 @@ will be used as a new metadata device, and re-create all affected Ceph OSDs.
    spec:
      nodes:
        <nodeName>:
-         cleanupByOsdId:
+         cleanupByOsd:
          - id: <osdID-1>
          - id: <osdID-2>
          ...

@@ -134,7 +134,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
         !!! note
 
             If a device was physically removed from a node, `cleanupByDevice` is not supported. Therefore, use
-            `cleanupByOsdId` instead.
+            `cleanupByOsd` instead.
 
     - Remove Ceph OSD by OSD ID:
       ```yaml
@@ -146,7 +146,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
       spec:
         nodes:
           <nodeName>:
-            cleanupByOsdId:
+            cleanupByOsd:
             - id: 5
             - id: 10
       ```

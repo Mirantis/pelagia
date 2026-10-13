@@ -32,7 +32,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
 
     A Ceph OSD removal using `by-path`, `by-id`, or device name is
     not supported if a device was physically removed from a node. Therefore, use
-    `cleanupByOsdId` instead.
+    `cleanupByOsd` instead.
 
 {% include "../../../snippets/rawDeviceCleanup.md" %}
 
@@ -73,9 +73,9 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
      nodes:
        <nodeName>:
          cleanupByDevice:
-         - name: <deviceName>
+         - device: <deviceName>
            # If a device is specified with by-path or by-id instead of
-           # name, path: <deviceByPath> or <deviceById>.
+           # name, device: <deviceByPath> or <deviceById>.
    ```
 
 5. Apply the template to the cluster:
@@ -225,7 +225,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
    spec:
      nodes:
        <nodeName>:
-         cleanupByOsdId:
+         cleanupByOsd:
          - id: <osdId>
    ```
 
