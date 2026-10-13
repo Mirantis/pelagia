@@ -63,10 +63,15 @@ func TestRookObjectsVerification(t *testing.T) {
 				"failed to list cephfilesystems in 'rook-ceph' namespace",
 			},
 			expectedHealthConfig: &healthConfig{
-				name:                 "cephcluster",
-				namespace:            "lcm-namespace",
-				cephCluster:          &unitinputs.CephClusterReady,
-				rgwOpts:              basehc.rgwOpts,
+				name:        "cephcluster",
+				namespace:   "lcm-namespace",
+				cephCluster: &unitinputs.CephClusterReady,
+				rgwOpts:     basehc.rgwOpts,
+				multisiteOpts: multisiteOpts{
+					realms:     map[string]bool{},
+					zones:      map[string]string{},
+					zonegroups: map[string]string{},
+				},
 				sharedFilesystemOpts: basehc.sharedFilesystemOpts,
 			},
 		},
@@ -86,10 +91,15 @@ func TestRookObjectsVerification(t *testing.T) {
 			expectedStatus: unitinputs.RookCephObjectsReportOnlyCephCluster,
 			expectedIssues: []string{},
 			expectedHealthConfig: &healthConfig{
-				name:                 "cephcluster",
-				namespace:            "lcm-namespace",
-				cephCluster:          &unitinputs.CephClusterReady,
-				rgwOpts:              basehc.rgwOpts,
+				name:        "cephcluster",
+				namespace:   "lcm-namespace",
+				cephCluster: &unitinputs.CephClusterReady,
+				rgwOpts:     basehc.rgwOpts,
+				multisiteOpts: multisiteOpts{
+					realms:     map[string]bool{},
+					zones:      map[string]string{},
+					zonegroups: map[string]string{},
+				},
 				sharedFilesystemOpts: basehc.sharedFilesystemOpts,
 			},
 		},
@@ -112,12 +122,12 @@ func TestRookObjectsVerification(t *testing.T) {
 				"cephblockpool 'rook-ceph/pool2' status is not available yet",
 				"cephclient 'rook-ceph/client1' is not ready",
 				"cephclient 'rook-ceph/client2' status is not available yet",
-				"cephobjectrealm 'rook-ceph/realm-1' is not ready",
-				"cephobjectrealm 'rook-ceph/realm-2' status is not available yet",
-				"cephobjectzonegroup 'rook-ceph/zonegroup-1' is not ready",
-				"cephobjectzonegroup 'rook-ceph/zonegroup-2' status is not available yet",
-				"cephobjectzone 'rook-ceph/zone-1' is not ready",
-				"cephobjectzone 'rook-ceph/zone-2' status is not available yet",
+				"cephobjectrealm 'rook-ceph/realm1' is not ready",
+				"cephobjectrealm 'rook-ceph/realm2' status is not available yet",
+				"cephobjectzonegroup 'rook-ceph/zonegroup1' is not ready",
+				"cephobjectzonegroup 'rook-ceph/zonegroup2' status is not available yet",
+				"cephobjectzone 'rook-ceph/zone1' is not ready",
+				"cephobjectzone 'rook-ceph/zone2' status is not available yet",
 				"cephobjectstore 'rook-ceph/rgw-store' is not ready",
 				"cephobjectstore 'rook-ceph/rgw-store-sync' status is not available yet",
 				"cephobjectuser 'rook-ceph/rgw-user-1' is not ready",
@@ -134,9 +144,9 @@ func TestRookObjectsVerification(t *testing.T) {
 					"rgw-store-sync": {desiredRgwDaemons: 1},
 				},
 				multisiteOpts: multisiteOpts{
-					zone:      "zone-1",
-					zonegroup: "zonegroup-1",
-					realm:     "realm-1",
+					realms:     map[string]bool{"realm1": true},
+					zones:      map[string]string{"zone1": "zonegroup1"},
+					zonegroups: map[string]string{"zonegroup1": "realm1"},
 				},
 				sharedFilesystemOpts: sharedFilesystemOpts{
 					mdsDaemonsDesired: map[string]map[string]int{
@@ -168,6 +178,11 @@ func TestRookObjectsVerification(t *testing.T) {
 				rgwOpts: map[string]rgwOpts{
 					"rgw-store":      {desiredRgwDaemons: 2},
 					"rgw-store-sync": {desiredRgwDaemons: 1},
+				},
+				multisiteOpts: multisiteOpts{
+					realms:     map[string]bool{},
+					zones:      map[string]string{},
+					zonegroups: map[string]string{},
 				},
 				sharedFilesystemOpts: sharedFilesystemOpts{
 					mdsDaemonsDesired: map[string]map[string]int{

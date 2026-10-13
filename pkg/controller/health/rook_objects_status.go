@@ -313,7 +313,7 @@ func (c *cephDeploymentHealthConfig) checkCephObjectRealms() (map[string]*cephv1
 	issues := make([]string, 0)
 	for _, realm := range realmsList.Items {
 		if realm.Spec.Pull.Endpoint != "" {
-			c.healthConfig.multisiteOpts.realm = realm.Name
+			c.healthConfig.multisiteOpts.realms[realm.Name] = true
 		}
 		realmsStatus[realm.Name] = realm.Status
 		if realm.Status == nil {
@@ -337,8 +337,9 @@ func (c *cephDeploymentHealthConfig) checkCephObjectZoneGroups() (map[string]*ce
 	zoneGroupsStatus := map[string]*cephv1.Status{}
 	issues := make([]string, 0)
 	for _, zonegroup := range zoneGroupsList.Items {
-		if c.healthConfig.multisiteOpts.realm != "" && zonegroup.Spec.Realm == c.healthConfig.multisiteOpts.realm {
-			c.healthConfig.multisiteOpts.zonegroup = zonegroup.Name
+		// if zonegroup belongs to pulled realm - check multisite status is needed
+		if c.healthConfig.multisiteOpts.realms[zonegroup.Spec.Realm] {
+			c.healthConfig.multisiteOpts.zonegroups[zonegroup.Name] = zonegroup.Spec.Realm
 		}
 		zoneGroupsStatus[zonegroup.Name] = zonegroup.Status
 		if zonegroup.Status == nil {
@@ -362,8 +363,8 @@ func (c *cephDeploymentHealthConfig) checkCephObjectZones() (map[string]*cephv1.
 	zonesStatus := map[string]*cephv1.Status{}
 	issues := make([]string, 0)
 	for _, zone := range zonesList.Items {
-		if c.healthConfig.multisiteOpts.zonegroup != "" && zone.Spec.ZoneGroup == c.healthConfig.multisiteOpts.zonegroup {
-			c.healthConfig.multisiteOpts.zone = zone.Name
+		if _, ok := c.healthConfig.multisiteOpts.zonegroups[zone.Spec.ZoneGroup]; ok {
+			c.healthConfig.multisiteOpts.zones[zone.Name] = zone.Spec.ZoneGroup
 		}
 		zonesStatus[zone.Name] = zone.Status
 		if zone.Status == nil {

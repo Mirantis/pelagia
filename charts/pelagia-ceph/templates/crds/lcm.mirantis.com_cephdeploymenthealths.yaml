@@ -163,26 +163,25 @@ spec:
                           storage info
                         properties:
                           multisiteDetails:
+                            additionalProperties:
+                              properties:
+                                dataSyncState:
+                                  description: Current Multisite data sync state
+                                  type: string
+                                messages:
+                                  description: Additional messages about current state
+                                  items:
+                                    type: string
+                                  type: array
+                                metadataSyncState:
+                                  description: Current Multisite metadata sync state
+                                  type: string
+                              required:
+                              - dataSyncState
+                              - metadataSyncState
+                              type: object
                             description: MultisiteDetails represents overall multisite
                               state info
-                            properties:
-                              dataSyncState:
-                                description: Current Multisite data sync state
-                                type: string
-                              masterZone:
-                                description: MasterZone whether current zone is master
-                                type: boolean
-                              messages:
-                                description: Additional messages about current state
-                                items:
-                                  type: string
-                                type: array
-                              metadataSyncState:
-                                description: Current Multisite metadata sync state
-                                type: string
-                            required:
-                            - dataSyncState
-                            - metadataSyncState
                             type: object
                           publicEndpoints:
                             additionalProperties:

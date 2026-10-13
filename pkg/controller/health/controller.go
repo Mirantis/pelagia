@@ -172,6 +172,11 @@ func (r *ReconcileCephDeploymentHealth) Reconcile(ctx context.Context, request r
 			namespace:   request.Namespace,
 			cephCluster: nil,
 			rgwOpts:     map[string]rgwOpts{},
+			multisiteOpts: multisiteOpts{
+				realms:     map[string]bool{},
+				zonegroups: map[string]string{},
+				zones:      map[string]string{},
+			},
 			sharedFilesystemOpts: sharedFilesystemOpts{
 				mdsDaemonsDesired: map[string]map[string]int{},
 			},
