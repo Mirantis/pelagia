@@ -55,6 +55,10 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `rookConfig.volumeSnapshotsEnabled` | Enable volume snapshots classes support in Rook. | `false` |
 | `snapshot-controller.enabled` | Enable the `snapshot-controller` deployment. For available `snapshot-controller` options, see [values.yaml](https://github.com/Mirantis/pelagia/blob/main/charts/snapshot-controller/values.yaml). | `true` |
 
+<a id="helm-values-custom-images"></a>
+
+## Custom images
+
 You can also specify custom images for deployment of test environments.
 Ceph and Rook images are derived from the `cephRelease` value.
 

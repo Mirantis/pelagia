@@ -43,7 +43,7 @@ If the chart omits a parameter, the code default applies.
 | DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS | Label for nodes where no Ceph daemons must be scheduled. Set only if the chart value is not empty. | `""` | `lcmConfig.cephDaemonsetLabelExclude` |
 
 The `DEPLOYMENT_CEPH_IMAGE` and `DEPLOYMENT_ROOK_IMAGE` options are derived from the values of the `images` section.
-For details, see [Configuration example for Ceph and Rook images](./helm-values.md#configuration-options).
+For details, see [Configuration example for Ceph and Rook images](./helm-values.md#helm-values-custom-images).
 
 ### Options configurable manually
 
