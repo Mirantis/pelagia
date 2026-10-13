@@ -61,7 +61,7 @@ If the chart omits a parameter, the code default applies.
 | DEPLOYMENT_MANAGE_VOLUMESNAPSHOTCLASSES | Create default VolumeSnapshotClasses for Ceph CSI RBD and CephFS drivers. Requires the `volumesnapshotclasses.snapshot.storage.k8s.io` CRD. | `"true"` | `cephDeployment.manageVolumeSnapshotClasses` |
 
 The `DEPLOYMENT_CEPH_IMAGE` and `DEPLOYMENT_ROOK_IMAGE` options are derived from the values of the `images` section.
-For details, see [Configuration example for Ceph and Rook images](./helm-values.md#custom-images-and-settings).
+For details, see [Configuration example for Ceph and Rook images](./helm-values.md#helm-values-custom-images-and-settings).
 
 ### Options configurable manually
 
