@@ -23,25 +23,33 @@ If a parameter is not specified in `pelagia-lcmconfig`, it uses the code-based d
 
 The following Pelagia controller options are set in [Pelagia Helm chart values](./helm-values.md) during chart update.
 
+The **Default** column lists the code-based default. The Helm chart may override it with its own default value.
+For the chart defaults, see [Helm chart configuration](./helm-values.md).
+
+Some parameters are written to `pelagia-lcmconfig` only under certain conditions, as noted in the **Description** column.
+
+All `DEPLOYMENT_*` parameters are written only if `cephDeployment.enabled` is `true`.
+If the chart omits a parameter, the code default applies.
+
 | Parameter | Description | Default | Chart value |
 |-----------|-------------|---------|----------------------------|
 | ROOK_NAMESPACE | Rook namespace. | `"rook-ceph"` | `lcmConfig.rookNamespace` |
-| DISK_DAEMON_API_PORT | Port for the disk daemon API. | `9999` | `lcmConfig.diskDaemonPortParameter` |
+| DISK_DAEMON_API_PORT | Port for the disk daemon API. | `"9999"` | `lcmConfig.diskDaemonPortParameter` |
 | DISK_DAEMON_PLACEMENT_NODES_SELECTOR | Label for disk daemon placement. | `"pelagia-disk-daemon=true"` | `lcmConfig.diskDaemonNodeSelector` |
-| GATEWAY_API_ENABLED | Enable usage of the Gateway API. | `true` | `lcmConfig.gatewayAPIEnabled` |
-| GATEWAY_BASE_NAME | Name of the `Gateway` object used by default. | `"app-gateway"` | `lcmConfig.gatewayName` |
-| GATEWAY_BASE_NAMESPACE | Namespace of the `Gateway` object used by default. | `"openstack"` | `lcmConfig.gatewayNamespace` |
+| GATEWAY_API_ENABLED | Enable usage of the Gateway API. | `"true"` | `lcmConfig.gatewayAPIEnabled` |
+| GATEWAY_BASE_NAME | Name of the `Gateway` object used by default. Set only if `lcmConfig.gatewayAPIEnabled` is `true` and `lcmConfig.gatewayName` is not empty. | `"app-gateway"` | `lcmConfig.gatewayName` |
+| GATEWAY_BASE_NAMESPACE | Namespace of the `Gateway` object used by default. Set only if `lcmConfig.gatewayAPIEnabled` is `true` and `lcmConfig.gatewayNamespace` is not empty. | `"openstack"` | `lcmConfig.gatewayNamespace` |
 | RGW_PUBLIC_ACCESS_SERVICE_SELECTOR | Label of the service or proxy exposing RGW to public access. | `"external_access=rgw"` | `lcmConfig.rgwPublicAccessServiceSelector` |
-| KEEP_INGRESS | Deprecated. Enable support for Ingress usage. Will be removed in the following release due to [NGINX Ingress retirement](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/). | `true` | `lcmConfig.useIngress` |
+| KEEP_INGRESS | Deprecated. Enable support for Ingress usage. Will be removed in the following release due to [NGINX Ingress retirement](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/). Set only if `lcmConfig.useIngress` is `true`. | `"false"` | `lcmConfig.useIngress` |
 | DEPLOYMENT_CEPH_RELEASE | Pin the Ceph release for the current setup. If empty, uses the latest available release for the current version. | `""` | `cephRelease` |
 | DEPLOYMENT_NETPOL_ENABLED | Enable creation of network policy. | `"true"` | `cephDeployment.netpolEnabled` |
-| DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE | Namespace for the Openstack-Ceph communication and secrets sharing. | `"openstack-ceph-shared"` | `cephDeployment.openstackSharedNamespace` |
-| DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS | Label for nodes where no Ceph daemons must be scheduled. | `""` | `lcmConfig.cephDaemonsetLabelExclude` |
-| DEPLOYMENT_DRAIN_REQUEST_LABEL_KEY | Label key marking a node as drained. | `"kaas.mirantis.com/lcm-drained"` | `"cephDeployment.drainRequestLabelKey"` |
-| DEPLOYMENT_DRAIN_READY_LABEL_KEY | Label key marking a node as drain ready. | `"kaas.mirantis.com/csi-drained"` | `"cephDeployment.drainReadyLabelKey"` |
+| DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE | Namespace for the Openstack-Ceph communication and secrets sharing. Set only if `cephDeployment.installSharedNamespace` is `true`. | `"openstack-ceph-shared"` | `cephDeployment.openstackSharedNamespace` |
+| DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS | Label for nodes where no Ceph daemons must be scheduled. Set only if the chart value is not empty. | `""` | `lcmConfig.cephDaemonsetLabelExclude` |
+| DEPLOYMENT_DRAIN_REQUEST_LABEL_KEY | Label key marking a node as drained. Set only if the chart value is not empty. | `"kaas.mirantis.com/lcm-drained"` | `cephDeployment.drainRequestLabelKey` |
+| DEPLOYMENT_DRAIN_READY_LABEL_KEY | Label key marking a node as drain ready. Set only if the chart value is not empty. | `"kaas.mirantis.com/csi-drained"` | `cephDeployment.drainReadyLabelKey` |
 
 The `DEPLOYMENT_CEPH_IMAGE` and `DEPLOYMENT_ROOK_IMAGE` options are derived from the values of the `images` section.
-For details, see [Configuration example for Ceph and Rook images](./helm-values.md) during chart update.
+For details, see [Configuration example for Ceph and Rook images](./helm-values.md#custom-images-and-settings).
 
 ### Options configurable manually
 
@@ -50,12 +58,12 @@ Therefore, you can update them only manually using the `kubectl -n pelagia edit 
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| DEPLOYMENT_LOG_LEVEL | Log level of the Pelagia deployment controller. Possible values: `info`, `debug`, `error`, `warn`. | `"info"` |
-| HEALTH_CHECKS_CEPH_ISSUES_TO_IGNORE | Ceph cluster health issues to ignore in the `health` state. | `["OSDMAP_FLAGS", "TOO_FEW_PGS", "SLOW_OPS", "OLD_CRUSH_TUNABLES", "OLD_CRUSH_STRAW_CALC_VERSION", "POOL_APP_NOT_ENABLED", "MON_DISK_LOW", "RECENT_CRASH",]` |
-| HEALTH_CHECKS_SKIP | Checks to skip during Ceph cluster verification. Possible values: `ceph_daemons`, `ceph_csi_daemons`, `usage_details`, `ceph_events`, `pools_replicas`, `rgw_info`, `spec_analysis`. | `[]` |
+| DEPLOYMENT_LOG_LEVEL | Log level of the Pelagia deployment controller. Possible values (case-insensitive): `trace`, `debug`, `info`, `warn`, `error`. | `"info"` |
+| HEALTH_CHECKS_CEPH_ISSUES_TO_IGNORE | Comma-separated list of Ceph cluster health issues to ignore in the `health` state. | `"OSDMAP_FLAGS,TOO_FEW_PGS,SLOW_OPS,OLD_CRUSH_TUNABLES,OLD_CRUSH_STRAW_CALC_VERSION,POOL_APP_NOT_ENABLED,MON_DISK_LOW,RECENT_CRASH"` |
+| HEALTH_CHECKS_SKIP | Comma-separated list of checks to skip during Ceph cluster verification. Possible values: `ceph_daemons`, `ceph_csi_daemons`, `usage_details`, `ceph_events`, `pools_replicas`, `rgw_info`, `spec_analysis`. | `""` |
 | HEALTH_CHECKS_USAGE_CLASS_FILTER | Regexp-based filter to prepare usage details only for the specified device class. | `""` |
 | HEALTH_CHECKS_USAGE_POOLS_FILTER | Regexp-based filter to prepare usage details only for the specified pools. | `""` |
-| HEALTH_LOG_LEVEL | Log level of the Pelagia LCM health controller. Possible values: `info`, `debug`, `error`, `warn`. | `"info"` |
-| TASK_LOG_LEVEL | Log level of the Pelagia LCM `osdremote-task` controller. Possible values: `info`, `debug`, `error`, `warn`. | `"info"` |
+| HEALTH_LOG_LEVEL | Log level of the Pelagia LCM health controller. Possible values (case-insensitive): `trace`, `debug`, `info`, `warn`, `error`. | `"info"` |
+| TASK_LOG_LEVEL | Log level of the Pelagia LCM `osdremove-task` controller. Possible values (case-insensitive): `trace`, `debug`, `info`, `warn`, `error`. | `"info"` |
 | TASK_OSD_PG_REBALANCE_TIMEOUT_MIN | Timeout in minutes to wait for an OSD to finish rebalancing to 0 before considering the rebalance failed. For the procedure, refer to [CephOsdRemoveTask failure with a timeout during rebalance](../troubleshoot/cephosdremovetask-timeout.md) | `"30"` |
 | TASK_ALLOW_REMOVE_MANUALLY_CREATED_LVMS | Remove LVM partitions during OSD partition cleanup, even if they were created manually. | `"false"` |
