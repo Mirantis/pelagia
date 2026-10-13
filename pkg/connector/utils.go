@@ -92,8 +92,11 @@ func (c *CephConnector) getCephKeyringFromSecret(rookNamespace, keyringSecretNam
 	return user, keyring, nil
 }
 
-func (c *CephConnector) getRgwKeys(rookNamespace, username string) (*lcmcommon.RgwUserKeys, error) {
+func (c *CephConnector) getRgwKeys(rookNamespace, username, realm string) (*lcmcommon.RgwUserKeys, error) {
 	cmd := fmt.Sprintf("radosgw-admin user info --uid %s", username)
+	if realm != "" {
+		cmd = fmt.Sprintf("%s --rgw-realm=%s", cmd, realm)
+	}
 	e := lcmcommon.ExecConfig{
 		Context:    c.Context,
 		Kubeclient: c.Kubeclientset,

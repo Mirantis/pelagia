@@ -88,6 +88,28 @@ func TestEnsureObjectStorage(t *testing.T) {
 			},
 		},
 		{
+			name: "no object storage section, rgw root pool in spec",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cdpl := unitinputs.BaseCephDeployment.DeepCopy()
+				cdpl.Spec.BlockStorage = &cephlcmv1alpha1.CephBlockStorage{
+					Pools: []cephlcmv1alpha1.CephPool{unitinputs.CephDeployRgwRootPool},
+				}
+				return cdpl
+			}(),
+			inputResources: map[string]runtime.Object{
+				"secrets":        &corev1.SecretList{},
+				"storageclasses": &storagev1.StorageClassList{},
+				"cephblockpools": &cephv1.CephBlockPoolList{
+					Items: []cephv1.CephBlockPool{*unitinputs.BuiltinRgwRootPool},
+				},
+				"cephobjectzones":      &cephv1.CephObjectZoneList{},
+				"cephobjectzonegroups": &cephv1.CephObjectZoneGroupList{},
+				"cephobjectrealms":     &cephv1.CephObjectRealmList{},
+				"cephobjectstores":     &cephv1.CephObjectStoreList{},
+				"httproutes":           &gatewayapi.HTTPRouteList{},
+			},
+		},
+		{
 			name:    "object storage section present, no multisite ok, rgw changed",
 			cephDpl: unitinputs.CephDeployMosk.DeepCopy(),
 			inputResources: map[string]runtime.Object{

@@ -942,11 +942,7 @@ func TestValidateObjectStorageSpec(t *testing.T) {
 				cd.Spec.ObjectStorage.Realms = append(cd.Spec.ObjectStorage.Realms, *realm2)
 				return cd
 			}(),
-			expectedIssues: []string{
-				"more than one realm specified, but currently supported only one realm per cluster",
-				"more than one zonegroup specified, but currently supported only one zonegroup per cluster",
-				"more than one zone specified, but currently supported only one zone per cluster",
-			},
+			expectedIssues: []string{},
 		},
 		{
 			name: "incorrect spec zones, relams, zonegroups",

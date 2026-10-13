@@ -173,6 +173,23 @@ func TestEnsurePools(t *testing.T) {
 			stateChanged: true,
 		},
 		{
+			name: "ensure pools - pool created with .rgw.root",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cephDpl := unitinputs.CephDeployNonMosk.DeepCopy()
+				cephDpl.Spec.BlockStorage.Pools = append(cephDpl.Spec.BlockStorage.Pools, unitinputs.CephDeployRgwRootPool)
+				return cephDpl
+			}(),
+			inputResources: map[string]runtime.Object{
+				"cephblockpools": unitinputs.CephBlockPoolListEmpty.DeepCopy(),
+			},
+			expectedResources: map[string]runtime.Object{
+				"cephblockpools": &cephv1.CephBlockPoolList{
+					Items: []cephv1.CephBlockPool{unitinputs.CephBlockPoolReplicated, *unitinputs.BuiltinRgwRootPool},
+				},
+			},
+			stateChanged: true,
+		},
+		{
 			name:    "ensure pools - pool create failed",
 			cephDpl: &unitinputs.CephDeployNonMosk,
 			inputResources: map[string]runtime.Object{
@@ -269,6 +286,17 @@ func TestEnsurePools(t *testing.T) {
 			cephDpl: &unitinputs.CephDeployNonMosk,
 			inputResources: map[string]runtime.Object{
 				"cephblockpools": unitinputs.CephBlockPoolListBaseReady.DeepCopy(),
+			},
+		},
+		{
+			name:    "ensure pools - nothing changed when rgw root pool",
+			cephDpl: &unitinputs.CephDeployNonMosk,
+			inputResources: map[string]runtime.Object{
+				"cephblockpools": func() *cephv1.CephBlockPoolList {
+					list := unitinputs.CephBlockPoolListBaseReady.DeepCopy()
+					list.Items = append(list.Items, *unitinputs.BuiltinRgwRootPool)
+					return list
+				}(),
 			},
 		},
 	}

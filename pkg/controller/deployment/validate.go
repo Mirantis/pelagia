@@ -427,16 +427,6 @@ func validateObjectStorageSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesLis
 		} else {
 			knownRealms := map[string]bool{}
 			knownZonegroups := map[string]bool{}
-			// TODO (degorenko): limit realms,zones,zonegroups to only 1 per cluster for now
-			if len(cephDpl.Spec.ObjectStorage.Realms) > 1 {
-				issues = append(issues, "more than one realm specified, but currently supported only one realm per cluster")
-			}
-			if len(cephDpl.Spec.ObjectStorage.Zonegroups) > 1 {
-				issues = append(issues, "more than one zonegroup specified, but currently supported only one zonegroup per cluster")
-			}
-			if len(cephDpl.Spec.ObjectStorage.Zones) > 1 {
-				issues = append(issues, "more than one zone specified, but currently supported only one zone per cluster")
-			}
 			for _, realm := range cephDpl.Spec.ObjectStorage.Realms {
 				knownRealms[realm.Name] = true
 			}

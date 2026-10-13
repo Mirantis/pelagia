@@ -1052,7 +1052,16 @@ func (c *cephDeploymentConfig) deleteRgwAdminOpsSecret() (bool, error) {
 	return false, nil
 }
 
-func (c *cephDeploymentConfig) deleteRgwBuiltInPool() (bool, error) {
+func (c *cephDeploymentConfig) deleteRgwBuiltInPool(fullCleanup bool) (bool, error) {
+	if c.cdConfig.cephDpl.Spec.BlockStorage != nil && !fullCleanup {
+		for _, pool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
+			// if pool present in spec - should be removed by pools
+			if pool.Name == ".rgw.root" {
+				c.log.Warn().Msgf("skipping pool '%s' remove, since explicitly present in spec.blockStorage.pools section", pool.Name)
+				return true, nil
+			}
+		}
+	}
 	poolName := getBuiltinPoolName(".rgw.root")
 	err := c.api.Rookclientset.CephV1().CephBlockPools(c.lcmConfig.RookNamespace).Delete(c.context, poolName, metav1.DeleteOptions{})
 	if err != nil {

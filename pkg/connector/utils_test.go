@@ -258,12 +258,12 @@ func TestGetRgwAdminOpsKeys(t *testing.T) {
 	}{
 		{
 			name:          "failed to get rgw ops admin keys",
-			expectedError: "failed to get rgw user keys: failed to run command 'radosgw-admin user info --uid rgw-admin-ops-user': run failed",
+			expectedError: "failed to get rgw user keys: failed to run command 'radosgw-admin user info --uid rgw-admin-ops-user --rgw-realm=default': run failed",
 		},
 		{
 			name:          "failed to parse rgw ops admin keys",
 			cmdOutput:     "{||}",
-			expectedError: "failed to parse 'radosgw-admin user info --uid rgw-admin-ops-user' output: invalid character '|' looking for beginning of object key string",
+			expectedError: "failed to parse 'radosgw-admin user info --uid rgw-admin-ops-user --rgw-realm=default' output: invalid character '|' looking for beginning of object key string",
 		},
 		{
 			name:          "admin ops keys not found",
@@ -291,7 +291,7 @@ func TestGetRgwAdminOpsKeys(t *testing.T) {
 				return test.cmdOutput, "", nil
 			}
 
-			keys, err := c.getRgwKeys("rook-ceph", "rgw-admin-ops-user")
+			keys, err := c.getRgwKeys("rook-ceph", "rgw-admin-ops-user", "default")
 			if test.expectedError != "" {
 				assert.NotNil(t, err)
 				assert.Equal(t, test.expectedError, err.Error())

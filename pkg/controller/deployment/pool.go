@@ -59,9 +59,7 @@ func (c *cephDeploymentConfig) ensurePools() (bool, error) {
 
 	presentPools := map[string]*cephv1.CephBlockPool{}
 	for _, pool := range pools.Items {
-		if !lcmcommon.Contains(builtinCephPools, pool.Spec.Name) {
-			presentPools[pool.Name] = pool.DeepCopy()
-		}
+		presentPools[pool.Name] = pool.DeepCopy()
 	}
 	errMsg := make([]error, 0)
 	poolsChanged := false
@@ -98,6 +96,10 @@ func (c *cephDeploymentConfig) ensurePools() (bool, error) {
 				poolsChanged = true
 			}
 		}
+	}
+	// do not touch builtin pools not present in spec
+	for _, builtinPool := range builtinCephPools {
+		delete(presentPools, getBuiltinPoolName(builtinPool))
 	}
 
 	for _, pool := range presentPools {
