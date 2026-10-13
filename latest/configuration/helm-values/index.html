@@ -3559,6 +3559,10 @@
 <p>For the complete list of available options, refer to <a href="https://github.com/Mirantis/pelagia/tree/main/charts/pelagia-ceph/values.yaml">values.yaml</a>.</p>
 <h2 id="configuration-options">Configuration options<a class="headerlink" href="#configuration-options" title="Permanent link">#</a></h2>
 <p>The following table lists the most commonly configured Pelagia chart parameters and their default values. For an example configuration procedure, refer to <a href="../../ops-guide/deployment/rook-daemon-place/">Specify Rook daemons placement</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In LCM-only mode, <code>cephDeployment.enabled</code> is set to <code>false</code>, which disables all other <code>cephDeployment.*</code> parameters.</p>
+</div>
 <table>
 <thead>
 <tr>
@@ -3853,8 +3857,8 @@ The following example illustrates available Ceph images based on the Ceph releas
 <span class="w">  </span><span class="nt">ceph</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">repository</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia/ceph</span>
 <span class="w">    </span><span class="nt">tag</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">latest</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;latestImageCeph</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v20.2.1-3.release</span>
-<span class="w">      </span><span class="nt">squid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v19.2.3-25.cve</span>
+<span class="w">      </span><span class="nt">latest</span><span class="p">:</span><span class="w"> </span><span class="nl">&amp;latestImageCeph</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v20.2.4-5.release</span>
+<span class="w">      </span><span class="nt">squid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v19.2.6-3.release</span>
 <span class="w">      </span><span class="nt">tentacle</span><span class="p">:</span><span class="w"> </span><span class="nv">*latestImageCeph</span>
 </code></pre></div>
 <p>Also, you can specify custom settings for dependency charts, such as Rook, snapshot controller, and Ceph CSI operator

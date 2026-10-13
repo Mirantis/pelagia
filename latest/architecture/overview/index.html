@@ -3739,7 +3739,7 @@
 <li>Rook Ceph Operator from Rook</li>
 </ul>
 <h2 id="pelagia-deployment-controller">Pelagia Deployment Controller<a class="headerlink" href="#pelagia-deployment-controller" title="Permanent link">#</a></h2>
-<p>Pelagia Controller contains the following containers:</p>
+<p>Pelagia Deployment Controller contains the following containers:</p>
 <h3 id="pelagia-deployment-controller_1">Pelagia Deployment Controller<a class="headerlink" href="#pelagia-deployment-controller_1" title="Permanent link">#</a></h3>
 <p>A Kubernetes Cluster API controller that fetches parameters from the <code>CephDeployment</code> custom resource,
 creates Rook custom resources, and updates <code>CephDeployment</code> and <code>CephDeploymentHealth</code> status
@@ -3783,12 +3783,13 @@ allows for a safe Ceph OSD removal from the Ceph cluster. It uses the
 <p>A Kubernetes controller that manages the Pelagia infrastructure resources.
 It creates and manages Ceph toolbox with Ceph CLI tools and deploys LCM infrastructure
 pods that allow processing disk cleanup.</p>
-<p>Pelagia Task Controller operations include:</p>
+<p>Pelagia Infra Controller operations include:</p>
 <ul>
 <li>Creating and managing the Ceph toolbox pod with the Ceph CLI tools</li>
 <li>Creating and managing the <code>disk-daemon</code> DaemonSet that is used to perform disk cleanup
   operations on the Ceph OSD disks</li>
-<li>Pausing the regular Rook Ceph Operator orchestration until all requests are finished</li>
+<li>Stopping the Rook Ceph Operator while Ceph OSD removal tasks are in progress or failed
+  and unresolved, or while maintenance mode is active, and starting it again afterwards</li>
 </ul>
 <h2 id="rook-ceph-operator">Rook Ceph Operator<a class="headerlink" href="#rook-ceph-operator" title="Permanent link">#</a></h2>
 <p>Rook is a storage orchestrator that deploys Ceph on top of a Kubernetes cluster. Also

@@ -3607,10 +3607,19 @@ deployment requirements using the <code>parameters.target_size_ratio</code> para
 For reference, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Block-Storage/ceph-block-pool-crd/#spec">Rook documentation: CephBlockPool CRD Spec</a>.
 For details on how to set correct values, see <a href="../calc-target-ratio/">Calculate target ratios</a>.</p>
 <p>After Ceph pools are created, Pelagia Deployment Controller creates a secret in the <code>openstack-ceph-shared</code>
-namespace with all necessary information for Rockoon OpenStack services to be configured
+namespace (by default) with all necessary information for Rockoon OpenStack services to be configured
 with the Ceph cluster. Rockoon Controller watches this namespace and
 transforms the secret into the data structures expected by OpenStack Helm charts. After that, OpenStack
-services will be connected to the desired Ceph cluster.</p>
+services will be connected to the required Ceph cluster.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To prevent Pelagia Deployment Controller from creating and managing this
+secret, set <code>spec.extraOpts.disableOsSharedKeys</code> to <code>true</code> in the
+<code>CephDeployment</code> custom resource. Use this option only for clusters managed
+through Rockoon. When the option is enabled, Pelagia does not remove an
+existing secret upon <code>CephDeployment</code> deletion, so remove it manually
+if required.</p>
+</div>
 <p>If <code>CephDeployment</code> contains the <code>objectStorage</code> section and Ceph Object Storage is deployed, then Pelagia and Rockoon
 enable Ceph RADOS Gateway integration with OpenStack Object Storage service (<code>swift</code>).</p>
 <div class="admonition info">
