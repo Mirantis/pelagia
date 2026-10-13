@@ -69,6 +69,8 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `snapshot-controller.snapshotControllerConfig.nodeSelector` | Node selector for the `snapshot-controller` deployment to run on nodes with specific labels. | `{}` |
 | `snapshot-controller.snapshotControllerConfig.tolerations` | Tolerations for the `snapshot-controller` deployment to enable running on nodes with particular taints. | `[]` |
 
+<a id="helm-values-custom-images-and-settings"></a>
+
 ## Custom images and settings
 
 You can specify custom images for testing environments.

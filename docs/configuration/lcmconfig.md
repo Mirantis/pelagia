@@ -49,7 +49,7 @@ If the chart omits a parameter, the code default applies.
 | DEPLOYMENT_DRAIN_READY_LABEL_KEY | Label key marking a node as drain ready. Set only if the chart value is not empty. | `"kaas.mirantis.com/csi-drained"` | `cephDeployment.drainReadyLabelKey` |
 
 The `DEPLOYMENT_CEPH_IMAGE` and `DEPLOYMENT_ROOK_IMAGE` options are derived from the values of the `images` section.
-For details, see [Configuration example for Ceph and Rook images](./helm-values.md#custom-images-and-settings).
+For details, see [Configuration example for Ceph and Rook images](./helm-values.md#helm-values-custom-images-and-settings).
 
 ### Options configurable manually
 
