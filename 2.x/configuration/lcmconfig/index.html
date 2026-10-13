@@ -3568,6 +3568,11 @@ others are not updated by the chart and must be edited directly in <code>pelagia
 <p>If a parameter is not specified in <code>pelagia-lcmconfig</code>, it uses the code-based default value.</p>
 <h3 id="options-configurable-through-chart-values">Options configurable through chart values<a class="headerlink" href="#options-configurable-through-chart-values" title="Permanent link">#</a></h3>
 <p>The following Pelagia controller options are set in <a href="../helm-values/">Pelagia Helm chart values</a> during chart update.</p>
+<p>The <strong>Default</strong> column lists the code-based default. The Helm chart may override it with its own default value.
+For the chart defaults, see <a href="../helm-values/">Helm chart configuration</a>.</p>
+<p>Some parameters are written to <code>pelagia-lcmconfig</code> only under certain conditions, as noted in the <strong>Description</strong> column.</p>
+<p>All <code>DEPLOYMENT_*</code> parameters are written only if <code>cephDeployment.enabled</code> is <code>true</code>.
+If the chart omits a parameter, the code default applies.</p>
 <table>
 <thead>
 <tr>
@@ -3587,7 +3592,7 @@ others are not updated by the chart and must be edited directly in <code>pelagia
 <tr>
 <td>DISK_DAEMON_API_PORT</td>
 <td>Port for the disk daemon API.</td>
-<td><code>9999</code></td>
+<td><code>"9999"</code></td>
 <td><code>lcmConfig.diskDaemonPortParameter</code></td>
 </tr>
 <tr>
@@ -3599,18 +3604,18 @@ others are not updated by the chart and must be edited directly in <code>pelagia
 <tr>
 <td>GATEWAY_API_ENABLED</td>
 <td>Enable usage of the Gateway API.</td>
-<td><code>true</code></td>
+<td><code>"true"</code></td>
 <td><code>lcmConfig.gatewayAPIEnabled</code></td>
 </tr>
 <tr>
 <td>GATEWAY_BASE_NAME</td>
-<td>Name of the <code>Gateway</code> object used by default.</td>
+<td>Name of the <code>Gateway</code> object used by default. Set only if <code>lcmConfig.gatewayAPIEnabled</code> is <code>true</code> and <code>lcmConfig.gatewayName</code> is not empty.</td>
 <td><code>"app-gateway"</code></td>
 <td><code>lcmConfig.gatewayName</code></td>
 </tr>
 <tr>
 <td>GATEWAY_BASE_NAMESPACE</td>
-<td>Namespace of the <code>Gateway</code> object used by default.</td>
+<td>Namespace of the <code>Gateway</code> object used by default. Set only if <code>lcmConfig.gatewayAPIEnabled</code> is <code>true</code> and <code>lcmConfig.gatewayNamespace</code> is not empty.</td>
 <td><code>"openstack"</code></td>
 <td><code>lcmConfig.gatewayNamespace</code></td>
 </tr>
@@ -3622,8 +3627,8 @@ others are not updated by the chart and must be edited directly in <code>pelagia
 </tr>
 <tr>
 <td>KEEP_INGRESS</td>
-<td>Deprecated. Enable support for Ingress usage. Will be removed in the following release due to <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">NGINX Ingress retirement</a>.</td>
-<td><code>true</code></td>
+<td>Deprecated. Enable support for Ingress usage. Will be removed in the following release due to <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">NGINX Ingress retirement</a>. Set only if <code>lcmConfig.useIngress</code> is <code>true</code>.</td>
+<td><code>"false"</code></td>
 <td><code>lcmConfig.useIngress</code></td>
 </tr>
 <tr>
@@ -3640,32 +3645,32 @@ others are not updated by the chart and must be edited directly in <code>pelagia
 </tr>
 <tr>
 <td>DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE</td>
-<td>Namespace for the Openstack-Ceph communication and secrets sharing.</td>
+<td>Namespace for the Openstack-Ceph communication and secrets sharing. Set only if <code>cephDeployment.installSharedNamespace</code> is <code>true</code>.</td>
 <td><code>"openstack-ceph-shared"</code></td>
 <td><code>cephDeployment.openstackSharedNamespace</code></td>
 </tr>
 <tr>
 <td>DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS</td>
-<td>Label for nodes where no Ceph daemons must be scheduled.</td>
+<td>Label for nodes where no Ceph daemons must be scheduled. Set only if the chart value is not empty.</td>
 <td><code>""</code></td>
 <td><code>lcmConfig.cephDaemonsetLabelExclude</code></td>
 </tr>
 <tr>
 <td>DEPLOYMENT_DRAIN_REQUEST_LABEL_KEY</td>
-<td>Label key marking a node as drained.</td>
+<td>Label key marking a node as drained. Set only if the chart value is not empty.</td>
 <td><code>"kaas.mirantis.com/lcm-drained"</code></td>
-<td><code>"cephDeployment.drainRequestLabelKey"</code></td>
+<td><code>cephDeployment.drainRequestLabelKey</code></td>
 </tr>
 <tr>
 <td>DEPLOYMENT_DRAIN_READY_LABEL_KEY</td>
-<td>Label key marking a node as drain ready.</td>
+<td>Label key marking a node as drain ready. Set only if the chart value is not empty.</td>
 <td><code>"kaas.mirantis.com/csi-drained"</code></td>
-<td><code>"cephDeployment.drainReadyLabelKey"</code></td>
+<td><code>cephDeployment.drainReadyLabelKey</code></td>
 </tr>
 </tbody>
 </table>
 <p>The <code>DEPLOYMENT_CEPH_IMAGE</code> and <code>DEPLOYMENT_ROOK_IMAGE</code> options are derived from the values of the <code>images</code> section.
-For details, see <a href="../helm-values/">Configuration example for Ceph and Rook images</a> during chart update.</p>
+For details, see <a href="../helm-values/#custom-images-and-settings">Configuration example for Ceph and Rook images</a>.</p>
 <h3 id="options-configurable-manually">Options configurable manually<a class="headerlink" href="#options-configurable-manually" title="Permanent link">#</a></h3>
 <p>The Pelagia Helm chart update does not affect the following Pelagia controller options.
 Therefore, you can update them only manually using the <code>kubectl -n pelagia edit cm pelagia-lcmconfig</code> command.</p>
@@ -3680,18 +3685,18 @@ Therefore, you can update them only manually using the <code>kubectl -n pelagia 
 <tbody>
 <tr>
 <td>DEPLOYMENT_LOG_LEVEL</td>
-<td>Log level of the Pelagia deployment controller. Possible values: <code>info</code>, <code>debug</code>, <code>error</code>, <code>warn</code>.</td>
+<td>Log level of the Pelagia deployment controller. Possible values (case-insensitive): <code>trace</code>, <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td>
 <td><code>"info"</code></td>
 </tr>
 <tr>
 <td>HEALTH_CHECKS_CEPH_ISSUES_TO_IGNORE</td>
-<td>Ceph cluster health issues to ignore in the <code>health</code> state.</td>
-<td><code>["OSDMAP_FLAGS", "TOO_FEW_PGS", "SLOW_OPS", "OLD_CRUSH_TUNABLES", "OLD_CRUSH_STRAW_CALC_VERSION", "POOL_APP_NOT_ENABLED", "MON_DISK_LOW", "RECENT_CRASH",]</code></td>
+<td>Comma-separated list of Ceph cluster health issues to ignore in the <code>health</code> state.</td>
+<td><code>"OSDMAP_FLAGS,TOO_FEW_PGS,SLOW_OPS,OLD_CRUSH_TUNABLES,OLD_CRUSH_STRAW_CALC_VERSION,POOL_APP_NOT_ENABLED,MON_DISK_LOW,RECENT_CRASH"</code></td>
 </tr>
 <tr>
 <td>HEALTH_CHECKS_SKIP</td>
-<td>Checks to skip during Ceph cluster verification. Possible values: <code>ceph_daemons</code>, <code>ceph_csi_daemons</code>, <code>usage_details</code>, <code>ceph_events</code>, <code>pools_replicas</code>, <code>rgw_info</code>, <code>spec_analysis</code>.</td>
-<td><code>[]</code></td>
+<td>Comma-separated list of checks to skip during Ceph cluster verification. Possible values: <code>ceph_daemons</code>, <code>ceph_csi_daemons</code>, <code>usage_details</code>, <code>ceph_events</code>, <code>pools_replicas</code>, <code>rgw_info</code>, <code>spec_analysis</code>.</td>
+<td><code>""</code></td>
 </tr>
 <tr>
 <td>HEALTH_CHECKS_USAGE_CLASS_FILTER</td>
@@ -3705,12 +3710,12 @@ Therefore, you can update them only manually using the <code>kubectl -n pelagia 
 </tr>
 <tr>
 <td>HEALTH_LOG_LEVEL</td>
-<td>Log level of the Pelagia LCM health controller. Possible values: <code>info</code>, <code>debug</code>, <code>error</code>, <code>warn</code>.</td>
+<td>Log level of the Pelagia LCM health controller. Possible values (case-insensitive): <code>trace</code>, <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td>
 <td><code>"info"</code></td>
 </tr>
 <tr>
 <td>TASK_LOG_LEVEL</td>
-<td>Log level of the Pelagia LCM <code>osdremote-task</code> controller. Possible values: <code>info</code>, <code>debug</code>, <code>error</code>, <code>warn</code>.</td>
+<td>Log level of the Pelagia LCM <code>osdremove-task</code> controller. Possible values (case-insensitive): <code>trace</code>, <code>debug</code>, <code>info</code>, <code>warn</code>, <code>error</code>.</td>
 <td><code>"info"</code></td>
 </tr>
 <tr>

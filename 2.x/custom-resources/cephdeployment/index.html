@@ -4045,7 +4045,7 @@ in a case of a node outage.</p>
   should be placed on the node. If not defined, Ceph Monitor on the node will
   use the default <code>hostNetwork</code> address of a node. We recommend using an IP
   address from the Ceph public network address range, which is defined in the
-  <code>publicNet</code> parameter.</p>
+  <code>cluster.network.addressRanges.public</code> parameter.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>To update <code>monitorIP</code>, the corresponding Ceph Monitor daemon must be re-created.</p>
@@ -4291,11 +4291,12 @@ permission on the mount point of persistent volumes based on any
 </div>
 <p><a name="cephdeployment-clients-parameters"></a></p>
 <h3 id="clients-parameters">Clients parameters<a class="headerlink" href="#clients-parameters" title="Permanent link">#</a></h3>
-<p>The <code>clients</code> parameters contain the Ceph client specification that represents the Rook <code>CephClient</code> specification.</p>
+<p>The <code>clients</code> parameters contain a list of Ceph clients. Each item represents the Rook <code>CephClient</code> specification (<code>ClientSpec</code>) directly, without an additional wrapper:</p>
 <ul>
 <li><code>name</code> - Mandatory. Ceph client name.</li>
-<li><code>spec</code> - Represents the Rook <code>CephClient</code> specification. For details see the following Rook documentation: <a href="https://rook.io/docs/rook/v1.19/CRDs/ceph-client-crd/">CephClient CRD</a> and <a href="https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.ClientSpec">CephClient API specification</a>.</li>
+<li><code>caps</code> - Mandatory. Ceph client capabilities as a map of a Ceph daemon type to the capabilities string.</li>
 </ul>
+<p>For details, see the following Rook documentation: <a href="https://rook.io/docs/rook/v1.19/CRDs/ceph-client-crd/">CephClient CRD</a> and <a href="https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.ClientSpec">CephClient API specification</a>.</p>
 <p>For details about Ceph client capabilities (<code>caps</code>), refer to <a href="https://docs.ceph.com/en/latest/rados/operations/user-management/#authorization-capabilities">Ceph documentation: Authorization (capabilities)</a>.</p>
 <details>
 <summary>Example configuration of clients specification</summary>
@@ -4628,7 +4629,7 @@ of all Ceph daemons except Ceph OSD.</p>
 <span class="w">    </span><span class="nt">devices</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;dev_label&gt;</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;dev_label_n&gt;</span>
-<span class="w">    </span><span class="nt">nodes</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">nodeGroup</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;node_name&gt;</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;node_name_n&gt;</span>
 </code></pre></div>

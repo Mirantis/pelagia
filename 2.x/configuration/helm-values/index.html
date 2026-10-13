@@ -3529,6 +3529,10 @@
 <p>For the complete list of available options, refer to <a href="https://github.com/Mirantis/pelagia/tree/main/charts/pelagia-ceph/values.yaml">values.yaml</a>.</p>
 <h2 id="configuration-options">Configuration options<a class="headerlink" href="#configuration-options" title="Permanent link">#</a></h2>
 <p>The following table lists the most commonly configured Pelagia chart parameters and their default values. For an example configuration procedure, refer to <a href="../../ops-guide/deployment/rook-daemon-place/">Specify Rook daemons placement</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In LCM-only mode, <code>cephDeployment.enabled</code> is set to <code>false</code>, which disables all other <code>cephDeployment.*</code> parameters.</p>
+</div>
 <table>
 <thead>
 <tr>
