@@ -53,7 +53,7 @@ For API reference, see [CephDeployment API: HTTPRoute parameters](../../../custo
 
     ```yaml
     data:
-      ca.cert: <base64encodedCaCertificate>
+      ca.crt: <base64encodedCaCertificate>
       tls.crt: <base64encodedTlsCert>
       tls.key: <base64encodedTlsKey>
     ```
