@@ -3780,7 +3780,7 @@ For API reference, see <a href="../../../../custom-resources/cephdeployment/#cep
 <p><code>tlsSecretRefName</code> - Secret name with TLS certs in Rook Ceph namespace, for example, <code>rook-ceph</code>.
   Allows avoiding exposure of certs directly in <code>spec</code>. Must contain the following format:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">data</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">ca.cert</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64encodedCaCertificate&gt;</span>
+<span class="w">  </span><span class="nt">ca.crt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64encodedCaCertificate&gt;</span>
 <span class="w">  </span><span class="nt">tls.crt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64encodedTlsCert&gt;</span>
 <span class="w">  </span><span class="nt">tls.key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;base64encodedTlsKey&gt;</span>
 </code></pre></div>

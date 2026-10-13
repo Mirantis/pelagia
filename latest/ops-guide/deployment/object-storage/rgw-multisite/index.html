@@ -3726,7 +3726,7 @@ Only the multi-zone multisite setup is currently supported. For more details, se
    These parameters are ignored because the <code>zone</code> section in the multisite configuration specifies the pool parameters.</p>
 <p>Also, you can split the RGW daemon into daemons serving clients and daemons
 running synchronization.
-To enable this option, create a separate ObjectStore with <code>auxilaryService: true</code> and set <code>disableMultisiteSyncTraffic</code> to <code>true</code> in the <code>gateway</code> section. For reference, see <a href="https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#scaling-a-multisite">Rook documentation: Scaling a Multisite</a>.</p>
+To enable this option, create a separate ObjectStore with <code>auxiliaryService: true</code> and set <code>disableMultisiteSyncTraffic</code> to <code>true</code> in the <code>gateway</code> section. For reference, see <a href="https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#scaling-a-multisite">Rook documentation: Scaling a Multisite</a>.</p>
 <details>
 <summary>Example configuration</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
@@ -3734,7 +3734,7 @@ To enable this option, create a separate ObjectStore with <code>auxilaryService:
 <span class="w">    </span><span class="nt">realms</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
 <span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">defaultRealm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">        </span><span class="nt">pull</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://10.11.0.75:8080</span>
 <span class="w">    </span><span class="nt">zonegroups</span><span class="p">:</span>
@@ -3767,7 +3767,7 @@ To enable this option, create a separate ObjectStore with <code>auxilaryService:
 <span class="w">       </span><span class="nt">zone</span><span class="p">:</span>
 <span class="w">         </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store-backup</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store-replication</span>
-<span class="w">      </span><span class="nt">auxilaryService</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">auxiliaryService</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
 <span class="w">       </span><span class="nt">gateway</span><span class="p">:</span>
 <span class="w">         </span><span class="nt">instances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
@@ -3840,7 +3840,7 @@ configuration:</p>
 <span class="w">  </span><span class="nt">realms</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
 <span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="nt">defaultRealm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">  </span><span class="nt">zonegroups</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
 <span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
@@ -3868,7 +3868,6 @@ configuration:</p>
 <span class="w">        </span><span class="nt">instances</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
 <span class="w">        </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">80</span>
 <span class="w">        </span><span class="nt">securePort</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8443</span>
-<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
 <span class="w">      </span><span class="nt">preservePoolsOnDelete</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 <span class="w">      </span><span class="nt">zone</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
@@ -3918,7 +3917,7 @@ to replicate data. For details, see the steps below.</p>
 <span class="w">    </span><span class="nt">realms</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">openstack-store</span>
 <span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">default</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">        </span><span class="nt">defaultRealm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">        </span><span class="nt">pull</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">endpoint</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://10.11.0.75:8080</span>
 <span class="w">    </span><span class="nt">zonegroups</span><span class="p">:</span>
