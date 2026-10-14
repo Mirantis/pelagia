@@ -1,7 +1,7 @@
 ---
 description: API reference for Pelagia custom resources for Ceph deployment and operations.
 keywords: pelagia, ceph custom resources, cephdeployment, cephdeploymenthealth,
-  cephdeploymentsecret, cephosdremovetask
+  cephdeploymentsecret, cephdeploymentmaintenance, cephosdremovetask
 ---
 
 <a id="index-custom-resources"></a>
