@@ -97,7 +97,7 @@ You can apply the below procedure in the following cases:
    spec:
      nodes:
        <nodeName>:
-         cleanupByOsdId:
+         cleanupByOsd:
          - id: <osdID>
    ```
 
