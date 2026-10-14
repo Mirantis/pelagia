@@ -3,8 +3,18 @@ name: Golang CI
 on:
   push:
     branches: [ "main", "release-*" ]
+    paths-ignore:
+    - 'build/**'
+    - 'charts/**'
+    - 'docs/**'
+    - 'mkdocs.yml'
   pull_request:
     branches: [ "main", "release-*" ]
+    paths-ignore:
+    - 'build/**'
+    - 'charts/**'
+    - 'docs/**'
+    - 'mkdocs.yml'
 
 # abort in progress when PR is refreshed.
 concurrency:
