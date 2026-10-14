@@ -67,7 +67,7 @@ func fakeCephReconcileConfig(tconfig *taskConfig, lcmConfigData map[string]strin
 
 func TestTaskReconcile(t *testing.T) {
 	noRequeue := reconcile.Result{}
-	immidiateRequeue := reconcile.Result{Requeue: true}
+	immidiateRequeue := reconcile.Result{RequeueAfter: lcmcommon.DefaultImmediateRequeueInterval}
 	resInterval := reconcile.Result{RequeueAfter: requeueAfterInterval}
 	r := FakeReconciler()
 	request := reconcile.Request{
