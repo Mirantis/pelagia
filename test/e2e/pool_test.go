@@ -135,14 +135,15 @@ func TestVolumesBackendPool(t *testing.T) {
 	err = cephv1.ValidateCephBlockPool(pool)
 	assert.Nil(t, err)
 
+	cinderClientName := ""
 	f.Step(t, "Wait for Ceph Clients updated with volumes-backend pool")
 	err = wait.PollUntilContextTimeout(f.TF.ManagedCluster.Context, 5*time.Second, 3*time.Minute, true, func(_ context.Context) (bool, error) {
-		cinderClient, err := f.TF.ManagedCluster.GetCephClient("cinder")
+		cinderClient, err := f.TF.ManagedCluster.GetCephClientByRole("cinder")
 		if err != nil {
 			f.TF.Log.Error().Err(err).Msg("")
 			return false, nil
 		}
-		novaClient, err := f.TF.ManagedCluster.GetCephClient("nova")
+		novaClient, err := f.TF.ManagedCluster.GetCephClientByRole("nova")
 		if err != nil {
 			f.TF.Log.Error().Err(err).Msg("")
 			return false, nil
@@ -167,6 +168,7 @@ func TestVolumesBackendPool(t *testing.T) {
 			f.TF.Log.Error().Msgf("Pool %s capabilities not found on nova CephClient, waiting", name)
 			return false, nil
 		}
+		cinderClientName = cinderClient.Spec.Name
 		return true, nil
 	})
 	if err != nil {
@@ -223,7 +225,7 @@ func TestVolumesBackendPool(t *testing.T) {
 	}
 	err = wait.PollUntilContextTimeout(f.TF.ManagedCluster.Context, 15*time.Second, 30*time.Minute, true, func(_ context.Context) (done bool, err error) {
 		for _, pod := range cinderVolumePods {
-			command := fmt.Sprintf("rbd -n client.cinder ls -p %s", name)
+			command := fmt.Sprintf("rbd -n client.%s ls -p %s", cinderClientName, name)
 			_, _, err := f.TF.ManagedCluster.RunPodCommand(command, pod.Spec.Containers[0].Name, pod.DeepCopy())
 			if err != nil {
 				f.TF.Log.Error().Err(err).Msgf("Failed to access pool data with client.cinder from %s pod", pod.Name)
