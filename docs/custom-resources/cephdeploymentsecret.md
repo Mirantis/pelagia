@@ -50,25 +50,25 @@ The `CephDeploymentSecret` custom resource contains the following high-level sta
 
 - `state` - Current state of the secret collector on the Ceph cluster:
 
-    - `Ready` - information about secrets is collected successfully
-    - `Failed` - information about secrets fails to be collected
+    - `Ok` - Information about secrets is collected successfully
+    - `Failed` - Information about secrets fails to be collected
 
 - `lastSecretCheck` - `DateTime` when the Ceph cluster secrets were verified last time.
 - `lastSecretUpdate` - `DateTime` when the Ceph cluster secrets were updated last time.
-- `secretsInfo` - List of secrets for Ceph `authx` clients and RADOS Gateway users. For details, see the reference below.
+- `secretInfo` - List of secrets for Ceph `authx` clients and RADOS Gateway users. For details, see the reference below.
 - `messages` - List of error or warning messages, if any, found when collecting information about the Ceph cluster.
 
 <a name="cephdeploymentsecret-secret-info-fields"></a>
 ## Secret info fields
 
-The `secretsInfo` field contains the following fields:
+The `secretInfo` field contains the following fields:
 
 - `clientSecrets` - Details on secrets for Ceph clients such as `name`, `secretName`, and `secretNamespace`
   for each client secret.
 - `rgwUserSecrets` - Details on secrets for Ceph RADOS Gateway users such as `name`, `secretName`, and
   `secretNamespace`.
 
-??? "Example of the `secretsInfo` field"
+??? "Example of the `secretInfo` field"
 
     ```yaml
     status:

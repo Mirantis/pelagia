@@ -276,17 +276,18 @@ kubectl -n pelagia get cephdeploymenthealth -o yaml
 
 - `rookOperator` - State of the Rook Ceph Operator pod which contains the following fields:
 
-    - `status` - contains short state of current Rook Ceph Operator pod;
-    - `issues` - represents found Rook Operator issues, otherwise it is empty;
+    - `status` - summary of the current Rook Ceph Operator pod state
+    - `issues` - List of Rook Ceph Operator issues, otherwise empty
+    - `info` - Human-readable additional information about the current Rook Ceph Operator pod state
 
 - `rookCephObjects` - General information from Rook about the Ceph cluster health and current
   state. Contains the following fields:
 
-    - `cephCluster` - Contains Ceph cluster status information.
-    - `blockStorage` - Contains status of block-storage related objects status information.
-    - `cephClients` - Represents a key-value mapping of Ceph client's name and its status.
-    - `objectStorage` - Contains status of object-storage related objects status information.
-    - `sharedFilesystems` - Contains status of shared filesystems related objects status information.
+    - `cephCluster` - Status of the Ceph cluster
+    - `blockStorage` - Status of block-storage related objects
+    - `cephClients` - Key-value mapping of the Ceph client name and its status
+    - `objectStorage` - Status of object-storage related objects
+    - `sharedFilesystem` - Status of shared filesystems related objects
 
     ??? "Example `rookCephObjects` status"
 
@@ -305,45 +306,41 @@ kubectl -n pelagia get cephdeploymenthealth -o yaml
                 version:
                   image: <ceph image used in ceph cluster>
                   version: <ceph version of ceph cluster>
-            blockStorage:
-              cephBlockPools:
-                <cephBlockPoolName>:
+              blockStorage:
+                cephBlockPools:
+                  <cephBlockPoolName>:
+                    ...
+                    phase: <rook ceph block pool resource phase>
+              cephClients:
+                <cephClientName>:
                   ...
-                  phase: <rook ceph block pool resource phase>
-            cephClients:
-              <cephClientName>:
-                ...
-                phase: <rook ceph client resource phase>
-            objectStorage:
-              cephObjectStore:
-                <cephObjectStoreName>:
-                  ...
-                  phase: <rook ceph object store resource phase>
-              cephObjectStoreUsers:
-                <rgwUserName>:
-                  ...
-                  phase: <rook ceph object store user resource phase>
-              objectBucketClaims:
-                <bucketName>:
-                  ...
-                  phase: <rook ceph object bucket claims resource phase>
-              cephObjectRealms:
-                <realmName>:
-                  ...
-                  phase: <rook ceph object store realm resource phase>
-              cephObjectZoneGroups:
-                <zonegroupName>:
-                  ...
-                  phase: <rook ceph object store zonegroup resource phase>
-              cephObjectZones:
-                <zoneName>:
-                  ...
-                  phase: <rook ceph object store zone resource phase>
-            sharedFilesystems:
-              cephFilesystems:
-                <cephFSName>:
-                  ...
-                  phase: <rook ceph filesystem resource phase>
+                  phase: <rook ceph client resource phase>
+              objectStorage:
+                cephObjectStore:
+                  <cephObjectStoreName>:
+                    ...
+                    phase: <rook ceph object store resource phase>
+                cephObjectStoreUsers:
+                  <rgwUserName>:
+                    ...
+                    phase: <rook ceph object store user resource phase>
+                cephObjectRealms:
+                  <realmName>:
+                    ...
+                    phase: <rook ceph object store realm resource phase>
+                cephObjectZoneGroups:
+                  <zonegroupName>:
+                    ...
+                    phase: <rook ceph object store zonegroup resource phase>
+                cephObjectZones:
+                  <zoneName>:
+                    ...
+                    phase: <rook ceph object store zone resource phase>
+              sharedFilesystem:
+                cephFilesystems:
+                  <cephFSName>:
+                    ...
+                    phase: <rook ceph filesystem resource phase>
         ```
 
 - `cephDaemons` - Contains information about the state of the Ceph and Ceph CSI daemons in the cluster.
@@ -351,7 +348,14 @@ kubectl -n pelagia get cephdeploymenthealth -o yaml
 
     - `cephDaemons` - Map of statuses for each Ceph cluster daemon type. Indicates the
       expected and actual number of Ceph daemons on the cluster. Available
-      daemon types are: ``mgr``, ``mon``, ``osd``, and ``rgw``.
+      daemon types are: ``mds``, ``mgr``, ``mon``, ``osd``, and ``rgw``.
+      Each daemon status entry contains the following fields:
+
+        - `status` - Short state of the daemon type.
+        - `issues` - List of issues found for the daemon type, otherwise empty.
+        - `info` - Human-readable additional information about the current daemon state,
+          for example, the number of running daemons.
+
     - `cephCSIDaemons` - Map of statuses in the same format as `cephDaemons`, for each
       Ceph CSI application deployed in the Ceph cluster: the ``rbd`` and ``cephfs``
       provisioners, their plugins, and ``ceph-csi-operator``.
