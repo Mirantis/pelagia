@@ -223,7 +223,7 @@ type RgwInfo struct {
 	PublicEndpoints map[string][]string `json:"publicEndpoints,omitempty"`
 	// MultisiteDetails represents overall multisite state info
 	// +optional
-	MultisiteDetails *MultisiteState `json:"multisiteDetails,omitempty"`
+	MultisiteDetails map[string]MultisiteState `json:"multisiteDetails,omitempty"`
 }
 
 type MultisiteState struct {
@@ -231,9 +231,6 @@ type MultisiteState struct {
 	MetadataSyncState MultiSiteState `json:"metadataSyncState"`
 	// Current Multisite data sync state
 	DataSyncState MultiSiteState `json:"dataSyncState"`
-	// MasterZone whether current zone is master
-	// +optional
-	MasterZone bool `json:"masterZone,omitempty"`
 	// Additional messages about current state
 	// +optional
 	Messages []string `json:"messages,omitempty"`

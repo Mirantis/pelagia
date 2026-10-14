@@ -352,7 +352,7 @@ func (c *cephDeploymentHealthConfig) getRgwInfo() (*lcmv1alpha1.RgwInfo, []strin
 	newRgwInfo := &lcmv1alpha1.RgwInfo{
 		PublicEndpoints: map[string][]string{},
 	}
-	if c.healthConfig.multisiteOpts.zone != "" {
+	if len(c.healthConfig.multisiteOpts.zones) > 0 {
 		multisiteDetails, multisiteIssues := c.getMultisiteSyncStatus()
 		newRgwInfo.MultisiteDetails = multisiteDetails
 		if len(multisiteIssues) > 0 {
@@ -539,92 +539,86 @@ func (c *cephDeploymentHealthConfig) getRgwPublicEndpoint(rgwName string) ([]str
 	return nil, nil
 }
 
-func (c *cephDeploymentHealthConfig) getMultisiteSyncStatus() (*lcmv1alpha1.MultisiteState, []string) {
-	cmd := fmt.Sprintf("radosgw-admin sync status --rgw-zonegroup=%s --rgw-zone=%s", c.healthConfig.multisiteOpts.zonegroup, c.healthConfig.multisiteOpts.zone)
-	syncStatusOutput, err := lcmcommon.RunCephToolboxCLI(c.context, c.api.Kubeclientset, c.api.Config, c.lcmConfig.RookNamespace, cmd)
-	if err != nil {
-		c.log.Error().Err(err).Msg("")
-		msg := fmt.Sprintf("failed to run '%s' command to check multisite status for zone '%s'", cmd, c.healthConfig.multisiteOpts.zone)
-		return &lcmv1alpha1.MultisiteState{
-			MetadataSyncState: lcmv1alpha1.MultiSiteFailed,
-			DataSyncState:     lcmv1alpha1.MultiSiteFailed,
-			Messages:          []string{msg},
-		}, []string{msg}
-	}
-	multisiteState := &lcmv1alpha1.MultisiteState{
-		MetadataSyncState: lcmv1alpha1.MultiSiteSyncing,
-		DataSyncState:     lcmv1alpha1.MultiSiteSyncing,
-	}
+func (c *cephDeploymentHealthConfig) getMultisiteSyncStatus() (map[string]lcmv1alpha1.MultisiteState, []string) {
+	multisiteInfo := map[string]lcmv1alpha1.MultisiteState{}
 	multisiteIssues := []string{}
-	// CMD `radosgw-admin sync status` has no JSON format in 19.2 yet, so we can
-	// only use regexp to determine current state
-	masterZone, _ := regexp.MatchString(`metadata sync no sync \(zone is master\)`, syncStatusOutput)
-	if masterZone {
-		multisiteState.MasterZone = true
-	} else {
-		metaUpToDate, _ := regexp.MatchString(`metadata is caught up with master`, syncStatusOutput)
+
+	findMatch := func(pattern, text string) bool {
+		match, _ := regexp.MatchString(pattern, text)
+		return match
+	}
+
+	for zone, zonegroup := range c.healthConfig.multisiteOpts.zones {
+		realm := c.healthConfig.multisiteOpts.zonegroups[zonegroup]
+		cmd := fmt.Sprintf("radosgw-admin sync status --rgw-realm=%s --rgw-zonegroup=%s --rgw-zone=%s", realm, zonegroup, zone)
+		syncStatusOutput, err := lcmcommon.RunCephToolboxCLI(c.context, c.api.Kubeclientset, c.api.Config, c.lcmConfig.RookNamespace, cmd)
+		if err != nil {
+			c.log.Error().Err(err).Msg("")
+			msg := fmt.Sprintf("failed to run '%s' command to check multisite status for zone '%s'", cmd, zone)
+			multisiteIssues = append(multisiteIssues, msg)
+			continue
+		}
+		multisiteZoneState := lcmv1alpha1.MultisiteState{
+			MetadataSyncState: lcmv1alpha1.MultiSiteSyncing,
+			DataSyncState:     lcmv1alpha1.MultiSiteSyncing,
+		}
+		zoneIssues := []string{}
+
+		metaUpToDate := findMatch(`metadata is caught up with master`, syncStatusOutput)
 		if !metaUpToDate {
-			metaBehind, _ := regexp.MatchString(`metadata is behind`, syncStatusOutput)
+			metaBehind := findMatch(`metadata is behind`, syncStatusOutput)
 			if metaBehind {
-				multisiteState.MetadataSyncState = lcmv1alpha1.MultiSiteOutOfSync
-				multisiteIssues = append(multisiteIssues, "metadata is behind master zone")
+				multisiteZoneState.MetadataSyncState = lcmv1alpha1.MultiSiteOutOfSync
+				zoneIssues = append(zoneIssues, "metadata is behind master zone")
 			} else {
-				metaFetchFail, _ := regexp.MatchString(`failed to fetch mdlog info`, syncStatusOutput)
+				metaFetchFail := findMatch(`failed to fetch mdlog info`, syncStatusOutput)
 				if metaFetchFail {
-					multisiteState.MetadataSyncState = lcmv1alpha1.MultiSiteFailed
-					multisiteIssues = append(multisiteIssues, "failed to fetch metadata info")
+					multisiteZoneState.MetadataSyncState = lcmv1alpha1.MultiSiteFailed
+					zoneIssues = append(zoneIssues, "failed to fetch metadata info")
 				} else {
 					// unknown state - mark as failed, since is not behind and not ok
-					multisiteState.MetadataSyncState = lcmv1alpha1.MultiSiteFailed
-					multisiteIssues = append(multisiteIssues, "unknown metadata sync state")
+					multisiteZoneState.MetadataSyncState = lcmv1alpha1.MultiSiteFailed
+					zoneIssues = append(zoneIssues, "metadata sync failed")
 				}
 			}
 		}
-	}
-	dataSyncing, _ := regexp.MatchString(`\sdata sync source`, syncStatusOutput)
-	if dataSyncing {
-		dataFetchFail, _ := regexp.MatchString(`failed to fetch datalog info`, syncStatusOutput)
-		if dataFetchFail {
-			multisiteState.DataSyncState = lcmv1alpha1.MultiSiteFailed
-			multisiteIssues = append(multisiteIssues, "failed to fetch data info")
-		} else {
-			// since there may be multiple replicated clusters
-			// need to check all sources
-			reg := regexp.MustCompile(`source:\s.*\)`)
-			sources := reg.FindAllString(syncStatusOutput, -1)
-			reg = regexp.MustCompile(`\sdata is caught up with source`)
-			upToDate := reg.FindAllString(syncStatusOutput, -1)
-			if len(sources) != len(upToDate) {
-				reg = regexp.MustCompile(`\sdata is behind on`)
-				behind := reg.FindAllString(syncStatusOutput, -1)
-				if len(behind)+len(upToDate) == len(sources) {
-					multisiteState.DataSyncState = lcmv1alpha1.MultiSiteOutOfSync
-					// do not raise health issue on master side if some problems with secondary
-					if !masterZone {
-						multisiteIssues = append(multisiteIssues, "data is behind master zone")
+
+		dataSyncing := findMatch(`\sdata sync source`, syncStatusOutput)
+		if dataSyncing {
+			dataFetchFail := findMatch(`failed to fetch datalog info`, syncStatusOutput)
+			if dataFetchFail {
+				multisiteZoneState.DataSyncState = lcmv1alpha1.MultiSiteFailed
+				zoneIssues = append(zoneIssues, "failed to fetch data info")
+			} else {
+				// since there may be multiple replicated clusters
+				// need to check all sources
+				reg := regexp.MustCompile(`source:\s.*\)`)
+				sources := reg.FindAllString(syncStatusOutput, -1)
+				reg = regexp.MustCompile(`\sdata is caught up with source`)
+				upToDate := reg.FindAllString(syncStatusOutput, -1)
+				if len(sources) != len(upToDate) {
+					reg = regexp.MustCompile(`\sdata is behind on`)
+					behind := reg.FindAllString(syncStatusOutput, -1)
+					if len(behind)+len(upToDate) == len(sources) {
+						multisiteZoneState.DataSyncState = lcmv1alpha1.MultiSiteOutOfSync
+						zoneIssues = append(zoneIssues, "data is behind master zone")
+					} else {
+						// unknown state - mark as failed, since is not behind and not ok
+						multisiteZoneState.DataSyncState = lcmv1alpha1.MultiSiteFailed
+						zoneIssues = append(zoneIssues, "data sync failed")
 					}
-				} else {
-					// unknown state - mark as failed, since is not behind and not ok
-					multisiteState.DataSyncState = lcmv1alpha1.MultiSiteFailed
-					multisiteIssues = append(multisiteIssues, "unknown data sync state")
 				}
 			}
+		} else {
+			multisiteZoneState.DataSyncState = lcmv1alpha1.MultiSiteFailed
+			zoneIssues = append(zoneIssues, "data sync info is not present")
 		}
-	} else {
-		// when multisite is starting configuring and no other zones except master - there is no
-		// data sync yet, so just skip such case from warnings
-		if !masterZone {
-			multisiteState.DataSyncState = lcmv1alpha1.MultiSiteFailed
-			multisiteIssues = append(multisiteIssues, "data sync info is not present")
+		if len(zoneIssues) > 0 {
+			multisiteZoneState.Messages = zoneIssues
+			multisiteIssues = append(multisiteIssues, fmt.Sprintf("sync failed for zone '%s'", zone))
 		}
+		multisiteInfo[zone] = multisiteZoneState
 	}
-	if len(multisiteIssues) > 0 {
-		multisiteState.Messages = multisiteIssues
-	}
-	// do not fail master zone health check, show only issues if present in log
-	if masterZone && len(multisiteIssues) > 0 {
-		c.log.Error().Msgf("found problems with RGW multisite: %s", strings.Join(multisiteIssues, ", "))
-		multisiteIssues = make([]string, 0)
-	}
-	return multisiteState, multisiteIssues
+	sort.Strings(multisiteIssues)
+	return multisiteInfo, multisiteIssues
 }

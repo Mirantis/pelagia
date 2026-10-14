@@ -1793,8 +1793,10 @@ func (in *RgwInfo) DeepCopyInto(out *RgwInfo) {
 	}
 	if in.MultisiteDetails != nil {
 		in, out := &in.MultisiteDetails, &out.MultisiteDetails
-		*out = new(MultisiteState)
-		(*in).DeepCopyInto(*out)
+		*out = make(map[string]MultisiteState, len(*in))
+		for key, val := range *in {
+			(*out)[key] = *val.DeepCopy()
+		}
 	}
 }
 

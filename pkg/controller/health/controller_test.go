@@ -55,6 +55,11 @@ func getEmtpyHealthConfig() healthConfig {
 		namespace:   unitinputs.LcmObjectMeta.Namespace,
 		cephCluster: nil,
 		rgwOpts:     map[string]rgwOpts{},
+		multisiteOpts: multisiteOpts{
+			realms:     map[string]bool{},
+			zones:      map[string]string{},
+			zonegroups: map[string]string{},
+		},
 		sharedFilesystemOpts: sharedFilesystemOpts{
 			mdsDaemonsDesired: map[string]map[string]int{},
 		},

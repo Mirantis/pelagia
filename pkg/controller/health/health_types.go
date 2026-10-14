@@ -50,9 +50,9 @@ type rgwOpts struct {
 }
 
 type multisiteOpts struct {
-	realm     string
-	zonegroup string
-	zone      string
+	realms     map[string]bool
+	zonegroups map[string]string
+	zones      map[string]string
 }
 
 type sharedFilesystemOpts struct {

@@ -189,16 +189,16 @@ var RookCephObjectsReportReadyOnlyCephCluster = &lcmv1alpha1.RookCephObjectsStat
 			"rgw-user-2": nil,
 		},
 		CephObjectRealms: map[string]*cephv1.Status{
-			"realm-1": CephObjectRealmListNotReady.Items[0].Status,
-			"realm-2": nil,
+			"realm1": CephObjectRealmListNotReady.Items[0].Status,
+			"realm2": nil,
 		},
 		CephObjectZoneGroups: map[string]*cephv1.Status{
-			"zonegroup-1": CephObjectZoneGroupListNotReady.Items[0].Status,
-			"zonegroup-2": nil,
+			"zonegroup1": CephObjectZoneGroupListNotReady.Items[0].Status,
+			"zonegroup2": nil,
 		},
 		CephObjectZones: map[string]*cephv1.Status{
-			"zone-1": CephObjectZoneListNotReady.Items[0].Status,
-			"zone-2": nil,
+			"zone1": CephObjectZoneListNotReady.Items[0].Status,
+			"zone2": nil,
 		},
 	},
 	SharedFilesystem: &lcmv1alpha1.SharedFilesystemStatus{
@@ -231,13 +231,13 @@ var RookCephObjectsReportReadyFull = &lcmv1alpha1.RookCephObjectsStatus{
 			"rgw-user-2": CephObjectStoreUserListReady.Items[1].Status,
 		},
 		CephObjectRealms: map[string]*cephv1.Status{
-			"realm-1": CephObjectRealmListReady.Items[0].Status,
+			"realm1": CephObjectRealmListReady.Items[0].Status,
 		},
 		CephObjectZoneGroups: map[string]*cephv1.Status{
-			"zonegroup-1": CephObjectZoneGroupListReady.Items[0].Status,
+			"zonegroup1": CephObjectZoneGroupListReady.Items[0].Status,
 		},
 		CephObjectZones: map[string]*cephv1.Status{
-			"zone-1": CephObjectZoneListReady.Items[0].Status,
+			"zone1": CephObjectZoneListReady.Items[0].Status,
 		},
 	},
 	SharedFilesystem: &lcmv1alpha1.SharedFilesystemStatus{
@@ -456,16 +456,19 @@ var CephEventsProgressing = &lcmv1alpha1.CephEvents{
 	},
 }
 
-var CephMultisiteStateFailed = &lcmv1alpha1.MultisiteState{
-	MetadataSyncState: lcmv1alpha1.MultiSiteFailed,
-	DataSyncState:     lcmv1alpha1.MultiSiteFailed,
-	Messages:          []string{"failed to run 'radosgw-admin sync status --rgw-zonegroup=zonegroup1 --rgw-zone=zone1' command to check multisite status for zone 'zone1'"},
+var CephMultisiteStateOk = map[string]lcmv1alpha1.MultisiteState{
+	"zone1": {
+		MetadataSyncState: lcmv1alpha1.MultiSiteSyncing,
+		DataSyncState:     lcmv1alpha1.MultiSiteSyncing,
+	},
 }
 
-var CephMultisiteStateOk = &lcmv1alpha1.MultisiteState{
-	MetadataSyncState: lcmv1alpha1.MultiSiteSyncing,
-	DataSyncState:     lcmv1alpha1.MultiSiteSyncing,
-	MasterZone:        true,
+var CephMultisiteStateFailed = map[string]lcmv1alpha1.MultisiteState{
+	"zone1": {
+		MetadataSyncState: lcmv1alpha1.MultiSiteFailed,
+		DataSyncState:     lcmv1alpha1.MultiSiteFailed,
+		Messages:          []string{"failed to run 'radosgw-admin sync status --rgw-zonegroup=zonegroup1 --rgw-zone=zone1' command to check multisite status for zone 'zone1'"},
+	},
 }
 
 var OsdSpecAnalysisOk = &lcmv1alpha1.OsdSpecAnalysisState{

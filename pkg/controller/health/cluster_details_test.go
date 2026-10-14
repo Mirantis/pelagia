@@ -464,8 +464,9 @@ func TestGetRgwInfo(t *testing.T) {
 					"rgw-store": {desiredRgwDaemons: 2},
 				}
 				hc.multisiteOpts = multisiteOpts{
-					zone:      "zone1",
-					zonegroup: "zonegroup1",
+					realms:     map[string]bool{"realm1": true},
+					zones:      map[string]string{"zone1": "zonegroup1"},
+					zonegroups: map[string]string{"zonegroup1": "realm1"},
 				}
 				return hc
 			}(),
@@ -473,9 +474,9 @@ func TestGetRgwInfo(t *testing.T) {
 				PublicEndpoints: map[string][]string{
 					"rgw-store": {"https://rgw-store.example.com"},
 				},
-				MultisiteDetails: unitinputs.CephMultisiteStateFailed,
+				MultisiteDetails: map[string]lcmv1alpha1.MultisiteState{},
 			},
-			expectedIssues: []string{"failed to run 'radosgw-admin sync status --rgw-zonegroup=zonegroup1 --rgw-zone=zone1' command to check multisite status for zone 'zone1'"},
+			expectedIssues: []string{"failed to run 'radosgw-admin sync status --rgw-realm=realm1 --rgw-zonegroup=zonegroup1 --rgw-zone=zone1' command to check multisite status for zone 'zone1'"},
 		},
 		{
 			name: "cephobjectstore local, rgw endpoint taken, check multisite ok",
@@ -490,12 +491,13 @@ func TestGetRgwInfo(t *testing.T) {
 					"rgw-store": {desiredRgwDaemons: 2},
 				}
 				hc.multisiteOpts = multisiteOpts{
-					zone:      "zone1",
-					zonegroup: "zonegroup1",
+					realms:     map[string]bool{"realm1": true},
+					zones:      map[string]string{"zone1": "zonegroup1"},
+					zonegroups: map[string]string{"zonegroup1": "realm1"},
 				}
 				return hc
 			}(),
-			radosAdminOutput: unitinputs.RadosgwAdminMasterSyncStatusOk,
+			radosAdminOutput: unitinputs.RadosgwAdminSecondarySyncStatusOk,
 			expectedStatus: &lcmv1alpha1.RgwInfo{
 				PublicEndpoints: map[string][]string{
 					"rgw-store": {"https://rgw-store.example.com"},
@@ -518,12 +520,13 @@ func TestGetRgwInfo(t *testing.T) {
 					"rgw-store-sync": {desiredRgwDaemons: 1},
 				}
 				hc.multisiteOpts = multisiteOpts{
-					zone:      "zone1",
-					zonegroup: "zonegroup1",
+					realms:     map[string]bool{"realm1": true},
+					zones:      map[string]string{"zone1": "zonegroup1"},
+					zonegroups: map[string]string{"zonegroup1": "realm1"},
 				}
 				return hc
 			}(),
-			radosAdminOutput: unitinputs.RadosgwAdminMasterSyncStatusOk,
+			radosAdminOutput: unitinputs.RadosgwAdminSecondarySyncStatusOk,
 			expectedStatus: &lcmv1alpha1.RgwInfo{
 				PublicEndpoints: map[string][]string{
 					"rgw-store": {"https://rgw-store.example.com"},
@@ -539,7 +542,6 @@ func TestGetRgwInfo(t *testing.T) {
 			c := fakeCephReconcileConfig(&test.healthConfig, nil)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "list", []string{"pods"}, map[string]runtime.Object{"pods": unitinputs.ToolBoxPodList}, nil)
 			faketestclients.FakeReaction(c.api.Gatewayclientset, "list", []string{"httproutes"}, test.inputResources, nil)
-			faketestclients.FakeReaction(c.api.Rookclientset, "list", []string{"cephobjectzones"}, test.inputResources, nil)
 
 			lcmcommon.RunPodCommand = func(e lcmcommon.ExecConfig) (string, string, error) {
 				if strings.HasPrefix(e.Command, "radosgw-admin sync status") {
@@ -790,123 +792,29 @@ func TestGetRgwPublicEndpoint(t *testing.T) {
 
 func TestGetMultisiteSyncStatus(t *testing.T) {
 	emptyIssues := make([]string, 0)
+	baseMultisiteOpts := multisiteOpts{
+		realms:     map[string]bool{"realm1": true},
+		zones:      map[string]string{"zone1": "zonegroup1"},
+		zonegroups: map[string]string{"zonegroup1": "realm1"},
+	}
 	tests := []struct {
 		name           string
-		cmdOutput      string
-		inputResources map[string]runtime.Object
-		expectedStatus *lcmv1alpha1.MultisiteState
+		cmdsOutput     map[string]string
+		multisiteOpts  multisiteOpts
+		expectedStatus map[string]lcmv1alpha1.MultisiteState
 		expectedIssues []string
 	}{
 		{
-			name:           "failed to run sync status cmd",
-			expectedStatus: unitinputs.CephMultisiteStateFailed,
-			inputResources: map[string]runtime.Object{
-				"cephobjectzones": &cephv1.CephObjectZoneList{
-					Items: []cephv1.CephObjectZone{*unitinputs.RgwMultisiteMasterZone1.DeepCopy()},
-				},
-			},
-			expectedIssues: []string{"failed to run 'radosgw-admin sync status --rgw-zonegroup=zonegroup1 --rgw-zone=zone1' command to check multisite status for zone 'zone1'"},
+			name:           "failed to run sync status cmd for zone",
+			multisiteOpts:  baseMultisiteOpts,
+			expectedStatus: map[string]lcmv1alpha1.MultisiteState{},
+			expectedIssues: []string{"failed to run 'radosgw-admin sync status --rgw-realm=realm1 --rgw-zonegroup=zonegroup1 --rgw-zone=zone1' command to check multisite status for zone 'zone1'"},
 		},
 		{
-			name:      "master zone - sync is ok",
-			cmdOutput: unitinputs.RadosgwAdminMasterSyncStatusOk,
-			inputResources: map[string]runtime.Object{
-				"cephobjectzones": &cephv1.CephObjectZoneList{
-					Items: []cephv1.CephObjectZone{*unitinputs.RgwMultisiteMasterZone1.DeepCopy()},
-				},
-			},
-			expectedStatus: unitinputs.CephMultisiteStateOk,
-			expectedIssues: emptyIssues,
-		},
-		{
-			name: "master zone - no secondary data zone yet",
-			cmdOutput: `
-          realm a46a61a7-46c0-41dd-8f62-9f989b9de803 (openstack-store)
-      zonegroup 5c6c92c1-632c-4db0-8aa9-8dcbea5d87ec (openstack-store)
-           zone 4abcf593-157b-46bb-8209-0f8f7f5a7e8e (openstack-store)
-   current time 2024-04-18T13:27:48Z
-zonegroup features enabled: resharding
-                   disabled: compress-encrypted
-  metadata sync no sync (zone is master)`,
-			inputResources: map[string]runtime.Object{
-				"cephobjectzones": &cephv1.CephObjectZoneList{
-					Items: []cephv1.CephObjectZone{*unitinputs.RgwMultisiteMasterZone1.DeepCopy()},
-				},
-			},
-			expectedStatus: unitinputs.CephMultisiteStateOk,
-			expectedIssues: emptyIssues,
-		},
-		{
-			name: "master zone - failed to get data sync info",
-			cmdOutput: `
-          realm a46a61a7-46c0-41dd-8f62-9f989b9de803 (openstack-store)
-      zonegroup 5c6c92c1-632c-4db0-8aa9-8dcbea5d87ec (openstack-store)
-           zone 4abcf593-157b-46bb-8209-0f8f7f5a7e8e (openstack-store)
-   current time 2024-04-18T13:15:16Z
-zonegroup features enabled: resharding
-                   disabled: compress-encrypted
-  metadata sync no sync (zone is master)
-2024-04-18T13:15:16.957+0000 7ffb3d16f880  0 ERROR: failed to fetch datalog info
-      data sync source: 362d9d90-1151-41a0-80aa-e8aa6d036730 (openstack-store-backup)
-                        failed to retrieve sync info: (5) Input/output error`,
-			inputResources: map[string]runtime.Object{
-				"cephobjectzones": &cephv1.CephObjectZoneList{
-					Items: []cephv1.CephObjectZone{*unitinputs.RgwMultisiteMasterZone1.DeepCopy()},
-				},
-			},
-			expectedStatus: &lcmv1alpha1.MultisiteState{
-				MetadataSyncState: lcmv1alpha1.MultiSiteSyncing,
-				DataSyncState:     lcmv1alpha1.MultiSiteFailed,
-				MasterZone:        true,
-				Messages:          []string{"failed to fetch data info"},
-			},
-			expectedIssues: emptyIssues,
-		},
-		{
-			name: "master zone - secondary is behind master",
-			cmdOutput: `
-          realm a46a61a7-46c0-41dd-8f62-9f989b9de803 (openstack-store)
-      zonegroup 5c6c92c1-632c-4db0-8aa9-8dcbea5d87ec (openstack-store)
-           zone 4abcf593-157b-46bb-8209-0f8f7f5a7e8e (openstack-store)
-   current time 2024-04-18T13:15:16Z
-zonegroup features enabled: resharding
-                   disabled: compress-encrypted
-  metadata sync no sync (zone is master)
-      data sync source: 362d9d90-1151-41a0-80aa-e8aa6d036730 (openstack-store-backup)
-                        full sync: 0/128 shards
-                        incremental sync: 128/128 shards
-                        data is behind on 1 shards
-                        behind shards: [71]
-                        oldest incremental change not applied: 2024-04-18T13:09:04.446175+0000 [71]`,
-			inputResources: map[string]runtime.Object{
-				"cephobjectzones": &cephv1.CephObjectZoneList{
-					Items: []cephv1.CephObjectZone{*unitinputs.RgwMultisiteMasterZone1.DeepCopy()},
-				},
-			},
-			expectedStatus: &lcmv1alpha1.MultisiteState{
-				MetadataSyncState: lcmv1alpha1.MultiSiteSyncing,
-				DataSyncState:     lcmv1alpha1.MultiSiteOutOfSync,
-				MasterZone:        true,
-			},
-			expectedIssues: emptyIssues,
-		},
-		{
-			name:      "secondary zone - sync is ok",
-			cmdOutput: unitinputs.RadosgwAdminSecondarySyncStatusOk,
-			expectedStatus: &lcmv1alpha1.MultisiteState{
-				MetadataSyncState: lcmv1alpha1.MultiSiteSyncing,
-				DataSyncState:     lcmv1alpha1.MultiSiteSyncing,
-			},
-			inputResources: map[string]runtime.Object{
-				"cephobjectzones": &cephv1.CephObjectZoneList{
-					Items: []cephv1.CephObjectZone{*unitinputs.RgwMultisiteSecondaryZone1.DeepCopy()},
-				},
-			},
-			expectedIssues: emptyIssues,
-		},
-		{
-			name: "secondary zone - metadata and data are behind",
-			cmdOutput: `
+			name:          "zone sync metadata and data are behind",
+			multisiteOpts: baseMultisiteOpts,
+			cmdsOutput: map[string]string{
+				"radosgw-admin sync status --rgw-realm=realm1 --rgw-zonegroup=zonegroup1 --rgw-zone=zone1": `
 zonegroup f54f9b22-b4b6-4a0e-9211-fa6ac1693f49 (us)
      zone adce11c9-b8ed-4a90-8bc5-3fc029ff0816 (us-2)
     metadata sync syncing
@@ -926,21 +834,21 @@ data sync source: 341c2d81-4574-4d08-ab0f-5a2a7b168028 (us-1)
                   full sync: 0/128 shards
                   incremental sync: 128/128 shards
                   data is caught up with source`,
-			inputResources: map[string]runtime.Object{
-				"cephobjectzones": &cephv1.CephObjectZoneList{
-					Items: []cephv1.CephObjectZone{*unitinputs.RgwMultisiteSecondaryZone1.DeepCopy()},
+			},
+			expectedStatus: map[string]lcmv1alpha1.MultisiteState{
+				"zone1": {
+					MetadataSyncState: lcmv1alpha1.MultiSiteOutOfSync,
+					DataSyncState:     lcmv1alpha1.MultiSiteOutOfSync,
+					Messages:          []string{"metadata is behind master zone", "data is behind master zone"},
 				},
 			},
-			expectedStatus: &lcmv1alpha1.MultisiteState{
-				MetadataSyncState: lcmv1alpha1.MultiSiteOutOfSync,
-				DataSyncState:     lcmv1alpha1.MultiSiteOutOfSync,
-				Messages:          []string{"metadata is behind master zone", "data is behind master zone"},
-			},
-			expectedIssues: []string{"metadata is behind master zone", "data is behind master zone"},
+			expectedIssues: []string{"sync failed for zone 'zone1'"},
 		},
 		{
-			name: "secondary zone - failed to get metadata and data sync info",
-			cmdOutput: `
+			name:          "zone failed to get metadata and data sync info",
+			multisiteOpts: baseMultisiteOpts,
+			cmdsOutput: map[string]string{
+				"radosgw-admin sync status --rgw-realm=realm1 --rgw-zonegroup=zonegroup1 --rgw-zone=zone1": `
           realm a46a61a7-46c0-41dd-8f62-9f989b9de803 (openstack-store)
       zonegroup 5c6c92c1-632c-4db0-8aa9-8dcbea5d87ec (openstack-store)
            zone 362d9d90-1151-41a0-80aa-e8aa6d036730 (openstack-store-backup)
@@ -954,21 +862,21 @@ zonegroup features enabled: resharding
 2024-04-18T13:12:53.957+0000 7fbd8c6ba880  0 ERROR: failed to fetch datalog info
       data sync source: 4abcf593-157b-46bb-8209-0f8f7f5a7e8e (openstack-store)
                         failed to retrieve sync info: (5) Input/output error`,
-			inputResources: map[string]runtime.Object{
-				"cephobjectzones": &cephv1.CephObjectZoneList{
-					Items: []cephv1.CephObjectZone{*unitinputs.RgwMultisiteSecondaryZone1.DeepCopy()},
+			},
+			expectedStatus: map[string]lcmv1alpha1.MultisiteState{
+				"zone1": {
+					MetadataSyncState: lcmv1alpha1.MultiSiteFailed,
+					DataSyncState:     lcmv1alpha1.MultiSiteFailed,
+					Messages:          []string{"failed to fetch metadata info", "failed to fetch data info"},
 				},
 			},
-			expectedStatus: &lcmv1alpha1.MultisiteState{
-				MetadataSyncState: lcmv1alpha1.MultiSiteFailed,
-				DataSyncState:     lcmv1alpha1.MultiSiteFailed,
-				Messages:          []string{"failed to fetch metadata info", "failed to fetch data info"},
-			},
-			expectedIssues: []string{"failed to fetch metadata info", "failed to fetch data info"},
+			expectedIssues: []string{"sync failed for zone 'zone1'"},
 		},
 		{
-			name: "secondary zone - no data sync info",
-			cmdOutput: `
+			name:          "zone no data sync info",
+			multisiteOpts: baseMultisiteOpts,
+			cmdsOutput: map[string]string{
+				"radosgw-admin sync status --rgw-realm=realm1 --rgw-zonegroup=zonegroup1 --rgw-zone=zone1": `
           realm a46a61a7-46c0-41dd-8f62-9f989b9de803 (openstack-store)
       zonegroup 5c6c92c1-632c-4db0-8aa9-8dcbea5d87ec (openstack-store)
            zone 362d9d90-1151-41a0-80aa-e8aa6d036730 (openstack-store-backup)
@@ -979,21 +887,21 @@ zonegroup features enabled: resharding
                 full sync: 0/64 shards
                 incremental sync: 64/64 shards
                 metadata is caught up with master`,
-			inputResources: map[string]runtime.Object{
-				"cephobjectzones": &cephv1.CephObjectZoneList{
-					Items: []cephv1.CephObjectZone{*unitinputs.RgwMultisiteSecondaryZone1.DeepCopy()},
+			},
+			expectedStatus: map[string]lcmv1alpha1.MultisiteState{
+				"zone1": {
+					MetadataSyncState: lcmv1alpha1.MultiSiteSyncing,
+					DataSyncState:     lcmv1alpha1.MultiSiteFailed,
+					Messages:          []string{"data sync info is not present"},
 				},
 			},
-			expectedStatus: &lcmv1alpha1.MultisiteState{
-				MetadataSyncState: lcmv1alpha1.MultiSiteSyncing,
-				DataSyncState:     lcmv1alpha1.MultiSiteFailed,
-				Messages:          []string{"data sync info is not present"},
-			},
-			expectedIssues: []string{"data sync info is not present"},
+			expectedIssues: []string{"sync failed for zone 'zone1'"},
 		},
 		{
-			name: "secondary zone - unknown metadata and data sync state",
-			cmdOutput: `
+			name:          "zone unknown metadata and data sync state",
+			multisiteOpts: baseMultisiteOpts,
+			cmdsOutput: map[string]string{
+				"radosgw-admin sync status --rgw-realm=realm1 --rgw-zonegroup=zonegroup1 --rgw-zone=zone1": `
           realm a46a61a7-46c0-41dd-8f62-9f989b9de803 (openstack-store)
       zonegroup 5c6c92c1-632c-4db0-8aa9-8dcbea5d87ec (openstack-store)
            zone 362d9d90-1151-41a0-80aa-e8aa6d036730 (openstack-store-backup)
@@ -1003,34 +911,108 @@ zonegroup features enabled: resharding
     metadata sync syncing
                 full sync: 0/64 shards
       data sync source: 4abcf593-157b-46bb-8209-0f8f7f5a7e8e (openstack-store)`,
-			inputResources: map[string]runtime.Object{
-				"cephobjectzones": &cephv1.CephObjectZoneList{
-					Items: []cephv1.CephObjectZone{*unitinputs.RgwMultisiteSecondaryZone1.DeepCopy()},
+			},
+			expectedStatus: map[string]lcmv1alpha1.MultisiteState{
+				"zone1": {
+					MetadataSyncState: lcmv1alpha1.MultiSiteFailed,
+					DataSyncState:     lcmv1alpha1.MultiSiteFailed,
+					Messages:          []string{"metadata sync failed", "data sync failed"},
 				},
 			},
-			expectedStatus: &lcmv1alpha1.MultisiteState{
-				MetadataSyncState: lcmv1alpha1.MultiSiteFailed,
-				DataSyncState:     lcmv1alpha1.MultiSiteFailed,
-				Messages:          []string{"unknown metadata sync state", "unknown data sync state"},
+			expectedIssues: []string{"sync failed for zone 'zone1'"},
+		},
+		{
+			name: "zone sync is ok",
+			cmdsOutput: map[string]string{
+				"radosgw-admin sync status --rgw-realm=realm1 --rgw-zonegroup=zonegroup1 --rgw-zone=zone1": unitinputs.RadosgwAdminSecondarySyncStatusOk,
 			},
-			expectedIssues: []string{"unknown metadata sync state", "unknown data sync state"},
+			multisiteOpts:  baseMultisiteOpts,
+			expectedStatus: unitinputs.CephMultisiteStateOk,
+			expectedIssues: emptyIssues,
+		},
+		{
+			name: "multiple zones sync failed to check for some zone",
+			cmdsOutput: map[string]string{
+				"radosgw-admin sync status --rgw-realm=realm1 --rgw-zonegroup=zonegroup1 --rgw-zone=zone1": unitinputs.RadosgwAdminSecondarySyncStatusOk,
+			},
+			multisiteOpts: multisiteOpts{
+				realms:     map[string]bool{"realm1": true, "realm2": true},
+				zones:      map[string]string{"zone1": "zonegroup1", "zone2": "zonegroup2"},
+				zonegroups: map[string]string{"zonegroup1": "realm1", "zonegroup2": "realm2"},
+			},
+			expectedStatus: unitinputs.CephMultisiteStateOk,
+			expectedIssues: []string{"failed to run 'radosgw-admin sync status --rgw-realm=realm2 --rgw-zonegroup=zonegroup2 --rgw-zone=zone2' command to check multisite status for zone 'zone2'"},
+		},
+		{
+			name: "multiple zones sync is not ok for some zone",
+			cmdsOutput: map[string]string{
+				"radosgw-admin sync status --rgw-realm=realm1 --rgw-zonegroup=zonegroup1 --rgw-zone=zone1": unitinputs.RadosgwAdminSecondarySyncStatusOk,
+				"radosgw-admin sync status --rgw-realm=realm2 --rgw-zonegroup=zonegroup2 --rgw-zone=zone2": `
+          realm a46a61a7-46c0-41dd-8f62-9f989b9de803 (realm2)
+      zonegroup 5c6c92c1-632c-4db0-8aa9-8dcbea5d87ec (zonegroup2)
+           zone 362d9d90-1151-41a0-80aa-e8aa6d036730 (zone2)
+   current time 2024-04-18T13:09:11Z
+zonegroup features enabled: resharding
+                   disabled: compress-encrypted
+  metadata sync syncing
+                full sync: 0/64 shards
+                incremental sync: 64/64 shards
+                metadata is caught up with master
+      data sync source: 4abcf593-157b-46bb-8209-0f8f7f5a7e8e (openstack-store)
+                        failed to retrieve sync info: (5) Input/output error`,
+			},
+			multisiteOpts: multisiteOpts{
+				realms:     map[string]bool{"realm1": true, "realm2": true},
+				zones:      map[string]string{"zone1": "zonegroup1", "zone2": "zonegroup2"},
+				zonegroups: map[string]string{"zonegroup1": "realm1", "zonegroup2": "realm2"},
+			},
+			expectedStatus: map[string]lcmv1alpha1.MultisiteState{
+				"zone1": {
+					MetadataSyncState: lcmv1alpha1.MultiSiteSyncing,
+					DataSyncState:     lcmv1alpha1.MultiSiteSyncing,
+				},
+				"zone2": {
+					MetadataSyncState: lcmv1alpha1.MultiSiteSyncing,
+					DataSyncState:     lcmv1alpha1.MultiSiteFailed,
+					Messages:          []string{"data sync failed"},
+				},
+			},
+			expectedIssues: []string{"sync failed for zone 'zone2'"},
+		},
+		{
+			name: "multiple zones sync is ok",
+			cmdsOutput: map[string]string{
+				"radosgw-admin sync status --rgw-realm=realm1 --rgw-zonegroup=zonegroup1 --rgw-zone=zone1": unitinputs.RadosgwAdminSecondarySyncStatusOk,
+				"radosgw-admin sync status --rgw-realm=realm2 --rgw-zonegroup=zonegroup2 --rgw-zone=zone2": unitinputs.RadosgwAdminSecondarySyncStatusOk,
+			},
+			multisiteOpts: multisiteOpts{
+				realms:     map[string]bool{"realm1": true, "realm2": true},
+				zones:      map[string]string{"zone1": "zonegroup1", "zone2": "zonegroup2"},
+				zonegroups: map[string]string{"zonegroup1": "realm1", "zonegroup2": "realm2"},
+			},
+			expectedStatus: map[string]lcmv1alpha1.MultisiteState{
+				"zone1": {
+					MetadataSyncState: lcmv1alpha1.MultiSiteSyncing,
+					DataSyncState:     lcmv1alpha1.MultiSiteSyncing,
+				},
+				"zone2": {
+					MetadataSyncState: lcmv1alpha1.MultiSiteSyncing,
+					DataSyncState:     lcmv1alpha1.MultiSiteSyncing,
+				},
+			},
+			expectedIssues: emptyIssues,
 		},
 	}
 	oldCmdFunc := lcmcommon.RunPodCommand
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			c := fakeCephReconcileConfig(nil, nil)
-			c.healthConfig.multisiteOpts = multisiteOpts{
-				zone:      "zone1",
-				zonegroup: "zonegroup1",
-			}
+			c.healthConfig.multisiteOpts = test.multisiteOpts
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "list", []string{"pods"}, map[string]runtime.Object{"pods": unitinputs.ToolBoxPodList}, nil)
-			faketestclients.FakeReaction(c.api.Rookclientset, "list", []string{"cephobjectzones"}, test.inputResources, nil)
+
 			lcmcommon.RunPodCommand = func(e lcmcommon.ExecConfig) (string, string, error) {
-				if strings.HasPrefix(e.Command, "radosgw-admin sync status") {
-					if test.cmdOutput != "" {
-						return test.cmdOutput, "", nil
-					}
+				if output, ok := test.cmdsOutput[e.Command]; ok {
+					return output, "", nil
 				}
 				return "", "", errors.Errorf("command failed")
 			}

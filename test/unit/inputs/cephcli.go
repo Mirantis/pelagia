@@ -506,21 +506,6 @@ var CephCrushRuleDumpTmpl = `[
     }
 ]`
 
-var RadosgwAdminMasterSyncStatusOk = `
-          realm a46a61a7-46c0-41dd-8f62-9f989b9de803 (rgw-store)
-      zonegroup 5c6c92c1-632c-4db0-8aa9-8dcbea5d87ec (rgw-store)
-           zone 362d9d90-1151-41a0-80aa-e8aa6d036730 (rgw-store)
-      current time 2024-04-18T13:08:34Z
-      zonegroup features enabled: resharding
-                   disabled: compress-encrypted
-      metadata sync no sync (zone is master)
-      data sync source: 4abcf593-157b-46bb-8209-0f8f7f5a7e8e (rgw-store-backup)
-                        syncing
-                        full sync: 0/128 shards
-                        incremental sync: 128/128 shards
-                        data is caught up with source
-`
-
 var RadosgwAdminSecondarySyncStatusOk = `
           realm a46a61a7-46c0-41dd-8f62-9f989b9de803 (rgw-store)
       zonegroup 5c6c92c1-632c-4db0-8aa9-8dcbea5d87ec (rgw-store)
