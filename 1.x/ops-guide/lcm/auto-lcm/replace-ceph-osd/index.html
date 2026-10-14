@@ -3449,7 +3449,7 @@ which node the replacement occurred.</p>
 <p class="admonition-title">Warning</p>
 <p>A Ceph OSD removal using <code>by-path</code>, <code>by-id</code>, or device name is
 not supported if a device was physically removed from a node. Therefore, use
-<code>cleanupByOsdId</code> instead.</p>
+<code>cleanupByOsd</code> instead.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -3495,9 +3495,9 @@ device, refer to official <a href="https://github.com/rook/rook/blob/master/Docu
 <span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">&lt;nodeName&gt;</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">cleanupByDevice</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceName&gt;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceName&gt;</span>
 <span class="w">        </span><span class="c1"># If a device is specified with by-path or by-id instead of</span>
-<span class="w">        </span><span class="c1"># name, path: &lt;deviceByPath&gt; or &lt;deviceById&gt;.</span>
+<span class="w">        </span><span class="c1"># name, device: &lt;deviceByPath&gt; or &lt;deviceById&gt;.</span>
 </code></pre></div></p>
 </li>
 <li>
@@ -3640,7 +3640,7 @@ device, refer to official <a href="https://github.com/rook/rook/blob/master/Docu
 <span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">&lt;nodeName&gt;</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">cleanupByOsdId</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cleanupByOsd</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;osdId&gt;</span>
 </code></pre></div></p>
 </li>
