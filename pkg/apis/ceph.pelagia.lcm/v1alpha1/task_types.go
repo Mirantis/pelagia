@@ -70,7 +70,7 @@ type NodeCleanUpSpec struct {
 	// +optional
 	// +kubebuilder:validation:MinItems:=1
 	CleanupByDevice []DeviceCleanupSpec `json:"cleanupByDevice,omitempty"`
-	// CleanupByOsdID is a list of osd's id, placed on node to cleanup
+	// CleanupByOsd is a list of osd's id, placed on node to cleanup
 	// +optional
 	// +kubebuilder:validation:MinItems:=1
 	CleanupByOsd []OsdCleanupSpec `json:"cleanupByOsd,omitempty"`

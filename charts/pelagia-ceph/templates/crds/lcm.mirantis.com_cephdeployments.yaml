@@ -483,9 +483,10 @@ spec:
                       type: object
                       x-kubernetes-preserve-unknown-fields: true
                     roles:
+                      default: '[]'
                       description: |-
                         Roles is a list of control daemons to spawn on the defined node: Ceph Monitor,
-                        Ceph Manager and/or Ceph RadosGW daemons. Possible values are: mon, mgr, rgw
+                        Ceph Manager and/or Ceph RadosGW daemons. Possible values are: mon, mgr, rgw, mds
                       items:
                         type: string
                       type: array
@@ -708,8 +709,6 @@ spec:
                             type: object
                         type: object
                       type: array
-                  required:
-                  - roles
                   type: object
                 type: array
               objectStorage:

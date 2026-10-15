@@ -97,8 +97,8 @@ spec:
                       minItems: 1
                       type: array
                     cleanupByOsd:
-                      description: CleanupByOsdID is a list of osd's id, placed on
-                        node to cleanup
+                      description: CleanupByOsd is a list of osd's id, placed on node
+                        to cleanup
                       items:
                         properties:
                           id:
@@ -200,7 +200,7 @@ spec:
                             minItems: 1
                             type: array
                           cleanupByOsd:
-                            description: CleanupByOsdID is a list of osd's id, placed
+                            description: CleanupByOsd is a list of osd's id, placed
                               on node to cleanup
                             items:
                               properties:
