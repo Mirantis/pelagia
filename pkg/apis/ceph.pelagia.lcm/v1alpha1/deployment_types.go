@@ -180,8 +180,10 @@ type RotateOsClients struct {
 type CephDeploymentNode struct {
 	cephv1.Node `json:",inline"`
 	// Roles is a list of control daemons to spawn on the defined node: Ceph Monitor,
-	// Ceph Manager and/or Ceph RadosGW daemons. Possible values are: mon, mgr, rgw
-	Roles []string `json:"roles"`
+	// Ceph Manager and/or Ceph RadosGW daemons. Possible values are: mon, mgr, rgw, mds
+	// +kubebuilder:default=[]
+	// +optional
+	Roles []string `json:"roles,omitempty"`
 	// Crush represents ceph crush topology rules to apply on
 	// the defined node
 	Crush map[string]string `json:"crush,omitempty"`
