@@ -123,7 +123,7 @@ For all supported parameters of Ceph Object Storage users, refer to
    ```
 
 2. Wait for the removed user to be removed from the `CephDeploymentHealth`
-   status in `status.healthReport.rookCephObjects.objectStorageStatus.cephObjectStoreUsers`:
+   status in `status.healthReport.rookCephObjects.objectStorage.cephObjectStoreUsers`:
    ```bash
    kubectl -n pelagia get cephdeploymenthealth -o yaml
    ```

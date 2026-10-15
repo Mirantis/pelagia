@@ -31,7 +31,7 @@ configuration values:
    flags through the `pelagia-ceph-toolbox` pod before editing Ceph tolerations
    and resources:
    ```bash
-   kubectl -n rook-ceph exec deploy/pelagia-ceph-toolbox -- bash
+   kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- bash
    ceph osd set noout
    ceph osd set nobackfill
    ceph osd set norebalance
@@ -226,7 +226,6 @@ configuration values:
    through the `pelagia-ceph-toolbox` pod:
    ```bash
    kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- bash
-   ceph osd unset
    ceph osd unset noout
    ceph osd unset nobackfill
    ceph osd unset norebalance

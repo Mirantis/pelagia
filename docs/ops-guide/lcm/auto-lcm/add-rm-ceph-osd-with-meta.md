@@ -102,7 +102,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
        roles:
        - mon
        - mgr
-       storageDevices:
+       devices:
        - config:
            deviceClass: hdd
          fullPath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
@@ -129,7 +129,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
             - device: sdc
       ```
 
-        {% include "../../../snippets/rawDeviceCleanup.md" %}
+        {% include-markdown "../../../snippets/cleanupByDeviceValue.md" comments=false %}
 
         !!! note
 
@@ -176,24 +176,24 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
                "10":
                  deviceMapping:
                    sdb:
-                     path: "/dev/disk/by-path/pci-0000:00:1t.9"
-                     partition: "/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb"
-                     type: "block"
-                     class: "hdd"
-                     zapDisk: true
+                     devicePath: "/dev/disk/by-path/pci-0000:00:1t.9"
+                     osdPartition: "/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb"
+                     osdPartitionType: "block"
+                     rotational: true
+                     deviceCleanup: true
                "5":
                  deviceMapping:
                    /dev/sdc:
-                     deviceClass: hdd
                      devicePath: /dev/disk/by-path/pci-0000:00:0f.0
-                     devicePurpose: block
-                     usedPartition: /dev/ceph-2d11bf90-e5be-4655-820c-fb4bdf7dda63/osd-block-e41ce9a8-4925-4d52-aae4-e45167cfcf5c
-                     zapDisk: true
+                     osdPartition: /dev/ceph-2d11bf90-e5be-4655-820c-fb4bdf7dda63/osd-block-e41ce9a8-4925-4d52-aae4-e45167cfcf5c
+                     osdPartitionType: block
+                     rotational: true
+                     deviceCleanup: true
                    /dev/sdf:
-                     deviceClass: hdd
                      devicePath: /dev/disk/by-path/pci-0000:00:12.0
-                     devicePurpose: db
-                     usedPartition: /dev/bluedb/meta_1
+                     osdPartition: /dev/bluedb/meta_1
+                     osdPartitionType: db
+                     rotational: true
      ```
 
 7. Verify that the `cleanupMap` section matches the required removal and

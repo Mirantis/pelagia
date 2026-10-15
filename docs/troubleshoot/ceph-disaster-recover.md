@@ -160,7 +160,7 @@ Consider the common state of a failed or removed Ceph cluster:
         `mgr` are running, all Ceph OSDs are down, and all PGs are in the
         `Unknown` state.
         ```bash
-        kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph -s
+        kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- ceph -s
         ```
 
         Rook should not start any Ceph OSD daemon because all devices

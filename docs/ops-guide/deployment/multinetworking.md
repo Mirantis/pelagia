@@ -34,7 +34,7 @@ requirements:
 
 1. Open `CephDeployment` CR for editing:
       ```bash
-      kubectl -n pelagia get cephpdl
+      kubectl -n pelagia edit cephdpl
       ```
 
 2. In the `clusterNet` and/or `publicNet` parameters of the `network` section, define a comma-separated array of CIDRs.

@@ -127,7 +127,7 @@ with the following CephFS parameters:
    values with desired port numbers:
 
      ```bash
-     helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version 1.0.0 -n pelagia \
+     helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version ${PELAGIA_VERSION} -n pelagia \
           --set rookConfig.csiCephFsGPCMetricsPort=<desiredPort>,rookConfig.csiCephFsLivenessMetricsPort=<desiredPort>
      ```
 
@@ -166,11 +166,11 @@ with the following CephFS parameters:
    ```yaml
    spec:
      nodes:
+     ...
+     - name: worker-1
+       roles:
        ...
-       worker-1:
-         roles:
-         ...
-         - mds
+       - mds
    ```
 
 Once CephFS is specified in the `CephDeployment` CR, Pelagia Deployment Controller will validate it and

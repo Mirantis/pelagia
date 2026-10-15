@@ -115,7 +115,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
              - device: sdb
        ```
 
-        {% include "../../../snippets/rawDeviceCleanup.md" %}
+        {% include-markdown "../../../snippets/cleanupByDeviceValue.md" comments=false %}
 
         !!! note
 
@@ -161,11 +161,11 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
                "2":
                  deviceMapping:
                    sdb:
-                     path: "/dev/disk/by-path/pci-0000:00:1t.9"
-                     partition: "/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb"
-                     type: "block"
-                     class: "hdd"
-                     zapDisk: true
+                     devicePath: "/dev/disk/by-path/pci-0000:00:1t.9"
+                     osdPartition: "/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb"
+                     osdPartitionType: "block"
+                     rotational: true
+                     deviceCleanup: true
      ```
 
 7. Verify that the `cleanupMap` section matches the required removal and

@@ -29,13 +29,13 @@ available in the Ceph cluster.
 
      --- POOLS ---
      POOL                   ID  PGS  STORED  OBJECTS  USED    %USED  MAX AVAIL
-     device_health_metrics   1    1     0 B        0     0 B      0     30 GiB
+     .mgr                    1    1     0 B        0     0 B      0     30 GiB
      kubernetes-hdd          2   32  12 GiB    3.13k  23 GiB  20.57     45 GiB
      ```
 
 2. Identify the number of Ceph OSDs with the required device class:
    ```bash
-   kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- ceph osd df <deviceClass>
+   kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- ceph osd df class <deviceClass>
    ```
 
      Substitute `<deviceClass>` with the required device class: `hdd`, `ssd`, or `nvme`.
@@ -65,7 +65,7 @@ available in the Ceph cluster.
 
 6. Verify that the new Ceph has been OSD added to the list of device class OSDs:
    ```bash
-   kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- ceph osd df <deviceClass>
+   kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- ceph osd df class <deviceClass>
    ```
 
      Substitute `<deviceClass>` with the required device class: `hdd`, `ssd`, or `nvme`
@@ -96,6 +96,6 @@ available in the Ceph cluster.
 
      --- POOLS ---
      POOL                   ID  PGS  STORED  OBJECTS  USED    %USED  MAX AVAIL
-     device_health_metrics   1    1     0 B        0     0 B      0     38 GiB
+     .mgr                    1    1     0 B        0     0 B      0     38 GiB
      kubernetes-hdd          2   32  12 GiB    3.18k  24 GiB  17.17     57 GiB
      ```

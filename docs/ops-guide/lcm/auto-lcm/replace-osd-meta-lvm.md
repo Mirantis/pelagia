@@ -92,7 +92,7 @@ You can apply the below procedure in the following cases:
    apiVersion: lcm.mirantis.com/v1alpha1
    kind: CephOsdRemoveTask
    metadata:
-     name: replace-failed-osd-<nodeName>-<deviceName>
+     name: replace-failed-osd-<nodeName>-<osdID>
      namespace: pelagia
    spec:
      nodes:
@@ -132,16 +132,16 @@ You can apply the below procedure in the following cases:
              "<osdID>":
                deviceMapping:
                  <dataDevice>:
-                   deviceClass: hdd
                    devicePath: <dataDeviceByPath>
-                   devicePurpose: block
-                   usedPartition: /dev/ceph-d2d3a759-2c22-4304-b890-a2d87e056bd4/osd-block-ef516477-d2da-492f-8169-a3ebfc3417e2
-                   zapDisk: true
+                   osdPartition: /dev/ceph-d2d3a759-2c22-4304-b890-a2d87e056bd4/osd-block-ef516477-d2da-492f-8169-a3ebfc3417e2
+                   osdPartitionType: block
+                   rotational: true
+                   deviceCleanup: true
                  <metadataDevice>:
-                   deviceClass: hdd
                    devicePath: <metadataDeviceByPath>
-                   devicePurpose: db
-                   usedPartition: /dev/bluedb/meta_1
+                   osdPartition: /dev/bluedb/meta_1
+                   osdPartitionType: db
+                   rotational: true
                uuid: ef516477-d2da-492f-8169-a3ebfc3417e2
      ```
 

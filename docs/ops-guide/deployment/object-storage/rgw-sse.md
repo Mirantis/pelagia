@@ -12,7 +12,7 @@ keywords: pelagia, rgw server-side encryption, ceph rgw sse, object storage encr
 
 !!! note
 
-    Pelagia supports Ceph Object Storage storage-side encryption for the clusters
+    Pelagia supports Ceph Object Storage server-side encryption for the clusters
     with Rockoon installed because Pelagia uses OpenStack Barbican KMS. Other KMS types
     are not supported yet.
 

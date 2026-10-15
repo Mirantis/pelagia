@@ -132,7 +132,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
          completeCleanup: true
    ```
 
-4. Apply the template on the Rockoon cluster:
+4. Apply the template:
    ```bash
    kubectl apply -f remove-osd-worker-5.yaml
    ```
@@ -158,19 +158,19 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
                "10":
                  deviceMapping:
                    sdb:
-                     path: "/dev/disk/by-path/pci-0000:00:1t.9"
-                     partition: "/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb"
-                     type: "block"
-                     class: "hdd"
-                     zapDisk: true
+                     devicePath: "/dev/disk/by-path/pci-0000:00:1t.9"
+                     osdPartition: "/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb"
+                     osdPartitionType: "block"
+                     rotational: true
+                     deviceCleanup: true
                "16":
                  deviceMapping:
                    sdc:
-                     path: "/dev/disk/by-path/pci-0000:00:1t.10"
-                     partition: "/dev/ceph-b-vg_sdb/osd-block-b-lv_sdc"
-                     type: "block"
-                     class: "hdd"
-                     zapDisk: true
+                     devicePath: "/dev/disk/by-path/pci-0000:00:1t.10"
+                     osdPartition: "/dev/ceph-b-vg_sdb/osd-block-b-lv_sdc"
+                     osdPartitionType: "block"
+                     rotational: true
+                     deviceCleanup: true
      ```
 
 7. Verify that the `cleanupMap` section matches the required removal and wait

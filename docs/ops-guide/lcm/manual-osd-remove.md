@@ -1,7 +1,7 @@
 ---
 description: How to manually remove one or multiple Ceph OSDs from a Ceph cluster.
 keywords: pelagia, remove ceph osd, manual osd removal, ceph osd, remove osd,
-  ceph osd deletion, kaascephcluster, ceph-tools
+  ceph osd deletion, pelagia-ceph-toolbox
 ---
 
 <a id="manual-osd-remove-remove-ceph-osd-manually"></a>
@@ -40,7 +40,7 @@ following procedure for each Ceph OSD one by one.
 3. Verify that all Ceph OSDs are `up` and `in`, the Ceph cluster is
    healthy, and no rebalance or recovery is in progress:
    ```bash
-   kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph -s
+   kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- ceph -s
    ```
 
      Example of system response:
