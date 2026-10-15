@@ -68,7 +68,7 @@ resources:
       user_data: |
         #!/bin/sh
         echo "nameserver 8.8.8.8" >> /etc/resolv.conf
-        echo "deb https://download.ceph.com/debian-pacific/ bionic main" > /etc/apt/sources.list.d/ceph.list
+        echo "deb https://download.ceph.com/debian-tentacle/ $(. /etc/os-release && echo $VERSION_CODENAME) main" | tee /etc/apt/sources.list.d/ceph.list
         wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
         apt update -y; apt install -y ceph-fuse
   floating_ip1:
@@ -101,7 +101,7 @@ resources:
       user_data: |
         #!/bin/sh
         echo "nameserver 8.8.8.8" >> /etc/resolv.conf
-        echo "deb https://download.ceph.com/debian-pacific/ bionic main" > /etc/apt/sources.list.d/ceph.list
+        echo "deb https://download.ceph.com/debian-tentacle/ $(. /etc/os-release && echo $VERSION_CODENAME) main" | tee /etc/apt/sources.list.d/ceph.list
         wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
         apt update -y; apt install -y ceph-fuse
   floating_ip2:
