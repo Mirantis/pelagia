@@ -35,28 +35,28 @@ To remove the affected Ceph OSD with a metadata device as a device name, follow 
 
     In the example above, save the `metadataDevice` device name `/dev/nvme0n1`.
 
-- During `CephOsdRemoveTask` CR verification of `removeInfo`, capture the `usedPartition` value
+- During `CephOsdRemoveTask` CR verification of `removeInfo`, capture the `osdPartition` value
   of the metadata device located in the `deviceMapping.<metadataDevice>` section.
 
     Example of the `removeInfo` section:
     ```yaml
     removeInfo:
-      cleanUpMap:
+      cleanupMap:
         <nodeName>:
           osdMapping:
             "<osdID>":
               deviceMapping:
                 <dataDevice>:
-                  deviceClass: hdd
                   devicePath: <dataDeviceByPath>
-                  devicePurpose: block
-                  usedPartition: /dev/ceph-d2d3a759-2c22-4304-b890-a2d87e056bd4/osd-block-ef516477-d2da-492f-8169-a3ebfc3417e2
-                  zapDisk: true
+                  osdPartition: /dev/ceph-d2d3a759-2c22-4304-b890-a2d87e056bd4/osd-block-ef516477-d2da-492f-8169-a3ebfc3417e2
+                  osdPartitionType: block
+                  rotational: true
+                  deviceCleanup: true
                 <metadataDevice>:
-                  deviceClass: hdd
                   devicePath: <metadataDeviceByPath>
-                  devicePurpose: db
-                  usedPartition: /dev/ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9/osd-db-ecf64b20-1e07-42ac-a8ee-32ba3c0b7e2f
+                  osdPartition: /dev/ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9/osd-db-ecf64b20-1e07-42ac-a8ee-32ba3c0b7e2f
+                  osdPartitionType: db
+                  rotational: true
               uuid: ef516477-d2da-492f-8169-a3ebfc3417e2
     ```
 
@@ -137,5 +137,5 @@ When you run `lvcreate`, account for shared space on the metadata disk and for a
    of the `CephDeploymentHealth` CR or in the `pelagia-ceph-toolbox` pod:
    ```bash
    kubectl -n pelagia get cephdeploymenthealth -o yaml
-   kubectl -n rook-ceph exec -it deploy/pelagia-cephtoolbox -- ceph -s
+   kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- ceph -s
    ```

@@ -27,7 +27,7 @@ The workflow of creating a Ceph OSD removal task includes the following steps:
 
      Once the validation or auto-detection completes, the entire information about the Ceph OSDs to remove appears
      in the `CephOsdRemoveTask` object: hosts they belong to, OSD IDs, disks, partitions, and so on. The
-     request then moves to the `ApproveWaiting` phase until the cloud operator manually specifies the `approve`
+     request then switches to the `ApproveWaiting` phase until the cloud operator manually specifies the `approve`
      flag in the spec.
 
     ??? "Example of the `CephOsdRemoveTask` custom resource"
@@ -60,6 +60,8 @@ The workflow of creating a Ceph OSD removal task includes the following steps:
    Rook Ceph Operator reconciliation pause until the task is handled and execute the following:
 
       - Stops regular Rook Ceph Operator orchestration. Also, Pelagia Deployment Controller pauses its reconcile.
+        The task remains in the `WaitingOperator` phase until Rook Ceph Operator is scaled down
+        and then switches to the `Processing` phase.
       - Removes Ceph OSDs.
       - Runs batch jobs to clean up the device, if possible.
       - Removes host information from the Ceph cluster if the entire Ceph node is removed.
@@ -72,7 +74,9 @@ The workflow of creating a Ceph OSD removal task includes the following steps:
 
 4. Reviewing the Ceph OSD removal status. For details, see [Status fields](../../../custom-resources/cephosdremovetask.md#cephosdremovetask-status-fields).
 
-5. Manual removal of device cleanup jobs. Device cleanup jobs are not removed automatically and are kept in Pelagia namespace along with pods containing information about the executed actions. The jobs have the following labels:
+5. Manually removing device cleanup jobs. Device cleanup jobs are kept in Pelagia namespace along with pods containing
+   information about the executed actions until the `CephOsdRemoveTask` that created them is removed. The jobs are owned
+   by the task and are removed automatically together with it. The jobs have the following labels:
 
     ```yaml
     labels:
@@ -80,6 +84,7 @@ The workflow of creating a Ceph OSD removal task includes the following steps:
       host: <HOST-NAME>
       osd: <OSD-ID>
       rook-cluster: <ROOK-CLUSTER-NAME>
+      task: <TASK-NAME>
     ```
 
     Additionally, jobs are labeled with disk names that will be cleaned up, such as `sdb=true`.
