@@ -4160,6 +4160,7 @@ or <code>nvme</code> disks.</p>
 <li><code>datacenter</code> - a physical data center that consists of rooms and
   handles data.</li>
 <li><code>room</code> - a room that accommodates one or more racks with hosts.</li>
+<li><code>pod</code> - a group of computing racks inside <code>room</code>.</li>
 <li><code>pdu</code> - a power distribution unit (PDU) device that has multiple
   outputs and distributes electric power to racks located within a
   data center.</li>
@@ -4179,6 +4180,7 @@ or <code>nvme</code> disks.</p>
 <span class="w">    </span><span class="nt">crush</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">datacenter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">dc1</span>
 <span class="w">      </span><span class="nt">room</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">room1</span>
+<span class="w">      </span><span class="nt">pod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pod1</span>
 <span class="w">      </span><span class="nt">pdu</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pdu1</span>
 <span class="w">      </span><span class="nt">row</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">row1</span>
 <span class="w">      </span><span class="nt">rack</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rack1</span>
@@ -4665,7 +4667,7 @@ of all Ceph daemons except Ceph OSD.</p>
 <p><a name="cephdeployment-status-fields"></a></p>
 <h2 id="status-fields">Status fields<a class="headerlink" href="#status-fields" title="Permanent link">#</a></h2>
 <ul>
-<li><code>phase</code> - Current handling phase of the applied Ceph cluster spec. Can equal to <code>Creating</code>, <code>Deploying</code>, <code>Validation</code>, <code>Ready</code>, <code>Deleting</code>, <code>OnHold</code> or <code>Failed</code>.</li>
+<li><code>phase</code> - Current handling phase of the applied Ceph cluster spec. Allowed values: <code>Creating</code>, <code>Deploying</code>, <code>Validation</code>, <code>Ready</code>, <code>Deleting</code>, <code>OnHold</code>, <code>Maintenance</code>, or <code>Failed</code>.</li>
 <li><code>message</code> - Detailed description of the current phase or an error message if the phase is <code>Failed</code>.</li>
 <li><code>lastRun</code> - <code>DateTime</code> of the previous spec reconciliation.</li>
 <li><code>clusterVersion</code> - Current Ceph cluster version, for example, <code>v19.2.3</code>.</li>
