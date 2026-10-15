@@ -383,6 +383,7 @@ advanced configuration.
     - ``datacenter`` - a physical data center that consists of rooms and
       handles data.
     - ``room`` - a room that accommodates one or more racks with hosts.
+    - ``pod`` - a group of computing racks inside ``room``.
     - ``pdu`` - a power distribution unit (PDU) device that has multiple
       outputs and distributes electric power to racks located within a
       data center.
@@ -404,6 +405,7 @@ advanced configuration.
         crush:
           datacenter: dc1
           room: room1
+          pod: pod1
           pdu: pdu1
           row: row1
           rack: rack1
@@ -859,7 +861,7 @@ The `csi` section applies only if CSI resources management is enabled in Helm va
 <a name="cephdeployment-status-fields"></a>
 ## Status fields
 
-- `phase` - Current handling phase of the applied Ceph cluster spec. Allowed values: `Creating`, `Deploying`, `Validation`, `Ready`, `Deleting`, `OnHold`, or `Failed`.
+- `phase` - Current handling phase of the applied Ceph cluster spec. Allowed values: `Creating`, `Deploying`, `Validation`, `Ready`, `Deleting`, `OnHold`, `Maintenance`, or `Failed`.
 - `message` - Detailed description of the current phase or an error message if the phase is `Failed`.
 - `lastRun` - `DateTime` of the previous spec reconciliation.
 - `clusterVersion` - Current Ceph cluster version, for example, `v19.2.3`.
