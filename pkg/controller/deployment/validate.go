@@ -493,8 +493,71 @@ func validateObjectStorageSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesLis
 						issues = append(issues, fmt.Sprintf("incorrect rgw '%s' configuration, specified zone '%s' is not found", rgw.Name, rgwCasted.Zone.Name))
 					}
 				} else {
-					issues = append(issues, validatePoolSpec(rgwCasted.MetadataPool, true, fmt.Sprintf("rgw '%s' metadata", rgw.Name), nodesListExpanded)...)
-					issues = append(issues, validatePoolSpec(rgwCasted.DataPool, false, fmt.Sprintf("rgw '%s' data", rgw.Name), nodesListExpanded)...)
+					findPoolInSpec := func(poolName string) bool {
+						if cephDpl.Spec.BlockStorage == nil {
+							return false
+						}
+						for _, pool := range cephDpl.Spec.BlockStorage.Pools {
+							if buildPoolName(pool) == poolName {
+								return true
+							}
+						}
+						return false
+					}
+
+					metaPoolSet := false
+					dataPoolSet := false
+					if len(rgwCasted.SharedPools.PoolPlacements) > 0 {
+						defaultSet := false
+						multipleDefaults := false
+						for _, placement := range rgwCasted.SharedPools.PoolPlacements {
+							if placement.MetadataPoolName == "" {
+								issues = append(issues, fmt.Sprintf("rgw '%s' placement '%s' metadata pool is not specified", rgw.Name, placement.Name))
+							} else if !findPoolInSpec(placement.MetadataPoolName) {
+								issues = append(issues, fmt.Sprintf("rgw '%s' placement '%s' metadata pool '%s' is not found in spec", rgw.Name, placement.Name, placement.MetadataPoolName))
+							}
+							if placement.DataPoolName == "" {
+								issues = append(issues, fmt.Sprintf("rgw '%s' placement '%s' data pool is not specified", rgw.Name, placement.Name))
+							} else if !findPoolInSpec(placement.DataPoolName) {
+								issues = append(issues, fmt.Sprintf("rgw '%s' placement '%s' data pool '%s' is not found in spec", rgw.Name, placement.Name, placement.DataPoolName))
+							}
+							if placement.DataNonECPoolName != "" && !findPoolInSpec(placement.DataNonECPoolName) {
+								issues = append(issues, fmt.Sprintf("rgw '%s' placement '%s' data nonEC pool '%s' is not found in spec", rgw.Name, placement.Name, placement.DataNonECPoolName))
+							}
+							if placement.Default {
+								if defaultSet {
+									multipleDefaults = true
+								}
+								defaultSet = true
+							}
+							for _, sc := range placement.StorageClasses {
+								if sc.DataPoolName == "" {
+									issues = append(issues, fmt.Sprintf("rgw '%s' placement '%s' storageclass '%s' data pool name is not provided", rgw.Name, placement.Name, sc.Name))
+								} else if !findPoolInSpec(sc.DataPoolName) {
+									issues = append(issues, fmt.Sprintf("rgw '%s' placement '%s' storage data pool '%s' is not found in spec", rgw.Name, placement.Name, sc.DataPoolName))
+								}
+							}
+						}
+						if multipleDefaults {
+							issues = append(issues, fmt.Sprintf("rgw '%s' placements pools have multiple default placement set", rgw.Name))
+						}
+						metaPoolSet = defaultSet
+						dataPoolSet = defaultSet
+					}
+					if rgwCasted.SharedPools.MetadataPoolName != "" {
+						if !findPoolInSpec(rgwCasted.SharedPools.MetadataPoolName) {
+							issues = append(issues, fmt.Sprintf("rgw '%s' sharedMetadata pool '%s' is not found in spec", rgw.Name, rgwCasted.SharedPools.MetadataPoolName))
+						}
+					} else if !metaPoolSet {
+						issues = append(issues, validatePoolSpec(rgwCasted.MetadataPool, true, fmt.Sprintf("rgw '%s' metadata", rgw.Name), nodesListExpanded)...)
+					}
+					if rgwCasted.SharedPools.DataPoolName != "" {
+						if !findPoolInSpec(rgwCasted.SharedPools.DataPoolName) {
+							issues = append(issues, fmt.Sprintf("rgw '%s' sharedData pool '%s' is not found in spec", rgw.Name, rgwCasted.SharedPools.DataPoolName))
+						}
+					} else if !dataPoolSet {
+						issues = append(issues, validatePoolSpec(rgwCasted.DataPool, false, fmt.Sprintf("rgw '%s' data", rgw.Name), nodesListExpanded)...)
+					}
 				}
 				if (rgwNodesCount > 0 && rgwCasted.Gateway.Instances > rgwNodesCount) ||
 					(rgwNodesCount == 0 && rgwCasted.Gateway.Instances > monNodesCount) {
