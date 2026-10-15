@@ -36,7 +36,7 @@ For reference, see [Rook documentation: Network Configuration Settings](https://
 
 1. Open `CephDeployment` CR for editing:
       ```bash
-      kubectl -n pelagia get cephpdl
+      kubectl -n pelagia edit cephdpl
       ```
 
 2. In the `cluster` and/or `public` parameters of the `cluster.network.addressRanges` section, define a comma-separated array of CIDRs.

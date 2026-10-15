@@ -49,7 +49,8 @@ To enable Ceph RBD monitoring, follow the procedure below and use the following
    ```
 
 3. In `CephDeployment` CRs of both Ceph clusters where you want to enable
-   mirroring, specify the `spec.blockStorage.pools.spec.mirroring.mode` parameter for all `pools`
+   mirroring, specify the `spec.blockStorage.pools.spec.mirroring.enabled` and
+   `spec.blockStorage.pools.spec.mirroring.mode` parameters for all `pools`
    that must be mirrored.
    ```yaml
    spec:
@@ -59,11 +60,13 @@ To enable Ceph RBD monitoring, follow the procedure below and use the following
          ...
          spec:
            mirroring:
+             enabled: true
              mode: pool
        - name: volumes-hdd
          ...
          spec:
            mirroring:
+             enabled: true
              mode: pool
    ```
 
