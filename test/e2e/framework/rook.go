@@ -17,6 +17,9 @@ limitations under the License.
 package framework
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/pkg/errors"
 	rookv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -44,6 +47,34 @@ func (c *ManagedConfig) GetCephClient(name string) (*rookv1.CephClient, error) {
 		return nil, errors.Wrapf(err, "failed to get CephClient %s/%s", c.LcmConfig.RookNamespace, name)
 	}
 	return cephclient, nil
+}
+
+func (c *ManagedConfig) GetCephClientByRole(role string) (*rookv1.CephClient, error) {
+	listOpts := metav1.ListOptions{
+		LabelSelector: fmt.Sprintf("cephdeployment.lcm.mirantis.com/client-role=%s", role),
+	}
+	cephclients, err := c.RookClientset.CephV1().CephClients(c.LcmConfig.RookNamespace).List(c.Context, listOpts)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to list CephClients in '%s' namespace", c.LcmConfig.RookNamespace)
+	}
+	rot := -1
+	tidx := -1
+	for idx, cephClient := range cephclients.Items {
+		if _, ok := cephClient.Labels["cephdeployment.lcm.mirantis.com/client-latest"]; ok {
+			return &cephClient, nil
+		}
+		if v, ok := cephClient.Labels["cephdeployment.lcm.mirantis.com/client-rotation"]; ok {
+			rotation, _ := strconv.Atoi(v)
+			if rotation > rot {
+				rot = rotation
+				tidx = idx
+			}
+		}
+	}
+	if tidx == -1 {
+		return nil, errors.Errorf("failed to find CephClient with role '%s'", role)
+	}
+	return &cephclients.Items[tidx], nil
 }
 
 func (c *ManagedConfig) ListCephObjectStore() ([]rookv1.CephObjectStore, error) {
