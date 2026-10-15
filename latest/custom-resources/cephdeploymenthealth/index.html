@@ -3819,19 +3819,20 @@ which Pelagia manages:</p>
 <li>
 <p><code>rookOperator</code> - State of the Rook Ceph Operator pod which contains the following fields:</p>
 <ul>
-<li><code>status</code> - contains short state of current Rook Ceph Operator pod;</li>
-<li><code>issues</code> - represents found Rook Operator issues, otherwise it is empty;</li>
+<li><code>status</code> - summary of the current Rook Ceph Operator pod state</li>
+<li><code>issues</code> - List of Rook Ceph Operator issues, otherwise empty</li>
+<li><code>info</code> - Human-readable additional information about the current Rook Ceph Operator pod state</li>
 </ul>
 </li>
 <li>
 <p><code>rookCephObjects</code> - General information from Rook about the Ceph cluster health and current
   state. Contains the following fields:</p>
 <ul>
-<li><code>cephCluster</code> - Contains Ceph cluster status information.</li>
-<li><code>blockStorage</code> - Contains status of block-storage related objects status information.</li>
-<li><code>cephClients</code> - Represents a key-value mapping of Ceph client's name and its status.</li>
-<li><code>objectStorage</code> - Contains status of object-storage related objects status information.</li>
-<li><code>sharedFilesystems</code> - Contains status of shared filesystems related objects status information.</li>
+<li><code>cephCluster</code> - Status of the Ceph cluster</li>
+<li><code>blockStorage</code> - Status of block-storage related objects</li>
+<li><code>cephClients</code> - Key-value mapping of the Ceph client name and its status</li>
+<li><code>objectStorage</code> - Status of object-storage related objects</li>
+<li><code>sharedFilesystem</code> - Status of shared filesystems related objects</li>
 </ul>
 <details>
 <summary>Example <code>rookCephObjects</code> status</summary>
@@ -3849,45 +3850,41 @@ which Pelagia manages:</p>
 <span class="w">        </span><span class="nt">version</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;ceph image used in ceph cluster&gt;</span>
 <span class="w">          </span><span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;ceph version of ceph cluster&gt;</span>
-<span class="w">    </span><span class="nt">blockStorage</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">cephBlockPools</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">&lt;cephBlockPoolName&gt;</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">blockStorage</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">cephBlockPools</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">&lt;cephBlockPoolName&gt;</span><span class="p">:</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph block pool resource phase&gt;</span>
+<span class="w">      </span><span class="nt">cephClients</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">&lt;cephClientName&gt;</span><span class="p">:</span>
 <span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph block pool resource phase&gt;</span>
-<span class="w">    </span><span class="nt">cephClients</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">&lt;cephClientName&gt;</span><span class="p">:</span>
-<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph client resource phase&gt;</span>
-<span class="w">    </span><span class="nt">objectStorage</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">cephObjectStore</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">&lt;cephObjectStoreName&gt;</span><span class="p">:</span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph object store resource phase&gt;</span>
-<span class="w">      </span><span class="nt">cephObjectStoreUsers</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">&lt;rgwUserName&gt;</span><span class="p">:</span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph object store user resource phase&gt;</span>
-<span class="w">      </span><span class="nt">objectBucketClaims</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">&lt;bucketName&gt;</span><span class="p">:</span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph object bucket claims resource phase&gt;</span>
-<span class="w">      </span><span class="nt">cephObjectRealms</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">&lt;realmName&gt;</span><span class="p">:</span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph object store realm resource phase&gt;</span>
-<span class="w">      </span><span class="nt">cephObjectZoneGroups</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">&lt;zonegroupName&gt;</span><span class="p">:</span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph object store zonegroup resource phase&gt;</span>
-<span class="w">      </span><span class="nt">cephObjectZones</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">&lt;zoneName&gt;</span><span class="p">:</span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph object store zone resource phase&gt;</span>
-<span class="w">    </span><span class="nt">sharedFilesystems</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">cephFilesystems</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">&lt;cephFSName&gt;</span><span class="p">:</span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph filesystem resource phase&gt;</span>
+<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph client resource phase&gt;</span>
+<span class="w">      </span><span class="nt">objectStorage</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">cephObjectStore</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">&lt;cephObjectStoreName&gt;</span><span class="p">:</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph object store resource phase&gt;</span>
+<span class="w">        </span><span class="nt">cephObjectStoreUsers</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">&lt;rgwUserName&gt;</span><span class="p">:</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph object store user resource phase&gt;</span>
+<span class="w">        </span><span class="nt">cephObjectRealms</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">&lt;realmName&gt;</span><span class="p">:</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph object store realm resource phase&gt;</span>
+<span class="w">        </span><span class="nt">cephObjectZoneGroups</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">&lt;zonegroupName&gt;</span><span class="p">:</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph object store zonegroup resource phase&gt;</span>
+<span class="w">        </span><span class="nt">cephObjectZones</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">&lt;zoneName&gt;</span><span class="p">:</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph object store zone resource phase&gt;</span>
+<span class="w">      </span><span class="nt">sharedFilesystem</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">cephFilesystems</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">&lt;cephFSName&gt;</span><span class="p">:</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">            </span><span class="l l-Scalar l-Scalar-Plain">phase</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;rook ceph filesystem resource phase&gt;</span>
 </code></pre></div>
 </details>
 </li>
@@ -3895,12 +3892,23 @@ which Pelagia manages:</p>
 <p><code>cephDaemons</code> - Contains information about the state of the Ceph and Ceph CSI daemons in the cluster.
   Includes the following fields:</p>
 <ul>
-<li><code>cephDaemons</code> - Map of statuses for each Ceph cluster daemon type. Indicates the
+<li>
+<p><code>cephDaemons</code> - Map of statuses for each Ceph cluster daemon type. Indicates the
   expected and actual number of Ceph daemons on the cluster. Available
-  daemon types are: <code>mgr</code>, <code>mon</code>, <code>osd</code>, and <code>rgw</code>.</li>
-<li><code>cephCSIDaemons</code> - Map of statuses in the same format as <code>cephDaemons</code>, for each
+  daemon types are: <code>mds</code>, <code>mgr</code>, <code>mon</code>, <code>osd</code>, and <code>rgw</code>.
+  Each daemon status entry contains the following fields:</p>
+<ul>
+<li><code>status</code> - Short state of the daemon type.</li>
+<li><code>issues</code> - List of issues found for the daemon type, otherwise empty.</li>
+<li><code>info</code> - Human-readable additional information about the current daemon state,
+  for example, the number of running daemons.</li>
+</ul>
+</li>
+<li>
+<p><code>cephCSIDaemons</code> - Map of statuses in the same format as <code>cephDaemons</code>, for each
   Ceph CSI application deployed in the Ceph cluster: the <code>rbd</code> and <code>cephfs</code>
-  provisioners, their plugins, and <code>ceph-csi-operator</code>.</li>
+  provisioners, their plugins, and <code>ceph-csi-operator</code>.</p>
+</li>
 </ul>
 <details>
 <summary>Example <code>cephDaemons</code> status</summary>
