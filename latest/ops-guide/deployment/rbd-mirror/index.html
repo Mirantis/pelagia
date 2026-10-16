@@ -3620,7 +3620,8 @@ access to all images. For details, see <a href="https://docs.ceph.com/en/latest/
 </li>
 <li>
 <p>In <code>CephDeployment</code> CRs of both Ceph clusters where you want to enable
-   mirroring, specify the <code>spec.blockStorage.pools.spec.mirroring.mode</code> parameter for all <code>pools</code>
+   mirroring, specify the <code>spec.blockStorage.pools.spec.mirroring.enabled</code> and
+   <code>spec.blockStorage.pools.spec.mirroring.mode</code> parameters for all <code>pools</code>
    that must be mirrored.
    <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">blockStorage</span><span class="p">:</span>
@@ -3629,11 +3630,13 @@ access to all images. For details, see <a href="https://docs.ceph.com/en/latest/
 <span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">mirroring</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">          </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pool</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">volumes-hdd</span>
 <span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">mirroring</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">          </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pool</span>
 </code></pre></div></p>
 </li>

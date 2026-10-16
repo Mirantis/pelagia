@@ -3620,7 +3620,8 @@ through Rockoon. When the option is enabled, Pelagia does not remove an
 existing secret upon <code>CephDeployment</code> deletion, so remove it manually
 if required.</p>
 </div>
-<p>If <code>CephDeployment</code> contains the <code>objectStorage</code> section and Ceph Object Storage is deployed, then Pelagia and Rockoon
+<p>If <code>CephDeployment</code> contains the <code>objectStorage</code> section, Ceph Object Storage is deployed, and the
+object store has <code>usedForOpenstack: true</code> set in <code>spec.objectStorage.objectStores</code>, then Pelagia and Rockoon
 enable Ceph RADOS Gateway integration with OpenStack Object Storage service (<code>swift</code>).</p>
 <div class="admonition info">
 <p class="admonition-title">See also</p>

@@ -3739,7 +3739,7 @@ instead of <code>a</code>, <code>b</code>, <code>c</code>.</p>
 </code></pre></div></p>
 </li>
 <li>
-<p>Apply the template on the Rockoon cluster:
+<p>Apply the template:
    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>remove-osd-worker-5.yaml
 </code></pre></div></p>
 </li>
@@ -3761,19 +3761,19 @@ instead of <code>a</code>, <code>b</code>, <code>c</code>.</p>
 <span class="w">          </span><span class="s">&quot;10&quot;</span><span class="p p-Indicator">:</span>
 <span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
 <span class="w">              </span><span class="nt">sdb</span><span class="p">:</span>
-<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:1t.9&quot;</span>
-<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb&quot;</span>
-<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
-<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
-<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">                </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:1t.9&quot;</span>
+<span class="w">                </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb&quot;</span>
+<span class="w">                </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">rotational</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">                </span><span class="nt">deviceCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">          </span><span class="s">&quot;16&quot;</span><span class="p p-Indicator">:</span>
 <span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
 <span class="w">              </span><span class="nt">sdc</span><span class="p">:</span>
-<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:1t.10&quot;</span>
-<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-b-vg_sdb/osd-block-b-lv_sdc&quot;</span>
-<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
-<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
-<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">                </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:1t.10&quot;</span>
+<span class="w">                </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-b-vg_sdb/osd-block-b-lv_sdc&quot;</span>
+<span class="w">                </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">rotational</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">                </span><span class="nt">deviceCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
 </li>
 <li>

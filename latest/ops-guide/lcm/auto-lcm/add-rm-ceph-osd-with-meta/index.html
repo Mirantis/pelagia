@@ -3723,7 +3723,7 @@ health warning that blocks Ceph OSD removal. Mirantis recommends setting
 <span class="w">  </span><span class="nt">roles</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mon</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgr</span>
-<span class="w">  </span><span class="nt">storageDevices</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">devices</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">config</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">    </span><span class="nt">fullPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS</span>
@@ -3750,12 +3750,12 @@ health warning that blocks Ceph OSD removal. Mirantis recommends setting
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sdb</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sdc</span>
 </code></pre></div></p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>You can spawn Ceph OSD on a raw device, but it must be clean and
-without any data or partitions. If you want to add a device that was in use,
-also ensure it is raw and clean. To clean up all data and partitions from a
-device, refer to official <a href="https://github.com/rook/rook/blob/master/Documentation/Storage-Configuration/ceph-teardown.md#zapping-devices">Rook documentation</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>We do not recommend setting device name or device <code>by-path</code> symlink in the <code>cleanupByDevice</code> field
+as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with <code>by-id</code>
+symlinks or use <code>cleanupByOsd</code> instead. For details, see
+<a href="../../../../architecture/addressing-ceph-devices/#addressing-ceph-devices-addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -3803,24 +3803,24 @@ device, refer to official <a href="https://github.com/rook/rook/blob/master/Docu
 <span class="w">          </span><span class="s">&quot;10&quot;</span><span class="p p-Indicator">:</span>
 <span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
 <span class="w">              </span><span class="nt">sdb</span><span class="p">:</span>
-<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:1t.9&quot;</span>
-<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb&quot;</span>
-<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
-<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
-<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">                </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:1t.9&quot;</span>
+<span class="w">                </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb&quot;</span>
+<span class="w">                </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">rotational</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">                </span><span class="nt">deviceCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">          </span><span class="s">&quot;5&quot;</span><span class="p p-Indicator">:</span>
 <span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
 <span class="w">              </span><span class="nt">/dev/sdc</span><span class="p">:</span>
-<span class="w">                </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">                </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/disk/by-path/pci-0000:00:0f.0</span>
-<span class="w">                </span><span class="nt">devicePurpose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">block</span>
-<span class="w">                </span><span class="nt">usedPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/ceph-2d11bf90-e5be-4655-820c-fb4bdf7dda63/osd-block-e41ce9a8-4925-4d52-aae4-e45167cfcf5c</span>
-<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">                </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/ceph-2d11bf90-e5be-4655-820c-fb4bdf7dda63/osd-block-e41ce9a8-4925-4d52-aae4-e45167cfcf5c</span>
+<span class="w">                </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">block</span>
+<span class="w">                </span><span class="nt">rotational</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">                </span><span class="nt">deviceCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">              </span><span class="nt">/dev/sdf</span><span class="p">:</span>
-<span class="w">                </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">                </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/disk/by-path/pci-0000:00:12.0</span>
-<span class="w">                </span><span class="nt">devicePurpose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db</span>
-<span class="w">                </span><span class="nt">usedPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/bluedb/meta_1</span>
+<span class="w">                </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/bluedb/meta_1</span>
+<span class="w">                </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db</span>
+<span class="w">                </span><span class="nt">rotational</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div></p>
 </li>
 <li>

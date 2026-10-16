@@ -3505,13 +3505,13 @@ TOTAL<span class="w">  </span><span class="m">128</span><span class="w"> </span>
 
 ---<span class="w"> </span>POOLS<span class="w"> </span>---
 POOL<span class="w">                   </span>ID<span class="w">  </span>PGS<span class="w">  </span>STORED<span class="w">  </span>OBJECTS<span class="w">  </span>USED<span class="w">    </span>%USED<span class="w">  </span>MAX<span class="w"> </span>AVAIL
-device_health_metrics<span class="w">   </span><span class="m">1</span><span class="w">    </span><span class="m">1</span><span class="w">     </span><span class="m">0</span><span class="w"> </span>B<span class="w">        </span><span class="m">0</span><span class="w">     </span><span class="m">0</span><span class="w"> </span>B<span class="w">      </span><span class="m">0</span><span class="w">     </span><span class="m">30</span><span class="w"> </span>GiB
+.mgr<span class="w">                    </span><span class="m">1</span><span class="w">    </span><span class="m">1</span><span class="w">     </span><span class="m">0</span><span class="w"> </span>B<span class="w">        </span><span class="m">0</span><span class="w">     </span><span class="m">0</span><span class="w"> </span>B<span class="w">      </span><span class="m">0</span><span class="w">     </span><span class="m">30</span><span class="w"> </span>GiB
 kubernetes-hdd<span class="w">          </span><span class="m">2</span><span class="w">   </span><span class="m">32</span><span class="w">  </span><span class="m">12</span><span class="w"> </span>GiB<span class="w">    </span><span class="m">3</span>.13k<span class="w">  </span><span class="m">23</span><span class="w"> </span>GiB<span class="w">  </span><span class="m">20</span>.57<span class="w">     </span><span class="m">45</span><span class="w"> </span>GiB
 </code></pre></div></p>
 </li>
 <li>
 <p>Identify the number of Ceph OSDs with the required device class:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>osd<span class="w"> </span>df<span class="w"> </span>&lt;deviceClass&gt;
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>osd<span class="w"> </span>df<span class="w"> </span>class<span class="w"> </span>&lt;deviceClass&gt;
 </code></pre></div></p>
 <p>Substitute <code>&lt;deviceClass&gt;</code> with the required device class: <code>hdd</code>, <code>ssd</code>, or <code>nvme</code>.</p>
 <p>Example of system response for the <code>hdd</code> device class:
@@ -3539,7 +3539,7 @@ MIN/MAX<span class="w"> </span>VAR:<span class="w"> </span><span class="m">0</sp
 </li>
 <li>
 <p>Verify that the new Ceph has been OSD added to the list of device class OSDs:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>osd<span class="w"> </span>df<span class="w"> </span>&lt;deviceClass&gt;
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>osd<span class="w"> </span>df<span class="w"> </span>class<span class="w"> </span>&lt;deviceClass&gt;
 </code></pre></div></p>
 <p>Substitute <code>&lt;deviceClass&gt;</code> with the required device class: <code>hdd</code>, <code>ssd</code>, or <code>nvme</code></p>
 <p>Example of system response for the <code>hdd</code> device class after adding a new Ceph OSD:
@@ -3565,7 +3565,7 @@ TOTAL<span class="w">  </span><span class="m">160</span><span class="w"> </span>
 
 ---<span class="w"> </span>POOLS<span class="w"> </span>---
 POOL<span class="w">                   </span>ID<span class="w">  </span>PGS<span class="w">  </span>STORED<span class="w">  </span>OBJECTS<span class="w">  </span>USED<span class="w">    </span>%USED<span class="w">  </span>MAX<span class="w"> </span>AVAIL
-device_health_metrics<span class="w">   </span><span class="m">1</span><span class="w">    </span><span class="m">1</span><span class="w">     </span><span class="m">0</span><span class="w"> </span>B<span class="w">        </span><span class="m">0</span><span class="w">     </span><span class="m">0</span><span class="w"> </span>B<span class="w">      </span><span class="m">0</span><span class="w">     </span><span class="m">38</span><span class="w"> </span>GiB
+.mgr<span class="w">                    </span><span class="m">1</span><span class="w">    </span><span class="m">1</span><span class="w">     </span><span class="m">0</span><span class="w"> </span>B<span class="w">        </span><span class="m">0</span><span class="w">     </span><span class="m">0</span><span class="w"> </span>B<span class="w">      </span><span class="m">0</span><span class="w">     </span><span class="m">38</span><span class="w"> </span>GiB
 kubernetes-hdd<span class="w">          </span><span class="m">2</span><span class="w">   </span><span class="m">32</span><span class="w">  </span><span class="m">12</span><span class="w"> </span>GiB<span class="w">    </span><span class="m">3</span>.18k<span class="w">  </span><span class="m">24</span><span class="w"> </span>GiB<span class="w">  </span><span class="m">17</span>.17<span class="w">     </span><span class="m">57</span><span class="w"> </span>GiB
 </code></pre></div></p>
 </li>

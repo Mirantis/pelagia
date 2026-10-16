@@ -3640,12 +3640,12 @@ which node the replacement occurred.</p>
 not supported if a device was physically removed from a node. Therefore, use
 <code>cleanupByOsd</code> instead.</p>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>You can spawn Ceph OSD on a raw device, but it must be clean and
-without any data or partitions. If you want to add a device that was in use,
-also ensure it is raw and clean. To clean up all data and partitions from a
-device, refer to official <a href="https://github.com/rook/rook/blob/master/Documentation/Storage-Configuration/ceph-teardown.md#zapping-devices">Rook documentation</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>We do not recommend setting device name or device <code>by-path</code> symlink in the <code>cleanupByDevice</code> field
+as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with <code>by-id</code>
+symlinks or use <code>cleanupByOsd</code> instead. For details, see
+<a href="../../../../architecture/addressing-ceph-devices/#addressing-ceph-devices-addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
 </div>
 <ol>
 <li>
@@ -3705,19 +3705,18 @@ device, refer to official <a href="https://github.com/rook/rook/blob/master/Docu
 </code></pre></div></p>
 <p>Example of system response:
  <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">osdRemoveStatus</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">removeInfo</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">cleanupMap</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">&lt;nodeName&gt;</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">osdMapping</span><span class="p">:</span>
-<span class="w">            </span><span class="nt">&lt;osdId&gt;</span><span class="p">:</span>
-<span class="w">              </span><span class="nt">deviceMapping</span><span class="p">:</span>
-<span class="w">                </span><span class="nt">&lt;dataDevice&gt;</span><span class="p">:</span>
-<span class="w">                  </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
-<span class="w">                  </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;dataDeviceByPath&gt;</span>
-<span class="w">                  </span><span class="nt">devicePurpose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">block</span>
-<span class="w">                  </span><span class="nt">usedPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/ceph-d2d3a759-2c22-4304-b890-a2d87e056bd4/osd-block-ef516477-d2da-492f-8169-a3ebfc3417e2</span>
-<span class="w">                  </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">&lt;nodeName&gt;</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">osdMapping</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">&lt;osdId&gt;</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">&lt;dataDevice&gt;</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;dataDeviceByPath&gt;</span>
+<span class="w">                </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/ceph-d2d3a759-2c22-4304-b890-a2d87e056bd4/osd-block-ef516477-d2da-492f-8169-a3ebfc3417e2</span>
+<span class="w">                </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">block</span>
+<span class="w">                </span><span class="nt">rotational</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">                </span><span class="nt">deviceCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div></p>
 <p>Definition of values in angle brackets:</p>
 <ul>
@@ -3845,23 +3844,22 @@ device, refer to official <a href="https://github.com/rook/rook/blob/master/Docu
 </li>
 <li>
 <p>Verify that the <code>removeInfo</code> section appeared in the <code>CephOsdRemoveTask</code> CR <code>status</code>:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephosdremovetask<span class="w"> </span>replace-failed-&lt;nodeName&gt;-osd-&lt;osdId&gt;-task<span class="w"> </span>-o<span class="w"> </span>yaml
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephosdremovetask<span class="w"> </span>replace-failed-&lt;nodeName&gt;-osd-&lt;osdId&gt;<span class="w"> </span>-o<span class="w"> </span>yaml
 </code></pre></div></p>
 <p>Example of system response
  <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">osdRemoveStatus</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">removeInfo</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">cleanupMap</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">&lt;nodeName&gt;</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">osdMapping</span><span class="p">:</span>
-<span class="w">            </span><span class="nt">&lt;osdId&gt;</span><span class="p">:</span>
-<span class="w">              </span><span class="nt">deviceMapping</span><span class="p">:</span>
-<span class="w">                </span><span class="nt">&lt;dataDevice&gt;</span><span class="p">:</span>
-<span class="w">                  </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
-<span class="w">                  </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;dataDeviceByPath&gt;</span>
-<span class="w">                  </span><span class="nt">devicePurpose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">block</span>
-<span class="w">                  </span><span class="nt">usedPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/ceph-d2d3a759-2c22-4304-b890-a2d87e056bd4/osd-block-ef516477-d2da-492f-8169-a3ebfc3417e2</span>
-<span class="w">                  </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">&lt;nodeName&gt;</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">osdMapping</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">&lt;osdId&gt;</span><span class="p">:</span>
+<span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">&lt;dataDevice&gt;</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;dataDeviceByPath&gt;</span>
+<span class="w">                </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/ceph-d2d3a759-2c22-4304-b890-a2d87e056bd4/osd-block-ef516477-d2da-492f-8169-a3ebfc3417e2</span>
+<span class="w">                </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">block</span>
+<span class="w">                </span><span class="nt">rotational</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">                </span><span class="nt">deviceCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div></p>
 <p>Definition of values in angle brackets:</p>
 <ul>
@@ -3878,7 +3876,7 @@ device, refer to official <a href="https://github.com/rook/rook/blob/master/Docu
 <li>
 <p>Verify that the <code>cleanupMap</code> section matches the required removal and wait
    for the <code>ApproveWaiting</code> phase to appear in <code>status</code>:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephosdremovetask<span class="w"> </span>replace-failed-&lt;nodeName&gt;-osd-&lt;osdId&gt;-task<span class="w"> </span>-o<span class="w"> </span>yaml
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephosdremovetask<span class="w"> </span>replace-failed-&lt;nodeName&gt;-osd-&lt;osdId&gt;<span class="w"> </span>-o<span class="w"> </span>yaml
 </code></pre></div></p>
 <p>Example of system response:
  <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
@@ -3887,7 +3885,7 @@ device, refer to official <a href="https://github.com/rook/rook/blob/master/Docu
 </li>
 <li>
 <p>Edit the <code>CephOsdRemoveTask</code> CR and set the <code>approve</code> flag to <code>true</code>:
-    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephosdremovetask<span class="w"> </span>replace-failed-&lt;nodeName&gt;-osd-&lt;osdId&gt;-request
+    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephosdremovetask<span class="w"> </span>replace-failed-&lt;nodeName&gt;-osd-&lt;osdId&gt;
 </code></pre></div></p>
 <p>For example:
   <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>

@@ -3708,7 +3708,7 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
 <p>Verify the Ceph state. The output must indicate that one <code>mon</code> and one
     <code>mgr</code> are running, all Ceph OSDs are down, and all PGs are in the
     <code>Unknown</code> state.
-    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/rook-ceph-tools<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>-s
+    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>-s
 </code></pre></div></p>
 <p>Rook should not start any Ceph OSD daemon because all devices
 belong to the old cluster that has a different <code>fsid</code>. To verify the
