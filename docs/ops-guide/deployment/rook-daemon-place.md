@@ -28,7 +28,7 @@ Use the following Pelagia Helm chart values to specify `rook-ceph-operator` plac
 
 Upgrade Pelagia Helm release with the desired placement values by setting them directly to release:
 ```bash
-helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version 1.0.0 -n pelagia \
+helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version ${PELAGIA_VERSION} -n pelagia \
   --set rookConfig.rookOperatorPlacement.affinity=<rookOperatorAffinity>,\
         rookConfig.rookOperatorPlacement.nodeSelector=<rookOperatorNodeSelector>,\
         rookConfig.rookOperatorPlacement.tolerations=<rookOperatorTolerations>
@@ -46,7 +46,7 @@ Use the following Pelagia Helm chart values to specify Ceph CSI pods placement:
 - `rookConfig.csiPlacement.nodeAffinity.csiprovisioner` is a valid Kubernetes label selector expression.
 - `rookConfig.csiPlacement.nodeAffinity.csiplugin` is a valid Kubernetes label selector expression. Default is
   `ceph-daemonset-available-node=true`.
-- `rookConfig.csiPlacement.csiplugin.tolerations` is a string which contains a valid list of Kubernetes `toleration`
+- `rookConfig.csiPlacement.tolerations.csiplugin` is a string which contains a valid list of Kubernetes `toleration`
   items. For example:
   ```yaml
   csiplugin: |
@@ -55,7 +55,7 @@ Use the following Pelagia Helm chart values to specify Ceph CSI pods placement:
       operator: Exists
   ```
 
-- `rookConfig.csiPlacement.csiprovisioner.tolerations` is a string which contains a valid list of Kubernetes
+- `rookConfig.csiPlacement.tolerations.csiprovisioner` is a string which contains a valid list of Kubernetes
   `toleration` items. For example:
   ```yaml
   csiprovisioner: |
@@ -66,7 +66,7 @@ Use the following Pelagia Helm chart values to specify Ceph CSI pods placement:
 
 Upgrade Pelagia Helm release with the desired placement values by setting them directly to release:
 ```bash
-helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version 1.0.0 -n pelagia \
+helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version ${PELAGIA_VERSION} -n pelagia \
   --set rookConfig.csiPlacement.nodeAffinity.csiprovisioner="<nodeAffinityLabelSelector>"
 ```
 
@@ -95,7 +95,7 @@ Use the following Pelagia Helm chart values to specify `rook-discover` placement
 
 Upgrade Pelagia Helm release with the desired placement values by setting them directly to release:
 ```bash
-helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version 1.0.0 -n pelagia \
+helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version ${PELAGIA_VERSION} -n pelagia \
   --set rookConfig.rookDiscoverPlacement.nodeAffinity="<nodeAffinityLabelSelector>"
 ```
 

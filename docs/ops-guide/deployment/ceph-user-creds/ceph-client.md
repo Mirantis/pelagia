@@ -112,7 +112,7 @@ For all supported parameters of Ceph clients, refer to [Clients parameters](../.
 
      * `/etc/ceph/ceph.conf`:
        ```bash
-       [default]
+       [global]
           mon_host = <mon1IP>:6789,<mon2IP>:6789,...,<monNIP>:6789
        ```
 

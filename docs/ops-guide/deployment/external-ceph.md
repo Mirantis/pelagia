@@ -42,7 +42,7 @@ To plan a shared Ceph cluster, select resources to share on the producer Ceph cl
 2. In `pools` section, identify the Ceph cluster pools assigned to RBD pools. To obtain full names of RBD pools:
 
      ```bash
-     kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph osd lspools
+     kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- ceph osd lspools
      ```
 
      Example of system response:
@@ -126,12 +126,11 @@ To verify the status of the created Ceph client, inspect the `status` section of
 
 ```yaml
 status:
-  fullClusterInfo:
-    blockStorageStatus:
-      clientsStatus:
+  healthReport:
+    rookCephObjects:
+      cephClients:
         non-admin-client:
-          present: true
-          status: Ready
+          phase: Ready
 ```
 
 ## Connect the producer to the consumer
@@ -173,7 +172,7 @@ status:
        network:
           clusterNet: <clusterNetCIDR>
           publicNet: <publicNetCIDR>
-       nodes: {}
+       nodes: []
      ```
 
      Specify the following values:

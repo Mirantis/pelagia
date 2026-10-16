@@ -68,24 +68,24 @@ other types of failure domains, migrate pools separately, and so on.
      ```yaml
      spec:
        nodes:
-         machine1:
-           crush:
-             rack: rack-1
-         machine2:
-           crush:
-             rack: rack-1
-         machine3:
-           crush:
-             rack: rack-2
-         machine4:
-           crush:
-             rack: rack-2
-         machine5:
-           crush:
-             rack: rack-3
-         machine6:
-           crush:
-             rack: rack-3
+       - name: machine1
+         crush:
+           rack: rack-1
+       - name: machine2
+         crush:
+           rack: rack-1
+       - name: machine3
+         crush:
+           rack: rack-2
+       - name: machine4
+         crush:
+           rack: rack-2
+       - name: machine5
+         crush:
+           rack: rack-3
+       - name: machine6
+         crush:
+           rack: rack-3
      ```
 
 2. Verify that the required buckets and bucket types are present in the Ceph hierarchy:

@@ -18,13 +18,13 @@ Consider the following exemplary placement scheme of Ceph Monitors in the
 ```yaml
 spec:
   nodes:
-    node-1:
-      roles:
-      - mon
-      - mgr
-    node-2:
-      roles:
-      - mgr
+  - name: node-1
+    roles:
+    - mon
+    - mgr
+  - name: node-2
+    roles:
+    - mgr
 ```
 
 Using the example above, if you want to move the Ceph Monitor from `node-1`
@@ -33,13 +33,13 @@ of the `nodes` spec must result as follows:
 ```yaml
 spec:
   nodes:
-    node-1:
-      roles:
-      - mgr
-    node-2:
-      roles:
-      - mgr
-      - mon
+  - name: node-1
+    roles:
+    - mgr
+  - name: node-2
+    roles:
+    - mgr
+    - mon
 ```
 
 However, due to the Rook limitation related to Kubernetes architecture, once

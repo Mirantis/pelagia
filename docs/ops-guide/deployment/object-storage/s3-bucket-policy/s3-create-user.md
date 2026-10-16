@@ -29,7 +29,7 @@ configure their S3 credentials.
      objectStorage:
        rgw:
          objectUsers:
-         - name: user-b
+         - name: user-a
            displayName: user-a
            capabilities:
              bucket: "*"

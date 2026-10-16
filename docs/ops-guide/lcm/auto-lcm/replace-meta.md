@@ -147,30 +147,30 @@ will be used as a new metadata device, and re-create all affected Ceph OSDs.
              "<osdID-1>":
                deviceMapping:
                  <dataDevice-1>:
-                   deviceClass: hdd
                    devicePath: <dataDeviceByPath-1>
-                   devicePurpose: block
-                   usedPartition: <dataLvPartition-1>
-                   zapDisk: true
+                   osdPartition: <dataLvPartition-1>
+                   osdPartitionType: block
+                   rotational: true
+                   deviceCleanup: true
                  <metadataDevice>:
-                   deviceClass: hdd
                    devicePath: <metadataDeviceByPath>
-                   devicePurpose: db
-                   usedPartition: /dev/ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9/osd-db-ecf64b20-1e07-42ac-a8ee-32ba3c0b7e2f
+                   osdPartition: /dev/ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9/osd-db-ecf64b20-1e07-42ac-a8ee-32ba3c0b7e2f
+                   osdPartitionType: db
+                   rotational: true
                uuid: ef516477-d2da-492f-8169-a3ebfc3417e2
              "<osdID-2>":
                deviceMapping:
                  <dataDevice-2>:
-                   deviceClass: hdd
                    devicePath: <dataDeviceByPath-2>
-                   devicePurpose: block
-                   usedPartition: <dataLvPartition-2>
-                   zapDisk: true
+                   osdPartition: <dataLvPartition-2>
+                   osdPartitionType: block
+                   rotational: true
+                   deviceCleanup: true
                  <metadataDevice>:
-                   deviceClass: hdd
                    devicePath: <metadataDeviceByPath>
-                   devicePurpose: db
-                   usedPartition: /dev/ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9/osd-db-ecf64b20-1e07-42ac-a8ee-32ba3c0b7e2f
+                   osdPartition: /dev/ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9/osd-db-ecf64b20-1e07-42ac-a8ee-32ba3c0b7e2f
+                   osdPartitionType: db
+                   rotational: true
                uuid: ef516477-d2da-492f-8169-a3ebfc3417e2
              ...
      ```

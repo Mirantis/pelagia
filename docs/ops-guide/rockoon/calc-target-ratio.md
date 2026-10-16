@@ -36,7 +36,7 @@ For details, see [Ceph Documentation: Autoscaling Placement Groups](https://docs
 
 1. Define the raw capacity of the entire storage by device class:
    ```bash
-   kubectl -n rook-ceph exec -it $(kubectl -n rook-ceph get pod -l "app=rook-ceph-tools" -o name) -- ceph df
+   kubectl -n rook-ceph exec -it $(kubectl -n rook-ceph get pod -l "app=pelagia-ceph-toolbox" -o name) -- ceph df
    ```
 
      For illustration purposes, the procedure below uses raw capacity of 185 TB
@@ -117,7 +117,7 @@ For details, see [Ceph Documentation: Autoscaling Placement Groups](https://docs
      than that in replicated pools. Indeed, `M` is equal to the number of
      OSDs that can be missing from the cluster without the cluster experiencing
      data loss. This means that planned data is stored with an efficiency
-     of `(K+M)/2` on the Ceph cluster. For example, if an erasure-coded data
+     of `(K+M)/K` on the Ceph cluster. For example, if an erasure-coded data
      pool with `K=2, M=2` planned capacity is 200 GB, then the total used
      capacity is `200*(2+2)/2`, which is 400 GB.
 
@@ -218,13 +218,13 @@ For details, see [Ceph Documentation: Autoscaling Placement Groups](https://docs
 
 8. Verify that all target ratios have been successfully applied to the Ceph cluster:
    ```bash
-   kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph osd pool autoscale-status
+   kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- ceph osd pool autoscale-status
    ```
 
      Example of system response:
      ```bash
      POOL                                SIZE  TARGET SIZE  RATE  RAW CAPACITY  RATIO   TARGET RATIO  EFFECTIVE RATIO  BIAS  PG_NUM  NEW PG_NUM  AUTOSCALE
-     device_health_metrics               0                  2.0   149.9G        0.0000                                 1.0   1                   on
+     .mgr                                0                  2.0   149.9G        0.0000                                 1.0   1                   on
      kubernetes-hdd                      2068               2.0   149.9G        0.0000  1.088         1.0885           1.0   32                  on
      volumes-hdd                         19                 2.0   149.9G        0.0000  16.259        16.2591          1.0   256                 on
      vms-hdd                             19                 2.0   149.9G        0.0000  0.266         0.2661           1.0   128                 on
