@@ -308,6 +308,9 @@ type CephStorageClassSpec struct {
 	// Default represents whether Ceph Pool's StorageClass would be default or not
 	// +optional
 	Default bool `json:"default,omitempty"`
+	// SkipClassCreate is whether to create related StorageClass or skip
+	// +optional
+	SkipCreate bool `json:"skipClassCreate,omitempty"`
 	// MapOptions is a comma-separated list of kernel RBD map options
 	// +nullable
 	MapOptions string `json:"mapOptions,omitempty"`

@@ -130,6 +130,10 @@ spec:
                                 Default is 'Delete' if not set.
                               nullable: true
                               type: string
+                            skipClassCreate:
+                              description: SkipClassCreate is whether to create related
+                                StorageClass or skip
+                              type: boolean
                             unmapOptions:
                               description: UnmapOptions is a comma-separated list
                                 of kernel RBD unmap options

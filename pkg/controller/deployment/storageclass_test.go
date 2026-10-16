@@ -437,6 +437,37 @@ func TestEnsureStorageClasses(t *testing.T) {
 			expectedError: "multiple errors during storageclasses ensure",
 		},
 		{
+			name: "ensure storage classes - skip storageclass create",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cephdpl := unitinputs.BaseCephDeployment.DeepCopy()
+				cephdpl.Spec.BlockStorage = &cephlcmv1alpha1.CephBlockStorage{
+					Pools: []cephlcmv1alpha1.CephPool{
+						{
+							Name: "custom-non-sc",
+							StorageClassOpts: cephlcmv1alpha1.CephStorageClassSpec{
+								SkipCreate: true,
+							},
+							PoolSpec: unitinputs.CephDeployNonMosk.Spec.BlockStorage.Pools[0].PoolSpec,
+						},
+					},
+				}
+				return cephdpl
+			}(),
+			inputResources: map[string]runtime.Object{
+				"storageclasses": &v1storage.StorageClassList{
+					Items: []v1storage.StorageClass{
+						*unitinputs.GetNamedStorageClass("custom-non-sc-hdd", false),
+					},
+				},
+				"persistentvolumes":      &unitinputs.PersistentVolumeListEmpty,
+				"persistentvolumeclaims": &unitinputs.PersistentVolumeClaimListEmpty,
+			},
+			changed: true,
+			expectedResources: map[string]runtime.Object{
+				"storageclasses": &unitinputs.StorageClassesListEmpty,
+			},
+		},
+		{
 			name:    "ensure storage classes - nothing to do",
 			cephDpl: &unitinputs.CephDeployNonMosk,
 			inputResources: map[string]runtime.Object{
