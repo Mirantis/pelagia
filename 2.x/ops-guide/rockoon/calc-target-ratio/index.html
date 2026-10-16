@@ -3546,7 +3546,7 @@ accordingly.</p>
 <ol>
 <li>
 <p>Define the raw capacity of the entire storage by device class:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-l<span class="w"> </span><span class="s2">&quot;app=rook-ceph-tools&quot;</span><span class="w"> </span>-o<span class="w"> </span>name<span class="k">)</span><span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>df
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-l<span class="w"> </span><span class="s2">&quot;app=pelagia-ceph-toolbox&quot;</span><span class="w"> </span>-o<span class="w"> </span>name<span class="k">)</span><span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>df
 </code></pre></div></p>
 <p>For illustration purposes, the procedure below uses raw capacity of 185 TB
  or 189440 GB.</p>
@@ -3626,7 +3626,7 @@ upper bounds for <code>dataPool</code>.</p>
  than that in replicated pools. Indeed, <code>M</code> is equal to the number of
  OSDs that can be missing from the cluster without the cluster experiencing
  data loss. This means that planned data is stored with an efficiency
- of <code>(K+M)/2</code> on the Ceph cluster. For example, if an erasure-coded data
+ of <code>(K+M)/K</code> on the Ceph cluster. For example, if an erasure-coded data
  pool with <code>K=2, M=2</code> planned capacity is 200 GB, then the total used
  capacity is <code>200*(2+2)/2</code>, which is 400 GB.</p>
 </li>
@@ -3734,11 +3734,11 @@ is calculated, also specify it:
 </li>
 <li>
 <p>Verify that all target ratios have been successfully applied to the Ceph cluster:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/rook-ceph-tools<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>osd<span class="w"> </span>pool<span class="w"> </span>autoscale-status
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>osd<span class="w"> </span>pool<span class="w"> </span>autoscale-status
 </code></pre></div></p>
 <p>Example of system response:
  <div class="highlight"><pre><span></span><code>POOL<span class="w">                                </span>SIZE<span class="w">  </span>TARGET<span class="w"> </span>SIZE<span class="w">  </span>RATE<span class="w">  </span>RAW<span class="w"> </span>CAPACITY<span class="w">  </span>RATIO<span class="w">   </span>TARGET<span class="w"> </span>RATIO<span class="w">  </span>EFFECTIVE<span class="w"> </span>RATIO<span class="w">  </span>BIAS<span class="w">  </span>PG_NUM<span class="w">  </span>NEW<span class="w"> </span>PG_NUM<span class="w">  </span>AUTOSCALE
-device_health_metrics<span class="w">               </span><span class="m">0</span><span class="w">                  </span><span class="m">2</span>.0<span class="w">   </span><span class="m">149</span>.9G<span class="w">        </span><span class="m">0</span>.0000<span class="w">                                 </span><span class="m">1</span>.0<span class="w">   </span><span class="m">1</span><span class="w">                   </span>on
+.mgr<span class="w">                                </span><span class="m">0</span><span class="w">                  </span><span class="m">2</span>.0<span class="w">   </span><span class="m">149</span>.9G<span class="w">        </span><span class="m">0</span>.0000<span class="w">                                 </span><span class="m">1</span>.0<span class="w">   </span><span class="m">1</span><span class="w">                   </span>on
 kubernetes-hdd<span class="w">                      </span><span class="m">2068</span><span class="w">               </span><span class="m">2</span>.0<span class="w">   </span><span class="m">149</span>.9G<span class="w">        </span><span class="m">0</span>.0000<span class="w">  </span><span class="m">1</span>.088<span class="w">         </span><span class="m">1</span>.0885<span class="w">           </span><span class="m">1</span>.0<span class="w">   </span><span class="m">32</span><span class="w">                  </span>on
 volumes-hdd<span class="w">                         </span><span class="m">19</span><span class="w">                 </span><span class="m">2</span>.0<span class="w">   </span><span class="m">149</span>.9G<span class="w">        </span><span class="m">0</span>.0000<span class="w">  </span><span class="m">16</span>.259<span class="w">        </span><span class="m">16</span>.2591<span class="w">          </span><span class="m">1</span>.0<span class="w">   </span><span class="m">256</span><span class="w">                 </span>on
 vms-hdd<span class="w">                             </span><span class="m">19</span><span class="w">                 </span><span class="m">2</span>.0<span class="w">   </span><span class="m">149</span>.9G<span class="w">        </span><span class="m">0</span>.0000<span class="w">  </span><span class="m">0</span>.266<span class="w">         </span><span class="m">0</span>.2661<span class="w">           </span><span class="m">1</span>.0<span class="w">   </span><span class="m">128</span><span class="w">                 </span>on

@@ -3570,22 +3570,29 @@
 <p>If you need to configure the placement of Rook daemons on nodes, you can set
 extra values to Pelagia Helm chart release.</p>
 <p>The procedures in this section describe how to specify the placement of
-<code>rook-ceph-operator</code>, <code>rook-discover</code>, and Ceph CSI pods such as <code>csi-rbdplugin</code>, <code>csi-cephfsplugin</code>,
-<code>csi-rbdplugin-provisioner</code> and <code>csi-cephfsplugin-provisioner</code>.</p>
+<code>rook-ceph-operator</code>, <code>rook-discover</code>, and Ceph CSI pods such as:</p>
+<ul>
+<li><code>&lt;rookNamespace&gt;.cephfs.csi.ceph.com-ctrlplugin</code></li>
+<li><code>&lt;rookNamespace&gt;.cephfs.csi.ceph.com-nodeplugin</code></li>
+<li><code>&lt;rookNamespace&gt;.rbd.csi.ceph.com-ctrlplugin</code></li>
+<li><code>&lt;rookNamespace&gt;.rbd.csi.ceph.com-nodeplugin</code></li>
+</ul>
+<p>Where <code>&lt;rookNamespace&gt;</code> is the Rook namespace. For example, in the default <code>rook-ceph</code>
+namespace, the CephFS CSI controller plugin is named <code>rook-ceph.cephfs.csi.ceph.com-ctrlplugin</code>.</p>
 <h2 id="specify-rook-ceph-operator-placement">Specify rook-ceph-operator placement<a class="headerlink" href="#specify-rook-ceph-operator-placement" title="Permanent link">#</a></h2>
 <p>Use the following Pelagia Helm chart values to specify <code>rook-ceph-operator</code> placement:</p>
 <ul>
-<li><code>rookConfig.rookOperatorPlacement.affinity</code> is a key-value mapping that contains
+<li><code>rook.rookConfig.rookOperatorPlacement.affinity</code> is a key-value mapping that contains
   a valid Kubernetes <code>affinity</code> specification.</li>
-<li><code>rookConfig.rookOperatorPlacement.nodeSelector</code> is a key-value mapping that contains
+<li><code>rook.rookConfig.rookOperatorPlacement.nodeSelector</code> is a key-value mapping that contains
   a valid Kubernetes <code>nodeSelector</code> specification.</li>
-<li><code>rookConfig.rookOperatorPlacement.tolerations</code> is a list that contains valid Kubernetes <code>toleration</code> items.</li>
+<li><code>rook.rookConfig.rookOperatorPlacement.tolerations</code> is a list that contains valid Kubernetes <code>toleration</code> items.</li>
 </ul>
 <p>Upgrade Pelagia Helm release with the desired placement values by setting them directly to release:
-<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.0.0<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--set<span class="w"> </span>rookConfig.rookOperatorPlacement.affinity<span class="o">=</span>&lt;rookOperatorAffinity&gt;,<span class="se">\</span>
-<span class="w">        </span>rookConfig.rookOperatorPlacement.nodeSelector<span class="o">=</span>&lt;rookOperatorNodeSelector&gt;,<span class="se">\</span>
-<span class="w">        </span>rookConfig.rookOperatorPlacement.tolerations<span class="o">=</span>&lt;rookOperatorTolerations&gt;
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="si">${</span><span class="nv">PELAGIA_VERSION</span><span class="si">}</span><span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>rook.rookConfig.rookOperatorPlacement.affinity<span class="o">=</span>&lt;rookOperatorAffinity&gt;,<span class="se">\</span>
+<span class="w">        </span>rook.rookConfig.rookOperatorPlacement.nodeSelector<span class="o">=</span>&lt;rookOperatorNodeSelector&gt;,<span class="se">\</span>
+<span class="w">        </span>rook.rookConfig.rookOperatorPlacement.tolerations<span class="o">=</span>&lt;rookOperatorTolerations&gt;
 </code></pre></div></p>
 <p>After upgrading Pelagia Helm release, wait for some time and verify that the changes have applied:
 <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>deploy<span class="w"> </span>rook-ceph-operator<span class="w"> </span>-o<span class="w"> </span>yaml
@@ -3593,12 +3600,13 @@ extra values to Pelagia Helm chart release.</p>
 <h2 id="specify-ceph-csi-pods-placement">Specify Ceph CSI pods placement<a class="headerlink" href="#specify-ceph-csi-pods-placement" title="Permanent link">#</a></h2>
 <p>Use the following Pelagia Helm chart values to specify Ceph CSI pods placement:</p>
 <ul>
-<li><code>rookConfig.csiPlacement.nodeAffinity.csiprovisioner</code> is a valid Kubernetes label selector expression.</li>
-<li><code>rookConfig.csiPlacement.nodeAffinity.csiplugin</code> is a valid Kubernetes label selector expression. Default is
-  <code>ceph-daemonset-available-node=true</code>.</li>
+<li><code>rook.rookConfig.csiPlacement.nodeAffinity.csiprovisioner</code> is a valid Kubernetes label selector expression
+  for the CSI controller plugin deployments.</li>
+<li><code>rook.rookConfig.csiPlacement.nodeAffinity.csiplugin</code> is a valid Kubernetes label selector expression for the
+  CSI node plugin DaemonSets. Default is <code>ceph-daemonset-available-node=true</code>.</li>
 <li>
-<p><code>rookConfig.csiPlacement.tolerations.csiplugin</code> is a string which contains a valid list of Kubernetes <code>toleration</code>
-  items. For example:
+<p><code>rook.rookConfig.csiPlacement.tolerations.csiplugin</code> is a string which contains a valid list of Kubernetes
+  <code>toleration</code> items for the CSI node plugin DaemonSets. For example:
   <div class="highlight"><pre><span></span><code><span class="nt">csiplugin</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">  </span><span class="no">- effect: NoSchedule</span>
 <span class="w">    </span><span class="no">key: node-role.kubernetes.io/controlplane</span>
@@ -3606,8 +3614,8 @@ extra values to Pelagia Helm chart release.</p>
 </code></pre></div></p>
 </li>
 <li>
-<p><code>rookConfig.csiPlacement.csiprovisioner.tolerations</code> is a string which contains a valid list of Kubernetes
-  <code>toleration</code> items. For example:
+<p><code>rook.rookConfig.csiPlacement.tolerations.csiprovisioner</code> is a string which contains a valid list of Kubernetes
+  <code>toleration</code> items for the CSI controller plugin deployments. For example:
   <div class="highlight"><pre><span></span><code><span class="nt">csiprovisioner</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">  </span><span class="no">- effect: NoSchedule</span>
 <span class="w">    </span><span class="no">key: node-role.kubernetes.io/controlplane</span>
@@ -3616,21 +3624,21 @@ extra values to Pelagia Helm chart release.</p>
 </li>
 </ul>
 <p>Upgrade Pelagia Helm release with the desired placement values by setting them directly to release:
-<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.0.0<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--set<span class="w"> </span>rookConfig.csiPlacement.nodeAffinity.csiprovisioner<span class="o">=</span><span class="s2">&quot;&lt;nodeAffinityLabelSelector&gt;&quot;</span>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="si">${</span><span class="nv">PELAGIA_VERSION</span><span class="si">}</span><span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>rook.rookConfig.csiPlacement.nodeAffinity.csiprovisioner<span class="o">=</span><span class="s2">&quot;&lt;nodeAffinityLabelSelector&gt;&quot;</span>
 </code></pre></div></p>
 <p>After upgrading Pelagia Helm release, wait for some time and verify that the changes have applied:
-<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>ds<span class="w"> </span>csi-rbdplugin<span class="w"> </span>-o<span class="w"> </span>yaml
-kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>ds<span class="w"> </span>csi-cephfsplugin<span class="w"> </span>-o<span class="w"> </span>yaml
-kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>deploy<span class="w"> </span>csi-rbdplugin-provisioner<span class="w"> </span>-o<span class="w"> </span>yaml
-kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>deploy<span class="w"> </span>csi-cephfsplugin-provisioner<span class="w"> </span>-o<span class="w"> </span>yaml
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;rookNamespace&gt;<span class="w"> </span>get<span class="w"> </span>ds<span class="w"> </span>&lt;rookNamespace&gt;.rbd.csi.ceph.com-nodeplugin<span class="w"> </span>-o<span class="w"> </span>yaml
+kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;rookNamespace&gt;<span class="w"> </span>get<span class="w"> </span>ds<span class="w"> </span>&lt;rookNamespace&gt;.cephfs.csi.ceph.com-nodeplugin<span class="w"> </span>-o<span class="w"> </span>yaml
+kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;rookNamespace&gt;<span class="w"> </span>get<span class="w"> </span>deploy<span class="w"> </span>&lt;rookNamespace&gt;.rbd.csi.ceph.com-ctrlplugin<span class="w"> </span>-o<span class="w"> </span>yaml
+kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;rookNamespace&gt;<span class="w"> </span>get<span class="w"> </span>deploy<span class="w"> </span>&lt;rookNamespace&gt;.cephfs.csi.ceph.com-ctrlplugin<span class="w"> </span>-o<span class="w"> </span>yaml
 </code></pre></div></p>
 <h2 id="specify-rook-discover-placement">Specify rook-discover placement<a class="headerlink" href="#specify-rook-discover-placement" title="Permanent link">#</a></h2>
 <p>Use the following Pelagia Helm chart values to specify <code>rook-discover</code> placement:</p>
 <ul>
-<li><code>rookConfig.rookDiscoverPlacement.nodeAffinity</code> is a valid Kubernetes label selector expression. Default is
+<li><code>rook.rookConfig.rookDiscoverPlacement.nodeAffinity</code> is a valid Kubernetes label selector expression. Default is
   <code>ceph-daemonset-available-node=true;ceph_role_osd=true</code>.</li>
-<li><code>rookConfig.rookDiscoverPlacement.tolerations</code> is a string which contains a valid list of Kubernetes <code>toleration</code>
+<li><code>rook.rookConfig.rookDiscoverPlacement.tolerations</code> is a string which contains a valid list of Kubernetes <code>toleration</code>
   items. For example:
   <div class="highlight"><pre><span></span><code><span class="nt">tolerations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">  </span><span class="no">- effect: NoSchedule</span>
@@ -3639,8 +3647,8 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
 </code></pre></div></li>
 </ul>
 <p>Upgrade Pelagia Helm release with the desired placement values by setting them directly to release:
-<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.0.0<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
-<span class="w">  </span>--set<span class="w"> </span>rookConfig.rookDiscoverPlacement.nodeAffinity<span class="o">=</span><span class="s2">&quot;&lt;nodeAffinityLabelSelector&gt;&quot;</span>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="si">${</span><span class="nv">PELAGIA_VERSION</span><span class="si">}</span><span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--set<span class="w"> </span>rook.rookConfig.rookDiscoverPlacement.nodeAffinity<span class="o">=</span><span class="s2">&quot;&lt;nodeAffinityLabelSelector&gt;&quot;</span>
 </code></pre></div></p>
 <p>After upgrading Pelagia Helm release, wait for some time and verify that the changes have applied:
 <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>ds<span class="w"> </span>rook-discover<span class="w"> </span>-o<span class="w"> </span>yaml

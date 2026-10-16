@@ -3570,9 +3570,12 @@ following default configuration options for each Ceph cluster:</p>
 
 <span class="k">[osd]</span>
 <span class="na">osd_class_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/usr/lib64/rados-classes</span>
+<span class="na">bdev_enable_discard</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+<span class="na">bdev_async_discard_threads</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
 </code></pre></div></li>
-<li>If <code>rookConfig</code> is empty but the <code>objectStore.rgw</code> section is defined, Pelagia
-  specifies the following Ceph RADOS Gateway default configuration options:
+<li>If the <code>spec.objectStorage.objectStores</code> section is defined, Pelagia
+  specifies the following Ceph RADOS Gateway default configuration options
+  for each object store, for example, <code>rgw-store</code>:
   <div class="highlight"><pre><span></span><code><span class="k">[client.rgw.rgw.store.a]</span>
 <span class="na">rgw_bucket_quota_ttl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30</span>
 <span class="na">rgw_data_log_backing</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">omap</span>
@@ -3587,32 +3590,51 @@ following default configuration options for each Ceph cluster:</p>
 </code></pre></div></li>
 </ul>
 <h2 id="rockoon-related-default-configuration-options">Rockoon-related default configuration options<a class="headerlink" href="#rockoon-related-default-configuration-options" title="Permanent link">#</a></h2>
-<p>If Pelagia is integrated with Rockoon and <code>objectStore.rgw</code> section is defined in the <code>CephDeployment</code> custom resource, Pelagia Deployment Controller specifies the OpenStack-related default configuration options for each Ceph cluster:</p>
+<p>If Pelagia is integrated with Rockoon, Pelagia Deployment Controller specifies the
+OpenStack-related default configuration options for a Ceph Object Storage instance
+only if both of the following conditions are met:</p>
+<ul>
+<li>The object store has <code>usedForOpenstack: true</code> in <code>spec.objectStorage.objectStores</code></li>
+<li>The <code>openstack-rgw-creds</code> secret provided by Rockoon exists in the OpenStack-Ceph
+  shared namespace (<code>openstack-ceph-shared</code> by default)</li>
+</ul>
+<p>These options are added on top of the general Ceph RADOS Gateway defaults above:</p>
 <ul>
 <li>Ceph Object Gateway options that you can override using the <code>rookConfig</code> parameter:
   <div class="highlight"><pre><span></span><code><span class="k">[client.rgw.rgw.store.a]</span>
-<span class="na">rgw swift account in url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
-<span class="na">rgw keystone accepted roles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;_member_, Member, member, swiftoperator&#39;</span>
-<span class="na">rgw keystone accepted admin roles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">admin</span>
-<span class="na">rgw keystone implicit tenants</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
-<span class="na">rgw swift versioning enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
-<span class="na">rgw enforce swift acls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
-<span class="na">rgw_max_attr_name_len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">64</span>
-<span class="na">rgw_max_attrs_num_in_req</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32</span>
-<span class="na">rgw_max_attr_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1024</span>
-<span class="na">rgw_bucket_quota_ttl</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">0</span>
-<span class="na">rgw_user_quota_bucket_sync_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30</span>
-<span class="na">rgw_user_quota_sync_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30</span>
-<span class="na">rgw s3 auth use keystone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+<span class="na">rgw_swift_account_in_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+<span class="na">rgw_keystone_accepted_roles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;_member_, Member, member, swiftoperator&#39;</span>
+<span class="na">rgw_keystone_accepted_admin_roles</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#39;admin, service&#39;</span>
+<span class="na">rgw_keystone_implicit_tenants</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+<span class="na">rgw_swift_versioning_enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+<span class="na">rgw_enforce_swift_acls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+<span class="na">rgw_s3_auth_use_keystone</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+<span class="na">rgw_enable_usage_log</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">true</span>
+<span class="na">rgw_usage_log_tick_interval</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">30</span>
+<span class="na">rgw_usage_log_flush_threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1024</span>
+<span class="na">rgw_usage_max_shards</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32</span>
+<span class="na">rgw_usage_max_user_shards</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
 </code></pre></div></li>
-<li>Additional parameters for the Keystone integration provided by Rockoon in shared secret:
-  <div class="highlight"><pre><span></span><code><span class="na">rgw keystone api version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3</span>
-<span class="na">rgw keystone url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneAuthURL&gt;</span>
-<span class="na">rgw keystone admin user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneUser&gt;</span>
-<span class="na">rgw keystone admin password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystonePassword&gt;</span>
-<span class="na">rgw keystone admin domain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneProjectDomain&gt;</span>
-<span class="na">rgw keystone admin project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneProjectName&gt;</span>
+<li>Parameters for the Keystone integration taken from the <code>openstack-rgw-creds</code> secret.
+  You cannot override <code>rgw_keystone_api_version</code>:
+  <div class="highlight"><pre><span></span><code><span class="na">rgw_keystone_api_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3</span>
+<span class="na">rgw_keystone_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneAuthURL&gt;</span>
+<span class="na">rgw_keystone_admin_user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneUser&gt;</span>
+<span class="na">rgw_keystone_admin_password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystonePassword&gt;</span>
+<span class="na">rgw_keystone_admin_domain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneProjectDomain&gt;</span>
+<span class="na">rgw_keystone_admin_project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneProjectName&gt;</span>
 </code></pre></div></li>
+<li>
+<p>If the secret contains <code>barbican_url</code>, parameters for the Barbican integration:
+  <div class="highlight"><pre><span></span><code><span class="na">rgw_crypt_s3_kms_backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">barbican</span>
+<span class="na">rgw_barbican_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;barbicanURL&gt;</span>
+<span class="na">rgw_keystone_barbican_user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneUser&gt;</span>
+<span class="na">rgw_keystone_barbican_password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystonePassword&gt;</span>
+<span class="na">rgw_keystone_barbican_domain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneProjectDomain&gt;</span>
+<span class="na">rgw_keystone_barbican_project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneProjectName&gt;</span>
+</code></pre></div></p>
+<p>You cannot override <code>rgw_crypt_s3_kms_backend</code>.</p>
+</li>
 </ul>
 <div class="admonition info">
 <p class="admonition-title">See also</p>

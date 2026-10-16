@@ -3617,13 +3617,13 @@ through the Ceph CLI. However, for any changes in <code>dataPools</code> or <cod
 <h2 id="configure-cephfs">Configure CephFS<a class="headerlink" href="#configure-cephfs" title="Permanent link">#</a></h2>
 <ol>
 <li>
-<p>Optional. Override the CSI CephFS gRPC and liveness metrics port. For example, if an application is already using
-   the default CephFS ports <code>9092</code> and <code>9082</code>, which may cause conflicts on the node. Upgrade Pelagia Helm release
-   values with desired port numbers:</p>
-<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.0.0<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
-<span class="w">     </span>--set<span class="w"> </span>rookConfig.csiCephFsGPCMetricsPort<span class="o">=</span>&lt;desiredPort&gt;,rookConfig.csiCephFsLivenessMetricsPort<span class="o">=</span>&lt;desiredPort&gt;
+<p>Optional. Verify that the CephFS CSI driver is enabled. Rook enables it when the
+   <code>rook.rookConfig.csiCephFsEnabled</code> Helm chart value is <code>true</code>, which is the default. If you have
+   disabled it, re-enable it by upgrading the Pelagia Helm release:</p>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="si">${</span><span class="nv">PELAGIA_VERSION</span><span class="si">}</span><span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
+<span class="w">     </span>--set<span class="w"> </span>rook.rookConfig.csiCephFsEnabled<span class="o">=</span><span class="nb">true</span>
 </code></pre></div>
-<p>Rook will enable the CephFS CSI plugin and provisioner.</p>
+<p>Rook will enable the CephFS CSI driver, which deploys the CephFS CSI node and controller plugins.</p>
 </li>
 <li>
 <p>Open the <code>CephDeployment</code> CR for editing:
@@ -3658,11 +3658,11 @@ through the Ceph CLI. However, for any changes in <code>dataPools</code> or <cod
    labeling only one node with the <code>mds</code> role. For example:
    <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
+<span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">...</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">worker-1</span>
+<span class="w">    </span><span class="nt">roles</span><span class="p">:</span>
 <span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">worker-1</span><span class="p p-Indicator">:</span>
-<span class="w">      </span><span class="nt">roles</span><span class="p">:</span>
-<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mds</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mds</span>
 </code></pre></div></p>
 </li>
 </ol>

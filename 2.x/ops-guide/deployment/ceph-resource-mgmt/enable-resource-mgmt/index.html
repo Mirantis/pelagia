@@ -3507,7 +3507,7 @@ configuration values:</p>
    set Ceph <code>noout</code>, <code>nobackfill</code>, <code>norebalance</code>, and <code>norecover</code>
    flags through the <code>pelagia-ceph-toolbox</code> pod before editing Ceph tolerations
    and resources:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>bash
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>bash
 ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">set</span><span class="w"> </span>noout
 ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">set</span><span class="w"> </span>nobackfill
 ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">set</span><span class="w"> </span>norebalance
@@ -3688,7 +3688,6 @@ ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">set</spa
 <p>After a successful Ceph reconfiguration, unset the flags set in step 1
     through the <code>pelagia-ceph-toolbox</code> pod:
     <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>bash
-ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">unset</span>
 ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">unset</span><span class="w"> </span>noout
 ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">unset</span><span class="w"> </span>nobackfill
 ceph<span class="w"> </span>osd<span class="w"> </span><span class="nb">unset</span><span class="w"> </span>norebalance

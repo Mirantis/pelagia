@@ -3607,7 +3607,7 @@ and do not modify it manually.</p>
     <div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>osd<span class="w"> </span>tree
 </code></pre></div></li>
 <li>Enter all Ceph OSD pods in the <code>rook-ceph</code> namespace one by one:
-    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>&lt;osd-pod-name&gt;<span class="w"> </span>bash
+    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>&lt;osd-pod-name&gt;<span class="w"> </span>--<span class="w"> </span>bash
 </code></pre></div></li>
 <li>Verify that the <code>ceph-volume</code> tool is available on all pods running on
     the target node:
@@ -3622,7 +3622,7 @@ and do not modify it manually.</p>
 <ol>
 <li>
 <p>Verify the available storage classes. The storage classes that are
-    automatically managed by Ceph Controller use the
+    automatically managed by Pelagia Deployment Controller use the
     <code>rook-ceph.rbd.csi.ceph.com</code> provisioner.
     <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>storageclass
 </code></pre></div></p>
@@ -3684,7 +3684,7 @@ Events:
     the <code>Running</code> status:</p>
 <ol>
 <li>Obtain the list of CSI provisioner plugins:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>csi-rbdplugin-provisioner
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>rook-ceph.rbd.csi.ceph.com-ctrlplugin
 </code></pre></div></li>
 <li>Verify the logs of the required CSI provisioner:
    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>logs<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>&lt;csi-provisioner-plugin-name&gt;<span class="w"> </span>csi-provisioner
