@@ -3559,30 +3559,30 @@ will be used as a new metadata device, and re-create all affected Ceph OSDs.</p>
 <span class="w">        </span><span class="s">&quot;&lt;osdID-1&gt;&quot;</span><span class="p p-Indicator">:</span>
 <span class="w">          </span><span class="nt">deviceMapping</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">&lt;dataDevice-1&gt;</span><span class="p">:</span>
-<span class="w">              </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">              </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;dataDeviceByPath-1&gt;</span>
-<span class="w">              </span><span class="nt">devicePurpose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">block</span>
-<span class="w">              </span><span class="nt">usedPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;dataLvPartition-1&gt;</span>
-<span class="w">              </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">              </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;dataLvPartition-1&gt;</span>
+<span class="w">              </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">block</span>
+<span class="w">              </span><span class="nt">rotational</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">              </span><span class="nt">deviceCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">            </span><span class="nt">&lt;metadataDevice&gt;</span><span class="p">:</span>
-<span class="w">              </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">              </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;metadataDeviceByPath&gt;</span>
-<span class="w">              </span><span class="nt">devicePurpose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db</span>
-<span class="w">              </span><span class="nt">usedPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9/osd-db-ecf64b20-1e07-42ac-a8ee-32ba3c0b7e2f</span>
+<span class="w">              </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9/osd-db-ecf64b20-1e07-42ac-a8ee-32ba3c0b7e2f</span>
+<span class="w">              </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db</span>
+<span class="w">              </span><span class="nt">rotational</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">          </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ef516477-d2da-492f-8169-a3ebfc3417e2</span>
 <span class="w">        </span><span class="s">&quot;&lt;osdID-2&gt;&quot;</span><span class="p p-Indicator">:</span>
 <span class="w">          </span><span class="nt">deviceMapping</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">&lt;dataDevice-2&gt;</span><span class="p">:</span>
-<span class="w">              </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">              </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;dataDeviceByPath-2&gt;</span>
-<span class="w">              </span><span class="nt">devicePurpose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">block</span>
-<span class="w">              </span><span class="nt">usedPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;dataLvPartition-2&gt;</span>
-<span class="w">              </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">              </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;dataLvPartition-2&gt;</span>
+<span class="w">              </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">block</span>
+<span class="w">              </span><span class="nt">rotational</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">              </span><span class="nt">deviceCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">            </span><span class="nt">&lt;metadataDevice&gt;</span><span class="p">:</span>
-<span class="w">              </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">              </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;metadataDeviceByPath&gt;</span>
-<span class="w">              </span><span class="nt">devicePurpose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db</span>
-<span class="w">              </span><span class="nt">usedPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9/osd-db-ecf64b20-1e07-42ac-a8ee-32ba3c0b7e2f</span>
+<span class="w">              </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9/osd-db-ecf64b20-1e07-42ac-a8ee-32ba3c0b7e2f</span>
+<span class="w">              </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db</span>
+<span class="w">              </span><span class="nt">rotational</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">          </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ef516477-d2da-492f-8169-a3ebfc3417e2</span>
 <span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div></p>

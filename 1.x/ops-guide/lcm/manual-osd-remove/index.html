@@ -3395,7 +3395,7 @@ following procedure for each Ceph OSD one by one.</p>
 <li>
 <p>Verify that all Ceph OSDs are <code>up</code> and <code>in</code>, the Ceph cluster is
    healthy, and no rebalance or recovery is in progress:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/rook-ceph-tools<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>-s
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>-s
 </code></pre></div></p>
 <p>Example of system response:
  <div class="highlight"><pre><span></span><code>cluster:

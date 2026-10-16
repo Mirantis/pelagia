@@ -3451,26 +3451,26 @@ automatically creates a required metadata logical volume on a desired device.</p
 <p>In the example above, save the <code>metadataDevice</code> device name <code>/dev/nvme0n1</code>.</p>
 </li>
 <li>
-<p>During <code>CephOsdRemoveTask</code> CR verification of <code>removeInfo</code>, capture the <code>usedPartition</code> value
+<p>During <code>CephOsdRemoveTask</code> CR verification of <code>removeInfo</code>, capture the <code>osdPartition</code> value
   of the metadata device located in the <code>deviceMapping.&lt;metadataDevice&gt;</code> section.</p>
 <p>Example of the <code>removeInfo</code> section:
 <div class="highlight"><pre><span></span><code><span class="nt">removeInfo</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">cleanUpMap</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cleanupMap</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">&lt;nodeName&gt;</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">osdMapping</span><span class="p">:</span>
 <span class="w">        </span><span class="s">&quot;&lt;osdID&gt;&quot;</span><span class="p p-Indicator">:</span>
 <span class="w">          </span><span class="nt">deviceMapping</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">&lt;dataDevice&gt;</span><span class="p">:</span>
-<span class="w">              </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">              </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;dataDeviceByPath&gt;</span>
-<span class="w">              </span><span class="nt">devicePurpose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">block</span>
-<span class="w">              </span><span class="nt">usedPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/ceph-d2d3a759-2c22-4304-b890-a2d87e056bd4/osd-block-ef516477-d2da-492f-8169-a3ebfc3417e2</span>
-<span class="w">              </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">              </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/ceph-d2d3a759-2c22-4304-b890-a2d87e056bd4/osd-block-ef516477-d2da-492f-8169-a3ebfc3417e2</span>
+<span class="w">              </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">block</span>
+<span class="w">              </span><span class="nt">rotational</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">              </span><span class="nt">deviceCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">            </span><span class="nt">&lt;metadataDevice&gt;</span><span class="p">:</span>
-<span class="w">              </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">              </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;metadataDeviceByPath&gt;</span>
-<span class="w">              </span><span class="nt">devicePurpose</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db</span>
-<span class="w">              </span><span class="nt">usedPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9/osd-db-ecf64b20-1e07-42ac-a8ee-32ba3c0b7e2f</span>
+<span class="w">              </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/ceph-b0c70c72-8570-4c9d-93e9-51c3ab4dd9f9/osd-db-ecf64b20-1e07-42ac-a8ee-32ba3c0b7e2f</span>
+<span class="w">              </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">db</span>
+<span class="w">              </span><span class="nt">rotational</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">          </span><span class="nt">uuid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ef516477-d2da-492f-8169-a3ebfc3417e2</span>
 </code></pre></div></p>
 <p>In the example above, capture the following values from the <code>&lt;metadataDevice&gt;</code> section:</p>
@@ -3556,7 +3556,7 @@ on a node or is <strong>hot-plugged</strong>, add the required device using the 
    You can monitor the application state using either the <code>status</code> section
    of the <code>CephDeploymentHealth</code> CR or in the <code>pelagia-ceph-toolbox</code> pod:
    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephdeploymenthealth<span class="w"> </span>-o<span class="w"> </span>yaml
-kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-cephtoolbox<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>-s
+kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>-s
 </code></pre></div></p>
 </li>
 </ol>

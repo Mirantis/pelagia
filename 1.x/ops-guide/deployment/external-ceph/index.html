@@ -3518,7 +3518,7 @@ connect to a Ceph cluster and use it as a block or file storage.</p>
 <li>Open the <code>CephDeployment</code> object.</li>
 <li>
 <p>In <code>pools</code> section, identify the Ceph cluster pools assigned to RBD pools. To obtain full names of RBD pools:</p>
-<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/rook-ceph-tools<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>osd<span class="w"> </span>lspools
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>osd<span class="w"> </span>lspools
 </code></pre></div>
 <p>Example of system response:</p>
 <div class="highlight"><pre><span></span><code>...
@@ -3588,12 +3588,11 @@ cluster, the Ceph client requires the following <code>caps</code> (permissions):
 </code></pre></div>
 <p>To verify the status of the created Ceph client, inspect the <code>status</code> section of the <code>CephDeploymentHealth</code> object. For example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">fullClusterInfo</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">blockStorageStatus</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">clientsStatus</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">healthReport</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">rookCephObjects</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cephClients</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">non-admin-client</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">present</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">          </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ready</span>
+<span class="w">          </span><span class="nt">phase</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ready</span>
 </code></pre></div>
 <h2 id="connect-the-producer-to-the-consumer">Connect the producer to the consumer<a class="headerlink" href="#connect-the-producer-to-the-consumer" title="Permanent link">#</a></h2>
 <ol>
@@ -3632,7 +3631,7 @@ cluster, the Ceph client requires the following <code>caps</code> (permissions):
 <span class="w">  </span><span class="nt">network</span><span class="p">:</span>
 <span class="w">     </span><span class="nt">clusterNet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;clusterNetCIDR&gt;</span>
 <span class="w">     </span><span class="nt">publicNet</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;publicNetCIDR&gt;</span>
-<span class="w">  </span><span class="nt">nodes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="w">  </span><span class="nt">nodes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
 </code></pre></div>
 <p>Specify the following values:</p>
 <ul>

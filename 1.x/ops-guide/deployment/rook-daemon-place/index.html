@@ -3423,7 +3423,7 @@ extra values to Pelagia Helm chart release.</p>
 <li><code>rookConfig.rookOperatorPlacement.tolerations</code> is a list that contains valid Kubernetes <code>toleration</code> items.</li>
 </ul>
 <p>Upgrade Pelagia Helm release with the desired placement values by setting them directly to release:
-<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.0.0<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="si">${</span><span class="nv">PELAGIA_VERSION</span><span class="si">}</span><span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--set<span class="w"> </span>rookConfig.rookOperatorPlacement.affinity<span class="o">=</span>&lt;rookOperatorAffinity&gt;,<span class="se">\</span>
 <span class="w">        </span>rookConfig.rookOperatorPlacement.nodeSelector<span class="o">=</span>&lt;rookOperatorNodeSelector&gt;,<span class="se">\</span>
 <span class="w">        </span>rookConfig.rookOperatorPlacement.tolerations<span class="o">=</span>&lt;rookOperatorTolerations&gt;
@@ -3438,7 +3438,7 @@ extra values to Pelagia Helm chart release.</p>
 <li><code>rookConfig.csiPlacement.nodeAffinity.csiplugin</code> is a valid Kubernetes label selector expression. Default is
   <code>ceph-daemonset-available-node=true</code>.</li>
 <li>
-<p><code>rookConfig.csiPlacement.csiplugin.tolerations</code> is a string which contains a valid list of Kubernetes <code>toleration</code>
+<p><code>rookConfig.csiPlacement.tolerations.csiplugin</code> is a string which contains a valid list of Kubernetes <code>toleration</code>
   items. For example:
   <div class="highlight"><pre><span></span><code><span class="nt">csiplugin</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">  </span><span class="no">- effect: NoSchedule</span>
@@ -3447,7 +3447,7 @@ extra values to Pelagia Helm chart release.</p>
 </code></pre></div></p>
 </li>
 <li>
-<p><code>rookConfig.csiPlacement.csiprovisioner.tolerations</code> is a string which contains a valid list of Kubernetes
+<p><code>rookConfig.csiPlacement.tolerations.csiprovisioner</code> is a string which contains a valid list of Kubernetes
   <code>toleration</code> items. For example:
   <div class="highlight"><pre><span></span><code><span class="nt">csiprovisioner</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">  </span><span class="no">- effect: NoSchedule</span>
@@ -3457,7 +3457,7 @@ extra values to Pelagia Helm chart release.</p>
 </li>
 </ul>
 <p>Upgrade Pelagia Helm release with the desired placement values by setting them directly to release:
-<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.0.0<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="si">${</span><span class="nv">PELAGIA_VERSION</span><span class="si">}</span><span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--set<span class="w"> </span>rookConfig.csiPlacement.nodeAffinity.csiprovisioner<span class="o">=</span><span class="s2">&quot;&lt;nodeAffinityLabelSelector&gt;&quot;</span>
 </code></pre></div></p>
 <p>After upgrading Pelagia Helm release, wait for some time and verify that the changes have applied:
@@ -3480,7 +3480,7 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
 </code></pre></div></li>
 </ul>
 <p>Upgrade Pelagia Helm release with the desired placement values by setting them directly to release:
-<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="m">1</span>.0.0<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="si">${</span><span class="nv">PELAGIA_VERSION</span><span class="si">}</span><span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>--set<span class="w"> </span>rookConfig.rookDiscoverPlacement.nodeAffinity<span class="o">=</span><span class="s2">&quot;&lt;nodeAffinityLabelSelector&gt;&quot;</span>
 </code></pre></div></p>
 <p>After upgrading Pelagia Helm release, wait for some time and verify that the changes have applied:

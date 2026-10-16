@@ -3551,12 +3551,12 @@ health warning that blocks Ceph OSD removal. Mirantis recommends setting
 <span class="w">      </span><span class="nt">cleanupByDevice</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">device</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sdb</span>
 </code></pre></div></p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>You can spawn Ceph OSD on a raw device, but it must be clean and
-without any data or partitions. If you want to add a device that was in use,
-also ensure it is raw and clean. To clean up all data and partitions from a
-device, refer to official <a href="https://github.com/rook/rook/blob/master/Documentation/Storage-Configuration/ceph-teardown.md#zapping-devices">Rook documentation</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>We do not recommend setting device name or device <code>by-path</code> symlink in the <code>cleanupByDevice</code> field
+as these identifiers are not persistent and can change at node boot. Remove Ceph OSDs with <code>by-id</code>
+symlinks or use <code>cleanupByOsd</code> instead. For details, see
+<a href="../../../../architecture/addressing-ceph-devices/#addressing-ceph-devices-addressing-ceph-storage-devices">Addressing Ceph storage devices</a>.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -3603,11 +3603,11 @@ device, refer to official <a href="https://github.com/rook/rook/blob/master/Docu
 <span class="w">          </span><span class="s">&quot;2&quot;</span><span class="p p-Indicator">:</span>
 <span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
 <span class="w">              </span><span class="nt">sdb</span><span class="p">:</span>
-<span class="w">                </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:1t.9&quot;</span>
-<span class="w">                </span><span class="nt">partition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb&quot;</span>
-<span class="w">                </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
-<span class="w">                </span><span class="nt">class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;hdd&quot;</span>
-<span class="w">                </span><span class="nt">zapDisk</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">                </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:1t.9&quot;</span>
+<span class="w">                </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb&quot;</span>
+<span class="w">                </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">rotational</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">                </span><span class="nt">deviceCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div></p>
 </li>
 <li>
