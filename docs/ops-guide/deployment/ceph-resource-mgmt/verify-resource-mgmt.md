@@ -47,7 +47,7 @@ specified in the Ceph cluster.
     1. Identify which Ceph OSDs belong to the `<deviceClass>` device class in
        question:
        ```bash
-       kubectl -n rook-ceph exec -it deploy/rook-ceph-tools -- ceph osd crush class ls-osd <deviceClass>
+       kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- ceph osd crush class ls-osd <deviceClass>
        ```
 
     2. For each `<osdID>` obtained in the previous step, run the following

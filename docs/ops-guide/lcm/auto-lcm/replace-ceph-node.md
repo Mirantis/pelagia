@@ -80,11 +80,11 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
                deviceMapping:
                  ...
                  <deviceName>:
-                   path: <deviceByPath>
-                   partition: "/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb"
-                   type: "block"
-                   class: "hdd"
-                   zapDisk: true
+                   devicePath: <deviceByPath>
+                   osdPartition: "/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb"
+                   osdPartitionType: "block"
+                   rotational: true
+                   deviceCleanup: true
      ```
 
      Definition of values in angle brackets:

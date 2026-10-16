@@ -34,7 +34,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
     not supported if a device was physically removed from a node. Therefore, use
     `cleanupByOsd` instead.
 
-{% include "../../../snippets/rawDeviceCleanup.md" %}
+{% include-markdown "../../../snippets/cleanupByDeviceValue.md" comments=false %}
 
 1. Open the `CephDeployment` CR for editing:
    ```bash
@@ -96,19 +96,18 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
      Example of system response:
      ```yaml
      status:
-       osdRemoveStatus:
-         removeInfo:
-           cleanupMap:
-             <nodeName>:
-               osdMapping:
-                 <osdId>:
-                   deviceMapping:
-                     <dataDevice>:
-                       deviceClass: hdd
-                       devicePath: <dataDeviceByPath>
-                       devicePurpose: block
-                       usedPartition: /dev/ceph-d2d3a759-2c22-4304-b890-a2d87e056bd4/osd-block-ef516477-d2da-492f-8169-a3ebfc3417e2
-                       zapDisk: true
+       removeInfo:
+         cleanupMap:
+           <nodeName>:
+             osdMapping:
+               <osdId>:
+                 deviceMapping:
+                   <dataDevice>:
+                     devicePath: <dataDeviceByPath>
+                     osdPartition: /dev/ceph-d2d3a759-2c22-4304-b890-a2d87e056bd4/osd-block-ef516477-d2da-492f-8169-a3ebfc3417e2
+                     osdPartitionType: block
+                     rotational: true
+                     deviceCleanup: true
      ```
 
      Definition of values in angle brackets:
@@ -241,25 +240,24 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
 
 8. Verify that the `removeInfo` section appeared in the `CephOsdRemoveTask` CR `status`:
    ```bash
-   kubectl -n pelagia get cephosdremovetask replace-failed-<nodeName>-osd-<osdId>-task -o yaml
+   kubectl -n pelagia get cephosdremovetask replace-failed-<nodeName>-osd-<osdId> -o yaml
    ```
 
      Example of system response
      ```yaml
      status:
-       osdRemoveStatus:
-         removeInfo:
-           cleanupMap:
-             <nodeName>:
-               osdMapping:
-                 <osdId>:
-                   deviceMapping:
-                     <dataDevice>:
-                       deviceClass: hdd
-                       devicePath: <dataDeviceByPath>
-                       devicePurpose: block
-                       usedPartition: /dev/ceph-d2d3a759-2c22-4304-b890-a2d87e056bd4/osd-block-ef516477-d2da-492f-8169-a3ebfc3417e2
-                       zapDisk: true
+       removeInfo:
+         cleanupMap:
+           <nodeName>:
+             osdMapping:
+               <osdId>:
+                 deviceMapping:
+                   <dataDevice>:
+                     devicePath: <dataDeviceByPath>
+                     osdPartition: /dev/ceph-d2d3a759-2c22-4304-b890-a2d87e056bd4/osd-block-ef516477-d2da-492f-8169-a3ebfc3417e2
+                     osdPartitionType: block
+                     rotational: true
+                     deviceCleanup: true
      ```
 
      Definition of values in angle brackets:
@@ -276,7 +274,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
 9. Verify that the `cleanupMap` section matches the required removal and wait
    for the `ApproveWaiting` phase to appear in `status`:
    ```bash
-   kubectl -n pelagia get cephosdremovetask replace-failed-<nodeName>-osd-<osdId>-task -o yaml
+   kubectl -n pelagia get cephosdremovetask replace-failed-<nodeName>-osd-<osdId> -o yaml
    ```
 
      Example of system response:
@@ -287,7 +285,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
 
 10. Edit the `CephOsdRemoveTask` CR and set the `approve` flag to `true`:
     ```bash
-    kubectl -n pelagia edit cephosdremovetask replace-failed-<nodeName>-osd-<osdId>-request
+    kubectl -n pelagia edit cephosdremovetask replace-failed-<nodeName>-osd-<osdId>
     ```
 
       For example:

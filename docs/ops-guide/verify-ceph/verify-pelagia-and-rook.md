@@ -90,7 +90,7 @@ Pelagia Controllers and Rook objects of a Ceph cluster.
         ```
      2. Enter all Ceph OSD pods in the `rook-ceph` namespace one by one:
         ```bash
-        kubectl exec -it -n rook-ceph <osd-pod-name> bash
+        kubectl exec -it -n rook-ceph <osd-pod-name> -- bash
         ```
      3. Verify that the `ceph-volume` tool is available on all pods running on
         the target node:
@@ -103,7 +103,7 @@ Pelagia Controllers and Rook objects of a Ceph cluster.
    Kubernetes storage:
 
      1. Verify the available storage classes. The storage classes that are
-        automatically managed by Ceph Controller use the
+        automatically managed by Pelagia Deployment Controller use the
         `rook-ceph.rbd.csi.ceph.com` provisioner.
         ```bash
         kubectl get storageclass
@@ -172,7 +172,7 @@ Pelagia Controllers and Rook objects of a Ceph cluster.
         the `Running` status:
         1. Obtain the list of CSI provisioner plugins:
            ```bash
-           kubectl -n rook-ceph get pod -l app=csi-rbdplugin-provisioner
+           kubectl -n rook-ceph get pod -l app=rook-ceph.rbd.csi.ceph.com-ctrlplugin
            ```
         2. Verify the logs of the required CSI provisioner:
            ```bash

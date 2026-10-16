@@ -10,7 +10,7 @@ keywords: pelagia, ceph rgw, enable ceph rgw, rados gateway, ceph object storage
 # Enable Ceph RADOS Gateway Object Storage
 
 Pelagia enables you to deploy Ceph RADOS Gateway (RGW) Object Storage
-instances and automatically manage its resources such as users and buckets.
+instances and automatically manage its resources such as users.
 
 Pelagia has an integration for Ceph Object Storage with OpenStack Object Storage (`Swift`) provided by Rockoon.
 
