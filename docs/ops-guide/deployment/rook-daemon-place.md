@@ -13,25 +13,32 @@ If you need to configure the placement of Rook daemons on nodes, you can set
 extra values to Pelagia Helm chart release.
 
 The procedures in this section describe how to specify the placement of
-`rook-ceph-operator`, `rook-discover`, and Ceph CSI pods such as `csi-rbdplugin`, `csi-cephfsplugin`,
-`csi-rbdplugin-provisioner` and `csi-cephfsplugin-provisioner`.
+`rook-ceph-operator`, `rook-discover`, and Ceph CSI pods such as:
+
+- `<rookNamespace>.cephfs.csi.ceph.com-ctrlplugin`
+- `<rookNamespace>.cephfs.csi.ceph.com-nodeplugin`
+- `<rookNamespace>.rbd.csi.ceph.com-ctrlplugin`
+- `<rookNamespace>.rbd.csi.ceph.com-nodeplugin`
+
+Where `<rookNamespace>` is the Rook namespace. For example, in the default `rook-ceph`
+namespace, the CephFS CSI controller plugin is named `rook-ceph.cephfs.csi.ceph.com-ctrlplugin`.
 
 ## Specify rook-ceph-operator placement
 
 Use the following Pelagia Helm chart values to specify `rook-ceph-operator` placement:
 
-- `rookConfig.rookOperatorPlacement.affinity` is a key-value mapping that contains
+- `rook.rookConfig.rookOperatorPlacement.affinity` is a key-value mapping that contains
   a valid Kubernetes `affinity` specification.
-- `rookConfig.rookOperatorPlacement.nodeSelector` is a key-value mapping that contains
+- `rook.rookConfig.rookOperatorPlacement.nodeSelector` is a key-value mapping that contains
   a valid Kubernetes `nodeSelector` specification.
-- `rookConfig.rookOperatorPlacement.tolerations` is a list that contains valid Kubernetes `toleration` items.
+- `rook.rookConfig.rookOperatorPlacement.tolerations` is a list that contains valid Kubernetes `toleration` items.
 
 Upgrade Pelagia Helm release with the desired placement values by setting them directly to release:
 ```bash
-helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version 1.0.0 -n pelagia \
-  --set rookConfig.rookOperatorPlacement.affinity=<rookOperatorAffinity>,\
-        rookConfig.rookOperatorPlacement.nodeSelector=<rookOperatorNodeSelector>,\
-        rookConfig.rookOperatorPlacement.tolerations=<rookOperatorTolerations>
+helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version ${PELAGIA_VERSION} -n pelagia \
+  --set rook.rookConfig.rookOperatorPlacement.affinity=<rookOperatorAffinity>,\
+        rook.rookConfig.rookOperatorPlacement.nodeSelector=<rookOperatorNodeSelector>,\
+        rook.rookConfig.rookOperatorPlacement.tolerations=<rookOperatorTolerations>
 ```
 
 After upgrading Pelagia Helm release, wait for some time and verify that the changes have applied:
@@ -43,48 +50,53 @@ kubectl -n rook-ceph get deploy rook-ceph-operator -o yaml
 
 Use the following Pelagia Helm chart values to specify Ceph CSI pods placement:
 
-- `rookConfig.csiPlacement.nodeAffinity.csiprovisioner` is a valid Kubernetes label selector expression.
-- `rookConfig.csiPlacement.nodeAffinity.csiplugin` is a valid Kubernetes label selector expression. Default is
-  `ceph-daemonset-available-node=true`.
-- `rookConfig.csiPlacement.tolerations.csiplugin` is a string which contains a valid list of Kubernetes `toleration`
-  items. For example:
+- `cephDeployment.csi.placement.nodeAffinity.controllerPlugin` is a valid Kubernetes label selector expression
+  for the CSI controller plugin deployments.
+- `cephDeployment.csi.placement.nodeAffinity.nodePlugin` is a valid Kubernetes label selector expression for the
+  CSI node plugin DaemonSets. Default is `ceph-daemonset-available-node=true`.
+- `cephDeployment.csi.placement.tolerations.nodePlugin` is a string which contains a valid list of Kubernetes
+  `toleration` items for the CSI node plugin DaemonSets. For example:
   ```yaml
-  csiplugin: |
+  nodePlugin: |
     - effect: NoSchedule
       key: node-role.kubernetes.io/controlplane
       operator: Exists
   ```
 
-- `rookConfig.csiPlacement.csiprovisioner.tolerations` is a string which contains a valid list of Kubernetes
-  `toleration` items. For example:
+- `cephDeployment.csi.placement.tolerations.controllerPlugin` is a string which contains a valid list of Kubernetes
+  `toleration` items for the CSI controller plugin deployments. For example:
   ```yaml
-  csiprovisioner: |
+  controllerPlugin: |
     - effect: NoSchedule
       key: node-role.kubernetes.io/controlplane
       operator: Exists
   ```
+
+!!! note
+
+    These values take effect only if `cephDeployment.csi.manage` is set to `true`, which is the default.
 
 Upgrade Pelagia Helm release with the desired placement values by setting them directly to release:
 ```bash
-helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version 1.0.0 -n pelagia \
-  --set rookConfig.csiPlacement.nodeAffinity.csiprovisioner="<nodeAffinityLabelSelector>"
+helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version ${PELAGIA_VERSION} -n pelagia \
+  --set cephDeployment.csi.placement.nodeAffinity.controllerPlugin="<nodeAffinityLabelSelector>"
 ```
 
 After upgrading Pelagia Helm release, wait for some time and verify that the changes have applied:
 ```bash
-kubectl -n rook-ceph get ds csi-rbdplugin -o yaml
-kubectl -n rook-ceph get ds csi-cephfsplugin -o yaml
-kubectl -n rook-ceph get deploy csi-rbdplugin-provisioner -o yaml
-kubectl -n rook-ceph get deploy csi-cephfsplugin-provisioner -o yaml
+kubectl -n <rookNamespace> get ds <rookNamespace>.rbd.csi.ceph.com-nodeplugin -o yaml
+kubectl -n <rookNamespace> get ds <rookNamespace>.cephfs.csi.ceph.com-nodeplugin -o yaml
+kubectl -n <rookNamespace> get deploy <rookNamespace>.rbd.csi.ceph.com-ctrlplugin -o yaml
+kubectl -n <rookNamespace> get deploy <rookNamespace>.cephfs.csi.ceph.com-ctrlplugin -o yaml
 ```
 
 ## Specify rook-discover placement
 
 Use the following Pelagia Helm chart values to specify `rook-discover` placement:
 
-- `rookConfig.rookDiscoverPlacement.nodeAffinity` is a valid Kubernetes label selector expression. Default is
+- `rook.rookConfig.rookDiscoverPlacement.nodeAffinity` is a valid Kubernetes label selector expression. Default is
   `ceph-daemonset-available-node=true;ceph_role_osd=true`.
-- `rookConfig.rookDiscoverPlacement.tolerations` is a string which contains a valid list of Kubernetes `toleration`
+- `rook.rookConfig.rookDiscoverPlacement.tolerations` is a string which contains a valid list of Kubernetes `toleration`
   items. For example:
   ```yaml
   tolerations: |
@@ -95,8 +107,8 @@ Use the following Pelagia Helm chart values to specify `rook-discover` placement
 
 Upgrade Pelagia Helm release with the desired placement values by setting them directly to release:
 ```bash
-helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version 1.0.0 -n pelagia \
-  --set rookConfig.rookDiscoverPlacement.nodeAffinity="<nodeAffinityLabelSelector>"
+helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version ${PELAGIA_VERSION} -n pelagia \
+  --set rook.rookConfig.rookDiscoverPlacement.nodeAffinity="<nodeAffinityLabelSelector>"
 ```
 
 After upgrading Pelagia Helm release, wait for some time and verify that the changes have applied:

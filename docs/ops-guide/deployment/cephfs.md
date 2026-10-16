@@ -74,16 +74,16 @@ spec:
 
 ## Configure CephFS
 
-1. Optional. Override the CSI CephFS gRPC and liveness metrics port. For example, if an application is already using
-   the default CephFS ports `9092` and `9082`, which may cause conflicts on the node. Upgrade Pelagia Helm release
-   values with desired port numbers:
+1. Optional. Verify that the default CephFS CSI driver is enabled. Pelagia creates it when the
+   `cephDeployment.csi.defaultDriversCreate.cephfs` Helm chart value is `true`, which is the default. If you have
+   disabled it, re-enable it by upgrading the Pelagia Helm release:
 
      ```bash
-     helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version 1.0.0 -n pelagia \
-          --set rookConfig.csiCephFsGPCMetricsPort=<desiredPort>,rookConfig.csiCephFsLivenessMetricsPort=<desiredPort>
+     helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version ${PELAGIA_VERSION} -n pelagia \
+          --set cephDeployment.csi.defaultDriversCreate.cephfs=true
      ```
 
-     Rook will enable the CephFS CSI plugin and provisioner.
+     Pelagia will create the CephFS CSI driver, which deploys the CephFS CSI node and controller plugins.
 
 2. Open the `CephDeployment` CR for editing:
    ```bash
@@ -119,11 +119,11 @@ spec:
    ```yaml
    spec:
      nodes:
+     ...
+     - name: worker-1
+       roles:
        ...
-       worker-1:
-         roles:
-         ...
-         - mds
+       - mds
    ```
 
 Once CephFS is specified in the `CephDeployment` CR, Pelagia Deployment Controller will validate it and

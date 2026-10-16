@@ -276,9 +276,9 @@ kubectl -n pelagia get cephdeploymenthealth -o yaml
 
 - `rookOperator` - State of the Rook Ceph Operator pod which contains the following fields:
 
-    - `status` - summary of the current Rook Ceph Operator pod state
+    - `status` - Summary of the current Rook Ceph Operator pod state
     - `issues` - List of Rook Ceph Operator issues, otherwise empty
-    - `info` - Human-readable additional information about the current Rook Ceph Operator pod state
+    - `info` - Human-readable additional information about the current state of the Rook Ceph Operator pod
 
 - `rookCephObjects` - General information from Rook about the Ceph cluster health and current
   state. Contains the following fields:

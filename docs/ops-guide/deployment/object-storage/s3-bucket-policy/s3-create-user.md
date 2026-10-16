@@ -28,7 +28,7 @@ configure their S3 credentials.
    spec:
      objectStorage:
        users:
-       - name: user-b
+       - name: user-a
          spec:
            store: rgw-store
            displayName: user-a

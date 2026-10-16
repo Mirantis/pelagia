@@ -81,7 +81,8 @@ services will be connected to the required Ceph cluster.
     existing secret upon `CephDeployment` deletion, so remove it manually
     if required.
 
-If `CephDeployment` contains the `objectStorage` section and Ceph Object Storage is deployed, then Pelagia and Rockoon
+If `CephDeployment` contains the `objectStorage` section, Ceph Object Storage is deployed, and the
+object store has `usedForOpenstack: true` set in `spec.objectStorage.objectStores`, then Pelagia and Rockoon
 enable Ceph RADOS Gateway integration with OpenStack Object Storage service (`swift`).
 
 !!! info "See also"
