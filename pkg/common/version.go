@@ -51,7 +51,7 @@ var (
 		Name:            "Squid",
 		MajorVersion:    "v19.2",
 		Order:           19,
-		SupportedMinors: []int{3, 4, 5, 6},
+		SupportedMinors: []int{3, 4, 5, 6, 7},
 	}
 	LatestRelease = Tentacle
 )
