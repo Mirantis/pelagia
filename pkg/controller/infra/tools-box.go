@@ -29,7 +29,7 @@ import (
 	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
 )
 
-// toolbox script version: Rook v1.20.7
+// toolbox script version: Rook v1.20.9
 // NOT UPDATED KEYRING!!!
 const toolBoxScript = `#!/bin/bash -e
 # Replicate the script from toolbox.sh inline so the ceph image

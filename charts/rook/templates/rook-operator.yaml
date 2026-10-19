@@ -61,7 +61,11 @@ data:
   # Default regex will be "(?i)dm-[0-9]+,(?i)rbd[0-9]+,(?i)nbd[0-9]+"
   # Add regex expression after putting a comma to blacklist a disk
   # If value is empty, the default regex will be used.
-  DISCOVER_DAEMON_UDEV_BLACKLIST: "(?i)dm-[0-9]+,(?i)rbd[0-9]+,(?i)nbd[0-9]+"
+  DISCOVER_DAEMON_UDEV_BLACKLIST: {{ .Values.rookConfig.discoverDaemonUdevBlacklist }}
+  # When true, Rook creates the CephConnection and ClientProfile CRs consumed by the
+  # ceph-csi-operator. Set to false for clusters that use no CSI driver, such as object store
+  # only clusters, so the ceph-csi-operator and its CRDs are not required.
+  ROOK_CREATE_CSI_OPERATOR_RESOURCES: "true"
 ---
 # OLM: BEGIN OPERATOR DEPLOYMENT
 apiVersion: apps/v1

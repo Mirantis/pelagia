@@ -4,7 +4,7 @@ global:
 images:
   operator:
     repository: pelagia/rook
-    tag: v1.20.7-7
+    tag: v1.20.9-3
   csi:
     ceph:
       repository: pelagia/cephcsi
@@ -29,6 +29,7 @@ rookConfig:
   rookNamespace: rook-ceph
   netpolEnabled: true
   rookOperatorReplicas: 1
+  discoverDaemonUdevBlacklist: "(?i)dm-[0-9]+,(?i)rbd[0-9]+,(?i)nbd[0-9]+"
   rookOperatorPlacement:
     affinity:
     # affinity is a group of affinity scheduling for rook-pelagia-deploy Deployment
