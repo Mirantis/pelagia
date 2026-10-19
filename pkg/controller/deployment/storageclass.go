@@ -133,6 +133,9 @@ func (c *cephDeploymentConfig) ensureStorageClasses() (bool, error) {
 
 	if c.cdConfig.cephDpl.Spec.BlockStorage != nil {
 		for idx, cephDplPool := range c.cdConfig.cephDpl.Spec.BlockStorage.Pools {
+			if cephDplPool.StorageClassOpts.SkipCreate {
+				continue
+			}
 			if lcmcommon.Contains(builtinCephPools, cephDplPool.Name) {
 				continue
 			}

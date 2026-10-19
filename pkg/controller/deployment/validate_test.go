@@ -1024,6 +1024,60 @@ func TestValidateObjectStorageSpec(t *testing.T) {
 			},
 		},
 		{
+			name: "incorrect shared pools",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cephDpl := unitinputs.CephDeployNonMosk.DeepCopy()
+				rgwShared := `{"sharedPools": {"metadataPoolName": "rgw-meta-pool", "dataPoolName": "rgw-data-pool"}, "gateway": {"port":80, "securePort": 443, "instances": 1}}`
+				cephDpl.Spec.ObjectStorage.Rgws[0].Spec.Raw = []byte(rgwShared)
+				return cephDpl
+			}(),
+			expectedIssues: []string{
+				"rgw 'rgw-store' sharedMetadata pool 'rgw-meta-pool' is not found in spec",
+				"rgw 'rgw-store' sharedData pool 'rgw-data-pool' is not found in spec",
+			},
+		},
+		{
+			name: "incorrect placement pools",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cephDpl := unitinputs.CephDeployNonMosk.DeepCopy()
+				rgwShared := `{"sharedPools": {"poolPlacements": [{"name": "eu-1", "default": true, "dataPoolName": "rgw-data-pool", "storageClasses": [{"name": "tier-1", "dataPoolName": "tier-1-datapool"}, {"name": "tier-2"}]}, {"name": "eu-2", "default": true, "metadataPoolName": "rgw-metadata-pool", "dataNonECPoolName": "rgw-nonec-daatpool"}]}, "gateway": {"port":80, "securePort": 443, "instances": 1}}`
+				cephDpl.Spec.ObjectStorage.Rgws[0].Spec.Raw = []byte(rgwShared)
+				return cephDpl
+			}(),
+			expectedIssues: []string{
+				"rgw 'rgw-store' placement 'eu-1' metadata pool is not specified",
+				"rgw 'rgw-store' placement 'eu-1' data pool 'rgw-data-pool' is not found in spec",
+				"rgw 'rgw-store' placement 'eu-1' storage data pool 'tier-1-datapool' is not found in spec",
+				"rgw 'rgw-store' placement 'eu-1' storageclass 'tier-2' data pool name is not provided",
+				"rgw 'rgw-store' placement 'eu-2' metadata pool 'rgw-metadata-pool' is not found in spec",
+				"rgw 'rgw-store' placement 'eu-2' data pool is not specified",
+				"rgw 'rgw-store' placement 'eu-2' data nonEC pool 'rgw-nonec-daatpool' is not found in spec",
+				"rgw 'rgw-store' placements pools have multiple default placement set",
+			},
+		},
+		{
+			name: "incorrect placement pools no default and no global meta and data pools",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cephDpl := unitinputs.CephDeployNonMosk.DeepCopy()
+				rgwMeta := cephDpl.Spec.BlockStorage.Pools[0].DeepCopy()
+				rgwMeta.StorageClassOpts.Default = false
+				rgwMeta.UseAsFullName = true
+				rgwData := rgwMeta.DeepCopy()
+				rgwNonEcData := rgwMeta.DeepCopy()
+				rgwMeta.Name = "rgw-metadata-pool"
+				rgwData.Name = "rgw-data-pool"
+				rgwNonEcData.Name = "tier-1-datapool"
+				cephDpl.Spec.BlockStorage.Pools = append(cephDpl.Spec.BlockStorage.Pools, *rgwMeta, *rgwData, *rgwNonEcData)
+				rgwShared := `{"sharedPools": {"poolPlacements": [{"name": "eu-1", "metadataPoolName": "rgw-metadata-pool", "dataPoolName": "rgw-data-pool", "storageClasses": [{"name": "tier-1", "dataPoolName": "tier-1-datapool"}]}]}, "gateway": {"port":80, "securePort": 443, "instances": 1}}`
+				cephDpl.Spec.ObjectStorage.Rgws[0].Spec.Raw = []byte(rgwShared)
+				return cephDpl
+			}(),
+			expectedIssues: []string{
+				"rgw 'rgw-store' metadata pool must be only replicated",
+				"rgw 'rgw-store' data pool should be either replicated or erasureCoded",
+			},
+		},
+		{
 			name:           "no object storage issues",
 			cephDpl:        unitinputs.CephDeployNonMosk.DeepCopy(),
 			expectedIssues: []string{},
@@ -1041,6 +1095,42 @@ func TestValidateObjectStorageSpec(t *testing.T) {
 		{
 			name:           "rgw external cluster ok",
 			cephDpl:        unitinputs.CephDeployExternal.DeepCopy(),
+			expectedIssues: []string{},
+		},
+		{
+			name: "rgw shared pools correct",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cephDpl := unitinputs.CephDeployNonMosk.DeepCopy()
+				rgwMeta := cephDpl.Spec.BlockStorage.Pools[0].DeepCopy()
+				rgwMeta.StorageClassOpts.Default = false
+				rgwData := rgwMeta.DeepCopy()
+				rgwMeta.UseAsFullName = true
+				rgwMeta.Name = "rgw-meta-pool"
+				rgwData.Name = "rgw-data-pool"
+				cephDpl.Spec.BlockStorage.Pools = append(cephDpl.Spec.BlockStorage.Pools, *rgwMeta, *rgwData)
+				rgwShared := `{"sharedPools": {"metadataPoolName": "rgw-meta-pool", "dataPoolName": "rgw-data-pool-hdd"}, "gateway": {"port":80, "securePort": 443, "instances": 1}}`
+				cephDpl.Spec.ObjectStorage.Rgws[0].Spec.Raw = []byte(rgwShared)
+				return cephDpl
+			}(),
+			expectedIssues: []string{},
+		},
+		{
+			name: "placement pools correct",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cephDpl := unitinputs.CephDeployNonMosk.DeepCopy()
+				rgwMeta := cephDpl.Spec.BlockStorage.Pools[0].DeepCopy()
+				rgwMeta.StorageClassOpts.Default = false
+				rgwMeta.UseAsFullName = true
+				rgwData := rgwMeta.DeepCopy()
+				rgwNonEcData := rgwMeta.DeepCopy()
+				rgwMeta.Name = "rgw-metadata-pool"
+				rgwData.Name = "rgw-data-pool"
+				rgwNonEcData.Name = "tier-1-datapool"
+				cephDpl.Spec.BlockStorage.Pools = append(cephDpl.Spec.BlockStorage.Pools, *rgwMeta, *rgwData, *rgwNonEcData)
+				rgwShared := `{"sharedPools": {"poolPlacements": [{"name": "eu-1", "default": true, "metadataPoolName": "rgw-metadata-pool", "dataPoolName": "rgw-data-pool", "storageClasses": [{"name": "tier-1", "dataPoolName": "tier-1-datapool"}]}]}, "gateway": {"port":80, "securePort": 443, "instances": 1}}`
+				cephDpl.Spec.ObjectStorage.Rgws[0].Spec.Raw = []byte(rgwShared)
+				return cephDpl
+			}(),
 			expectedIssues: []string{},
 		},
 	}
