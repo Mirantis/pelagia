@@ -94,7 +94,7 @@ func TestGetCephVersionByReleaseName(t *testing.T) {
 				Name:            "Squid",
 				MajorVersion:    "v19.2",
 				Order:           19,
-				SupportedMinors: []int{3, 4, 5, 6},
+				SupportedMinors: []int{3, 4, 5, 6, 7},
 			},
 		},
 		{
@@ -142,7 +142,7 @@ func TestParseCephVersion(t *testing.T) {
 		{
 			name:          "check ceph version squid - image is not in list supported minors",
 			cephVersion:   "ceph version 19.2.20 (safmsdgldfhglkfdhdlstet) custom",
-			expectedError: "specified Ceph version 'v19.2.20' is not supported. Please use one of: [v19.2.3 v19.2.4 v19.2.5 v19.2.6]",
+			expectedError: "specified Ceph version 'v19.2.20' is not supported. Please use one of: [v19.2.3 v19.2.4 v19.2.5 v19.2.6 v19.2.7]",
 		},
 		{
 			name:          "check ceph version tentacle- image is not in list supported minors",
