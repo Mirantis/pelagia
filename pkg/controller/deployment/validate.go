@@ -443,9 +443,16 @@ func validateObjectStorageSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesLis
 				if _, ok := knownZonegroups[zoneCasted.ZoneGroup]; !ok {
 					issues = append(issues, fmt.Sprintf("zone '%s' has specified zonegroup '%s', which is not specified in spec", zone.Name, zoneCasted.ZoneGroup))
 				}
-				t := "zone '%s' %s"
-				issues = append(issues, validatePoolSpec(zoneCasted.MetadataPool, true, fmt.Sprintf(t, zone.Name, "metadata"), nodesListExpanded)...)
-				issues = append(issues, validatePoolSpec(zoneCasted.DataPool, false, fmt.Sprintf(t, zone.Name, "data"), nodesListExpanded)...)
+				metaPoolSet, dataPoolSet, sharedPoolsIssues := validateRgwSharedPools(zoneCasted.SharedPools, cephDpl.Spec.BlockStorage, fmt.Sprintf("zone '%s'", zone.Name))
+				if len(sharedPoolsIssues) > 0 {
+					issues = append(issues, sharedPoolsIssues...)
+				}
+				if !metaPoolSet {
+					issues = append(issues, validatePoolSpec(zoneCasted.MetadataPool, true, fmt.Sprintf("zone '%s' metadata", zone.Name), nodesListExpanded)...)
+				}
+				if !dataPoolSet {
+					issues = append(issues, validatePoolSpec(zoneCasted.DataPool, false, fmt.Sprintf("zone '%s' data", zone.Name), nodesListExpanded)...)
+				}
 			}
 			for _, node := range nodesListExpanded {
 				if lcmcommon.Contains(node.Roles, "mon") {
@@ -481,7 +488,8 @@ func validateObjectStorageSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesLis
 			}
 			if external {
 				if rgwCasted.MetadataPool.Replicated.Size != 0 || rgwCasted.MetadataPool.ErasureCoded.DataChunks != 0 || rgwCasted.MetadataPool.ErasureCoded.CodingChunks != 0 ||
-					rgwCasted.DataPool.Replicated.Size != 0 || rgwCasted.DataPool.ErasureCoded.DataChunks != 0 || rgwCasted.DataPool.ErasureCoded.CodingChunks != 0 || rgwCasted.Zone.Name != "" {
+					rgwCasted.DataPool.Replicated.Size != 0 || rgwCasted.DataPool.ErasureCoded.DataChunks != 0 || rgwCasted.DataPool.ErasureCoded.CodingChunks != 0 || rgwCasted.Zone.Name != "" ||
+					len(rgwCasted.SharedPools.PoolPlacements) > 0 || rgwCasted.SharedPools.MetadataPoolName != "" || rgwCasted.SharedPools.DataPoolName != "" {
 					issues = append(issues, fmt.Sprintf("cluster is external, rgw '%s' pools (metadata and data) specification is not allowed", rgw.Name))
 				}
 				if len(rgwCasted.Gateway.ExternalRgwEndpoints) == 0 {
@@ -493,69 +501,14 @@ func validateObjectStorageSpec(cephDpl *cephlcmv1alpha1.CephDeployment, nodesLis
 						issues = append(issues, fmt.Sprintf("incorrect rgw '%s' configuration, specified zone '%s' is not found", rgw.Name, rgwCasted.Zone.Name))
 					}
 				} else {
-					findPoolInSpec := func(poolName string) bool {
-						if cephDpl.Spec.BlockStorage == nil {
-							return false
-						}
-						for _, pool := range cephDpl.Spec.BlockStorage.Pools {
-							if buildPoolName(pool) == poolName {
-								return true
-							}
-						}
-						return false
+					metaPoolSet, dataPoolSet, sharedPoolsIssues := validateRgwSharedPools(rgwCasted.SharedPools, cephDpl.Spec.BlockStorage, fmt.Sprintf("rgw '%s'", rgw.Name))
+					if len(sharedPoolsIssues) > 0 {
+						issues = append(issues, sharedPoolsIssues...)
 					}
-
-					metaPoolSet := false
-					dataPoolSet := false
-					if len(rgwCasted.SharedPools.PoolPlacements) > 0 {
-						defaultSet := false
-						multipleDefaults := false
-						for _, placement := range rgwCasted.SharedPools.PoolPlacements {
-							if placement.MetadataPoolName == "" {
-								issues = append(issues, fmt.Sprintf("rgw '%s' placement '%s' metadata pool is not specified", rgw.Name, placement.Name))
-							} else if !findPoolInSpec(placement.MetadataPoolName) {
-								issues = append(issues, fmt.Sprintf("rgw '%s' placement '%s' metadata pool '%s' is not found in spec", rgw.Name, placement.Name, placement.MetadataPoolName))
-							}
-							if placement.DataPoolName == "" {
-								issues = append(issues, fmt.Sprintf("rgw '%s' placement '%s' data pool is not specified", rgw.Name, placement.Name))
-							} else if !findPoolInSpec(placement.DataPoolName) {
-								issues = append(issues, fmt.Sprintf("rgw '%s' placement '%s' data pool '%s' is not found in spec", rgw.Name, placement.Name, placement.DataPoolName))
-							}
-							if placement.DataNonECPoolName != "" && !findPoolInSpec(placement.DataNonECPoolName) {
-								issues = append(issues, fmt.Sprintf("rgw '%s' placement '%s' data nonEC pool '%s' is not found in spec", rgw.Name, placement.Name, placement.DataNonECPoolName))
-							}
-							if placement.Default {
-								if defaultSet {
-									multipleDefaults = true
-								}
-								defaultSet = true
-							}
-							for _, sc := range placement.StorageClasses {
-								if sc.DataPoolName == "" {
-									issues = append(issues, fmt.Sprintf("rgw '%s' placement '%s' storageclass '%s' data pool name is not provided", rgw.Name, placement.Name, sc.Name))
-								} else if !findPoolInSpec(sc.DataPoolName) {
-									issues = append(issues, fmt.Sprintf("rgw '%s' placement '%s' storage data pool '%s' is not found in spec", rgw.Name, placement.Name, sc.DataPoolName))
-								}
-							}
-						}
-						if multipleDefaults {
-							issues = append(issues, fmt.Sprintf("rgw '%s' placements pools have multiple default placement set", rgw.Name))
-						}
-						metaPoolSet = defaultSet
-						dataPoolSet = defaultSet
-					}
-					if rgwCasted.SharedPools.MetadataPoolName != "" {
-						if !findPoolInSpec(rgwCasted.SharedPools.MetadataPoolName) {
-							issues = append(issues, fmt.Sprintf("rgw '%s' sharedMetadata pool '%s' is not found in spec", rgw.Name, rgwCasted.SharedPools.MetadataPoolName))
-						}
-					} else if !metaPoolSet {
+					if !metaPoolSet {
 						issues = append(issues, validatePoolSpec(rgwCasted.MetadataPool, true, fmt.Sprintf("rgw '%s' metadata", rgw.Name), nodesListExpanded)...)
 					}
-					if rgwCasted.SharedPools.DataPoolName != "" {
-						if !findPoolInSpec(rgwCasted.SharedPools.DataPoolName) {
-							issues = append(issues, fmt.Sprintf("rgw '%s' sharedData pool '%s' is not found in spec", rgw.Name, rgwCasted.SharedPools.DataPoolName))
-						}
-					} else if !dataPoolSet {
+					if !dataPoolSet {
 						issues = append(issues, validatePoolSpec(rgwCasted.DataPool, false, fmt.Sprintf("rgw '%s' data", rgw.Name), nodesListExpanded)...)
 					}
 				}
@@ -650,4 +603,72 @@ func validateDeviceClass(deviceClass string, nodesListExpanded []cephlcmv1alpha1
 		}
 	}
 	return errors.Errorf("failed to find deviceClass '%s' among storage devices spec", deviceClass)
+}
+
+func validateRgwSharedPools(sharedPools cephv1.ObjectSharedPoolsSpec, blockStorageSpec *cephlcmv1alpha1.CephBlockStorage, objectName string) (bool, bool, []string) {
+	findPoolInSpec := func(poolName string) bool {
+		if blockStorageSpec == nil {
+			return false
+		}
+		for _, pool := range blockStorageSpec.Pools {
+			if buildPoolName(pool) == poolName {
+				return true
+			}
+		}
+		return false
+	}
+
+	issues := []string{}
+	metaPoolSet := false
+	dataPoolSet := false
+	if len(sharedPools.PoolPlacements) > 0 {
+		defaultSet := false
+		multipleDefaults := false
+		for _, placement := range sharedPools.PoolPlacements {
+			if placement.MetadataPoolName == "" {
+				issues = append(issues, fmt.Sprintf("%s placement '%s' metadata pool is not specified", objectName, placement.Name))
+			} else if !findPoolInSpec(placement.MetadataPoolName) {
+				issues = append(issues, fmt.Sprintf("%s placement '%s' metadata pool '%s' is not found in spec", objectName, placement.Name, placement.MetadataPoolName))
+			}
+			if placement.DataPoolName == "" {
+				issues = append(issues, fmt.Sprintf("%s placement '%s' data pool is not specified", objectName, placement.Name))
+			} else if !findPoolInSpec(placement.DataPoolName) {
+				issues = append(issues, fmt.Sprintf("%s placement '%s' data pool '%s' is not found in spec", objectName, placement.Name, placement.DataPoolName))
+			}
+			if placement.DataNonECPoolName != "" && !findPoolInSpec(placement.DataNonECPoolName) {
+				issues = append(issues, fmt.Sprintf("%s placement '%s' data nonEC pool '%s' is not found in spec", objectName, placement.Name, placement.DataNonECPoolName))
+			}
+			if placement.Default {
+				if defaultSet {
+					multipleDefaults = true
+				}
+				defaultSet = true
+			}
+			for _, sc := range placement.StorageClasses {
+				if sc.DataPoolName == "" {
+					issues = append(issues, fmt.Sprintf("%s placement '%s' storageclass '%s' data pool name is not provided", objectName, placement.Name, sc.Name))
+				} else if !findPoolInSpec(sc.DataPoolName) {
+					issues = append(issues, fmt.Sprintf("%s placement '%s' storage data pool '%s' is not found in spec", objectName, placement.Name, sc.DataPoolName))
+				}
+			}
+		}
+		if multipleDefaults {
+			issues = append(issues, fmt.Sprintf("%s placements pools have multiple default placement set", objectName))
+		}
+		metaPoolSet = defaultSet
+		dataPoolSet = defaultSet
+	}
+	if sharedPools.MetadataPoolName != "" {
+		metaPoolSet = true
+		if !findPoolInSpec(sharedPools.MetadataPoolName) {
+			issues = append(issues, fmt.Sprintf("%s sharedMetadata pool '%s' is not found in spec", objectName, sharedPools.MetadataPoolName))
+		}
+	}
+	if sharedPools.DataPoolName != "" {
+		dataPoolSet = true
+		if !findPoolInSpec(sharedPools.DataPoolName) {
+			issues = append(issues, fmt.Sprintf("%s sharedData pool '%s' is not found in spec", objectName, sharedPools.DataPoolName))
+		}
+	}
+	return metaPoolSet, dataPoolSet, issues
 }
