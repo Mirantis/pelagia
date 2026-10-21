@@ -915,6 +915,23 @@ func TestValidateObjectStorageSpec(t *testing.T) {
 							),
 						},
 					},
+					{
+						Name: "external-rgw-2",
+						Spec: runtime.RawExtension{
+							Raw: unitinputs.ConvertStructToRaw(
+								cephv1.ObjectStoreSpec{
+									Gateway: cephv1.GatewaySpec{
+										Port:       80,
+										SecurePort: 443,
+									},
+									SharedPools: cephv1.ObjectSharedPoolsSpec{
+										MetadataPoolName: "some-pool",
+										DataPoolName:     "some-pool",
+									},
+								},
+							),
+						},
+					},
 				}
 				return cephDpl
 			}(),
@@ -925,14 +942,25 @@ func TestValidateObjectStorageSpec(t *testing.T) {
 				"rgw 'external-rgw' has no port or securePort specified",
 				"cluster is external, rgw 'external-rgw' pools (metadata and data) specification is not allowed",
 				"external endpoints for rgw 'external-rgw' are not provided",
+				"cluster is external, rgw 'external-rgw-2' pools (metadata and data) specification is not allowed",
+				"external endpoints for rgw 'external-rgw-2' are not provided",
 			},
 		},
 		{
 			name: "multiple zones, realms, zonegroups",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cd := unitinputs.CephDeployMultisiteRgw.DeepCopy()
+				rgwMeta := cd.Spec.BlockStorage.Pools[0].DeepCopy()
+				rgwMeta.StorageClassOpts.Default = false
+				rgwData := rgwMeta.DeepCopy()
+				rgwMeta.UseAsFullName = true
+				rgwMeta.Name = "rgw-meta-pool"
+				rgwData.Name = "rgw-data-pool"
+				rgwData.UseAsFullName = true
+				cd.Spec.BlockStorage.Pools = append(cd.Spec.BlockStorage.Pools, *rgwMeta, *rgwData)
 				zone2 := cd.Spec.ObjectStorage.Zones[0].DeepCopy()
 				zone2.Name = "zone2"
+				zone2.Spec.Raw = []byte(`{"zoneGroup": "zonegroup2", "sharedPools": {"metadataPoolName": "rgw-meta-pool", "dataPoolName": "rgw-data-pool"}}`)
 				zonegroup2 := cd.Spec.ObjectStorage.Zonegroups[0].DeepCopy()
 				zonegroup2.Name = "zonegroup2"
 				realm2 := cd.Spec.ObjectStorage.Realms[0].DeepCopy()
@@ -960,6 +988,10 @@ func TestValidateObjectStorageSpec(t *testing.T) {
 				zoneGroupCasted, _ := cd.Spec.ObjectStorage.Zonegroups[0].GetSpec()
 				zoneGroupCasted.Realm = "fake"
 				cd.Spec.ObjectStorage.Zonegroups[0].Spec.Raw = unitinputs.ConvertStructToRaw(zoneGroupCasted)
+				zone2 := cd.Spec.ObjectStorage.Zones[0].DeepCopy()
+				zone2.Name = "zone2"
+				zone2.Spec.Raw = []byte(`{"zoneGroup": "fake", "sharedPools": {"metadataPoolName": "rgw-meta-pool", "dataPoolName": "rgw-data-pool"}}`)
+				cd.Spec.ObjectStorage.Zones = append(cd.Spec.ObjectStorage.Zones, *zone2)
 				return cd
 			}(),
 			expectedIssues: []string{
@@ -967,6 +999,9 @@ func TestValidateObjectStorageSpec(t *testing.T) {
 				"zone 'secondary-zone1' has specified zonegroup 'fake', which is not specified in spec",
 				"zone 'secondary-zone1' metadata pool must be only replicated",
 				"zone 'secondary-zone1' data pool should be either replicated or erasureCoded",
+				"zone 'zone2' has specified zonegroup 'fake', which is not specified in spec",
+				"zone 'zone2' sharedMetadata pool 'rgw-meta-pool' is not found in spec",
+				"zone 'zone2' sharedData pool 'rgw-data-pool' is not found in spec",
 				"incorrect rgw 'rgw-store' configuration, specified zone 'fake' is not found",
 			},
 		},
