@@ -528,6 +528,18 @@ func runSpecAnalysis(node cephv1.Node, diskDaemonReport *lcmcommon.DiskDaemonRep
 			for _, osdInfo := range diskDaemonReport.OsdsReport.Osds[osd] {
 				if osdInfoCluster, present := nodeOsdClusterInfo[fmt.Sprintf("osd.%s", osd)]; present {
 					if osdInfo.ClusterFSID == osdInfoCluster.ClusterFSID && osdInfo.OsdUUID == osdInfoCluster.UUID {
+						// check first it is correct raw device and no unexpected config
+						if !osdInfo.LvmBased {
+							if devToAnalyse.MetadataDevice != "" {
+								issues = append(issues, fmt.Sprintf("%s is specified with metadata device, but currently used as raw device (no metadata supported)", usedInSpecAs))
+							}
+							if devToAnalyse.OsdsPerDevice != 1 {
+								issues = append(issues, fmt.Sprintf("%s is specified with multiple osds per device, but currently used as raw device (only single osd supported)", usedInSpecAs))
+							}
+							osdsOnDevice++
+							osdsReflectedBySpec[osd] = true
+							continue
+						}
 						metaFound := false
 						for _, osdDev := range osdInfo.Devices {
 							lookForBlock := false
@@ -635,6 +647,21 @@ func runSpecAnalysis(node cephv1.Node, diskDaemonReport *lcmcommon.DiskDaemonRep
 				}
 			}
 			if !knownOsd || !presentInSpec {
+				if !osdVolume.LvmBased {
+					for _, dev := range osdVolume.Devices {
+						msg := fmt.Sprintf("found formatted ceph raw device '%s', belongs to osd '%s'", dev.Name, osd)
+						if osdVolume.OsdUUID != "" {
+							msg = fmt.Sprintf("%s (osd fsid '%s')", msg, osdVolume.OsdUUID)
+						}
+						if knownOsd {
+							warnings = append(warnings, fmt.Sprintf("%s, which is not reflected in spec", msg))
+							extraFound = true
+						} else {
+							warnings = append(warnings, fmt.Sprintf("%s, which seems to be stray, can be cleaned up", msg))
+						}
+					}
+					continue
+				}
 				for _, dev := range osdVolume.Devices {
 					for _, part := range osdVolume.Partitions {
 						if dev.RelatedPartition != part.Partition {
