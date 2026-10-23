@@ -24,7 +24,7 @@ import (
 )
 
 var CephDiskDaemonDiskReportStringNode1 = GetDiskDaemonReportToString(&DiskDaemonReportOkNode1)
-var CephDiskDaemonDiskReportStringNode2 = GetDiskDaemonReportToString(DiskDaemonNodeReportWithStrayOkNode2(true))
+var CephDiskDaemonDiskReportStringNode2 = GetDiskDaemonReportToString(DiskDaemonNodeReportWithStrayOkNode2WithRaw(true, true))
 
 func GetDiskDaemonReportToString(report *lcmcommon.DiskDaemonReport) string {
 	strReport, _ := json.Marshal(report)
