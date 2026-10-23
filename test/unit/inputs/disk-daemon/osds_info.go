@@ -488,4 +488,64 @@ var OsdDevicesInfoNode2 = map[string][]lcmcommon.OsdDaemonInfo{
 			},
 		},
 	},
+	"7": {
+		{
+			OsdUUID:     "ddfd94ef-070b-488a-bb86-cfd4e1c9aa6d",
+			ClusterFSID: "8668f062-3faa-358a-85f3-f80fe6c1e306",
+			Devices: []lcmcommon.OsdDevice{
+				{
+					Name:       "/dev/vdy",
+					DeviceID:   "189ff720-dac9-4583-8",
+					Rotational: false,
+					DeviceSymlinks: []string{
+						"/dev/disk/by-diskseq/22",
+						"/dev/disk/by-id/virtio-189ff720-dac9-4583-8",
+						"/dev/disk/by-path/pci-0000:00:2c.0",
+						"/dev/disk/by-path/virtio-pci-0000:00:2c.0",
+					},
+					Raw: true,
+				},
+			},
+		},
+	},
+	"9": {
+		{
+			OsdUUID:     "3e847863-45b6-41c3-a467-ba5f88094f9c",
+			ClusterFSID: "8668f062-3faa-358a-85f3-f80fe6c1e306",
+			Devices: []lcmcommon.OsdDevice{
+				{
+					Name:       "/dev/vdx",
+					DeviceID:   "9f0f417c-ea63-467e-b",
+					Rotational: false,
+					DeviceSymlinks: []string{
+						"/dev/disk/by-diskseq/24",
+						"/dev/disk/by-id/virtio-9f0f417c-ea63-467e-b",
+						"/dev/disk/by-path/pci-0000:00:2e.0",
+						"/dev/disk/by-path/virtio-pci-0000:00:2e.0",
+					},
+					Raw: true,
+				},
+			},
+		},
+	},
+	"5-stray": {
+		{
+			OsdUUID:     "dada9f25-41b4-45b6-a467-f80fe6c1e306",
+			ClusterFSID: "8668f062-0lsk-358a-85f3-f80fe6c1e306",
+			Devices: []lcmcommon.OsdDevice{
+				{
+					Name:       "/dev/vdz",
+					DeviceID:   "8cbb9ce3-8b56-4f69-o",
+					Rotational: false,
+					DeviceSymlinks: []string{
+						"/dev/disk/by-diskseq/28",
+						"/dev/disk/by-id/virtio-8cbb9ce3-8b56-4f69-o",
+						"/dev/disk/by-path/pci-0000:00:2n.0",
+						"/dev/disk/by-path/virtio-pci-0000:00:2n.0",
+					},
+					Raw: true,
+				},
+			},
+		},
+	},
 }

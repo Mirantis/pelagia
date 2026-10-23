@@ -209,14 +209,14 @@ func TestCheckLvmCached(t *testing.T) {
 	runShellCmd = oldCmd
 }
 
-var cephVolumeNode1 = map[string][]OsdVolumeInfo{
+var cephVolumeLvmNode1 = map[string][]OsdVolumeLvmInfo{
 	"20": {
 		{
 			Devices: []string{"/dev/vde"},
 			LvPath:  "/dev/ceph-21312wds-sdfv-vs3f-scv3-sdfdsg23edaa/osd-block-vbsgs3a3-sdcv-casq-sd11-asd12dasczsf",
 			Path:    "/dev/ceph-21312wds-sdfv-vs3f-scv3-sdfdsg23edaa/osd-block-vbsgs3a3-sdcv-casq-sd11-asd12dasczsf",
 			Type:    "block",
-			Tags: OsdVolumeTags{
+			Tags: OsdVolumeLvmTags{
 				BlockDevice: "/dev/ceph-21312wds-sdfv-vs3f-scv3-sdfdsg23edaa/osd-block-vbsgs3a3-sdcv-casq-sd11-asd12dasczsf",
 				ClusterFSID: "8668f062-3faa-358a-85f3-f80fe6c1e306",
 				DBDevice:    "/dev/ceph-metadata/part-1",
@@ -227,7 +227,7 @@ var cephVolumeNode1 = map[string][]OsdVolumeInfo{
 			Devices: []string{"/dev/vdd1"},
 			LvPath:  "/dev/ceph-metadata/part-1",
 			Path:    "/dev/ceph-metadata/part-1",
-			Tags: OsdVolumeTags{
+			Tags: OsdVolumeLvmTags{
 				BlockDevice: "/dev/ceph-21312wds-sdfv-vs3f-scv3-sdfdsg23edaa/osd-block-vbsgs3a3-sdcv-casq-sd11-asd12dasczsf",
 				ClusterFSID: "8668f062-3faa-358a-85f3-f80fe6c1e306",
 				DBDevice:    "/dev/ceph-metadata/part-1",
@@ -241,7 +241,7 @@ var cephVolumeNode1 = map[string][]OsdVolumeInfo{
 			Devices: []string{"/dev/vdf"},
 			LvPath:  "/dev/ceph-2efce189-afb7-452f-bd32-c73b5017a0da/osd-block-d49fd9bf-d2dd-4c3d-824d-87f3f17ea44a",
 			Path:    "/dev/ceph-2efce189-afb7-452f-bd32-c73b5017a0da/osd-block-d49fd9bf-d2dd-4c3d-824d-87f3f17ea44a",
-			Tags: OsdVolumeTags{
+			Tags: OsdVolumeLvmTags{
 				BlockDevice: "/dev/ceph-2efce189-afb7-452f-bd32-c73b5017a0da/osd-block-d49fd9bf-d2dd-4c3d-824d-87f3f17ea44a",
 				ClusterFSID: "8668f062-3faa-358a-85f3-f80fe6c1e306",
 				DBDevice:    "/dev/ceph-metadata/part-2",
@@ -254,7 +254,7 @@ var cephVolumeNode1 = map[string][]OsdVolumeInfo{
 			Devices: []string{"/dev/vdd1", "/dev/vdd1"},
 			LvPath:  "/dev/ceph-metadata/part-2",
 			Path:    "/dev/ceph-metadata/part-2",
-			Tags: OsdVolumeTags{
+			Tags: OsdVolumeLvmTags{
 				BlockDevice: "/dev/ceph-2efce189-afb7-452f-bd32-c73b5017a0da/osd-block-d49fd9bf-d2dd-4c3d-824d-87f3f17ea44a",
 				ClusterFSID: "8668f062-3faa-358a-85f3-f80fe6c1e306",
 				DBDevice:    "/dev/ceph-metadata/part-2",
@@ -268,7 +268,7 @@ var cephVolumeNode1 = map[string][]OsdVolumeInfo{
 			Devices: []string{"/dev/vdb"},
 			LvPath:  "/dev/ceph-992bbd78-3d8e-4cc3-93dc-eae387309364/osd-block-f4edb5cd-fb1e-4620-9419-3f9a4fcecba5",
 			Path:    "/dev/ceph-992bbd78-3d8e-4cc3-93dc-eae387309364/osd-block-f4edb5cd-fb1e-4620-9419-3f9a4fcecba5",
-			Tags: OsdVolumeTags{
+			Tags: OsdVolumeLvmTags{
 				BlockDevice: "/dev/ceph-6e6365e0-b9ae-478b-a43c-644074506aae/osd-block-635a6fd8-dcad-4601-84a6-2150f2eef8c8",
 				ClusterFSID: "8668f062-3faa-358a-85f3-f80fe6c1e306",
 				DBDevice:    "/dev/vda14",
@@ -283,6 +283,93 @@ var cephVolumeNode1 = map[string][]OsdVolumeInfo{
 	},
 }
 
+var cephVolumeLvmNode2 = map[string][]OsdVolumeLvmInfo{
+	"0": {
+		{
+			Devices: []string{"/dev/vdb"},
+			LvPath:  "/dev/ceph-cf7c8b53-27c7-4cfc-94de-6ad4c7d9f92d/osd-block-af39b794-e1c6-41c0-8997-d6b6c631b8f2",
+			Path:    "/dev/ceph-cf7c8b53-27c7-4cfc-94de-6ad4c7d9f92d/osd-block-af39b794-e1c6-41c0-8997-d6b6c631b8f2",
+			Tags: OsdVolumeLvmTags{
+				ClusterFSID: "8668f062-3faa-358a-85f3-f80fe6c1e306",
+				BlockDevice: "/dev/ceph-cf7c8b53-27c7-4cfc-94de-6ad4c7d9f92d/osd-block-af39b794-e1c6-41c0-8997-d6b6c631b8f2",
+				OsdFSID:     "69481cd1-38b1-42fd-ac07-06bf4d7c0e19",
+			},
+			Type: "block",
+		},
+		{
+			Devices: []string{"/dev/vdc"},
+			LvPath:  "/dev/ceph-c5628abe-ae41-4c3d-bdc6-ef86c54bf78c/osd-block-69481cd1-38b1-42fd-ac07-06bf4d7c0e19",
+			Path:    "/dev/ceph-c5628abe-ae41-4c3d-bdc6-ef86c54bf78c/osd-block-69481cd1-38b1-42fd-ac07-06bf4d7c0e19",
+			Tags: OsdVolumeLvmTags{
+				ClusterFSID: "8668f062-0lsk-358a-1gt4-f80fe6c1e306",
+				OsdFSID:     "06bf4d7c-9603-41a4-b250-284ecf3ecb2f",
+				BlockDevice: "/dev/ceph-c5628abe-ae41-4c3d-bdc6-ef86c54bf78c/osd-block-69481cd1-38b1-42fd-ac07-06bf4d7c0e19",
+			},
+			Type: "block",
+		},
+	},
+	"2": {
+		{
+			Devices: []string{"/dev/vde"},
+			LvPath:  "/dev/ceph-0e03d5c6-d0e9-4f04-b9af-38d15e14369f/osd-block-61869d90-2c45-4f02-b7c3-96955f41e2ca",
+			Path:    "/dev/ceph-0e03d5c6-d0e9-4f04-b9af-38d15e14369f/osd-block-61869d90-2c45-4f02-b7c3-96955f41e2ca",
+			Tags: OsdVolumeLvmTags{
+				ClusterFSID: "8668f062-3faa-358a-85f3-f80fe6c1e306",
+				OsdFSID:     "61869d90-2c45-4f02-b7c3-96955f41e2ca",
+				BlockDevice: "/dev/ceph-0e03d5c6-d0e9-4f04-b9af-38d15e14369f/osd-block-61869d90-2c45-4f02-b7c3-96955f41e2ca",
+			},
+			Type: "block",
+		},
+	},
+	"4": {
+		{
+			Devices: []string{"/dev/vdd"},
+			LvPath:  "/dev/ceph-dada9f25-41b4-4c26-9a20-448ac01e1d06/osd-block-ad76cf53-5cb5-48fe-a39a-343734f5ccde",
+			Path:    "/dev/ceph-dada9f25-41b4-4c26-9a20-448ac01e1d06/osd-block-ad76cf53-5cb5-48fe-a39a-343734f5ccde",
+			Tags: OsdVolumeLvmTags{
+				ClusterFSID: "8668f062-3faa-358a-85f3-f80fe6c1e306",
+				OsdFSID:     "ad76cf53-5cb5-48fe-a39a-343734f5ccde",
+				BlockDevice: "/dev/ceph-dada9f25-41b4-4c26-9a20-448ac01e1d06/osd-block-ad76cf53-5cb5-48fe-a39a-343734f5ccde",
+			},
+			Type: "block",
+		},
+	},
+	"5": {
+		{
+			Devices: []string{"/dev/vdd"},
+			LvPath:  "/dev/ceph-dada9f25-41b4-4c26-9a20-448ac01e1d06/osd-block-7d09cceb-4de0-478e-9d8d-bd09cb0c904e",
+			Path:    "/dev/ceph-dada9f25-41b4-4c26-9a20-448ac01e1d06/osd-block-7d09cceb-4de0-478e-9d8d-bd09cb0c904e",
+			Tags: OsdVolumeLvmTags{
+				ClusterFSID: "8668f062-3faa-358a-85f3-f80fe6c1e306",
+				OsdFSID:     "af39b794-e1c6-41c0-8997-d6b6c631b8f2",
+				BlockDevice: "/dev/ceph-dada9f25-41b4-4c26-9a20-448ac01e1d06/osd-block-7d09cceb-4de0-478e-9d8d-bd09cb0c904e",
+			},
+			Type: "block",
+		},
+	},
+}
+
+var cephVolumeRawNode2 = map[string]OsdVolumeRawInfo{
+	"3e847863-45b6-41c3-a467-ba5f88094f9c": {
+		ClusterFSID: "8668f062-3faa-358a-85f3-f80fe6c1e306",
+		Device:      "/dev/vdx",
+		OsdID:       9,
+		OsdFSID:     "3e847863-45b6-41c3-a467-ba5f88094f9c",
+	},
+	"ddfd94ef-070b-488a-bb86-cfd4e1c9aa6d": {
+		ClusterFSID: "8668f062-3faa-358a-85f3-f80fe6c1e306",
+		Device:      "/dev/vdy",
+		OsdID:       7,
+		OsdFSID:     "ddfd94ef-070b-488a-bb86-cfd4e1c9aa6d",
+	},
+	"dada9f25-41b4-45b6-a467-f80fe6c1e306": {
+		ClusterFSID: "8668f062-0lsk-358a-85f3-f80fe6c1e306",
+		Device:      "/dev/vdz",
+		OsdID:       5,
+		OsdFSID:     "dada9f25-41b4-45b6-a467-f80fe6c1e306",
+	},
+}
+
 func TestCheckDisks(t *testing.T) {
 	newDaemon := diskDaemon{
 		nodeName: "node-1",
@@ -290,86 +377,148 @@ func TestCheckDisks(t *testing.T) {
 	}
 
 	tests := []struct {
-		name               string
-		lsblkOutput        string
-		udevadmOutput      map[string]string
-		cephVolumeOutput   string
-		lvmLvsOutput       string
-		disksChanged       bool
-		expectedDiskReport *lcmcommon.DiskDaemonDisksReport
-		expectedCephVolume map[string][]OsdVolumeInfo
-		expectedCachedLvms map[string][]string
-		expectedError      string
-		stateChanged       bool
+		name                  string
+		lsblkOutput           string
+		udevadmOutput         map[string]string
+		cephVolumeLvmOutput   string
+		cephVolumeRawOutput   string
+		lvmLvsOutput          string
+		disksChanged          bool
+		expectedDiskReport    *lcmcommon.DiskDaemonDisksReport
+		expectedCephVolumeLvm map[string][]OsdVolumeLvmInfo
+		expectedCephVolumeRaw map[string]OsdVolumeRawInfo
+		expectedCachedLvms    map[string][]string
+		expectedError         string
+		stateChanged          bool
 	}{
 		{
-			name:               "check failed with lsblk error",
-			lsblkOutput:        "{}",
-			expectedCachedLvms: map[string][]string{},
-			expectedCephVolume: map[string][]OsdVolumeInfo{},
-			expectedError:      "daemon is failed to prepare block device report: no blockdevices found for 'lsblk' output",
+			name:                  "check failed with lsblk error",
+			lsblkOutput:           "{}",
+			expectedCachedLvms:    map[string][]string{},
+			expectedCephVolumeLvm: map[string][]OsdVolumeLvmInfo{},
+			expectedCephVolumeRaw: map[string]OsdVolumeRawInfo{},
+			expectedError:         "daemon is failed to prepare block device report: no blockdevices found for 'lsblk' output",
 		},
 		{
-			name:               "check report created - no ceph volume report",
-			lsblkOutput:        lcmdiskdaemoninput.LsblkReportFromNode1,
-			udevadmOutput:      lcmdiskdaemoninput.UdevadmReportFromNode1,
-			lvmLvsOutput:       "{}",
-			cephVolumeOutput:   "{}",
-			expectedDiskReport: lcmdiskdaemoninput.DiskInfoReportLsblkFromNode1,
-			expectedCachedLvms: lcmdiskdaemoninput.FoundLvmsFromNode1,
-			expectedCephVolume: map[string][]OsdVolumeInfo{},
-			stateChanged:       true,
+			name:                  "check report created - no ceph volume report",
+			lsblkOutput:           lcmdiskdaemoninput.LsblkReportFromNode1,
+			udevadmOutput:         lcmdiskdaemoninput.UdevadmReportFromNode1,
+			lvmLvsOutput:          "{}",
+			cephVolumeLvmOutput:   "{}",
+			cephVolumeRawOutput:   "{}",
+			expectedDiskReport:    lcmdiskdaemoninput.DiskInfoReportLsblkFromNode1,
+			expectedCachedLvms:    lcmdiskdaemoninput.FoundLvmsFromNode1,
+			expectedCephVolumeLvm: map[string][]OsdVolumeLvmInfo{},
+			expectedCephVolumeRaw: map[string]OsdVolumeRawInfo{},
+			stateChanged:          true,
 		},
 		{
-			name:               "check failed to update with lvs error",
-			lsblkOutput:        lcmdiskdaemoninput.LsblkReportFromNode1,
-			udevadmOutput:      lcmdiskdaemoninput.UdevadmReportFromNode1,
-			disksChanged:       true,
-			expectedDiskReport: &lcmcommon.DiskDaemonDisksReport{},
-			expectedCachedLvms: map[string][]string{},
-			expectedCephVolume: map[string][]OsdVolumeInfo{},
-			expectedError:      "daemon is failed to check cached logical volumes: unable to unmarshal lvm lvs output: unexpected end of JSON input",
+			name:                  "check failed to update with lvs error",
+			lsblkOutput:           lcmdiskdaemoninput.LsblkReportFromNode1,
+			udevadmOutput:         lcmdiskdaemoninput.UdevadmReportFromNode1,
+			disksChanged:          true,
+			expectedDiskReport:    &lcmcommon.DiskDaemonDisksReport{},
+			expectedCachedLvms:    map[string][]string{},
+			expectedCephVolumeLvm: map[string][]OsdVolumeLvmInfo{},
+			expectedCephVolumeRaw: map[string]OsdVolumeRawInfo{},
+			expectedError:         "daemon is failed to check cached logical volumes: unable to unmarshal lvm lvs output: unexpected end of JSON input",
 		},
 		{
-			name:               "check failed to update with ceph-volume error",
-			lsblkOutput:        lcmdiskdaemoninput.LsblkReportFromNode1,
-			udevadmOutput:      lcmdiskdaemoninput.UdevadmReportFromNode1,
-			lvmLvsOutput:       lcmdiskdaemoninput.LvmLvsReportFromNode1,
-			expectedDiskReport: lcmdiskdaemoninput.DiskInfoReportLsblkFromNode1,
-			expectedCachedLvms: lcmdiskdaemoninput.FoundLvmsFromNode1,
-			expectedCephVolume: map[string][]OsdVolumeInfo{},
-			expectedError:      "daemon is failed to prepare ceph volumes info report: failed to parse output for command 'ceph-volume lvm list --format json': unexpected end of JSON input",
+			name:                  "check failed to update with ceph-volume lvm error",
+			lsblkOutput:           lcmdiskdaemoninput.LsblkReportFromNode1,
+			udevadmOutput:         lcmdiskdaemoninput.UdevadmReportFromNode1,
+			lvmLvsOutput:          lcmdiskdaemoninput.LvmLvsReportFromNode1,
+			expectedDiskReport:    lcmdiskdaemoninput.DiskInfoReportLsblkFromNode1,
+			expectedCachedLvms:    lcmdiskdaemoninput.FoundLvmsFromNode1,
+			expectedCephVolumeLvm: map[string][]OsdVolumeLvmInfo{},
+			expectedCephVolumeRaw: map[string]OsdVolumeRawInfo{},
+			expectedError:         "daemon is failed to prepare ceph volumes lvm info report: failed to parse output for command 'ceph-volume lvm list --format json': unexpected end of JSON input",
 		},
 		{
-			name:               "check has update full info",
-			lsblkOutput:        lcmdiskdaemoninput.LsblkReportFromNode1,
-			udevadmOutput:      lcmdiskdaemoninput.UdevadmReportFromNode1,
-			cephVolumeOutput:   lcmdiskdaemoninput.CephVolumeLvmReportFromNode1,
-			lvmLvsOutput:       lcmdiskdaemoninput.LvmLvsReportFromNode1,
-			expectedDiskReport: lcmdiskdaemoninput.DiskInfoReportCephVolumeFromNode1,
-			expectedCachedLvms: lcmdiskdaemoninput.FoundLvmsFromNode1,
-			expectedCephVolume: cephVolumeNode1,
-			stateChanged:       true,
+			name:                  "check failed to update with ceph-volume raw error",
+			lsblkOutput:           lcmdiskdaemoninput.LsblkReportFromNode1,
+			udevadmOutput:         lcmdiskdaemoninput.UdevadmReportFromNode1,
+			lvmLvsOutput:          lcmdiskdaemoninput.LvmLvsReportFromNode1,
+			cephVolumeLvmOutput:   "{}",
+			expectedDiskReport:    lcmdiskdaemoninput.DiskInfoReportLsblkFromNode1,
+			expectedCachedLvms:    lcmdiskdaemoninput.FoundLvmsFromNode1,
+			expectedCephVolumeLvm: map[string][]OsdVolumeLvmInfo{},
+			expectedCephVolumeRaw: map[string]OsdVolumeRawInfo{},
+			expectedError:         "daemon is failed to prepare ceph volumes raw info report: failed to parse output for command 'ceph-volume raw list --format json': unexpected end of JSON input",
 		},
 		{
-			name:               "check has no changes",
-			lsblkOutput:        lcmdiskdaemoninput.LsblkReportFromNode1,
-			udevadmOutput:      lcmdiskdaemoninput.UdevadmReportFromNode1,
-			cephVolumeOutput:   lcmdiskdaemoninput.CephVolumeLvmReportFromNode1,
-			lvmLvsOutput:       lcmdiskdaemoninput.LvmLvsReportFromNode1,
-			expectedDiskReport: lcmdiskdaemoninput.DiskInfoReportCephVolumeFromNode1,
-			expectedCachedLvms: lcmdiskdaemoninput.FoundLvmsFromNode1,
-			expectedCephVolume: cephVolumeNode1,
+			name:                  "check has update full info no raw",
+			lsblkOutput:           lcmdiskdaemoninput.LsblkReportFromNode1,
+			udevadmOutput:         lcmdiskdaemoninput.UdevadmReportFromNode1,
+			cephVolumeLvmOutput:   lcmdiskdaemoninput.CephVolumeLvmReportFromNode1,
+			cephVolumeRawOutput:   "{}",
+			lvmLvsOutput:          lcmdiskdaemoninput.LvmLvsReportFromNode1,
+			expectedDiskReport:    lcmdiskdaemoninput.DiskInfoReportCephVolumeFromNode1,
+			expectedCachedLvms:    lcmdiskdaemoninput.FoundLvmsFromNode1,
+			expectedCephVolumeLvm: cephVolumeLvmNode1,
+			expectedCephVolumeRaw: map[string]OsdVolumeRawInfo{},
+			stateChanged:          true,
 		},
 		{
-			name:               "check has ceph volumes changes",
-			lsblkOutput:        lcmdiskdaemoninput.LsblkReportFromNode1,
-			udevadmOutput:      lcmdiskdaemoninput.UdevadmReportFromNode1,
-			cephVolumeOutput:   "{}",
-			expectedDiskReport: lcmdiskdaemoninput.DiskInfoReportLsblkFromNode1,
-			expectedCachedLvms: lcmdiskdaemoninput.FoundLvmsFromNode1,
-			expectedCephVolume: map[string][]OsdVolumeInfo{},
-			stateChanged:       true,
+			name:                  "check has no changes",
+			lsblkOutput:           lcmdiskdaemoninput.LsblkReportFromNode1,
+			udevadmOutput:         lcmdiskdaemoninput.UdevadmReportFromNode1,
+			cephVolumeLvmOutput:   lcmdiskdaemoninput.CephVolumeLvmReportFromNode1,
+			cephVolumeRawOutput:   "{}",
+			lvmLvsOutput:          lcmdiskdaemoninput.LvmLvsReportFromNode1,
+			expectedDiskReport:    lcmdiskdaemoninput.DiskInfoReportCephVolumeFromNode1,
+			expectedCachedLvms:    lcmdiskdaemoninput.FoundLvmsFromNode1,
+			expectedCephVolumeLvm: cephVolumeLvmNode1,
+			expectedCephVolumeRaw: map[string]OsdVolumeRawInfo{},
+		},
+		{
+			name:                  "check has ceph volumes lvm changes",
+			lsblkOutput:           lcmdiskdaemoninput.LsblkReportFromNode1,
+			udevadmOutput:         lcmdiskdaemoninput.UdevadmReportFromNode1,
+			cephVolumeLvmOutput:   "{}",
+			cephVolumeRawOutput:   "{}",
+			expectedDiskReport:    lcmdiskdaemoninput.DiskInfoReportLsblkFromNode1,
+			expectedCachedLvms:    lcmdiskdaemoninput.FoundLvmsFromNode1,
+			expectedCephVolumeLvm: map[string][]OsdVolumeLvmInfo{},
+			expectedCephVolumeRaw: map[string]OsdVolumeRawInfo{},
+			stateChanged:          true,
+		},
+		{
+			name:                  "check has update full info with raw",
+			lsblkOutput:           lcmdiskdaemoninput.LsblkReportFromNode2,
+			udevadmOutput:         lcmdiskdaemoninput.UdevadmReportFromNode2,
+			cephVolumeLvmOutput:   lcmdiskdaemoninput.CephVolumeLvmReportFromNode2,
+			cephVolumeRawOutput:   lcmdiskdaemoninput.CephVolumeRawReportFromNode2,
+			lvmLvsOutput:          lcmdiskdaemoninput.LvmLvsReportFromNode2,
+			expectedDiskReport:    lcmdiskdaemoninput.DiskInfoReportCephVolumeFromNode2,
+			expectedCachedLvms:    lcmdiskdaemoninput.FoundLvmsFromNode2,
+			expectedCephVolumeLvm: cephVolumeLvmNode2,
+			expectedCephVolumeRaw: cephVolumeRawNode2,
+			stateChanged:          true,
+		},
+		{
+			name:                  "check has no changes full info with raw",
+			lsblkOutput:           lcmdiskdaemoninput.LsblkReportFromNode2,
+			udevadmOutput:         lcmdiskdaemoninput.UdevadmReportFromNode2,
+			cephVolumeLvmOutput:   lcmdiskdaemoninput.CephVolumeLvmReportFromNode2,
+			cephVolumeRawOutput:   lcmdiskdaemoninput.CephVolumeRawReportFromNode2,
+			lvmLvsOutput:          lcmdiskdaemoninput.LvmLvsReportFromNode2,
+			expectedDiskReport:    lcmdiskdaemoninput.DiskInfoReportCephVolumeFromNode2,
+			expectedCachedLvms:    lcmdiskdaemoninput.FoundLvmsFromNode2,
+			expectedCephVolumeLvm: cephVolumeLvmNode2,
+			expectedCephVolumeRaw: cephVolumeRawNode2,
+		},
+		{
+			name:                  "check has ceph volumes lvm and raw changes",
+			lsblkOutput:           lcmdiskdaemoninput.LsblkReportFromNode2,
+			udevadmOutput:         lcmdiskdaemoninput.UdevadmReportFromNode2,
+			cephVolumeLvmOutput:   "{}",
+			cephVolumeRawOutput:   "{}",
+			expectedDiskReport:    lcmdiskdaemoninput.DiskInfoReportLsblkFromNode2,
+			expectedCachedLvms:    lcmdiskdaemoninput.FoundLvmsFromNode2,
+			expectedCephVolumeLvm: map[string][]OsdVolumeLvmInfo{},
+			expectedCephVolumeRaw: map[string]OsdVolumeRawInfo{},
+			stateChanged:          true,
 		},
 	}
 
@@ -391,7 +540,9 @@ func TestCheckDisks(t *testing.T) {
 				} else if strings.HasPrefix(command, "pvscan --cache") {
 					return "", "", nil
 				} else if command == "ceph-volume lvm list --format json" {
-					return test.cephVolumeOutput, "", nil
+					return test.cephVolumeLvmOutput, "", nil
+				} else if command == "ceph-volume raw list --format json" {
+					return test.cephVolumeRawOutput, "", nil
 				}
 				return "", "", errors.New("unknown command")
 			}
@@ -407,7 +558,8 @@ func TestCheckDisks(t *testing.T) {
 				assert.Equal(t, test.expectedError, err.Error())
 			}
 			assert.Equal(t, test.expectedDiskReport, newDaemon.data.runtime.disksReport)
-			assert.Equal(t, test.expectedCephVolume, newDaemon.data.runtime.volumesReport)
+			assert.Equal(t, test.expectedCephVolumeLvm, newDaemon.data.runtime.volumesLvmReport)
+			assert.Equal(t, test.expectedCephVolumeRaw, newDaemon.data.runtime.volumesRawReport)
 			assert.Equal(t, test.expectedCachedLvms, newDaemon.data.runtime.knownLvms)
 		})
 	}

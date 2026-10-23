@@ -22,6 +22,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"syscall"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -128,24 +130,31 @@ func cacheLvms(newLvms map[string]bool) error {
 	return nil
 }
 
-type OsdVolumeInfo struct {
-	Devices []string      `json:"devices"`
-	LvPath  string        `json:"lv_path"`
-	Path    string        `json:"path"`
-	Tags    OsdVolumeTags `json:"tags"`
-	Type    string        `json:"type"`
+type OsdVolumeLvmInfo struct {
+	Devices []string         `json:"devices"`
+	LvPath  string           `json:"lv_path"`
+	Path    string           `json:"path"`
+	Tags    OsdVolumeLvmTags `json:"tags"`
+	Type    string           `json:"type"`
 }
 
-type OsdVolumeTags struct {
+type OsdVolumeLvmTags struct {
 	BlockDevice string `json:"ceph.block_device"`
 	DBDevice    string `json:"ceph.db_device"`
 	ClusterFSID string `json:"ceph.cluster_fsid"`
 	OsdFSID     string `json:"ceph.osd_fsid"`
 }
 
-func getCephVolumeLvmList() (map[string][]OsdVolumeInfo, error) {
+type OsdVolumeRawInfo struct {
+	ClusterFSID string `json:"ceph_fsid"`
+	Device      string `json:"device"`
+	OsdID       int    `json:"osd_id"`
+	OsdFSID     string `json:"osd_uuid"`
+}
+
+func getCephVolumeLvmList() (map[string][]OsdVolumeLvmInfo, error) {
 	cmd := "ceph-volume lvm list --format json"
-	var cephVolumeLvm map[string][]OsdVolumeInfo
+	var cephVolumeLvm map[string][]OsdVolumeLvmInfo
 	stdOut, stdErr, err := runShellCmd(cmd)
 	if err != nil {
 		if stdErr != "" {
@@ -160,18 +169,41 @@ func getCephVolumeLvmList() (map[string][]OsdVolumeInfo, error) {
 	return cephVolumeLvm, nil
 }
 
+func getCephVolumeRawList() (map[string]OsdVolumeRawInfo, error) {
+	cmd := "ceph-volume raw list --format json"
+	var cephVolumeRaw map[string]OsdVolumeRawInfo
+	stdOut, stdErr, err := runShellCmd(cmd)
+	if err != nil {
+		if stdErr != "" {
+			log.Error().Msg(stdErr)
+		}
+		return nil, err
+	}
+	err = json.Unmarshal([]byte(stdOut), &cephVolumeRaw)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to parse output for command '%s'", cmd)
+	}
+	return cephVolumeRaw, nil
+}
+
 func execCmd(command string) (string, string, error) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
-	// set timeout to daemon interval - should not run more that 30s for any cmd
-	ctx, cancel := context.WithTimeout(context.Background(), checkInterval)
+	// TODO: make it configurable to avoid possible issues on huge envs
+	cmdTimeout := 30 * time.Second
+	ctx, cancel := context.WithTimeout(context.Background(), cmdTimeout)
 	defer cancel()
 	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", command)
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	cmd.Cancel = func() error {
+		return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+	}
+	cmd.WaitDelay = 5 * time.Second
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if ctx.Err() == context.DeadlineExceeded {
-		return stdout.String(), stderr.String(), context.DeadlineExceeded
+		return stdout.String(), stderr.String(), errors.Wrapf(context.DeadlineExceeded, "command '%s' timed out", command)
 	}
 	return stdout.String(), stderr.String(), err
 }
