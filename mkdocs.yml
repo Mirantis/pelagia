@@ -106,12 +106,6 @@ nav:
       - Configuration Reference: configuration/index.md
       - Helm chart configuration: configuration/helm-values.md
       - ConfigMap pelagia-lcmconfig: configuration/lcmconfig.md
-  - Developer Guide: developer.md
-  - Upgrade Guide:
-    - Upgrade Guide: upgrade-guide/index.md
-    - Upgrade Pelagia: upgrade-guide/upgrade.md
-    - Upgrade notes 2.x to 3.x: upgrade-guide/upgrade-notes.md
-    - Upgrade notes 1.x to 2.x: https://mirantis.github.io/pelagia/2.x/upgrade-guide/upgrade-notes/
   - Operations Guide:
       - Operations Guide: ops-guide/index.md
       - CephDeployment operations:
@@ -170,7 +164,12 @@ nav:
         - Verify Ceph cluster state: ops-guide/verify-ceph/verify-cephdeploymenthealth.md
         - Verify Pelagia Controllers and Rook Ceph Operator: ops-guide/verify-ceph/verify-pelagia-and-rook.md
         - Verify rook-discover: ops-guide/verify-ceph/verify-rook-discover.md
-  - Troubleshoot:
+  - Upgrade Guide:
+    - Upgrade Guide: upgrade-guide/index.md
+    - Upgrade Pelagia: upgrade-guide/upgrade.md
+    - Upgrade notes 2.x to 3.x: upgrade-guide/upgrade-notes.md
+    - Upgrade notes 1.x to 2.x: https://mirantis.github.io/pelagia/2.x/upgrade-guide/upgrade-notes/
+  - Troubleshooting Guide:
     - Troubleshoot: troubleshoot/index.md
     - Ceph disaster recovery: troubleshoot/ceph-disaster-recover.md
     - The ceph-exporter pods are present in the Ceph crash list: troubleshoot/ceph-exporter-crash.md
@@ -182,7 +181,7 @@ nav:
     - Ceph rebalancing gets stuck during disabled node removal: troubleshoot/ceph-rebalance-stuck.md
     - CephOsdRemoveTask failure with a timeout during rebalance: troubleshoot/cephosdremovetask-timeout.md
     - Maintenance stuck on a compact Ceph cluster: troubleshoot/stuck-maintenance.md
-
+  - Developer Guide: developer.md
 #  - Operations Guide:
 #      - Upgrade OpenStack: ops/openstack/upgrade.md
 #      - Run tempest: ops/openstack/tempest.md
