@@ -17,6 +17,7 @@ limitations under the License.
 package diskdaemon
 
 import (
+	"fmt"
 	"reflect"
 	"sort"
 	"strings"
@@ -60,28 +61,42 @@ func (d *diskDaemon) checkDisks() (bool, error) {
 		}
 		changed = true
 	}
-	newVolumesReport, err := getCephVolumeLvmList()
+	newVolumesLvmReport, err := getCephVolumeLvmList()
 	if err != nil {
-		err = errors.Wrap(err, "daemon is failed to prepare ceph volumes info report")
+		err = errors.Wrap(err, "daemon is failed to prepare ceph volumes lvm info report")
 		log.Error().Err(err).Msg("")
 		return false, err
 	}
-	if !reflect.DeepEqual(d.data.runtime.volumesReport, newVolumesReport) {
-		log.Info().Msgf("[node '%s'] daemon's ceph volumes info report is updating", d.nodeName)
-		lcmcommon.ShowObjectDiff(log, d.data.runtime.volumesReport, newVolumesReport)
+	newVolumesRawReport, err := getCephVolumeRawList()
+	if err != nil {
+		err = errors.Wrap(err, "daemon is failed to prepare ceph volumes raw info report")
+		log.Error().Err(err).Msg("")
+		return false, err
+	}
+	if !reflect.DeepEqual(d.data.runtime.volumesLvmReport, newVolumesLvmReport) {
+		log.Info().Msgf("[node '%s'] daemon's ceph volumes lvm info report is updating", d.nodeName)
+		lcmcommon.ShowObjectDiff(log, d.data.runtime.volumesLvmReport, newVolumesLvmReport)
 		changed = true
-		d.data.runtime.volumesReport = newVolumesReport
+		d.data.runtime.volumesLvmReport = newVolumesLvmReport
+	}
+	if !reflect.DeepEqual(d.data.runtime.volumesRawReport, newVolumesRawReport) {
+		log.Info().Msgf("[node '%s'] daemon's ceph volumes raw info report is updating", d.nodeName)
+		lcmcommon.ShowObjectDiff(log, d.data.runtime.volumesRawReport, newVolumesRawReport)
+		changed = true
+		d.data.runtime.volumesRawReport = newVolumesRawReport
+	}
+	if changed {
 		d.data.runtime.disksReport.DiskToOsd = d.diskToOsdMap()
 	}
 	return changed, nil
 }
 
 func (d *diskDaemon) diskToOsdMap() map[string][]string {
-	if len(d.data.runtime.volumesReport) == 0 {
+	if len(d.data.runtime.volumesLvmReport) == 0 && len(d.data.runtime.volumesRawReport) == 0 {
 		return nil
 	}
 	diskToOsd := map[string]map[string]bool{}
-	for osdID, volumes := range d.data.runtime.volumesReport {
+	for osdID, volumes := range d.data.runtime.volumesLvmReport {
 		for _, volume := range volumes {
 			var devs []string
 			if len(volume.Devices) > 0 {
@@ -108,6 +123,14 @@ func (d *diskDaemon) diskToOsdMap() map[string][]string {
 		}
 		sort.Strings(ids)
 		diskToOsdMap[dev] = ids
+	}
+	for _, rawInfo := range d.data.runtime.volumesRawReport {
+		// find disk in case if we have some symlink there
+		disks := findDisks(d.data.runtime.disksReport.Aliases[rawInfo.Device], d.data.runtime.disksReport.BlockInfo)
+		// should be always only one disk, but to avoid unexpected crashes lets check
+		if len(disks) > 0 {
+			diskToOsdMap[disks[0]] = []string{fmt.Sprint(rawInfo.OsdID)}
+		}
 	}
 	return diskToOsdMap
 }
@@ -201,6 +224,7 @@ func loopOverDevices(blockDevices []DeviceLsblk, foundLvms map[string][]string, 
 			report.BlockInfo[blockDevice.Name] = lcmcommon.BlockDeviceInfo{
 				Kname:      blockDevice.Kname,
 				Serial:     blockDevice.Serial,
+				Fstype:     blockDevice.FsType,
 				Type:       blockDevice.Type,
 				Rotational: blockDevice.Rotational,
 				MajMin:     blockDevice.MajMin,
