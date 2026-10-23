@@ -23,6 +23,8 @@ type BlockDeviceInfo struct {
 	Serial string `json:"serial,omitempty"`
 	// device type: disk, part, lvm, raid
 	Type string `json:"type"`
+	// fstype of device: LVM2_member, ceph_bluestore
+	Fstype string `json:"fstype,omitempty"`
 	// rotational device
 	Rotational bool `json:"rota"`
 	// major:minor device number
@@ -78,6 +80,7 @@ type OsdDaemonInfo struct {
 	ClusterFSID string         `json:"osd_fsid,omitempty"`
 	Devices     []OsdDevice    `json:"osd_device,omitempty"`
 	Partitions  []OsdPartition `json:"osd_partitions,omitempty"`
+	LvmBased    bool           `json:"lvm_based,omitempty"`
 }
 
 type OsdDevice struct {

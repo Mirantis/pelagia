@@ -24,7 +24,7 @@ import (
 )
 
 var CephDiskDaemonDiskReportStringNode1 = GetDiskDaemonReportToString(&DiskDaemonReportOkNode1)
-var CephDiskDaemonDiskReportStringNode2 = GetDiskDaemonReportToString(DiskDaemonNodeReportWithStrayOkNode2(true))
+var CephDiskDaemonDiskReportStringNode2 = GetDiskDaemonReportToString(DiskDaemonNodeReportWithStrayOkNode2WithRaw(true, true))
 
 func GetDiskDaemonReportToString(report *lcmcommon.DiskDaemonReport) string {
 	strReport, _ := json.Marshal(report)
@@ -95,6 +95,10 @@ var DiskDaemonReportOkNode2SomeDevLost = lcmcommon.DiskDaemonReport{
 }
 
 func DiskDaemonNodeReportWithStrayOkNode2(inCrush bool) *lcmcommon.DiskDaemonReport {
+	return DiskDaemonNodeReportWithStrayOkNode2WithRaw(inCrush, false)
+}
+
+func DiskDaemonNodeReportWithStrayOkNode2WithRaw(inCrush, withRaw bool) *lcmcommon.DiskDaemonReport {
 	report := &lcmcommon.DiskDaemonReport{
 		State:       lcmcommon.DiskDaemonStateOk,
 		DisksReport: lcmdiskdaemoninput.DiskInfoReportCephVolumeFromNode2,
@@ -109,6 +113,10 @@ func DiskDaemonNodeReportWithStrayOkNode2(inCrush bool) *lcmcommon.DiskDaemonRep
 	}
 	if inCrush {
 		report.OsdsReport.Osds["2"] = lcmdiskdaemoninput.OsdDevicesInfoNode2["2"]
+	}
+	if withRaw {
+		report.OsdsReport.Osds["5"] = append(lcmdiskdaemoninput.OsdDevicesInfoNode2["5"], lcmdiskdaemoninput.OsdDevicesInfoNode2["5-stray"]...)
+		report.OsdsReport.Osds["9"] = lcmdiskdaemoninput.OsdDevicesInfoNode2["9"]
 	}
 	return report
 }

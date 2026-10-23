@@ -571,6 +571,17 @@ var CephOsdMetadataOutputTmpl = `[
     "device_paths": "vdd=/dev/disk/by-path/pci-0000:00:1e.0"
   },
   {
+    "devices": "vdx",
+    "bluestore_bdev_devices": "vdx",
+    "bluestore_bdev_type": "ssd",
+    "bluestore_bdev_partition_path": "/dev/vdx",
+    "bluefs_dedicated_db": "0",
+    "id": 9,
+    "hostname": "node-2",
+    "device_ids": "vdx=9f0f417c-ea63-467e-b",
+    "device_paths": "vdx=/dev/disk/by-path/pci-0000:00:2e.0"
+  },
+  {
     "devices": "vde,vdd",
     "bluestore_bdev_devices": "vde",
     "bluestore_bdev_type": "hdd",
@@ -634,6 +645,12 @@ var CephOsdInfoOutputTmpl = `[
     {
         "osd":  5,
         "uuid": "af39b794-e1c6-41c0-8997-d6b6c631b8f2",
+        "up":   1,
+        "in":   1
+    },
+    {
+        "osd":  9,
+        "uuid": "3e847863-45b6-41c3-a467-ba5f88094f9c",
         "up":   1,
         "in":   1
     },

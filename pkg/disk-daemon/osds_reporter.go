@@ -29,7 +29,7 @@ func (d *diskDaemon) checkOsds() []string {
 	osdsReport := map[string][]lcmcommon.OsdDaemonInfo{}
 	issues := []string{}
 	warnings := []string{}
-	for osd, osdsVolumesInfo := range d.data.runtime.volumesReport {
+	for osd, osdsVolumesInfo := range d.data.runtime.volumesLvmReport {
 		osdInfo := []lcmcommon.OsdDaemonInfo{}
 		pathToIdxMap := map[string]int{}
 		for _, osdVolumeInfo := range osdsVolumesInfo {
@@ -108,8 +108,9 @@ func (d *diskDaemon) checkOsds() []string {
 				warnings = append(warnings, warning)
 			}
 
+			// all found always under lvm - mark as lvm based always
+			info := lcmcommon.OsdDaemonInfo{LvmBased: true}
 			var relatedPartition *lcmcommon.OsdPartition
-			var info lcmcommon.OsdDaemonInfo
 			var existIdx int
 			var present bool
 			switch osdVolumeInfo.Type {
@@ -185,6 +186,7 @@ func (d *diskDaemon) checkOsds() []string {
 					ClusterFSID: osdVolumeInfo.Tags.ClusterFSID,
 					Devices:     []lcmcommon.OsdDevice{osdDevice},
 					Partitions:  []lcmcommon.OsdPartition{osdPartition},
+					LvmBased:    true,
 				}
 				if relatedPartition != nil {
 					info.Partitions = append(info.Partitions, *relatedPartition)
@@ -194,6 +196,34 @@ func (d *diskDaemon) checkOsds() []string {
 			}
 		}
 		osdsReport[osd] = osdInfo
+	}
+	for _, osdsRawInfo := range d.data.runtime.volumesRawReport {
+		osdStr := fmt.Sprintf("%d", osdsRawInfo.OsdID)
+		// issue should not happen, but avoid unexpected situations with symlinks
+		devName, err := lcmcommon.FindDiskName(osdsRawInfo.Device, d.data.runtime.disksReport)
+		if err != nil {
+			issue := fmt.Sprintf("for osd '%s', raw device '%s' %s", osdStr, osdsRawInfo.Device, err.Error())
+			log.Error().Msg(issue)
+			issues = append(issues, issue)
+			continue
+		}
+		info := lcmcommon.OsdDaemonInfo{
+			OsdUUID:     osdsRawInfo.OsdFSID,
+			ClusterFSID: osdsRawInfo.ClusterFSID,
+			Devices: []lcmcommon.OsdDevice{
+				{
+					Name:           devName,
+					DeviceID:       d.data.runtime.disksReport.BlockInfo[devName].Serial,
+					Rotational:     d.data.runtime.disksReport.BlockInfo[devName].Rotational,
+					DeviceSymlinks: d.data.runtime.disksReport.BlockInfo[devName].Symlinks,
+				},
+			},
+		}
+		if v, ok := osdsReport[osdStr]; ok {
+			osdsReport[osdStr] = append(v, info)
+		} else {
+			osdsReport[osdStr] = []lcmcommon.OsdDaemonInfo{info}
+		}
 	}
 	sort.Strings(warnings)
 	sort.Strings(issues)
