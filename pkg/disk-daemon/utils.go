@@ -127,24 +127,31 @@ func cacheLvms(newLvms map[string]bool) error {
 	return nil
 }
 
-type OsdVolumeInfo struct {
-	Devices []string      `json:"devices"`
-	LvPath  string        `json:"lv_path"`
-	Path    string        `json:"path"`
-	Tags    OsdVolumeTags `json:"tags"`
-	Type    string        `json:"type"`
+type OsdVolumeLvmInfo struct {
+	Devices []string         `json:"devices"`
+	LvPath  string           `json:"lv_path"`
+	Path    string           `json:"path"`
+	Tags    OsdVolumeLvmTags `json:"tags"`
+	Type    string           `json:"type"`
 }
 
-type OsdVolumeTags struct {
+type OsdVolumeLvmTags struct {
 	BlockDevice string `json:"ceph.block_device"`
 	DBDevice    string `json:"ceph.db_device"`
 	ClusterFSID string `json:"ceph.cluster_fsid"`
 	OsdFSID     string `json:"ceph.osd_fsid"`
 }
 
-func getCephVolumeLvmList() (map[string][]OsdVolumeInfo, error) {
+type OsdVolumeRawInfo struct {
+	ClusterFSID string `json:"ceph_fsid"`
+	Device      string `json:"device"`
+	OsdID       int    `json:"osd_id"`
+	OsdFSID     string `json:"osd_uuid"`
+}
+
+func getCephVolumeLvmList() (map[string][]OsdVolumeLvmInfo, error) {
 	cmd := "ceph-volume lvm list --format json"
-	var cephVolumeLvm map[string][]OsdVolumeInfo
+	var cephVolumeLvm map[string][]OsdVolumeLvmInfo
 	stdOut, stdErr, err := runShellCmd(cmd)
 	if err != nil {
 		if stdErr != "" {
@@ -157,6 +164,23 @@ func getCephVolumeLvmList() (map[string][]OsdVolumeInfo, error) {
 		return nil, errors.Wrapf(err, "failed to parse output for command '%s'", cmd)
 	}
 	return cephVolumeLvm, nil
+}
+
+func getCephVolumeRawList() (map[string]OsdVolumeRawInfo, error) {
+	cmd := "ceph-volume raw list --format json"
+	var cephVolumeRaw map[string]OsdVolumeRawInfo
+	stdOut, stdErr, err := runShellCmd(cmd)
+	if err != nil {
+		if stdErr != "" {
+			log.Error().Msg(stdErr)
+		}
+		return nil, err
+	}
+	err = json.Unmarshal([]byte(stdOut), &cephVolumeRaw)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to parse output for command '%s'", cmd)
+	}
+	return cephVolumeRaw, nil
 }
 
 func execCmd(command string) (string, string, error) {
