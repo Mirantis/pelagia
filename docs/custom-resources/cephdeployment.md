@@ -193,13 +193,14 @@ advanced configuration.
 
 - `blockStorage` - Specifies the Ceph block storage configuration. Contains the `pools` parameter that specifies the list of Ceph pools. For details, see [Pools parameters](./cephdeployment.md#cephdeployment-pools-parameters).
 - `csi` - Manages CSI resources such as drivers and OperatorConfig. For details, see [CSI parameters](./cephdeployment.md#cephdeployment-csi-parameters).
-- `clients` - Specifies the list of Ceph clients. For details, see [Clients parameters](./cephdeployment.md#cephdeployment-clients-parameters).
+- `cephxClients` - Specifies the list of Ceph clients and assigns them an application role. For details, see [Clients parameters](./cephdeployment.md#cephdeployment-cephxclients-parameters).
 - `extraOpts` - Enables specification of extra options for a Ceph cluster setup, includes the `deviceLabels` parameter. For details, see [ExtraOpts parameters](./cephdeployment.md#cephdeployment-extraopts-parameters).
 - `nodes` - Specifies the list of Ceph nodes with node specifications. Each list item can define a Ceph node specification for a single node or a group of nodes specified by an explicit list, a label, or a combination of both. For details, see [Nodes parameters](./cephdeployment.md#cephdeployment-nodes-parameters).
 - `objectStorage` - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage, the RADOS Gateway Multisite configuration, and the Gateway API HTTPRoutes for public access to Object Storage. For details, see [Object storage parameters](./cephdeployment.md#cephdeployment-object-storage-parameters).
 - `rbdMirror` - Specifies the parameters for RBD mirroring. For details, see [RBD Mirroring parameters](./cephdeployment.md#cephdeployment-rbd-mirroring-parameters).
 - `rookConfig` - Specifies the string key-value that allows overriding Ceph configuration options. For details, see [RookConfig parameters](./cephdeployment.md#cephdeployment-rookconfig-parameters).
 - `sharedFilesystem` - Enables Ceph Filesystem. For details, see [CephFS parameters](./cephdeployment.md#cephdeployment-cephfs-parameters).
+- `clients` - Deprecated in favor of `cephxClients`, automatically replaced with the new section. Specifies the list of Ceph clients. For details, see [Clients parameters](./cephdeployment.md#cephdeployment-clients-parameters).
 - `ingressConfig` - Deprecated in favor of `objectStorage.gatewayHTTPRoutes` due to [NGINX Ingress retirement](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/). Enables a custom ingress rule for public access to Ceph services, for example, Ceph RADOS Gateway. For details, see [Configure Ceph Object Gateway TLS](../ops-guide/deployment/object-storage/rgw-tls.md#rgw-tls-configure-ceph-object-gateway-tls).
 
 <a name="cephdeployment-nodes-parameters"></a>
@@ -432,6 +433,7 @@ The `pools` parameters contain the Ceph block pool specification that represents
 
     - `default` - Optional. Defines whether the pool and dependent StorageClass must be set
       as default. Must be enabled only for one pool. Defaults to `false`.
+    - `skipClassCreate` - Optional. Disables creation of the `StorageClass` for pool.
     - `mapOptions` - Optional. Not updatable as it applies only once. Specifies custom
       `rbd device map` options to use with `StorageClass` of a corresponding pool. Allows customizing
       the Kubernetes CSI driver interaction with Ceph RBD for the defined `StorageClass`. For
@@ -513,15 +515,53 @@ To configure additional required pools for Rockoon, see
     permission on the mount point of persistent volumes based on any
     `StorageClass` of the Ceph pool.
 
+<a name="cephdeployment-cephxclients-parameters"></a>
+### CephxClients parameters
+
+The `cephxClients` parameters contain a list of Ceph clients. Each item represents the Rook `CephClient` specification (`ClientSpec`) and optional
+role assigned to the client for an application:
+
+- `role` - Optional. Application role assigned to the client. Pelagia uses it to find all clients of one application,
+  for example, during rotation. Must contain only alphanumeric characters and hyphens, up to 63 characters.
+  The `nova`, `cinder`, `glance`, and `manila` roles are reserved for OpenStack services on MOSK-based setups.
+  When `clients` is migrated to `cephxClients`, clients with these names obtain the matching role automatically.
+- `spec` - Mandatory. Ceph client specification. For details, see the following Rook documentation: [CephClient CRD](https://rook.io/docs/rook/v1.20/CRDs/ceph-client-crd/) and [CephClient API specification](https://rook.io/docs/rook/v1.20/CRDs/specification/#ceph.rook.io/v1.ClientSpec).
+  Must always contain the following fields:
+
+  - `name` - Mandatory. Ceph client name.
+  - `caps` - Mandatory. Ceph client capabilities as a map of a Ceph daemon type to the capabilities string.
+
+For details about Ceph client capabilities (`caps`), refer to [Ceph documentation: Authorization (capabilities)](https://docs.ceph.com/en/latest/rados/operations/user-management/#authorization-capabilities).
+
+??? "Example configuration of clients specification"
+
+    ```yaml
+    spec:
+      cephxClients:
+      - role: my-app
+        spec:
+          name: test-client
+          caps:
+            mon: allow r, allow command "osd blacklist"
+            osd: profile rbd pool=kubernetes-nvme
+    ```
+
+!!! info "See also"
+
+    * [Manage Ceph RBD or CephFS clients](../ops-guide/deployment/ceph-user-creds/ceph-client.md#ceph-client-manage-ceph-rbd-or-cephfs-clients)
+    * [Move clients created by default for MOSK under spec](../ops-guide/deployment/ceph-user-creds/ceph-client.md#move-default-clients-to-spec)
+
 <a name="cephdeployment-clients-parameters"></a>
 ### Clients parameters
+
+Deprecated in favor of `cephxClients` parameter.
 
 The `clients` parameters contain a list of Ceph clients. Each item represents the Rook `CephClient` specification (`ClientSpec`) directly, without an additional wrapper:
 
 - `name` - Mandatory. Ceph client name.
 - `caps` - Mandatory. Ceph client capabilities as a map of a Ceph daemon type to the capabilities string.
 
-For details, see the following Rook documentation: [CephClient CRD](https://rook.io/docs/rook/v1.19/CRDs/ceph-client-crd/) and [CephClient API specification](https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.ClientSpec).
+For details, see the following Rook documentation: [CephClient CRD](https://rook.io/docs/rook/v1.20/CRDs/ceph-client-crd/) and [CephClient API specification](https://rook.io/docs/rook/v1.20/CRDs/specification/#ceph.rook.io/v1.ClientSpec).
 
 For details about Ceph client capabilities (`caps`), refer to [Ceph documentation: Authorization (capabilities)](https://docs.ceph.com/en/latest/rados/operations/user-management/#authorization-capabilities).
 
@@ -536,18 +576,14 @@ For details about Ceph client capabilities (`caps`), refer to [Ceph documentatio
           osd: profile rbd pool=kubernetes-nvme
     ```
 
-!!! info "See also"
-
-    [Manage Ceph RBD or CephFS clients](../ops-guide/deployment/ceph-user-creds/ceph-client.md)
-
 <a name="cephdeployment-object-storage-parameters"></a>
 ### ObjectStorage parameters
 
 - `objectStores` - List of Ceph `ObjectStorage` RADOS Gateway (RGW) objects. Each `objectStore` item represents the Rook `CephObjectStore` specification. For details, see [RGW objectStores parameters](./cephdeployment.md#cephdeployment-rados-gateway-parameters).
 - `users` - List of Ceph `ObjectStorage` users. Each `user` item represents the Rook `CephObjectStoreUser` specification. For details, see [RGW users parameters](./cephdeployment.md#cephdeployment-rgw-users-parameters).
-- `realms` - List of Ceph `ObjectStorage` realms. Each `realm` item represents the Rook `CephObjectRealms` specification. Currently, only one realm is supported, so the list must contain exactly one item. For details, see [RGW multisite parameters](./cephdeployment.md#cephdeployment-rados-gateway-multisite-parameters).
-- `zonegroups` - List of Ceph `ObjectStorage` zone groups. Each `zonegroup` item represents the Rook `CephObjectZoneGroup` specification. Currently, only one zone group is supported, so the list must contain exactly one item. For details, see [RGW multisite parameters](./cephdeployment.md#cephdeployment-rados-gateway-multisite-parameters).
-- `zones` - List of Ceph `ObjectStorage` zones. Each `zone` item represents the Rook `CephObjectZone` specification. Currently, only one zone is supported, so the list must contain exactly one item. For details, see [RGW multisite parameters](./cephdeployment.md#cephdeployment-rados-gateway-multisite-parameters).
+- `realms` - List of Ceph `ObjectStorage` realms. Each `realm` item represents the Rook `CephObjectRealms` specification. For details, see [RGW multisite parameters](./cephdeployment.md#cephdeployment-rados-gateway-multisite-parameters).
+- `zonegroups` - List of Ceph `ObjectStorage` zone groups. Each `zonegroup` item represents the Rook `CephObjectZoneGroup` specification. For details, see [RGW multisite parameters](./cephdeployment.md#cephdeployment-rados-gateway-multisite-parameters).
+- `zones` - List of Ceph `ObjectStorage` zones. Each `zone` item represents the Rook `CephObjectZone` specification. For details, see [RGW multisite parameters](./cephdeployment.md#cephdeployment-rados-gateway-multisite-parameters).
 - `gatewayHTTPRoutes` - List of Gateway API HTTP routes. Each item represents the `HTTPRoute` specification. For details, see [RGW HTTPRoutes](./cephdeployment.md#cephdeployment-httproute-parameters).
 
 <a name="cephdeployment-rados-gateway-parameters"></a>
@@ -583,7 +619,8 @@ For details about Ceph client capabilities (`caps`), refer to [Ceph documentatio
 
 !!! info "See also"
 
-    [Enable management of Ceph tolerations and resources](../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md)
+    * [Manage Ceph Object Storage](../ops-guide/deployment/object-storage/rgw.md)
+    * [Enable management of Ceph tolerations and resources](../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md)
 
 <a name="cephdeployment-rgw-users-parameters"></a>
 #### RGW users parameters
@@ -828,6 +865,23 @@ spec:
     ```yaml
     extraOpts:
       osdRestartReason: <reason>
+    ```
+
+- ``rotateOsClients`` - Optional. `CephClient` rotation settings for OpenStack services in MOSK-based setups.
+
+  - ``rotation`` - Mandatory. Counter of the latest requested rotation, from `0` to `32767`. Increment the value to trigger a new rotation.
+    The value cannot be decreased.
+  - ``keepPrevious`` - Optional. Number of previous `CephClient` resources kept for OpenStack services, from `0` to `3`. Defaults to `1`.
+    With `0`, Pelagia removes the previous client as soon as the new one is `Ready`, so services may lose access before they receive the new key.
+    Set a non-zero value before a rotation to keep the previous key during the transition.
+
+    Example usage:
+
+    ```yaml
+    extraOpts:
+      rotateOsClients:
+        rotation: 2
+        keepPrevious: 1
     ```
 
 <a name="cephdeployment-rbd-mirroring-parameters"></a>

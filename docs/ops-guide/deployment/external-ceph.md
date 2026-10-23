@@ -92,17 +92,18 @@ cluster, the Ceph client requires the following `caps` (permissions):
 - Read-write access to Ceph Metadata servers if CephFS pools must be shared
 - Profile access to shared RBD/CephFS pools' access for Ceph OSDs
 
-To create a Ceph non-admin client, add the following snippet to the `clients` section of the `CephDeployment` object:
+To create a Ceph non-admin client, add the following snippet to the `cephxClients` section of the `CephDeployment` object:
 
 ```yaml
 spec:
-  clients:
-  - name: <nonAdminClientName>
-    caps:
-      mgr: "allow rw"
-      mon: "allow r, profile role-definer"
-      mds: "allow rw" # if CephFS must be shared
-      osd: <poolsProfileCaps>
+  cephxClients:
+  - spec:
+      name: <nonAdminClientName>
+      caps:
+        mgr: "allow rw"
+        mon: "allow r, profile role-definer"
+        mds: "allow rw" # if CephFS must be shared
+        osd: <poolsProfileCaps>
 ```
 
 Substitute `<nonAdminClientName>` with a Ceph non-admin client name and `<poolsProfileCaps>` with a comma-separated profile list of RBD and CephFS pools in the following format:
@@ -114,13 +115,14 @@ For example:
 
 ```yaml
 spec:
-  clients:
-  - name: non-admin-client
-    caps:
-      mgr: "allow rw"
-      mon: "allow r, profile role-definer"
-      mds: "allow rw"
-      osd: "profile rbd pool=kubernetes-hdd,profile rbd pool=anotherpool-hdd,allow rw tag cephfs data=cephfs-store"
+  cephxClients:
+  - spec:
+      name: non-admin-client
+      caps:
+        mgr: "allow rw"
+        mon: "allow r, profile role-definer"
+        mds: "allow rw"
+        osd: "profile rbd pool=kubernetes-hdd,profile rbd pool=anotherpool-hdd,allow rw tag cephfs data=cephfs-store"
 ```
 
 To verify the status of the created Ceph client, inspect the `status` section of the `CephDeploymentHealth` object. For example:

@@ -83,8 +83,7 @@ These options are added on top of the general Ceph RADOS Gateway defaults above:
   rgw_usage_max_shards = 32
   rgw_usage_max_user_shards = 1
   ```
-* Parameters for the Keystone integration taken from the `openstack-rgw-creds` secret.
-  You cannot override `rgw_keystone_api_version`:
+* Parameters for the Keystone integration taken from the `openstack-rgw-creds` secret:
   ```ini
   rgw_keystone_api_version = 3
   rgw_keystone_url = <keystoneAuthURL>
@@ -93,6 +92,9 @@ These options are added on top of the general Ceph RADOS Gateway defaults above:
   rgw_keystone_admin_domain = <keystoneProjectDomain>
   rgw_keystone_admin_project = <keystoneProjectName>
   ```
+
+    You cannot override `rgw_keystone_api_version`.
+
 * If the secret contains `barbican_url`, parameters for the Barbican integration:
   ```ini
   rgw_crypt_s3_kms_backend = barbican
