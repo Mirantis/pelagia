@@ -803,6 +803,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#cephxclients-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CephxClients parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#clients-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3647,6 +3658,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#cephxclients-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CephxClients parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#clients-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3998,13 +4020,14 @@ For details, see <a href="../../ops-guide/deployment/multinetworking/#multinetwo
 <p><code>blockStorage</code> - Specifies the Ceph block storage configuration. Contains the <code>pools</code> parameter that specifies the list of Ceph pools. For details, see <a href="./#cephdeployment-pools-parameters">Pools parameters</a>.</p>
 </li>
 <li><code>csi</code> - Manages CSI resources such as drivers and OperatorConfig. For details, see <a href="./#cephdeployment-csi-parameters">CSI parameters</a>.</li>
-<li><code>clients</code> - Specifies the list of Ceph clients. For details, see <a href="./#cephdeployment-clients-parameters">Clients parameters</a>.</li>
+<li><code>cephxClients</code> - Specifies the list of Ceph clients and assigns them an application role. For details, see <a href="./#cephdeployment-cephxclients-parameters">Clients parameters</a>.</li>
 <li><code>extraOpts</code> - Enables specification of extra options for a Ceph cluster setup, includes the <code>deviceLabels</code> parameter. For details, see <a href="./#cephdeployment-extraopts-parameters">ExtraOpts parameters</a>.</li>
 <li><code>nodes</code> - Specifies the list of Ceph nodes with node specifications. Each list item can define a Ceph node specification for a single node or a group of nodes specified by an explicit list, a label, or a combination of both. For details, see <a href="./#cephdeployment-nodes-parameters">Nodes parameters</a>.</li>
 <li><code>objectStorage</code> - Specifies the parameters for Object Storage, such as RADOS Gateway, the Ceph Object Storage, the RADOS Gateway Multisite configuration, and the Gateway API HTTPRoutes for public access to Object Storage. For details, see <a href="./#cephdeployment-object-storage-parameters">Object storage parameters</a>.</li>
 <li><code>rbdMirror</code> - Specifies the parameters for RBD mirroring. For details, see <a href="./#cephdeployment-rbd-mirroring-parameters">RBD Mirroring parameters</a>.</li>
 <li><code>rookConfig</code> - Specifies the string key-value that allows overriding Ceph configuration options. For details, see <a href="./#cephdeployment-rookconfig-parameters">RookConfig parameters</a>.</li>
 <li><code>sharedFilesystem</code> - Enables Ceph Filesystem. For details, see <a href="./#cephdeployment-cephfs-parameters">CephFS parameters</a>.</li>
+<li><code>clients</code> - Deprecated in favor of <code>cephxClients</code>, automatically replaced with the new section. Specifies the list of Ceph clients. For details, see <a href="./#cephdeployment-clients-parameters">Clients parameters</a>.</li>
 <li><code>ingressConfig</code> - Deprecated in favor of <code>objectStorage.gatewayHTTPRoutes</code> due to <a href="https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/">NGINX Ingress retirement</a>. Enables a custom ingress rule for public access to Ceph services, for example, Ceph RADOS Gateway. For details, see <a href="../../ops-guide/deployment/object-storage/rgw-tls/#rgw-tls-configure-ceph-object-gateway-tls">Configure Ceph Object Gateway TLS</a>.</li>
 </ul>
 <p><a name="cephdeployment-nodes-parameters"></a></p>
@@ -4237,6 +4260,7 @@ or <code>nvme</code> disks.</p>
 <ul>
 <li><code>default</code> - Optional. Defines whether the pool and dependent StorageClass must be set
   as default. Must be enabled only for one pool. Defaults to <code>false</code>.</li>
+<li><code>skipClassCreate</code> - Optional. Disables creation of the <code>StorageClass</code> for pool.</li>
 <li><code>mapOptions</code> - Optional. Not updatable as it applies only once. Specifies custom
   <code>rbd device map</code> options to use with <code>StorageClass</code> of a corresponding pool. Allows customizing
   the Kubernetes CSI driver interaction with Ceph RBD for the defined <code>StorageClass</code>. For
@@ -4320,14 +4344,53 @@ the <code>rack</code> topology instead. The <code>osd</code> failure domain is a
 permission on the mount point of persistent volumes based on any
 <code>StorageClass</code> of the Ceph pool.</p>
 </div>
+<p><a name="cephdeployment-cephxclients-parameters"></a></p>
+<h3 id="cephxclients-parameters">CephxClients parameters<a class="headerlink" href="#cephxclients-parameters" title="Permanent link">#</a></h3>
+<p>The <code>cephxClients</code> parameters contain a list of Ceph clients. Each item represents the Rook <code>CephClient</code> specification (<code>ClientSpec</code>) and optional
+role assigned to the client for an application:</p>
+<ul>
+<li><code>role</code> - Optional. Application role assigned to the client. Pelagia uses it to find all clients of one application,
+  for example, during rotation. Must contain only alphanumeric characters and hyphens, up to 63 characters.
+  The <code>nova</code>, <code>cinder</code>, <code>glance</code>, and <code>manila</code> roles are reserved for OpenStack services on MOSK-based setups.
+  When <code>clients</code> is migrated to <code>cephxClients</code>, clients with these names obtain the matching role automatically.</li>
+<li>
+<p><code>spec</code> - Mandatory. Ceph client specification. For details, see the following Rook documentation: <a href="https://rook.io/docs/rook/v1.20/CRDs/ceph-client-crd/">CephClient CRD</a> and <a href="https://rook.io/docs/rook/v1.20/CRDs/specification/#ceph.rook.io/v1.ClientSpec">CephClient API specification</a>.
+  Must always contain the following fields:</p>
+</li>
+<li>
+<p><code>name</code> - Mandatory. Ceph client name.</p>
+</li>
+<li><code>caps</code> - Mandatory. Ceph client capabilities as a map of a Ceph daemon type to the capabilities string.</li>
+</ul>
+<p>For details about Ceph client capabilities (<code>caps</code>), refer to <a href="https://docs.ceph.com/en/latest/rados/operations/user-management/#authorization-capabilities">Ceph documentation: Authorization (capabilities)</a>.</p>
+<details>
+<summary>Example configuration of clients specification</summary>
+<div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cephxClients</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-app</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test-client</span>
+<span class="w">      </span><span class="nt">caps</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow r, allow command &quot;osd blacklist&quot;</span>
+<span class="w">        </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile rbd pool=kubernetes-nvme</span>
+</code></pre></div>
+</details>
+<div class="admonition info">
+<p class="admonition-title">See also</p>
+<ul>
+<li><a href="../../ops-guide/deployment/ceph-user-creds/ceph-client/#ceph-client-manage-ceph-rbd-or-cephfs-clients">Manage Ceph RBD or CephFS clients</a></li>
+<li><a href="../../ops-guide/deployment/ceph-user-creds/ceph-client/#move-default-clients-to-spec">Move clients created by default for MOSK under spec</a></li>
+</ul>
+</div>
 <p><a name="cephdeployment-clients-parameters"></a></p>
 <h3 id="clients-parameters">Clients parameters<a class="headerlink" href="#clients-parameters" title="Permanent link">#</a></h3>
+<p>Deprecated in favor of <code>cephxClients</code> parameter.</p>
 <p>The <code>clients</code> parameters contain a list of Ceph clients. Each item represents the Rook <code>CephClient</code> specification (<code>ClientSpec</code>) directly, without an additional wrapper:</p>
 <ul>
 <li><code>name</code> - Mandatory. Ceph client name.</li>
 <li><code>caps</code> - Mandatory. Ceph client capabilities as a map of a Ceph daemon type to the capabilities string.</li>
 </ul>
-<p>For details, see the following Rook documentation: <a href="https://rook.io/docs/rook/v1.19/CRDs/ceph-client-crd/">CephClient CRD</a> and <a href="https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.ClientSpec">CephClient API specification</a>.</p>
+<p>For details, see the following Rook documentation: <a href="https://rook.io/docs/rook/v1.20/CRDs/ceph-client-crd/">CephClient CRD</a> and <a href="https://rook.io/docs/rook/v1.20/CRDs/specification/#ceph.rook.io/v1.ClientSpec">CephClient API specification</a>.</p>
 <p>For details about Ceph client capabilities (<code>caps</code>), refer to <a href="https://docs.ceph.com/en/latest/rados/operations/user-management/#authorization-capabilities">Ceph documentation: Authorization (capabilities)</a>.</p>
 <details>
 <summary>Example configuration of clients specification</summary>
@@ -4339,18 +4402,14 @@ permission on the mount point of persistent volumes based on any
 <span class="w">      </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile rbd pool=kubernetes-nvme</span>
 </code></pre></div>
 </details>
-<div class="admonition info">
-<p class="admonition-title">See also</p>
-<p><a href="../../ops-guide/deployment/ceph-user-creds/ceph-client/">Manage Ceph RBD or CephFS clients</a></p>
-</div>
 <p><a name="cephdeployment-object-storage-parameters"></a></p>
 <h3 id="objectstorage-parameters">ObjectStorage parameters<a class="headerlink" href="#objectstorage-parameters" title="Permanent link">#</a></h3>
 <ul>
 <li><code>objectStores</code> - List of Ceph <code>ObjectStorage</code> RADOS Gateway (RGW) objects. Each <code>objectStore</code> item represents the Rook <code>CephObjectStore</code> specification. For details, see <a href="./#cephdeployment-rados-gateway-parameters">RGW objectStores parameters</a>.</li>
 <li><code>users</code> - List of Ceph <code>ObjectStorage</code> users. Each <code>user</code> item represents the Rook <code>CephObjectStoreUser</code> specification. For details, see <a href="./#cephdeployment-rgw-users-parameters">RGW users parameters</a>.</li>
-<li><code>realms</code> - List of Ceph <code>ObjectStorage</code> realms. Each <code>realm</code> item represents the Rook <code>CephObjectRealms</code> specification. Currently, only one realm is supported, so the list must contain exactly one item. For details, see <a href="./#cephdeployment-rados-gateway-multisite-parameters">RGW multisite parameters</a>.</li>
-<li><code>zonegroups</code> - List of Ceph <code>ObjectStorage</code> zone groups. Each <code>zonegroup</code> item represents the Rook <code>CephObjectZoneGroup</code> specification. Currently, only one zone group is supported, so the list must contain exactly one item. For details, see <a href="./#cephdeployment-rados-gateway-multisite-parameters">RGW multisite parameters</a>.</li>
-<li><code>zones</code> - List of Ceph <code>ObjectStorage</code> zones. Each <code>zone</code> item represents the Rook <code>CephObjectZone</code> specification. Currently, only one zone is supported, so the list must contain exactly one item. For details, see <a href="./#cephdeployment-rados-gateway-multisite-parameters">RGW multisite parameters</a>.</li>
+<li><code>realms</code> - List of Ceph <code>ObjectStorage</code> realms. Each <code>realm</code> item represents the Rook <code>CephObjectRealms</code> specification. For details, see <a href="./#cephdeployment-rados-gateway-multisite-parameters">RGW multisite parameters</a>.</li>
+<li><code>zonegroups</code> - List of Ceph <code>ObjectStorage</code> zone groups. Each <code>zonegroup</code> item represents the Rook <code>CephObjectZoneGroup</code> specification. For details, see <a href="./#cephdeployment-rados-gateway-multisite-parameters">RGW multisite parameters</a>.</li>
+<li><code>zones</code> - List of Ceph <code>ObjectStorage</code> zones. Each <code>zone</code> item represents the Rook <code>CephObjectZone</code> specification. For details, see <a href="./#cephdeployment-rados-gateway-multisite-parameters">RGW multisite parameters</a>.</li>
 <li><code>gatewayHTTPRoutes</code> - List of Gateway API HTTP routes. Each item represents the <code>HTTPRoute</code> specification. For details, see <a href="./#cephdeployment-httproute-parameters">RGW HTTPRoutes</a>.</li>
 </ul>
 <p><a name="cephdeployment-rados-gateway-parameters"></a></p>
@@ -4393,7 +4452,10 @@ permission on the mount point of persistent volumes based on any
 </details>
 <div class="admonition info">
 <p class="admonition-title">See also</p>
-<p><a href="../../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt/">Enable management of Ceph tolerations and resources</a></p>
+<ul>
+<li><a href="../../ops-guide/deployment/object-storage/rgw/">Manage Ceph Object Storage</a></li>
+<li><a href="../../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt/">Enable management of Ceph tolerations and resources</a></li>
+</ul>
 </div>
 <p><a name="cephdeployment-rgw-users-parameters"></a></p>
 <h4 id="rgw-users-parameters">RGW users parameters<a class="headerlink" href="#rgw-users-parameters" title="Permanent link">#</a></h4>
@@ -4662,6 +4724,24 @@ of all Ceph daemons except Ceph OSD.</p>
 <p>Example usage:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">extraOpts</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">osdRestartReason</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;reason&gt;</span>
+</code></pre></div>
+</li>
+<li>
+<p><code>rotateOsClients</code> - Optional. <code>CephClient</code> rotation settings for OpenStack services in MOSK-based setups.</p>
+</li>
+<li>
+<p><code>rotation</code> - Mandatory. Counter of the latest requested rotation, from <code>0</code> to <code>32767</code>. Increment the value to trigger a new rotation.
+    The value cannot be decreased.</p>
+</li>
+<li>
+<p><code>keepPrevious</code> - Optional. Number of previous <code>CephClient</code> resources kept for OpenStack services, from <code>0</code> to <code>3</code>. Defaults to <code>1</code>.
+    With <code>0</code>, Pelagia removes the previous client as soon as the new one is <code>Ready</code>, so services may lose access before they receive the new key.
+    Set a non-zero value before a rotation to keep the previous key during the transition.</p>
+<p>Example usage:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">extraOpts</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">rotateOsClients</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">rotation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="w">    </span><span class="nt">keepPrevious</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </code></pre></div>
 </li>
 </ul>

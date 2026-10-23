@@ -1407,6 +1407,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#manage-the-default-openstack-clients-using-the-cephdeployment-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manage the default OpenStack clients using the CephDeployment spec
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3511,6 +3522,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#manage-the-default-openstack-clients-using-the-cephdeployment-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manage the default OpenStack clients using the CephDeployment spec
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -3620,7 +3642,7 @@
 <p>The <code>CephDeployment</code> custom resource (CR) allows managing custom Ceph RADOS Block Device (RBD)
 or Ceph File System (CephFS) clients. This section describes how to create,
 access, and remove Ceph RBD or CephFS clients.</p>
-<p>For all supported parameters of Ceph clients, refer to <a href="../../../../custom-resources/cephdeployment/#cephdeployment-clients-parameters">Clients parameters</a>.</p>
+<p>For all supported parameters of Ceph clients, refer to <a href="../../../../custom-resources/cephdeployment/#cephdeployment-cephxclients-parameters">CephxClients parameters</a>.</p>
 <h2 id="create-an-rbd-or-cephfs-client">Create an RBD or CephFS client<a class="headerlink" href="#create-an-rbd-or-cephfs-client" title="Permanent link">#</a></h2>
 <ol>
 <li>
@@ -3629,20 +3651,22 @@ access, and remove Ceph RBD or CephFS clients.</p>
 </code></pre></div></p>
 <p>Example of adding an RBD client to the <code>kubernetes-ssd</code> pool:
  <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">clients</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rbd-client</span>
-<span class="w">    </span><span class="nt">caps</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow r, allow command &quot;osd blacklist&quot;</span>
-<span class="w">      </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile rbd pool=kubernetes-ssd</span>
+<span class="w">  </span><span class="nt">cephxClients</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rbd-client</span>
+<span class="w">      </span><span class="nt">caps</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow r, allow command &quot;osd blacklist&quot;</span>
+<span class="w">        </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile rbd pool=kubernetes-ssd</span>
 </code></pre></div></p>
 <p>Example of adding a CephFS client to the <code>cephfs-1</code> Ceph File System:
  <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">clients</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-1-client</span>
-<span class="w">    </span><span class="nt">caps</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">mds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow rw</span>
-<span class="w">      </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow r, allow command &quot;osd blacklist&quot;</span>
-<span class="w">      </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow rw tag cephfs data=cephfs-1 metadata=*</span>
+<span class="w">  </span><span class="nt">cephxClients</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-1-client</span>
+<span class="w">      </span><span class="nt">caps</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">mds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow rw</span>
+<span class="w">        </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow r, allow command &quot;osd blacklist&quot;</span>
+<span class="w">        </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow rw tag cephfs data=cephfs-1 metadata=*</span>
 </code></pre></div></p>
 <p>For details about <code>caps</code>, refer to
  <a href="https://docs.ceph.com/en/latest/rados/operations/user-management/#authorization-capabilities">Ceph documentation: Authorization (capabilities)</a>.</p>
@@ -3697,7 +3721,7 @@ access, and remove Ceph RBD or CephFS clients.</p>
 <li><code>&lt;secretNamespace&gt;</code> with <code>secretNamespace</code> from the previous step;</li>
 <li><code>&lt;secretName&gt;</code> with <code>secretName</code> from the previous step;</li>
 <li><code>&lt;clientName&gt;</code> with the Ceph RBD or CephFS client name set in
-   <code>spec.clients</code> the <code>CephDeployment</code> resource, for example, <code>rbd-client</code>.</li>
+   <code>spec.cephxClients[].spec.name</code> of the <code>CephDeployment</code> resource, for example, <code>rbd-client</code>.</li>
 </ul>
 <p>Example output:
  <div class="highlight"><pre><span></span><code><span class="nv">AQAGHDNjxWYXJhAAjafCn3EtC6KgzgI1x4XDlg</span><span class="o">==</span>
@@ -3722,7 +3746,7 @@ ports of the current Ceph Monitors. For example,
 <span class="w">    </span><span class="nv">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>&lt;cephClientCredentials&gt;
 </code></pre></div></p>
 <ul>
-<li><code>&lt;clientName&gt;</code> is a client name set in <code>spec.clients</code> of the
+<li><code>&lt;clientName&gt;</code> is a client name set in <code>spec.cephxClients[].spec.name</code> of the
    <code>CephDeployment</code> resource. For example, <code>rbd-client</code>.</li>
 <li><code>&lt;cephClientCredentials&gt;</code> are the client credentials obtained in the
    previous steps. For example, <code>AQAGHDNjxWYXJhAAjafCn3EtC6KgzgI1x4XDlg==</code>.</li>
@@ -3740,7 +3764,7 @@ ports of the current Ceph Monitors. For example,
 <h2 id="remove-an-rbd-or-cephfs-client">Remove an RBD or CephFS client<a class="headerlink" href="#remove-an-rbd-or-cephfs-client" title="Permanent link">#</a></h2>
 <ol>
 <li>
-<p>Edit the <code>CephDeployment</code> CR by removing the Ceph client from <code>spec.clients</code>:
+<p>Edit the <code>CephDeployment</code> CR by removing the Ceph client from <code>spec.cephxClients</code>:
    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephdpl
 </code></pre></div></p>
 </li>
@@ -3751,6 +3775,123 @@ ports of the current Ceph Monitors. For example,
 </code></pre></div></p>
 </li>
 </ol>
+<p><a id="move-default-clients-to-spec"></a></p>
+<h2 id="manage-the-default-openstack-clients-using-the-cephdeployment-spec">Manage the default OpenStack clients using the CephDeployment spec<a class="headerlink" href="#manage-the-default-openstack-clients-using-the-cephdeployment-spec" title="Permanent link">#</a></h2>
+<p>To take full control of the <code>CephClient</code> resources that Pelagia creates
+automatically, define them in the <code>CephDeployment</code> spec. The following example
+illustrates how to manage the default <code>CephClient</code> for the OpenStack Nova service.</p>
+<ol>
+<li>
+<p>Obtain the current <code>CephClient</code> name for the OpenStack Nova service:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>cephclient<span class="w"> </span>-l<span class="w"> </span>cephdeployment.lcm.mirantis.com/client-role<span class="o">=</span>nova
+</code></pre></div></p>
+<p>Example output:
+ <div class="highlight"><pre><span></span><code>NAME<span class="w">                </span>PHASE<span class="w">   </span>AGE
+nova-y5ucvajlxscd<span class="w">   </span>Ready<span class="w">   </span>15m
+</code></pre></div></p>
+</li>
+<li>
+<p>Obtain the spec of this client:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>get<span class="w"> </span>cephclients<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span>nova-y5ucvajlxscd
+</code></pre></div></p>
+<p>Example output:
+ <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ceph.rook.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CephClient</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">creationTimestamp</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2026-10-19T13:58:30Z&quot;</span>
+<span class="w">  </span><span class="nt">finalizers</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephclient.ceph.rook.io</span>
+<span class="w">  </span><span class="nt">generation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">app.kubernetes.io/created-by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia-deployment-controller</span>
+<span class="w">    </span><span class="nt">app.kubernetes.io/managed-by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia-deployment-controller</span>
+<span class="w">    </span><span class="nt">app.kubernetes.io/part-of</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ceph.pelagia.lcm</span>
+<span class="w">    </span><span class="nt">cephdeployment.lcm.mirantis.com/client-role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nova</span>
+<span class="w">    </span><span class="nt">cephdeployment.lcm.mirantis.com/client-rotation</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0&quot;</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nova-y5ucvajlxscd</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rook-ceph</span>
+<span class="w">  </span><span class="nt">resourceVersion</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;24182&quot;</span>
+<span class="w">  </span><span class="nt">uid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c6e436c7-bd15-440d-b10c-bfc39b4d7f11</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">caps</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow profile rbd</span>
+<span class="w">    </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile rbd pool=vms-hdd, profile rbd pool=images-hdd, profile rbd pool=volumes-hdd</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nova_Y5UCvaJlxScd</span>
+<span class="w">  </span><span class="nt">security</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cephx</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cephx</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">keyCephVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20.2.4-0</span>
+<span class="w">    </span><span class="nt">keyGeneration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rook-ceph-client-nova-y5ucvajlxscd</span>
+<span class="w">  </span><span class="nt">observedGeneration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">phase</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ready</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Copy the <code>spec</code> section as is to the <code>CephDeployment</code> spec and assign the related role:
+   <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cephxClients</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nova</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">caps</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow profile rbd</span>
+<span class="w">        </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile rbd pool=vms-hdd, profile rbd pool=images-hdd, profile rbd pool=volumes-hdd</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nova_Y5UCvaJlxScd</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>Save the changes and verify <code>CephClient</code>:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>cephclient<span class="w"> </span>nova-y5ucvajlxscd<span class="w"> </span>-o<span class="w"> </span>yaml
+</code></pre></div></p>
+<p>Example output:
+ <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ceph.rook.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CephClient</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">creationTimestamp</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2026-10-19T13:58:30Z&quot;</span>
+<span class="w">  </span><span class="nt">finalizers</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephclient.ceph.rook.io</span>
+<span class="w">  </span><span class="nt">generation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">app.kubernetes.io/created-by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia-deployment-controller</span>
+<span class="w">    </span><span class="nt">app.kubernetes.io/managed-by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia-deployment-controller</span>
+<span class="w">    </span><span class="nt">app.kubernetes.io/part-of</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ceph.pelagia.lcm</span>
+<span class="w">    </span><span class="nt">cephdeployment.lcm.mirantis.com/client-latest</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">    </span><span class="nt">cephdeployment.lcm.mirantis.com/client-role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nova</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nova-y5ucvajlxscd</span>
+<span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rook-ceph</span>
+<span class="w">  </span><span class="nt">resourceVersion</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;45362&quot;</span>
+<span class="w">  </span><span class="nt">uid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c6e436c7-bd15-440d-b10c-bfc39b4d7f11</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">caps</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow profile rbd</span>
+<span class="w">    </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile rbd pool=vms-hdd, profile rbd pool=images-hdd, profile rbd pool=volumes-hdd</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nova_Y5UCvaJlxScd</span>
+<span class="w">  </span><span class="nt">security</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">cephx</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
+<span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cephx</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">keyCephVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20.2.4-0</span>
+<span class="w">    </span><span class="nt">keyGeneration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">info</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">secretName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rook-ceph-client-nova-y5ucvajlxscd</span>
+<span class="w">  </span><span class="nt">observedGeneration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">phase</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Ready</span>
+</code></pre></div></p>
+</li>
+</ol>
+<p>If the <code>CephDeployment</code> spec defines no other <code>CephClient</code> with the <code>nova</code> role,
+this <code>CephClient</code> now has the <code>cephdeployment.lcm.mirantis.com/client-latest</code> label
+but not the <code>cephdeployment.lcm.mirantis.com/client-rotation</code> label.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>spec.extraOpts.rotateOsClients</code> applies only to the OpenStack clients that
+Pelagia creates by default. A client defined in the <code>CephDeployment</code> spec is
+no longer managed as a default client. To rotate it, add a new item with the
+same <code>role</code> to <code>spec.cephxClients</code>. For details, see
+<a href="../../../../custom-resources/cephdeployment/#cephdeployment-extraopts-parameters">ExtraOpts parameters</a>.</p>
+</div>
 
 
 

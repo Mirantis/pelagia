@@ -3645,15 +3645,17 @@ only if both of the following conditions are met:</p>
 <span class="na">rgw_usage_max_shards</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">32</span>
 <span class="na">rgw_usage_max_user_shards</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">1</span>
 </code></pre></div></li>
-<li>Parameters for the Keystone integration taken from the <code>openstack-rgw-creds</code> secret.
-  You cannot override <code>rgw_keystone_api_version</code>:
+<li>
+<p>Parameters for the Keystone integration taken from the <code>openstack-rgw-creds</code> secret:
   <div class="highlight"><pre><span></span><code><span class="na">rgw_keystone_api_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">3</span>
 <span class="na">rgw_keystone_url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneAuthURL&gt;</span>
 <span class="na">rgw_keystone_admin_user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneUser&gt;</span>
 <span class="na">rgw_keystone_admin_password</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystonePassword&gt;</span>
 <span class="na">rgw_keystone_admin_domain</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneProjectDomain&gt;</span>
 <span class="na">rgw_keystone_admin_project</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&lt;keystoneProjectName&gt;</span>
-</code></pre></div></li>
+</code></pre></div></p>
+<p>You cannot override <code>rgw_keystone_api_version</code>.</p>
+</li>
 <li>
 <p>If the secret contains <code>barbican_url</code>, parameters for the Barbican integration:
   <div class="highlight"><pre><span></span><code><span class="na">rgw_crypt_s3_kms_backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">barbican</span>

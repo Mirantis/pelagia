@@ -3751,15 +3751,16 @@ cluster, the Ceph client requires the following <code>caps</code> (permissions):
 <li>Read-write access to Ceph Metadata servers if CephFS pools must be shared</li>
 <li>Profile access to shared RBD/CephFS pools' access for Ceph OSDs</li>
 </ul>
-<p>To create a Ceph non-admin client, add the following snippet to the <code>clients</code> section of the <code>CephDeployment</code> object:</p>
+<p>To create a Ceph non-admin client, add the following snippet to the <code>cephxClients</code> section of the <code>CephDeployment</code> object:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">clients</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;nonAdminClientName&gt;</span>
-<span class="w">    </span><span class="nt">caps</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">mgr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span>
-<span class="w">      </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">r,</span><span class="nv"> </span><span class="s">profile</span><span class="nv"> </span><span class="s">role-definer&quot;</span>
-<span class="w">      </span><span class="nt">mds</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span><span class="w"> </span><span class="c1"># if CephFS must be shared</span>
-<span class="w">      </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;poolsProfileCaps&gt;</span>
+<span class="w">  </span><span class="nt">cephxClients</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;nonAdminClientName&gt;</span>
+<span class="w">      </span><span class="nt">caps</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">mgr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span>
+<span class="w">        </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">r,</span><span class="nv"> </span><span class="s">profile</span><span class="nv"> </span><span class="s">role-definer&quot;</span>
+<span class="w">        </span><span class="nt">mds</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span><span class="w"> </span><span class="c1"># if CephFS must be shared</span>
+<span class="w">        </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;poolsProfileCaps&gt;</span>
 </code></pre></div>
 <p>Substitute <code>&lt;nonAdminClientName&gt;</code> with a Ceph non-admin client name and <code>&lt;poolsProfileCaps&gt;</code> with a comma-separated profile list of RBD and CephFS pools in the following format:</p>
 <ul>
@@ -3768,13 +3769,14 @@ cluster, the Ceph client requires the following <code>caps</code> (permissions):
 </ul>
 <p>For example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">clients</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">non-admin-client</span>
-<span class="w">    </span><span class="nt">caps</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">mgr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span>
-<span class="w">      </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">r,</span><span class="nv"> </span><span class="s">profile</span><span class="nv"> </span><span class="s">role-definer&quot;</span>
-<span class="w">      </span><span class="nt">mds</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span>
-<span class="w">      </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile</span><span class="nv"> </span><span class="s">rbd</span><span class="nv"> </span><span class="s">pool=kubernetes-hdd,profile</span><span class="nv"> </span><span class="s">rbd</span><span class="nv"> </span><span class="s">pool=anotherpool-hdd,allow</span><span class="nv"> </span><span class="s">rw</span><span class="nv"> </span><span class="s">tag</span><span class="nv"> </span><span class="s">cephfs</span><span class="nv"> </span><span class="s">data=cephfs-store&quot;</span>
+<span class="w">  </span><span class="nt">cephxClients</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">non-admin-client</span>
+<span class="w">      </span><span class="nt">caps</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">mgr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span>
+<span class="w">        </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">r,</span><span class="nv"> </span><span class="s">profile</span><span class="nv"> </span><span class="s">role-definer&quot;</span>
+<span class="w">        </span><span class="nt">mds</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span>
+<span class="w">        </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile</span><span class="nv"> </span><span class="s">rbd</span><span class="nv"> </span><span class="s">pool=kubernetes-hdd,profile</span><span class="nv"> </span><span class="s">rbd</span><span class="nv"> </span><span class="s">pool=anotherpool-hdd,allow</span><span class="nv"> </span><span class="s">rw</span><span class="nv"> </span><span class="s">tag</span><span class="nv"> </span><span class="s">cephfs</span><span class="nv"> </span><span class="s">data=cephfs-store&quot;</span>
 </code></pre></div>
 <p>To verify the status of the created Ceph client, inspect the <code>status</code> section of the <code>CephDeploymentHealth</code> object. For example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
