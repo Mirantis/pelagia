@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -3655,7 +3655,7 @@ access, and remove Ceph RBD or CephFS clients.</p>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">spec</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rbd-client</span>
 <span class="w">      </span><span class="nt">caps</span><span class="p">:</span>
-<span class="w">        </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow r, allow command &quot;osd blacklist&quot;</span>
+<span class="w">        </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow r, allow command "osd blacklist"</span>
 <span class="w">        </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile rbd pool=kubernetes-ssd</span>
 </code></pre></div></p>
 <p>Example of adding a CephFS client to the <code>cephfs-1</code> Ceph File System:
@@ -3665,7 +3665,7 @@ access, and remove Ceph RBD or CephFS clients.</p>
 <span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephfs-1-client</span>
 <span class="w">      </span><span class="nt">caps</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">mds</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow rw</span>
-<span class="w">        </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow r, allow command &quot;osd blacklist&quot;</span>
+<span class="w">        </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow r, allow command "osd blacklist"</span>
 <span class="w">        </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">allow rw tag cephfs data=cephfs-1 metadata=*</span>
 </code></pre></div></p>
 <p>For details about <code>caps</code>, refer to
@@ -3714,7 +3714,7 @@ access, and remove Ceph RBD or CephFS clients.</p>
 </li>
 <li>
 <p>Use <code>secretName</code> and <code>secretNamespace</code> to access the Ceph client credentials:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;secretNamespace&gt;<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>&lt;secretName&gt;<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.data.&lt;clientName&gt;}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="p">;</span><span class="w"> </span><span class="nb">echo</span>
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>&lt;secretNamespace&gt;<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>&lt;secretName&gt;<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">'{.data.&lt;clientName&gt;}'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="p">;</span><span class="w"> </span><span class="nb">echo</span>
 </code></pre></div></p>
 <p>Substitute the following parameters:</p>
 <ul>
@@ -3798,7 +3798,7 @@ nova-y5ucvajlxscd<span class="w">   </span>Ready<span class="w">   </span>15m
  <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ceph.rook.io/v1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CephClient</span>
 <span class="nt">metadata</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">creationTimestamp</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2026-10-19T13:58:30Z&quot;</span>
+<span class="w">  </span><span class="nt">creationTimestamp</span><span class="p">:</span><span class="w"> </span><span class="s">"2026-10-19T13:58:30Z"</span>
 <span class="w">  </span><span class="nt">finalizers</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephclient.ceph.rook.io</span>
 <span class="w">  </span><span class="nt">generation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
@@ -3807,10 +3807,10 @@ nova-y5ucvajlxscd<span class="w">   </span>Ready<span class="w">   </span>15m
 <span class="w">    </span><span class="nt">app.kubernetes.io/managed-by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia-deployment-controller</span>
 <span class="w">    </span><span class="nt">app.kubernetes.io/part-of</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ceph.pelagia.lcm</span>
 <span class="w">    </span><span class="nt">cephdeployment.lcm.mirantis.com/client-role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nova</span>
-<span class="w">    </span><span class="nt">cephdeployment.lcm.mirantis.com/client-rotation</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0&quot;</span>
+<span class="w">    </span><span class="nt">cephdeployment.lcm.mirantis.com/client-rotation</span><span class="p">:</span><span class="w"> </span><span class="s">"0"</span>
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nova-y5ucvajlxscd</span>
 <span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rook-ceph</span>
-<span class="w">  </span><span class="nt">resourceVersion</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;24182&quot;</span>
+<span class="w">  </span><span class="nt">resourceVersion</span><span class="p">:</span><span class="w"> </span><span class="s">"24182"</span>
 <span class="w">  </span><span class="nt">uid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c6e436c7-bd15-440d-b10c-bfc39b4d7f11</span>
 <span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">caps</span><span class="p">:</span>
@@ -3849,7 +3849,7 @@ nova-y5ucvajlxscd<span class="w">   </span>Ready<span class="w">   </span>15m
  <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ceph.rook.io/v1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CephClient</span>
 <span class="nt">metadata</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">creationTimestamp</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2026-10-19T13:58:30Z&quot;</span>
+<span class="w">  </span><span class="nt">creationTimestamp</span><span class="p">:</span><span class="w"> </span><span class="s">"2026-10-19T13:58:30Z"</span>
 <span class="w">  </span><span class="nt">finalizers</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cephclient.ceph.rook.io</span>
 <span class="w">  </span><span class="nt">generation</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
@@ -3857,11 +3857,11 @@ nova-y5ucvajlxscd<span class="w">   </span>Ready<span class="w">   </span>15m
 <span class="w">    </span><span class="nt">app.kubernetes.io/created-by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia-deployment-controller</span>
 <span class="w">    </span><span class="nt">app.kubernetes.io/managed-by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia-deployment-controller</span>
 <span class="w">    </span><span class="nt">app.kubernetes.io/part-of</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ceph.pelagia.lcm</span>
-<span class="w">    </span><span class="nt">cephdeployment.lcm.mirantis.com/client-latest</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;true&quot;</span>
+<span class="w">    </span><span class="nt">cephdeployment.lcm.mirantis.com/client-latest</span><span class="p">:</span><span class="w"> </span><span class="s">"true"</span>
 <span class="w">    </span><span class="nt">cephdeployment.lcm.mirantis.com/client-role</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nova</span>
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">nova-y5ucvajlxscd</span>
 <span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rook-ceph</span>
-<span class="w">  </span><span class="nt">resourceVersion</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;45362&quot;</span>
+<span class="w">  </span><span class="nt">resourceVersion</span><span class="p">:</span><span class="w"> </span><span class="s">"45362"</span>
 <span class="w">  </span><span class="nt">uid</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">c6e436c7-bd15-440d-b10c-bfc39b4d7f11</span>
 <span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">caps</span><span class="p">:</span>
@@ -3994,10 +3994,10 @@ same <code>role</code> to <code>spec.cephxClients</code>. For details, see
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

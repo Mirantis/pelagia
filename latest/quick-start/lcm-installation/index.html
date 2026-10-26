@@ -23,7 +23,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
     
     
       
@@ -31,10 +31,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -3584,7 +3584,7 @@ This mode allows you to automatically remove Rook Ceph OSD disks and nodes in yo
 </ul>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">#</a></h2>
 <p>To install Pelagia in lcm-only mode, use the Helm chart provided in the repository:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">PELAGIA_VERSION</span><span class="o">=</span><span class="s2">&quot;&lt;version&gt;&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">PELAGIA_VERSION</span><span class="o">=</span><span class="s2">"&lt;version&gt;"</span>
 helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="si">${</span><span class="nv">PELAGIA_VERSION</span><span class="si">}</span><span class="w"> </span>--set<span class="w"> </span>cephDeployment.enabled<span class="o">=</span>false,rookConfig.configureRook<span class="o">=</span><span class="nb">false</span><span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>--create-namespace
 </code></pre></div>
 <p>Substitute <code>&lt;version&gt;</code> with the latest stable version of Pelagia Helm chart.</p>
@@ -3601,7 +3601,7 @@ pelagia-lcm-controller-6f858b6c5-whq7x<span class="w">   </span><span class="m">
 <p>The installation command above installs Pelagia in lcm-only mode for an existing Rook Ceph cluster placed
 in the <code>rook-ceph</code> namespace. If you want to manage a Rook Ceph cluster in a different namespace, set the
 <code>rookConfig.rookNamespace</code> chart value. For example:
-<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">PELAGIA_VERSION</span><span class="o">=</span><span class="s2">&quot;&lt;version&gt;&quot;</span>
+<div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">PELAGIA_VERSION</span><span class="o">=</span><span class="s2">"&lt;version&gt;"</span>
 helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="si">${</span><span class="nv">PELAGIA_VERSION</span><span class="si">}</span><span class="w"> </span>--set<span class="w"> </span>cephDeployment.enabled<span class="o">=</span>false,rookConfig.configureRook<span class="o">=</span>false,rookConfig.rookNamespace<span class="o">=</span>new-rook-ceph<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>--create-namespace
 </code></pre></div></p>
 <p>Substitute <code>&lt;version&gt;</code> with the latest stable version of Pelagia Helm chart.</p>
@@ -3749,10 +3749,10 @@ After the dry-run, the <code>status</code> field of the <code>CephOsdRemoveTask<
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

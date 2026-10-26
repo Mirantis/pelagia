@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -3576,7 +3576,7 @@ accordingly.</p>
 <ol>
 <li>
 <p>Define the raw capacity of the entire storage by device class:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-l<span class="w"> </span><span class="s2">&quot;app=pelagia-ceph-toolbox&quot;</span><span class="w"> </span>-o<span class="w"> </span>name<span class="k">)</span><span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>df
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-l<span class="w"> </span><span class="s2">"app=pelagia-ceph-toolbox"</span><span class="w"> </span>-o<span class="w"> </span>name<span class="k">)</span><span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>df
 </code></pre></div></p>
 <p>For illustration purposes, the procedure below uses raw capacity of 185 TB
  or 189440 GB.</p>
@@ -3678,7 +3678,7 @@ upper bounds for <code>dataPool</code>.</p>
 <span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 <span class="w">        </span><span class="nt">parameters</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.088&quot;</span>
+<span class="w">          </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">"1.088"</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">images</span>
 <span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
@@ -3686,7 +3686,7 @@ upper bounds for <code>dataPool</code>.</p>
 <span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 <span class="w">        </span><span class="nt">parameters</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1.088&quot;</span>
+<span class="w">          </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">"1.088"</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">volumes</span>
 <span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
@@ -3694,7 +3694,7 @@ upper bounds for <code>dataPool</code>.</p>
 <span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 <span class="w">        </span><span class="nt">parameters</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;16.259&quot;</span>
+<span class="w">          </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">"16.259"</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">backup</span>
 <span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
@@ -3702,7 +3702,7 @@ upper bounds for <code>dataPool</code>.</p>
 <span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 <span class="w">        </span><span class="nt">parameters</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;81.297&quot;</span>
+<span class="w">          </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">"81.297"</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vms</span>
 <span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">      </span><span class="nt">spec</span><span class="p">:</span>
@@ -3710,7 +3710,7 @@ upper bounds for <code>dataPool</code>.</p>
 <span class="w">        </span><span class="nt">replicated</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 <span class="w">        </span><span class="nt">parameters</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0.266&quot;</span>
+<span class="w">          </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">"0.266"</span>
 </code></pre></div></p>
 <p>If Ceph Object Store <code>dataPool</code> is <code>replicated</code> and a proper value is
  calculated, also specify it:
@@ -3726,7 +3726,7 @@ upper bounds for <code>dataPool</code>.</p>
 <span class="w">          </span><span class="nt">replicated</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
 <span class="w">          </span><span class="nt">parameters</span><span class="p">:</span>
-<span class="w">            </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;relative&gt;&quot;</span>
+<span class="w">            </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;relative&gt;"</span>
 </code></pre></div></p>
 </li>
 <li>
@@ -3741,7 +3741,7 @@ upper bounds for <code>dataPool</code>.</p>
 <span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">        </span><span class="nt">parameters</span><span class="p">:</span>
-<span class="w">          </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;relative&gt;&quot;</span>
+<span class="w">          </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;relative&gt;"</span>
 </code></pre></div></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -3759,7 +3759,7 @@ is calculated, also specify it:
 <span class="w">          </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 <span class="w">          </span><span class="nt">parameters</span><span class="p">:</span>
-<span class="w">            </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;relative&gt;&quot;</span>
+<span class="w">            </span><span class="nt">target_size_ratio</span><span class="p">:</span><span class="w"> </span><span class="s">"&lt;relative&gt;"</span>
 </code></pre></div></p>
 </li>
 <li>
@@ -3882,10 +3882,10 @@ images-hdd<span class="w">                          </span><span class="m">888</
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>
