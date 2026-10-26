@@ -160,7 +160,7 @@ advanced configuration.
 
     The Ceph cluster placement affinity and anti-affinity will be ignored in favor of the provided `nodes` roles.
 
-- `cluster` - Specifies the complete Ceph cluster configuration and represents the Rook `CephCluster` object specification. For available configuration options, see Rook documentation: [CephCluster CRD](https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/) and [CephCluster API](https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.ClusterSpec). For an example usage of `cluster.placement`, see [Enable management of Ceph tolerations and resources](../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md).
+- `cluster` - Specifies the complete Ceph cluster configuration and represents the Rook `CephCluster` object specification. For available configuration options, see Rook documentation: [CephCluster CRD](https://rook.io/docs/rook/v1.20/CRDs/Cluster/ceph-cluster-crd/) and [CephCluster API](https://rook.io/docs/rook/v1.20/CRDs/specification/#ceph.rook.io/v1.ClusterSpec). For an example usage of `cluster.placement`, see [Enable management of Ceph tolerations and resources](../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md).
 
     ??? "Example configuration of cluster specification"
         ```yaml
@@ -281,7 +281,7 @@ advanced configuration.
   Applied for all OSDs on the current node. Can be overridden by the
   ``config`` parameter of each device defined in the ``devices`` parameter.
 
-    For details, see [Rook documentation: OSD config settings](https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/#osd-configuration-settings).
+    For details, see [Rook documentation: OSD config settings](https://rook.io/docs/rook/v1.20/CRDs/Cluster/ceph-cluster-crd/#osd-configuration-settings).
 
 - ``devices`` - Optional. Specifies the list of devices to use for Ceph OSD deployment.
   Includes the following parameters:
@@ -360,7 +360,7 @@ advanced configuration.
           deviceClass: hdd
     ```
 
-    For more details, see [Rook documentation: Storage selection settings](https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/#storage-selection-settings).
+    For more details, see [Rook documentation: Storage selection settings](https://rook.io/docs/rook/v1.20/CRDs/Cluster/ceph-cluster-crd/#storage-selection-settings).
 
 - ``devicePathFilter`` - Optional. Specifies regexp by paths of devices to use for Ceph OSD
   deployment. Mutually exclusive with ``devices`` and ``deviceFilter``.
@@ -375,7 +375,7 @@ advanced configuration.
           deviceClass: hdd
     ```
 
-    For more details, see [Rook documentation: Storage selection settings](https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/#storage-selection-settings).
+    For more details, see [Rook documentation: Storage selection settings](https://rook.io/docs/rook/v1.20/CRDs/Cluster/ceph-cluster-crd/#storage-selection-settings).
 
 - ``crush`` - Optional. Specifies the explicit key-value CRUSH topology for a node.
   For details, see [Ceph documentation: CRUSH maps](https://docs.ceph.com/en/latest/rados/operations/crush-map/).
@@ -454,7 +454,7 @@ The `pools` parameters contain the Ceph block pool specification that represents
 
             A Kubernetes cluster only supports increase of storage size.
 
-- `spec` - Represents the Rook `CephBlockPool` specification. For details see, Rook specifications: [CephBlockPool CRD](https://rook.io/docs/rook/v1.19/CRDs/Block-Storage/ceph-block-pool-crd/#spec) and [CephBlockPool API](https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.PoolSpec).
+- `spec` - Represents the Rook `CephBlockPool` specification. For details see, Rook specifications: [CephBlockPool CRD](https://rook.io/docs/rook/v1.20/CRDs/Block-Storage/ceph-block-pool-crd/#spec) and [CephBlockPool API](https://rook.io/docs/rook/v1.20/CRDs/specification/#ceph.rook.io/v1.PoolSpec).
 
     !!! note
 
@@ -625,7 +625,7 @@ For details about Ceph client capabilities (`caps`), refer to [Ceph documentatio
 #### RGW users parameters
 
 The RGW `users` parameters represent the Rook `CephObjectStoreUser` specification.
-For details, see [Rook documentation: CephObjectStoreUser CRD](https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-user-crd/#spec).
+For details, see [Rook documentation: CephObjectStoreUser CRD](https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-store-user-crd/#spec).
 
 ??? "Example configuration of RGW users specification"
 
@@ -718,7 +718,7 @@ The `gatewayHTTPRoutes` parameters represent the Gateway API `HTTPRoute` specifi
 - `cephFilesystems` - Contains a list of Ceph file systems. Each `cephFilesystem` item represents the Rook `CephFilesystem` specification:
 
     - `name` - Mandatory. CephFS instance name.
-    - `spec` - Represents the Rook `CephFilesystem` specification. For details, refer to the following Rook documentation: [CephFilesystem CRD](https://rook.io/docs/rook/v1.19/CRDs/Shared-Filesystem/ceph-filesystem-crd/) and [CephFilesystem API specification](https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.FilesystemSpec).
+    - `spec` - Represents the Rook `CephFilesystem` specification. For details, refer to the following Rook documentation: [CephFilesystem CRD](https://rook.io/docs/rook/v1.20/CRDs/Shared-Filesystem/ceph-filesystem-crd/) and [CephFilesystem API specification](https://rook.io/docs/rook/v1.20/CRDs/specification/#ceph.rook.io/v1.FilesystemSpec).
 
         !!! note
 
