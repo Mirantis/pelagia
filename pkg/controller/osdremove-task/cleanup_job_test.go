@@ -112,11 +112,23 @@ func TestRunCleanupJob(t *testing.T) {
 			osdMapping: unitinputs.DevNotInSpecRemoveMap.CleanupMap["node-1"].OsdMapping["20"],
 			expectedBatchJob: unitinputs.GetCleanupJob("node-1", "20", "", map[string]string{
 				"vdd": fmt.Sprintf(cleanupScriptTmpl, fmt.Sprintf(partitionCleanupScriptTmpl, "/dev/ceph-metadata/part-1", false,
-					fmt.Sprintf(hostDirectoryCleanupScriptTmpl, "/var/lib/rook/rook-ceph/8668f062-3faa-358a-85f3-f80fe6c1e306_vbsgs3a3-sdcv-casq-sd11-asd12dasczsf"))),
+					fmt.Sprintf(hostDirectoryCleanupScriptTmpl, "/var/lib/rook/rook-ceph/8668f062-3faa-358a-85f3-f80fe6c1e306_vbsgs3a3-sdcv-casq-sd11-asd12dasczsf", false))),
 				"vde": fmt.Sprintf(cleanupScriptTmpl,
 					fmt.Sprintf(partitionCleanupScriptTmpl, "/dev/ceph-21312wds-sdfv-vs3f-scv3-sdfdsg23edaa/osd-block-vbsgs3a3-sdcv-casq-sd11-asd12dasczsf", true,
 						fmt.Sprintf(diskCleanupScriptTmpl, "/dev/disk/by-path/pci-0000:00:0f.0", true,
-							fmt.Sprintf(hostDirectoryCleanupScriptTmpl, "/var/lib/rook/rook-ceph/8668f062-3faa-358a-85f3-f80fe6c1e306_vbsgs3a3-sdcv-casq-sd11-asd12dasczsf")))),
+							fmt.Sprintf(hostDirectoryCleanupScriptTmpl, "/var/lib/rook/rook-ceph/8668f062-3faa-358a-85f3-f80fe6c1e306_vbsgs3a3-sdcv-casq-sd11-asd12dasczsf", false)))),
+			}),
+		},
+		{
+			name:       "job created - full raw disk zap device",
+			taskConfig: taskConfigForTest,
+			osd:        "9",
+			host:       "node-2",
+			osdMapping: unitinputs.DevNotInSpecRemoveMap.CleanupMap["node-2"].OsdMapping["9"],
+			expectedBatchJob: unitinputs.GetCleanupJob("node-2", "9", "", map[string]string{
+				"vdx": fmt.Sprintf(cleanupScriptTmpl,
+					fmt.Sprintf(diskRawCleanupScriptTmpl, "/dev/disk/by-path/pci-0000:00:2e.0", false,
+						fmt.Sprintf(hostDirectoryCleanupScriptTmpl, "/var/lib/rook/rook-ceph/8668f062-3faa-358a-85f3-f80fe6c1e306_3e847863-45b6-41c3-a467-ba5f88094f9c", true))),
 			}),
 		},
 		{
@@ -128,11 +140,11 @@ func TestRunCleanupJob(t *testing.T) {
 			osdMapping:    unitinputs.DevNotInSpecRemoveMap.CleanupMap["node-1"].OsdMapping["20"],
 			expectedBatchJob: unitinputs.GetCleanupJob("node-1", "20", "", map[string]string{
 				"vdd": fmt.Sprintf(cleanupScriptTmpl, fmt.Sprintf(partitionCleanupScriptTmpl, "/dev/ceph-metadata/part-1", true,
-					fmt.Sprintf(hostDirectoryCleanupScriptTmpl, "/var/lib/rook/rook-ceph/8668f062-3faa-358a-85f3-f80fe6c1e306_vbsgs3a3-sdcv-casq-sd11-asd12dasczsf"))),
+					fmt.Sprintf(hostDirectoryCleanupScriptTmpl, "/var/lib/rook/rook-ceph/8668f062-3faa-358a-85f3-f80fe6c1e306_vbsgs3a3-sdcv-casq-sd11-asd12dasczsf", false))),
 				"vde": fmt.Sprintf(cleanupScriptTmpl,
 					fmt.Sprintf(partitionCleanupScriptTmpl, "/dev/ceph-21312wds-sdfv-vs3f-scv3-sdfdsg23edaa/osd-block-vbsgs3a3-sdcv-casq-sd11-asd12dasczsf", true,
 						fmt.Sprintf(diskCleanupScriptTmpl, "/dev/disk/by-path/pci-0000:00:0f.0", true,
-							fmt.Sprintf(hostDirectoryCleanupScriptTmpl, "/var/lib/rook/rook-ceph/8668f062-3faa-358a-85f3-f80fe6c1e306_vbsgs3a3-sdcv-casq-sd11-asd12dasczsf")))),
+							fmt.Sprintf(hostDirectoryCleanupScriptTmpl, "/var/lib/rook/rook-ceph/8668f062-3faa-358a-85f3-f80fe6c1e306_vbsgs3a3-sdcv-casq-sd11-asd12dasczsf", false)))),
 			}),
 		},
 		{
@@ -143,7 +155,17 @@ func TestRunCleanupJob(t *testing.T) {
 			osdMapping: unitinputs.FullNodesInfoFromOsdMeta["node-2"].OsdMapping["0"],
 			expectedBatchJob: unitinputs.GetCleanupJob("node-2", "0", "", map[string]string{
 				"vdb": fmt.Sprintf(cleanupScriptTmpl, fmt.Sprintf(dmSetupTableClean, "/dev/dm-0",
-					fmt.Sprintf(hostDirectoryCleanupScriptTmpl, "/var/lib/rook/rook-ceph/8668f062-3faa-358a-85f3-f80fe6c1e306_69481cd1-38b1-42fd-ac07-06bf4d7c0e19"))),
+					fmt.Sprintf(hostDirectoryCleanupScriptTmpl, "/var/lib/rook/rook-ceph/8668f062-3faa-358a-85f3-f80fe6c1e306_69481cd1-38b1-42fd-ac07-06bf4d7c0e19", false))),
+			}),
+		},
+		{
+			name:       "job created - device used as raw is unavailable, host clean",
+			taskConfig: taskConfigForTest,
+			osd:        "9",
+			host:       "node-2",
+			osdMapping: unitinputs.FullNodesInfoFromOsdMeta["node-2"].OsdMapping["9"],
+			expectedBatchJob: unitinputs.GetCleanupJob("node-2", "9", "", map[string]string{
+				"vdx": fmt.Sprintf(cleanupScriptTmpl, fmt.Sprintf(hostDirectoryCleanupScriptTmpl, "/var/lib/rook/rook-ceph/8668f062-3faa-358a-85f3-f80fe6c1e306_3e847863-45b6-41c3-a467-ba5f88094f9c", false)),
 			}),
 		},
 		{
@@ -156,7 +178,7 @@ func TestRunCleanupJob(t *testing.T) {
 				map[string]string{"vdc": fmt.Sprintf(cleanupScriptTmpl,
 					fmt.Sprintf(partitionCleanupScriptTmpl, "/dev/ceph-c5628abe-ae41-4c3d-bdc6-ef86c54bf78c/osd-block-69481cd1-38b1-42fd-ac07-06bf4d7c0e19", true,
 						fmt.Sprintf(diskCleanupScriptTmpl, "/dev/disk/by-path/pci-0000:00:0c.0", true,
-							fmt.Sprintf(hostDirectoryCleanupScriptTmpl, "/var/lib/rook/rook-ceph/8668f062-0lsk-358a-1gt4-f80fe6c1e306_06bf4d7c-9603-41a4-b250-284ecf3ecb2f")))),
+							fmt.Sprintf(hostDirectoryCleanupScriptTmpl, "/var/lib/rook/rook-ceph/8668f062-0lsk-358a-1gt4-f80fe6c1e306_06bf4d7c-9603-41a4-b250-284ecf3ecb2f", false)))),
 				}),
 		},
 		{

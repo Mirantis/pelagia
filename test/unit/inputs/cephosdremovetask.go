@@ -259,7 +259,7 @@ var RequestRemoveByOsdID = map[string]lcmv1alpha1.NodeCleanUpSpec{
 	},
 	"node-2": {
 		CleanupByOsd: []lcmv1alpha1.OsdCleanupSpec{
-			{ID: 4}, {ID: 88},
+			{ID: 4}, {ID: 9}, {ID: 88},
 		},
 	},
 }
@@ -276,6 +276,12 @@ var RequestRemoveByDevice = map[string]lcmv1alpha1.NodeCleanUpSpec{
 		CleanupByDevice: []lcmv1alpha1.DeviceCleanupSpec{
 			{
 				Device: "vdd",
+			},
+			{
+				Device: "vdx",
+			},
+			{
+				Device: "vdy",
 			},
 		},
 	},

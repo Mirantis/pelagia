@@ -406,7 +406,7 @@ var CephOsdTreeOutputTmpl = `{
     ]
 }`
 
-var CephOsdTreeOutput = BuildCliOutput(CephOsdTreeOutputTmpl, "", map[string]string{"childs_1": "20,25,30", "childs_2": "0,4,5"})
+var CephOsdTreeOutput = BuildCliOutput(CephOsdTreeOutputTmpl, "", map[string]string{"childs_1": "20,25,30", "childs_2": "0,4,5,7,9"})
 var CephOsdTreeOutputNoOsdsOnHost = BuildCliOutput(CephOsdTreeOutputTmpl, "", map[string]string{"childs_1": "\n", "childs_2": "\n"})
 
 var CephPoolsDetails = `[

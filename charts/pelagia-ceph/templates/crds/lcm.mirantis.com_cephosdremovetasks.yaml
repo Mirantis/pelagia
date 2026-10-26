@@ -358,6 +358,10 @@ spec:
                                         db or block
                                       nullable: true
                                       type: string
+                                    raw:
+                                      description: Whether device is used as raw for
+                                        osd
+                                      type: boolean
                                     rotational:
                                       description: Whether device is rotational (hdd
                                         or ssd/nvme)

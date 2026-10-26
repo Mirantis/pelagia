@@ -806,7 +806,7 @@ func TestGetNodeAnalyseStatus(t *testing.T) {
 func TestRunSpecAnalyse(t *testing.T) {
 	daemonInfoMapping := map[string]*lcmcommon.DiskDaemonReport{
 		"node-1": &unitinputs.DiskDaemonReportOkNode1,
-		"node-2": unitinputs.DiskDaemonNodeReportWithStrayOkNode2WithRaw(true, true),
+		"node-2": unitinputs.DiskDaemonNodeReportWithStrayOkNode2(true),
 	}
 
 	tests := []struct {
@@ -1230,7 +1230,7 @@ func TestRunSpecAnalyse(t *testing.T) {
 	// run special case separately with direct prepare fixtures
 	t.Run("nodespec 2 - analyse is not ok, raw osd with reused id on stray lvm partition", func(t *testing.T) {
 		node := unitinputs.StorageNodesForAnalysisOk[1]
-		diskReport := unitinputs.DiskDaemonNodeReportWithStrayOkNode2WithRaw(true, true)
+		diskReport := unitinputs.DiskDaemonNodeReportWithStrayOkNode2(true)
 		staleLvm := diskReport.OsdsReport.Osds["5"][0]
 		staleLvm.OsdUUID = "7d09cceb-4de0-478e-9d8d-bd09cb0c904e"
 		liveRaw := diskReport.OsdsReport.Osds["5"][1]
