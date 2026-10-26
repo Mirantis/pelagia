@@ -59,10 +59,10 @@ use the Gateway API. For details, see
 ## Configure multiple Ceph RGW Object Storage instances
 
 You can configure multiple Ceph RGW Object Storage instances within one cluster for a multi-realm
-configuration. Each realm has a globally unique namespace and can contain either a single
-or multiple zonegroups. Users and buckets accessible within one realm are not accessible in other realms.
+configuration. Each realm has a globally unique namespace and can contain one or more zonegroups.
+Users and buckets accessible within one realm are not accessible in other realms.
 
-In a multi-realm configuration, one realm must be always marked as default.
+In a multi-realm configuration, one realm must always be marked as default.
 
 ??? "Example multi-realm configuration for Ceph RGW Object Storage"
 
