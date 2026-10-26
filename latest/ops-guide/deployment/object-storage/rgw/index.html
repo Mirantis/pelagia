@@ -3690,9 +3690,9 @@ use the Gateway API. For details, see
 <p><a name="rgw-ceph-with-multiple-objectstores"></a></p>
 <h2 id="configure-multiple-ceph-rgw-object-storage-instances">Configure multiple Ceph RGW Object Storage instances<a class="headerlink" href="#configure-multiple-ceph-rgw-object-storage-instances" title="Permanent link">#</a></h2>
 <p>You can configure multiple Ceph RGW Object Storage instances within one cluster for a multi-realm
-configuration. Each realm has a globally unique namespace and can contain either a single
-or multiple zonegroups. Users and buckets accessible within one realm are not accessible in other realms.</p>
-<p>In a multi-realm configuration, one realm must be always marked as default.</p>
+configuration. Each realm has a globally unique namespace and can contain one or more zonegroups.
+Users and buckets accessible within one realm are not accessible in other realms.</p>
+<p>In a multi-realm configuration, one realm must always be marked as default.</p>
 <details>
 <summary>Example multi-realm configuration for Ceph RGW Object Storage</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>

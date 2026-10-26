@@ -4346,8 +4346,7 @@ permission on the mount point of persistent volumes based on any
 </div>
 <p><a name="cephdeployment-cephxclients-parameters"></a></p>
 <h3 id="cephxclients-parameters">CephxClients parameters<a class="headerlink" href="#cephxclients-parameters" title="Permanent link">#</a></h3>
-<p>The <code>cephxClients</code> parameters contain a list of Ceph clients. Each item represents the Rook <code>CephClient</code> specification (<code>ClientSpec</code>) and optional
-role assigned to the client for an application:</p>
+<p>The <code>cephxClients</code> parameters contain a list of Ceph clients. Each item represents the Rook <code>CephClient</code> specification (<code>ClientSpec</code>) and an optional role assigned to the client for an application:</p>
 <ul>
 <li><code>role</code> - Optional. Application role assigned to the client. Pelagia uses it to find all clients of one application,
   for example, during rotation. Must contain only alphanumeric characters and hyphens, up to 63 characters.
@@ -4384,7 +4383,7 @@ role assigned to the client for an application:</p>
 </div>
 <p><a name="cephdeployment-clients-parameters"></a></p>
 <h3 id="clients-parameters">Clients parameters<a class="headerlink" href="#clients-parameters" title="Permanent link">#</a></h3>
-<p>Deprecated in favor of <code>cephxClients</code> parameter.</p>
+<p>Deprecated in favor of the <code>cephxClients</code> parameter.</p>
 <p>The <code>clients</code> parameters contain a list of Ceph clients. Each item represents the Rook <code>CephClient</code> specification (<code>ClientSpec</code>) directly, without an additional wrapper:</p>
 <ul>
 <li><code>name</code> - Mandatory. Ceph client name.</li>
