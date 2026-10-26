@@ -60,7 +60,8 @@ jobs:
         if: github.event_name == 'pull_request'
         uses: lycheeverse/lychee-action@v2
         with:
-          args: --no-progress --include-fragments --include '^https://rook\.io/docs/' site/
+          # 404.html uses root-relative links (/pelagia/...) that lychee cannot resolve in local files.
+          args: --no-progress --include-fragments --include '^https://rook\.io/docs/' --exclude-path site/404.html site/
           fail: true
       - uses: actions/upload-artifact@v4
         if: github.event_name == 'pull_request'
