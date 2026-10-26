@@ -71,7 +71,7 @@ Therefore, you can update them only manually using the `kubectl -n pelagia edit 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | DEPLOYMENT_LOG_LEVEL | Log level of the Pelagia deployment controller. Possible values (case-insensitive): `trace`, `debug`, `info`, `warn`, `error`. | `"info"` |
-| HEALTH_CHECKS_CEPH_ISSUES_TO_IGNORE | Comma-separated list of Ceph cluster health issues to ignore in the `health` state. Deprecated in favor of `spec.cluster.healthCheck.muteHealthWarning`. For details, see [Rook documentation: healthCheck.muteHealthWarning](https://rook.io/docs/rook/v1.20/CRDs/Cluster/ceph-cluster-crd/#health-settings). | `"OSDMAP_FLAGS,TOO_FEW_PGS,SLOW_OPS,OLD_CRUSH_TUNABLES,OLD_CRUSH_STRAW_CALC_VERSION,POOL_APP_NOT_ENABLED,MON_DISK_LOW,RECENT_CRASH"` |
+| HEALTH_CHECKS_CEPH_ISSUES_TO_IGNORE | Comma-separated list of Ceph cluster health issues to ignore in the `health` state. Deprecated in favor of `spec.cluster.healthCheck.muteHealthWarning`. For details, see [Rook documentation: healthCheck.muteHealthWarning]({{ rook_docs }}/CRDs/Cluster/ceph-cluster-crd/#health-settings). | `"OSDMAP_FLAGS,TOO_FEW_PGS,SLOW_OPS,OLD_CRUSH_TUNABLES,OLD_CRUSH_STRAW_CALC_VERSION,POOL_APP_NOT_ENABLED,MON_DISK_LOW,RECENT_CRASH"` |
 | HEALTH_CHECKS_SKIP | Comma-separated list of checks to skip during Ceph cluster verification. Possible values: `ceph_daemons`, `ceph_csi_daemons`, `usage_details`, `ceph_events`, `pools_replicas`, `rgw_info`, `spec_analysis`. | `""` |
 | HEALTH_CHECKS_USAGE_CLASS_FILTER | Regexp-based filter to prepare usage details only for the specified device class. | `""` |
 | HEALTH_CHECKS_USAGE_POOLS_FILTER | Regexp-based filter to prepare usage details only for the specified pools. | `""` |

@@ -53,7 +53,7 @@ configuration values:
    ```
 
 3. In the `cluster.placement` section, specify the placement parameters.
-   For reference, see [Rook API documentation: Placement Configuration Settings](https://rook.io/docs/rook/v1.20/CRDs/Cluster/ceph-cluster-crd/#placement-configuration-settings).
+   For reference, see [Rook API documentation: Placement Configuration Settings]({{ rook_docs }}/CRDs/Cluster/ceph-cluster-crd/#placement-configuration-settings).
 
     ??? "Example configuration"
 
@@ -79,7 +79,7 @@ configuration values:
         ```
 
 4. In the `cluster.resources` section, specify the resource requirement parameters.
-   For reference, see [Rook API documentation: Resource Requirements/Limits](https://rook.io/docs/rook/v1.20/CRDs/Cluster/ceph-cluster-crd/#resource-requirementslimits).
+   For reference, see [Rook API documentation: Resource Requirements/Limits]({{ rook_docs }}/CRDs/Cluster/ceph-cluster-crd/#resource-requirementslimits).
 
     ??? "Example configuration"
 
@@ -178,7 +178,7 @@ configuration values:
                  operator: Exists
    ```
 
-     For reference, see [Rook API documentation: Gateway Settings](https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-store-crd/#gateway-settings).
+     For reference, see [Rook API documentation: Gateway Settings]({{ rook_docs }}/CRDs/Object-Storage/ceph-object-store-crd/#gateway-settings).
 
 7. In the `spec.sharedFilesystems` section, specify the `resources` and `placement` parameters for the CephFS daemons:
     ```yaml
@@ -206,7 +206,7 @@ configuration values:
                   cpu: 2
     ```
 
-    For reference, see [Rook API documentation: CephFilesystem](https://rook.io/docs/rook/v1.20/CRDs/Shared-Filesystem/ceph-filesystem-crd/#metadata-server-settings).
+    For reference, see [Rook API documentation: CephFilesystem]({{ rook_docs }}/CRDs/Shared-Filesystem/ceph-filesystem-crd/#metadata-server-settings).
 
 8. Save the reconfigured `CephDeployment` CR and wait for Pelagia Deployment Controller to apply the updated
    Ceph configuration to Rook.

@@ -6,7 +6,7 @@ This section provides instructions on how to install Pelagia that will deploy a 
 ## Requirements and prerequisites
 
 * A Kubernetes cluster, for example, deployed with k0s.
-* Enough resources for a Rook installation as described in [Rook documentation: Prerequisites](https://rook.io/docs/rook/v1.20/Getting-Started/Prerequisites/prerequisites/).
+* Enough resources for a Rook installation as described in [Rook documentation: Prerequisites]({{ rook_docs }}/Getting-Started/Prerequisites/prerequisites/).
 * Enough nodes in the cluster to run Ceph control and data daemons. Nodes must have at least 4 GB of RAM for each Ceph daemon (monitors, managers, metadata servers, osd, rgw). The minimum recommended requirements are 6 nodes: 3 nodes for control daemons (Ceph Managers and Ceph Monitors) and 3 nodes for data daemons (Ceph OSDs).
 For details about hardware recommendations, see [Ceph documentation: Hardware recommendations](https://docs.ceph.com/en/latest/start/hardware-recommendations/).
 

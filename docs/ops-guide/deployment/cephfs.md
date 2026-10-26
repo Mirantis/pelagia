@@ -25,7 +25,7 @@ The `CephDeployment` custom resource (CR) `spec` includes the `sharedFilesystem.
 with the following CephFS parameters:
 
 - `name` - CephFS instance name.
-- `spec` - CephFS spec definition based on the [Rook API CephFS](https://rook.io/docs/rook/v1.20/CRDs/Shared-Filesystem/ceph-filesystem-crd/) specification.
+- `spec` - CephFS spec definition based on the [Rook API CephFS]({{ rook_docs }}/CRDs/Shared-Filesystem/ceph-filesystem-crd/) specification.
 
 For configuration details, refer to the [CephDeployment API](../../custom-resources/cephdeployment.md#cephdeployment-cephfs-parameters).
 

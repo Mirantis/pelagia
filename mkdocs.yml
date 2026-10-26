@@ -52,12 +52,18 @@ plugins:
   - search
   - mermaid2
   - callouts
-  - table-reader
   - exclude:
       glob:
         - snippets/*
   - snippets
   - include-markdown
+  # Must stay after include-markdown so that variables in included snippets are rendered.
+  - macros:
+      module_name: build/scripts/docs_macros
+      on_undefined: strict
+      on_error_fail: true
+  # Must stay after macros, as required by table-reader.
+  - table-reader
   - mike:
       version_selector: true
       css_dir: css

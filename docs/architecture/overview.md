@@ -120,5 +120,5 @@ that are involved in the Ceph cluster deployment and lifecycle management:
 !!! info "See also"
 
     - [Ceph documentation](https://docs.ceph.com/docs/master/)
-    - [Rook documentation](https://rook.io/docs/rook/v1.20/Getting-Started/intro/)
+    - [Rook documentation]({{ rook_docs }}/Getting-Started/intro/)
     - [Rockoon documentation](https://github.com/Mirantis/rockoon)
