@@ -518,8 +518,7 @@ To configure additional required pools for Rockoon, see
 <a name="cephdeployment-cephxclients-parameters"></a>
 ### CephxClients parameters
 
-The `cephxClients` parameters contain a list of Ceph clients. Each item represents the Rook `CephClient` specification (`ClientSpec`) and optional
-role assigned to the client for an application:
+The `cephxClients` parameters contain a list of Ceph clients. Each item represents the Rook `CephClient` specification (`ClientSpec`) and an optional role assigned to the client for an application:
 
 - `role` - Optional. Application role assigned to the client. Pelagia uses it to find all clients of one application,
   for example, during rotation. Must contain only alphanumeric characters and hyphens, up to 63 characters.
@@ -554,7 +553,7 @@ For details about Ceph client capabilities (`caps`), refer to [Ceph documentatio
 <a name="cephdeployment-clients-parameters"></a>
 ### Clients parameters
 
-Deprecated in favor of `cephxClients` parameter.
+Deprecated in favor of the `cephxClients` parameter.
 
 The `clients` parameters contain a list of Ceph clients. Each item represents the Rook `CephClient` specification (`ClientSpec`) directly, without an additional wrapper:
 
