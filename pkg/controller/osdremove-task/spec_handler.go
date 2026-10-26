@@ -323,7 +323,7 @@ func (c *cephOsdRemoveConfig) verifyOsdsForCleanUp(nodesFromTask map[string]lcmv
 						if osdInfo.OsdUUID == "" {
 							osdKey = fmt.Sprintf("%s.%s", osd, lcmcommon.StrayOsdNodeMarker)
 						}
-						newResult.Warnings = append(newResult.Warnings, fmt.Sprintf("[node '%s'] found partition with stray osd uuid '%s', id '%s', will be cleaned up", host, osdInfo.OsdUUID, osd))
+						newResult.Warnings = append(newResult.Warnings, fmt.Sprintf("[node '%s'] found stray osd uuid '%s', id '%s', will be cleaned up", host, osdInfo.OsdUUID, osd))
 						// stray may have same osd id as in crush, but different uuid
 						if strayInCrush || (!osdInCrush && osdInfo.OsdUUID == osdUUIDMap[osd]) {
 							strayOsdsNoHost[osd] = false
@@ -481,7 +481,7 @@ func (c *cephOsdRemoveConfig) verifyOsdsForCleanUp(nodesFromTask map[string]lcmv
 								osdKey = fmt.Sprintf("%s.%s", osd, lcmcommon.StrayOsdNodeMarker)
 							}
 							newResult.Warnings = append(newResult.Warnings,
-								fmt.Sprintf("[node '%s'] found partition with stray osd uuid '%s', id '%s', will be cleaned up", host, osdInfo.OsdUUID, osd))
+								fmt.Sprintf("[node '%s'] found stray osd uuid '%s', id '%s', will be cleaned up", host, osdInfo.OsdUUID, osd))
 							// stray may have same osd id as in crush, but different uuid
 							if strayInCrush || (!osdInCrush && osdInfo.OsdUUID == osdUUIDMap[osd]) {
 								strayOsdsNoHost[osd] = false
@@ -708,7 +708,7 @@ func (c *cephOsdRemoveConfig) findOsdsForCleanUp(nodesList []cephv1.Node, osdsHo
 									break
 								}
 							}
-							// osd remove not allowed only if block dev found in spec
+							// osd remove not allowed only if block dev (including raw) found in spec
 							// otherwise not allowed only disk zap
 							if devType == "block" {
 								allowToRemove = false
@@ -734,7 +734,7 @@ func (c *cephOsdRemoveConfig) findOsdsForCleanUp(nodesList []cephv1.Node, osdsHo
 					osdKey := osd
 					// if found as stray in crush or not found in crush at all
 					if inCrushAndStray || !fromCrushAndHost {
-						warning := fmt.Sprintf("[node '%s'] found partition with stray osd uuid '%s', id '%s', will be cleaned up", host, osdInfo.OsdUUID, osd)
+						warning := fmt.Sprintf("[node '%s'] found stray osd uuid '%s', id '%s', will be cleaned up", host, osdInfo.OsdUUID, osd)
 						newResult.Warnings = append(newResult.Warnings, warning)
 						osdKey = fmt.Sprintf("%s.%s.%s", osd, osdInfo.OsdUUID, lcmcommon.StrayOsdNodeMarker)
 						if osdInfo.OsdUUID == "" {
@@ -917,6 +917,14 @@ func getDevsInfoFromDaemonInfo(osdDaemonInfo lcmcommon.OsdDaemonInfo) map[string
 			Type:       usageType,
 			Alive:      true,
 			PartedBy:   dev.PartedBy,
+			Raw:        dev.Raw,
+		}
+		if deviceInfo.Raw {
+			// a raw osd keeps data on the device itself, so it is always block
+			deviceInfo.Type = "block"
+			// osd metadata reports bluestore_bdev_partition_path as the disk itself for raw osds
+			// so do same for disk daemon report
+			deviceInfo.Partition = dev.Name
 		}
 		newInfo[dev.Name] = deviceInfo
 	}
@@ -965,15 +973,22 @@ func inSpec(osdDaemonInfo lcmcommon.OsdDaemonInfo, specDevs usedDevices, lookFor
 	devMapping := map[string][]string{}
 	partMapping := map[string][]string{}
 	for _, dev := range osdDaemonInfo.Devices {
-		for _, part := range osdDaemonInfo.Partitions {
-			if part.Partition == dev.RelatedPartition {
-				devNames := append([]string{dev.Name, lcmcommon.PathDevPrepended(dev.Name)}, dev.DeviceSymlinks...)
-				partNames := append([]string{part.Partition}, part.PartitionSymlinks...)
-				if lookForDev == "" || lcmcommon.Contains(devNames, lcmcommon.PathDevPrepended(lookForDev)) || lcmcommon.Contains(partNames, lcmcommon.PathDevPrepended(lookForDev)) {
-					devMapping[part.Type] = devNames
-					partMapping[part.Type] = partNames
+		if dev.Raw {
+			devNames := append([]string{dev.Name, lcmcommon.PathDevPrepended(dev.Name)}, dev.DeviceSymlinks...)
+			if lookForDev == "" || lcmcommon.Contains(devNames, lcmcommon.PathDevPrepended(lookForDev)) {
+				devMapping["block"] = devNames
+			}
+		} else {
+			for _, part := range osdDaemonInfo.Partitions {
+				if part.Partition == dev.RelatedPartition {
+					devNames := append([]string{dev.Name, lcmcommon.PathDevPrepended(dev.Name)}, dev.DeviceSymlinks...)
+					partNames := append([]string{part.Partition}, part.PartitionSymlinks...)
+					if lookForDev == "" || lcmcommon.Contains(devNames, lcmcommon.PathDevPrepended(lookForDev)) || lcmcommon.Contains(partNames, lcmcommon.PathDevPrepended(lookForDev)) {
+						devMapping[part.Type] = devNames
+						partMapping[part.Type] = partNames
+					}
+					break
 				}
-				break
 			}
 		}
 	}
@@ -1035,20 +1050,24 @@ func checkDeviceZapping(host string, osdMapping map[string]lcmv1alpha1.OsdMappin
 			if !devMapping.Alive {
 				continue
 			}
-			if devMapping.PartedBy != "" {
-				warn = append(warn, fmt.Sprintf("[node '%s'] found osd %s partition '%s' for osd '%s', which is placed on top of another partition '%s', skipping disk zap",
-					host, devMapping.Type, devMapping.Partition, osd, devMapping.PartedBy))
-				devMapping.Zap = false
+			if devMapping.Raw {
+				devMapping.Zap = true
 			} else {
-				allowLvmDrop := isLvmRookMade(devMapping.Partition) || allowToRemoveAllLvms
-				if !allowLvmDrop {
-					warn = append(warn, fmt.Sprintf("[node '%s'] found osd %s partition '%s' for osd '%s', which is created not by rook, skipping disk/partition zap",
-						host, devMapping.Type, devMapping.Partition, osd))
-				}
-				if lockedDevices[device] {
+				if devMapping.PartedBy != "" {
+					warn = append(warn, fmt.Sprintf("[node '%s'] found osd %s partition '%s' for osd '%s', which is placed on top of another partition '%s', skipping disk zap",
+						host, devMapping.Type, devMapping.Partition, osd, devMapping.PartedBy))
 					devMapping.Zap = false
 				} else {
-					devMapping.Zap = allowLvmDrop
+					allowLvmDrop := isLvmRookMade(devMapping.Partition) || allowToRemoveAllLvms
+					if !allowLvmDrop {
+						warn = append(warn, fmt.Sprintf("[node '%s'] found osd %s partition '%s' for osd '%s', which is created not by rook, skipping disk/partition zap",
+							host, devMapping.Type, devMapping.Partition, osd))
+					}
+					if lockedDevices[device] {
+						devMapping.Zap = false
+					} else {
+						devMapping.Zap = allowLvmDrop
+					}
 				}
 			}
 			osdMapping[osd].DeviceMapping[device] = devMapping

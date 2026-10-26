@@ -24,7 +24,7 @@ import (
 )
 
 var CephDiskDaemonDiskReportStringNode1 = GetDiskDaemonReportToString(&DiskDaemonReportOkNode1)
-var CephDiskDaemonDiskReportStringNode2 = GetDiskDaemonReportToString(DiskDaemonNodeReportWithStrayOkNode2WithRaw(true, true))
+var CephDiskDaemonDiskReportStringNode2 = GetDiskDaemonReportToString(DiskDaemonNodeReportWithStrayOkNode2(true))
 
 func GetDiskDaemonReportToString(report *lcmcommon.DiskDaemonReport) string {
 	strReport, _ := json.Marshal(report)
@@ -80,6 +80,8 @@ var DiskDaemonReportOkNode2 = lcmcommon.DiskDaemonReport{
 			"0": lcmdiskdaemoninput.OsdDevicesInfoNode2["0"],
 			"4": lcmdiskdaemoninput.OsdDevicesInfoNode2["4"],
 			"5": lcmdiskdaemoninput.OsdDevicesInfoNode2["5"],
+			"7": lcmdiskdaemoninput.OsdDevicesInfoNode2["7"],
+			"9": lcmdiskdaemoninput.OsdDevicesInfoNode2["9"],
 		},
 	},
 }
@@ -95,10 +97,6 @@ var DiskDaemonReportOkNode2SomeDevLost = lcmcommon.DiskDaemonReport{
 }
 
 func DiskDaemonNodeReportWithStrayOkNode2(inCrush bool) *lcmcommon.DiskDaemonReport {
-	return DiskDaemonNodeReportWithStrayOkNode2WithRaw(inCrush, false)
-}
-
-func DiskDaemonNodeReportWithStrayOkNode2WithRaw(inCrush, withRaw bool) *lcmcommon.DiskDaemonReport {
 	report := &lcmcommon.DiskDaemonReport{
 		State:       lcmcommon.DiskDaemonStateOk,
 		DisksReport: lcmdiskdaemoninput.DiskInfoReportCephVolumeFromNode2,
@@ -107,17 +105,14 @@ func DiskDaemonNodeReportWithStrayOkNode2WithRaw(inCrush, withRaw bool) *lcmcomm
 			Osds: map[string][]lcmcommon.OsdDaemonInfo{
 				"0": append(lcmdiskdaemoninput.OsdDevicesInfoNode2["0"], lcmdiskdaemoninput.OsdDevicesInfoNode2["0-stray"]...),
 				"4": lcmdiskdaemoninput.OsdDevicesInfoNode2["4"],
-				"5": lcmdiskdaemoninput.OsdDevicesInfoNode2["5"],
+				"5": append(lcmdiskdaemoninput.OsdDevicesInfoNode2["5"], lcmdiskdaemoninput.OsdDevicesInfoNode2["5-stray"]...),
+				"7": lcmdiskdaemoninput.OsdDevicesInfoNode2["7"],
+				"9": lcmdiskdaemoninput.OsdDevicesInfoNode2["9"],
 			},
 		},
 	}
 	if inCrush {
 		report.OsdsReport.Osds["2"] = lcmdiskdaemoninput.OsdDevicesInfoNode2["2"]
-	}
-	if withRaw {
-		report.OsdsReport.Osds["5"] = append(lcmdiskdaemoninput.OsdDevicesInfoNode2["5"], lcmdiskdaemoninput.OsdDevicesInfoNode2["5-stray"]...)
-		report.OsdsReport.Osds["7"] = lcmdiskdaemoninput.OsdDevicesInfoNode2["7"]
-		report.OsdsReport.Osds["9"] = lcmdiskdaemoninput.OsdDevicesInfoNode2["9"]
 	}
 	return report
 }

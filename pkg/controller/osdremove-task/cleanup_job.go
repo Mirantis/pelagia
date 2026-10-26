@@ -38,6 +38,23 @@ var (
 	cleanupScriptTmpl = `set -xe
 %s
 `
+	diskRawCleanupScriptTmpl = `# running raw disk cleanup script
+DEVICE_PATH=%s
+ROTATIONAL=%v
+: ${DEVICE_PATH?:Device var \$DEVICE_PATH is not set}
+echo "cleaning disk '${DEVICE_NAME}'..."
+# use ceph-bluestore-tool for zapping bluestore label directly on raw device
+ceph-bluestore-tool zap-device --dev ${DEVICE_PATH} --yes-i-really-really-mean-it
+sgdisk --zap-all ${DEVICE_PATH}
+if [[ "${ROTATIONAL}" == "true" ]]; then
+    dd if=/dev/zero of="${DEVICE_PATH}" bs=1M count=100 oflag=direct,dsync
+else
+    blkdiscard "${DEVICE_PATH}"
+fi
+partprobe ${DEVICE_PATH}
+echo "disk '${DEVICE_NAME}' is cleaned up!"
+%s
+`
 	diskCleanupScriptTmpl = `# running disk cleanup script part
 DEVICE_PATH=%s
 ROTATIONAL=%v
@@ -104,12 +121,13 @@ fi
 `
 	hostDirectoryCleanupScriptTmpl = `# running host rook dir cleanup script part
 HOST_DIRECTORY=%s
+RAW="%v"
 if ! test -d "${HOST_DIRECTORY}"; then
-   echo "host directory '${HOST_DIRECTORY}' does not exist, skipping remove"
-elif test -b "${HOST_DIRECTORY}/block" || test -b "${HOST_DIRECTORY}/block.db"; then
-   echo "could not clean up directory ${HOST_DIRECTORY}, which still is in use, skipping"
+    echo "host directory '${HOST_DIRECTORY}' does not exist, skipping remove"
+elif [[ "${RAW}" != "true" ]] && (test -b "${HOST_DIRECTORY}/block" || test -b "${HOST_DIRECTORY}/block.db"); then
+    echo "could not clean up directory ${HOST_DIRECTORY}, which still is in use, skipping"
 else
-  rm -rf ${HOST_DIRECTORY}
+    rm -rf ${HOST_DIRECTORY}
 fi
 `
 )
@@ -258,13 +276,20 @@ func (c *cephOsdRemoveConfig) runCleanupJob(host, osdID, hostOsdDirectory string
 		cleanupScript := ""
 		hostDirCleanUpMacros := ""
 		if hostOsdDirectory != "" {
-			hostDirCleanUpMacros = fmt.Sprintf(hostDirectoryCleanupScriptTmpl, hostOsdDirectory)
+			hostDirCleanUpMacros = fmt.Sprintf(hostDirectoryCleanupScriptTmpl, hostOsdDirectory, deviceInfo.Raw)
 		}
 		if !deviceInfo.Alive {
-			cleanupScript = fmt.Sprintf(cleanupScriptTmpl, fmt.Sprintf(dmSetupTableClean, deviceInfo.Partition, hostDirCleanUpMacros))
+			// for raw disks partition is the same to device name itself
+			if device == deviceInfo.Partition {
+				cleanupScript = fmt.Sprintf(cleanupScriptTmpl, hostDirCleanUpMacros)
+			} else {
+				cleanupScript = fmt.Sprintf(cleanupScriptTmpl, fmt.Sprintf(dmSetupTableClean, deviceInfo.Partition, hostDirCleanUpMacros))
+			}
 		} else {
 			destroyLVM := isLvmRookMade(deviceInfo.Partition) || c.lcmConfig.TaskParams.AllowToRemoveManuallyCreatedLVM
-			if deviceInfo.Zap && destroyLVM {
+			if deviceInfo.Raw {
+				cleanupScript = fmt.Sprintf(cleanupScriptTmpl, fmt.Sprintf(diskRawCleanupScriptTmpl, deviceInfo.Path, deviceInfo.Rotational, hostDirCleanUpMacros))
+			} else if deviceInfo.Zap && destroyLVM {
 				// before zapping disk remove current partition
 				diskZapPart := fmt.Sprintf(diskCleanupScriptTmpl, deviceInfo.Path, deviceInfo.Rotational, hostDirCleanUpMacros)
 				cleanupScript = fmt.Sprintf(cleanupScriptTmpl, fmt.Sprintf(partitionCleanupScriptTmpl, deviceInfo.Partition, destroyLVM, diskZapPart))

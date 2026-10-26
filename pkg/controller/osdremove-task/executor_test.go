@@ -59,6 +59,8 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 				"ceph osd info 0 --format json":  `{"osd":0, "up":1, "in":1}`,
 				"ceph osd info 4 --format json":  `{"osd":4, "up":1, "in":1}`,
 				"ceph osd info 5 --format json":  `{"osd":5, "up":1, "in":1}`,
+				"ceph osd info 7 --format json":  `{"osd":7, "up":1, "in":1}`,
+				"ceph osd info 9 --format json":  `{"osd":9, "up":1, "in":1}`,
 				"ceph osd info 20 --format json": `{"osd":20, "up":1, "in":1}`,
 				"ceph osd info 25 --format json": `{"osd":25, "up":1, "in":1}`,
 				"ceph osd info 30 --format json": `{"osd":30, "up":1, "in":1}`,
@@ -81,6 +83,8 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 				"ceph osd info 0 --format json":      `{"osd":0, "up":1, "in":1}`,
 				"ceph osd info 4 --format json":      `{"osd":4, "up":1, "in":1}`,
 				"ceph osd info 5 --format json":      `{"osd":5, "up":1, "in":1}`,
+				"ceph osd info 7 --format json":      `{"osd":7, "up":1, "in":1}`,
+				"ceph osd info 9 --format json":      `{"osd":9, "up":1, "in":1}`,
 				"ceph osd info 20 --format json":     `{"osd":20, "up":1, "in":1}`,
 				"ceph osd info 25 --format json":     `{"osd":25, "up":1, "in":1}`,
 				"ceph osd info 30 --format json":     `{"osd":30, "up":1, "in":1}`,
@@ -136,6 +140,8 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 				"ceph osd info 0 --format json":                    `{"osd":0, "up":1, "in":1}`,
 				"ceph osd info 4 --format json":                    `{"osd":4, "up":1, "in":1}`,
 				"ceph osd info 5 --format json":                    `{"osd":5, "up":1, "in":1}`,
+				"ceph osd info 7 --format json":                    `{"osd":7, "up":1, "in":1}`,
+				"ceph osd info 9 --format json":                    `{"osd":9, "up":1, "in":1}`,
 				"ceph osd info 20 --format json":                   `{"osd":20, "up":1, "in":1}`,
 				"ceph osd info 30 --format json":                   `{"osd":30, "up":1, "in":1}`,
 				"ceph osd ok-to-stop 20":                           "",
@@ -176,6 +182,8 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 			cephCliOutput: map[string]string{
 				"ceph osd info 4 --format json":  `{"osd":4, "up":1, "in":1}`,
 				"ceph osd info 5 --format json":  `{"osd":5, "up":1, "in":1}`,
+				"ceph osd info 7 --format json":  `{"osd":7, "up":1, "in":1}`,
+				"ceph osd info 9 --format json":  `{"osd":9, "up":1, "in":1}`,
 				"ceph osd info 20 --format json": `{"osd":20, "up":1, "in":1}`,
 				"ceph osd info 30 --format json": `{"osd":30, "up":1, "in":1}`,
 			},
@@ -207,6 +215,8 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 				info.CleanupMap["node-1"].OsdMapping["30"].RemoveStatus.OsdRemoveStatus.StartedAt = "2025-04-14T14:30:45Z"
 				info.CleanupMap["node-2"].OsdMapping["4"].RemoveStatus.OsdRemoveStatus.StartedAt = "2025-04-14T14:30:45Z"
 				info.CleanupMap["node-2"].OsdMapping["5"].RemoveStatus.OsdRemoveStatus.StartedAt = "2025-04-14T14:30:45Z"
+				info.CleanupMap["node-2"].OsdMapping["7"].RemoveStatus.OsdRemoveStatus.StartedAt = "2025-04-14T14:30:45Z"
+				info.CleanupMap["node-2"].OsdMapping["9"].RemoveStatus.OsdRemoveStatus.StartedAt = "2025-04-14T14:30:45Z"
 				return info
 			}(),
 		},
@@ -306,6 +316,8 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 				"ceph osd info 0 --format json":  `{"osd":0, "up":1, "in":1}`,
 				"ceph osd info 4 --format json":  `{"osd":4, "up":1, "in":1}`,
 				"ceph osd info 5 --format json":  `{"osd":5, "up":1, "in":1}`,
+				"ceph osd info 7 --format json":  `{"osd":7, "up":1, "in":1}`,
+				"ceph osd info 9 --format json":  `{"osd":9, "up":1, "in":1}`,
 				"ceph osd info 20 --format json": `{"osd":20, "up":1, "in":1}`,
 				"ceph osd info 30 --format json": `{"osd":30, "up":1, "in":1}`,
 			},
@@ -360,6 +372,8 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 				"ceph osd info 0 --format json":     `{"osd":0, "up":1, "in":1}`,
 				"ceph osd info 4 --format json":     `{"osd":4, "up":1, "in":1}`,
 				"ceph osd info 5 --format json":     `{"osd":5, "up":1, "in":1}`,
+				"ceph osd info 7 --format json":     `{"osd":7, "up":1, "in":1}`,
+				"ceph osd info 9 --format json":     `{"osd":9, "up":1, "in":1}`,
 				"ceph osd info 20 --format json":    `{"osd":20, "up":1, "in":1}`,
 				"ceph osd info 30 --format json":    `{"osd":30, "up":1, "in":1}`,
 				"ceph osd ok-to-stop 0":             "",
@@ -400,13 +414,17 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 				cephCluster: &unitinputs.CephClusterReady,
 			},
 			cephCliOutput: map[string]string{
-				"ceph osd ls": "0\n9\n",
+				"ceph osd ls": "0\n5\n7\n9\n",
 				"ceph osd purge 2 --force --yes-i-really-mean-it": "",
 				"ceph auth del osd.2":                             "",
+				"ceph auth del osd.5":                             "",
 			},
 			expectedRemoveMap: unitinputs.GetInfoWithStatus(unitinputs.StrayOnNodeAndInCrushRemoveMap,
 				map[string]*lcmv1alpha1.RemoveResult{
 					"0.06bf4d7c-9603-41a4-b250-284ecf3ecb2f.__stray": {
+						OsdRemoveStatus: &lcmv1alpha1.RemoveStatus{Status: lcmv1alpha1.RemoveSkipped},
+					},
+					"5.dada9f25-41b4-45b6-a467-f80fe6c1e306.__stray": {
 						OsdRemoveStatus: &lcmv1alpha1.RemoveStatus{Status: lcmv1alpha1.RemoveSkipped},
 					},
 					"2.61869d90-2c45-4f02-b7c3-96955f41e2ca.__stray": {
@@ -456,11 +474,15 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 			requeueRequired: true,
 		},
 		{
-			name: "processing - skip deploy remove for stray not in crush and remove for present in crush ",
+			name: "processing - skip deploy remove for stray not in crush and remove for present in crush",
 			taskConfig: taskConfig{
 				task: unitinputs.GetTaskForRemove(unitinputs.CephOsdRemoveTaskOnValidation, unitinputs.GetInfoWithStatus(unitinputs.StrayOnNodeAndInCrushRemoveMap,
 					map[string]*lcmv1alpha1.RemoveResult{
 						"0.06bf4d7c-9603-41a4-b250-284ecf3ecb2f.__stray": {
+							OsdRemoveStatus:  &lcmv1alpha1.RemoveStatus{Status: lcmv1alpha1.RemoveSkipped},
+							DeviceCleanUpJob: &lcmv1alpha1.RemoveStatus{Status: lcmv1alpha1.RemoveSkipped},
+						},
+						"5.dada9f25-41b4-45b6-a467-f80fe6c1e306.__stray": {
 							OsdRemoveStatus:  &lcmv1alpha1.RemoveStatus{Status: lcmv1alpha1.RemoveSkipped},
 							DeviceCleanUpJob: &lcmv1alpha1.RemoveStatus{Status: lcmv1alpha1.RemoveSkipped},
 						},
@@ -483,6 +505,11 @@ func TestProcessOsdRemoveTask(t *testing.T) {
 			expectedRemoveMap: unitinputs.GetInfoWithStatus(unitinputs.StrayOnNodeAndInCrushRemoveMap,
 				map[string]*lcmv1alpha1.RemoveResult{
 					"0.06bf4d7c-9603-41a4-b250-284ecf3ecb2f.__stray": {
+						OsdRemoveStatus:    &lcmv1alpha1.RemoveStatus{Status: lcmv1alpha1.RemoveSkipped},
+						DeviceCleanUpJob:   &lcmv1alpha1.RemoveStatus{Status: lcmv1alpha1.RemoveSkipped},
+						DeployRemoveStatus: &lcmv1alpha1.RemoveStatus{Status: lcmv1alpha1.RemoveSkipped},
+					},
+					"5.dada9f25-41b4-45b6-a467-f80fe6c1e306.__stray": {
 						OsdRemoveStatus:    &lcmv1alpha1.RemoveStatus{Status: lcmv1alpha1.RemoveSkipped},
 						DeviceCleanUpJob:   &lcmv1alpha1.RemoveStatus{Status: lcmv1alpha1.RemoveSkipped},
 						DeployRemoveStatus: &lcmv1alpha1.RemoveStatus{Status: lcmv1alpha1.RemoveSkipped},

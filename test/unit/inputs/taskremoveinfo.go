@@ -40,6 +40,10 @@ var DevNotInSpecRemoveMap = &lcmv1alpha1.TaskRemoveInfo{
 					map[string]bool{"inCrush": true}, map[string]map[string]bool{"/dev/vdd": {"zap": true}}),
 				"5": AdaptOsdMapping("node-2", "5",
 					map[string]bool{"inCrush": true}, map[string]map[string]bool{"/dev/vdd": {"zap": true}}),
+				"7": AdaptOsdMapping("node-2", "7",
+					map[string]bool{"inCrush": true}, map[string]map[string]bool{"/dev/vdy": {"zap": true}}),
+				"9": AdaptOsdMapping("node-2", "9",
+					map[string]bool{"inCrush": true}, map[string]map[string]bool{"/dev/vdx": {"zap": true}}),
 			},
 		},
 	},
@@ -71,6 +75,10 @@ var FullNodesRemoveMap = &lcmv1alpha1.TaskRemoveInfo{
 					map[string]bool{"inCrush": true}, map[string]map[string]bool{"/dev/vdd": {"zap": true}}),
 				"5": AdaptOsdMapping("node-2", "5",
 					map[string]bool{"inCrush": true}, map[string]map[string]bool{"/dev/vdd": {"zap": true}}),
+				"7": AdaptOsdMapping("node-2", "7",
+					map[string]bool{"inCrush": true}, map[string]map[string]bool{"/dev/vdy": {"zap": true}}),
+				"9": AdaptOsdMapping("node-2", "9",
+					map[string]bool{"inCrush": true}, map[string]map[string]bool{"/dev/vdx": {"zap": true}}),
 			},
 		},
 	},
@@ -143,12 +151,31 @@ var StrayOnlyOnNodeRemoveMap = &lcmv1alpha1.TaskRemoveInfo{
 						},
 					},
 				},
+				"5.dada9f25-41b4-45b6-a467-f80fe6c1e306.__stray": {
+					UUID:          "dada9f25-41b4-45b6-a467-f80fe6c1e306",
+					ClusterFSID:   "8668f062-0lsk-358a-85f3-f80fe6c1e306",
+					HostDirectory: "/var/lib/rook/rook-ceph/8668f062-0lsk-358a-85f3-f80fe6c1e306_dada9f25-41b4-45b6-a467-f80fe6c1e306",
+					InCrushMap:    false,
+					DeviceMapping: map[string]lcmv1alpha1.DeviceInfo{
+						"/dev/vdz": {
+							ID:         "8cbb9ce3-8b56-4f69-o",
+							Rotational: false,
+							Path:       "/dev/disk/by-path/pci-0000:00:2n.0",
+							Partition:  "/dev/vdz",
+							Type:       "block",
+							Zap:        true,
+							Alive:      true,
+							Raw:        true,
+						},
+					},
+				},
 			},
 		},
 	},
 	Issues: []string{},
 	Warnings: []string{
-		"[node 'node-2'] found partition with stray osd uuid '06bf4d7c-9603-41a4-b250-284ecf3ecb2f', id '0', will be cleaned up",
+		"[node 'node-2'] found stray osd uuid '06bf4d7c-9603-41a4-b250-284ecf3ecb2f', id '0', will be cleaned up",
+		"[node 'node-2'] found stray osd uuid 'dada9f25-41b4-45b6-a467-f80fe6c1e306', id '5', will be cleaned up",
 	},
 }
 
@@ -174,13 +201,15 @@ var StrayOnNodeAndInCrushRemoveMap = &lcmv1alpha1.TaskRemoveInfo{
 						},
 					},
 				},
+				"5.dada9f25-41b4-45b6-a467-f80fe6c1e306.__stray": StrayOnlyOnNodeRemoveMap.CleanupMap["node-2"].OsdMapping["5.dada9f25-41b4-45b6-a467-f80fe6c1e306.__stray"],
 			},
 		},
 	},
 	Issues: []string{},
 	Warnings: []string{
-		"[node 'node-2'] found partition with stray osd uuid '06bf4d7c-9603-41a4-b250-284ecf3ecb2f', id '0', will be cleaned up",
-		"[node 'node-2'] found partition with stray osd uuid '61869d90-2c45-4f02-b7c3-96955f41e2ca', id '2', will be cleaned up",
+		"[node 'node-2'] found stray osd uuid '06bf4d7c-9603-41a4-b250-284ecf3ecb2f', id '0', will be cleaned up",
+		"[node 'node-2'] found stray osd uuid '61869d90-2c45-4f02-b7c3-96955f41e2ca', id '2', will be cleaned up",
+		"[node 'node-2'] found stray osd uuid 'dada9f25-41b4-45b6-a467-f80fe6c1e306', id '5', will be cleaned up",
 	},
 }
 
@@ -202,6 +231,8 @@ var NotLabeledNodesFullRemoveMap = &lcmv1alpha1.TaskRemoveInfo{
 				"0": AdaptOsdMapping("node-2", "0", map[string]bool{"inCrush": true, "noDaemon": true}, nil),
 				"4": AdaptOsdMapping("node-2", "4", map[string]bool{"inCrush": true, "noDaemon": true}, nil),
 				"5": AdaptOsdMapping("node-2", "5", map[string]bool{"inCrush": true, "noDaemon": true}, nil),
+				"7": AdaptOsdMapping("node-2", "7", map[string]bool{"inCrush": true, "noDaemon": true}, nil),
+				"9": AdaptOsdMapping("node-2", "9", map[string]bool{"inCrush": true, "noDaemon": true}, nil),
 			},
 		},
 	},
@@ -331,6 +362,7 @@ func AdaptDeviceMapping(node, osdID string, devConfig map[string]map[string]bool
 		if conf["lost"] {
 			devInfo.Alive = false
 			devInfo.Zap = false
+			devInfo.Raw = false
 		} else if conf["zap"] {
 			devInfo.Zap = true
 		}
@@ -483,6 +515,38 @@ var FullNodesInfoFromDaemon = map[string]lcmv1alpha1.HostMapping{
 					},
 				},
 			},
+			"7": {
+				UUID:          "ddfd94ef-070b-488a-bb86-cfd4e1c9aa6d",
+				ClusterFSID:   "8668f062-3faa-358a-85f3-f80fe6c1e306",
+				HostDirectory: "/var/lib/rook/rook-ceph/8668f062-3faa-358a-85f3-f80fe6c1e306_ddfd94ef-070b-488a-bb86-cfd4e1c9aa6d",
+				DeviceMapping: map[string]lcmv1alpha1.DeviceInfo{
+					"/dev/vdy": {
+						ID:         "189ff720-dac9-4583-8",
+						Rotational: false,
+						Path:       "/dev/disk/by-path/pci-0000:00:2c.0",
+						Partition:  "/dev/vdy",
+						Type:       "block",
+						Alive:      true,
+						Raw:        true,
+					},
+				},
+			},
+			"9": {
+				UUID:          "3e847863-45b6-41c3-a467-ba5f88094f9c",
+				ClusterFSID:   "8668f062-3faa-358a-85f3-f80fe6c1e306",
+				HostDirectory: "/var/lib/rook/rook-ceph/8668f062-3faa-358a-85f3-f80fe6c1e306_3e847863-45b6-41c3-a467-ba5f88094f9c",
+				DeviceMapping: map[string]lcmv1alpha1.DeviceInfo{
+					"/dev/vdx": {
+						ID:         "9f0f417c-ea63-467e-b",
+						Rotational: false,
+						Path:       "/dev/disk/by-path/pci-0000:00:2e.0",
+						Partition:  "/dev/vdx",
+						Type:       "block",
+						Alive:      true,
+						Raw:        true,
+					},
+				},
+			},
 		},
 	},
 }
@@ -595,6 +659,34 @@ var FullNodesInfoFromOsdMeta = map[string]lcmv1alpha1.HostMapping{
 						Path:       "/dev/disk/by-path/pci-0000:00:1e.0",
 						Partition:  "/dev/dm-3",
 						ID:         "35a15532-8b56-4f83-9",
+						Type:       "block",
+					},
+				},
+			},
+			"7": {
+				UUID:          "ddfd94ef-070b-488a-bb86-cfd4e1c9aa6d",
+				ClusterFSID:   "8668f062-3faa-358a-85f3-f80fe6c1e306",
+				HostDirectory: "/var/lib/rook/rook-ceph/8668f062-3faa-358a-85f3-f80fe6c1e306_ddfd94ef-070b-488a-bb86-cfd4e1c9aa6d",
+				DeviceMapping: map[string]lcmv1alpha1.DeviceInfo{
+					"/dev/vdy": {
+						ID:         "189ff720-dac9-4583-8",
+						Rotational: false,
+						Path:       "/dev/disk/by-path/pci-0000:00:2c.0",
+						Partition:  "/dev/vdy",
+						Type:       "block",
+					},
+				},
+			},
+			"9": {
+				UUID:          "3e847863-45b6-41c3-a467-ba5f88094f9c",
+				ClusterFSID:   "8668f062-3faa-358a-85f3-f80fe6c1e306",
+				HostDirectory: "/var/lib/rook/rook-ceph/8668f062-3faa-358a-85f3-f80fe6c1e306_3e847863-45b6-41c3-a467-ba5f88094f9c",
+				DeviceMapping: map[string]lcmv1alpha1.DeviceInfo{
+					"/dev/vdx": {
+						Rotational: false,
+						Path:       "/dev/disk/by-path/pci-0000:00:2e.0",
+						Partition:  "/dev/vdx",
+						ID:         "9f0f417c-ea63-467e-b",
 						Type:       "block",
 					},
 				},
