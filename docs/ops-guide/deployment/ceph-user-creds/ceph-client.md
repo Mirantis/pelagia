@@ -46,7 +46,7 @@ For all supported parameters of Ceph clients, refer to [CephxClients parameters]
      ```
 
      For details about `caps`, refer to
-     [Ceph documentation: Authorization (capabilities)](https://docs.ceph.com/en/latest/rados/operations/user-management/#authorization-capabilities).
+     [Ceph documentation: Authorization (capabilities)](https://docs.ceph.com/en/{{ ceph_doc_version }}/rados/operations/user-management/#authorization-capabilities).
 
 2. Wait for created clients to become ready in the `CephDeploymentHealth` CR status:
    ```bash

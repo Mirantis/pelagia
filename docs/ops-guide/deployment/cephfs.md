@@ -12,7 +12,7 @@ The Ceph Shared File System, or CephFS, provides the ability to create
 read/write shared file system Persistent Volumes (PVs). These PVs support the
 `ReadWriteMany` access mode for the `FileSystem` volume mode.
 CephFS deploys its own daemons called MetaData Servers or Ceph MDS. For
-details, see [Ceph Documentation: Ceph File System](https://docs.ceph.com/en/latest/cephfs/index.html).
+details, see [Ceph Documentation: Ceph File System](https://docs.ceph.com/en/{{ ceph_doc_version }}/cephfs/index.html).
 
 !!! note
 
@@ -25,7 +25,7 @@ The `CephDeployment` custom resource (CR) `spec` includes the `sharedFilesystem.
 with the following CephFS parameters:
 
 - `name` - CephFS instance name.
-- `spec` - CephFS spec definition based on the [Rook API CephFS](https://rook.io/docs/rook/v1.19/CRDs/Shared-Filesystem/ceph-filesystem-crd/) specification.
+- `spec` - CephFS spec definition based on the [Rook API CephFS](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Shared-Filesystem/ceph-filesystem-crd/) specification.
 
 For configuration details, refer to the [CephDeployment API](../../custom-resources/cephdeployment.md#cephdeployment-cephfs-parameters).
 

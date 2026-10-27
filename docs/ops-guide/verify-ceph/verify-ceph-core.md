@@ -46,4 +46,4 @@ HEALTH_OK
 ```
 
 If the output contains `HEALTH_WARN` or `HEALTH_ERR`, please see
-[Ceph Health Checks](https://docs.ceph.com/en/latest/rados/operations/health-checks/).
+[Ceph Health Checks](https://docs.ceph.com/en/{{ ceph_doc_version }}/rados/operations/health-checks/).

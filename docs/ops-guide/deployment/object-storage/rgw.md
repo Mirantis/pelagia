@@ -236,5 +236,5 @@ To configure Ceph RGW with shared pools, specify all pools to be used as Ceph RG
 
     Rook documentation:
 
-    * [ObjectStorage with shared pools](https://rook.io/docs/rook/v1.20/Storage-Configuration/Object-Storage-RGW/object-storage/#create-local-object-stores-with-shared-pools)
-    * [ObjectStorage with placement pools](https://rook.io/docs/rook/v1.20/Storage-Configuration/Object-Storage-RGW/object-storage/#create-local-object-stores-with-pool-placements)
+    * [ObjectStorage with shared pools](https://rook.io/docs/rook/{{ rook_doc_version }}/Storage-Configuration/Object-Storage-RGW/object-storage/#create-local-object-stores-with-shared-pools)
+    * [ObjectStorage with placement pools](https://rook.io/docs/rook/{{ rook_doc_version }}/Storage-Configuration/Object-Storage-RGW/object-storage/#create-local-object-stores-with-pool-placements)

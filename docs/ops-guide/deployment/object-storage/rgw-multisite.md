@@ -12,7 +12,7 @@ keywords: pelagia, enable ceph multisite, rgw multisite, object storage, ceph re
 The Ceph Object Storage Multisite feature allows object storage to replicate its data over multiple Ceph clusters.
 Using multisite, such object storage is independent and isolated from another object storage in the cluster.
 Only the multi-zone multisite setup is currently supported. For more details, see
-[Ceph documentation: Multisite](https://docs.ceph.com/en/latest/radosgw/multisite).
+[Ceph documentation: Multisite](https://docs.ceph.com/en/{{ ceph_doc_version }}/radosgw/multisite).
 
 <a name="rgw-multisite-multisite-parameters"></a>
 ## Multisite parameters
@@ -23,7 +23,7 @@ Only the multi-zone multisite setup is currently supported. For more details, se
 ## Enable the multisite RGW Object Storage
 
 1. Create a secret with realm keys in the `rook-ceph` namespace. For the
-   instructions, see [Rook documentation: Getting Realm Access Key and Secret Key](https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key).
+   instructions, see [Rook documentation: Getting Realm Access Key and Secret Key](https://rook.io/docs/rook/{{ rook_doc_version }}/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key).
 
 2.  Open the `CephDeployment` custom resource for editing:
    ```bash
@@ -36,7 +36,7 @@ Only the multi-zone multisite setup is currently supported. For more details, se
 
     Also, you can split the RGW daemon into daemons serving clients and daemons
     running synchronization.
-    To enable this option, create a separate ObjectStore with `auxiliaryService: true` and set `disableMultisiteSyncTraffic` to `true` in the `gateway` section. For reference, see [Rook documentation: Scaling a Multisite](https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#scaling-a-multisite).
+    To enable this option, create a separate ObjectStore with `auxiliaryService: true` and set `disableMultisiteSyncTraffic` to `true` in the `gateway` section. For reference, see [Rook documentation: Scaling a Multisite](https://rook.io/docs/rook/{{ rook_doc_version }}/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#scaling-a-multisite).
 
     ??? "Example configuration"
 
@@ -96,7 +96,7 @@ Only the multi-zone multisite setup is currently supported. For more details, se
    ```
 
 Once done, Pelagia Deployment Controller will create the required resources and Rook will
-handle the multisite configuration. For details, see: [Rook documentation: Object Multisite](https://rook.io/docs/rook/latest/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/).
+handle the multisite configuration. For details, see: [Rook documentation: Object Multisite](https://rook.io/docs/rook/{{ rook_doc_version }}/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/).
 
 <a name="rgw-multisite-configuring-master-zone-for-rgw-object-storage"></a>
 ### Configuring master zone for RGW Object Storage
@@ -218,7 +218,7 @@ to replicate data. For details, see the steps below.
    radosgw-admin user info --uid="<USER_NAME>" | jq -r '.keys'
    ```
 
-4. Create a secret with realm keys using [Rook documentation: Getting Realm Access Key and Secret Key](https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key).
+4. Create a secret with realm keys using [Rook documentation: Getting Realm Access Key and Secret Key](https://rook.io/docs/rook/{{ rook_doc_version }}/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key).
 
 5. Adjust the `CephDeployment` spec as required.
 
@@ -263,7 +263,7 @@ to replicate data. For details, see the steps below.
     Rook does not handle multisite configuration changes and cleanup.
     Therefore, once you enable multisite for Ceph RGW Object Storage, perform
     these operations manually in the `pelagia-ceph-toolbox` pod. For details, see
-    [Rook documentation: Multisite cleanup](https://rook.io/docs/rook/latest/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/?h=multisite#multisite-cleanup).
+    [Rook documentation: Multisite cleanup](https://rook.io/docs/rook/{{ rook_doc_version }}/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/?h=multisite#multisite-cleanup).
 
 To manage allowed DNS names, use the `spec.hosting.dnsNames` field of the related Ceph ObjectStore specification.
 

@@ -77,7 +77,7 @@ Consider the common state of a failed or removed Ceph cluster:
      Once done, close the SSH connection.
 
 3. Clean up the previous installation of Pelagia Helm release. For details of Rook cleanup, see
-   [Rook documentation: Cleaning up a cluster](https://rook.github.io/docs/rook/latest/Getting-Started/ceph-teardown/).
+   [Rook documentation: Cleaning up a cluster](https://rook.io/docs/rook/{{ rook_doc_version }}/Getting-Started/ceph-teardown/).
 
      1. Delete all deployments in the Pelagia namespace:
         ```bash
