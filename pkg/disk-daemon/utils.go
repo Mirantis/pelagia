@@ -18,6 +18,7 @@ package diskdaemon
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"os/exec"
@@ -162,9 +163,15 @@ func getCephVolumeLvmList() (map[string][]OsdVolumeInfo, error) {
 func execCmd(command string) (string, string, error) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
-	cmd := exec.Command("/bin/sh", "-c", command)
+	// set timeout to daemon interval - should not run more that 30s for any cmd
+	ctx, cancel := context.WithTimeout(context.Background(), checkInterval)
+	defer cancel()
+	cmd := exec.CommandContext(ctx, "/bin/sh", "-c", command)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	err := cmd.Run()
+	if ctx.Err() == context.DeadlineExceeded {
+		return stdout.String(), stderr.String(), context.DeadlineExceeded
+	}
 	return stdout.String(), stderr.String(), err
 }
