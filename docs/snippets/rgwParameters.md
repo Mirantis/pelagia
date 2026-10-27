@@ -6,4 +6,4 @@
   replication daemon or an instance providing Ceph RGW admin API access.
 - `servedByIngress` - Optional. Enables the current Ceph RGW instance to be used by the Ingress controller.
   Deprecated in favor of the Gateway API `HTTPRoutes`.
-- `spec` - Mandatory. Represents the Rook `CephObjectStore` specification. For details, see [CephObjectStore CRD](https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-crd/) and [CephObjectStore API specification](https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.CephObjectStore).
+- `spec` - Mandatory. Represents the Rook `CephObjectStore` specification. For details, see [CephObjectStore CRD](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Object-Storage/ceph-object-store-crd/) and [CephObjectStore API specification](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/specification/#ceph.rook.io/v1.CephObjectStore).

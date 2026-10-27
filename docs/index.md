@@ -23,7 +23,7 @@ To install Pelagia in automated LCM mode only, follow the [LCM-only installation
 ## Developer Resources
 
 * Contributing: [https://github.com/Mirantis/pelagia/pulls](https://github.com/Mirantis/pelagia/pulls)
-* Developer Guide: [https://mirantis.github.io/pelagia/developer/](https://mirantis.github.io/pelagia/developer/)
+* Developer Guide: [https://mirantis.github.io/pelagia/latest/developer/](https://mirantis.github.io/pelagia/latest/developer/)
 * Reference Architecture: [https://mirantis.github.io/pelagia](https://mirantis.github.io/pelagia)
 
 !!! info "See also"

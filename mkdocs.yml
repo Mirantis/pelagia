@@ -50,6 +50,12 @@ extra_css:
 
 plugins:
   - search
+  - htmlproofer:
+      raise_error: true # Fails the build if a broken link is found
+      validate_external_urls: true
+      retry_max_times: 2
+  - macros:
+      on_undefined: strict
   - mermaid2
   - callouts
   - table-reader
@@ -62,10 +68,24 @@ plugins:
       version_selector: true
       css_dir: css
 
+hooks:
+  # Fails the build on hard-coded or 'latest' Rook and Ceph docs links
+  - build/scripts/check_docs_links.py
+
 extra:
   version:
     provider: mike
     default: latest
+  rook_doc_version: v1.19
+  ceph_doc_version: tentacle
+
+# Report every broken internal link as a warning, so that `mkdocs build --strict` in Docs CI fails on it.
+validation:
+  links:
+    not_found: warn
+    anchors: warn
+    absolute_links: warn
+    unrecognized_links: warn
 
 markdown_extensions:
   - admonition

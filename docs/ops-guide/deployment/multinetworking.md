@@ -30,7 +30,7 @@ requirements:
   range in `public` and/or `cluster`, the Ceph daemons behavior
   is unpredictable.
 
-For reference, see [Rook documentation: Network Configuration Settings](https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/#network-configuration-settings).
+For reference, see [Rook documentation: Network Configuration Settings](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Cluster/ceph-cluster-crd/#network-configuration-settings).
 
 ## Enable multinetwork for Ceph
 

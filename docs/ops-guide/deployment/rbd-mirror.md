@@ -14,7 +14,7 @@ This section describes how to configure and use RADOS Block Device (RBD) mirrori
 the `rbdMirror` section in the `CephDeployment` custom resource (CR). The feature may be useful if,
 for example, you have two interconnected Rockoon clusters. Once you enable RBD mirroring, the images in the specified
 pools will be replicated, and if a cluster becomes unreachable, the second one will provide users with instant
-access to all images. For details, see [Ceph Documentation: RBD Mirroring](https://docs.ceph.com/en/latest/rbd/rbd-mirroring/).
+access to all images. For details, see [Ceph Documentation: RBD Mirroring](https://docs.ceph.com/en/{{ ceph_doc_version }}/rbd/rbd-mirroring/).
 
 !!! note
 
@@ -88,7 +88,7 @@ To enable Ceph RBD monitoring, follow the procedure below and use the following
      In `<siteName>`, assign a label for the external Ceph cluster that will be
      used along with mirroring.
 
-     For details, see [Ceph documentation: Bootstrap peers](https://docs.ceph.com/en/latest/rbd/rbd-mirroring/#bootstrap-peers).
+     For details, see [Ceph documentation: Bootstrap peers](https://docs.ceph.com/en/{{ ceph_doc_version }}/rbd/rbd-mirroring/#bootstrap-peers).
 
 6. In `CephDeployment` CR on the cluster that should mirror pools, specify
    `rbdMirror.peers` with the obtained peer and pools to mirror:
@@ -141,4 +141,4 @@ To enable Ceph RBD monitoring, follow the procedure below and use the following
       will automatically be created. To create additional RBD image
       mirror-snapshots, use the **rbd** command.
 
-     For details, see [Ceph Documentation: Enable image mirroring](https://docs.ceph.com/en/latest/rbd/rbd-mirroring/#enable-image-mirroring).
+     For details, see [Ceph Documentation: Enable image mirroring](https://docs.ceph.com/en/{{ ceph_doc_version }}/rbd/rbd-mirroring/#enable-image-mirroring).
