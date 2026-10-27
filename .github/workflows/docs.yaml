@@ -12,8 +12,10 @@ on:
     - 'mkdocs.yml'
     - 'docs/**'
     - 'build/scripts/docs_macros.py'
-    # Rook documentation links are generated from the Rook version in go.mod
+    # Rook and Ceph documentation links are generated from the Rook version in go.mod
+    # and the default Ceph release in the pelagia-ceph chart values
     - 'go.mod'
+    - 'charts/pelagia-ceph/values.yaml'
   pull_request:
     branches: [ "main", "release-*" ]
     paths:
@@ -21,6 +23,7 @@ on:
     - 'docs/**'
     - 'build/scripts/docs_macros.py'
     - 'go.mod'
+    - 'charts/pelagia-ceph/values.yaml'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -46,22 +49,28 @@ jobs:
       - uses: actions/setup-python@v4
       - run: pip install --upgrade pip && pip install -r docs/requirements.txt
       - run: git config user.name 'github-actions[bot]' && git config user.email 'github-actions[bot]@users.noreply.github.com'
-      - name: Check Rook documentation links are not hard-coded
-        # Upgrade notes describe a specific Rook release, so they may link to it directly.
+      - name: Check Rook and Ceph documentation links are not hard-coded
+        # Upgrade notes describe specific Rook and Ceph releases, so they may link to them directly.
         run: |
+          failed=0
           if git grep -n -E 'rook\.github\.io/docs|rook\.io/docs/rook/(latest|v[0-9])' -- docs ':!docs/upgrade-guide'; then
             echo "::error::Use '{{ rook_docs }}/...' for Rook documentation links instead of a hard-coded or 'latest' URL. See build/scripts/docs_macros.py."
-            exit 1
+            failed=1
           fi
+          if git grep -n -E 'docs\.ceph\.com/(en|docs)/' -- docs ':!docs/upgrade-guide'; then
+            echo "::error::Use '{{ ceph_docs }}/...' for Ceph documentation links instead of a hard-coded or 'latest' URL. See build/scripts/docs_macros.py."
+            failed=1
+          fi
+          exit $failed
       - name: Build docs
         if: github.event_name == 'pull_request'
         run: mkdocs build
-      - name: Check Rook documentation links and anchors
+      - name: Check Rook and Ceph documentation links and anchors
         if: github.event_name == 'pull_request'
         uses: lycheeverse/lychee-action@v2
         with:
           # 404.html uses root-relative links (/pelagia/...) that lychee cannot resolve in local files.
-          args: --no-progress --include-fragments --include '^https://rook\.io/docs/' --exclude-path site/404.html site/
+          args: --no-progress --include-fragments --include '^https://rook\.io/docs/' --include '^https://docs\.ceph\.com/' --exclude-path site/404.html site/
           fail: true
       - uses: actions/upload-artifact@v4
         if: github.event_name == 'pull_request'

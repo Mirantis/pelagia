@@ -12,7 +12,7 @@ keywords: pelagia, enable ceph multisite, rgw multisite, object storage, ceph re
 The Ceph Object Storage Multisite feature allows object storage to replicate its data over multiple Ceph clusters.
 Using multisite, such object storage is independent and isolated from another object storage in the cluster.
 Only the multi-zone multisite setup is currently supported. For more details, see
-[Ceph documentation: Multisite](https://docs.ceph.com/en/latest/radosgw/multisite).
+[Ceph documentation: Multisite]({{ ceph_docs }}/radosgw/multisite).
 
 <a name="rgw-multisite-multisite-parameters"></a>
 ## Multisite parameters

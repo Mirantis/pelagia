@@ -30,7 +30,7 @@ to new capacity plans. Once you specify a target ratio, if the PG number of a
 pool scales, other pools with a specified target ratio will automatically scale
 accordingly.
 
-For details, see [Ceph Documentation: Autoscaling Placement Groups](https://docs.ceph.com/en/latest/rados/operations/placement-groups/).
+For details, see [Ceph Documentation: Autoscaling Placement Groups]({{ ceph_docs }}/rados/operations/placement-groups/).
 
 ## Calculate a target ratio for each Ceph pool
 

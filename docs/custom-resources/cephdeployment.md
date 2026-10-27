@@ -378,7 +378,7 @@ advanced configuration.
     For more details, see [Rook documentation: Storage selection settings]({{ rook_docs }}/CRDs/Cluster/ceph-cluster-crd/#storage-selection-settings).
 
 - ``crush`` - Optional. Specifies the explicit key-value CRUSH topology for a node.
-  For details, see [Ceph documentation: CRUSH maps](https://docs.ceph.com/en/latest/rados/operations/crush-map/).
+  For details, see [Ceph documentation: CRUSH maps]({{ ceph_docs }}/rados/operations/crush-map/).
   Includes the following parameters:
 
     - ``datacenter`` - a physical data center that consists of rooms and
@@ -437,13 +437,13 @@ The `pools` parameters contain the Ceph block pool specification that represents
     - `mapOptions` - Optional. Not updatable as it applies only once. Specifies custom
       `rbd device map` options to use with `StorageClass` of a corresponding pool. Allows customizing
       the Kubernetes CSI driver interaction with Ceph RBD for the defined `StorageClass`. For
-      available options, see [Ceph documentation: Kernel RBD (KRBD) options](https://docs.ceph.com/en/latest/man/8/rbd/#kernel-rbd-krbd-options).
+      available options, see [Ceph documentation: Kernel RBD (KRBD) options]({{ ceph_docs }}/man/8/rbd/#kernel-rbd-krbd-options).
     - `unmapOptions` - Optional. Not updatable as it applies only once. Specifies custom
       `rbd device unmap` options to use with `StorageClass` of a corresponding pool. Allows customizing
       the Kubernetes CSI driver interaction with Ceph RBD for the defined `StorageClass`. For
-      available options, see [Ceph documentation: Kernel RBD (KRBD) options](https://docs.ceph.com/en/latest/man/8/rbd/#kernel-rbd-krbd-options).
+      available options, see [Ceph documentation: Kernel RBD (KRBD) options]({{ ceph_docs }}/man/8/rbd/#kernel-rbd-krbd-options).
     - `imageFeatures` - Optional. Not updatable as it applies only once. Specifies is a comma-separated
-      list of RBD image features, see [Ceph documentation: Manage Rados block device (RBD) images](https://docs.ceph.com/en/latest/man/8/rbd/#cmdoption-rbd-image-feature).
+      list of RBD image features, see [Ceph documentation: Manage Rados block device (RBD) images]({{ ceph_docs }}/man/8/rbd/#cmdoption-rbd-image-feature).
     - `reclaimPolicy` - Optional. Specifies reclaim policy for the underlying `StorageClass` of
       the pool. Accepts `Retain` and `Delete` values. Default is `Delete` if not set.
     - `allowVolumeExpansion` - Optional. Not updatable as it applies only once. Enables expansion of
@@ -460,7 +460,7 @@ The `pools` parameters contain the Ceph block pool specification that represents
 
         If you are using the `replicated` type of pool and need to use the `targetSizeRation` parameter,
         we recommend defining the target ratio using the `parameters.target_size_ratio` **string** field instead.
-        For details, see [Ceph documentation: Set Pool values](https://docs.ceph.com/en/latest/rados/operations/pools/#set-pool-values).
+        For details, see [Ceph documentation: Set Pool values]({{ ceph_docs }}/rados/operations/pools/#setting-pool-values).
 
     !!! note
 
@@ -530,7 +530,7 @@ The `cephxClients` parameters contain a list of Ceph clients. Each item represen
   - `name` - Mandatory. Ceph client name.
   - `caps` - Mandatory. Ceph client capabilities as a map of a Ceph daemon type to the capabilities string.
 
-For details about Ceph client capabilities (`caps`), refer to [Ceph documentation: Authorization (capabilities)](https://docs.ceph.com/en/latest/rados/operations/user-management/#authorization-capabilities).
+For details about Ceph client capabilities (`caps`), refer to [Ceph documentation: Authorization (capabilities)]({{ ceph_docs }}/rados/operations/user-management/#authorization-capabilities).
 
 ??? "Example configuration of clients specification"
 
@@ -562,7 +562,7 @@ The `clients` parameters contain a list of Ceph clients. Each item represents th
 
 For details, see the following Rook documentation: [CephClient CRD]({{ rook_docs }}/CRDs/ceph-client-crd/) and [CephClient API specification]({{ rook_docs }}/CRDs/specification/#ceph.rook.io/v1.ClientSpec).
 
-For details about Ceph client capabilities (`caps`), refer to [Ceph documentation: Authorization (capabilities)](https://docs.ceph.com/en/latest/rados/operations/user-management/#authorization-capabilities).
+For details about Ceph client capabilities (`caps`), refer to [Ceph documentation: Authorization (capabilities)]({{ ceph_docs }}/rados/operations/user-management/#authorization-capabilities).
 
 ??? "Example configuration of clients specification"
 

@@ -320,4 +320,4 @@ Substitute the following parameters:
 !!! info "See also"
 
     * [AWS S3: Bucket policy examples](https://docs.aws.amazon.com/AmazonS3/latest/userguide/example-bucket-policies.html)
-    * [Ceph documentation: Bucket policies](https://docs.ceph.com/en/latest/radosgw/bucketpolicy/)
+    * [Ceph documentation: Bucket policies]({{ ceph_docs }}/radosgw/bucketpolicy/)
