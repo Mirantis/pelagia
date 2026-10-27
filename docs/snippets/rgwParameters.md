@@ -115,7 +115,7 @@
               zones.
 
             The available options are `*`, `read`, `write`, `read, write`. For details, see
-            [Ceph documentation: Add/remove admin capabilities](https://docs.ceph.com/en/latest/radosgw/admin/?#add-remove-admin-capabilities).
+            [Ceph documentation: Add/remove admin capabilities](https://docs.ceph.com/en/{{ ceph_doc_version }}/radosgw/admin/?#add-remove-admin-capabilities).
 
         - `quotas` - user quotas:
 

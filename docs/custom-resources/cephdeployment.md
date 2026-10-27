@@ -266,7 +266,7 @@ spec:
   Applied for all OSDs on the current node. Can be overridden by the
   ``config`` parameter of each device defined in the ``devices`` parameter.
 
-    For details, see [Rook documentation: OSD config settings](https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/#osd-configuration-settings).
+    For details, see [Rook documentation: OSD config settings](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Cluster/ceph-cluster-crd/#osd-configuration-settings).
 
 - ``devices`` - Optional. Specifies the list of devices to use for Ceph OSD deployment.
   Includes the following parameters:
@@ -345,7 +345,7 @@ spec:
           deviceClass: hdd
     ```
 
-    For more details, see [Rook documentation: Storage selection settings](https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/#storage-selection-settings).
+    For more details, see [Rook documentation: Storage selection settings](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Cluster/ceph-cluster-crd/#storage-selection-settings).
 
 - ``devicePathFilter`` - Optional. Specifies regexp by paths of devices to use for Ceph OSD
   deployment. Mutually exclusive with ``devices`` and ``deviceFilter``.
@@ -360,10 +360,10 @@ spec:
           deviceClass: hdd
     ```
 
-    For more details, see [Rook documentation: Storage selection settings](https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/#storage-selection-settings).
+    For more details, see [Rook documentation: Storage selection settings](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Cluster/ceph-cluster-crd/#storage-selection-settings).
 
 - ``crush`` - Optional. Specifies the explicit key-value CRUSH topology for a node.
-  For details, see [Ceph documentation: CRUSH maps](https://docs.ceph.com/en/latest/rados/operations/crush-map/).
+  For details, see [Ceph documentation: CRUSH maps](https://docs.ceph.com/en/{{ ceph_doc_version }}/rados/operations/crush-map/).
   Includes the following parameters:
 
     - ``datacenter`` - a physical data center that consists of rooms and
@@ -417,13 +417,13 @@ spec:
     - `mapOptions` - Optional. Not updatable as it applies only once. Specifies custom
       `rbd device map` options to use with `StorageClass` of a corresponding pool. Allows customizing
       the Kubernetes CSI driver interaction with Ceph RBD for the defined `StorageClass`. For
-      available options, see [Ceph documentation: Kernel RBD (KRBD) options](https://docs.ceph.com/en/latest/man/8/rbd/#kernel-rbd-krbd-options).
+      available options, see [Ceph documentation: Kernel RBD (KRBD) options](https://docs.ceph.com/en/{{ ceph_doc_version }}/man/8/rbd/#kernel-rbd-krbd-options).
     - `unmapOptions` - Optional. Not updatable as it applies only once. Specifies custom
       `rbd device unmap` options to use with `StorageClass` of a corresponding pool. Allows customizing
       the Kubernetes CSI driver interaction with Ceph RBD for the defined `StorageClass`. For
-      available options, see [Ceph documentation: Kernel RBD (KRBD) options](https://docs.ceph.com/en/latest/man/8/rbd/#kernel-rbd-krbd-options).
+      available options, see [Ceph documentation: Kernel RBD (KRBD) options](https://docs.ceph.com/en/{{ ceph_doc_version }}/man/8/rbd/#kernel-rbd-krbd-options).
     - `imageFeatures` - Optional. Not updatable as it applies only once. Specifies is a comma-separated
-      list of RBD image features, see [Ceph documentation: Manage Rados block device (RBD) images](https://docs.ceph.com/en/latest/man/8/rbd/#cmdoption-rbd-image-feature).
+      list of RBD image features, see [Ceph documentation: Manage Rados block device (RBD) images](https://docs.ceph.com/en/{{ ceph_doc_version }}/man/8/rbd/#cmdoption-rbd-image-feature).
     - `reclaimPolicy` - Optional. Specifies reclaim policy for the underlying `StorageClass` of
       the pool. Accepts `Retain` and `Delete` values. Default is `Delete` if not set.
     - `allowVolumeExpansion` - Optional. Not updatable as it applies only once. Enables expansion of
@@ -452,8 +452,8 @@ spec:
 
             Mirantis recommends defining target ratio with the `parameters.target_size_ratio` **string** field instead.
 
-- `erasureCoded` - Enables the erasure-coded pool. For details, see [Rook documentation: Erasure Coded RBD Pool](https://rook.io/docs/rook/latest-release/CRDs/Block-Storage/ceph-block-pool-crd/#erasure-coded-rbd-pool).
-  and [Ceph documentation: Erasure coded pool](https://docs.ceph.com/en/latest/dev/erasure-coded-pool/). The
+- `erasureCoded` - Enables the erasure-coded pool. For details, see [Rook documentation: Erasure Coded RBD Pool](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Block-Storage/ceph-block-pool-crd/#erasure-coded-rbd-pool).
+  and [Ceph documentation: Erasure coded pool](https://docs.ceph.com/en/{{ ceph_doc_version }}/dev/erasure-coded-pool/). The
   `erasureCoded` parameter is mutually exclusive with `replicated`.
 - `failureDomain` - Optional. The failure domain across which the replicas or chunks
   of data will be spread. Set to `host` by default. The list of
@@ -468,7 +468,7 @@ spec:
 - `mirroring` - Optional. Enables the mirroring feature for the defined pool.
   Includes the `mode` parameter that can be set to `pool` or `image`. For details, see [Enable Ceph RBD Mirroring](../ops-guide/deployment/rbd-mirror.md#rbd-mirror-enable-ceph-rbd-mirroring).
 - `parameters` - Optional. Specifies the key-value map for the parameters of the Ceph pool.
-  For details, see [Ceph documentation: Set Pool values](https://docs.ceph.com/en/latest/rados/operations/pools/#set-pool-values).
+  For details, see [Ceph documentation: Set Pool values](https://docs.ceph.com/en/{{ ceph_doc_version }}/rados/operations/pools/#setting-pool-values).
 - `enableCrushUpdates` - Optional. Enables automatic updates of the CRUSH map
   when the pool is created or updated. Defaulted to `false`.
 
@@ -516,7 +516,7 @@ To configure additional required pools for Rockoon, see
 
 - `name` - Mandatory. Ceph client name.
 - `caps` - Mandatory. Key-value parameter with Ceph client capabilities. For details about
-  `caps`, refer to [Ceph documentation: Authorization (capabilities)](https://docs.ceph.com/en/latest/rados/operations/user-management/#authorization-capabilities).
+  `caps`, refer to [Ceph documentation: Authorization (capabilities)](https://docs.ceph.com/en/{{ ceph_doc_version }}/rados/operations/user-management/#authorization-capabilities).
 
 ??? "Example configuration of Clients specification"
 
