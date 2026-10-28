@@ -11,3 +11,5 @@ mkdocs-exclude
 mkdocs-table-reader-plugin
 mkdocs-include-markdown-plugin
 mike
+mkdocs-macros-plugin
+mkdocs-htmlproofer-plugin

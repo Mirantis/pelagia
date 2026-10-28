@@ -46,4 +46,4 @@ not limited to the following limitations:
 
 !!! info "See also"
 
-    [Ceph Device Classes](https://docs.ceph.com/en/latest/rados/operations/crush-map/#device-classes)
+    [Ceph Device Classes](https://docs.ceph.com/en/{{ ceph_doc_version }}/rados/operations/crush-map/#device-classes)

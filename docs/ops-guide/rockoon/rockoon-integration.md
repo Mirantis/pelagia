@@ -63,7 +63,7 @@ As a result, Pelagia creates the following Ceph pools: `volumes-hdd`, `backup-hd
 
 We recommend adjusting these ratios according to your OpenStack
 deployment requirements using the `parameters.target_size_ratio` parameter located in the `pools` section.
-For reference, see [Rook documentation: CephBlockPool CRD Spec](https://rook.io/docs/rook/v1.19/CRDs/Block-Storage/ceph-block-pool-crd/#spec).
+For reference, see [Rook documentation: CephBlockPool CRD Spec](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Block-Storage/ceph-block-pool-crd/#spec).
 For details on how to set correct values, see [Calculate target ratios](calc-target-ratio.md).
 
 After Ceph pools are created, Pelagia Deployment Controller creates a secret in the `openstack-ceph-shared`

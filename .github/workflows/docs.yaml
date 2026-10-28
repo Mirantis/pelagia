@@ -11,11 +11,13 @@ on:
     paths:
     - 'mkdocs.yml'
     - 'docs/**'
+    - 'build/scripts/check_docs_links.py'
   pull_request:
     branches: [ "main", "release-*" ]
     paths:
     - 'mkdocs.yml'
     - 'docs/**'
+    - 'build/scripts/check_docs_links.py'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -43,7 +45,9 @@ jobs:
       - run: git config user.name 'github-actions[bot]' && git config user.email 'github-actions[bot]@users.noreply.github.com'
       - name: Build docs
         if: github.event_name == 'pull_request'
-        run: mkdocs build
+        # Fail on any warning, including broken internal links and anchors.
+        # The check_docs_links.py hook from mkdocs.yml also fails the build on hard-coded Rook and Ceph docs links.
+        run: mkdocs build --strict
       - uses: actions/upload-artifact@v4
         if: github.event_name == 'pull_request'
         with:
