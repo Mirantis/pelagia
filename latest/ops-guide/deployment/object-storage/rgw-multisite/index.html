@@ -3680,7 +3680,7 @@
 <p>The Ceph Object Storage Multisite feature allows object storage to replicate its data over multiple Ceph clusters.
 Using multisite, such object storage is independent and isolated from another object storage in the cluster.
 Only the multi-zone multisite setup is currently supported. For more details, see
-<a href="https://docs.ceph.com/en/latest/radosgw/multisite">Ceph documentation: Multisite</a>.</p>
+<a href="https://docs.ceph.com/en/tentacle/radosgw/multisite">Ceph documentation: Multisite</a>.</p>
 <p><a name="rgw-multisite-multisite-parameters"></a></p>
 <h2 id="multisite-parameters">Multisite parameters<a class="headerlink" href="#multisite-parameters" title="Permanent link">#</a></h2>
 <ul>
@@ -3688,21 +3688,21 @@ Only the multi-zone multisite setup is currently supported. For more details, se
 <p><code>realms</code> - List of realms to use. Each item represents the Rook <code>CephObjectRealm</code> specification.</p>
 <ul>
 <li><code>name</code> - Mandatory. The realm name.</li>
-<li><code>spec</code> - Specification of <code>CephObjectRealm</code>. For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-realm-crd/">CephObjectRealm CRD</a>.</li>
+<li><code>spec</code> - Specification of <code>CephObjectRealm</code>. For details, see <a href="https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-realm-crd/">CephObjectRealm CRD</a>.</li>
 </ul>
 </li>
 <li>
 <p><code>zonegroups</code> - List of zone groups for realms. Each item represents the Rook <code>CephObjectZoneGroup</code> specification.</p>
 <ul>
 <li><code>name</code> - Mandatory. The zone group name.</li>
-<li><code>spec</code> - Specification of <code>CephObjectZoneGroup</code>. For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zonegroup-crd/">CephObjectZoneGroup CRD</a>.</li>
+<li><code>spec</code> - Specification of <code>CephObjectZoneGroup</code>. For details, see <a href="https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-zonegroup-crd/">CephObjectZoneGroup CRD</a>.</li>
 </ul>
 </li>
 <li>
 <p><code>zones</code> - List of zones used within one zone group. Each item represents the Rook <code>CephObjectZone</code> specification.</p>
 <ul>
 <li><code>name</code> - Mandatory. The zone name.</li>
-<li><code>spec</code> - Specification of <code>CephObjectZone</code>. For details, see <a href="https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-zone-crd/">CephObjectZone CRD</a>.</li>
+<li><code>spec</code> - Specification of <code>CephObjectZone</code>. For details, see <a href="https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-zone-crd/">CephObjectZone CRD</a>.</li>
 </ul>
 </li>
 </ul>
@@ -3711,7 +3711,7 @@ Only the multi-zone multisite setup is currently supported. For more details, se
 <ol>
 <li>
 <p>Create a secret with realm keys in the <code>rook-ceph</code> namespace. For the
-   instructions, see <a href="https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key">Rook documentation: Getting Realm Access Key and Secret Key</a>.</p>
+   instructions, see <a href="https://rook.io/docs/rook/v1.20/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key">Rook documentation: Getting Realm Access Key and Secret Key</a>.</p>
 </li>
 <li>
 <p>Open the <code>CephDeployment</code> custom resource for editing:
@@ -3726,7 +3726,7 @@ Only the multi-zone multisite setup is currently supported. For more details, se
    These parameters are ignored because the <code>zone</code> section in the multisite configuration specifies the pool parameters.</p>
 <p>Also, you can split the RGW daemon into daemons serving clients and daemons
 running synchronization.
-To enable this option, create a separate ObjectStore with <code>auxiliaryService: true</code> and set <code>disableMultisiteSyncTraffic</code> to <code>true</code> in the <code>gateway</code> section. For reference, see <a href="https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#scaling-a-multisite">Rook documentation: Scaling a Multisite</a>.</p>
+To enable this option, create a separate ObjectStore with <code>auxiliaryService: true</code> and set <code>disableMultisiteSyncTraffic</code> to <code>true</code> in the <code>gateway</code> section. For reference, see <a href="https://rook.io/docs/rook/v1.20/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#scaling-a-multisite">Rook documentation: Scaling a Multisite</a>.</p>
 <details>
 <summary>Example configuration</summary>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
@@ -3786,7 +3786,7 @@ To enable this option, create a separate ObjectStore with <code>auxiliaryService
 </li>
 </ol>
 <p>Once done, Pelagia Deployment Controller will create the required resources and Rook will
-handle the multisite configuration. For details, see: <a href="https://rook.io/docs/rook/latest/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/">Rook documentation: Object Multisite</a>.</p>
+handle the multisite configuration. For details, see: <a href="https://rook.io/docs/rook/v1.20/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/">Rook documentation: Object Multisite</a>.</p>
 <p><a name="rgw-multisite-configuring-master-zone-for-rgw-object-storage"></a></p>
 <h3 id="configuring-master-zone-for-rgw-object-storage">Configuring master zone for RGW Object Storage<a class="headerlink" href="#configuring-master-zone-for-rgw-object-storage" title="Permanent link">#</a></h3>
 <p>If you do not need to replicate data from a different storage cluster,
@@ -3904,7 +3904,7 @@ to replicate data. For details, see the steps below.</p>
 </code></pre></div></p>
 </li>
 <li>
-<p>Create a secret with realm keys using <a href="https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key">Rook documentation: Getting Realm Access Key and Secret Key</a>.</p>
+<p>Create a secret with realm keys using <a href="https://rook.io/docs/rook/v1.20/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key">Rook documentation: Getting Realm Access Key and Secret Key</a>.</p>
 </li>
 <li>
 <p>Adjust the <code>CephDeployment</code> spec as required.</p>
@@ -3949,7 +3949,7 @@ to replicate data. For details, see the steps below.</p>
 <p>Rook does not handle multisite configuration changes and cleanup.
 Therefore, once you enable multisite for Ceph RGW Object Storage, perform
 these operations manually in the <code>pelagia-ceph-toolbox</code> pod. For details, see
-<a href="https://rook.io/docs/rook/latest/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/?h=multisite#multisite-cleanup">Rook documentation: Multisite cleanup</a>.</p>
+<a href="https://rook.io/docs/rook/v1.20/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/?h=multisite#multisite-cleanup">Rook documentation: Multisite cleanup</a>.</p>
 </div>
 <p>To manage allowed DNS names, use the <code>spec.hosting.dnsNames</code> field of the related Ceph ObjectStore specification.</p>
 <p>If the multisite setup is completely cleaned up, manually execute the following steps inside the <code>pelagia-ceph-toolbox</code> pod:</p>

@@ -3583,7 +3583,7 @@
 the <code>rbdMirror</code> section in the <code>CephDeployment</code> custom resource (CR). The feature may be useful if,
 for example, you have two interconnected Rockoon clusters. Once you enable RBD mirroring, the images in the specified
 pools will be replicated, and if a cluster becomes unreachable, the second one will provide users with instant
-access to all images. For details, see <a href="https://docs.ceph.com/en/latest/rbd/rbd-mirroring/">Ceph Documentation: RBD Mirroring</a>.</p>
+access to all images. For details, see <a href="https://docs.ceph.com/en/tentacle/rbd/rbd-mirroring/">Ceph Documentation: RBD Mirroring</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Pelagia only supports bidirectional mirroring.</p>
@@ -3657,7 +3657,7 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
 <p>Substitute <code>&lt;mirroringPoolName&gt;</code> with the name of a pool to be mirrored.
  In <code>&lt;siteName&gt;</code>, assign a label for the external Ceph cluster that will be
  used along with mirroring.</p>
-<p>For details, see <a href="https://docs.ceph.com/en/latest/rbd/rbd-mirroring/#bootstrap-peers">Ceph documentation: Bootstrap peers</a>.</p>
+<p>For details, see <a href="https://docs.ceph.com/en/tentacle/rbd/rbd-mirroring/#bootstrap-peers">Ceph documentation: Bootstrap peers</a>.</p>
 </li>
 <li>
 <p>In <code>CephDeployment</code> CR on the cluster that should mirror pools, specify
@@ -3709,7 +3709,7 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
   will automatically be created. To create additional RBD image
   mirror-snapshots, use the <strong>rbd</strong> command.</li>
 </ul>
-<p>For details, see <a href="https://docs.ceph.com/en/latest/rbd/rbd-mirroring/#enable-image-mirroring">Ceph Documentation: Enable image mirroring</a>.</p>
+<p>For details, see <a href="https://docs.ceph.com/en/tentacle/rbd/rbd-mirroring/#enable-image-mirroring">Ceph Documentation: Enable image mirroring</a>.</p>
 </li>
 </ol>
 
