@@ -51,7 +51,7 @@ extra_css:
 plugins:
   - search
   - htmlproofer:
-      raise_error: true # Fails the build if a broken link is found
+      raise_error_after_finish: true # Fails the build if a broken link is found
       validate_external_urls: true
       retry_max_times: 2
   - macros:
