@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -3726,9 +3726,9 @@ cluster, the Ceph client requires the following <code>caps</code> (permissions):
 <span class="w">  </span><span class="nt">clients</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;nonAdminClientName&gt;</span>
 <span class="w">    </span><span class="nt">caps</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">mgr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span>
-<span class="w">      </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">r,</span><span class="nv"> </span><span class="s">profile</span><span class="nv"> </span><span class="s">role-definer&quot;</span>
-<span class="w">      </span><span class="nt">mds</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span><span class="w"> </span><span class="c1"># if CephFS must be shared</span>
+<span class="w">      </span><span class="nt">mgr</span><span class="p">:</span><span class="w"> </span><span class="s">"allow</span><span class="nv"> </span><span class="s">rw"</span>
+<span class="w">      </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="s">"allow</span><span class="nv"> </span><span class="s">r,</span><span class="nv"> </span><span class="s">profile</span><span class="nv"> </span><span class="s">role-definer"</span>
+<span class="w">      </span><span class="nt">mds</span><span class="p">:</span><span class="w"> </span><span class="s">"allow</span><span class="nv"> </span><span class="s">rw"</span><span class="w"> </span><span class="c1"># if CephFS must be shared</span>
 <span class="w">      </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;poolsProfileCaps&gt;</span>
 </code></pre></div>
 <p>Substitute <code>&lt;nonAdminClientName&gt;</code> with a Ceph non-admin client name and <code>&lt;poolsProfileCaps&gt;</code> with a comma-separated profile list of RBD and CephFS pools in the following format:</p>
@@ -3741,10 +3741,10 @@ cluster, the Ceph client requires the following <code>caps</code> (permissions):
 <span class="w">  </span><span class="nt">clients</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">non-admin-client</span>
 <span class="w">    </span><span class="nt">caps</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">mgr</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span>
-<span class="w">      </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">r,</span><span class="nv"> </span><span class="s">profile</span><span class="nv"> </span><span class="s">role-definer&quot;</span>
-<span class="w">      </span><span class="nt">mds</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;allow</span><span class="nv"> </span><span class="s">rw&quot;</span>
-<span class="w">      </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile</span><span class="nv"> </span><span class="s">rbd</span><span class="nv"> </span><span class="s">pool=kubernetes-hdd,profile</span><span class="nv"> </span><span class="s">rbd</span><span class="nv"> </span><span class="s">pool=anotherpool-hdd,allow</span><span class="nv"> </span><span class="s">rw</span><span class="nv"> </span><span class="s">tag</span><span class="nv"> </span><span class="s">cephfs</span><span class="nv"> </span><span class="s">data=cephfs-store&quot;</span>
+<span class="w">      </span><span class="nt">mgr</span><span class="p">:</span><span class="w"> </span><span class="s">"allow</span><span class="nv"> </span><span class="s">rw"</span>
+<span class="w">      </span><span class="nt">mon</span><span class="p">:</span><span class="w"> </span><span class="s">"allow</span><span class="nv"> </span><span class="s">r,</span><span class="nv"> </span><span class="s">profile</span><span class="nv"> </span><span class="s">role-definer"</span>
+<span class="w">      </span><span class="nt">mds</span><span class="p">:</span><span class="w"> </span><span class="s">"allow</span><span class="nv"> </span><span class="s">rw"</span>
+<span class="w">      </span><span class="nt">osd</span><span class="p">:</span><span class="w"> </span><span class="s">"profile</span><span class="nv"> </span><span class="s">rbd</span><span class="nv"> </span><span class="s">pool=kubernetes-hdd,profile</span><span class="nv"> </span><span class="s">rbd</span><span class="nv"> </span><span class="s">pool=anotherpool-hdd,allow</span><span class="nv"> </span><span class="s">rw</span><span class="nv"> </span><span class="s">tag</span><span class="nv"> </span><span class="s">cephfs</span><span class="nv"> </span><span class="s">data=cephfs-store"</span>
 </code></pre></div>
 <p>To verify the status of the created Ceph client, inspect the <code>status</code> section of the <code>CephDeploymentHealth</code> object. For example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
@@ -3953,10 +3953,10 @@ You can find full pools <code>name</code> in the <code>CephDeploymentHealth</cod
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

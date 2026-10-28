@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../../../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -3701,7 +3701,7 @@ for OpenStack users indirectly through setting permissions for corresponding Ope
 <p>Specify the <code>rookConfig</code> section of the <code>CephDeployment</code> custom resource:
    <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">rookConfig</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">rgw keystone implicit tenants</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;swift&quot;</span>
+<span class="w">    </span><span class="nt">rgw keystone implicit tenants</span><span class="p">:</span><span class="w"> </span><span class="s">"swift"</span>
 </code></pre></div></p>
 </li>
 <li>
@@ -3772,7 +3772,7 @@ openstack<span class="w"> </span>role<span class="w"> </span>add<span class="w">
 <span class="p">|</span><span class="w"> </span>domain_id<span class="w">   </span><span class="p">|</span><span class="w"> </span>None<span class="w">                             </span><span class="p">|</span>
 <span class="p">|</span><span class="w"> </span>id<span class="w">          </span><span class="p">|</span><span class="w"> </span>8f0ce4f6cd61499c809d6169b2b5bd93<span class="w"> </span><span class="p">|</span>
 <span class="p">|</span><span class="w"> </span>name<span class="w">        </span><span class="p">|</span><span class="w"> </span>member<span class="w">                           </span><span class="p">|</span>
-<span class="p">|</span><span class="w"> </span>options<span class="w">     </span><span class="p">|</span><span class="w"> </span><span class="o">{</span><span class="s1">&#39;immutable&#39;</span>:<span class="w"> </span>True<span class="o">}</span><span class="w">              </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span>options<span class="w">     </span><span class="p">|</span><span class="w"> </span><span class="o">{</span><span class="s1">'immutable'</span>:<span class="w"> </span>True<span class="o">}</span><span class="w">              </span><span class="p">|</span>
 +-------------+----------------------------------+
 </code></pre></div></p>
 </li>
@@ -3799,7 +3799,7 @@ openstack<span class="w"> </span>ec2<span class="w"> </span>credentials<span cla
 <span class="p">|</span><span class="w"> </span>Field<span class="w">      </span><span class="p">|</span><span class="w"> </span>Value<span class="w">                                                                                                                                                          </span><span class="p">|</span>
 +------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------+
 <span class="p">|</span><span class="w"> </span>access<span class="w">     </span><span class="p">|</span><span class="w"> </span>d03971aedc2442dd9a79b3b409c32046<span class="w">                                                                                                                               </span><span class="p">|</span>
-<span class="p">|</span><span class="w"> </span>links<span class="w">      </span><span class="p">|</span><span class="w"> </span><span class="o">{</span><span class="s1">&#39;self&#39;</span>:<span class="w"> </span><span class="s1">&#39;http://keystone-api.openstack.svc.cluster.local:5000/v3/users/cc2607dc383e4494948d68eeb556f03b/credentials/OS-EC2/d03971aedc2442dd9a79b3b409c32046&#39;</span><span class="o">}</span><span class="w"> </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span>links<span class="w">      </span><span class="p">|</span><span class="w"> </span><span class="o">{</span><span class="s1">'self'</span>:<span class="w"> </span><span class="s1">'http://keystone-api.openstack.svc.cluster.local:5000/v3/users/cc2607dc383e4494948d68eeb556f03b/credentials/OS-EC2/d03971aedc2442dd9a79b3b409c32046'</span><span class="o">}</span><span class="w"> </span><span class="p">|</span>
 <span class="p">|</span><span class="w"> </span>project_id<span class="w"> </span><span class="p">|</span><span class="w"> </span>faf957b776874a2e80384cb882ebf6ab<span class="w">                                                                                                                               </span><span class="p">|</span>
 <span class="p">|</span><span class="w"> </span>secret<span class="w">     </span><span class="p">|</span><span class="w"> </span>0a9fd8d9e0d24aecacd6e75951154d0f<span class="w">                                                                                                                               </span><span class="p">|</span>
 <span class="p">|</span><span class="w"> </span>trust_id<span class="w">   </span><span class="p">|</span><span class="w"> </span>None<span class="w">                                                                                                                                                           </span><span class="p">|</span>
@@ -3823,23 +3823,23 @@ cloud storage service providers that use the S3 protocol. You can download the <
    directly. Therefore, you need to set permissions for the project that
    corresponds to the user:
    <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;Version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;Id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;S3Policy1&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;Statement&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"Version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2012-10-17"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"Id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"S3Policy1"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"Statement"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">     </span><span class="nt">&quot;Sid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BucketAllow&quot;</span><span class="p">,</span>
-<span class="w">     </span><span class="nt">&quot;Effect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
-<span class="w">     </span><span class="nt">&quot;Principal&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">       </span><span class="nt">&quot;AWS&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;arn:aws:iam::&lt;PROJECT-T_ID&gt;:root&quot;</span><span class="p">]</span>
+<span class="w">     </span><span class="nt">"Sid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BucketAllow"</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">"Effect"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Allow"</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">"Principal"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="nt">"AWS"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"arn:aws:iam::&lt;PROJECT-T_ID&gt;:root"</span><span class="p">]</span>
 <span class="w">     </span><span class="p">},</span>
-<span class="w">     </span><span class="nt">&quot;Action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">       </span><span class="s2">&quot;s3:ListBucket&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;s3:PutObject&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;s3:GetObject&quot;</span>
+<span class="w">     </span><span class="nt">"Action"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">       </span><span class="s2">"s3:ListBucket"</span><span class="p">,</span>
+<span class="w">       </span><span class="s2">"s3:PutObject"</span><span class="p">,</span>
+<span class="w">       </span><span class="s2">"s3:GetObject"</span>
 <span class="w">     </span><span class="p">],</span>
-<span class="w">     </span><span class="nt">&quot;Resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">       </span><span class="s2">&quot;arn:aws:s3:::test01&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;arn:aws:s3:::test01/*&quot;</span>
+<span class="w">     </span><span class="nt">"Resource"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">       </span><span class="s2">"arn:aws:s3:::test01"</span><span class="p">,</span>
+<span class="w">       </span><span class="s2">"arn:aws:s3:::test01/*"</span>
 <span class="w">     </span><span class="p">]</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">]</span>
@@ -3852,23 +3852,23 @@ cloud storage service providers that use the S3 protocol. You can download the <
 examples below.</p>
 <h3 id="provide-access-to-a-bucket-from-one-openstack-project-to-another">Provide access to a bucket from one OpenStack project to another<a class="headerlink" href="#provide-access-to-a-bucket-from-one-openstack-project-to-another" title="Permanent link">#</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;Version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;Id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;S3Policy1&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;Statement&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"Version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2012-10-17"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"Id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"S3Policy1"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"Statement"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">     </span><span class="nt">&quot;Sid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BucketAllow&quot;</span><span class="p">,</span>
-<span class="w">     </span><span class="nt">&quot;Effect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
-<span class="w">     </span><span class="nt">&quot;Principal&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">       </span><span class="nt">&quot;AWS&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;arn:aws:iam::&lt;osProjectId&gt;:root&quot;</span><span class="p">]</span>
+<span class="w">     </span><span class="nt">"Sid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BucketAllow"</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">"Effect"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Allow"</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">"Principal"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="nt">"AWS"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"arn:aws:iam::&lt;osProjectId&gt;:root"</span><span class="p">]</span>
 <span class="w">     </span><span class="p">},</span>
-<span class="w">     </span><span class="nt">&quot;Action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">       </span><span class="s2">&quot;s3:ListBucket&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;s3:PutObject&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;s3:GetObject&quot;</span>
+<span class="w">     </span><span class="nt">"Action"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">       </span><span class="s2">"s3:ListBucket"</span><span class="p">,</span>
+<span class="w">       </span><span class="s2">"s3:PutObject"</span><span class="p">,</span>
+<span class="w">       </span><span class="s2">"s3:GetObject"</span>
 <span class="w">     </span><span class="p">],</span>
-<span class="w">     </span><span class="nt">&quot;Resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">       </span><span class="s2">&quot;arn:aws:s3:::&lt;bucketName&gt;&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;arn:aws:s3:::&lt;bucketName&gt;/*&quot;</span>
+<span class="w">     </span><span class="nt">"Resource"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">       </span><span class="s2">"arn:aws:s3:::&lt;bucketName&gt;"</span><span class="p">,</span>
+<span class="w">       </span><span class="s2">"arn:aws:s3:::&lt;bucketName&gt;/*"</span>
 <span class="w">     </span><span class="p">]</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">]</span>
@@ -3881,23 +3881,23 @@ examples below.</p>
 </ul>
 <h3 id="provide-access-to-a-bucket-from-a-ceph-rgw-user-to-an-openstack-project">Provide access to a bucket from a Ceph RGW user to an OpenStack project<a class="headerlink" href="#provide-access-to-a-bucket-from-a-ceph-rgw-user-to-an-openstack-project" title="Permanent link">#</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;Version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;Id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;S3Policy1&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;Statement&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"Version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2012-10-17"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"Id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"S3Policy1"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"Statement"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">     </span><span class="nt">&quot;Sid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BucketAllow&quot;</span><span class="p">,</span>
-<span class="w">     </span><span class="nt">&quot;Effect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
-<span class="w">     </span><span class="nt">&quot;Principal&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">       </span><span class="nt">&quot;AWS&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;arn:aws:iam::&lt;osProjectId&gt;:root&quot;</span><span class="p">]</span>
+<span class="w">     </span><span class="nt">"Sid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BucketAllow"</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">"Effect"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Allow"</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">"Principal"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="nt">"AWS"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"arn:aws:iam::&lt;osProjectId&gt;:root"</span><span class="p">]</span>
 <span class="w">     </span><span class="p">},</span>
-<span class="w">     </span><span class="nt">&quot;Action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">       </span><span class="s2">&quot;s3:ListBucket&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;s3:PutObject&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;s3:GetObject&quot;</span>
+<span class="w">     </span><span class="nt">"Action"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">       </span><span class="s2">"s3:ListBucket"</span><span class="p">,</span>
+<span class="w">       </span><span class="s2">"s3:PutObject"</span><span class="p">,</span>
+<span class="w">       </span><span class="s2">"s3:GetObject"</span>
 <span class="w">     </span><span class="p">],</span>
-<span class="w">     </span><span class="nt">&quot;Resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">       </span><span class="s2">&quot;arn:aws:s3:::&lt;bucketName&gt;&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;arn:aws:s3:::&lt;bucketName&gt;/*&quot;</span>
+<span class="w">     </span><span class="nt">"Resource"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">       </span><span class="s2">"arn:aws:s3:::&lt;bucketName&gt;"</span><span class="p">,</span>
+<span class="w">       </span><span class="s2">"arn:aws:s3:::&lt;bucketName&gt;/*"</span>
 <span class="w">     </span><span class="p">]</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">]</span>
@@ -3910,23 +3910,23 @@ examples below.</p>
 </ul>
 <h3 id="provide-access-to-a-bucket-from-an-openstack-user-to-a-ceph-object-storage-user">Provide access to a bucket from an OpenStack user to a Ceph Object Storage user<a class="headerlink" href="#provide-access-to-a-bucket-from-an-openstack-user-to-a-ceph-object-storage-user" title="Permanent link">#</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;Version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;Id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;S3Policy1&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;Statement&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"Version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2012-10-17"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"Id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"S3Policy1"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"Statement"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">     </span><span class="nt">&quot;Sid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BucketAllow&quot;</span><span class="p">,</span>
-<span class="w">     </span><span class="nt">&quot;Effect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
-<span class="w">     </span><span class="nt">&quot;Principal&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">       </span><span class="nt">&quot;AWS&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;arn:aws:iam:::user/&lt;userName&gt;&quot;</span><span class="p">]</span>
+<span class="w">     </span><span class="nt">"Sid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BucketAllow"</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">"Effect"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Allow"</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">"Principal"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="nt">"AWS"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"arn:aws:iam:::user/&lt;userName&gt;"</span><span class="p">]</span>
 <span class="w">     </span><span class="p">},</span>
-<span class="w">     </span><span class="nt">&quot;Action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">       </span><span class="s2">&quot;s3:ListBucket&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;s3:PutObject&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;s3:GetObject&quot;</span>
+<span class="w">     </span><span class="nt">"Action"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">       </span><span class="s2">"s3:ListBucket"</span><span class="p">,</span>
+<span class="w">       </span><span class="s2">"s3:PutObject"</span><span class="p">,</span>
+<span class="w">       </span><span class="s2">"s3:GetObject"</span>
 <span class="w">     </span><span class="p">],</span>
-<span class="w">     </span><span class="nt">&quot;Resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">       </span><span class="s2">&quot;arn:aws:s3:::&lt;bucketName&gt;&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;arn:aws:s3:::&lt;bucketName&gt;/*&quot;</span>
+<span class="w">     </span><span class="nt">"Resource"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">       </span><span class="s2">"arn:aws:s3:::&lt;bucketName&gt;"</span><span class="p">,</span>
+<span class="w">       </span><span class="s2">"arn:aws:s3:::&lt;bucketName&gt;/*"</span>
 <span class="w">     </span><span class="p">]</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">]</span>
@@ -3939,23 +3939,23 @@ examples below.</p>
 </ul>
 <h3 id="provide-access-to-a-bucket-from-one-ceph-object-storage-user-to-another">Provide access to a bucket from one Ceph Object Storage user to another<a class="headerlink" href="#provide-access-to-a-bucket-from-one-ceph-object-storage-user-to-another" title="Permanent link">#</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;Version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;Id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;S3Policy1&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;Statement&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"Version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2012-10-17"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"Id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"S3Policy1"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"Statement"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">     </span><span class="nt">&quot;Sid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;BucketAllow&quot;</span><span class="p">,</span>
-<span class="w">     </span><span class="nt">&quot;Effect&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
-<span class="w">     </span><span class="nt">&quot;Principal&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">       </span><span class="nt">&quot;AWS&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;arn:aws:iam:::user/&lt;userName&gt;&quot;</span><span class="p">]</span>
+<span class="w">     </span><span class="nt">"Sid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BucketAllow"</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">"Effect"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Allow"</span><span class="p">,</span>
+<span class="w">     </span><span class="nt">"Principal"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">       </span><span class="nt">"AWS"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"arn:aws:iam:::user/&lt;userName&gt;"</span><span class="p">]</span>
 <span class="w">     </span><span class="p">},</span>
-<span class="w">     </span><span class="nt">&quot;Action&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">       </span><span class="s2">&quot;s3:ListBucket&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;s3:PutObject&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;s3:GetObject&quot;</span>
+<span class="w">     </span><span class="nt">"Action"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">       </span><span class="s2">"s3:ListBucket"</span><span class="p">,</span>
+<span class="w">       </span><span class="s2">"s3:PutObject"</span><span class="p">,</span>
+<span class="w">       </span><span class="s2">"s3:GetObject"</span>
 <span class="w">     </span><span class="p">],</span>
-<span class="w">     </span><span class="nt">&quot;Resource&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
-<span class="w">       </span><span class="s2">&quot;arn:aws:s3:::&lt;bucketName&gt;&quot;</span><span class="p">,</span>
-<span class="w">       </span><span class="s2">&quot;arn:aws:s3:::&lt;bucketName&gt;/*&quot;</span>
+<span class="w">     </span><span class="nt">"Resource"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">       </span><span class="s2">"arn:aws:s3:::&lt;bucketName&gt;"</span><span class="p">,</span>
+<span class="w">       </span><span class="s2">"arn:aws:s3:::&lt;bucketName&gt;/*"</span>
 <span class="w">     </span><span class="p">]</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">]</span>
@@ -3970,7 +3970,7 @@ examples below.</p>
 <p class="admonition-title">See also</p>
 <ul>
 <li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/example-bucket-policies.html">AWS S3: Bucket policy examples</a></li>
-<li><a href="https://docs.ceph.com/en/latest/radosgw/bucketpolicy/">Ceph documentation: Bucket policies</a></li>
+<li><a href="https://docs.ceph.com/en/tentacle/radosgw/bucketpolicy/">Ceph documentation: Bucket policies</a></li>
 </ul>
 </div>
 
@@ -4075,10 +4075,10 @@ examples below.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../../../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

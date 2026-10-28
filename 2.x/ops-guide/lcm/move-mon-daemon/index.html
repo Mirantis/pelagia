@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -3578,7 +3578,7 @@ the new Ceph Monitors placement to the Ceph cluster as described below.</p>
 <li>
 <p>Obtain the <code>rook-ceph-mon</code> deployment name placed on the obsolete node
    using the previously obtained node name:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>deploy<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>rook-ceph-mon<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s2">&quot;{.items[?(@.spec.template.spec.nodeSelector[&#39;kubernetes\.io/hostname&#39;] == &#39;&lt;nodeName&gt;&#39;)].metadata.name}&quot;</span>
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>deploy<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>rook-ceph-mon<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{.items[?(@.spec.template.spec.nodeSelector['kubernetes\.io/hostname'] == '&lt;nodeName&gt;')].metadata.name}"</span>
 </code></pre></div></p>
 <p>Substitute <code>&lt;nodeName&gt;</code> with the name of the node where you removed the <code>mon</code> role.</p>
 </li>
@@ -3598,7 +3598,7 @@ the new Ceph Monitors placement to the Ceph cluster as described below.</p>
    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>rook-ceph-operator<span class="w"> </span>-f
 </code></pre></div></p>
 <p>Example of log extract:
- <div class="highlight"><pre><span></span><code><span class="m">2021</span>-03-15<span class="w"> </span><span class="m">17</span>:48:23.471978<span class="w"> </span>W<span class="w"> </span><span class="p">|</span><span class="w"> </span>op-mon:<span class="w"> </span>mon<span class="w"> </span><span class="s2">&quot;a&quot;</span><span class="w"> </span>not<span class="w"> </span>found<span class="w"> </span><span class="k">in</span><span class="w"> </span>quorum,<span class="w"> </span>waiting<span class="w"> </span><span class="k">for</span><span class="w"> </span>timeout<span class="w"> </span><span class="o">(</span><span class="m">554</span><span class="w"> </span>seconds<span class="w"> </span>left<span class="o">)</span><span class="w"> </span>before<span class="w"> </span>failover
+ <div class="highlight"><pre><span></span><code><span class="m">2021</span>-03-15<span class="w"> </span><span class="m">17</span>:48:23.471978<span class="w"> </span>W<span class="w"> </span><span class="p">|</span><span class="w"> </span>op-mon:<span class="w"> </span>mon<span class="w"> </span><span class="s2">"a"</span><span class="w"> </span>not<span class="w"> </span>found<span class="w"> </span><span class="k">in</span><span class="w"> </span>quorum,<span class="w"> </span>waiting<span class="w"> </span><span class="k">for</span><span class="w"> </span>timeout<span class="w"> </span><span class="o">(</span><span class="m">554</span><span class="w"> </span>seconds<span class="w"> </span>left<span class="o">)</span><span class="w"> </span>before<span class="w"> </span>failover
 </code></pre></div></p>
 </li>
 <li>
@@ -3717,10 +3717,10 @@ the <code>a</code>, <code>b</code>, and <code>d</code> Ceph Monitors.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>
