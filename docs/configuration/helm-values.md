@@ -9,7 +9,7 @@ keywords: pelagia, helm chart, helm values, pelagia configuration, rook configur
 
 Pelagia Helm chart contains multiple options to configure the Pelagia setup and prepare an environment for deployment.
 
-For the complete list of available options, refer to [values.yaml](https://github.com/Mirantis/pelagia/tree/main/charts/pelagia-ceph/values.yaml).
+For the complete list of available options, refer to [values.yaml](https://github.com/Mirantis/pelagia/blob/release-2.x/charts/pelagia-ceph/values.yaml).
 
 ## Configuration options
 
