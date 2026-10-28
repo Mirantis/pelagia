@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -3590,7 +3590,7 @@ ingress annotation.</p>
 <span class="w">      </span><span class="nt">nginx.ingress.kubernetes.io/upstream-vhost</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store.public.domain.name</span>
 <span class="w">      </span><span class="nt">nginx.ingress.kubernetes.io/proxy-body-size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">100m</span>
 <span class="w">  </span><span class="nt">rookConfig</span><span class="p">:</span>
-<span class="w">    </span><span class="s">&quot;rgw</span><span class="nv"> </span><span class="s">dns</span><span class="nv"> </span><span class="s">name&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store.public.domain.name</span>
+<span class="w">    </span><span class="s">"rgw</span><span class="nv"> </span><span class="s">dns</span><span class="nv"> </span><span class="s">name"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store.public.domain.name</span>
 </code></pre></div>
 </details>
 <p>For clouds with the <code>publicDomain</code> parameter specified, align the <code>upstream-vhost</code> ingress annotation with the
@@ -3609,7 +3609,7 @@ For details, see <a href="../rgw/#rgw-enable-ceph-rgw-object-storage">Enable Cep
 <p>Substitute <code>&lt;name&gt;</code> with the name of your <code>CephDeployment</code>.</p>
 <p>For Pelagia with Rockoon, you can omit TLS configuration for the default settings provided by Rockoon
  to be applied. Just obtain the Rockoon OpenStack CA certificate for a trusted connection:
- <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>openstack-ceph-shared<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>openstack-rgw-creds<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s2">&quot;{.data.ca_cert}&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d
+ <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>openstack-ceph-shared<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>openstack-rgw-creds<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{.data.ca_cert}"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d
 </code></pre></div></p>
 </li>
 <li>
@@ -3624,8 +3624,8 @@ For details, see <a href="../rgw/#rgw-enable-ceph-rgw-object-storage">Enable Cep
      <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">ingressConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">      </span><span class="s">&quot;nginx.ingress.kubernetes.io/force-ssl-redirect&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span>
-<span class="w">      </span><span class="s">&quot;nginx.ingress.kubernetes.io/ssl-redirect&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span>
+<span class="w">      </span><span class="s">"nginx.ingress.kubernetes.io/force-ssl-redirect"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"false"</span>
+<span class="w">      </span><span class="s">"nginx.ingress.kubernetes.io/ssl-redirect"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"false"</span>
 </code></pre></div></p>
 <p>If both HTTP and HTTPS must be used, apply the following configuration in the <code>CephDeployment</code> object:
  <div class="highlight"><pre><span></span><code><span class="w"> </span><span class="nt">spec</span><span class="p">:</span>
@@ -3634,8 +3634,8 @@ For details, see <a href="../rgw/#rgw-enable-ceph-rgw-object-storage">Enable Cep
 <span class="w">       </span><span class="nt">publicDomain</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">public.domain.name</span>
 <span class="w">       </span><span class="nt">tlsSecretRefName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia-ingress-tls-secret</span>
 <span class="w">     </span><span class="nt">annotations</span><span class="p">:</span>
-<span class="w">       </span><span class="s">&quot;nginx.ingress.kubernetes.io/force-ssl-redirect&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span>
-<span class="w">       </span><span class="s">&quot;nginx.ingress.kubernetes.io/ssl-redirect&quot;</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;false&quot;</span>
+<span class="w">       </span><span class="s">"nginx.ingress.kubernetes.io/force-ssl-redirect"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"false"</span>
+<span class="w">       </span><span class="s">"nginx.ingress.kubernetes.io/ssl-redirect"</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">"false"</span>
 </code></pre></div></p>
 </li>
 <li>
@@ -3645,7 +3645,7 @@ For details, see <a href="../rgw/#rgw-enable-ceph-rgw-object-storage">Enable Cep
       <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>ingress
 </code></pre></div></li>
 <li>Obtain the public endpoint TLS CA certificate:
-      <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>ingress<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.items[0].spec.tls[0].secretName}{&quot;\n&quot;}&#39;</span><span class="k">)</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.data.ca\.crt}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="p">;</span><span class="w"> </span><span class="nb">echo</span>
+      <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>ingress<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">'{.items[0].spec.tls[0].secretName}{"\n"}'</span><span class="k">)</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">'{.data.ca\.crt}'</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d<span class="p">;</span><span class="w"> </span><span class="nb">echo</span>
 </code></pre></div></li>
 </ol>
 <p>To access the internal Ceph Object Gateway endpoint, if needed:</p>
@@ -3662,7 +3662,7 @@ in the <code>CephDeployment</code> CR.</p>
 </li>
 <li>
 <p>Obtain the internal endpoint TLS CA certificate:
-      <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>rgw-ssl-certificate<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s2">&quot;{.data.cacert}&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d
+      <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>rgw-ssl-certificate<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{.data.cacert}"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d
 </code></pre></div></p>
 </li>
 </ol>
@@ -3687,7 +3687,7 @@ in the <code>CephDeployment</code> CR.</p>
 <li>
 <p>Inspect <code>zonegroup.json</code> and verify that the <code>hostnames</code> key is a list that contains two endpoints -
     an internal endpoint and a custom public endpoint:
-      <div class="highlight"><pre><span></span><code><span class="s2">&quot;hostnames&quot;</span>:<span class="w"> </span><span class="o">[</span><span class="s2">&quot;rook-ceph-rgw-&lt;objectStorageName&gt;.rook-ceph.svc&quot;</span>,<span class="w"> </span>&lt;customPublicEndpoint&gt;<span class="o">]</span>
+      <div class="highlight"><pre><span></span><code><span class="s2">"hostnames"</span>:<span class="w"> </span><span class="o">[</span><span class="s2">"rook-ceph-rgw-&lt;objectStorageName&gt;.rook-ceph.svc"</span>,<span class="w"> </span>&lt;customPublicEndpoint&gt;<span class="o">]</span>
 </code></pre></div></p>
 <p>Substitute <code>&lt;objectStorageName&gt;</code> with the Ceph Object Storage name and <code>&lt;customPublicEndpoint&gt;</code> with the
 public endpoint with a custom public domain.</p>
@@ -3702,12 +3702,12 @@ radosgw-admin<span class="w"> </span>period<span class="w"> </span>update<span c
 </li>
 <li>
 <p>Verify that the <code>hostnames</code> list contains both the internal and custom public endpoint:
-      <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>--rgw-zonegroup<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>--rgw-zone<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>zonegroup<span class="w"> </span>get<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;.hostnames&quot;</span>
+      <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>--rgw-zonegroup<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>--rgw-zone<span class="o">=</span>&lt;objectStorageName&gt;<span class="w"> </span>zonegroup<span class="w"> </span>get<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s2">".hostnames"</span>
 </code></pre></div></p>
 <p>Example of system response:
   <div class="highlight"><pre><span></span><code><span class="p">[</span>
-<span class="w">  </span><span class="s2">&quot;rook-ceph-rgw-obj-store.rook-ceph.svc&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="s2">&quot;obj-store.mcc1.cluster1.example.com&quot;</span>
+<span class="w">  </span><span class="s2">"rook-ceph-rgw-obj-store.rook-ceph.svc"</span><span class="p">,</span>
+<span class="w">  </span><span class="s2">"obj-store.mcc1.cluster1.example.com"</span>
 <span class="p">]</span>
 </code></pre></div></p>
 </li>
@@ -3824,10 +3824,10 @@ plugin.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

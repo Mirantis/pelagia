@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -3491,7 +3491,7 @@
 <p>The Ceph Object Storage Multisite feature allows object storage to replicate its data over multiple Ceph clusters.
 Using multisite, such object storage is independent and isolated from another object storage in the cluster.
 Only the multi-zone multisite setup is currently supported. For more details, see
-<a href="https://docs.ceph.com/en/latest/radosgw/multisite">Ceph documentation: Multisite</a>.</p>
+<a href="https://docs.ceph.com/en/squid/radosgw/multisite">Ceph documentation: Multisite</a>.</p>
 <p><a name="rgw-multisite-multisite-parameters"></a></p>
 <h2 id="multisite-parameters">Multisite parameters<a class="headerlink" href="#multisite-parameters" title="Permanent link">#</a></h2>
 <ul>
@@ -3596,7 +3596,7 @@ Only the multi-zone multisite setup is currently supported. For more details, se
 </li>
 </ol>
 <p>Once done, Pelagia Deployment Controller will create the required resources and Rook will
-handle the multisite configuration. For details, see: <a href="https://rook.io/docs/rook/latest/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/">Rook documentation: Object Multisite</a>.</p>
+handle the multisite configuration. For details, see: <a href="https://rook.io/docs/rook/v1.18/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/">Rook documentation: Object Multisite</a>.</p>
 <p><a name="rgw-multisite-configuring-master-zone-for-rgw-object-storage"></a></p>
 <h3 id="configuring-master-zone-for-rgw-object-storage">Configuring master zone for RGW Object Storage<a class="headerlink" href="#configuring-master-zone-for-rgw-object-storage" title="Permanent link">#</a></h3>
 <p>If you do not need to replicate data from a different storage cluster,
@@ -3689,7 +3689,7 @@ to replicate data. For details, see step 2 of this procedure.</p>
 <li>To obtain the endpoint of the cluster zone that must be replicated, run
    the following command by specifying the zone group name of the required
    master zone on the master zone side:
-   <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>zonegroup<span class="w"> </span>get<span class="w"> </span>--rgw-zonegroup<span class="o">=</span>&lt;ZONE_GROUP_NAME&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.endpoints&#39;</span>
+   <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>zonegroup<span class="w"> </span>get<span class="w"> </span>--rgw-zonegroup<span class="o">=</span>&lt;ZONE_GROUP_NAME&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.endpoints'</span>
 </code></pre></div></li>
 </ol>
 <p>The endpoint is located in the <code>endpoints</code> field.</p>
@@ -3703,7 +3703,7 @@ to replicate data. For details, see step 2 of this procedure.</p>
 <li>
 <p>To obtain the system user name, which has your RGW <code>ObjectStorage</code>
    name as prefix:
-   <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>user<span class="w"> </span>info<span class="w"> </span>--uid<span class="o">=</span><span class="s2">&quot;&lt;USER_NAME&gt;&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.keys&#39;</span>
+   <div class="highlight"><pre><span></span><code>radosgw-admin<span class="w"> </span>user<span class="w"> </span>info<span class="w"> </span>--uid<span class="o">=</span><span class="s2">"&lt;USER_NAME&gt;"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">'.keys'</span>
 </code></pre></div></p>
 </li>
 </ol>
@@ -3743,7 +3743,7 @@ to replicate data. For details, see step 2 of this procedure.</p>
 <p>Rook does not handle multisite configuration changes and cleanup.
 Therefore, once you enable multisite for Ceph RGW Object Storage, perform
 these operations manually in the <code>pelagia-ceph-toolbox</code> pod. For details, see
-<a href="https://rook.io/docs/rook/latest/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/?h=multisite#multisite-cleanup">Rook documentation: Multisite cleanup</a>.</p>
+<a href="https://rook.io/docs/rook/v1.18/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/?h=multisite#multisite-cleanup">Rook documentation: Multisite cleanup</a>.</p>
 </div>
 <p>Automatic update of zonegroup hostnames is disabled in <code>CephDeployment</code> CR if RADOS Gateway Multisite is enabled or
 External Ceph cluster mode is enabled, therefore, manually specify all
@@ -3884,10 +3884,10 @@ steps on the <code>pelagia-ceph-toolbox</code> pod:</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

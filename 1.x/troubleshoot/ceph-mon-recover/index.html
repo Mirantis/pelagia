@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -3313,7 +3313,7 @@ stated otherwise.</p>
 <li>
 <p>Identify the Ceph Monitor pods in the <code>Error</code> or <code>CrashLookBackOff</code>
     state:
-    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-l<span class="w"> </span><span class="s1">&#39;app in (rook-ceph-mon,rook-ceph-mon-canary)&#39;</span>
+    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-l<span class="w"> </span><span class="s1">'app in (rook-ceph-mon,rook-ceph-mon-canary)'</span>
 </code></pre></div></p>
 </li>
 <li>
@@ -3332,7 +3332,7 @@ stated otherwise.</p>
 <ol>
 <li>
 <p>Identify the affected Ceph Monitor pod deployments:
-     <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>deploy<span class="w"> </span>-l<span class="w"> </span><span class="s1">&#39;app in (rook-ceph-mon,rook-ceph-mon-canary)&#39;</span>
+     <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>deploy<span class="w"> </span>-l<span class="w"> </span><span class="s1">'app in (rook-ceph-mon,rook-ceph-mon-canary)'</span>
 </code></pre></div></p>
 </li>
 <li>
@@ -3388,28 +3388,28 @@ stated otherwise.</p>
     Ceph Monitors. For example, <code>rook-ceph-mon-endpoints</code> has the
     following <code>data</code>:
     <div class="highlight"><pre><span></span><code><span class="nt">data</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">csi-cluster-config-json</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;[{&quot;clusterID&quot;:&quot;rook-ceph&quot;,&quot;monitors&quot;:[&quot;172.0.0.222:6789&quot;,&quot;172.0.0.223:6789&quot;,&quot;172.0.0.224:6789&quot;,&quot;172.16.52.217:6789&quot;,&quot;172.16.52.216:6789&quot;]}]&#39;</span>
+<span class="w">  </span><span class="nt">csi-cluster-config-json</span><span class="p">:</span><span class="w"> </span><span class="s">'[{"clusterID":"rook-ceph","monitors":["172.0.0.222:6789","172.0.0.223:6789","172.0.0.224:6789","172.16.52.217:6789","172.16.52.216:6789"]}]'</span>
 <span class="w">  </span><span class="nt">data</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a=172.0.0.222:6789,b=172.0.0.223:6789,c=172.0.0.224:6789,f=172.0.0.217:6789,e=172.0.0.216:6789</span>
-<span class="w">  </span><span class="nt">mapping</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{&quot;node&quot;:{</span>
-<span class="w">      </span><span class="s">&quot;a&quot;:{&quot;Name&quot;:&quot;node-21465871-42d0-4d56-911f-7b5b95cb4d34&quot;,&quot;Hostname&quot;:&quot;node-21465871-42d0-4d56-911f-7b5b95cb4d34&quot;,&quot;Address&quot;:&quot;172.16.52.222&quot;},</span>
-<span class="w">      </span><span class="s">&quot;b&quot;:{&quot;Name&quot;:&quot;node-43991b09-6dad-40cd-93e7-1f02ed821b9f&quot;,&quot;Hostname&quot;:&quot;node-43991b09-6dad-40cd-93e7-1f02ed821b9f&quot;,&quot;Address&quot;:&quot;172.16.52.223&quot;},</span>
-<span class="w">      </span><span class="s">&quot;c&quot;:{&quot;Name&quot;:&quot;node-15225c81-3f7a-4eba-b3e4-a23fd86331bd&quot;,&quot;Hostname&quot;:&quot;node-15225c81-3f7a-4eba-b3e4-a23fd86331bd&quot;,&quot;Address&quot;:&quot;172.16.52.224&quot;},</span>
-<span class="w">      </span><span class="s">&quot;e&quot;:{&quot;Name&quot;:&quot;node-ba3bfa17-77d2-467c-91eb-6291fb219a80&quot;,&quot;Hostname&quot;:&quot;node-ba3bfa17-77d2-467c-91eb-6291fb219a80&quot;,&quot;Address&quot;:&quot;172.16.52.216&quot;},</span>
-<span class="w">      </span><span class="s">&quot;f&quot;:{&quot;Name&quot;:&quot;node-6f669490-f0c7-4d19-bf73-e51fbd6c7672&quot;,&quot;Hostname&quot;:&quot;node-6f669490-f0c7-4d19-bf73-e51fbd6c7672&quot;,&quot;Address&quot;:&quot;172.16.52.217&quot;}}</span>
-<span class="w">  </span><span class="s">}&#39;</span>
-<span class="w">  </span><span class="nt">maxMonId</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;5&quot;</span>
+<span class="w">  </span><span class="nt">mapping</span><span class="p">:</span><span class="w"> </span><span class="s">'{"node":{</span>
+<span class="w">      </span><span class="s">"a":{"Name":"node-21465871-42d0-4d56-911f-7b5b95cb4d34","Hostname":"node-21465871-42d0-4d56-911f-7b5b95cb4d34","Address":"172.16.52.222"},</span>
+<span class="w">      </span><span class="s">"b":{"Name":"node-43991b09-6dad-40cd-93e7-1f02ed821b9f","Hostname":"node-43991b09-6dad-40cd-93e7-1f02ed821b9f","Address":"172.16.52.223"},</span>
+<span class="w">      </span><span class="s">"c":{"Name":"node-15225c81-3f7a-4eba-b3e4-a23fd86331bd","Hostname":"node-15225c81-3f7a-4eba-b3e4-a23fd86331bd","Address":"172.16.52.224"},</span>
+<span class="w">      </span><span class="s">"e":{"Name":"node-ba3bfa17-77d2-467c-91eb-6291fb219a80","Hostname":"node-ba3bfa17-77d2-467c-91eb-6291fb219a80","Address":"172.16.52.216"},</span>
+<span class="w">      </span><span class="s">"f":{"Name":"node-6f669490-f0c7-4d19-bf73-e51fbd6c7672","Hostname":"node-6f669490-f0c7-4d19-bf73-e51fbd6c7672","Address":"172.16.52.217"}}</span>
+<span class="w">  </span><span class="s">}'</span>
+<span class="w">  </span><span class="nt">maxMonId</span><span class="p">:</span><span class="w"> </span><span class="s">"5"</span>
 </code></pre></div></p>
 <p>If <code>e</code> and <code>f</code> are the letters of failed Ceph Monitors, the resulting
   ConfigMap data must be as follows:
   <div class="highlight"><pre><span></span><code><span class="nt">data</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">csi-cluster-config-json</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;[{&quot;clusterID&quot;:&quot;rook-ceph&quot;,&quot;monitors&quot;:[&quot;172.0.0.222:6789&quot;,&quot;172.0.0.223:6789&quot;,&quot;172.0.0.224:6789&quot;]}]&#39;</span>
+<span class="w">  </span><span class="nt">csi-cluster-config-json</span><span class="p">:</span><span class="w"> </span><span class="s">'[{"clusterID":"rook-ceph","monitors":["172.0.0.222:6789","172.0.0.223:6789","172.0.0.224:6789"]}]'</span>
 <span class="w">  </span><span class="nt">data</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a=172.0.0.222:6789,b=172.0.0.223:6789,c=172.0.0.224:6789</span>
-<span class="w">  </span><span class="nt">mapping</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;{&quot;node&quot;:{</span>
-<span class="w">      </span><span class="s">&quot;a&quot;:{&quot;Name&quot;:&quot;node-21465871-42d0-4d56-911f-7b5b95cb4d34&quot;,&quot;Hostname&quot;:&quot;node-21465871-42d0-4d56-911f-7b5b95cb4d34&quot;,&quot;Address&quot;:&quot;172.16.52.222&quot;},</span>
-<span class="w">      </span><span class="s">&quot;b&quot;:{&quot;Name&quot;:&quot;node-43991b09-6dad-40cd-93e7-1f02ed821b9f&quot;,&quot;Hostname&quot;:&quot;node-43991b09-6dad-40cd-93e7-1f02ed821b9f&quot;,&quot;Address&quot;:&quot;172.16.52.223&quot;},</span>
-<span class="w">      </span><span class="s">&quot;c&quot;:{&quot;Name&quot;:&quot;node-15225c81-3f7a-4eba-b3e4-a23fd86331bd&quot;,&quot;Hostname&quot;:&quot;node-15225c81-3f7a-4eba-b3e4-a23fd86331bd&quot;,&quot;Address&quot;:&quot;172.16.52.224&quot;}}</span>
-<span class="w">  </span><span class="s">}&#39;</span>
-<span class="w">  </span><span class="nt">maxMonId</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3&quot;</span>
+<span class="w">  </span><span class="nt">mapping</span><span class="p">:</span><span class="w"> </span><span class="s">'{"node":{</span>
+<span class="w">      </span><span class="s">"a":{"Name":"node-21465871-42d0-4d56-911f-7b5b95cb4d34","Hostname":"node-21465871-42d0-4d56-911f-7b5b95cb4d34","Address":"172.16.52.222"},</span>
+<span class="w">      </span><span class="s">"b":{"Name":"node-43991b09-6dad-40cd-93e7-1f02ed821b9f","Hostname":"node-43991b09-6dad-40cd-93e7-1f02ed821b9f","Address":"172.16.52.223"},</span>
+<span class="w">      </span><span class="s">"c":{"Name":"node-15225c81-3f7a-4eba-b3e4-a23fd86331bd","Hostname":"node-15225c81-3f7a-4eba-b3e4-a23fd86331bd","Address":"172.16.52.224"}}</span>
+<span class="w">  </span><span class="s">}'</span>
+<span class="w">  </span><span class="nt">maxMonId</span><span class="p">:</span><span class="w"> </span><span class="s">"3"</span>
 </code></pre></div></p>
 </li>
 </ol>
@@ -3566,10 +3566,10 @@ stated otherwise.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

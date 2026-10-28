@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -3282,7 +3282,7 @@ OSD and starts on a device with the same name as the previous Ceph OSD, Rook
 fails to update the keyring value, which is stored on a node in the
 corresponding host path. Thereby, Ceph OSD cannot start and fails with the
 following exemplary log output:</p>
-<div class="highlight"><pre><span></span><code>Defaulted<span class="w"> </span>container<span class="w"> </span><span class="s2">&quot;osd&quot;</span><span class="w"> </span>out<span class="w"> </span>of:<span class="w"> </span>osd,<span class="w"> </span>activate<span class="w"> </span><span class="o">(</span>init<span class="o">)</span>,<span class="w"> </span>expand-bluefs<span class="w"> </span><span class="o">(</span>init<span class="o">)</span>,<span class="w"> </span>chown-container-data-dir<span class="w"> </span><span class="o">(</span>init<span class="o">)</span>
+<div class="highlight"><pre><span></span><code>Defaulted<span class="w"> </span>container<span class="w"> </span><span class="s2">"osd"</span><span class="w"> </span>out<span class="w"> </span>of:<span class="w"> </span>osd,<span class="w"> </span>activate<span class="w"> </span><span class="o">(</span>init<span class="o">)</span>,<span class="w"> </span>expand-bluefs<span class="w"> </span><span class="o">(</span>init<span class="o">)</span>,<span class="w"> </span>chown-container-data-dir<span class="w"> </span><span class="o">(</span>init<span class="o">)</span>
 debug<span class="w"> </span><span class="m">2024</span>-03-13T11:53:13.268+0000<span class="w"> </span>7f8f790b4640<span class="w"> </span>-1<span class="w"> </span>monclient<span class="o">(</span>hunting<span class="o">)</span>:<span class="w"> </span>handle_auth_bad_method<span class="w"> </span>server<span class="w"> </span>allowed_methods<span class="w"> </span><span class="o">[</span><span class="m">2</span><span class="o">]</span><span class="w"> </span>but<span class="w"> </span>i<span class="w"> </span>only<span class="w"> </span>support<span class="w"> </span><span class="o">[</span><span class="m">2</span><span class="o">]</span>
 debug<span class="w"> </span><span class="m">2024</span>-03-13T11:53:13.268+0000<span class="w"> </span>7f8f7a0b6640<span class="w"> </span>-1<span class="w"> </span>monclient<span class="o">(</span>hunting<span class="o">)</span>:<span class="w"> </span>handle_auth_bad_method<span class="w"> </span>server<span class="w"> </span>allowed_methods<span class="w"> </span><span class="o">[</span><span class="m">2</span><span class="o">]</span><span class="w"> </span>but<span class="w"> </span>i<span class="w"> </span>only<span class="w"> </span>support<span class="w"> </span><span class="o">[</span><span class="m">2</span><span class="o">]</span>
 debug<span class="w"> </span><span class="m">2024</span>-03-13T11:53:13.268+0000<span class="w"> </span>7f8f798b5640<span class="w"> </span>-1<span class="w"> </span>monclient<span class="o">(</span>hunting<span class="o">)</span>:<span class="w"> </span>handle_auth_bad_method<span class="w"> </span>server<span class="w"> </span>allowed_methods<span class="w"> </span><span class="o">[</span><span class="m">2</span><span class="o">]</span><span class="w"> </span>but<span class="w"> </span>i<span class="w"> </span>only<span class="w"> </span>support<span class="w"> </span><span class="o">[</span><span class="m">2</span><span class="o">]</span>
@@ -3301,9 +3301,9 @@ in the Ceph cluster and on a node in the corresponding host path:</p>
 <p>Example output:
  <div class="highlight"><pre><span></span><code><span class="o">[</span>osd.3<span class="o">]</span>
 <span class="nv">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">AQAcovBlqP4qHBAALK6943yZyazoup7nE1YpeQ</span><span class="o">==</span>
-caps<span class="w"> </span><span class="nv">mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;allow profile osd&quot;</span>
-caps<span class="w"> </span><span class="nv">mon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;allow profile osd&quot;</span>
-caps<span class="w"> </span><span class="nv">osd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;allow *&quot;</span>
+caps<span class="w"> </span><span class="nv">mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"allow profile osd"</span>
+caps<span class="w"> </span><span class="nv">mon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"allow profile osd"</span>
+caps<span class="w"> </span><span class="nv">osd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"allow *"</span>
 </code></pre></div></p>
 </li>
 <li>
@@ -3358,9 +3358,9 @@ unblock the failed Ceph OSD.</p>
 <span class="c1"># replace the key with the one from the keyring file</span>
 <span class="o">[</span>osd.3<span class="o">]</span>
 <span class="nv">key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>AQD2k/BlcE+YJxAA/QsD/fIAL1qPrh3hjQ7AKQ<span class="o">==</span>
-caps<span class="w"> </span><span class="nv">mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;allow profile osd&quot;</span>
-caps<span class="w"> </span><span class="nv">mon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;allow profile osd&quot;</span>
-caps<span class="w"> </span><span class="nv">osd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;allow *&quot;</span>
+caps<span class="w"> </span><span class="nv">mgr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"allow profile osd"</span>
+caps<span class="w"> </span><span class="nv">mon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"allow profile osd"</span>
+caps<span class="w"> </span><span class="nv">osd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"allow *"</span>
 </code></pre></div></p>
 </li>
 <li>
@@ -3477,10 +3477,10 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

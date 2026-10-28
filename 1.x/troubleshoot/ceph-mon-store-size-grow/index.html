@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -3285,8 +3285,8 @@ of <code>logm</code> keys that are buffered due to Ceph OSD shadow errors.</p>
 <ol>
 <li>
 <p>Identify the Ceph Monitors <code>store.db</code> size:
-   <div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>pod<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>mon<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $1}&#39;</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
-<span class="k">do</span><span class="w"> </span><span class="nb">printf</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$pod</span><span class="s2">:\n&quot;</span><span class="p">;</span><span class="w"> </span>kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$pod</span><span class="s2">&quot;</span><span class="w"> </span>-it<span class="w"> </span>-c<span class="w"> </span>mon<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
+   <div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>pod<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>mon<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">'{print $1}'</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="se">\</span>
+<span class="k">do</span><span class="w"> </span><span class="nb">printf</span><span class="w"> </span><span class="s2">"</span><span class="nv">$pod</span><span class="s2">:\n"</span><span class="p">;</span><span class="w"> </span>kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="s2">"</span><span class="nv">$pod</span><span class="s2">"</span><span class="w"> </span>-it<span class="w"> </span>-c<span class="w"> </span>mon<span class="w"> </span>--<span class="w"> </span><span class="se">\</span>
 du<span class="w"> </span>-cms<span class="w"> </span>/var/lib/ceph/mon/<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
 </code></pre></div></p>
 </li>
@@ -3321,8 +3321,8 @@ ceph<span class="w"> </span>tell<span class="w"> </span>osd.*<span class="w"> </
 <li>
 <p>Restart one of the Ceph OSDs:
     <div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>pod<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>rook-ceph-osd<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="se">\</span>
-awk<span class="w"> </span><span class="s1">&#39;FNR&gt;1{print $1}&#39;</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="nb">printf</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$pod</span><span class="s2">:\n&quot;</span><span class="p">;</span><span class="w"> </span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="se">\</span>
-delete<span class="w"> </span>pod<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$pod</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Continue?&quot;</span><span class="p">;</span><span class="w"> </span>read<span class="p">;</span><span class="w"> </span><span class="k">done</span>
+awk<span class="w"> </span><span class="s1">'FNR&gt;1{print $1}'</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="nb">printf</span><span class="w"> </span><span class="s2">"</span><span class="nv">$pod</span><span class="s2">:\n"</span><span class="p">;</span><span class="w"> </span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="se">\</span>
+delete<span class="w"> </span>pod<span class="w"> </span><span class="s2">"</span><span class="nv">$pod</span><span class="s2">"</span><span class="p">;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">"Continue?"</span><span class="p">;</span><span class="w"> </span>read<span class="p">;</span><span class="w"> </span><span class="k">done</span>
 </code></pre></div></p>
 </li>
 <li>
@@ -3339,8 +3339,8 @@ press <code>ENTER</code>.</p>
 <p>Restart the remaining Ceph OSDs.</p>
 <p>Periodically verify the Ceph Monitors <code>store.db</code> size:
 <div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>pod<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>mon<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="se">\</span>
-<span class="s1">&#39;{print $1}&#39;</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="nb">printf</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$pod</span><span class="s2">:\n&quot;</span><span class="p">;</span><span class="w"> </span>kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="se">\</span>
-<span class="s2">&quot;</span><span class="nv">$pod</span><span class="s2">&quot;</span><span class="w"> </span>-it<span class="w"> </span>-c<span class="w"> </span>mon<span class="w"> </span>--<span class="w"> </span>du<span class="w"> </span>-cms<span class="w"> </span>/var/lib/ceph/mon/<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
+<span class="s1">'{print $1}'</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="nb">printf</span><span class="w"> </span><span class="s2">"</span><span class="nv">$pod</span><span class="s2">:\n"</span><span class="p">;</span><span class="w"> </span>kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="se">\</span>
+<span class="s2">"</span><span class="nv">$pod</span><span class="s2">"</span><span class="w"> </span>-it<span class="w"> </span>-c<span class="w"> </span>mon<span class="w"> </span>--<span class="w"> </span>du<span class="w"> </span>-cms<span class="w"> </span>/var/lib/ceph/mon/<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="k">done</span>
 </code></pre></div></p>
 </li>
 </ol>
@@ -3451,10 +3451,10 @@ complete the restart of all Ceph OSDs.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>

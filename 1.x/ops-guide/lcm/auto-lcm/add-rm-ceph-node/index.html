@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
     
     
       
@@ -33,10 +33,10 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -3471,7 +3471,7 @@ instead of <code>a</code>, <code>b</code>, <code>c</code>.</p>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgr</span>
 <span class="w">  </span><span class="nt">config</span><span class="p">:</span>
 <span class="w">   </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
-<span class="w">  </span><span class="nt">devicePathFilter</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;^/dev/disk/by-id/scsi-SATA_HGST+*&quot;</span>
+<span class="w">  </span><span class="nt">devicePathFilter</span><span class="p">:</span><span class="w"> </span><span class="s">"^/dev/disk/by-id/scsi-SATA_HGST+*"</span>
 </code></pre></div></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -3500,7 +3500,7 @@ instead of <code>a</code>, <code>b</code>, <code>c</code>.</p>
 <span class="w">      </span><span class="nt">cephDaemons</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">mgr</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">info</span><span class="p">:</span>
-<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&#39;a</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">active</span><span class="nv"> </span><span class="s">mgr,</span><span class="nv"> </span><span class="s">standbys:</span><span class="nv"> </span><span class="s">[b]&#39;</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">'a</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">active</span><span class="nv"> </span><span class="s">mgr,</span><span class="nv"> </span><span class="s">standbys:</span><span class="nv"> </span><span class="s">[b]'</span>
 <span class="w">          </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ok</span>
 <span class="w">        </span><span class="nt">mon</span><span class="p">:</span>
 <span class="w">          </span><span class="nt">info</span><span class="p">:</span>
@@ -3569,20 +3569,20 @@ instead of <code>a</code>, <code>b</code>, <code>c</code>.</p>
 <span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">storage-worker-5</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">osdMapping</span><span class="p">:</span>
-<span class="w">          </span><span class="s">&quot;10&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">          </span><span class="s">"10"</span><span class="p p-Indicator">:</span>
 <span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
 <span class="w">              </span><span class="nt">sdb</span><span class="p">:</span>
-<span class="w">                </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:1t.9&quot;</span>
-<span class="w">                </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb&quot;</span>
-<span class="w">                </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="s">"/dev/disk/by-path/pci-0000:00:1t.9"</span>
+<span class="w">                </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="s">"/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb"</span>
+<span class="w">                </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="s">"block"</span>
 <span class="w">                </span><span class="nt">rotational</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">                </span><span class="nt">deviceCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
-<span class="w">          </span><span class="s">&quot;16&quot;</span><span class="p p-Indicator">:</span>
+<span class="w">          </span><span class="s">"16"</span><span class="p p-Indicator">:</span>
 <span class="w">            </span><span class="nt">deviceMapping</span><span class="p">:</span>
 <span class="w">              </span><span class="nt">sdc</span><span class="p">:</span>
-<span class="w">                </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/disk/by-path/pci-0000:00:1t.10&quot;</span>
-<span class="w">                </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/dev/ceph-b-vg_sdb/osd-block-b-lv_sdc&quot;</span>
-<span class="w">                </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;block&quot;</span>
+<span class="w">                </span><span class="nt">devicePath</span><span class="p">:</span><span class="w"> </span><span class="s">"/dev/disk/by-path/pci-0000:00:1t.10"</span>
+<span class="w">                </span><span class="nt">osdPartition</span><span class="p">:</span><span class="w"> </span><span class="s">"/dev/ceph-b-vg_sdb/osd-block-b-lv_sdc"</span>
+<span class="w">                </span><span class="nt">osdPartitionType</span><span class="p">:</span><span class="w"> </span><span class="s">"block"</span>
 <span class="w">                </span><span class="nt">rotational</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">                </span><span class="nt">deviceCleanup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 </code></pre></div>
@@ -3738,10 +3738,10 @@ instead of <code>a</code>, <code>b</code>, <code>c</code>.</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.c21346df.min.js"></script>
       
     
   </body>
