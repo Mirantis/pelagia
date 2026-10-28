@@ -165,7 +165,7 @@ advanced configuration.
 
     The Ceph cluster placement affinity and anti-affinity will be ignored in favor of the provided `nodes` roles.
 
-- `cluster` - Specifies the complete Ceph cluster configuration and represents the Rook `CephCluster` object specification. For available configuration options, see Rook documentation: [CephCluster CRD](https://rook.io/docs/rook/v1.19/CRDs/Cluster/ceph-cluster-crd/) and [CephCluster API](https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.ClusterSpec). For an example usage of `cluster.placement`, see [Enable management of Ceph tolerations and resources](../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md).
+- `cluster` - Specifies the complete Ceph cluster configuration and represents the Rook `CephCluster` object specification. For available configuration options, see Rook documentation: [CephCluster CRD](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Cluster/ceph-cluster-crd/) and [CephCluster API](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/specification/#ceph.rook.io/v1.ClusterSpec). For an example usage of `cluster.placement`, see [Enable management of Ceph tolerations and resources](../ops-guide/deployment/ceph-resource-mgmt/enable-resource-mgmt.md).
 
     ??? "Example configuration of cluster specification"
         ```yaml
@@ -303,7 +303,7 @@ Using both the old and new locations simultaneously causes a reconciliation fail
   Applied for all OSDs on the current node. Can be overridden by the
   ``config`` parameter of each device defined in the ``devices`` parameter.
 
-    For details, see [Rook documentation: OSD config settings](https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/#osd-configuration-settings).
+    For details, see [Rook documentation: OSD config settings](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Cluster/ceph-cluster-crd/#osd-configuration-settings).
 
 - ``devices`` - Optional. Specifies the list of devices to use for Ceph OSD deployment.
   Includes the following parameters:
@@ -382,7 +382,7 @@ Using both the old and new locations simultaneously causes a reconciliation fail
           deviceClass: hdd
     ```
 
-    For more details, see [Rook documentation: Storage selection settings](https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/#storage-selection-settings).
+    For more details, see [Rook documentation: Storage selection settings](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Cluster/ceph-cluster-crd/#storage-selection-settings).
 
 - ``devicePathFilter`` - Optional. Specifies regexp by paths of devices to use for Ceph OSD
   deployment. Mutually exclusive with ``devices`` and ``deviceFilter``.
@@ -397,10 +397,10 @@ Using both the old and new locations simultaneously causes a reconciliation fail
           deviceClass: hdd
     ```
 
-    For more details, see [Rook documentation: Storage selection settings](https://rook.io/docs/rook/latest/CRDs/Cluster/ceph-cluster-crd/#storage-selection-settings).
+    For more details, see [Rook documentation: Storage selection settings](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Cluster/ceph-cluster-crd/#storage-selection-settings).
 
 - ``crush`` - Optional. Specifies the explicit key-value CRUSH topology for a node.
-  For details, see [Ceph documentation: CRUSH maps](https://docs.ceph.com/en/latest/rados/operations/crush-map/).
+  For details, see [Ceph documentation: CRUSH maps](https://docs.ceph.com/en/{{ ceph_doc_version }}/rados/operations/crush-map/).
   Includes the following parameters:
 
     - ``datacenter`` - a physical data center that consists of rooms and
@@ -458,13 +458,13 @@ The `pools` parameters contain the Ceph block pool specification that represents
     - `mapOptions` - Optional. Not updatable as it applies only once. Specifies custom
       `rbd device map` options to use with `StorageClass` of a corresponding pool. Allows customizing
       the Kubernetes CSI driver interaction with Ceph RBD for the defined `StorageClass`. For
-      available options, see [Ceph documentation: Kernel RBD (KRBD) options](https://docs.ceph.com/en/latest/man/8/rbd/#kernel-rbd-krbd-options).
+      available options, see [Ceph documentation: Kernel RBD (KRBD) options](https://docs.ceph.com/en/{{ ceph_doc_version }}/man/8/rbd/#kernel-rbd-krbd-options).
     - `unmapOptions` - Optional. Not updatable as it applies only once. Specifies custom
       `rbd device unmap` options to use with `StorageClass` of a corresponding pool. Allows customizing
       the Kubernetes CSI driver interaction with Ceph RBD for the defined `StorageClass`. For
-      available options, see [Ceph documentation: Kernel RBD (KRBD) options](https://docs.ceph.com/en/latest/man/8/rbd/#kernel-rbd-krbd-options).
+      available options, see [Ceph documentation: Kernel RBD (KRBD) options](https://docs.ceph.com/en/{{ ceph_doc_version }}/man/8/rbd/#kernel-rbd-krbd-options).
     - `imageFeatures` - Optional. Not updatable as it applies only once. Specifies is a comma-separated
-      list of RBD image features, see [Ceph documentation: Manage Rados block device (RBD) images](https://docs.ceph.com/en/latest/man/8/rbd/#cmdoption-rbd-image-feature).
+      list of RBD image features, see [Ceph documentation: Manage Rados block device (RBD) images](https://docs.ceph.com/en/{{ ceph_doc_version }}/man/8/rbd/#cmdoption-rbd-image-feature).
     - `reclaimPolicy` - Optional. Specifies reclaim policy for the underlying `StorageClass` of
       the pool. Accepts `Retain` and `Delete` values. Default is `Delete` if not set.
     - `allowVolumeExpansion` - Optional. Not updatable as it applies only once. Enables expansion of
@@ -475,13 +475,13 @@ The `pools` parameters contain the Ceph block pool specification that represents
 
             A Kubernetes cluster only supports increase of storage size.
 
-- `spec` - Represents the Rook `CephBlockPool` specification. For details see, Rook specifications: [CephBlockPool CRD](https://rook.io/docs/rook/v1.19/CRDs/Block-Storage/ceph-block-pool-crd/#spec) and [CephBlockPool API](https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.PoolSpec).
+- `spec` - Represents the Rook `CephBlockPool` specification. For details see, Rook specifications: [CephBlockPool CRD](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Block-Storage/ceph-block-pool-crd/#spec) and [CephBlockPool API](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/specification/#ceph.rook.io/v1.PoolSpec).
 
     !!! note
 
         If you are using the `replicated` type of pool and need to use the `targetSizeRation` parameter,
         we recommend defining the target ratio using the `parameters.target_size_ratio` **string** field instead.
-        For details, see [Ceph documentation: Set Pool values](https://docs.ceph.com/en/latest/rados/operations/pools/#set-pool-values).
+        For details, see [Ceph documentation: Set Pool values](https://docs.ceph.com/en/{{ ceph_doc_version }}/rados/operations/pools/#setting-pool-values).
 
     !!! note
 
@@ -544,9 +544,9 @@ The `clients` parameters contain a list of Ceph clients. Each item represents th
 - `name` - Mandatory. Ceph client name.
 - `caps` - Mandatory. Ceph client capabilities as a map of a Ceph daemon type to the capabilities string.
 
-For details, see the following Rook documentation: [CephClient CRD](https://rook.io/docs/rook/v1.19/CRDs/ceph-client-crd/) and [CephClient API specification](https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.ClientSpec).
+For details, see the following Rook documentation: [CephClient CRD](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/ceph-client-crd/) and [CephClient API specification](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/specification/#ceph.rook.io/v1.ClientSpec).
 
-For details about Ceph client capabilities (`caps`), refer to [Ceph documentation: Authorization (capabilities)](https://docs.ceph.com/en/latest/rados/operations/user-management/#authorization-capabilities).
+For details about Ceph client capabilities (`caps`), refer to [Ceph documentation: Authorization (capabilities)](https://docs.ceph.com/en/{{ ceph_doc_version }}/rados/operations/user-management/#authorization-capabilities).
 
 ??? "Example configuration of clients specification"
 
@@ -577,7 +577,7 @@ For details about Ceph client capabilities (`caps`), refer to [Ceph documentatio
 
     !!! warning
 
-        The realm access keys defined in the deprecated `multiSite.realms` field are removed from the spec during migration. For the `objectStorage.realms` field on new deployments, the operator must manually create a new secret with realm keys. For the procedure, see [Rook documentation: Getting Realm Access Key and Secret Key](https://rook.io/docs/rook/v1.19/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key).
+        The realm access keys defined in the deprecated `multiSite.realms` field are removed from the spec during migration. For the `objectStorage.realms` field on new deployments, the operator must manually create a new secret with realm keys. For the procedure, see [Rook documentation: Getting Realm Access Key and Secret Key](https://rook.io/docs/rook/{{ rook_doc_version }}/Storage-Configuration/Object-Storage-RGW/ceph-object-multisite/#getting-realm-access-key-and-secret-key).
 
 <a name="cephdeployment-rados-gateway-parameters"></a>
 #### RGW objectStores parameters
@@ -618,7 +618,7 @@ For details about Ceph client capabilities (`caps`), refer to [Ceph documentatio
 #### RGW users parameters
 
 The RGW `users` parameters represent the Rook `CephObjectStoreUser` specification.
-For details, see [Rook documentation: CephObjectStoreUser CRD](https://rook.io/docs/rook/v1.19/CRDs/Object-Storage/ceph-object-store-user-crd/#spec).
+For details, see [Rook documentation: CephObjectStoreUser CRD](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Object-Storage/ceph-object-store-user-crd/#spec).
 
 ??? "Example configuration of RGW users specification"
 
@@ -712,7 +712,7 @@ The `gatewayHTTPRoutes` parameters represent the Gateway API `HTTPRoute` specifi
 - `cephFilesystems` - Contains a list of Ceph file systems. Each `cephFilesystem` item represents the Rook `CephFilesystem` specification:
 
     - `name` - Mandatory. CephFS instance name.
-    - `spec` - Represents the Rook `CephFilesystem` specification. For details, refer to the following Rook documentation: [CephFilesystem CRD](https://rook.io/docs/rook/v1.19/CRDs/Shared-Filesystem/ceph-filesystem-crd/) and [CephFilesystem API specification](https://rook.io/docs/rook/v1.19/CRDs/specification/#ceph.rook.io/v1.FilesystemSpec).
+    - `spec` - Represents the Rook `CephFilesystem` specification. For details, refer to the following Rook documentation: [CephFilesystem CRD](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Shared-Filesystem/ceph-filesystem-crd/) and [CephFilesystem API specification](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/specification/#ceph.rook.io/v1.FilesystemSpec).
 
         !!! note
 
