@@ -12,7 +12,7 @@ The Ceph Shared File System, or CephFS, provides the ability to create
 read/write shared file system Persistent Volumes (PVs). These PVs support the
 `ReadWriteMany` access mode for the `FileSystem` volume mode.
 CephFS deploys its own daemons called MetaData Servers or Ceph MDS. For
-details, see [Ceph Documentation: Ceph File System](https://docs.ceph.com/en/latest/cephfs/index.html).
+details, see [Ceph Documentation: Ceph File System](https://docs.ceph.com/en/{{ ceph_doc_version }}/cephfs/index.html).
 
 !!! note
 
