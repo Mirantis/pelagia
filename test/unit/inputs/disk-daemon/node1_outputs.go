@@ -20,13 +20,13 @@ import lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
 
 var LsblkReportFromNode1 = `{
    "blockdevices": [
-      {"name": "/dev/loop0", "kname": "/dev/loop0", "maj:min": "7:0", "rota": true, "type": "loop", "pkname": null, "serial": null},
-      {"name": "/dev/loop1", "kname": "/dev/loop1", "maj:min": "7:1", "rota": true, "type": "loop", "pkname": null, "serial": null},
-      {"name": "/dev/loop2", "kname": "/dev/loop2", "maj:min": "7:2", "rota": true, "type": "loop", "pkname": null, "serial": null},
-      {"name": "/dev/loop3", "kname": "/dev/loop3", "maj:min": "7:3", "rota": true, "type": "loop", "pkname": null, "serial": null},
-      {"name": "/dev/loop4", "kname": "/dev/loop4", "maj:min": "7:4", "rota": true, "type": "loop", "pkname": null, "serial": null},
-      {"name": "/dev/loop5", "kname": "/dev/loop5", "maj:min": "7:5", "rota": true, "type": "loop", "pkname": null, "serial": null},
-      {"name": "/dev/loop6", "kname": "/dev/loop6", "maj:min": "7:6", "rota": true, "type": "loop", "pkname": null, "serial": null},
+      {"name": "/dev/loop0", "kname": "/dev/loop0", "maj:min": "7:0", "rota": true, "type": "loop", "pkname": null, "serial": null, "fstype": null},
+      {"name": "/dev/loop1", "kname": "/dev/loop1", "maj:min": "7:1", "rota": true, "type": "loop", "pkname": null, "serial": null, "fstype": null},
+      {"name": "/dev/loop2", "kname": "/dev/loop2", "maj:min": "7:2", "rota": true, "type": "loop", "pkname": null, "serial": null, "fstype": null},
+      {"name": "/dev/loop3", "kname": "/dev/loop3", "maj:min": "7:3", "rota": true, "type": "loop", "pkname": null, "serial": null, "fstype": null},
+      {"name": "/dev/loop4", "kname": "/dev/loop4", "maj:min": "7:4", "rota": true, "type": "loop", "pkname": null, "serial": null, "fstype": null},
+      {"name": "/dev/loop5", "kname": "/dev/loop5", "maj:min": "7:5", "rota": true, "type": "loop", "pkname": null, "serial": null, "fstype": null},
+      {"name": "/dev/loop6", "kname": "/dev/loop6", "maj:min": "7:6", "rota": true, "type": "loop", "pkname": null, "serial": null, "fstype": null},
       {"name": "/dev/loop10", "kname": "/dev/loop10", "maj:min": "7:10", "rota": true, "type": "loop", "pkname": null, "serial": null},
       {"name": "/dev/vda", "kname": "/dev/vda", "maj:min": "8:0", "rota": true, "type": "disk", "pkname": null, "serial": "8dad5ae9-ddf7-40bf-8",
          "children": [
@@ -43,15 +43,15 @@ var LsblkReportFromNode1 = `{
             }
          ]
       },
-      {"name": "/dev/vdb", "kname": "/dev/vdb", "maj:min": "8:16", "rota": true, "type": "disk", "pkname": null, "serial": "996ea59f-7f47-4fac-b",
+      {"name": "/dev/vdb", "kname": "/dev/vdb", "maj:min": "8:16", "rota": true, "type": "disk", "pkname": null, "serial": "996ea59f-7f47-4fac-b", "fstype": "LVM2_member",
          "children": [
             {"name": "/dev/mapper/ceph--992bbd78--3d8e--4cc3--93dc--eae387309364-osd--block--f4edb5cd--fb1e--4620--9419--3f9a4fcecba5", "kname": "/dev/dm-1", "maj:min": "253:1", "rota": true, "type": "lvm", "pkname": "/dev/vdb", "fstype": "ceph_bluestore", "serial": null}
          ]
       },
-      {"name": "/dev/vdc", "kname": "/dev/vdc", "maj:min": "8:32", "rota": true, "type": "disk", "pkname": null, "serial": null},
-      {"name": "/dev/vdd", "kname": "/dev/vdd", "maj:min": "8:48", "rota": true, "type": "disk", "pkname": null, "serial": "e8d89e2f-ffc6-4988-9",
+      {"name": "/dev/vdc", "kname": "/dev/vdc", "maj:min": "8:32", "rota": true, "type": "disk", "pkname": null, "serial": null, "fstype": null},
+      {"name": "/dev/vdd", "kname": "/dev/vdd", "maj:min": "8:48", "rota": true, "type": "disk", "pkname": null, "serial": "e8d89e2f-ffc6-4988-9", 
          "children": [
-            {"name": "/dev/vdd1", "kname": "/dev/vdd1", "maj:min": "8:49", "rota": true, "type": "part", "pkname": "/dev/vdd", "serial": null,
+            {"name": "/dev/vdd1", "kname": "/dev/vdd1", "maj:min": "8:49", "rota": true, "type": "part", "pkname": "/dev/vdd", "serial": null, "fstype": "LVM2_member",
          	   "children": [
 	               {"name": "/dev/mapper/ceph--metadata-part--1", "kname": "/dev/dm-2", "maj:min": "253:2", "rota": true, "type": "lvm", "pkname": "/dev/vdd1", "fstype": "ceph_bluestore", "serial": null},
 	               {"name": "/dev/mapper/ceph--metadata-part--2", "kname": "/dev/dm-3", "maj:min": "253:3", "rota": true, "type": "lvm", "pkname": "/dev/vdd1", "fstype": "ceph_bluestore", "serial": null}
@@ -59,12 +59,12 @@ var LsblkReportFromNode1 = `{
 	         }
          ]
       },
-      {"name": "/dev/vde", "kname": "/dev/vde", "maj:min": "8:112", "rota": true, "type": "disk", "pkname": null, "serial": "2926ff77-7491-4447-a",
+      {"name": "/dev/vde", "kname": "/dev/vde", "maj:min": "8:112", "rota": true, "type": "disk", "pkname": null, "serial": "2926ff77-7491-4447-a", "fstype": "LVM2_member",
          "children": [
             {"name": "/dev/mapper/ceph--21312wds--sdfv--vs3f--scv3--sdfdsg23edaa-osd--block--vbsgs3a3--sdcv--casq--sd11--asd12dasczsf", "kname": "/dev/dm-5", "maj:min": "253:6", "rota": true, "type": "lvm", "pkname": "/dev/vde", "fstype": "ceph_bluestore", "serial": null}
          ]
       },
-      {"name": "/dev/vdf", "kname": "/dev/vdf", "maj:min": "8:80", "rota": true, "type": "disk", "pkname": null, "serial": "b7ea1c8c-89b8-4354-8",
+      {"name": "/dev/vdf", "kname": "/dev/vdf", "maj:min": "8:80", "rota": true, "type": "disk", "pkname": null, "serial": "b7ea1c8c-89b8-4354-8", "fstype": "LVM2_member",
          "children": [
             {"name": "/dev/mapper/ceph--2efce189--afb7--452f--bd32--c73b5017a0da-osd--block--d49fd9bf--d2dd--4c3d--824d--87f3f17ea44a", "kname": "/dev/dm-4", "maj:min": "253:5", "rota": true, "type": "lvm", "pkname": "/dev/vdf", "fstype": "ceph_bluestore", "serial": null}
          ]
@@ -112,7 +112,7 @@ var UdevadmReportFromNode1 = map[string]string{
 var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 	BlockInfo: map[string]lcmcommon.BlockDeviceInfo{
 		"/dev/mapper/ceph--2efce189--afb7--452f--bd32--c73b5017a0da-osd--block--d49fd9bf--d2dd--4c3d--824d--87f3f17ea44a": {
-			Kname: "/dev/dm-4", Type: "lvm", Rotational: true, MajMin: "253:5", Parent: []string{"/dev/vdf"},
+			Kname: "/dev/dm-4", Type: "lvm", Rotational: true, MajMin: "253:5", Parent: []string{"/dev/vdf"}, Fstype: "ceph_bluestore",
 			Symlinks: []string{
 				"/dev/disk/by-id/dm-name-ceph--2efce189--afb7--452f--bd32--c73b5017a0da-osd--block--d49fd9bf--d2dd--4c3d--824d--87f3f17ea44a",
 				"/dev/disk/by-id/dm-uuid-LVM-LMoz5X0a3VV3TO2rMomDqfh24zt91NaCiZmlePb5dTd9cws2kHF6Q28W96aUWWgJ",
@@ -120,7 +120,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			Childrens: []string{},
 		},
 		"/dev/mapper/ceph--992bbd78--3d8e--4cc3--93dc--eae387309364-osd--block--f4edb5cd--fb1e--4620--9419--3f9a4fcecba5": {
-			Kname: "/dev/dm-1", Type: "lvm", Rotational: true, MajMin: "253:1", Parent: []string{"/dev/vdb"},
+			Kname: "/dev/dm-1", Type: "lvm", Rotational: true, MajMin: "253:1", Parent: []string{"/dev/vdb"}, Fstype: "ceph_bluestore",
 			Symlinks: []string{
 				"/dev/disk/by-id/dm-name-ceph--992bbd78--3d8e--4cc3--93dc--eae387309364-osd--block--f4edb5cd--fb1e--4620--9419--3f9a4fcecba5",
 				"/dev/disk/by-id/dm-uuid-LVM-VjASpFzahZwHYS2XN4EblEfLAfVwAImtnWhRvxcC38bhRLCw9S8sCCR7JvTuSbco",
@@ -128,7 +128,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			Childrens: []string{},
 		},
 		"/dev/mapper/ceph--21312wds--sdfv--vs3f--scv3--sdfdsg23edaa-osd--block--vbsgs3a3--sdcv--casq--sd11--asd12dasczsf": {
-			Kname: "/dev/dm-5", Type: "lvm", Rotational: true, MajMin: "253:6", Parent: []string{"/dev/vde"},
+			Kname: "/dev/dm-5", Type: "lvm", Rotational: true, MajMin: "253:6", Parent: []string{"/dev/vde"}, Fstype: "ceph_bluestore",
 			Symlinks: []string{
 				"/dev/disk/by-id/dm-name-ceph--21312wds--sdfv--vs3f--scv3--sdfdsg23edaa-osd--block--vbsgs3a3--sdcv--casq--sd11--asd12dasczsf",
 				"/dev/disk/by-id/dm-uuid-LVM-oPXPcruZ1AK9dkZOsPR9ZW7PzVb9xtFrOnhN24VqDzKIOPBZLd60UQpS6PpCEzQs",
@@ -136,7 +136,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			Childrens: []string{},
 		},
 		"/dev/mapper/ceph--metadata-part--1": {
-			Kname: "/dev/dm-2", Type: "lvm", Rotational: true, MajMin: "253:2", Parent: []string{"/dev/vdd1"},
+			Kname: "/dev/dm-2", Type: "lvm", Rotational: true, MajMin: "253:2", Parent: []string{"/dev/vdd1"}, Fstype: "ceph_bluestore",
 			Symlinks: []string{
 				"/dev/disk/by-id/dm-name-ceph--metadata-part--1",
 				"/dev/disk/by-id/dm-uuid-LVM-4NjWWqNazXbV26cmzMqOasZgbTwEPpZaUW1YZSAnvx7CLqXUAIZ5UKlcZx8w8lWo",
@@ -144,7 +144,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			Childrens: []string{},
 		},
 		"/dev/mapper/ceph--metadata-part--2": {
-			Kname: "/dev/dm-3", Type: "lvm", Rotational: true, MajMin: "253:3", Parent: []string{"/dev/vdd1"},
+			Kname: "/dev/dm-3", Type: "lvm", Rotational: true, MajMin: "253:3", Parent: []string{"/dev/vdd1"}, Fstype: "ceph_bluestore",
 			Symlinks: []string{
 				"/dev/disk/by-id/dm-name-ceph--metadata-part--2",
 				"/dev/disk/by-id/dm-uuid-LVM-4NjWWqNazXbV26cmzMqOasZgbTwEPpZaH1waxWke4fbXEDXucEbZNeB4ZDfBeUrW",
@@ -152,7 +152,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			Childrens: []string{},
 		},
 		"/dev/mapper/vg_root-lv_root": {
-			Kname: "/dev/dm-0", Type: "lvm", Rotational: true, MajMin: "252:0", Parent: []string{"/dev/md127"},
+			Kname: "/dev/dm-0", Type: "lvm", Rotational: true, MajMin: "252:0", Parent: []string{"/dev/md127"}, Fstype: "",
 			Symlinks: []string{
 				"/dev/disk/by-id/dm-name-vg_root-lv_root",
 				"/dev/disk/by-id/dm-uuid-LVM-hVhQGAaFSKQ12ENRZABVk0nXCAos3JGulscWc97Kr4AQJNmIG0CbWYNy7fSDiVCe",
@@ -161,7 +161,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			Childrens: []string{},
 		},
 		"/dev/md127": {
-			Kname: "/dev/md127", Type: "part", Rotational: true, MajMin: "9:127", Parent: []string{"/dev/vda15", "/dev/vdh1"},
+			Kname: "/dev/md127", Type: "part", Rotational: true, MajMin: "9:127", Parent: []string{"/dev/vda15", "/dev/vdh1"}, Fstype: "",
 			Symlinks: []string{
 				"/dev/disk/by-id/lvm-pv-uuid-K7zgwt-1AY8-QxFu-ltxQ-lCnI-XMe0-91XwfL",
 				"/dev/disk/by-id/md-name-any:md_root",
@@ -171,7 +171,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			Childrens: []string{"/dev/mapper/vg_root-lv_root"},
 		},
 		"/dev/vda": {
-			Kname: "/dev/vda", Type: "disk", Rotational: true, MajMin: "8:0", Parent: []string{""}, Serial: "8dad5ae9-ddf7-40bf-8",
+			Kname: "/dev/vda", Type: "disk", Rotational: true, MajMin: "8:0", Parent: []string{""}, Serial: "8dad5ae9-ddf7-40bf-8", Fstype: "",
 			Symlinks: []string{
 				"/dev/disk/by-id/virtio-8dad5ae9-ddf7-40bf-8",
 				"/dev/disk/by-path/pci-0000:00:09.0",
@@ -180,7 +180,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			Childrens: []string{"/dev/vda1", "/dev/vda14", "/dev/vda15"},
 		},
 		"/dev/vda1": {
-			Kname: "/dev/vda1", Type: "part", Rotational: true, MajMin: "8:1", Parent: []string{"/dev/vda"},
+			Kname: "/dev/vda1", Type: "part", Rotational: true, MajMin: "8:1", Parent: []string{"/dev/vda"}, Fstype: "",
 			Symlinks: []string{
 				"/dev/disk/by-label/cloudimg-rootfs",
 				"/dev/disk/by-partuuid/8a13887f-ec53-4427-b9ec-8291e6213b29",
@@ -191,7 +191,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			Childrens: []string{},
 		},
 		"/dev/vda14": {
-			Kname: "/dev/vda14", Type: "part", Rotational: true, MajMin: "8:14", Parent: []string{"/dev/vda"},
+			Kname: "/dev/vda14", Type: "part", Rotational: true, MajMin: "8:14", Parent: []string{"/dev/vda"}, Fstype: "",
 			Symlinks: []string{
 				"/dev/disk/by-partuuid/40dba738-2c45-4236-a681-75198bc111ae",
 				"/dev/disk/by-path/pci-0000:00:09.0-part14",
@@ -200,7 +200,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			Childrens: []string{},
 		},
 		"/dev/vda15": {
-			Kname: "/dev/vda15", Type: "part", Rotational: true, MajMin: "8:15", Parent: []string{"/dev/vda"},
+			Kname: "/dev/vda15", Type: "part", Rotational: true, MajMin: "8:15", Parent: []string{"/dev/vda"}, Fstype: "",
 			Symlinks: []string{
 				"/dev/disk/by-label/UEFI",
 				"/dev/disk/by-partuuid/ef825b91-d4cc-47b3-bf54-99c78546a9c4",
@@ -211,7 +211,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			Childrens: []string{"/dev/md127"},
 		},
 		"/dev/vdb": {
-			Kname: "/dev/vdb", Type: "disk", Rotational: true, MajMin: "8:16", Parent: []string{""}, Serial: "996ea59f-7f47-4fac-b",
+			Kname: "/dev/vdb", Type: "disk", Rotational: true, MajMin: "8:16", Parent: []string{""}, Serial: "996ea59f-7f47-4fac-b", Fstype: "LVM2_member",
 			Symlinks: []string{
 				"/dev/disk/by-id/lvm-pv-uuid-yd92Oj-9hBf-2w2n-IEjf-nBJ1-2dMk-kBeMZI",
 				"/dev/disk/by-id/virtio-996ea59f-7f47-4fac-b",
@@ -221,7 +221,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			Childrens: []string{"/dev/mapper/ceph--992bbd78--3d8e--4cc3--93dc--eae387309364-osd--block--f4edb5cd--fb1e--4620--9419--3f9a4fcecba5"},
 		},
 		"/dev/vdc": {
-			Kname: "/dev/vdc", Type: "disk", Rotational: true, MajMin: "8:32", Parent: []string{""},
+			Kname: "/dev/vdc", Type: "disk", Rotational: true, MajMin: "8:32", Parent: []string{""}, Fstype: "",
 			Symlinks: []string{
 				"/dev/disk/by-label/config-2",
 				"/dev/disk/by-path/pci-0000:00:0b.0",
@@ -240,7 +240,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			Childrens: []string{"/dev/vdd1"},
 		},
 		"/dev/vdd1": {
-			Kname: "/dev/vdd1", Type: "part", Rotational: true, MajMin: "8:49", Parent: []string{"/dev/vdd"}, Serial: "",
+			Kname: "/dev/vdd1", Type: "part", Rotational: true, MajMin: "8:49", Parent: []string{"/dev/vdd"}, Serial: "", Fstype: "LVM2_member",
 			Symlinks: []string{
 				"/dev/disk/by-id/lvm-pv-uuid-7nUuVo-Zpzv-Tqze-5rtG-Y8f0-HdvQ-m6WXIU",
 				"/dev/disk/by-id/virtio-e8d89e2f-ffc6-4988-9-part1",
@@ -250,7 +250,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			Childrens: []string{"/dev/mapper/ceph--metadata-part--1", "/dev/mapper/ceph--metadata-part--2"},
 		},
 		"/dev/vde": {
-			Kname: "/dev/vde", Type: "disk", Rotational: true, MajMin: "8:112", Parent: []string{""}, Serial: "2926ff77-7491-4447-a",
+			Kname: "/dev/vde", Type: "disk", Rotational: true, MajMin: "8:112", Parent: []string{""}, Serial: "2926ff77-7491-4447-a", Fstype: "LVM2_member",
 			Symlinks: []string{
 				"/dev/disk/by-id/lvm-pv-uuid-nzJOk1-kLTM-ErxQ-0N4c-DpDU-0zhE-Q9hRJP",
 				"/dev/disk/by-id/virtio-2926ff77-7491-4447-a",
@@ -262,7 +262,7 @@ var DiskInfoReportLsblkFromNode1 = &lcmcommon.DiskDaemonDisksReport{
 			},
 		},
 		"/dev/vdf": {
-			Kname: "/dev/vdf", Type: "disk", Rotational: true, MajMin: "8:80", Parent: []string{""}, Serial: "b7ea1c8c-89b8-4354-8",
+			Kname: "/dev/vdf", Type: "disk", Rotational: true, MajMin: "8:80", Parent: []string{""}, Serial: "b7ea1c8c-89b8-4354-8", Fstype: "LVM2_member",
 			Symlinks: []string{
 				"/dev/disk/by-id/lvm-pv-uuid-fZ7Efo-X0nc-lAR3-lzik-MjMT-0rml-lZNf7b",
 				"/dev/disk/by-id/virtio-b7ea1c8c-89b8-4354-8",

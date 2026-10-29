@@ -406,7 +406,7 @@ var CephOsdTreeOutputTmpl = `{
     ]
 }`
 
-var CephOsdTreeOutput = BuildCliOutput(CephOsdTreeOutputTmpl, "", map[string]string{"childs_1": "20,25,30", "childs_2": "0,4,5"})
+var CephOsdTreeOutput = BuildCliOutput(CephOsdTreeOutputTmpl, "", map[string]string{"childs_1": "20,25,30", "childs_2": "0,4,5,7,9"})
 var CephOsdTreeOutputNoOsdsOnHost = BuildCliOutput(CephOsdTreeOutputTmpl, "", map[string]string{"childs_1": "\n", "childs_2": "\n"})
 
 var CephPoolsDetails = `[
@@ -571,6 +571,28 @@ var CephOsdMetadataOutputTmpl = `[
     "device_paths": "vdd=/dev/disk/by-path/pci-0000:00:1e.0"
   },
   {
+    "devices": "vdy",
+    "bluestore_bdev_devices": "vdy",
+    "bluestore_bdev_type": "ssd",
+    "bluestore_bdev_partition_path": "/dev/vdy",
+    "bluefs_dedicated_db": "0",
+    "id": 7,
+    "hostname": "node-2",
+    "device_ids": "vdy=189ff720-dac9-4583-8",
+    "device_paths": "vdy=/dev/disk/by-path/pci-0000:00:2c.0"
+  },
+  {
+    "devices": "vdx",
+    "bluestore_bdev_devices": "vdx",
+    "bluestore_bdev_type": "ssd",
+    "bluestore_bdev_partition_path": "/dev/vdx",
+    "bluefs_dedicated_db": "0",
+    "id": 9,
+    "hostname": "node-2",
+    "device_ids": "vdx=9f0f417c-ea63-467e-b",
+    "device_paths": "vdx=/dev/disk/by-path/pci-0000:00:2e.0"
+  },
+  {
     "devices": "vde,vdd",
     "bluestore_bdev_devices": "vde",
     "bluestore_bdev_type": "hdd",
@@ -634,6 +656,18 @@ var CephOsdInfoOutputTmpl = `[
     {
         "osd":  5,
         "uuid": "af39b794-e1c6-41c0-8997-d6b6c631b8f2",
+        "up":   1,
+        "in":   1
+    },
+    {
+        "osd":  7,
+        "uuid": "ddfd94ef-070b-488a-bb86-cfd4e1c9aa6d",
+        "up":   1,
+        "in":   1
+    },
+    {
+        "osd":  9,
+        "uuid": "3e847863-45b6-41c3-a467-ba5f88094f9c",
         "up":   1,
         "in":   1
     },

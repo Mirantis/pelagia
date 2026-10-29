@@ -52,8 +52,10 @@ type daemonData struct {
 type runtimeData struct {
 	// in-memory last prepared disk report
 	disksReport *lcmcommon.DiskDaemonDisksReport
-	// in-memory last prepared volumes report
-	volumesReport map[string][]OsdVolumeInfo
+	// in-memory last prepared volumes lvm report
+	volumesLvmReport map[string][]OsdVolumeLvmInfo
+	// in-memory last prepared volumes raw report
+	volumesRawReport map[string]OsdVolumeRawInfo
 	// in-memory last prepared osds report
 	osdsReport *lcmcommon.DiskDaemonOsdsReport
 	// in-memory known lvm partitions
@@ -68,8 +70,9 @@ type reportData struct {
 func initDaemonData() daemonData {
 	return daemonData{
 		runtime: runtimeData{
-			volumesReport: map[string][]OsdVolumeInfo{},
-			knownLvms:     map[string][]string{},
+			volumesLvmReport: map[string][]OsdVolumeLvmInfo{},
+			volumesRawReport: map[string]OsdVolumeRawInfo{},
+			knownLvms:        map[string][]string{},
 		},
 		report: reportData{
 			node: lcmcommon.DiskDaemonReport{

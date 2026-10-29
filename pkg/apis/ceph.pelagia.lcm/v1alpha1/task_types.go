@@ -234,6 +234,9 @@ type DeviceInfo struct {
 	// Alive is a marker whether device lost or alive
 	// +optional
 	Alive bool `json:"deviceAlive,omitempty"`
+	// Whether device is used as raw for osd
+	// +optional
+	Raw bool `json:"raw,omitempty"`
 }
 
 // RemovePhase is a enum for handling remove during processing phase

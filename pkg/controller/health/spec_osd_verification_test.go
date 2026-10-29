@@ -107,6 +107,26 @@ var osdClusterDetails = map[string]nodeDetails{
 			Up:             true,
 			In:             true,
 		},
+		"osd.7": osdDetails{
+			ClusterFSID:    "8668f062-3faa-358a-85f3-f80fe6c1e306",
+			DeviceName:     "vdy",
+			DeviceByID:     "189ff720-dac9-4583-8",
+			DeviceByPath:   "/dev/disk/by-path/pci-0000:00:2c.0",
+			BlockPartition: "/dev/vdy",
+			UUID:           "ddfd94ef-070b-488a-bb86-cfd4e1c9aa6d",
+			Up:             true,
+			In:             true,
+		},
+		"osd.9": osdDetails{
+			ClusterFSID:    "8668f062-3faa-358a-85f3-f80fe6c1e306",
+			DeviceName:     "vdx",
+			DeviceByID:     "9f0f417c-ea63-467e-b",
+			DeviceByPath:   "/dev/disk/by-path/pci-0000:00:2e.0",
+			BlockPartition: "/dev/vdx",
+			UUID:           "3e847863-45b6-41c3-a467-ba5f88094f9c",
+			Up:             true,
+			In:             true,
+		},
 	},
 	"__stray": {
 		"osd.2": osdDetails{
@@ -547,6 +567,9 @@ func TestPrepareSpecAnalysis(t *testing.T) {
 						"found ceph block partition '/dev/ceph-c5628abe-ae41-4c3d-bdc6-ef86c54bf78c/osd-block-69481cd1-38b1-42fd-ac07-06bf4d7c0e19', belongs to osd '0' (osd fsid '06bf4d7c-9603-41a4-b250-284ecf3ecb2f'), placed on '/dev/vdc' device, which seems to be stray, can be cleaned up",
 						"found ceph block partition '/dev/ceph-dada9f25-41b4-4c26-9a20-448ac01e1d06/osd-block-7d09cceb-4de0-478e-9d8d-bd09cb0c904e', belongs to osd '5' (osd fsid 'af39b794-e1c6-41c0-8997-d6b6c631b8f2'), placed on '/dev/vdd' device, which is not reflected in spec",
 						"found ceph block partition '/dev/ceph-dada9f25-41b4-4c26-9a20-448ac01e1d06/osd-block-ad76cf53-5cb5-48fe-a39a-343734f5ccde', belongs to osd '4' (osd fsid 'ad76cf53-5cb5-48fe-a39a-343734f5ccde'), placed on '/dev/vdd' device, which is not reflected in spec",
+						"found formatted ceph raw device '/dev/vdx', belongs to osd '9' (osd fsid '3e847863-45b6-41c3-a467-ba5f88094f9c'), which is not reflected in spec",
+						"found formatted ceph raw device '/dev/vdy', belongs to osd '7' (osd fsid 'ddfd94ef-070b-488a-bb86-cfd4e1c9aa6d'), which is not reflected in spec",
+						"found formatted ceph raw device '/dev/vdz', belongs to osd '5' (osd fsid 'dada9f25-41b4-45b6-a467-f80fe6c1e306'), which seems to be stray, can be cleaned up",
 					},
 				},
 			},
@@ -572,6 +595,7 @@ func TestPrepareSpecAnalysis(t *testing.T) {
 					Messages: []string{
 						"found ceph block partition '/dev/ceph-0e03d5c6-d0e9-4f04-b9af-38d15e14369f/osd-block-61869d90-2c45-4f02-b7c3-96955f41e2ca', belongs to osd '2' (osd fsid '61869d90-2c45-4f02-b7c3-96955f41e2ca'), placed on '/dev/vde' device, which seems to be stray, can be cleaned up",
 						"found ceph block partition '/dev/ceph-c5628abe-ae41-4c3d-bdc6-ef86c54bf78c/osd-block-69481cd1-38b1-42fd-ac07-06bf4d7c0e19', belongs to osd '0' (osd fsid '06bf4d7c-9603-41a4-b250-284ecf3ecb2f'), placed on '/dev/vdc' device, which seems to be stray, can be cleaned up",
+						"found formatted ceph raw device '/dev/vdz', belongs to osd '5' (osd fsid 'dada9f25-41b4-45b6-a467-f80fe6c1e306'), which seems to be stray, can be cleaned up",
 					},
 				},
 			},
@@ -803,6 +827,7 @@ func TestRunSpecAnalyse(t *testing.T) {
 			expectedWarnings: []string{
 				"found ceph block partition '/dev/ceph-0e03d5c6-d0e9-4f04-b9af-38d15e14369f/osd-block-61869d90-2c45-4f02-b7c3-96955f41e2ca', belongs to osd '2' (osd fsid '61869d90-2c45-4f02-b7c3-96955f41e2ca'), placed on '/dev/vde' device, which seems to be stray, can be cleaned up",
 				"found ceph block partition '/dev/ceph-c5628abe-ae41-4c3d-bdc6-ef86c54bf78c/osd-block-69481cd1-38b1-42fd-ac07-06bf4d7c0e19', belongs to osd '0' (osd fsid '06bf4d7c-9603-41a4-b250-284ecf3ecb2f'), placed on '/dev/vdc' device, which seems to be stray, can be cleaned up",
+				"found formatted ceph raw device '/dev/vdz', belongs to osd '5' (osd fsid 'dada9f25-41b4-45b6-a467-f80fe6c1e306'), which seems to be stray, can be cleaned up",
 			},
 		},
 		{
@@ -854,6 +879,9 @@ func TestRunSpecAnalyse(t *testing.T) {
 				"found ceph block partition '/dev/ceph-c5628abe-ae41-4c3d-bdc6-ef86c54bf78c/osd-block-69481cd1-38b1-42fd-ac07-06bf4d7c0e19', belongs to osd '0' (osd fsid '06bf4d7c-9603-41a4-b250-284ecf3ecb2f'), placed on '/dev/vdc' device, which seems to be stray, can be cleaned up",
 				"found ceph block partition '/dev/ceph-dada9f25-41b4-4c26-9a20-448ac01e1d06/osd-block-7d09cceb-4de0-478e-9d8d-bd09cb0c904e', belongs to osd '5' (osd fsid 'af39b794-e1c6-41c0-8997-d6b6c631b8f2'), placed on '/dev/vdd' device, which is not reflected in spec",
 				"found ceph block partition '/dev/ceph-dada9f25-41b4-4c26-9a20-448ac01e1d06/osd-block-ad76cf53-5cb5-48fe-a39a-343734f5ccde', belongs to osd '4' (osd fsid 'ad76cf53-5cb5-48fe-a39a-343734f5ccde'), placed on '/dev/vdd' device, which is not reflected in spec",
+				"found formatted ceph raw device '/dev/vdx', belongs to osd '9' (osd fsid '3e847863-45b6-41c3-a467-ba5f88094f9c'), which is not reflected in spec",
+				"found formatted ceph raw device '/dev/vdy', belongs to osd '7' (osd fsid 'ddfd94ef-070b-488a-bb86-cfd4e1c9aa6d'), which is not reflected in spec",
+				"found formatted ceph raw device '/dev/vdz', belongs to osd '5' (osd fsid 'dada9f25-41b4-45b6-a467-f80fe6c1e306'), which seems to be stray, can be cleaned up",
 			},
 			expectedExtra: true,
 		},
@@ -872,6 +900,9 @@ func TestRunSpecAnalyse(t *testing.T) {
 				"found ceph block partition '/dev/ceph-0e03d5c6-d0e9-4f04-b9af-38d15e14369f/osd-block-61869d90-2c45-4f02-b7c3-96955f41e2ca', belongs to osd '2' (osd fsid '61869d90-2c45-4f02-b7c3-96955f41e2ca'), placed on '/dev/vde' device, which seems to be stray, can be cleaned up",
 				"found ceph block partition '/dev/ceph-c5628abe-ae41-4c3d-bdc6-ef86c54bf78c/osd-block-69481cd1-38b1-42fd-ac07-06bf4d7c0e19', belongs to osd '0' (osd fsid '06bf4d7c-9603-41a4-b250-284ecf3ecb2f'), placed on '/dev/vdc' device, which seems to be stray, can be cleaned up",
 				"found ceph block partition '/dev/ceph-cf7c8b53-27c7-4cfc-94de-6ad4c7d9f92d/osd-block-af39b794-e1c6-41c0-8997-d6b6c631b8f2', belongs to osd '0' (osd fsid '69481cd1-38b1-42fd-ac07-06bf4d7c0e19'), placed on '/dev/vdb' device, which is not reflected in spec",
+				"found formatted ceph raw device '/dev/vdx', belongs to osd '9' (osd fsid '3e847863-45b6-41c3-a467-ba5f88094f9c'), which is not reflected in spec",
+				"found formatted ceph raw device '/dev/vdy', belongs to osd '7' (osd fsid 'ddfd94ef-070b-488a-bb86-cfd4e1c9aa6d'), which is not reflected in spec",
+				"found formatted ceph raw device '/dev/vdz', belongs to osd '5' (osd fsid 'dada9f25-41b4-45b6-a467-f80fe6c1e306'), which seems to be stray, can be cleaned up",
 			},
 			expectedExtra: true,
 		},
@@ -1105,7 +1136,7 @@ func TestRunSpecAnalyse(t *testing.T) {
 			},
 		},
 		{
-			name: "nodespec 2 with filters - analyse is not ok, found incorrect number partitions",
+			name: "nodespec 2 with filters - analyse is not ok, found incorrect number osd",
 			node: cephv1.Node{
 				Name: "node-2",
 				Selection: cephv1.Selection{
@@ -1116,6 +1147,56 @@ func TestRunSpecAnalyse(t *testing.T) {
 			expectedIssues: []string{
 				"device '/dev/vdd' filtered by '^vd[bd]' should have 1 osd(s), but actually found 2",
 			},
+		},
+		{
+			name: "nodespec 2 for raw - analyse is not ok, found incorrect raw config",
+			node: cephv1.Node{
+				Name: "node-2",
+				Config: map[string]string{
+					"osdsPerDevice":  "2",
+					"metadataDevice": "vdf",
+				},
+				Selection: cephv1.Selection{
+					DeviceFilter: "vdx",
+				},
+			},
+			expectedWarnings: nil,
+			expectedIssues: []string{
+				"device '/dev/vdx' filtered by 'vdx' is specified with metadata device, but currently used as raw device (no metadata supported)",
+				"device '/dev/vdx' filtered by 'vdx' is specified with multiple osds per device, but currently used as raw device (only single osd supported)",
+				"device '/dev/vdx' filtered by 'vdx' should have 2 osd(s), but actually found 1",
+			},
+		},
+		{
+			name: "nodespec 2 - analyse is not ok, found unknown raw osd on device",
+			node: func() cephv1.Node {
+				node := unitinputs.StorageNodesForAnalysisOk[1].DeepCopy()
+				node.Devices = append(node.Devices, cephv1.Device{Name: "vdz", Config: map[string]string{"deviceClass": "nvme"}})
+				return *node
+			}(),
+			expectedWarnings: nil,
+			expectedIssues: []string{
+				"unknown osd '5' (raw formatted) is found on device 'vdz'",
+			},
+		},
+		{
+			name: "nodespec 2 with filters for raw - analyse is ok, found extra partitions",
+			node: cephv1.Node{
+				Name: "node-2",
+				Selection: cephv1.Selection{
+					DeviceFilter: "vdx",
+				},
+			},
+			expectedWarnings: []string{
+				"found ceph block partition '/dev/ceph-0e03d5c6-d0e9-4f04-b9af-38d15e14369f/osd-block-61869d90-2c45-4f02-b7c3-96955f41e2ca', belongs to osd '2' (osd fsid '61869d90-2c45-4f02-b7c3-96955f41e2ca'), placed on '/dev/vde' device, which seems to be stray, can be cleaned up",
+				"found ceph block partition '/dev/ceph-c5628abe-ae41-4c3d-bdc6-ef86c54bf78c/osd-block-69481cd1-38b1-42fd-ac07-06bf4d7c0e19', belongs to osd '0' (osd fsid '06bf4d7c-9603-41a4-b250-284ecf3ecb2f'), placed on '/dev/vdc' device, which seems to be stray, can be cleaned up",
+				"found ceph block partition '/dev/ceph-cf7c8b53-27c7-4cfc-94de-6ad4c7d9f92d/osd-block-af39b794-e1c6-41c0-8997-d6b6c631b8f2', belongs to osd '0' (osd fsid '69481cd1-38b1-42fd-ac07-06bf4d7c0e19'), placed on '/dev/vdb' device, which is not reflected in spec",
+				"found ceph block partition '/dev/ceph-dada9f25-41b4-4c26-9a20-448ac01e1d06/osd-block-7d09cceb-4de0-478e-9d8d-bd09cb0c904e', belongs to osd '5' (osd fsid 'af39b794-e1c6-41c0-8997-d6b6c631b8f2'), placed on '/dev/vdd' device, which is not reflected in spec",
+				"found ceph block partition '/dev/ceph-dada9f25-41b4-4c26-9a20-448ac01e1d06/osd-block-ad76cf53-5cb5-48fe-a39a-343734f5ccde', belongs to osd '4' (osd fsid 'ad76cf53-5cb5-48fe-a39a-343734f5ccde'), placed on '/dev/vdd' device, which is not reflected in spec",
+				"found formatted ceph raw device '/dev/vdy', belongs to osd '7' (osd fsid 'ddfd94ef-070b-488a-bb86-cfd4e1c9aa6d'), which is not reflected in spec",
+				"found formatted ceph raw device '/dev/vdz', belongs to osd '5' (osd fsid 'dada9f25-41b4-45b6-a467-f80fe6c1e306'), which seems to be stray, can be cleaned up",
+			},
+			expectedExtra: true,
 		},
 		{
 			name: "nodespec without storage configuration - found only extra osds",
@@ -1145,4 +1226,22 @@ func TestRunSpecAnalyse(t *testing.T) {
 			assert.Equal(t, test.expectedExtra, extra)
 		})
 	}
+
+	// run special case separately with direct prepare fixtures
+	t.Run("nodespec 2 - analyse is not ok, raw osd with reused id on stray lvm partition", func(t *testing.T) {
+		node := unitinputs.StorageNodesForAnalysisOk[1]
+		diskReport := unitinputs.DiskDaemonNodeReportWithStrayOkNode2(true)
+		staleLvm := diskReport.OsdsReport.Osds["5"][0]
+		staleLvm.OsdUUID = "7d09cceb-4de0-478e-9d8d-bd09cb0c904e"
+		liveRaw := diskReport.OsdsReport.Osds["5"][1]
+		liveRaw.ClusterFSID = "8668f062-3faa-358a-85f3-f80fe6c1e306"
+		liveRaw.OsdUUID = "af39b794-e1c6-41c0-8997-d6b6c631b8f2"
+		diskReport.OsdsReport.Osds["5"] = []lcmcommon.OsdDaemonInfo{staleLvm, liveRaw}
+		issues, warnings, extra := runSpecAnalysis(node, diskReport, osdClusterDetails[node.Name])
+		assert.Equal(t, []string{
+			"unknown osd '5' block partition '/dev/ceph-dada9f25-41b4-4c26-9a20-448ac01e1d06/osd-block-7d09cceb-4de0-478e-9d8d-bd09cb0c904e' is found on device 'vdd'",
+		}, issues)
+		assert.Equal(t, 0, len(warnings))
+		assert.Equal(t, false, extra)
+	})
 }
