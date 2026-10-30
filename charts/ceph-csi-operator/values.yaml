@@ -4,7 +4,7 @@ global:
 images:
   operator:
     repository: pelagia/cephcsi-operator
-    tag: v0.6.0-10.cve
+    tag: v0.6.0-11.cve
     fullName: ""
     pullPolicy: "Always"
 
