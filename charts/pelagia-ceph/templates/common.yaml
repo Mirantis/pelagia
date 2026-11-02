@@ -22,6 +22,7 @@ data:
   {{- end }}
   DISK_DAEMON_PLACEMENT_NODES_SELECTOR: {{ .Values.lcmConfig.diskDaemonNodeSelector | quote }}
   DISK_DAEMON_API_PORT: {{ .Values.lcmConfig.diskDaemonPortParameter | quote }}
+  OSD_LCM_FULL_MODE: {{ .Values.lcmConfig.osdLcmModeFull | quote }}
   RGW_PUBLIC_ACCESS_SERVICE_SELECTOR: {{ .Values.lcmConfig.rgwPublicAccessServiceSelector | quote }}
 {{- if (.Values.cephDeployment.enabled) }}
   DEPLOYMENT_CEPH_RELEASE: {{ .Values.cephRelease }}

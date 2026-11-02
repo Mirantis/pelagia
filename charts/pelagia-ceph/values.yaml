@@ -59,6 +59,9 @@ lcmConfig:
   # useIngress used only for backward compatibility with ingress deprecation
   # if no ingress required - set to false
   useIngress: false
+  # osdLcmModeFull is a mode to use for manage osd lcm: full includes both lvm and raw osds.
+  # When disabled, includes only lvms, as was prior to pelagia 3.x versions
+  osdLcmModeFull: true
 
 controllers:
   securityContext:

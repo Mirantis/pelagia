@@ -42,12 +42,13 @@ func mutuallyExclusivePassed(flags ...bool) bool {
 }
 
 func main() {
-	var daemonMode, apiCheckMode, fullReportMode, osdReportMode, version bool
+	var daemonMode, apiCheckMode, fullReportMode, osdReportMode, version, noRaw bool
 	var diskDaemonPort int
 	flag.BoolVar(&daemonMode, "daemon", false, "daemon mode for collecting hardware disk/partitions/volumes info")
 	flag.BoolVar(&apiCheckMode, "api-check", false, "check disk daemon api")
 	flag.BoolVar(&fullReportMode, "full-report", false, "get full report from daemon (extended with disks info)")
 	flag.BoolVar(&osdReportMode, "osd-report", false, "get osd report from daemon (osd inforation for lcm)")
+	flag.BoolVar(&noRaw, "no-raw", false, "whether to disable support for raw osds")
 	flag.BoolVar(&version, "version", false, "get version of binary")
 	flag.IntVar(&diskDaemonPort, "port", 9999, "disk daemon API port, usually not required to be changed")
 	flag.Parse()
@@ -63,7 +64,7 @@ func main() {
 	}
 
 	if daemonMode {
-		err := diskdaemon.Daemon(diskDaemonPort)
+		err := diskdaemon.Daemon(diskDaemonPort, noRaw)
 		if err != nil {
 			panic(err.Error())
 		}

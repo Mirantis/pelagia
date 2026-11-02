@@ -67,23 +67,25 @@ func (d *diskDaemon) checkDisks() (bool, error) {
 		log.Error().Err(err).Msg("")
 		return false, err
 	}
-	newVolumesRawReport, err := getCephVolumeRawList()
-	if err != nil {
-		err = errors.Wrap(err, "daemon is failed to prepare ceph volumes raw info report")
-		log.Error().Err(err).Msg("")
-		return false, err
+	if !d.rawDisabled {
+		newVolumesRawReport, err := getCephVolumeRawList()
+		if err != nil {
+			err = errors.Wrap(err, "daemon is failed to prepare ceph volumes raw info report")
+			log.Error().Err(err).Msg("")
+			return false, err
+		}
+		if !reflect.DeepEqual(d.data.runtime.volumesRawReport, newVolumesRawReport) {
+			log.Info().Msgf("[node '%s'] daemon's ceph volumes raw info report is updating", d.nodeName)
+			lcmcommon.ShowObjectDiff(log, d.data.runtime.volumesRawReport, newVolumesRawReport)
+			changed = true
+			d.data.runtime.volumesRawReport = newVolumesRawReport
+		}
 	}
 	if !reflect.DeepEqual(d.data.runtime.volumesLvmReport, newVolumesLvmReport) {
 		log.Info().Msgf("[node '%s'] daemon's ceph volumes lvm info report is updating", d.nodeName)
 		lcmcommon.ShowObjectDiff(log, d.data.runtime.volumesLvmReport, newVolumesLvmReport)
 		changed = true
 		d.data.runtime.volumesLvmReport = newVolumesLvmReport
-	}
-	if !reflect.DeepEqual(d.data.runtime.volumesRawReport, newVolumesRawReport) {
-		log.Info().Msgf("[node '%s'] daemon's ceph volumes raw info report is updating", d.nodeName)
-		lcmcommon.ShowObjectDiff(log, d.data.runtime.volumesRawReport, newVolumesRawReport)
-		changed = true
-		d.data.runtime.volumesRawReport = newVolumesRawReport
 	}
 	if changed {
 		d.data.runtime.disksReport.DiskToOsd = d.diskToOsdMap()

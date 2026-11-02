@@ -201,6 +201,7 @@ func TestGenerateDiskDaemon(t *testing.T) {
 	tests := []struct {
 		name              string
 		infraConfig       infraConfig
+		lcmConfig         map[string]string
 		expectedDaemonSet *appsv1.DaemonSet
 	}{
 		{
@@ -230,10 +231,28 @@ func TestGenerateDiskDaemon(t *testing.T) {
 			},
 			expectedDaemonSet: unitinputs.DiskDaemonDaemonsetWithOsdTolerations,
 		},
+		{
+			name: "generate daemonset for no raw",
+			infraConfig: infraConfig{
+				namespace:       "lcm-namespace",
+				cephImage:       unitinputs.CephClusterReady.Status.CephVersion.Image,
+				controllerImage: "some-registry/lcm-controller:v1",
+			},
+			lcmConfig: map[string]string{
+				"OSD_LCM_FULL_MODE": "false",
+			},
+			expectedDaemonSet: func() *appsv1.DaemonSet {
+				ds := unitinputs.DiskDaemonDaemonset.DeepCopy()
+				args := ds.Spec.Template.Spec.Containers[0].Args
+				args = append(args, "--no-raw")
+				ds.Spec.Template.Spec.Containers[0].Args = args
+				return ds
+			}(),
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			c := fakeReconcileInfraConfig(&test.infraConfig, nil)
+			c := fakeReconcileInfraConfig(&test.infraConfig, test.lcmConfig)
 
 			daemonSet := c.generateDiskDaemon()
 			assert.Equal(t, test.expectedDaemonSet, daemonSet)

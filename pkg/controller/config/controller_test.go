@@ -130,6 +130,7 @@ func TestInitReconcile(t *testing.T) {
 					"RGW_PUBLIC_ACCESS_SERVICE_SELECTOR":            "custom-access-label=true",
 					"HEALTH_LOG_LEVEL":                              "warn",
 					"TASK_LOG_LEVEL":                                "warn",
+					"OSD_LCM_FULL_MODE":                             "false",
 					"DEPLOYMENT_LOG_LEVEL":                          "warn",
 					"TASK_OSD_PG_REBALANCE_TIMEOUT_MIN":             "10",
 					"TASK_ALLOW_REMOVE_MANUALLY_CREATED_LVMS":       "true",
@@ -170,6 +171,7 @@ func TestInitReconcile(t *testing.T) {
 					newConfig.CommonParams.RgwPublicAccessLabel = "custom-access-label=true"
 					newConfig.CommonParams.KeepIngress = true
 					newConfig.CommonParams.GatewayAPIEnabled = false
+					newConfig.CommonParams.LcmFullMode = false
 					newConfig.HealthParams = &HealthParams{
 						LogLevel:                  2,
 						ChecksSkip:                []string{"ceph_daemons", "rgw_info"},
@@ -267,6 +269,7 @@ func TestInitReconcile(t *testing.T) {
 					"TASK_ALLOW_REMOVE_MANUALLY_CREATED_LVMS":       "dsf3",
 					"DEPLOYMENT_LABEL_TO_EXCLUDE_CEPH_DAEMONSETS":   "no-ceph@@@true",
 					"DEPLOYMENT_CSI_DRIVERS_MANAGE":                 "true",
+					"OSD_LCM_FULL_MODE":                             "falsessss",
 					"DEPLOYMENT_CSI_RBD_DEFAULT_DRIVER_CREATE":      "faasdsadlse",
 					"DEPLOYMENT_CSI_CEPHFS_DEFAULT_DRIVER_CREATE":   "faasslse",
 					"DEPLOYMENT_CSI_NFS_DEFAULT_DRIVER_CREATE":      "trdsdue",

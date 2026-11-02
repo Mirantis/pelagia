@@ -383,6 +383,7 @@ func TestCheckDisks(t *testing.T) {
 		cephVolumeLvmOutput   string
 		cephVolumeRawOutput   string
 		lvmLvsOutput          string
+		rawDisabled           bool
 		disksChanged          bool
 		expectedDiskReport    *lcmcommon.DiskDaemonDisksReport
 		expectedCephVolumeLvm map[string][]OsdVolumeLvmInfo
@@ -520,6 +521,17 @@ func TestCheckDisks(t *testing.T) {
 			expectedCephVolumeRaw: map[string]OsdVolumeRawInfo{},
 			stateChanged:          true,
 		},
+		{
+			name:                  "check only ceph volumes lvm",
+			lsblkOutput:           lcmdiskdaemoninput.LsblkReportFromNode2,
+			udevadmOutput:         lcmdiskdaemoninput.UdevadmReportFromNode2,
+			rawDisabled:           true,
+			cephVolumeLvmOutput:   "{}",
+			expectedDiskReport:    lcmdiskdaemoninput.DiskInfoReportLsblkFromNode2,
+			expectedCachedLvms:    lcmdiskdaemoninput.FoundLvmsFromNode2,
+			expectedCephVolumeLvm: map[string][]OsdVolumeLvmInfo{},
+			expectedCephVolumeRaw: map[string]OsdVolumeRawInfo{},
+		},
 	}
 
 	oldCmd := runShellCmd
@@ -551,6 +563,7 @@ func TestCheckDisks(t *testing.T) {
 				newDaemon.data.runtime.knownLvms = map[string][]string{}
 				newDaemon.data.runtime.disksReport = &lcmcommon.DiskDaemonDisksReport{}
 			}
+			newDaemon.rawDisabled = test.rawDisabled
 
 			changed, err := newDaemon.checkDisks()
 			assert.Equal(t, test.stateChanged, changed)
