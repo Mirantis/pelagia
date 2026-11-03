@@ -113,6 +113,15 @@ func (c *cephDeploymentInfraConfig) generateDiskDaemon() *apps.DaemonSet {
 	// nothing that can take to much time or affect on other services
 	terminationPeriod := int64(10)
 	nodeSelector, _ := labels.ConvertSelectorToLabelsMap(c.lcmConfig.CommonParams.DiskDaemonPlacementLabel)
+	daemonArgs := []string{
+		fmt.Sprintf("%s/%s", diskDaemonGoPath, lcmcommon.PelagiaDiskDaemon),
+		"--daemon",
+		"--port",
+		fmt.Sprintf("%d", c.lcmConfig.CommonParams.DiskDaemonPort),
+	}
+	if !c.lcmConfig.CommonParams.LcmFullMode {
+		daemonArgs = append(daemonArgs, "--no-raw")
+	}
 
 	diskDaemon := &apps.DaemonSet{
 		ObjectMeta: metav1.ObjectMeta{
@@ -183,13 +192,8 @@ func (c *cephDeploymentInfraConfig) generateDiskDaemon() *apps.DaemonSet {
 							Command:                  []string{fmt.Sprintf("%s/tini", diskDaemonGoPath), "--"},
 							TerminationMessagePath:   "/dev/termination-log",
 							TerminationMessagePolicy: "File",
-							Args: []string{
-								fmt.Sprintf("%s/%s", diskDaemonGoPath, lcmcommon.PelagiaDiskDaemon),
-								"--daemon",
-								"--port",
-								fmt.Sprintf("%d", c.lcmConfig.CommonParams.DiskDaemonPort),
-							},
-							ImagePullPolicy: "IfNotPresent",
+							Args:                     daemonArgs,
+							ImagePullPolicy:          "IfNotPresent",
 							VolumeMounts: []v1.VolumeMount{
 								{
 									Name:      diskDaemonGoPathMountName,

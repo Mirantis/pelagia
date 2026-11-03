@@ -80,6 +80,8 @@ var DiskDaemonReportOkNode2 = lcmcommon.DiskDaemonReport{
 			"0": lcmdiskdaemoninput.OsdDevicesInfoNode2["0"],
 			"4": lcmdiskdaemoninput.OsdDevicesInfoNode2["4"],
 			"5": lcmdiskdaemoninput.OsdDevicesInfoNode2["5"],
+			"7": lcmdiskdaemoninput.OsdDevicesInfoNode2["7"],
+			"9": lcmdiskdaemoninput.OsdDevicesInfoNode2["9"],
 		},
 	},
 }
@@ -103,7 +105,9 @@ func DiskDaemonNodeReportWithStrayOkNode2(inCrush bool) *lcmcommon.DiskDaemonRep
 			Osds: map[string][]lcmcommon.OsdDaemonInfo{
 				"0": append(lcmdiskdaemoninput.OsdDevicesInfoNode2["0"], lcmdiskdaemoninput.OsdDevicesInfoNode2["0-stray"]...),
 				"4": lcmdiskdaemoninput.OsdDevicesInfoNode2["4"],
-				"5": lcmdiskdaemoninput.OsdDevicesInfoNode2["5"],
+				"5": append(lcmdiskdaemoninput.OsdDevicesInfoNode2["5"], lcmdiskdaemoninput.OsdDevicesInfoNode2["5-stray"]...),
+				"7": lcmdiskdaemoninput.OsdDevicesInfoNode2["7"],
+				"9": lcmdiskdaemoninput.OsdDevicesInfoNode2["9"],
 			},
 		},
 	}

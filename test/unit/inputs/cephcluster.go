@@ -482,6 +482,20 @@ var StorageNodesForAnalysisOk = []cephv1.Node{
 						"osdsPerDevice": "2",
 					},
 				},
+				// vdb is kind of legacy single osd with lvm
+				// vdy and vdx - raw disks
+				{
+					Name: "vdy",
+					Config: map[string]string{
+						"deviceClass": "nvme",
+					},
+				},
+				{
+					Name: "vdx",
+					Config: map[string]string{
+						"deviceClass": "nvme",
+					},
+				},
 			},
 		},
 	},
@@ -540,6 +554,20 @@ var StorageNodesForRequestReduced = []cephv1.Node{
 					Config: map[string]string{
 						"deviceClass":   "hdd",
 						"osdsPerDevice": "2",
+					},
+				},
+				// vdb is kind of legacy single osd with lvm
+				// vdy and vdx - raw disks
+				{
+					Name: "vdy",
+					Config: map[string]string{
+						"deviceClass": "nvme",
+					},
+				},
+				{
+					Name: "vdx",
+					Config: map[string]string{
+						"deviceClass": "nvme",
 					},
 				},
 			},

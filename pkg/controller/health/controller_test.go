@@ -393,6 +393,7 @@ func TestHealthAndConfigReconcile(t *testing.T) {
 			DiskDaemonPlacementLabel: "pelagia-disk-daemon=true",
 			RgwPublicAccessLabel:     "external_access=rgw",
 			GatewayAPIEnabled:        true,
+			LcmFullMode:              true,
 		},
 		HealthParams: &lcmconfig.HealthParams{
 			CephIssuesToIgnore: []string{

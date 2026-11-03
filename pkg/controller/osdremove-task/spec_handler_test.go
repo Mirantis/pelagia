@@ -249,6 +249,10 @@ func TestGetOsdsForCleanup(t *testing.T) {
 								map[string]bool{"inCrush": true}, map[string]map[string]bool{"/dev/vdd": {"lost": true}}),
 							"5": unitinputs.AdaptOsdMapping("node-2", "5",
 								map[string]bool{"inCrush": true}, map[string]map[string]bool{"/dev/vdd": {"lost": true}}),
+							"7": unitinputs.AdaptOsdMapping("node-2", "7",
+								map[string]bool{"inCrush": true}, map[string]map[string]bool{"/dev/vdy": {"lost": true}}),
+							"9": unitinputs.AdaptOsdMapping("node-2", "9",
+								map[string]bool{"inCrush": true}, map[string]map[string]bool{"/dev/vdx": {"lost": true}}),
 						},
 					},
 				},
@@ -403,15 +407,21 @@ func TestGetOsdsForCleanup(t *testing.T) {
 								"node-2", "4", nil, map[string]map[string]bool{"/dev/vdd": {"zap": true}}),
 							"5.af39b794-e1c6-41c0-8997-d6b6c631b8f2.__stray": unitinputs.AdaptOsdMapping(
 								"node-2", "5", nil, map[string]map[string]bool{"/dev/vdd": {"zap": true}}),
+							"7.ddfd94ef-070b-488a-bb86-cfd4e1c9aa6d.__stray": unitinputs.AdaptOsdMapping(
+								"node-2", "7", nil, map[string]map[string]bool{"/dev/vdy": {"zap": true}}),
+							"9.3e847863-45b6-41c3-a467-ba5f88094f9c.__stray": unitinputs.AdaptOsdMapping(
+								"node-2", "9", nil, map[string]map[string]bool{"/dev/vdx": {"zap": true}}),
 						},
 					},
 					"__stray": unitinputs.StrayOnlyInCrushRemoveMap.CleanupMap["__stray"],
 				},
 				Issues: []string{},
 				Warnings: []string{
-					"[node 'node-2'] found partition with stray osd uuid '69481cd1-38b1-42fd-ac07-06bf4d7c0e19', id '0', will be cleaned up",
-					"[node 'node-2'] found partition with stray osd uuid 'ad76cf53-5cb5-48fe-a39a-343734f5ccde', id '4', will be cleaned up",
-					"[node 'node-2'] found partition with stray osd uuid 'af39b794-e1c6-41c0-8997-d6b6c631b8f2', id '5', will be cleaned up",
+					"[node 'node-2'] found stray osd uuid '3e847863-45b6-41c3-a467-ba5f88094f9c', id '9', will be cleaned up",
+					"[node 'node-2'] found stray osd uuid '69481cd1-38b1-42fd-ac07-06bf4d7c0e19', id '0', will be cleaned up",
+					"[node 'node-2'] found stray osd uuid 'ad76cf53-5cb5-48fe-a39a-343734f5ccde', id '4', will be cleaned up",
+					"[node 'node-2'] found stray osd uuid 'af39b794-e1c6-41c0-8997-d6b6c631b8f2', id '5', will be cleaned up",
+					"[node 'node-2'] found stray osd uuid 'ddfd94ef-070b-488a-bb86-cfd4e1c9aa6d', id '7', will be cleaned up",
 					"[stray] detected stray osds, but impossible to determine related host/device (probably disk(s) removed or host(s) down), device cleanup jobs will be skipped",
 				},
 			},
@@ -702,6 +712,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 						NodeIsDown: true,
 						OsdMapping: map[string]lcmv1alpha1.OsdMapping{
 							"4": unitinputs.NotAvailableNodesFullRemoveMap.CleanupMap["node-2"].OsdMapping["4"],
+							"9": unitinputs.NotAvailableNodesFullRemoveMap.CleanupMap["node-2"].OsdMapping["9"],
 						},
 					},
 				},
@@ -789,6 +800,10 @@ func TestGetOsdsForCleanup(t *testing.T) {
 								map[string]bool{"inCrush": true}, map[string]map[string]bool{"/dev/vdd": {}}),
 							"5": unitinputs.AdaptOsdMapping("node-2", "5",
 								map[string]bool{"inCrush": true}, map[string]map[string]bool{"/dev/vdd": {}}),
+							"7": unitinputs.AdaptOsdMapping("node-2", "7",
+								map[string]bool{"inCrush": true}, map[string]map[string]bool{"/dev/vdy": {}}),
+							"9": unitinputs.AdaptOsdMapping("node-2", "9",
+								map[string]bool{"inCrush": true}, map[string]map[string]bool{"/dev/vdx": {}}),
 						},
 					},
 				},
@@ -821,6 +836,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 					"[node 'node-1'] osd with id '30' is associated with block device '/dev/vdb', which is present in spec, can't cleanup, skipping",
 					"[node 'node-2'] osd with id '4' is associated with block device '/dev/vdd', which is present in spec, can't cleanup, skipping",
 					"[node 'node-2'] osd with id '88' is not found on a node, skipping",
+					"[node 'node-2'] osd with id '9' is associated with block device '/dev/vdx', which is present in spec, can't cleanup, skipping",
 				},
 			},
 		},
@@ -831,7 +847,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 			osdInfo:          unitinputs.CephOsdInfoOutputNoStray,
 			taskConfig: getTaskConfig(map[string]lcmv1alpha1.NodeCleanUpSpec{
 				"node-1": {CleanupByOsd: []lcmv1alpha1.OsdCleanupSpec{{ID: 20}, {ID: 25}}},
-				"node-2": {CleanupByOsd: []lcmv1alpha1.OsdCleanupSpec{{ID: 4}, {ID: 5}}},
+				"node-2": {CleanupByOsd: []lcmv1alpha1.OsdCleanupSpec{{ID: 4}, {ID: 5}, {ID: 9}, {ID: 7}}},
 			}, cephClusterNoNodes, map[string]lcmv1alpha1.DaemonStatus{}),
 			nodeList: nodesListLabeledAvailable,
 			nodeOsdReport: map[string]*lcmcommon.DiskDaemonReport{
@@ -953,7 +969,12 @@ func TestGetOsdsForCleanup(t *testing.T) {
 						{Device: "/dev/mapper/ceph--metadata-part--2"},
 					},
 				},
-				"node-2": {CleanupByDevice: []lcmv1alpha1.DeviceCleanupSpec{{Device: "/dev/vdd"}}},
+				"node-2": {
+					CleanupByDevice: []lcmv1alpha1.DeviceCleanupSpec{
+						{Device: "/dev/vdd"},
+						{Device: "/dev/vdy"},
+					},
+				},
 			}, nil, nil),
 			nodeList: nodesListLabeledAvailable,
 			nodeOsdReport: map[string]*lcmcommon.DiskDaemonReport{
@@ -971,6 +992,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 					"[node 'node-1'] device 'vda' is marked for clean up, but present in spec as '/dev/vda14'",
 					"[node 'node-1'] device 'vde' is marked for clean up, but present in spec as '/dev/disk/by-path/pci-0000:00:0f.0'",
 					"[node 'node-2'] device '/dev/vdd' is marked for clean up, but present in spec as '/dev/vdd'",
+					"[node 'node-2'] device '/dev/vdy' is marked for clean up, but present in spec as '/dev/vdy'",
 				},
 			},
 		},
@@ -1089,7 +1111,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 			osdsMetadata:     unitinputs.CephOsdMetadataOutputNoStray,
 			osdInfo:          unitinputs.CephOsdInfoOutputNoStray,
 			taskConfig: getTaskConfig(map[string]lcmv1alpha1.NodeCleanUpSpec{
-				"node-2": {CleanupByDevice: []lcmv1alpha1.DeviceCleanupSpec{{Device: "/dev/disk/by-id/virtio-ffe08946-7614-4f69-b"}}},
+				"node-2": {CleanupByDevice: []lcmv1alpha1.DeviceCleanupSpec{{Device: "/dev/disk/by-id/virtio-ffe08946-7614-4f69-b"}, {Device: "/dev/disk/by-path/pci-0000:00:2n.0"}}},
 			}, nil, map[string]lcmv1alpha1.DaemonStatus{"node-2": unitinputs.OsdStorageSpecAnalysisOk["node-2"]}),
 			nodeList: nodesListNode2LabeledAvailable,
 			nodeOsdReport: map[string]*lcmcommon.DiskDaemonReport{
@@ -1099,6 +1121,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 						Warnings: []string{},
 						Osds: map[string][]lcmcommon.OsdDaemonInfo{
 							"0": lcmdiskdaemoninput.OsdDevicesInfoNode2["0-stray-nvme"],
+							"5": lcmdiskdaemoninput.OsdDevicesInfoNode2["5-stray"],
 						},
 					},
 				},
@@ -1142,7 +1165,7 @@ func TestGetOsdsForCleanup(t *testing.T) {
 			osdInfo:          unitinputs.CephOsdInfoOutputNoStray,
 			taskConfig: getTaskConfig(map[string]lcmv1alpha1.NodeCleanUpSpec{
 				"node-1": {CleanupByDevice: []lcmv1alpha1.DeviceCleanupSpec{{Device: "vdb"}}},
-				"node-2": {CleanupByOsd: []lcmv1alpha1.OsdCleanupSpec{{ID: 4}, {ID: 5}}},
+				"node-2": {CleanupByOsd: []lcmv1alpha1.OsdCleanupSpec{{ID: 4}, {ID: 5}, {ID: 7}, {ID: 9}}},
 			}, cephClusterFilteredDevices, nil),
 			nodeList: nodesListLabeledAvailable,
 			nodeOsdReport: map[string]*lcmcommon.DiskDaemonReport{

@@ -36,6 +36,8 @@ type diskDaemon struct {
 	nodeName string
 	// critical error lead to panic error
 	criticalError error
+	// whether to disable raw osds check
+	rawDisabled bool
 	// main data used by daemon
 	data daemonData
 	// chan holder for quit
@@ -52,8 +54,10 @@ type daemonData struct {
 type runtimeData struct {
 	// in-memory last prepared disk report
 	disksReport *lcmcommon.DiskDaemonDisksReport
-	// in-memory last prepared volumes report
-	volumesReport map[string][]OsdVolumeInfo
+	// in-memory last prepared volumes lvm report
+	volumesLvmReport map[string][]OsdVolumeLvmInfo
+	// in-memory last prepared volumes raw report
+	volumesRawReport map[string]OsdVolumeRawInfo
 	// in-memory last prepared osds report
 	osdsReport *lcmcommon.DiskDaemonOsdsReport
 	// in-memory known lvm partitions
@@ -68,8 +72,9 @@ type reportData struct {
 func initDaemonData() daemonData {
 	return daemonData{
 		runtime: runtimeData{
-			volumesReport: map[string][]OsdVolumeInfo{},
-			knownLvms:     map[string][]string{},
+			volumesLvmReport: map[string][]OsdVolumeLvmInfo{},
+			volumesRawReport: map[string]OsdVolumeRawInfo{},
+			knownLvms:        map[string][]string{},
 		},
 		report: reportData{
 			node: lcmcommon.DiskDaemonReport{
@@ -79,16 +84,17 @@ func initDaemonData() daemonData {
 	}
 }
 
-func Daemon(daemonPort int) error {
+func Daemon(daemonPort int, noRaw bool) error {
 	log.Info().Msg("initializing disk-daemon")
 	nodeName, found := os.LookupEnv("NODE_NAME")
 	if !found || nodeName == "" {
 		return errors.New("failed to find env var 'NODE_NAME'")
 	}
 	diskDaemon := &diskDaemon{
-		nodeName: nodeName,
-		data:     initDaemonData(),
-		quit:     make(chan struct{}),
+		nodeName:    nodeName,
+		rawDisabled: noRaw,
+		data:        initDaemonData(),
+		quit:        make(chan struct{}),
 	}
 	log.Info().Msgf("[node '%s'] initializing local API server", diskDaemon.nodeName)
 	// run very simple api server to handle requests only inside container itself

@@ -57,6 +57,10 @@ type CommonParams struct {
 	GatewayAPIEnabled bool
 	// Keep ingress resources or use only gateway API resources
 	KeepIngress bool
+	// Lcm full mode to manage lvm/raw based osds or only lvms
+	// Introduced for backward compatiblity for setups when no raw
+	// supported and lvms only
+	LcmFullMode bool
 }
 
 type HealthParams struct {
@@ -156,6 +160,7 @@ var (
 			DiskDaemonPlacementLabel: "pelagia-disk-daemon=true",
 			RgwPublicAccessLabel:     "external_access=rgw",
 			GatewayAPIEnabled:        true,
+			LcmFullMode:              true,
 		},
 	}
 	// default health config var
@@ -208,6 +213,7 @@ var (
 	baseGatewayNamespaceParameter           = "GATEWAY_BASE_NAMESPACE"
 	rgwPublicAccessServiceSelectorParameter = "RGW_PUBLIC_ACCESS_SERVICE_SELECTOR"
 	ingressSupportParameter                 = "KEEP_INGRESS"
+	osdFullModeParameter                    = "OSD_LCM_FULL_MODE"
 	// health controller config params
 	healthChecksCephIssuesToIgnoreParameter = "HEALTH_CHECKS_CEPH_ISSUES_TO_IGNORE"
 	healthChecksSkipParameter               = "HEALTH_CHECKS_SKIP"
@@ -540,6 +546,16 @@ func ReadConfiguration(objLog zerolog.Logger, configData map[string]string) LcmC
 		} else {
 			objLog.Debug().Msgf(debugMsgTmpl, diskDaemonPlacementLabel, diskDaemonNodeSelectorLabels)
 			newConfig.CommonParams.DiskDaemonPlacementLabel = selector.String()
+		}
+	}
+	// check osd lcm full mode enabled
+	if fullMode, present := configData[osdFullModeParameter]; present {
+		val, err := strconv.ParseBool(fullMode)
+		if err != nil {
+			objLog.Error().Msgf(errorMsgTmpl, osdFullModeParameter, fullMode, "bool")
+		} else {
+			objLog.Debug().Msgf(debugMsgTmpl, osdFullModeParameter, fullMode)
+			newConfig.CommonParams.LcmFullMode = val
 		}
 	}
 	// check gateway api is enabled

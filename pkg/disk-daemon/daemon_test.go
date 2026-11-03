@@ -136,6 +136,8 @@ func TestPrepareReport(t *testing.T) {
 					return "", "", nil
 				} else if command == "ceph-volume lvm list --format json" {
 					return test.cephVolumeOutput, "", nil
+				} else if command == "ceph-volume raw list --format json" {
+					return "{}", "", nil
 				}
 				return "", "", errors.New("unknown command")
 			}
