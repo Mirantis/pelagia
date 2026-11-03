@@ -2,5 +2,7 @@
 
 # Quick Start
 
-This section provides deployment and upgrade procedures for the Pelagia
-Controller that deploys a Ceph cluster managed by Rook.
+This section provides installation procedures for the Pelagia
+Controller that deploys a Ceph cluster managed by Rook, including the
+LCM-only mode for an existing Rook Ceph cluster. For upgrade procedures,
+see [Upgrade Guide](../upgrade-guide/index.md).
