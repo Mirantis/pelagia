@@ -15,6 +15,10 @@ For the complete list of available options, refer to [values.yaml](https://githu
 
 The following table lists the most commonly configured Pelagia chart parameters and their default values. For an example configuration procedure, refer to [Specify Rook daemons placement](../ops-guide/deployment/rook-daemon-place.md).
 
+!!! note
+
+    In LCM-only mode, `cephDeployment.enabled` is set to `false`, which disables all other `cephDeployment.*` parameters.
+
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `global.dockerBaseUrl` | Global address of Docker registry. | `"registry.mirantis.com"` |
@@ -51,6 +55,10 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `rookConfig.volumeSnapshotsEnabled` | Enable volume snapshots classes support in Rook. | `false` |
 | `snapshot-controller.enabled` | Enable the `snapshot-controller` deployment. For available `snapshot-controller` options, see [values.yaml](https://github.com/Mirantis/pelagia/blob/main/charts/snapshot-controller/values.yaml). | `true` |
 
+<a id="helm-values-custom-images"></a>
+
+## Custom images
+
 You can also specify custom images for deployment of test environments.
 Ceph and Rook images are derived from the `cephRelease` value.
 
@@ -60,57 +68,57 @@ Ceph and Rook images are derived from the `cephRelease` value.
     images:
       pelagia:
         repository: pelagia/pelagia
-        tag: 1.6.0
+        tag: 1.8.0
         fullName: ""
         pullPolicy: Always
       rook:
         operator:
           repository: pelagia/rook
           tag:
-            latest: &latestImageRook v1.18.8-6
+            latest: &latestImageRook v1.18.8-11
             squid: *latestImageRook
             reef: *latestImageRook
       ceph:
         repository: pelagia/ceph
         tag:
-          latest: &latestImageCeph v19.2.3-18.cve
+          latest: &latestImageCeph v19.2.4-4.cve
           squid: *latestImageCeph
           reef: v18.2.7-6.release
       csi:
         ceph:
           repository: pelagia/cephcsi
           tag:
-            latest: &latestImageCephCSI v3.15.0-4.cve
+            latest: &latestImageCephCSI v3.15.0-8.cve
             squid: *latestImageCephCSI
             reef: *latestImageCephCSI
         registrar:
           repository: pelagia/cephcsi-registrar
           tag:
-            latest: &latestImageRegistar v2.13.0-11.cve
+            latest: &latestImageRegistar v2.13.0-17.cve
             squid: *latestImageRegistar
             reef: *latestImageRegistar
         provisioner:
           repository: pelagia/cephcsi-provisioner
           tag:
-            latest: &latestImageProvisioner v5.2.0-11.cve
+            latest: &latestImageProvisioner v5.2.0-17.cve
             squid: *latestImageProvisioner
             reef: *latestImageProvisioner
         snapshotter:
           repository: pelagia/cephcsi-snapshotter
           tag:
-            latest: &latestImageSnapshotter v8.2.1-2.cve
+            latest: &latestImageSnapshotter v8.2.1-5.cve
             squid: *latestImageSnapshotter
             reef: *latestImageSnapshotter
         attacher:
           repository: pelagia/cephcsi-attacher
           tag:
-            latest: &latestImageAttacher v4.8.1-2.cve
+            latest: &latestImageAttacher v4.8.1-5.cve
             squid: *latestImageAttacher
             reef: *latestImageAttacher
         resizer:
           repository: pelagia/cephcsi-resizer
           tag:
-            latest: &latestImageResizer v1.13.2-11.cve
+            latest: &latestImageResizer v1.13.2-17.cve
             squid: *latestImageResizer
             reef: *latestImageResizer
     ```

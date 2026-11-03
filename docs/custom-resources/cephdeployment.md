@@ -754,7 +754,7 @@ spec:
         devices:
         - name: <dev_label>
         - name: <dev_label_n>
-        nodes:
+        nodeGroup:
         - <node_name>
         - <node_name_n>
     ```
