@@ -841,7 +841,7 @@ parameters:
 <a name="cephdeployment-status-fields"></a>
 ## Status fields
 
-- `phase` - Current handling phase of the applied Ceph cluster spec. Can equal to `Creating`, `Deploying`, `Validation`, `Ready`, `Deleting`, `OnHold` or `Failed`.
+- `phase` - Current handling phase of the applied Ceph cluster spec. Allowed values: `Creating`, `Deploying`, `Validation`, `Ready`, `Deleting`, `OnHold`, `Maintenance`, or `Failed`.
 - `message` - Detailed description of the current phase or an error message if the phase is `Failed`.
 - `lastRun` - `DateTime` when previous spec reconcile occurred.
 - `clusterVersion` - Current Ceph cluster version, for example, `v19.2.3`.

@@ -15,18 +15,19 @@ For the procedure workflow, see [Creating a Ceph OSD remove task](../ops-guide/l
 
 - `nodes` - Map of Kubernetes nodes that specifies how to remove Ceph OSDs: by host-devices or OSD IDs. For details, see the **Nodes parameters** section below.
 - `approve` - Flag that indicates whether a request is ready to execute removal. Can only be manually enabled by the Operator. Defaults to `false`.
-- `resolved` - Optional. Flag that marks a finished request, even if it failed, to keep it in historydo not block any further operations.
+- `resolved` - Optional. Flag that marks a finished request, even if it failed, to keep it in history and not block any further operations.
 
 <a name="cephosdremovetask-nodes-parameters"></a>
 ### Nodes parameters
 
+Each node must have exactly one of the following parameters set. All
+parameters are mutually exclusive.
+
 - `completeCleanup` - Flag used to clean up an entire node and drop it from the CRUSH map.
-  Mutually exclusive with `cleanupByDevice` and `cleanupByOsd`.
 - `dropFromCrush` - Flag which is the same to completeCleanup, but without device cleanup on node
   May be useful when node is going to be reprovisioned and no need to spend time for device cleanup.
 - `cleanupByDevice` - List that describes devices to clean up by name or device symlink as they
-  were specified in Rook `CephCluster` (or Pelagia `CephDeployment`). Mutually exclusive with
-  `completeCleanup` and `cleanupByOsd`. Includes the following parameters:
+  were specified in Rook `CephCluster` (or Pelagia `CephDeployment`). Includes the following parameters:
 
     - `device` - Physical device name, e.g. `sdb`, `/dev/nvme1e0`, or
       device symlink (`by-path` or `by-id`), e.g. `/dev/disk/by-path/pci-0000:00:1c.5`
@@ -37,16 +38,15 @@ For the procedure workflow, see [Creating a Ceph OSD remove task](../ops-guide/l
 
     {% include "../snippets/cleanupByDeviceValue.md" %}
 
-- `cleanupByOsd` - List of Ceph OSD IDs to remove. Mutually exclusive with
-  `completeCleanup` and `cleanupByDevice`. Includes the following parameters:
+- `cleanupByOsd` - List of Ceph OSD IDs to remove. Includes the following parameters:
 
     - `id` - Ceph OSD ID to remove.
     - `skipDeviceCleanup` - Optional. Flag that indicates whether to skip the device cleanup.
       Defaults to `false`. If set to `true`, the device will not be cleaned up, but
       OSDs running on this device will be removed from the CRUSH map and deleted.
 
-- `cleanupStrayPartitions` - Flag used to for cleaning disks with osd lvm partitions
-  which not belong to current cluster, for example, when disk was not cleaned up previously.
+- `cleanupStrayPartitions` - Flag used to clean disks with Ceph OSD LVM partitions
+  that do not belong to the current cluster, for example, when disk was not cleaned up previously.
 
 ??? "Example of `CephOsdRemoveTask` with `spec.nodes`"
 
@@ -115,12 +115,22 @@ Here are the following **final** phases:
 - `issues` - List of error messages found during validation or processing phases
 - `warnings` - List of non-blocking warning messages found during validation or processing phases
 
-`cleanupMap` is a map of nodes to devices contains the following fields:
+`cleanupMap` is a map of nodes to devices that contains the following fields:
 
 - `completeCleanup` - Flag that indicates whether to perform a full cleanup of the node.
 - `dropFromCrush` - Flag that indicates whether to drop the node from the CRUSH map without node cleanup.
 - `osdMapping` - Map of Ceph OSD IDs to the device names or symlink used for the Ceph OSD. It includes device info and
   statuses of Ceph OSD remove itself, Rook Ceph OSD deployment remove, Ceph OSD device cleanup job.
+  The `deviceMapping` field maps each device used by the Ceph OSD to the following device details:
+
+    - `deviceID` - Device ID.
+    - `devicePath` - Device `by-path` symlink, if available. Otherwise, another persistent device symlink.
+    - `osdPartition` - Partition or logical volume used by the Ceph OSD on the device.
+    - `osdPartitionType` - Ceph OSD partition type, for example, `block` or `db`.
+    - `devicePartedBy` - Parent device if the Ceph OSD is placed on a partition rather than on a device directly.
+    - `rotational` - Flag that indicates whether the device is rotational (`hdd`).
+    - `deviceCleanup` - Flag that indicates whether the entire device is cleaned up or only the Ceph OSD partitions on it.
+    - `deviceAlive` - Flag that indicates whether the device is available on the node.
 
     ??? "`CephOsdRemoveTask` `osdMapping` example output"
 
@@ -133,28 +143,28 @@ Here are the following **final** phases:
                 osdMapping:
                   "2":
                     deviceMapping:
-                      "sdb":
-                        path: "/dev/disk/by-path/pci-0000:00:0a.0"
-                        partition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
-                        type: "block"
-                        class: "hdd"
-                        zapDisk: true
+                      "/dev/sdb":
+                        devicePath: "/dev/disk/by-path/pci-0000:00:0a.0"
+                        osdPartition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
+                        osdPartitionType: "block"
+                        rotational: true
+                        deviceCleanup: true
                   "6":
                     deviceMapping:
-                      "sdc":
-                        path: "/dev/disk/by-path/pci-0000:00:0c.0"
-                        partition: "/dev/ceph-a-vg_sdc/osd-block-b-lv_sdc-1"
-                        type: "block"
-                        class: "hdd"
-                        zapDisk: true
+                      "/dev/sdc":
+                        devicePath: "/dev/disk/by-path/pci-0000:00:0c.0"
+                        osdPartition: "/dev/ceph-a-vg_sdc/osd-block-b-lv_sdc-1"
+                        osdPartitionType: "block"
+                        rotational: true
+                        deviceCleanup: true
                   "11":
                     deviceMapping:
-                      "sdc":
-                        path: "/dev/disk/by-path/pci-0000:00:0c.0"
-                        partition: "/dev/ceph-a-vg_sdc/osd-block-b-lv_sdc-2"
-                        type: "block"
-                        class: "hdd"
-                        zapDisk: true
+                      "/dev/sdc":
+                        devicePath: "/dev/disk/by-path/pci-0000:00:0c.0"
+                        osdPartition: "/dev/ceph-a-vg_sdc/osd-block-b-lv_sdc-2"
+                        osdPartitionType: "block"
+                        rotational: true
+                        deviceCleanup: true
         ```
 
 - `nodeIsDown` - Flag that indicates whether the node is down.
@@ -175,77 +185,73 @@ Here are the following **final** phases:
             osdMapping:
               "2":
                 deviceMapping:
-                  "sdb":
-                    path: "/dev/disk/by-path/pci-0000:00:0a.0"
-                    partition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
-                    type: "block"
-                    class: "hdd"
-                    zapDisk: true
+                  "/dev/sdb":
+                    devicePath: "/dev/disk/by-path/pci-0000:00:0a.0"
+                    osdPartition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
+                    osdPartitionType: "block"
+                    rotational: true
+                    deviceCleanup: true
               "6":
                 deviceMapping:
-                  "sdc":
-                    path: "/dev/disk/by-path/pci-0000:00:0c.0"
-                    partition: "/dev/ceph-a-vg_sdc/osd-block-b-lv_sdc-1"
-                    type: "block"
-                    class: "hdd"
-                    zapDisk: true
+                  "/dev/sdc":
+                    devicePath: "/dev/disk/by-path/pci-0000:00:0c.0"
+                    osdPartition: "/dev/ceph-a-vg_sdc/osd-block-b-lv_sdc-1"
+                    osdPartitionType: "block"
+                    rotational: true
+                    deviceCleanup: true
               "11":
                 deviceMapping:
-                  "sdc":
-                    path: "/dev/disk/by-path/pci-0000:00:0c.0"
-                    partition: "/dev/ceph-a-vg_sdc/osd-block-b-lv_sdc-2"
-                    type: "block"
-                    class: "hdd"
-                    zapDisk: true
+                  "/dev/sdc":
+                    devicePath: "/dev/disk/by-path/pci-0000:00:0c.0"
+                    osdPartition: "/dev/ceph-a-vg_sdc/osd-block-b-lv_sdc-2"
+                    osdPartitionType: "block"
+                    rotational: true
+                    deviceCleanup: true
           "node-b":
             osdMapping:
               "1":
                 deviceMapping:
-                  "sdb":
-                    path: "/dev/disk/by-path/pci-0000:00:0a.0"
-                    partition: "/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb"
-                    type: "block"
-                    class: "ssd"
-                    zapDisk: true
+                  "/dev/sdb":
+                    devicePath: "/dev/disk/by-path/pci-0000:00:0a.0"
+                    osdPartition: "/dev/ceph-b-vg_sdb/osd-block-b-lv_sdb"
+                    osdPartitionType: "block"
+                    deviceCleanup: true
               "15":
                 deviceMapping:
-                  "sdc":
-                    path: "/dev/disk/by-path/pci-0000:00:0b.1"
-                    partition: "/dev/ceph-b-vg_sdc/osd-block-b-lv_sdc"
-                    type: "block"
-                    class: "ssd"
-                    zapDisk: true
+                  "/dev/sdc":
+                    devicePath: "/dev/disk/by-path/pci-0000:00:0b.1"
+                    osdPartition: "/dev/ceph-b-vg_sdc/osd-block-b-lv_sdc"
+                    osdPartitionType: "block"
+                    deviceCleanup: true
               "25":
                 deviceMapping:
-                  "sdd":
-                    path: "/dev/disk/by-path/pci-0000:00:0c.2"
-                    partition: "/dev/ceph-b-vg_sdd/osd-block-b-lv_sdd"
-                    type: "block"
-                    class: "ssd"
-                    zapDisk: true
+                  "/dev/sdd":
+                    devicePath: "/dev/disk/by-path/pci-0000:00:0c.2"
+                    osdPartition: "/dev/ceph-b-vg_sdd/osd-block-b-lv_sdd"
+                    osdPartitionType: "block"
+                    deviceCleanup: true
           "node-c":
             osdMapping:
               "0":
                 deviceMapping:
-                  "sdb":
-                    path: "/dev/disk/by-path/pci-0000:00:1t.9"
-                    partition: "/dev/ceph-c-vg_sdb/osd-block-c-lv_sdb"
-                    type: "block"
-                    class: "hdd"
-                    zapDisk: true
+                  "/dev/sdb":
+                    devicePath: "/dev/disk/by-path/pci-0000:00:1t.9"
+                    osdPartition: "/dev/ceph-c-vg_sdb/osd-block-c-lv_sdb"
+                    osdPartitionType: "block"
+                    rotational: true
+                    deviceCleanup: true
               "8":
                 deviceMapping:
-                  "sde":
-                    path: "/dev/disk/by-path/pci-0000:00:1c.5"
-                    partition: "/dev/ceph-c-vg_sde/osd-block-c-lv_sde"
-                    type: "block"
-                    class: "hdd"
-                    zapDisk: true
-                  "sdf":
-                    path: "/dev/disk/by-path/pci-0000:00:5a.5",
-                    partition: "/dev/ceph-c-vg_sdf/osd-db-c-lv_sdf-1",
-                    type: "db",
-                    class: "ssd"
+                  "/dev/sde":
+                    devicePath: "/dev/disk/by-path/pci-0000:00:1c.5"
+                    osdPartition: "/dev/ceph-c-vg_sde/osd-block-c-lv_sde"
+                    osdPartitionType: "block"
+                    rotational: true
+                    deviceCleanup: true
+                  "/dev/sdf":
+                    devicePath: "/dev/disk/by-path/pci-0000:00:5a.5"
+                    osdPartition: "/dev/ceph-c-vg_sdf/osd-db-c-lv_sdf-1"
+                    osdPartitionType: "db"
     ```
 
 During the `Validation` phase, the provided information was validated and
@@ -253,11 +259,13 @@ reflects the final map of the Ceph OSDs to remove:
 
 * For `node-a`, Ceph OSDs with IDs `2`, `6`, and `11` will be removed
   with the related disk and its information: all block devices, names, paths,
-  and disk class.
+  and partition types.
 * For `node-b`, the Ceph OSDs with IDs `1`, `15`, and  `25` will be
   removed with the related disk information.
-* For `node-c`, the Ceph OSD with ID `8` will be removed, which is placed
-  on the specified `sdb` device. The related partition on the `sdf` disk,
+* For `node-c`, the Ceph OSDs with IDs `0` and `8` will be removed. The Ceph OSD
+  with ID `0` is placed on the specified `sdb` device, and the Ceph OSD with ID `8`
+  is placed on the `sde` device specified by its `by-path` symlink
+  `/dev/disk/by-path/pci-0000:00:1c.5`. For the Ceph OSD with ID `8`, the related partition on the `sdf` disk,
   which is used as the BlueStore metadata device, will be cleaned up keeping
   the disk itself untouched. Other partitions on that device will not be
   touched.
@@ -281,15 +289,15 @@ reflects the final map of the Ceph OSDs to remove:
                     status: Removed
                     name: "rook-ceph-osd-2"
                   deviceCleanUpJob:
-                    status: Finished
+                    status: Completed
                     name: "job-name-for-osd-2"
                 deviceMapping:
-                  "sdb":
-                    path: "/dev/disk/by-path/pci-0000:00:0a.0"
-                    partition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
-                    type: "block"
-                    class: "hdd"
-                    zapDisk: true
+                  "/dev/sdb":
+                    devicePath: "/dev/disk/by-path/pci-0000:00:0a.0"
+                    osdPartition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
+                    osdPartitionType: "block"
+                    rotational: true
+                    deviceCleanup: true
     ```
 
 ??? "Example of `removeInfo` with `removeStatus` failed"
@@ -307,12 +315,12 @@ reflects the final map of the Ceph OSDs to remove:
                     error: "retries for cmd ‘ceph osd ok-to-stop 2’ exceeded"
                     status: Failed
                 deviceMapping:
-                  "sdb":
-                    path: "/dev/disk/by-path/pci-0000:00:0a.0"
-                    partition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
-                    type: "block"
-                    class: "hdd"
-                    zapDisk: true
+                  "/dev/sdb":
+                    devicePath: "/dev/disk/by-path/pci-0000:00:0a.0"
+                    osdPartition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
+                    osdPartitionType: "block"
+                    rotational: true
+                    deviceCleanup: true
     ```
 
 ??? "Example of `removeInfo` with `removeStatus` failed by timeout"
@@ -330,12 +338,12 @@ reflects the final map of the Ceph OSDs to remove:
                     error: Timeout (30m0s) reached for waiting pg rebalance for osd 2
                     status: Failed
                 deviceMapping:
-                  "sdb":
-                    path: "/dev/disk/by-path/pci-0000:00:0a.0"
-                    partition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
-                    type: "block"
-                    class: "hdd"
-                    zapDisk: true
+                  "/dev/sdb":
+                    devicePath: "/dev/disk/by-path/pci-0000:00:0a.0"
+                    osdPartition: "/dev/ceph-a-vg_sdb/osd-block-b-lv_sdb"
+                    osdPartitionType: "block"
+                    rotational: true
+                    deviceCleanup: true
     ```
 
 In case of failures similar to the examples above, review the `pelagia-lcm-controller` logs and both statuses of Rook `CephCluster` and Pelagia `CephDeploymentHealth`.
