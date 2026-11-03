@@ -10,7 +10,7 @@ This section provides instructions on how to install Pelagia that will deploy a 
 * Enough nodes in the cluster to run Ceph control and data daemons. Nodes must have at least 4 GB of RAM for each Ceph daemon (monitors, managers, metadata servers, osd, rgw). The minimum recommended requirements are 6 nodes: 3 nodes for control daemons (Ceph Managers and Ceph Monitors) and 3 nodes for data daemons (Ceph OSDs).
 For details about hardware recommendations, see [Ceph documentation: Hardware recommendations](https://docs.ceph.com/en/{{ ceph_doc_version }}/start/hardware-recommendations/).
 
-* At least one disk per data node to be used as Ceph OSD. Miminal disk size is `5G` but Mirantis recommends using disks with at least `100G` size.
+* At least one disk per data node to be used as Ceph OSD. Minimal disk size is `5G` but Mirantis recommends using disks with at least `100G` size.
 
 ## Installation
 
@@ -177,6 +177,7 @@ rook-ceph-osd-prepare-7a0999af02371dae358b7fcd28b3ae35-kllhb      0/1     Comple
 rook-ceph-osd-prepare-d7732aeb2025beef8dda88e8195f704b-7548x      0/1     Completed   0          2m
 rook-ceph-rgw-rgw-store-a-5cbb8785ff-5bcvw                        1/1     Running     0          42s
 rook-ceph-rgw-rgw-store-a-5cbb8785ff-9dzz4                        1/1     Running     0          42s
+rook-ceph-rgw-rgw-store-a-5cbb8785ff-tq6lm                        1/1     Running     0          42s
 rook-discover-27b74                                               1/1     Running     0          66m
 rook-discover-2t882                                               1/1     Running     0          66m
 rook-discover-nqrk4                                               1/1     Running     0          66m
