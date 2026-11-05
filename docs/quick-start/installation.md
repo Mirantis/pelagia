@@ -10,7 +10,7 @@ This section provides instructions on how to install Pelagia that will deploy a 
 * Enough nodes in the cluster to run Ceph control and data daemons. Nodes must have at least 4 GB of RAM for each Ceph daemon (monitors, managers, metadata servers, osd, rgw). The minimum recommended requirements are 6 nodes: 3 nodes for control daemons (Ceph Managers and Ceph Monitors) and 3 nodes for data daemons (Ceph OSDs).
 For details about hardware recommendations, see [Ceph documentation: Hardware recommendations](https://docs.ceph.com/en/{{ ceph_doc_version }}/start/hardware-recommendations/).
 
-* At least one disk per data node to be used as Ceph OSD. Miminal disk size is `5G` but Mirantis recommends using disks with at least `100G` size.
+* At least one disk per data node to be used as Ceph OSD. Minimal disk size is `5G` but Mirantis recommends using disks with at least `100G` size.
 
 ## Installation
 
@@ -39,12 +39,13 @@ pelagia-lcm-controller-6f858b6c5-6thhn           3/3     Running   0          3m
 pelagia-lcm-controller-6f858b6c5-whq7x           3/3     Running   0          3m52s
 ```
 
-Also, Pelagia Helm chart deploys the following Rook components in the `rook-ceph` namespace:
+Also, Pelagia Helm chart deploys Rook Operator and Ceph CSI Operator in the `rook-ceph` namespace:
 ```bash
 $ kubectl -n rook-ceph get pods
 
-NAME                                  READY   STATUS    RESTARTS   AGE
-rook-ceph-operator-8495877b67-m7lf5   1/1     Running   0          4m13s
+NAME                                           READY   STATUS    RESTARTS   AGE
+ceph-csi-controller-manager-6c8f7d9b5d-k7wqz   1/1     Running   0          4m13s
+rook-ceph-operator-8495877b67-m7lf5            1/1     Running   0          4m13s
 ```
 
 Currently, Pelagia Deployment Controller does not support integration with the existing Rook Ceph cluster, only Pelagia Lifecycle Management Controller does. To install Pelagia in the LCM-only mode, please refer to [LCM-only installation guide](./lcm-installation.md#lcm-installation-install-pelagia-in-the-lcm-only-mode).
@@ -144,16 +145,7 @@ a Ceph cluster with RBD pool, CephFS filesystem, and RGW object storage deployed
 $ kubectl -n rook-ceph get pods
 
 NAME                                                              READY   STATUS      RESTARTS   AGE
-csi-cephfsplugin-lgm9v                                            2/2     Running     0          36m
-csi-cephfsplugin-lr26d                                            2/2     Running     0          36m
-csi-cephfsplugin-provisioner-766fddb5c8-rm4r7                     5/5     Running     0          37m
-csi-cephfsplugin-provisioner-766fddb5c8-wxtpl                     5/5     Running     0          37m
-csi-cephfsplugin-s67pp                                            2/2     Running     0          36m
-csi-rbdplugin-provisioner-649fb94cf4-fr8nk                        5/5     Running     0          37m
-csi-rbdplugin-provisioner-649fb94cf4-vcj45                        5/5     Running     0          37m
-csi-rbdplugin-rjnx4                                               2/2     Running     0          36m
-csi-rbdplugin-xb8qg                                               2/2     Running     0          36m
-csi-rbdplugin-z48m9                                               2/2     Running     0          36m
+ceph-csi-controller-manager-6c8f7d9b5d-k7wqz                      1/1     Running     0          66m
 pelagia-ceph-toolbox-8688f94564-xmtjn                             1/1     Running     0          61m
 rook-ceph-crashcollector-009b4c37cd6752487fafef7c44bc6a4d-mxd5c   1/1     Running     0          56m
 rook-ceph-crashcollector-2df4fa7c50e45baccd8ffa967ce36ec6-flxjn   1/1     Running     0          107s
@@ -183,6 +175,17 @@ rook-ceph-osd-prepare-7a0999af02371dae358b7fcd28b3ae35-kllhb      0/1     Comple
 rook-ceph-osd-prepare-d7732aeb2025beef8dda88e8195f704b-7548x      0/1     Completed   0          2m
 rook-ceph-rgw-rgw-store-a-5cbb8785ff-5bcvw                        1/1     Running     0          42s
 rook-ceph-rgw-rgw-store-a-5cbb8785ff-9dzz4                        1/1     Running     0          42s
+rook-ceph-rgw-rgw-store-a-5cbb8785ff-tq6lm                        1/1     Running     0          42s
+rook-ceph.cephfs.csi.ceph.com-ctrlplugin-766fddb5c8-rm4r7         5/5     Running     0          37m
+rook-ceph.cephfs.csi.ceph.com-ctrlplugin-766fddb5c8-wxtpl         5/5     Running     0          37m
+rook-ceph.cephfs.csi.ceph.com-nodeplugin-lgm9v                    2/2     Running     0          36m
+rook-ceph.cephfs.csi.ceph.com-nodeplugin-lr26d                    2/2     Running     0          36m
+rook-ceph.cephfs.csi.ceph.com-nodeplugin-s67pp                    2/2     Running     0          36m
+rook-ceph.rbd.csi.ceph.com-ctrlplugin-649fb94cf4-fr8nk            5/5     Running     0          37m
+rook-ceph.rbd.csi.ceph.com-ctrlplugin-649fb94cf4-vcj45            5/5     Running     0          37m
+rook-ceph.rbd.csi.ceph.com-nodeplugin-rjnx4                       2/2     Running     0          36m
+rook-ceph.rbd.csi.ceph.com-nodeplugin-xb8qg                       2/2     Running     0          36m
+rook-ceph.rbd.csi.ceph.com-nodeplugin-z48m9                       2/2     Running     0          36m
 rook-discover-27b74                                               1/1     Running     0          66m
 rook-discover-2t882                                               1/1     Running     0          66m
 rook-discover-nqrk4                                               1/1     Running     0          66m
@@ -195,5 +198,5 @@ $ kubectl get sc
 NAME                         PROVISIONER                     RECLAIMPOLICY   VOLUMEBINDINGMODE   ALLOWVOLUMEEXPANSION   AGE
 cephfs-store-cephfs-pool-1   rook-ceph.cephfs.csi.ceph.com   Delete          Immediate           true                   62m
 kubernetes-hdd (default)     rook-ceph.rbd.csi.ceph.com      Delete          Immediate           false                  62m
-rgw-storage-class            rook-ceph.ceph.rook.io/bucket   Delete          Immediate           false                  65m
+rgw-store-bucket             rook-ceph.ceph.rook.io/bucket   Delete          Immediate           false                  65m
 ```
