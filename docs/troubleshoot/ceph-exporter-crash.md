@@ -8,7 +8,7 @@ keywords: pelagia, ceph, ceph exporter crash, ceph crash list, rook ceph exporte
 
 # The ceph-exporter pods are present in the Ceph crash list
 
-After a managed cluster update, the `ceph-exporter` pods may be present in
+After a cluster update, the `ceph-exporter` pods may be present in
 the **ceph crash ls** or **ceph health detail** list while
 `rook-ceph-exporter` attempts to obtain the port that is still in use.
 For example:
@@ -17,13 +17,14 @@ $ ceph health detail
 
 HEALTH_WARN 1 daemons have recently crashed
 [WRN] RECENT_CRASH: 1 daemons have recently crashed
-    client.ceph-exporter crashed on host kaas-node-b59f5e63-2bfd-43aa-bc80-42116d71188c at 2024-10-01T16:43:31.311563Z
+    client.ceph-exporter crashed on host <nodeName> at 2024-10-01T16:43:31.311563Z
 ```
 
-The issue does not block the managed cluster update. Once the port becomes
+The issue does not block the cluster update. Once the port becomes
 available, `rook-ceph-exporter` obtains the port and the issue disappears.
 
-**To resolve the issue**, run the following command to remove `ceph-exporter` pods from the Ceph crash list:
+**To resolve the issue**, run the following command in the `pelagia-ceph-toolbox` pod to remove
+`ceph-exporter` pods from the Ceph crash list:
 ```bash
-ceph crash archive-all
+kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- ceph crash archive-all
 ```
