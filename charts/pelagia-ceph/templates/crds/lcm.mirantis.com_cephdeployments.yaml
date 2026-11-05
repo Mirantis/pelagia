@@ -784,9 +784,8 @@ spec:
                       type: object
                     type: array
                   realms:
-                    description: |-
-                      Realms is a list of Ceph Object storage multisite realms.
-                      Currently is possible to specify only 1 realm.
+                    description: Realms is a list of Ceph Object storage multisite
+                      realms.
                     items:
                       description: CephObjectRealm stands for object store multisite
                         realm creation and configuration.
@@ -827,9 +826,8 @@ spec:
                       type: object
                     type: array
                   zonegroups:
-                    description: |-
-                      Zonegroups is a list of Ceph Object storage multisite zonegroups.
-                      Currently is possible to specify only 1 zonegroup.
+                    description: Zonegroups is a list of Ceph Object storage multisite
+                      zonegroups.
                     items:
                       description: CephObjectZonegroup stands for object store multisite
                         zonegroup creation and configuration.
@@ -850,9 +848,8 @@ spec:
                       type: object
                     type: array
                   zones:
-                    description: |-
-                      Zones is a list of Ceph Object storage multisite zones.
-                      Currently is possible to specify only 1 zone.
+                    description: Zones is a list of Ceph Object storage multisite
+                      zones.
                     items:
                       description: CephObjectZone stands for object store multisite
                         zone creation and configuration.
