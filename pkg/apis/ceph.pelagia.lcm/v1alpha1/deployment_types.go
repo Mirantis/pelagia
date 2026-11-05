@@ -220,15 +220,12 @@ type CephObjectStorage struct {
 	// +optional
 	GatewayHTTPRoutes []CephDeploymentHTTPRoute `json:"gatewayHTTPRoutes,omitempty"`
 	// Realms is a list of Ceph Object storage multisite realms.
-	// Currently is possible to specify only 1 realm.
 	// +optional
 	Realms []CephObjectRealm `json:"realms,omitempty"`
 	// Zonegroups is a list of Ceph Object storage multisite zonegroups.
-	// Currently is possible to specify only 1 zonegroup.
 	// +optional
 	Zonegroups []CephObjectZonegroup `json:"zonegroups,omitempty"`
 	// Zones is a list of Ceph Object storage multisite zones.
-	// Currently is possible to specify only 1 zone.
 	// +optional
 	Zones []CephObjectZone `json:"zones,omitempty"`
 }
