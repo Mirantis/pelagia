@@ -7,6 +7,10 @@ hard-coded or 'latest' version, for example:
     https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Cluster/ceph-cluster-crd/
     https://docs.ceph.com/en/{{ ceph_doc_version }}/rados/operations/crush-map/
 
+Links to the sources of these docs on GitHub (Documentation/ in rook/rook, doc/
+in ceph/ceph) are rejected too: they point to a branch or tag, not to
+rook_doc_version or ceph_doc_version.
+
 Pages under upgrade-guide/ describe specific Rook and Ceph releases, so they may
 link to them directly.
 
@@ -29,11 +33,18 @@ URL_RE = re.compile(r"https?://[^\s)\]>\"'`]+")
 # (pattern of a hard-coded docs URL, the form to use instead)
 HARDCODED_DOCS_URLS = (
     (
-        re.compile(r"rook\.github\.io/docs|rook\.io/docs/rook/(?:latest|v\d)"),
+        re.compile(
+            r"rook\.github\.io/docs"
+            r"|rook\.io/docs/rook/(?:latest|v\d)"
+            r"|github\.com/rook/rook/(?:blob|tree)/[^/]+/Documentation/"
+        ),
         "https://rook.io/docs/rook/{{ rook_doc_version }}/...",
     ),
     (
-        re.compile(r"docs\.ceph\.com/(?:docs/|en/[a-z])"),
+        re.compile(
+            r"docs\.ceph\.com/(?:docs/|en/[a-z])"
+            r"|github\.com/ceph/ceph/(?:blob|tree)/[^/]+/doc/"
+        ),
         "https://docs.ceph.com/en/{{ ceph_doc_version }}/...",
     ),
 )
