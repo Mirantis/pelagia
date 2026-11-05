@@ -53,6 +53,7 @@ Consider the common state of a failed or removed Ceph cluster:
 1. Back up the remaining resources. Skip the commands for the resources that
    have already been removed:
    ```bash
+   kubectl -n pelagia get cephdpl <cephDeploymentName> -o yaml > backup/cephdeployment.yaml
    kubectl -n rook-ceph get cephcluster <clusterName> -o yaml > backup/cephcluster.yaml
    # perform this for each cephblockpool
    kubectl -n rook-ceph get cephblockpool <cephBlockPool-i> -o yaml > backup/<cephBlockPool-i>.yaml
@@ -91,22 +92,23 @@ Consider the common state of a failed or removed Ceph cluster:
         kubectl -n rook-ceph delete job --all
         ```
 
-     3. Edit the `CephDeployment`, `CephDeploymentHealth`, and `CephDeploymentSecret` CRs of the
-        Pelagia namespace and remove the `finalizer` parameter from the `metadata` section:
+     3. Edit the `CephDeployment` CR of the Pelagia namespace and remove the
+        `finalizer` parameter from the `metadata` section:
         ```bash
         kubectl -n pelagia edit cephdpl
-        kubectl -n pelagia edit cephdeploymenthealth
         ```
 
-     4. Edit the `CephCluster`, `CephBlockPool`, `CephClient`, and
-        `CephObjectStore` CRs of the Rook namespace and remove the
-        `finalizer` parameter from the `metadata` section:
+     4. Edit the `CephCluster`, `CephBlockPool`, `CephClient`, `CephObjectStore`,
+        `CephObjectStoreUser`, `CephFilesystem`, and `CephObjectZone` CRs of the Rook
+        namespace and remove the `finalizer` parameter from the `metadata` section:
         ```bash
         kubectl -n rook-ceph edit cephclusters
         kubectl -n rook-ceph edit cephblockpools
         kubectl -n rook-ceph edit cephclients
         kubectl -n rook-ceph edit cephobjectstores
-        kubectl -n rook-ceph edit cephobjectusers
+        kubectl -n rook-ceph edit cephobjectstoreusers
+        kubectl -n rook-ceph edit cephfilesystems
+        kubectl -n rook-ceph edit cephobjectzones
         ```
 
      5. Remove Pelagia Helm release:
@@ -116,31 +118,51 @@ Consider the common state of a failed or removed Ceph cluster:
 
           where `<releaseName>` is Pelagia Helm release, for example, `pelagia-ceph`.
 
-4. Create the `CephDeployment` CR template and edit the roles of nodes. The entire
-   `nodes` spec must contain only one `mon` and one `mgr` role. Save the `CephDeployment`
-   template after editing:
-   ```yaml
-   apiVersion: lcm.mirantis.com/v1alpha1
-   kind: CephDeployment
-   metadata:
-     name: pelagia-ceph
-     namespace: pelagia
-   spec:
-     nodes:
-     - name: <nodeName>
-       roles:
-       - mon
-       - mgr
-   ```
+4. Create the `CephDeployment` CR template from the previously backed up `CephDeployment` CR and edit it:
 
-     Substitute `<nodeName>` with node name of the node where monitor is placed.
+     * In the `metadata` section, keep only the `name` and `namespace` fields
+     * Edit the roles of nodes
+     * Ensure that the entire `nodes` spec contains only one `mon` and one `mgr` role
+     * Remove the `status` section
+
+     Save the `CephDeployment` template after editing, for example, as `cephdeployment.yaml`:
+     ```yaml
+     apiVersion: lcm.mirantis.com/v1alpha1
+     kind: CephDeployment
+     metadata:
+       name: pelagia-ceph
+       namespace: pelagia
+     spec:
+       cluster:
+         network:
+           addressRanges:
+             cluster:
+             - <clusterNetwork>
+             public:
+             - <publicNetwork>
+       nodes:
+       - name: <nodeName>
+         roles:
+         - mon
+         - mgr
+     ```
+
+     Substitute `<nodeName>` with node name of the node where monitor is placed,
+     and `<clusterNetwork>` and `<publicNetwork>` with the network ranges used by the
+     old cluster. The `spec.cluster.network.addressRanges` parameters are mandatory.
 
 5. Install Pelagia Helm release:
    ```bash
    helm upgrade --install pelagia-ceph oci://registry.mirantis.com/pelagia/pelagia-ceph --version <version> -n pelagia --create-namespace
    ```
 
-     where `<version>` is Pelagia Helm chart version, for example, `1.0.0`.
+     where `<version>` is the Pelagia Helm chart version, for example, `3.0.0`.
+
+     The Helm chart does not create a `CephDeployment` CR. Once the Pelagia controllers
+     are running, apply the `CephDeployment` CR template saved in the previous step:
+     ```bash
+     kubectl apply -f cephdeployment.yaml
+     ```
 
 6. Verify that the Pelagia Helm release is deployed:
 
@@ -406,6 +428,15 @@ Consider the common state of a failed or removed Ceph cluster:
     ```bash
     kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- ceph -s
     ```
+
+33. Restore the default number of Pelagia Controllers replicas, which is `3` for each
+    controller:
+    ```bash
+    kubectl -n pelagia scale deployment --all --replicas 3
+    ```
+
+    If you set custom `replicas` values for the controllers in the Pelagia Helm chart values,
+    use them instead.
 
 Once done, the data from the failed or removed Ceph cluster is restored and
 ready to use.

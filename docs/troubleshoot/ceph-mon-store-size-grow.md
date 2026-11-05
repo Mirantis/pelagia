@@ -12,6 +12,15 @@ The `MON_DISK_LOW` Ceph Cluster health message indicates that the
 procedure is not working. In most cases, `store.db` starts storing a number
 of `logm` keys that are buffered due to Ceph OSD shadow errors.
 
+!!! note
+
+    Pelagia ignores `MON_DISK_LOW` by default, so this health message does not
+    appear in the `CephDeploymentHealth` status. To see it, run `ceph health detail`
+    in the `pelagia-ceph-toolbox` pod:
+    ```bash
+    kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- ceph health detail
+    ```
+
 **To verify whether the store.db size is rapidly growing:**
 
 1. Identify the Ceph Monitors `store.db` size:
