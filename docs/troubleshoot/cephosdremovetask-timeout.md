@@ -17,13 +17,29 @@ minutes, which applies to standard cluster configurations.
 
 If the rebalance takes more than 30 minutes, the `CephOsdRemoveTask`
 resources created for removing Ceph OSDs or nodes fail with the following
-example message:
+example status:
 
 ```yaml
 status:
+  phase: Failed
   messages:
-  - Timeout (30m0s) reached for waiting pg rebalance for osd 2
+  - "cephosdremovetask moved to 'Failed' phase: osd remove failed"
+  removeInfo:
+    issues:
+    - "[node '<node>'] failed to remove osd '2'"
+    cleanupMap:
+      <node>:
+        osdMapping:
+          "2":
+            removeStatus:
+              osdRemoveStatus:
+                status: Failed
+                error: timeout (30m0s) reached for waiting pg rebalance
 ```
+
+The same timeout also limits the wait for the `ceph osd ok-to-stop` check
+before the Ceph OSD is moved out. In this case, the `error` field contains
+`timeout (30m0s) reached for waiting ok-to-stop on osd '2'`.
 
 **To resolve the issue**, increase the timeout for all future
 `CephOsdRemoveTask` resources:
@@ -44,7 +60,7 @@ data:
 where `"180"` means 180 minutes before timeout.
 
 If you have an existing `CephOsdRemoveTask` resource with issues in
-`messages` to process:
+`status.removeInfo.issues` to process:
 
 1. In the failed `CephOsdRemoveTask` resource, copy the `spec` section.
 2. Create a new `CephOsdRemoveTask` with a different name. For details,

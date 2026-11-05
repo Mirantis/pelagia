@@ -7,7 +7,7 @@ keywords: pelagia, ceph maintenance, ceph rebalancing, compact ceph cluster, cep
 
 <a id="stuck-maintenance-maintenance-stuck-on-a-compact-ceph-cluster"></a>
 
-# Maintenance stuck on a compact Ceph cluster
+# Maintenance stuck on a compact Ceph cluster during OSD rebalancing
 
 {% include "../snippets/replicatedSize.md" %}
 
@@ -20,7 +20,8 @@ The issue may only affect environments with a small number of Ceph OSD nodes (fo
 pool replica count set to one less than the number of storage nodes (`replicas=storage_nodes_count-1`),
 and failure domain `host`.
 
-**To resolve the issue**, run the following command for the affected Ceph OSD node:
+**To resolve the issue**, run the following command in the `pelagia-ceph-toolbox` pod for each
+Ceph OSD of the affected node:
 ```bash
-ceph osd reweight <osdId> 0
+kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- ceph osd reweight <osdId> 0
 ```

@@ -197,7 +197,7 @@ nav:
     - Replaced Ceph OSD fails to start on authorization: troubleshoot/ceph-osd-auth-failed.md
     - Ceph health reports *PG_DAMAGED* after a failed disk or node replacement: troubleshoot/ceph-pg-damaged.md
     - CephOsdRemoveTask failure with a timeout during rebalance: troubleshoot/cephosdremovetask-timeout.md
-    - Maintenance stuck on a compact Ceph cluster: troubleshoot/stuck-maintenance.md
+    - Maintenance stuck on a compact Ceph cluster during OSD rebalancing: troubleshoot/stuck-maintenance.md
   - Developer Guide: developer.md
 #  - Operations Guide:
 #      - Upgrade OpenStack: ops/openstack/upgrade.md
