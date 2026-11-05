@@ -3555,7 +3555,7 @@
 For details about hardware recommendations, see <a href="https://docs.ceph.com/en/tentacle/start/hardware-recommendations/">Ceph documentation: Hardware recommendations</a>.</p>
 </li>
 <li>
-<p>At least one disk per data node to be used as Ceph OSD. Miminal disk size is <code>5G</code> but Mirantis recommends using disks with at least <code>100G</code> size.</p>
+<p>At least one disk per data node to be used as Ceph OSD. Minimal disk size is <code>5G</code> but Mirantis recommends using disks with at least <code>100G</code> size.</p>
 </li>
 </ul>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">#</a></h2>
@@ -3577,11 +3577,12 @@ pelagia-lcm-controller-6f858b6c5-4bqqr<span class="w">           </span><span cl
 pelagia-lcm-controller-6f858b6c5-6thhn<span class="w">           </span><span class="m">3</span>/3<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>3m52s
 pelagia-lcm-controller-6f858b6c5-whq7x<span class="w">           </span><span class="m">3</span>/3<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>3m52s
 </code></pre></div>
-<p>Also, Pelagia Helm chart deploys the following Rook components in the <code>rook-ceph</code> namespace:
+<p>Also, Pelagia Helm chart deploys Rook Operator and Ceph CSI Operator in the <code>rook-ceph</code> namespace:
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>pods
 
-NAME<span class="w">                                  </span>READY<span class="w">   </span>STATUS<span class="w">    </span>RESTARTS<span class="w">   </span>AGE
-rook-ceph-operator-8495877b67-m7lf5<span class="w">   </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>4m13s
+NAME<span class="w">                                           </span>READY<span class="w">   </span>STATUS<span class="w">    </span>RESTARTS<span class="w">   </span>AGE
+ceph-csi-controller-manager-6c8f7d9b5d-k7wqz<span class="w">   </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>4m13s
+rook-ceph-operator-8495877b67-m7lf5<span class="w">            </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>4m13s
 </code></pre></div></p>
 <p>Currently, Pelagia Deployment Controller does not support integration with the existing Rook Ceph cluster, only Pelagia Lifecycle Management Controller does. To install Pelagia in the LCM-only mode, please refer to <a href="../lcm-installation/#lcm-installation-install-pelagia-in-the-lcm-only-mode">LCM-only installation guide</a>.</p>
 <h2 id="post-installation">Post-installation<a class="headerlink" href="#post-installation" title="Permanent link">#</a></h2>
@@ -3675,16 +3676,7 @@ a Ceph cluster with RBD pool, CephFS filesystem, and RGW object storage deployed
 <div class="highlight"><pre><span></span><code>$<span class="w"> </span>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>pods
 
 NAME<span class="w">                                                              </span>READY<span class="w">   </span>STATUS<span class="w">      </span>RESTARTS<span class="w">   </span>AGE
-csi-cephfsplugin-lgm9v<span class="w">                                            </span><span class="m">2</span>/2<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>36m
-csi-cephfsplugin-lr26d<span class="w">                                            </span><span class="m">2</span>/2<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>36m
-csi-cephfsplugin-provisioner-766fddb5c8-rm4r7<span class="w">                     </span><span class="m">5</span>/5<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>37m
-csi-cephfsplugin-provisioner-766fddb5c8-wxtpl<span class="w">                     </span><span class="m">5</span>/5<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>37m
-csi-cephfsplugin-s67pp<span class="w">                                            </span><span class="m">2</span>/2<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>36m
-csi-rbdplugin-provisioner-649fb94cf4-fr8nk<span class="w">                        </span><span class="m">5</span>/5<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>37m
-csi-rbdplugin-provisioner-649fb94cf4-vcj45<span class="w">                        </span><span class="m">5</span>/5<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>37m
-csi-rbdplugin-rjnx4<span class="w">                                               </span><span class="m">2</span>/2<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>36m
-csi-rbdplugin-xb8qg<span class="w">                                               </span><span class="m">2</span>/2<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>36m
-csi-rbdplugin-z48m9<span class="w">                                               </span><span class="m">2</span>/2<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>36m
+ceph-csi-controller-manager-6c8f7d9b5d-k7wqz<span class="w">                      </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>66m
 pelagia-ceph-toolbox-8688f94564-xmtjn<span class="w">                             </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>61m
 rook-ceph-crashcollector-009b4c37cd6752487fafef7c44bc6a4d-mxd5c<span class="w">   </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>56m
 rook-ceph-crashcollector-2df4fa7c50e45baccd8ffa967ce36ec6-flxjn<span class="w">   </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>107s
@@ -3714,6 +3706,17 @@ rook-ceph-osd-prepare-7a0999af02371dae358b7fcd28b3ae35-kllhb<span class="w">    
 rook-ceph-osd-prepare-d7732aeb2025beef8dda88e8195f704b-7548x<span class="w">      </span><span class="m">0</span>/1<span class="w">     </span>Completed<span class="w">   </span><span class="m">0</span><span class="w">          </span>2m
 rook-ceph-rgw-rgw-store-a-5cbb8785ff-5bcvw<span class="w">                        </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>42s
 rook-ceph-rgw-rgw-store-a-5cbb8785ff-9dzz4<span class="w">                        </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>42s
+rook-ceph-rgw-rgw-store-a-5cbb8785ff-tq6lm<span class="w">                        </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>42s
+rook-ceph.cephfs.csi.ceph.com-ctrlplugin-766fddb5c8-rm4r7<span class="w">         </span><span class="m">5</span>/5<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>37m
+rook-ceph.cephfs.csi.ceph.com-ctrlplugin-766fddb5c8-wxtpl<span class="w">         </span><span class="m">5</span>/5<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>37m
+rook-ceph.cephfs.csi.ceph.com-nodeplugin-lgm9v<span class="w">                    </span><span class="m">2</span>/2<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>36m
+rook-ceph.cephfs.csi.ceph.com-nodeplugin-lr26d<span class="w">                    </span><span class="m">2</span>/2<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>36m
+rook-ceph.cephfs.csi.ceph.com-nodeplugin-s67pp<span class="w">                    </span><span class="m">2</span>/2<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>36m
+rook-ceph.rbd.csi.ceph.com-ctrlplugin-649fb94cf4-fr8nk<span class="w">            </span><span class="m">5</span>/5<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>37m
+rook-ceph.rbd.csi.ceph.com-ctrlplugin-649fb94cf4-vcj45<span class="w">            </span><span class="m">5</span>/5<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>37m
+rook-ceph.rbd.csi.ceph.com-nodeplugin-rjnx4<span class="w">                       </span><span class="m">2</span>/2<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>36m
+rook-ceph.rbd.csi.ceph.com-nodeplugin-xb8qg<span class="w">                       </span><span class="m">2</span>/2<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>36m
+rook-ceph.rbd.csi.ceph.com-nodeplugin-z48m9<span class="w">                       </span><span class="m">2</span>/2<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>36m
 rook-discover-27b74<span class="w">                                               </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>66m
 rook-discover-2t882<span class="w">                                               </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>66m
 rook-discover-nqrk4<span class="w">                                               </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">     </span><span class="m">0</span><span class="w">          </span>66m
@@ -3724,7 +3727,7 @@ rook-discover-nqrk4<span class="w">                                             
 NAME<span class="w">                         </span>PROVISIONER<span class="w">                     </span>RECLAIMPOLICY<span class="w">   </span>VOLUMEBINDINGMODE<span class="w">   </span>ALLOWVOLUMEEXPANSION<span class="w">   </span>AGE
 cephfs-store-cephfs-pool-1<span class="w">   </span>rook-ceph.cephfs.csi.ceph.com<span class="w">   </span>Delete<span class="w">          </span>Immediate<span class="w">           </span><span class="nb">true</span><span class="w">                   </span>62m
 kubernetes-hdd<span class="w"> </span><span class="o">(</span>default<span class="o">)</span><span class="w">     </span>rook-ceph.rbd.csi.ceph.com<span class="w">      </span>Delete<span class="w">          </span>Immediate<span class="w">           </span><span class="nb">false</span><span class="w">                  </span>62m
-rgw-storage-class<span class="w">            </span>rook-ceph.ceph.rook.io/bucket<span class="w">   </span>Delete<span class="w">          </span>Immediate<span class="w">           </span><span class="nb">false</span><span class="w">                  </span>65m
+rgw-store-bucket<span class="w">             </span>rook-ceph.ceph.rook.io/bucket<span class="w">   </span>Delete<span class="w">          </span>Immediate<span class="w">           </span><span class="nb">false</span><span class="w">                  </span>65m
 </code></pre></div></p>
 
 

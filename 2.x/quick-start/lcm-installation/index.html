@@ -3545,7 +3545,7 @@
 
 <p><a id="lcm-installation-install-pelagia-in-the-lcm-only-mode"></a></p>
 <h1 id="install-pelagia-in-the-lcm-only-mode">Install Pelagia in the LCM-only mode<a class="headerlink" href="#install-pelagia-in-the-lcm-only-mode" title="Permanent link">#</a></h1>
-<p>This section provides instructions on how to install Pelagia in lifecycle-management-only (lcm-only) mode.
+<p>This section provides instructions on how to install Pelagia in lifecycle-management-only (LCM-only) mode.
 This mode allows you to automatically remove Rook Ceph OSD disks and nodes in your Kubernetes cluster.</p>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">#</a></h2>
 <ul>
@@ -3553,11 +3553,13 @@ This mode allows you to automatically remove Rook Ceph OSD disks and nodes in yo
 <li>A deployed Ceph cluster managed by Rook.</li>
 </ul>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">#</a></h2>
-<p>To install Pelagia in lcm-only mode, use the Helm chart provided in the repository:</p>
+<p>To install Pelagia in LCM-only mode, use the Helm chart provided in the repository:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">PELAGIA_VERSION</span><span class="o">=</span><span class="s2">"&lt;version&gt;"</span>
-helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="si">${</span><span class="nv">PELAGIA_VERSION</span><span class="si">}</span><span class="w"> </span>--set<span class="w"> </span>cephDeployment.enabled<span class="o">=</span>false,rookConfig.configureRook<span class="o">=</span><span class="nb">false</span><span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>--create-namespace
+helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="si">${</span><span class="nv">PELAGIA_VERSION</span><span class="si">}</span><span class="w"> </span>--set<span class="w"> </span>cephDeployment.enabled<span class="o">=</span>false,rook.enabled<span class="o">=</span><span class="nb">false</span><span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>--create-namespace
 </code></pre></div>
 <p>Substitute <code>&lt;version&gt;</code> with the latest stable version of Pelagia Helm chart.</p>
+<p>The <code>cephDeployment.enabled=false</code> value disables Pelagia Deployment Controller, and the <code>rook.enabled=false</code> value
+disables the Rook Operator deployment, so that Pelagia uses the existing Rook installation.</p>
 <p>This command installs Pelagia LCM controllers in the <code>pelagia</code> namespace.
 If the namespace does not exist, Helm will create it. As a result, the following controllers appear
 in the <code>pelagia</code> namespace:</p>
@@ -3568,16 +3570,27 @@ pelagia-lcm-controller-6f858b6c5-4bqqr<span class="w">   </span><span class="m">
 pelagia-lcm-controller-6f858b6c5-6thhn<span class="w">   </span><span class="m">3</span>/3<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>9m40s
 pelagia-lcm-controller-6f858b6c5-whq7x<span class="w">   </span><span class="m">3</span>/3<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>9m40s
 </code></pre></div>
-<p>The installation command above installs Pelagia in lcm-only mode for an existing Rook Ceph cluster placed
+<p>The installation command above installs Pelagia in LCM-only mode for an existing Rook Ceph cluster placed
 in the <code>rook-ceph</code> namespace. If you want to manage a Rook Ceph cluster in a different namespace, set the
-<code>rookConfig.rookNamespace</code> chart value. For example:
+<code>lcmConfig.rookNamespace</code> and <code>ceph-csi-operator.csiOperatorConfig.rookNamespace</code> chart values. The <code>ceph-csi-operator</code>
+subchart is deployed to the Rook namespace and does not inherit an overridden <code>lcmConfig.rookNamespace</code> value,
+so set both values. For example:
 <div class="highlight"><pre><span></span><code><span class="nb">export</span><span class="w"> </span><span class="nv">PELAGIA_VERSION</span><span class="o">=</span><span class="s2">"&lt;version&gt;"</span>
-helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="si">${</span><span class="nv">PELAGIA_VERSION</span><span class="si">}</span><span class="w"> </span>--set<span class="w"> </span>cephDeployment.enabled<span class="o">=</span>false,rookConfig.configureRook<span class="o">=</span>false,rookConfig.rookNamespace<span class="o">=</span>new-rook-ceph<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>--create-namespace
+helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span><span class="si">${</span><span class="nv">PELAGIA_VERSION</span><span class="si">}</span><span class="w"> </span>--set<span class="w"> </span>cephDeployment.enabled<span class="o">=</span>false,rook.enabled<span class="o">=</span>false,lcmConfig.rookNamespace<span class="o">=</span>new-rook-ceph,ceph-csi-operator.csiOperatorConfig.rookNamespace<span class="o">=</span>new-rook-ceph<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>--create-namespace
 </code></pre></div></p>
 <p>Substitute <code>&lt;version&gt;</code> with the latest stable version of Pelagia Helm chart.</p>
 <h2 id="post-installation">Post-installation<a class="headerlink" href="#post-installation" title="Permanent link">#</a></h2>
-<p>After the installation, create empty <code>CephDeploymentHealth</code> custom resource. It stores Ceph cluster state and
+<p>After the installation, create an empty <code>CephDeploymentHealth</code> custom resource. It stores Ceph cluster state and
 Rook API status.</p>
+<p>The <code>CephDeploymentHealth</code> resource name must match the name of the existing Rook <code>CephCluster</code> resource,
+because Pelagia looks up the Ceph cluster by this name in the Rook namespace. The examples in this documentation
+use the <code>pelagia-ceph</code> name. In a full Pelagia installation, Pelagia creates the <code>CephCluster</code> and
+<code>CephDeploymentHealth</code> resources with the name of the <code>CephDeployment</code> resource, so all of them are named
+<code>pelagia-ceph</code>. In the LCM-only mode, you create <code>CephDeploymentHealth</code> yourself, so replace <code>pelagia-ceph</code> with
+the name of your <code>CephCluster</code> resource. To obtain the name, run:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>cephcluster
+</code></pre></div>
+<p>Then create the <code>CephDeploymentHealth</code> resource with that name. For example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CephDeploymentHealth</span>
 <span class="nt">metadata</span><span class="p">:</span>
@@ -3585,6 +3598,22 @@ Rook API status.</p>
 <span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia</span>
 <span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{}</span>
 </code></pre></div>
+<p>After you create the <code>CephDeploymentHealth</code> resource, Pelagia Infra Controller deploys the following components:</p>
+<ul>
+<li>The <code>pelagia-ceph-toolbox</code> Deployment in the Rook namespace. Pelagia uses it to run Ceph CLI commands.</li>
+<li>The <code>pelagia-disk-daemon</code> DaemonSet in the <code>pelagia</code> namespace. It runs on nodes that match the
+  <code>lcmConfig.diskDaemonNodeSelector</code> chart value, <code>ceph_role_osd=true</code> by default, and provides disk information
+  from these nodes.</li>
+</ul>
+<p>In a full Pelagia installation, Pelagia Deployment Controller adds the <code>ceph_role_osd=true</code> label to the nodes
+with Ceph OSDs. In the LCM-only mode, add this label yourself to every node with Ceph OSDs. If you changed the
+<code>lcmConfig.diskDaemonNodeSelector</code> chart value, use that label instead:</p>
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>label<span class="w"> </span>node<span class="w"> </span>&lt;node-name&gt;<span class="w"> </span><span class="nv">ceph_role_osd</span><span class="o">=</span><span class="nb">true</span>
+</code></pre></div>
+<p>Without the label, the disk daemon does not run on the node and Pelagia cannot get disk information from it.
+In this case, <code>CephOsdRemoveTask</code> skips the node with a warning if the node is listed in the <code>spec.storage.nodes</code>
+section of the <code>CephCluster</code> resource. Otherwise, Pelagia removes the OSDs listed in <code>cleanupByOsd</code> from the Ceph
+cluster but does not clean up their disks.</p>
 <p>Now you can manage Rook Ceph OSD disks and nodes using the Pelagia <code>CephOsdRemoveTask</code> custom
 resource. For example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
@@ -3598,8 +3627,10 @@ resource. For example:</p>
 <span class="w">      </span><span class="nt">cleanupByOsd</span><span class="p">:</span>
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
 </code></pre></div>
-<p>This example will dry-run the removal of the OSD with ID 4 on the <code>storage-worker-1</code> node.
-After the dry-run, the <code>status</code> field of the <code>CephOsdRemoveTask</code> resource will be updated with the results of the dry-run.</p>
+<p>This example creates a task to remove the OSD with ID 4 on the <code>storage-worker-1</code> node. Pelagia first validates
+the task and does not remove anything until you approve it. After the validation, the task moves to the
+<code>ApproveWaiting</code> phase, and the <code>status.removeInfo</code> field of the <code>CephOsdRemoveTask</code> resource lists the OSDs and
+devices that Pelagia is going to remove.</p>
 <p>To trigger the OSD removal, set the <code>spec.approve</code> field to <code>true</code> and apply the resource again. For example:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CephOsdRemoveTask</span>
@@ -3616,10 +3647,14 @@ After the dry-run, the <code>status</code> field of the <code>CephOsdRemoveTask<
 <p>This action triggers the removal of the OSD with ID 4 on the <code>storage-worker-1</code> node.</p>
 <p>The <code>CephOsdRemoveTask</code> workflow is as follows:</p>
 <ol>
-<li>The OSD daemon is stopped and data is rebalanced out from the OSD.</li>
-<li>The OSD disk is cleaned up on the node.</li>
-<li>The OSD daemon is removed from the Ceph cluster.</li>
+<li>Pelagia scales Rook Operator down to <code>0</code> replicas for the time of the removal.</li>
+<li>Pelagia sets the CRUSH weight of the OSD to <code>0</code>, and Ceph moves the data out of the OSD.</li>
+<li>After the rebalance completes, Pelagia stops the OSD daemon and removes the OSD from the Ceph cluster.</li>
+<li>Pelagia runs a job that cleans up the OSD disk on the node.</li>
+<li>Pelagia removes the <code>rook-ceph-osd-&lt;ID&gt;</code> deployment of the OSD.</li>
 </ol>
+<p>After the task completes, Pelagia scales Rook Operator back up to <code>1</code> replica. If the task fails, Rook Operator
+stays stopped until you set the <code>spec.resolved</code> field of the task to <code>true</code>.</p>
 
 
 
