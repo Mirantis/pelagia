@@ -29,7 +29,7 @@
     
     
       
-        <title>Maintenance stuck on a compact Ceph cluster - Pelagia for Rook Ceph management</title>
+        <title>Maintenance stuck on a compact Ceph cluster during OSD rebalancing - Pelagia for Rook Ceph management</title>
       
     
     
@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#maintenance-stuck-on-a-compact-ceph-cluster" class="md-skip">
+        <a href="#maintenance-stuck-on-a-compact-ceph-cluster-during-osd-rebalancing" class="md-skip">
           Skip to content
         </a>
       
@@ -121,7 +121,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Maintenance stuck on a compact Ceph cluster
+              Maintenance stuck on a compact Ceph cluster during OSD rebalancing
             
           </span>
         </div>
@@ -3003,8 +3003,6 @@
       
         
       
-        
-      
     
     
     
@@ -3257,34 +3255,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../ceph-rebalance-stuck/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ceph rebalancing gets stuck during disabled node removal
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../cephosdremovetask-timeout/" class="md-nav__link">
         
   
@@ -3329,7 +3299,7 @@
   <span class="md-ellipsis">
     
   
-    Maintenance stuck on a compact Ceph cluster
+    Maintenance stuck on a compact Ceph cluster during OSD rebalancing
   
 
     
@@ -3465,7 +3435,7 @@
 
 
 <p><a id="stuck-maintenance-maintenance-stuck-on-a-compact-ceph-cluster"></a></p>
-<h1 id="maintenance-stuck-on-a-compact-ceph-cluster">Maintenance stuck on a compact Ceph cluster<a class="headerlink" href="#maintenance-stuck-on-a-compact-ceph-cluster" title="Permanent link">#</a></h1>
+<h1 id="maintenance-stuck-on-a-compact-ceph-cluster-during-osd-rebalancing">Maintenance stuck on a compact Ceph cluster during OSD rebalancing<a class="headerlink" href="#maintenance-stuck-on-a-compact-ceph-cluster-during-osd-rebalancing" title="Permanent link">#</a></h1>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>We do not recommend using replicated Ceph pools with <code>replicated.size</code> of less
@@ -3482,8 +3452,9 @@ the rebalance process to wait indefinitely for Ceph to become ready.</p>
 <p>The issue may only affect environments with a small number of Ceph OSD nodes (for example, three),
 pool replica count set to one less than the number of storage nodes (<code>replicas=storage_nodes_count-1</code>),
 and failure domain <code>host</code>.</p>
-<p><strong>To resolve the issue</strong>, run the following command for the affected Ceph OSD node:
-<div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>osd<span class="w"> </span>reweight<span class="w"> </span>&lt;osdId&gt;<span class="w"> </span><span class="m">0</span>
+<p><strong>To resolve the issue</strong>, run the following command in the <code>pelagia-ceph-toolbox</code> pod for each
+Ceph OSD of the affected node:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>osd<span class="w"> </span>reweight<span class="w"> </span>&lt;osdId&gt;<span class="w"> </span><span class="m">0</span>
 </code></pre></div></p>
 
 

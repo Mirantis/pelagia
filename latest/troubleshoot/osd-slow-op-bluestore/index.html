@@ -3003,8 +3003,6 @@
       
         
       
-        
-      
     
     
     
@@ -3267,34 +3265,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../ceph-rebalance-stuck/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ceph rebalancing gets stuck during disabled node removal
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../cephosdremovetask-timeout/" class="md-nav__link">
         
   
@@ -3330,7 +3300,7 @@
   <span class="md-ellipsis">
     
   
-    Maintenance stuck on a compact Ceph cluster
+    Maintenance stuck on a compact Ceph cluster during OSD rebalancing
   
 
     
@@ -3480,7 +3450,11 @@ Ceph may raise:
 </ul>
 <p><strong>To verify whether the cluster is affected:</strong></p>
 <ol>
-<li>Enter the <code>pelagia-ceph-tools</code> pod:</li>
+<li>
+<p>Enter the <code>pelagia-ceph-toolbox</code> pod:
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>bash
+</code></pre></div></p>
+</li>
 <li>
 <p>Verify the Ceph cluster status:</p>
 </li>
@@ -3522,7 +3496,7 @@ io:
 </code></pre></div></p>
 </li>
 <li>
-<p>Exit the <code>pelagia-ceph-tools</code> pod.</p>
+<p>Exit the <code>pelagia-ceph-toolbox</code> pod.</p>
 </li>
 </ol>
 <p><strong>To resolve the issue:</strong></p>
@@ -3530,10 +3504,9 @@ io:
 <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephdeployment
 </code></pre></div></p>
 <div class="highlight"><pre><span></span><code><span class="nt">spec</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">cephClusterSpec</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">rookConfig</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">osd|bluestore_slow_ops_warn_lifetime</span><span class="p">:</span><span class="w"> </span><span class="s">"600"</span>
-<span class="w">      </span><span class="nt">osd|bluestore_slow_ops_warn_threshold</span><span class="p">:</span><span class="w"> </span><span class="s">"10"</span>
+<span class="w">  </span><span class="nt">rookConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">osd|bluestore_slow_ops_warn_lifetime</span><span class="p">:</span><span class="w"> </span><span class="s">"600"</span>
+<span class="w">    </span><span class="nt">osd|bluestore_slow_ops_warn_threshold</span><span class="p">:</span><span class="w"> </span><span class="s">"10"</span>
 </code></pre></div>
 <p>Wait for up to five minutes for the change to apply and the alert to disappear
 during cluster deployment.</p>

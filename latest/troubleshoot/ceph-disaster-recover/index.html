@@ -3003,8 +3003,6 @@
       
         
       
-        
-      
     
     
     
@@ -3326,34 +3324,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../ceph-rebalance-stuck/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ceph rebalancing gets stuck during disabled node removal
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../cephosdremovetask-timeout/" class="md-nav__link">
         
   
@@ -3389,7 +3359,7 @@
   <span class="md-ellipsis">
     
   
-    Maintenance stuck on a compact Ceph cluster
+    Maintenance stuck on a compact Ceph cluster during OSD rebalancing
   
 
     
@@ -3601,7 +3571,8 @@ cluster in the following cases:</p>
 <li>
 <p>Back up the remaining resources. Skip the commands for the resources that
    have already been removed:
-   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>cephcluster<span class="w"> </span>&lt;clusterName&gt;<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span>&gt;<span class="w"> </span>backup/cephcluster.yaml
+   <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>get<span class="w"> </span>cephdpl<span class="w"> </span>&lt;cephDeploymentName&gt;<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span>&gt;<span class="w"> </span>backup/cephdeployment.yaml
+kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>cephcluster<span class="w"> </span>&lt;clusterName&gt;<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span>&gt;<span class="w"> </span>backup/cephcluster.yaml
 <span class="c1"># perform this for each cephblockpool</span>
 kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>cephblockpool<span class="w"> </span>&lt;cephBlockPool-i&gt;<span class="w"> </span>-o<span class="w"> </span>yaml<span class="w"> </span>&gt;<span class="w"> </span>backup/&lt;cephBlockPool-i&gt;.yaml
 <span class="c1"># perform this for each client</span>
@@ -3640,21 +3611,22 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
 </code></pre></div></p>
 </li>
 <li>
-<p>Edit the <code>CephDeployment</code>, <code>CephDeploymentHealth</code>, and <code>CephDeploymentSecret</code> CRs of the
-    Pelagia namespace and remove the <code>finalizer</code> parameter from the <code>metadata</code> section:
+<p>Edit the <code>CephDeployment</code> CR of the Pelagia namespace and remove the
+    <code>finalizer</code> parameter from the <code>metadata</code> section:
     <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephdpl
-kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>edit<span class="w"> </span>cephdeploymenthealth
 </code></pre></div></p>
 </li>
 <li>
-<p>Edit the <code>CephCluster</code>, <code>CephBlockPool</code>, <code>CephClient</code>, and
-    <code>CephObjectStore</code> CRs of the Rook namespace and remove the
-    <code>finalizer</code> parameter from the <code>metadata</code> section:
+<p>Edit the <code>CephCluster</code>, <code>CephBlockPool</code>, <code>CephClient</code>, <code>CephObjectStore</code>,
+    <code>CephObjectStoreUser</code>, <code>CephFilesystem</code>, and <code>CephObjectZone</code> CRs of the Rook
+    namespace and remove the <code>finalizer</code> parameter from the <code>metadata</code> section:
     <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>edit<span class="w"> </span>cephclusters
 kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>edit<span class="w"> </span>cephblockpools
 kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>edit<span class="w"> </span>cephclients
 kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>edit<span class="w"> </span>cephobjectstores
-kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>edit<span class="w"> </span>cephobjectusers
+kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>edit<span class="w"> </span>cephobjectstoreusers
+kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>edit<span class="w"> </span>cephfilesystems
+kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>edit<span class="w"> </span>cephobjectzones
 </code></pre></div></p>
 </li>
 <li>
@@ -3666,28 +3638,46 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
 </ol>
 </li>
 <li>
-<p>Create the <code>CephDeployment</code> CR template and edit the roles of nodes. The entire
-   <code>nodes</code> spec must contain only one <code>mon</code> and one <code>mgr</code> role. Save the <code>CephDeployment</code>
-   template after editing:
-   <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
+<p>Create the <code>CephDeployment</code> CR template from the previously backed up <code>CephDeployment</code> CR and edit it:</p>
+<ul>
+<li>In the <code>metadata</code> section, keep only the <code>name</code> and <code>namespace</code> fields</li>
+<li>Edit the roles of nodes</li>
+<li>Ensure that the entire <code>nodes</code> spec contains only one <code>mon</code> and one <code>mgr</code> role</li>
+<li>Remove the <code>status</code> section</li>
+</ul>
+<p>Save the <code>CephDeployment</code> template after editing, for example, as <code>cephdeployment.yaml</code>:
+ <div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lcm.mirantis.com/v1alpha1</span>
 <span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CephDeployment</span>
 <span class="nt">metadata</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia-ceph</span>
 <span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pelagia</span>
 <span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">cluster</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">network</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">addressRanges</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">cluster</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;clusterNetwork&gt;</span>
+<span class="w">        </span><span class="nt">public</span><span class="p">:</span>
+<span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;publicNetwork&gt;</span>
 <span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;nodeName&gt;</span>
 <span class="w">    </span><span class="nt">roles</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mon</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mgr</span>
 </code></pre></div></p>
-<p>Substitute <code>&lt;nodeName&gt;</code> with node name of the node where monitor is placed.</p>
+<p>Substitute <code>&lt;nodeName&gt;</code> with node name of the node where monitor is placed,
+ and <code>&lt;clusterNetwork&gt;</code> and <code>&lt;publicNetwork&gt;</code> with the network ranges used by the
+ old cluster. The <code>spec.cluster.network.addressRanges</code> parameters are mandatory.</p>
 </li>
 <li>
 <p>Install Pelagia Helm release:
    <div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span>--version<span class="w"> </span>&lt;version&gt;<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>--create-namespace
 </code></pre></div></p>
-<p>where <code>&lt;version&gt;</code> is Pelagia Helm chart version, for example, <code>1.0.0</code>.</p>
+<p>where <code>&lt;version&gt;</code> is the Pelagia Helm chart version, for example, <code>3.0.0</code>.</p>
+<p>The Helm chart does not create a <code>CephDeployment</code> CR. Once the Pelagia controllers
+ are running, apply the <code>CephDeployment</code> CR template saved in the previous step:
+ <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>cephdeployment.yaml
+</code></pre></div></p>
 </li>
 <li>
 <p>Verify that the Pelagia Helm release is deployed:</p>
@@ -3961,6 +3951,14 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
     overall stored data size equals to the old cluster data size.
     <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>-s
 </code></pre></div></p>
+</li>
+<li>
+<p>Restore the default number of Pelagia Controllers replicas, which is <code>3</code> for each
+    controller:
+    <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>pelagia<span class="w"> </span>scale<span class="w"> </span>deployment<span class="w"> </span>--all<span class="w"> </span>--replicas<span class="w"> </span><span class="m">3</span>
+</code></pre></div></p>
+<p>If you set custom <code>replicas</code> values for the controllers in the Pelagia Helm chart values,
+use them instead.</p>
 </li>
 </ol>
 <p>Once done, the data from the failed or removed Ceph cluster is restored and

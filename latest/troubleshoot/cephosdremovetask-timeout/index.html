@@ -15,7 +15,7 @@
         <link rel="canonical" href="https://mirantis.github.io/pelagia/latest/troubleshoot/cephosdremovetask-timeout/">
       
       
-        <link rel="prev" href="../ceph-rebalance-stuck/">
+        <link rel="prev" href="../ceph-pg-damaged/">
       
       
         <link rel="next" href="../stuck-maintenance/">
@@ -3003,8 +3003,6 @@
       
         
       
-        
-      
     
     
     
@@ -3254,34 +3252,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../ceph-rebalance-stuck/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ceph rebalancing gets stuck during disabled node removal
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -3330,7 +3300,7 @@
   <span class="md-ellipsis">
     
   
-    Maintenance stuck on a compact Ceph cluster
+    Maintenance stuck on a compact Ceph cluster during OSD rebalancing
   
 
     
@@ -3473,11 +3443,26 @@ of Ceph OSDs, and so on. The default rebalance timeout is limited by <code>30</c
 minutes, which applies to standard cluster configurations.</p>
 <p>If the rebalance takes more than 30 minutes, the <code>CephOsdRemoveTask</code>
 resources created for removing Ceph OSDs or nodes fail with the following
-example message:</p>
+example status:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">status</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">phase</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Failed</span>
 <span class="w">  </span><span class="nt">messages</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Timeout (30m0s) reached for waiting pg rebalance for osd 2</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"cephosdremovetask</span><span class="nv"> </span><span class="s">moved</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">'Failed'</span><span class="nv"> </span><span class="s">phase:</span><span class="nv"> </span><span class="s">osd</span><span class="nv"> </span><span class="s">remove</span><span class="nv"> </span><span class="s">failed"</span>
+<span class="w">  </span><span class="nt">removeInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">issues</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">"[node</span><span class="nv"> </span><span class="s">'&lt;node&gt;']</span><span class="nv"> </span><span class="s">failed</span><span class="nv"> </span><span class="s">to</span><span class="nv"> </span><span class="s">remove</span><span class="nv"> </span><span class="s">osd</span><span class="nv"> </span><span class="s">'2'"</span>
+<span class="w">    </span><span class="nt">cleanupMap</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">&lt;node&gt;</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">osdMapping</span><span class="p">:</span>
+<span class="w">          </span><span class="s">"2"</span><span class="p p-Indicator">:</span>
+<span class="w">            </span><span class="nt">removeStatus</span><span class="p">:</span>
+<span class="w">              </span><span class="nt">osdRemoveStatus</span><span class="p">:</span>
+<span class="w">                </span><span class="nt">status</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Failed</span>
+<span class="w">                </span><span class="nt">error</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">timeout (30m0s) reached for waiting pg rebalance</span>
 </code></pre></div>
+<p>The same timeout also limits the wait for the <code>ceph osd ok-to-stop</code> check
+before the Ceph OSD is moved out. In this case, the <code>error</code> field contains
+<code>timeout (30m0s) reached for waiting ok-to-stop on osd '2'</code>.</p>
 <p><strong>To resolve the issue</strong>, increase the timeout for all future
 <code>CephOsdRemoveTask</code> resources:</p>
 <p>Update <code>pelagia-lcmconfig</code> ConfigMap in Pelagia namespace with the key <code>TASK_OSD_PG_REBALANCE_TIMEOUT_MIN</code> and desired
@@ -3490,7 +3475,7 @@ timeout in minutes in string format:</p>
 </code></pre></div></p>
 <p>where <code>"180"</code> means 180 minutes before timeout.</p>
 <p>If you have an existing <code>CephOsdRemoveTask</code> resource with issues in
-<code>messages</code> to process:</p>
+<code>status.removeInfo.issues</code> to process:</p>
 <ol>
 <li>In the failed <code>CephOsdRemoveTask</code> resource, copy the <code>spec</code> section.</li>
 <li>Create a new <code>CephOsdRemoveTask</code> with a different name. For details,
@@ -3537,7 +3522,7 @@ timeout in minutes in string format:</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../ceph-rebalance-stuck/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Ceph rebalancing gets stuck during disabled node removal">
+          <a href="../ceph-pg-damaged/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Ceph health reports PG_DAMAGED after a failed disk or node replacement">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3547,20 +3532,20 @@ timeout in minutes in string format:</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Ceph rebalancing gets stuck during disabled node removal
+                Ceph health reports PG_DAMAGED after a failed disk or node replacement
               </div>
             </div>
           </a>
         
         
           
-          <a href="../stuck-maintenance/" class="md-footer__link md-footer__link--next" aria-label="Next: Maintenance stuck on a compact Ceph cluster">
+          <a href="../stuck-maintenance/" class="md-footer__link md-footer__link--next" aria-label="Next: Maintenance stuck on a compact Ceph cluster during OSD rebalancing">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Maintenance stuck on a compact Ceph cluster
+                Maintenance stuck on a compact Ceph cluster during OSD rebalancing
               </div>
             </div>
             <div class="md-footer__button md-icon">

@@ -3003,8 +3003,6 @@
       
         
       
-        
-      
     
     
     
@@ -3267,34 +3265,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../ceph-rebalance-stuck/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ceph rebalancing gets stuck during disabled node removal
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../cephosdremovetask-timeout/" class="md-nav__link">
         
   
@@ -3330,7 +3300,7 @@
   <span class="md-ellipsis">
     
   
-    Maintenance stuck on a compact Ceph cluster
+    Maintenance stuck on a compact Ceph cluster during OSD rebalancing
   
 
     
@@ -3470,6 +3440,14 @@
 <code>store.db</code> size of the Ceph Monitor is rapidly growing and the <code>compaction</code>
 procedure is not working. In most cases, <code>store.db</code> starts storing a number
 of <code>logm</code> keys that are buffered due to Ceph OSD shadow errors.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Pelagia ignores <code>MON_DISK_LOW</code> by default, so this health message does not
+appear in the <code>CephDeploymentHealth</code> status. To see it, run <code>ceph health detail</code>
+in the <code>pelagia-ceph-toolbox</code> pod:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>health<span class="w"> </span>detail
+</code></pre></div></p>
+</div>
 <p><strong>To verify whether the store.db size is rapidly growing:</strong></p>
 <ol>
 <li>

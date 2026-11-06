@@ -3003,8 +3003,6 @@
       
         
       
-        
-      
     
     
     
@@ -3267,34 +3265,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../ceph-rebalance-stuck/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Ceph rebalancing gets stuck during disabled node removal
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../cephosdremovetask-timeout/" class="md-nav__link">
         
   
@@ -3330,7 +3300,7 @@
   <span class="md-ellipsis">
     
   
-    Maintenance stuck on a compact Ceph cluster
+    Maintenance stuck on a compact Ceph cluster during OSD rebalancing
   
 
     
@@ -3466,7 +3436,7 @@
 
 <p><a id="ceph-exporter-crash-the-ceph-exporter-pods-are-present-in-the-ceph-crash-list"></a></p>
 <h1 id="the-ceph-exporter-pods-are-present-in-the-ceph-crash-list">The ceph-exporter pods are present in the Ceph crash list<a class="headerlink" href="#the-ceph-exporter-pods-are-present-in-the-ceph-crash-list" title="Permanent link">#</a></h1>
-<p>After a managed cluster update, the <code>ceph-exporter</code> pods may be present in
+<p>After a cluster update, the <code>ceph-exporter</code> pods may be present in
 the <strong>ceph crash ls</strong> or <strong>ceph health detail</strong> list while
 <code>rook-ceph-exporter</code> attempts to obtain the port that is still in use.
 For example:
@@ -3474,12 +3444,13 @@ For example:
 
 HEALTH_WARN<span class="w"> </span><span class="m">1</span><span class="w"> </span>daemons<span class="w"> </span>have<span class="w"> </span>recently<span class="w"> </span>crashed
 <span class="o">[</span>WRN<span class="o">]</span><span class="w"> </span>RECENT_CRASH:<span class="w"> </span><span class="m">1</span><span class="w"> </span>daemons<span class="w"> </span>have<span class="w"> </span>recently<span class="w"> </span>crashed
-<span class="w">    </span>client.ceph-exporter<span class="w"> </span>crashed<span class="w"> </span>on<span class="w"> </span>host<span class="w"> </span>kaas-node-b59f5e63-2bfd-43aa-bc80-42116d71188c<span class="w"> </span>at<span class="w"> </span><span class="m">2024</span>-10-01T16:43:31.311563Z
+<span class="w">    </span>client.ceph-exporter<span class="w"> </span>crashed<span class="w"> </span>on<span class="w"> </span>host<span class="w"> </span>&lt;nodeName&gt;<span class="w"> </span>at<span class="w"> </span><span class="m">2024</span>-10-01T16:43:31.311563Z
 </code></pre></div></p>
-<p>The issue does not block the managed cluster update. Once the port becomes
+<p>The issue does not block the cluster update. Once the port becomes
 available, <code>rook-ceph-exporter</code> obtains the port and the issue disappears.</p>
-<p><strong>To resolve the issue</strong>, run the following command to remove <code>ceph-exporter</code> pods from the Ceph crash list:
-<div class="highlight"><pre><span></span><code>ceph<span class="w"> </span>crash<span class="w"> </span>archive-all
+<p><strong>To resolve the issue</strong>, run the following command in the <code>pelagia-ceph-toolbox</code> pod to remove
+<code>ceph-exporter</code> pods from the Ceph crash list:
+<div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>deploy/pelagia-ceph-toolbox<span class="w"> </span>--<span class="w"> </span>ceph<span class="w"> </span>crash<span class="w"> </span>archive-all
 </code></pre></div></p>
 
 
