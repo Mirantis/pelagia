@@ -147,8 +147,8 @@ following procedure for each Ceph OSD one by one.
     exit
     ```
 
-18. Clean up the disk used by the removed Ceph OSD. For details, see official
-    [Rook: Zapping Devices](https://github.com/rook/rook/blob/master/Documentation/Storage-Configuration/ceph-teardown.md#zapping-devices).
+18. Clean up the disk used by the removed Ceph OSD. For details, see
+    [Rook documentation: Zapping Devices](https://rook.io/docs/rook/{{ rook_doc_version }}/Storage-Configuration/ceph-teardown/#zapping-devices).
 
     !!! warning
 
