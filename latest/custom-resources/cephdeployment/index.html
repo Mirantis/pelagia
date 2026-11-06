@@ -4416,11 +4416,16 @@ permission on the mount point of persistent volumes based on any
 <ul>
 <li><code>name</code> - Mandatory. Ceph Object Storage instance name.</li>
 <li><code>usedForOpenstack</code> - Optional. Enables consumption of the current Ceph RGW instance by OpenStack,
-  which allows adding the required OpenStack parameters to the Ceph RGW configuration.</li>
+  which allows adding the required OpenStack parameters to the Ceph RGW configuration.
+  For the first such instance, Pelagia also creates the <code>rgw-ceilometer</code> user for OpenStack metrics.
+  If <code>gatewayHTTPRoutes</code> is not specified, Pelagia creates the default <code>&lt;name&gt;-openstack-route</code>
+  Gateway API <code>HTTPRoute</code> for the instance. If <code>lcmConfig.useIngress</code> is set to <code>true</code>
+  in the Helm chart values, Pelagia also creates an Ingress for the instance.</li>
 <li><code>auxiliaryService</code> - Optional. Enables the current Ceph RGW instance to operate without a <code>StorageClass</code>
   and external API access. Useful for auxiliary instances, such as a Ceph RGW multisite
   replication daemon or an instance providing Ceph RGW admin API access.</li>
 <li><code>servedByIngress</code> - Optional. Enables the current Ceph RGW instance to be used by the Ingress controller.
+  Takes effect only if <code>lcmConfig.useIngress</code> is set to <code>true</code> in the Helm chart values, which is <code>false</code> by default.
   Deprecated in favor of the Gateway API <code>HTTPRoutes</code>.</li>
 <li><code>spec</code> - Mandatory. Represents the Rook <code>CephObjectStore</code> specification. For details, see <a href="https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-store-crd/">CephObjectStore CRD</a> and <a href="https://rook.io/docs/rook/v1.20/CRDs/specification/#ceph.rook.io/v1.CephObjectStore">CephObjectStore API specification</a>.</li>
 </ul>
@@ -4499,21 +4504,21 @@ For details, see <a href="https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ce
 <p><code>realms</code> - List of realms to use. Each item represents the Rook <code>CephObjectRealm</code> specification.</p>
 <ul>
 <li><code>name</code> - Mandatory. The realm name.</li>
-<li><code>spec</code> - Specification of <code>CephObjectRealm</code>. For details, see <a href="https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-realm-crd/">CephObjectRealm CRD</a>.</li>
+<li><code>spec</code> - Optional. Specification of <code>CephObjectRealm</code>. For details, see <a href="https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-realm-crd/">CephObjectRealm CRD</a>.</li>
 </ul>
 </li>
 <li>
 <p><code>zonegroups</code> - List of zone groups for realms. Each item represents the Rook <code>CephObjectZoneGroup</code> specification.</p>
 <ul>
 <li><code>name</code> - Mandatory. The zone group name.</li>
-<li><code>spec</code> - Specification of <code>CephObjectZoneGroup</code>. For details, see <a href="https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-zonegroup-crd/">CephObjectZoneGroup CRD</a>.</li>
+<li><code>spec</code> - Mandatory. Specification of <code>CephObjectZoneGroup</code>. The <code>realm</code> field must refer to a realm defined in <code>realms</code>. For details, see <a href="https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-zonegroup-crd/">CephObjectZoneGroup CRD</a>.</li>
 </ul>
 </li>
 <li>
-<p><code>zones</code> - List of zones used within one zone group. Each item represents the Rook <code>CephObjectZone</code> specification.</p>
+<p><code>zones</code> - List of zones for zone groups. Each item represents the Rook <code>CephObjectZone</code> specification.</p>
 <ul>
 <li><code>name</code> - Mandatory. The zone name.</li>
-<li><code>spec</code> - Specification of <code>CephObjectZone</code>. For details, see <a href="https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-zone-crd/">CephObjectZone CRD</a>.</li>
+<li><code>spec</code> - Mandatory. Specification of <code>CephObjectZone</code>. The <code>zoneGroup</code> field must refer to a zone group defined in <code>zonegroups</code>. For details, see <a href="https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-zone-crd/">CephObjectZone CRD</a>.</li>
 </ul>
 </li>
 </ul>
@@ -4621,15 +4626,12 @@ For details, see <a href="https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ce
 </details>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>,
-Ceph OSD removal cannot be performed. The minimum replica size equals a rounded
-up half of the specified <code>replicated.size</code>.</p>
-<p>For example, if <code>replicated.size</code> is <code>2</code>, the minimal replica size is
-<code>1</code>, and if <code>replicated.size</code> is <code>3</code>, then the minimal replica size
-is <code>2</code>. The replica size of <code>1</code> allows Ceph having PGs with only one
-Ceph OSD in the <code>acting</code> state, which may cause a <code>PG_TOO_DEGRADED</code>
-health warning that blocks Ceph OSD removal. Mirantis recommends setting
-<code>replicated.size</code> to <code>3</code> for each Ceph pool.</p>
+<p>We do not recommend using replicated Ceph pools with <code>replicated.size</code> of less
+than <code>3</code> in production environments. For such pools, Ceph OSD removal may cause
+issues. If <code>replicated.size</code> is <code>1</code>, Ceph LCM operations cannot function correctly.
+Set <code>replicated.size</code> to <code>3</code> for each replicated Ceph pool. For erasure-coded pools,
+the minimal recommended configuration is <code>2+1</code>, that is,
+<code>erasureCoded.dataChunks: 2</code> and <code>erasureCoded.codingChunks: 1</code>.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>

@@ -3792,12 +3792,12 @@ device, refer to <a href="https://rook.io/docs/rook/v1.20/Storage-Configuration/
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If you want to add a Ceph OSD on top of a <strong>raw</strong> device that already exists
-on a node or is <strong>hot-plugged</strong>, add the required device using the following guidelines:</p>
+<p>You can add a Ceph OSD on top of a <strong>raw</strong> device that is already present on a node
+or that you add to the node later. To add a raw device to a node:</p>
 <ul>
-<li>You can add a raw device to a node during node deployment.</li>
-<li>If a node supports adding devices without a node reboot, you can hot plug a raw device to a node.</li>
-<li>If a node does not support adding devices without a node reboot, you can hot plug a raw device during node shutdown.</li>
+<li>Add the device during node deployment.</li>
+<li>If the node supports adding devices without a reboot, hot plug the device.</li>
+<li>If the node does not support it, shut down the node, add the device, and start the node again.</li>
 </ul>
 </div>
 <ol>

@@ -3647,11 +3647,16 @@ instances and automatically manage its resources such as users.</p>
 <ul>
 <li><code>name</code> - Mandatory. Ceph Object Storage instance name.</li>
 <li><code>usedForOpenstack</code> - Optional. Enables consumption of the current Ceph RGW instance by OpenStack,
-  which allows adding the required OpenStack parameters to the Ceph RGW configuration.</li>
+  which allows adding the required OpenStack parameters to the Ceph RGW configuration.
+  For the first such instance, Pelagia also creates the <code>rgw-ceilometer</code> user for OpenStack metrics.
+  If <code>gatewayHTTPRoutes</code> is not specified, Pelagia creates the default <code>&lt;name&gt;-openstack-route</code>
+  Gateway API <code>HTTPRoute</code> for the instance. If <code>lcmConfig.useIngress</code> is set to <code>true</code>
+  in the Helm chart values, Pelagia also creates an Ingress for the instance.</li>
 <li><code>auxiliaryService</code> - Optional. Enables the current Ceph RGW instance to operate without a <code>StorageClass</code>
   and external API access. Useful for auxiliary instances, such as a Ceph RGW multisite
   replication daemon or an instance providing Ceph RGW admin API access.</li>
 <li><code>servedByIngress</code> - Optional. Enables the current Ceph RGW instance to be used by the Ingress controller.
+  Takes effect only if <code>lcmConfig.useIngress</code> is set to <code>true</code> in the Helm chart values, which is <code>false</code> by default.
   Deprecated in favor of the Gateway API <code>HTTPRoutes</code>.</li>
 <li><code>spec</code> - Mandatory. Represents the Rook <code>CephObjectStore</code> specification. For details, see <a href="https://rook.io/docs/rook/v1.20/CRDs/Object-Storage/ceph-object-store-crd/">CephObjectStore CRD</a> and <a href="https://rook.io/docs/rook/v1.20/CRDs/specification/#ceph.rook.io/v1.CephObjectStore">CephObjectStore API specification</a>.</li>
 </ul>

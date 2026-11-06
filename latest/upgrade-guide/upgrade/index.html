@@ -3474,17 +3474,18 @@
 <span class="w">    </span>--version<span class="w"> </span>&lt;target-version&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-n<span class="w"> </span>pelagia
 </code></pre></div></p>
-<p>This command upgrades Pelagia controllers in the <code>pelagia</code> namespace.</p>
-<p>Besides its own controllers, Pelagia can deliver updated Rook and Ceph manifests along with images.
- If <code>cephRelease</code> is not pinned in Pelagia values, Pelagia will automatically update a Ceph version if a new version is available.</p>
-<p>To pin the Ceph version in the <code>cephRelease</code> field of the Pelagia values file. For example:
+<p>This command upgrades Pelagia controllers in the <code>pelagia</code> namespace or in the namespace defined in <code>global.namespace</code>, if set.</p>
+<p>Besides its own controllers, Pelagia can deliver updated Rook, Ceph CSI Operator, <code>snapshot-controller</code>, and Ceph manifests along with images.
+ If <code>cephRelease</code> is not pinned in Pelagia values, Pelagia will automatically update a Ceph release if a new release is available.</p>
+<p>To pin the Ceph release in the <code>cephRelease</code> field of the Pelagia values file:
  <div class="highlight"><pre><span></span><code>helm<span class="w"> </span>upgrade<span class="w"> </span>--install<span class="w"> </span>pelagia-ceph<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>oci://registry.mirantis.com/pelagia/pelagia-ceph<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>--version<span class="w"> </span>&lt;target-version&gt;<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>-n<span class="w"> </span>pelagia<span class="w"> </span><span class="se">\</span>
-<span class="w">    </span>--set<span class="w"> </span><span class="nv">cephRelease</span><span class="o">=</span>squid
+<span class="w">    </span>--set<span class="w"> </span><span class="nv">cephRelease</span><span class="o">=</span>&lt;target-ceph-release-name&gt;
 </code></pre></div></p>
-<p>However, we do not recommend pinning the Ceph version to ensure you obtain important updates and bug fixes.</p>
+<p>Set <code>&lt;target-ceph-release-name&gt;</code> in lowercase. An empty value means the latest supported Ceph release.</p>
+<p>However, we do not recommend pinning the Ceph release to ensure you obtain important updates and bug fixes.</p>
 </li>
 <li>
 <p>Verify the Pelagia setup and Ceph cluster health as described in <a href="../../ops-guide/verify-ceph/">Verify Ceph</a>.</p>

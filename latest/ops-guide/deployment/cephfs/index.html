@@ -3629,15 +3629,12 @@ with the following CephFS parameters:</p>
 </code></pre></div></p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>When using the non-recommended Ceph pools <code>replicated.size</code> of less than <code>3</code>,
-Ceph OSD removal cannot be performed. The minimum replica size equals a rounded
-up half of the specified <code>replicated.size</code>.</p>
-<p>For example, if <code>replicated.size</code> is <code>2</code>, the minimal replica size is
-<code>1</code>, and if <code>replicated.size</code> is <code>3</code>, then the minimal replica size
-is <code>2</code>. The replica size of <code>1</code> allows Ceph having PGs with only one
-Ceph OSD in the <code>acting</code> state, which may cause a <code>PG_TOO_DEGRADED</code>
-health warning that blocks Ceph OSD removal. Mirantis recommends setting
-<code>replicated.size</code> to <code>3</code> for each Ceph pool.</p>
+<p>We do not recommend using replicated Ceph pools with <code>replicated.size</code> of less
+than <code>3</code> in production environments. For such pools, Ceph OSD removal may cause
+issues. If <code>replicated.size</code> is <code>1</code>, Ceph LCM operations cannot function correctly.
+Set <code>replicated.size</code> to <code>3</code> for each replicated Ceph pool. For erasure-coded pools,
+the minimal recommended configuration is <code>2+1</code>, that is,
+<code>erasureCoded.dataChunks: 2</code> and <code>erasureCoded.codingChunks: 1</code>.</p>
 </div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
