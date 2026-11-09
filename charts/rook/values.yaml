@@ -4,7 +4,7 @@ global:
 images:
   operator:
     repository: pelagia/rook
-    tag: v1.20.9-6
+    tag: v1.20.10-4
   csi:
     ceph:
       repository: pelagia/cephcsi
