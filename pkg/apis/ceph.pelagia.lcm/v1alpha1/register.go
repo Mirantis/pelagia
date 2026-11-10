@@ -7,9 +7,10 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/scheme"
 )
 
 var (
@@ -17,10 +18,23 @@ var (
 	SchemeGroupVersion = schema.GroupVersion{Group: "lcm.mirantis.com", Version: "v1alpha1"}
 
 	// SchemeBuilder is used to add go types to the GroupVersionKind scheme
-	SchemeBuilder = &scheme.Builder{GroupVersion: SchemeGroupVersion}
+	SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
 
 	AddToScheme = SchemeBuilder.AddToScheme
 )
+
+func addKnownTypes(scheme *runtime.Scheme) error {
+	scheme.AddKnownTypes(SchemeGroupVersion,
+		&CephDeployment{}, &CephDeploymentList{},
+		&CephDeploymentSecret{}, &CephDeploymentSecretList{},
+		&CephDeploymentMaintenance{}, &CephDeploymentMaintenanceList{},
+		&CephDeploymentHealthList{}, &CephDeploymentHealth{},
+		&CephOsdRemoveTask{}, &CephOsdRemoveTaskList{},
+	)
+
+	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
+	return nil
+}
 
 func Resource(resource string) schema.GroupResource {
 	return SchemeGroupVersion.WithResource(resource).GroupResource()

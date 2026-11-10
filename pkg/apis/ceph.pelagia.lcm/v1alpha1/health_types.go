@@ -281,7 +281,3 @@ type CephDeploymentHealthList struct {
 
 	Items []CephDeploymentHealth `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&CephDeploymentHealthList{}, &CephDeploymentHealth{})
-}
