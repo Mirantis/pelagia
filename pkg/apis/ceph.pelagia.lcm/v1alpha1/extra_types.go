@@ -116,8 +116,3 @@ type CephDeploymentMaintenanceList struct {
 	// Items represents a list of CephDeploymentMaintenance objects
 	Items []CephDeploymentMaintenance `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(
-		&CephDeploymentSecret{}, &CephDeploymentSecretList{}, &CephDeploymentMaintenance{}, &CephDeploymentMaintenanceList{})
-}

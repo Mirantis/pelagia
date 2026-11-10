@@ -318,7 +318,3 @@ type CephOsdRemoveTaskList struct {
 	// Items contains a list of CephOsdRemoveTask objects
 	Items []CephOsdRemoveTask `json:"items"`
 }
-
-func init() {
-	SchemeBuilder.Register(&CephOsdRemoveTask{}, &CephOsdRemoveTaskList{})
-}

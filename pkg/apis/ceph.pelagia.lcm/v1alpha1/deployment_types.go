@@ -474,10 +474,6 @@ type CephDeploymentList struct {
 	Items []CephDeployment `json:"items"`
 }
 
-func init() {
-	SchemeBuilder.Register(&CephDeployment{}, &CephDeploymentList{})
-}
-
 type CephDeploymentIngressConfig struct {
 	// Annotations is an extra annotations set to proxy
 	// +optional
