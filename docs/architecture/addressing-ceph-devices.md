@@ -62,7 +62,7 @@ spec:
       devices:
       - config:
           deviceClass: ssd
-        fullPath: /dev/disk/by-id/scsi-1ATA_WDC_WDS100T2B0A-00SM50_200231440912
+        fullpath: /dev/disk/by-id/scsi-1ATA_WDC_WDS100T2B0A-00SM50_200231440912
     - name: cluster-storage-worker-1
       roles:
       - mgr
@@ -70,7 +70,7 @@ spec:
       devices:
       - config:
           deviceClass: ssd
-        fullPath: /dev/disk/by-id/nvme-SAMSUNG_MZ1LB3T8HMLA-00007_S46FNY0R394543
+        fullpath: /dev/disk/by-id/nvme-SAMSUNG_MZ1LB3T8HMLA-00007_S46FNY0R394543
     - name: cluster-storage-worker-2
       roles:
       - mgr
@@ -78,7 +78,7 @@ spec:
       devices:
       - config:
           deviceClass: ssd
-        fullPath: /dev/disk/by-id/nvme-SAMSUNG_ML1EB3T8HMLA-00007_S46FNY1R130423
+        fullpath: /dev/disk/by-id/nvme-SAMSUNG_ML1EB3T8HMLA-00007_S46FNY1R130423
   blockStorage:
     pools:
     - name: kubernetes
