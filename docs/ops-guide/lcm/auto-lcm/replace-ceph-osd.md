@@ -52,7 +52,7 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
        - name: <nodeName>
          devices:
          - name: <deviceName>  # remove the entire item from devices list
-           # fullPath: <deviceByPath> if device is specified with symlink instead of name
+           # fullpath: <deviceByPath> if device is specified with symlink instead of name
            config:
              deviceClass: hdd
      ```
@@ -333,9 +333,9 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
      nodes:
      - name: <nodeName>
        devices:
-       - fullPath: <deviceByID> # Recommended. Contains either disk serial number or wwn
+       - fullpath: <deviceByID> # Recommended. Contains either disk serial number or wwn
          # name: <deviceByID> # Not recommended. If a device is supposed to be added with by-id.
-         # fullPath: <deviceByPath> # Not recommended. If a device is supposed to be added with by-path.
+         # fullpath: <deviceByPath> # Not recommended. If a device is supposed to be added with by-path.
          config:
            deviceClass: hdd
    ```

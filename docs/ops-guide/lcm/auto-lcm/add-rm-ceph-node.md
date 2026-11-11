@@ -41,7 +41,7 @@ nodes.
        devices:
        - config:
            deviceClass: hdd
-         fullPath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
+         fullpath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
      ```
 
      You can also add a new node with device filters. For example:

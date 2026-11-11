@@ -27,7 +27,7 @@ To remove the affected Ceph OSD with a metadata device as a device name, follow 
       - name: <nodeName>
         devices:
         - name: <deviceName>  # remove the entire item from the devices list
-          # fullPath: <deviceByPath> if device is specified using by-path instead of name
+          # fullpath: <deviceByPath> if device is specified using by-path instead of name
           config:
             deviceClass: hdd
             metadataDevice: /dev/nvme0n1
@@ -121,9 +121,9 @@ When you run `lvcreate`, account for shared space on the metadata disk and for a
      nodes:
      - name: <nodeName>
        devices:
-       - fullPath: <deviceByID> # Recommended. Add a new device by-id symlink, for example, /dev/disk/by-id/...
+       - fullpath: <deviceByID> # Recommended. Add a new device by-id symlink, for example, /dev/disk/by-id/...
          #name: <deviceByID> # Not recommended. Add a new device by ID, for example, /dev/disk/by-id/...
-         #fullPath: <deviceByPath> # Not recommended. Add a new device by path, for example, /dev/disk/by-path/...
+         #fullpath: <deviceByPath> # Not recommended. Add a new device by path, for example, /dev/disk/by-path/...
          config:
            deviceClass: hdd
            metadataDevice: /dev/<vgName>/meta_1
