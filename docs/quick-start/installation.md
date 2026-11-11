@@ -79,17 +79,17 @@ Ceph cluster, it could be managed by `CephDeployment` resource.
         devices:
         - config:
             deviceClass: hdd
-          fullPath: /dev/disk/by-id/${CEPH_OSD_DEVICE_0}
+          fullpath: /dev/disk/by-id/${CEPH_OSD_DEVICE_0}
       - name: ${CEPH_NODE_WORKER_1}
         devices:
         - config:
             deviceClass: hdd
-          fullPath: /dev/disk/by-id/${CEPH_OSD_DEVICE_1}
+          fullpath: /dev/disk/by-id/${CEPH_OSD_DEVICE_1}
       - name: ${CEPH_NODE_WORKER_2}
         devices:
         - config:
             deviceClass: hdd
-          fullPath: /dev/disk/by-id/${CEPH_OSD_DEVICE_2}
+          fullpath: /dev/disk/by-id/${CEPH_OSD_DEVICE_2}
       pools:
       - name: kubernetes
         deviceClass: hdd

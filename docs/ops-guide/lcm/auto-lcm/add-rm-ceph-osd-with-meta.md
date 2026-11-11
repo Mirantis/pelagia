@@ -42,11 +42,11 @@ OSDs with a separate metadata device.
        devices:
        - config: # existing item
            deviceClass: hdd
-         fullPath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
+         fullpath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
        - config: # new item
            deviceClass: hdd
            metadataDevice: /dev/bluedb/meta_1
-         fullPath: /dev/disk/by-id/scsi-0ATA_HGST_HUS724040AL_PN1334PEHN1VBC
+         fullpath: /dev/disk/by-id/scsi-0ATA_HGST_HUS724040AL_PN1334PEHN1VBC
      ```
 
 4. Verify that the Ceph OSD is successfully deployed on the specified node. The `CephDeploymentHealth` CR
@@ -105,11 +105,11 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
        devices:
        - config:
            deviceClass: hdd
-         fullPath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
+         fullpath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
        - config: # remove the entire item entry from devices list
            deviceClass: hdd
            metadataDevice: /dev/bluedb/meta_1
-         fullPath: /dev/disk/by-id/scsi-0ATA_HGST_HUS724040AL_PN1334PEHN1VBC
+         fullpath: /dev/disk/by-id/scsi-0ATA_HGST_HUS724040AL_PN1334PEHN1VBC
      ```
 
 3. Create a YAML template for the `CephOsdRemoveTask` CR. Select from the following options:

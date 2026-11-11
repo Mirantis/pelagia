@@ -78,7 +78,7 @@ You can apply the below procedure in the following cases:
           - name: <nodeName>
             devices:
             - name: <deviceName>  # remove the entire item from the devices list
-              # fullPath: <deviceByPath> if device is specified using by-path instead of name
+              # fullpath: <deviceByPath> if device is specified using by-path instead of name
               config:
                 deviceClass: hdd
                 metadataDevice: /dev/bluedb/meta_1
@@ -217,9 +217,9 @@ You can apply the below procedure in the following cases:
      nodes:
      - name: <nodeName>
        devices:
-       - fullPath: <deviceByID> # Recommended. Add a new device by-id symlink, for example, /dev/disk/by-id/...
+       - fullpath: <deviceByID> # Recommended. Add a new device by-id symlink, for example, /dev/disk/by-id/...
          #name: <deviceByID> # Not recommended. Add a new device by ID, for example, /dev/disk/by-id/...
-         #fullPath: <deviceByPath> # Not recommended. Add a new device by path, for example, /dev/disk/by-path/...
+         #fullpath: <deviceByPath> # Not recommended. Add a new device by path, for example, /dev/disk/by-path/...
          config:
            deviceClass: hdd
            metadataDevice: /dev/bluedb/meta_1 # Must match the value of the previously removed OSD
