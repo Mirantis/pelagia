@@ -25,7 +25,7 @@
       
       
       <link rel="icon" href="../../../../assets/favicon.ico">
-      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.1">
     
     
       
@@ -3657,7 +3657,7 @@ will be used as a new metadata device, and re-create all affected Ceph OSDs.</p>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;nodeName&gt;</span>
 <span class="w">    </span><span class="nt">devices</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceName1&gt;</span><span class="w">  </span><span class="c1"># remove the entire item from the devices list</span>
-<span class="w">      </span><span class="c1"># fullPath: &lt;deviceByPath&gt; if device is specified using symlink instead of name</span>
+<span class="w">      </span><span class="c1"># fullpath: &lt;deviceByPath&gt; if device is specified using symlink instead of name</span>
 <span class="w">      </span><span class="nt">config</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">        </span><span class="nt">metadataDevice</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;metadataDevice&gt;</span>
@@ -3852,21 +3852,21 @@ device, refer to <a href="https://rook.io/docs/rook/v1.19/Storage-Configuration/
 <span class="w">  </span><span class="nt">nodes</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;nodeName&gt;</span>
 <span class="w">    </span><span class="nt">devices</span><span class="p">:</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">fullPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceByID-1&gt;</span><span class="w"> </span><span class="c1"># Recommended. Add the new device by ID /dev/disk/by-id/...</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">fullpath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceByID-1&gt;</span><span class="w"> </span><span class="c1"># Recommended. Add the new device by ID /dev/disk/by-id/...</span>
 <span class="w">      </span><span class="c1">#name: &lt;deviceByID-1&gt; # Not recommended. Add a new device by ID, for example, /dev/disk/by-id/...</span>
-<span class="w">      </span><span class="c1">#fullPath: &lt;deviceByPath-1&gt; # Not recommended. Add a new device by path /dev/disk/by-path/...</span>
+<span class="w">      </span><span class="c1">#fullpath: &lt;deviceByPath-1&gt; # Not recommended. Add a new device by path /dev/disk/by-path/...</span>
 <span class="w">      </span><span class="nt">config</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">        </span><span class="nt">metadataDevice</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/&lt;vgName&gt;/&lt;lvName-1&gt;</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">fullPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceByID-2&gt;</span><span class="w"> </span><span class="c1"># Recommended. Add the new device by ID /dev/disk/by-id/...</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">fullpath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceByID-2&gt;</span><span class="w"> </span><span class="c1"># Recommended. Add the new device by ID /dev/disk/by-id/...</span>
 <span class="w">      </span><span class="c1">#name: &lt;deviceByID-2&gt; # Not recommended. Add a new device by ID, for example, /dev/disk/by-id/...</span>
-<span class="w">      </span><span class="c1">#fullPath: &lt;deviceByPath-2&gt; # Not recommended. Add a new device by path /dev/disk/by-path/...</span>
+<span class="w">      </span><span class="c1">#fullpath: &lt;deviceByPath-2&gt; # Not recommended. Add a new device by path /dev/disk/by-path/...</span>
 <span class="w">      </span><span class="nt">config</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">        </span><span class="nt">metadataDevice</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/&lt;vgName&gt;/&lt;lvName-2&gt;</span>
-<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">fullPath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceByID-3&gt;</span><span class="w"> </span><span class="c1"># Recommended. Add the new device by ID /dev/disk/by-id/...</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">fullpath</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;deviceByID-3&gt;</span><span class="w"> </span><span class="c1"># Recommended. Add the new device by ID /dev/disk/by-id/...</span>
 <span class="w">      </span><span class="c1">#name: &lt;deviceByID-3&gt; # Not recommended. Add a new device by ID, for example, /dev/disk/by-id/...</span>
-<span class="w">      </span><span class="c1">#fullPath: &lt;deviceByPath-3&gt; # Not recommended. Add a new device by path /dev/disk/by-path/...</span>
+<span class="w">      </span><span class="c1">#fullpath: &lt;deviceByPath-3&gt; # Not recommended. Add a new device by path /dev/disk/by-path/...</span>
 <span class="w">      </span><span class="nt">config</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">deviceClass</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hdd</span>
 <span class="w">        </span><span class="nt">metadataDevice</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/dev/&lt;vgName&gt;/&lt;lvName-3&gt;</span>
@@ -3993,7 +3993,7 @@ kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w
       <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["toc.autohide", "search.suggest", "search.highlight", "navigation.tabs.sticky", "navigation.footer", "navigation.path", "content.code.copy", "navigation.top", "navigation.indexes"], "search": "../../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
     
   </body>
