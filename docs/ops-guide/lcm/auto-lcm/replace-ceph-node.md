@@ -158,9 +158,9 @@ Ceph OSD removal presupposes usage of a `CephOsdRemoveTask` CR. For workflow ove
      nodes:
      - name: <nodeName> # add new configuration for replaced Ceph node
        devices:
-       - fullPath: <deviceByID> # Recommended. Contains either disk serial number or wwn
+       - fullpath: <deviceByID> # Recommended. Contains either disk serial number or wwn
          # name: <deviceByID> # Not recommended. If a device is supposed to be added with by-id.
-         # fullPath: <deviceByPath> # if device is supposed to be added with by-path.
+         # fullpath: <deviceByPath> # if device is supposed to be added with by-path.
          config:
            deviceClass: hdd
          ...
