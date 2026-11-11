@@ -32,7 +32,7 @@ import (
 var BaseCephDeployment = cephlcmv1alpha1.CephDeployment{
 	ObjectMeta: LcmObjectMeta,
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		Cluster: &cephlcmv1alpha1.CephCluster{
+		Cluster: cephlcmv1alpha1.CephCluster{
 			RawExtension: runtime.RawExtension{
 				Raw: ConvertStructToRaw(
 					cephv1.ClusterSpec{
@@ -246,7 +246,7 @@ var CephDeployNonMosk = cephlcmv1alpha1.CephDeployment{
 		Generation: int64(10),
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		Cluster: BaseCephDeployment.Spec.Cluster.DeepCopy(),
+		Cluster: *BaseCephDeployment.Spec.Cluster.DeepCopy(),
 		BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
 			Pools: []cephlcmv1alpha1.CephPool{CephDeployPoolReplicated},
 		},
@@ -332,7 +332,7 @@ var CephDeployMosk = cephlcmv1alpha1.CephDeployment{
 		},
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		Cluster: BaseCephDeployment.Spec.Cluster.DeepCopy(),
+		Cluster: *BaseCephDeployment.Spec.Cluster.DeepCopy(),
 		BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
 			Pools: []cephlcmv1alpha1.CephPool{
 				CephDeployPoolReplicated,
@@ -442,7 +442,7 @@ var CephDeployExternal = cephlcmv1alpha1.CephDeployment{
 		},
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		Cluster: &cephlcmv1alpha1.CephCluster{
+		Cluster: cephlcmv1alpha1.CephCluster{
 			RawExtension: runtime.RawExtension{
 				Raw: ConvertStructToRaw(
 					cephv1.ClusterSpec{
@@ -693,7 +693,7 @@ var CephDeploySingleNode = cephlcmv1alpha1.CephDeployment{
 		Generation: int64(10),
 	},
 	Spec: cephlcmv1alpha1.CephDeploymentSpec{
-		Cluster: BaseCephDeployment.Spec.Cluster.DeepCopy(),
+		Cluster: *BaseCephDeployment.Spec.Cluster.DeepCopy(),
 		BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
 			Pools: []cephlcmv1alpha1.CephPool{
 				{

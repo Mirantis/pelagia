@@ -341,7 +341,7 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 			Namespace: externalClusterNamespace,
 		},
 		Spec: cephlcmv1alpha1.CephDeploymentSpec{
-			Cluster: &cephlcmv1alpha1.CephCluster{
+			Cluster: cephlcmv1alpha1.CephCluster{
 				RawExtension: runtime.RawExtension{Raw: externalRaw},
 			},
 			BlockStorage: &cephlcmv1alpha1.CephBlockStorage{

@@ -42,7 +42,7 @@ type CephDeployment struct {
 type CephDeploymentSpec struct {
 	// Cluster stands for main Ceph cluster configuration
 	// Required to be specified.
-	Cluster *CephCluster `json:"cluster,omitempty"`
+	Cluster CephCluster `json:"cluster"`
 	// BlockStorage stands for configuration Ceph block storage,
 	// such as rbd pool and rbd mirroring
 	// +optional

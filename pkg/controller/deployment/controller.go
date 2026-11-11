@@ -97,14 +97,6 @@ func cephDplPredicate[T *cephlcmv1alpha1.CephDeployment]() predicate.TypedFuncs[
 			oldObject := (*cephlcmv1alpha1.CephDeployment)(e.ObjectOld)
 			newObject := (*cephlcmv1alpha1.CephDeployment)(e.ObjectNew)
 
-			// make diff happy with migrations stuff
-			if oldObject.Spec.Cluster == nil && newObject.Spec.Cluster != nil {
-				oldObject.Spec.Cluster = &cephlcmv1alpha1.CephCluster{}
-			}
-			if newObject.Spec.Cluster == nil && oldObject.Spec.Cluster != nil {
-				newObject.Spec.Cluster = &cephlcmv1alpha1.CephCluster{}
-			}
-
 			diff, _ := lcmcommon.GetObjectDiff(oldObject.Spec, newObject.Spec)
 			if diff != "" {
 				log.Info().Str(lcmcommon.LoggerObjectField, fmt.Sprintf("cephdeployment '%s/%s'", oldObject.Namespace, oldObject.Name)).Msgf("spec has changed for %q. diff=%s", newObject.Name, diff)

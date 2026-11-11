@@ -114,7 +114,7 @@ func TestProcessCephClients(t *testing.T) {
 func TestGenerateOpenStackClient(t *testing.T) {
 	cephDplClients := cephlcmv1alpha1.CephDeployment{
 		Spec: cephlcmv1alpha1.CephDeploymentSpec{
-			Cluster: unitinputs.CephDeployMosk.Spec.Cluster.DeepCopy(),
+			Cluster: *unitinputs.CephDeployMosk.Spec.Cluster.DeepCopy(),
 			BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
 				Pools: []cephlcmv1alpha1.CephPool{
 					unitinputs.GetCephDeployPool("vms", "vms"),
@@ -127,7 +127,7 @@ func TestGenerateOpenStackClient(t *testing.T) {
 	}
 	cephDplClientExtraVolumes := cephlcmv1alpha1.CephDeployment{
 		Spec: cephlcmv1alpha1.CephDeploymentSpec{
-			Cluster: unitinputs.CephDeployMosk.Spec.Cluster.DeepCopy(),
+			Cluster: *unitinputs.CephDeployMosk.Spec.Cluster.DeepCopy(),
 			BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
 				Pools: []cephlcmv1alpha1.CephPool{
 					unitinputs.GetCephDeployPool("vms", "vms"),
@@ -176,7 +176,7 @@ func TestGenerateOpenStackClient(t *testing.T) {
 			clientName: "cinder",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster:      unitinputs.CephDeployMosk.Spec.Cluster.DeepCopy(),
+					Cluster:      *unitinputs.CephDeployMosk.Spec.Cluster.DeepCopy(),
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: []cephlcmv1alpha1.CephPool{unitinputs.GetCephDeployPool("images", "images")}}},
 			},
 			poolsList:     &unitinputs.OpenstackCephBlockPoolsList,
@@ -201,7 +201,7 @@ func TestGenerateOpenStackClient(t *testing.T) {
 			clientName: "glance",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.CephDeployMosk.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.CephDeployMosk.Spec.Cluster.DeepCopy(),
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
 						Pools: []cephlcmv1alpha1.CephPool{unitinputs.GetCephDeployPool("volumes", "volumes")}}},
 			},
@@ -238,7 +238,7 @@ func TestGenerateOpenStackClient(t *testing.T) {
 			clientName: "nova",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.CephDeployMosk.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.CephDeployMosk.Spec.Cluster.DeepCopy(),
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
 						Pools: []cephlcmv1alpha1.CephPool{unitinputs.GetCephDeployPool("volumes", "volumes")}}},
 			},
@@ -303,7 +303,7 @@ func TestDefaultOpenstackClients(t *testing.T) {
 			name: "no openstack clients in spec - success",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
 						Pools: basePoolsForSpec}},
 			},
@@ -318,7 +318,7 @@ func TestDefaultOpenstackClients(t *testing.T) {
 			name: "openstack cinder client in spec - success",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster:      unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster:      *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Clients:      []cephlcmv1alpha1.CephClient{unitinputs.CephDeployClientCinder},
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: basePoolsForSpec},
 				},
@@ -333,7 +333,7 @@ func TestDefaultOpenstackClients(t *testing.T) {
 			name: "openstack cinder and nova client in spec - success",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Clients: []cephlcmv1alpha1.CephClient{
 						unitinputs.CephDeployClientCinder, unitinputs.CephDeployClientNova,
 					},
@@ -349,7 +349,7 @@ func TestDefaultOpenstackClients(t *testing.T) {
 			name: "all openstack clients in spec - success",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Clients: []cephlcmv1alpha1.CephClient{
 						unitinputs.CephDeployClientCinder, unitinputs.CephDeployClientGlance, unitinputs.CephDeployClientNova,
 					},
@@ -363,7 +363,7 @@ func TestDefaultOpenstackClients(t *testing.T) {
 			name: "manila not in spec, cephfs deployed - success",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster:      unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster:      *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: basePoolsForSpec},
 					SharedFilesystem: &cephlcmv1alpha1.CephSharedFilesystem{
 						Filesystems: []cephlcmv1alpha1.CephFilesystem{
@@ -387,7 +387,7 @@ func TestDefaultOpenstackClients(t *testing.T) {
 			name: "manila in spec, cephfs deployed - success",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Clients: []cephlcmv1alpha1.CephClient{
 						unitinputs.CephDeployClientCinder, unitinputs.CephDeployClientGlance, unitinputs.CephDeployClientNova, unitinputs.CephDeployClientManila,
 					},
@@ -401,7 +401,7 @@ func TestDefaultOpenstackClients(t *testing.T) {
 			name: "no openstack clients in spec and pool missing in spec - fail",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
 						Pools: []cephlcmv1alpha1.CephPool{},
 					},
@@ -414,7 +414,7 @@ func TestDefaultOpenstackClients(t *testing.T) {
 			name: "no clients in spec and pools raises error - failed",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster:      unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster:      *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Clients:      []cephlcmv1alpha1.CephClient{},
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{Pools: basePoolsForSpec},
 				},
@@ -635,7 +635,7 @@ func TestEnsureCephClients(t *testing.T) {
 			name: "ensure ceph clients - multiple clients with role, last marked as latest",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Clients: []cephlcmv1alpha1.CephClient{
 						func() cephlcmv1alpha1.CephClient {
 							cl := unitinputs.CephDeployClientTest.DeepCopy()
@@ -924,7 +924,7 @@ func TestEnsureCephClients(t *testing.T) {
 			name: "ensure ceph clients - openstack clients in spec updated only labels",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Clients: []cephlcmv1alpha1.CephClient{
 						unitinputs.CephDeployClientCinder, unitinputs.CephDeployClientGlance, unitinputs.CephDeployClientNova,
 					},
@@ -956,7 +956,7 @@ func TestEnsureCephClients(t *testing.T) {
 			name: "ensure ceph clients - openstack clients in spec created from defaults",
 			cephDpl: cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Clients: []cephlcmv1alpha1.CephClient{
 						{
 							Role: "cinder",
