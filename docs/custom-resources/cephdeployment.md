@@ -48,19 +48,19 @@ For the default `CephDeployment` CR, see the following example:
         devices:
         - config:
             deviceClass: ssd
-          fullPath: /dev/disk/by-id/scsi-1ATA_WDC_WDS100T2B0A-00SM50_200231434939
+          fullpath: /dev/disk/by-id/scsi-1ATA_WDC_WDS100T2B0A-00SM50_200231434939
       - name: cluster-storage-worker-1
         roles: []
         devices:
         - config:
             deviceClass: ssd
-          fullPath: /dev/disk/by-id/scsi-1ATA_WDC_WDS100T2B0A-00SM50_200231440912
+          fullpath: /dev/disk/by-id/scsi-1ATA_WDC_WDS100T2B0A-00SM50_200231440912
       - name: cluster-storage-worker-2
         roles: []
         devices:
         - config:
             deviceClass: ssd
-          fullPath: /dev/disk/by-id/scsi-1ATA_WDC_WDS100T2B0A-00SM50_200231443409
+          fullpath: /dev/disk/by-id/scsi-1ATA_WDC_WDS100T2B0A-00SM50_200231443409
       pools:
       - name: kubernetes
         storageClassOpts:
@@ -273,11 +273,11 @@ spec:
 
     !!! note
 
-        Recommending to use the ``fullPath`` field for defining
+        Recommending to use the ``fullpath`` field for defining
         ``by-id`` symlinks as persistent device identifiers. For details, see
         [Addressing Ceph storage devices](../architecture/addressing-ceph-devices.md#addressing-ceph-devices-addressing-ceph-storage-devices).
 
-    - ``fullPath`` - a storage device symlink. Accepts the following values:
+    - ``fullpath`` - a storage device symlink. Accepts the following values:
 
         - The device ``by-id`` symlink that contains the serial number of the
           physical device or contains ``wwn``. For example,
@@ -302,7 +302,7 @@ spec:
           generally used for templating Ceph node specification for node groups.
           For details, see the **ExtraOpts parameters** section below.
 
-        This parameter is mutually exclusive with ``fullPath``.
+        This parameter is mutually exclusive with ``fullpath``.
 
     - ``config`` - a map of device configurations that must contain a
       mandatory ``deviceClass`` parameter set to ``hdd``, ``ssd``, or
@@ -314,7 +314,7 @@ spec:
           nodes:
           - name: <node-a>
             devices:
-            - fullPath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
+            - fullpath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
               config:
                 deviceClass: hdd
                 metadataDevice: /dev/meta-1/nvme-dev-1
@@ -776,7 +776,7 @@ spec:
         devices:
           - config: # existing item
             deviceClass: <custom_class_name>
-            fullPath: /dev/disk/by-id/<unique_ID>
+            fullpath: /dev/disk/by-id/<unique_ID>
       pools:
       - name: pool-1
         deviceClass: <custom_class_name>
