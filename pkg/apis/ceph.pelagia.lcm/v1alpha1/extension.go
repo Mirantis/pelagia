@@ -28,11 +28,8 @@ import (
 	gatewayapi "sigs.k8s.io/gateway-api/apis/v1"
 )
 
-func (cl *CephCluster) GetSpec() (cephv1.ClusterSpec, error) {
+func (cl CephCluster) GetSpec() (cephv1.ClusterSpec, error) {
 	var cephClusterSpec cephv1.ClusterSpec
-	if cl == nil {
-		return cephClusterSpec, errors.New("spec: cluster field has nil pointer value provided")
-	}
 	if cl.Raw == nil && cl.Object == nil {
 		return cephClusterSpec, errors.New("spec: cluster field has no any data provided")
 	}

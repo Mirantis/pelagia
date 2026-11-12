@@ -106,7 +106,7 @@ func TestAlignSpecForAES256k(t *testing.T) {
 			name: "incorrect cephdpl without cluster spec as raw",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: &cephlcmv1alpha1.CephCluster{RawExtension: runtime.RawExtension{Raw: nil}},
+					Cluster: cephlcmv1alpha1.CephCluster{RawExtension: runtime.RawExtension{Raw: nil}},
 				},
 			},
 			expectedError: "spec.cluster does not contain raw CephCluster spec",

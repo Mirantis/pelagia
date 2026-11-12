@@ -261,7 +261,7 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			name: "generate openstack shared secret - external ceph cluster, ip rgw plain endpoint",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				object := unitinputs.CephDeployMosk.DeepCopy()
-				object.Spec.Cluster = unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
+				object.Spec.Cluster = *unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
 				rgwCasted, _ := object.Spec.ObjectStorage.Rgws[0].GetSpec()
 				rgwCasted.Gateway.SecurePort = 0
 				rgwCasted.Gateway.ExternalRgwEndpoints = []cephv1.EndpointAddress{{IP: "172.168.0.15"}}
@@ -282,7 +282,7 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			name: "generate openstack shared secret - external ceph cluster, hostname secure rgw endpoint",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				object := unitinputs.CephDeployMosk.DeepCopy()
-				object.Spec.Cluster = unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
+				object.Spec.Cluster = *unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
 				rgwCasted, _ := object.Spec.ObjectStorage.Rgws[0].GetSpec()
 				rgwCasted.Gateway.ExternalRgwEndpoints = []cephv1.EndpointAddress{{IP: "some-rgw-domain"}}
 				object.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCasted)
@@ -302,7 +302,7 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			name: "generate openstack shared secret - external ceph cluster, ip secure rgw endpoint",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				object := unitinputs.CephDeployMosk.DeepCopy()
-				object.Spec.Cluster = unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
+				object.Spec.Cluster = *unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
 				rgwCasted, _ := object.Spec.ObjectStorage.Rgws[0].GetSpec()
 				rgwCasted.Gateway.ExternalRgwEndpoints = []cephv1.EndpointAddress{{IP: "10.0.0.1"}}
 				object.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCasted)
@@ -322,7 +322,7 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			name: "generate openstack shared secret - external ceph cluster, no rgw endpoint provided",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				object := unitinputs.CephDeployMosk.DeepCopy()
-				object.Spec.Cluster = unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
+				object.Spec.Cluster = *unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
 				return object
 			}(),
 			adminSecret: &unitinputs.RookCephMonSecret,
@@ -339,7 +339,7 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			name: "generate openstack shared secret - external ceph cluster, no rgw",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				object := unitinputs.CephDeployMosk.DeepCopy()
-				object.Spec.Cluster = unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
+				object.Spec.Cluster = *unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
 				object.Spec.ObjectStorage = nil
 				return object
 			}(),

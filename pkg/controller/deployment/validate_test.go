@@ -218,7 +218,7 @@ func TestValidateNodesSpec(t *testing.T) {
 			name: "validate incorrect nodes spec #1",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Nodes: []cephlcmv1alpha1.CephDeploymentNode{
 						{
 							Node: cephv1.Node{
@@ -278,7 +278,7 @@ func TestValidateNodesSpec(t *testing.T) {
 			name: "validate incorrect nodes spec #2",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Nodes: []cephlcmv1alpha1.CephDeploymentNode{
 						{
 							Node: cephv1.Node{
@@ -346,7 +346,7 @@ func TestValidateNodesSpec(t *testing.T) {
 			name: "validate correct nodes #2",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Nodes: []cephlcmv1alpha1.CephDeploymentNode{
 						{
 							Node: cephv1.Node{
@@ -381,7 +381,7 @@ func TestValidateNodesSpec(t *testing.T) {
 			name: "validate correct single node",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					Nodes: []cephlcmv1alpha1.CephDeploymentNode{
 						{
 							Node: cephv1.Node{
@@ -426,7 +426,7 @@ func TestValidatePoolsSpec(t *testing.T) {
 			name: "no block storage section for external",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: &cephlcmv1alpha1.CephCluster{
+					Cluster: cephlcmv1alpha1.CephCluster{
 						RawExtension: runtime.RawExtension{
 							Raw: []byte(`{"external": {"enable": true}}`),
 						},
@@ -439,7 +439,7 @@ func TestValidatePoolsSpec(t *testing.T) {
 			name: "incorrect pools spec for local #1",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: &cephlcmv1alpha1.CephCluster{
+					Cluster: cephlcmv1alpha1.CephCluster{
 						RawExtension: runtime.RawExtension{Raw: []byte(`{}`)},
 					},
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
@@ -481,7 +481,7 @@ func TestValidatePoolsSpec(t *testing.T) {
 			name: "incorrect pools spec for local #2",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: &cephlcmv1alpha1.CephCluster{
+					Cluster: cephlcmv1alpha1.CephCluster{
 						RawExtension: runtime.RawExtension{Raw: []byte(`{}`)},
 					},
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{
@@ -511,7 +511,7 @@ func TestValidatePoolsSpec(t *testing.T) {
 			name: "incorrect pools spec for external",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: &cephlcmv1alpha1.CephCluster{
+					Cluster: cephlcmv1alpha1.CephCluster{
 						RawExtension: runtime.RawExtension{
 							Raw: []byte(`{"external": {"enable": true}}`),
 						},

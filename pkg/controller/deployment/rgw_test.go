@@ -808,7 +808,7 @@ func TestEnsureRgwObject(t *testing.T) {
 			name: "ensure rgw - external rgw spec without external endpoints - create failed",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy(),
 					ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
 						Rgws: []cephlcmv1alpha1.CephObjectStore{
 							{
@@ -886,7 +886,7 @@ func TestEnsureRgwObject(t *testing.T) {
 			name: "ensure rgw - multiste rgw failed with unknown zone",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
 						Rgws: unitinputs.CephDeployMultisiteMasterRgw.Spec.ObjectStorage.Rgws,
 					},
@@ -901,7 +901,7 @@ func TestEnsureRgwObject(t *testing.T) {
 			name: "ensure rgw - multiste rgw failed with invalid zone",
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
+					Cluster: *unitinputs.BaseCephDeployment.Spec.Cluster.DeepCopy(),
 					ObjectStorage: &cephlcmv1alpha1.CephObjectStorage{
 						Rgws: unitinputs.CephDeployMultisiteMasterRgw.Spec.ObjectStorage.Rgws,
 						Zones: []cephlcmv1alpha1.CephObjectZone{

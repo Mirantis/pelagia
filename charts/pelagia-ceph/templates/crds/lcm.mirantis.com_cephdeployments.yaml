@@ -937,6 +937,7 @@ spec:
                     type: array
                 type: object
             required:
+            - cluster
             - nodes
             type: object
           status:

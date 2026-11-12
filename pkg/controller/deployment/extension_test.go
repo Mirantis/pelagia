@@ -37,7 +37,7 @@ func TestCastExtensions(t *testing.T) {
 			cephDpl: &cephlcmv1alpha1.CephDeployment{
 				ObjectMeta: unitinputs.BaseCephDeployment.ObjectMeta,
 				Spec: cephlcmv1alpha1.CephDeploymentSpec{
-					Cluster: &cephlcmv1alpha1.CephCluster{
+					Cluster: cephlcmv1alpha1.CephCluster{
 						RawExtension: runtime.RawExtension{Raw: []byte(`{"unknownApiField": true"}`)},
 					},
 					BlockStorage: &cephlcmv1alpha1.CephBlockStorage{

@@ -204,7 +204,7 @@ func TestValidationFailure(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	cd.Spec.Cluster = &cephlcmv1alpha1.CephCluster{
+	cd.Spec.Cluster = cephlcmv1alpha1.CephCluster{
 		RawExtension: runtime.RawExtension{Raw: clusterNew},
 	}
 

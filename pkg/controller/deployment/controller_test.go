@@ -2176,7 +2176,7 @@ func TestApplyConfiguration(t *testing.T) {
 	}
 	externalCephDplButWithCommonFields := fullCephDplSpec.DeepCopy()
 	externalCephDplButWithCommonFields.ObjectMeta = unitinputs.CephDeployExternal.ObjectMeta
-	externalCephDplButWithCommonFields.Spec.Cluster = unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
+	externalCephDplButWithCommonFields.Spec.Cluster = *unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
 	externalCephDplButWithCommonFields.Spec.ObjectStorage = unitinputs.CephDeployExternalRgw.Spec.ObjectStorage.DeepCopy()
 
 	inputResourcesForApply := map[string]runtime.Object{
