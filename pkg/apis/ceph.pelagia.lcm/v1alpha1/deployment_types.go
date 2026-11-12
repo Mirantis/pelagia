@@ -183,7 +183,7 @@ type CephDeploymentNode struct {
 	// Ceph Manager and/or Ceph RadosGW daemons. Possible values are: mon, mgr, rgw, mds
 	// +kubebuilder:default={}
 	// +optional
-	Roles []string `json:"roles,omitempty"`
+	Roles []string `json:"roles"`
 	// Crush represents ceph crush topology rules to apply on
 	// the defined node
 	Crush map[string]string `json:"crush,omitempty"`
