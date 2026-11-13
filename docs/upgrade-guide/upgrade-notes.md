@@ -91,6 +91,10 @@ For Pelagia release notes, refer to [Pelagia Releases](https://github.com/Mirant
     The `rook.rookConfig.volumeSnapshotsEnabled` option is deprecated and will be removed in a future release. Keep it
     until the upgrade is complete, and then remove it from your Helm values.
 
+* **Support OSD LCM for raw OSD deployments**
+
+    Previously OSD LCM was supported only for LVM-based OSDs. Now OSDs deployed with raw mode supported by Pelagia LCM (verification and remove).
+
 ## Pre-upgrade steps
 
 Complete the following steps before upgrading Pelagia to 3.x:

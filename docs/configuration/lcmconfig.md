@@ -41,6 +41,7 @@ If the chart omits a parameter, the code default applies.
 | GATEWAY_BASE_NAMESPACE | Namespace of the `Gateway` object used by default. Set only if `lcmConfig.gatewayAPIEnabled` is `true` and `lcmConfig.gatewayNamespace` is not empty. | `"openstack"` | `lcmConfig.gatewayNamespace` |
 | RGW_PUBLIC_ACCESS_SERVICE_SELECTOR | Label of the service or proxy exposing RGW to public access. | `"external_access=rgw"` | `lcmConfig.rgwPublicAccessServiceSelector` |
 | KEEP_INGRESS | Deprecated. Enable support for Ingress usage. Will be removed in the following release due to [NGINX Ingress retirement](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/). Set only if `lcmConfig.useIngress` is `true`. | `"false"` | `lcmConfig.useIngress` |
+| OSD_LCM_FULL_MODE | A mode to use for manage osd lcm: full includes both lvm and raw osds. When disabled, includes only lvms, as was prior to Pelagia 3.x versions. | `"true"` | `lcmConfig.osdLcmModeFull` |
 | DEPLOYMENT_CEPH_RELEASE | Pin the Ceph release for the current setup. If empty, uses the latest available release for the current version. | `""` | `cephRelease` |
 | DEPLOYMENT_NETPOL_ENABLED | Enable creation of network policy. | `"true"` | `cephDeployment.netpolEnabled` |
 | DEPLOYMENT_OPENSTACK_CEPH_SHARED_NAMESPACE | Namespace for the Openstack-Ceph communication and secrets sharing. Set only if `cephDeployment.installSharedNamespace` is `true`. | `"openstack-ceph-shared"` | `cephDeployment.openstackSharedNamespace` |
