@@ -52,6 +52,7 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `lcmConfig.gatewayName` | Name of the `Gateway` object used by default. When `gatewayName` and/or `gatewayNamespace` is left empty, the controller falls back to the `lcmConfig` default `app-gateway` name and `openstack` namespace respectively. | `""` |
 | `lcmConfig.gatewayNamespace` | Namespace of the `Gateway` object used by default. | `""` |
 | `lcmConfig.useIngress` | Deprecated. Enable support for Ingress usage. Will be removed in the following release due to [NGINX Ingress retirement](https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/). | `false` |
+| `lcmConfig.osdLcmModeFull` | Enable Pelagia LCM for both LVM-based and raw Ceph OSDs. If `false`, the disk daemon does not inspect raw devices, and Pelagia LCM covers only LVM-based Ceph OSDs, as before Pelagia 3.x. Disable for setups that allow only LVM-based Ceph OSDs. | `true` |
 | `controllers.cephdeployment.replicas` | Replica count for Pelagia deployment controllers. | `3` |
 | `controllers.lcm.replicas` | Replica count for Pelagia LCM controllers. | `3` |
 | `cephRelease` | Pin the Ceph release for the current setup. If empty, uses the latest available release for the current version. | `""` |

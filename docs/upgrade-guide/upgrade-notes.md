@@ -3,7 +3,7 @@
 !!! warning
 
     This page describes the upgrade to Pelagia 3.x, which is under development
-    and not released yet. The instructions below apply only after Pelagia 3.0
+    and not released yet. The instructions below apply only after Pelagia 3.x
     is published. Until then, do not use them on production environments.
 
 This page describes upgrading Pelagia 2.x to 3.x.
@@ -90,6 +90,16 @@ For Pelagia release notes, refer to [Pelagia Releases](https://github.com/Mirant
 
     The `rook.rookConfig.volumeSnapshotsEnabled` option is deprecated and will be removed in a future release. Keep it
     until the upgrade is complete, and then remove it from your Helm values.
+
+* **Pelagia LCM support for raw Ceph OSDs**
+
+    Previously, Pelagia LCM supported only LVM-based Ceph OSDs. Now, it also supports
+    Ceph OSDs deployed on raw devices, including Ceph OSD analysis in `CephDeploymentHealth`
+    and Ceph OSD removal through `CephOsdRemoveTask`.
+
+    The `lcmConfig.osdLcmModeFull` Helm option controls this behavior and is enabled
+    by default. To limit Pelagia LCM to LVM-based Ceph OSDs, set the option to `false`.
+    For details, see [Helm chart values](../configuration/helm-values.md).
 
 ## Pre-upgrade steps
 
