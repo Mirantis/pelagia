@@ -45,7 +45,7 @@ var (
 		Name:            "Tentacle",
 		MajorVersion:    "v20.2",
 		Order:           20,
-		SupportedMinors: []int{0, 1, 2, 3, 4},
+		SupportedMinors: []int{0, 1, 2, 3, 4, 5},
 	}
 	Squid = &CephVersion{
 		Name:            "Squid",

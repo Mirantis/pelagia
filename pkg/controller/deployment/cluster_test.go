@@ -701,10 +701,10 @@ func TestEnsureCluster(t *testing.T) {
 								CephStatus: &cephv1.CephStatus{Health: "HEALTH_OK"},
 								CephVersion: &cephv1.ClusterVersion{
 									Image:   cl.Spec.CephVersion.Image,
-									Version: "20.2.4",
+									Version: "20.2.5",
 								},
 							}
-							cl.Status.Cephx.Mon.KeyCephVersion = "20.2.4"
+							cl.Status.Cephx.Mon.KeyCephVersion = "20.2.5"
 							return cl
 						}(),
 					},
@@ -729,10 +729,10 @@ func TestEnsureCluster(t *testing.T) {
 							CephStatus: &cephv1.CephStatus{Health: "HEALTH_OK"},
 							CephVersion: &cephv1.ClusterVersion{
 								Image:   cl.Spec.CephVersion.Image,
-								Version: "20.2.4",
+								Version: "20.2.5",
 							},
 						}
-						cl.Status.Cephx.Mon.KeyCephVersion = "20.2.4"
+						cl.Status.Cephx.Mon.KeyCephVersion = "20.2.5"
 						return cl
 					}(),
 				}},
