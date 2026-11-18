@@ -5,4 +5,4 @@
 
       - Add the device during node deployment.
       - If the node supports adding devices without a reboot, hot plug the device.
-      - If the node does not support it, shut down the node, add the device, and start the node again.
+      - If the node does not support hot plugging, shut down the node, add the device, and start the node again.
