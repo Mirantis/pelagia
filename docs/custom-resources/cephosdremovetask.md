@@ -131,6 +131,7 @@ Here are the following **final** phases:
     - `rotational` - Flag that indicates whether the device is rotational (`hdd`).
     - `deviceCleanup` - Flag that indicates whether the entire device is cleaned up or only the Ceph OSD partitions on it.
     - `deviceAlive` - Flag that indicates whether the device is available on the node.
+    - `raw` - Flag that indicates whether the Ceph OSD uses the device in raw mode.
 
     ??? "`CephOsdRemoveTask` `osdMapping` example output"
 
