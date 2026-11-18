@@ -88,7 +88,6 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 		cephDpl       *cephlcmv1alpha1.CephDeployment
 		lcmConfig     map[string]string
 		secretError   error
-		adminSecret   *corev1.Secret
 		rgwSecret     *corev1.Secret
 		rgwMetrics    *corev1.Secret
 		ingressSecret *corev1.Secret
@@ -96,10 +95,9 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 		expectedError error
 	}{
 		{
-			name:        "generate openstack shared secret no extra services - success",
-			cephDpl:     &unitinputs.CephDeployMoskWithoutRgw,
-			adminSecret: &unitinputs.RookCephMonSecret,
-			expected:    &unitinputs.CephKeysOpenstackSecretBase,
+			name:     "generate openstack shared secret no extra services - success",
+			cephDpl:  &unitinputs.CephDeployMoskWithoutRgw,
+			expected: &unitinputs.CephKeysOpenstackSecretBase,
 		},
 		{
 			name:    "generate openstack shared secret full - success",
@@ -107,9 +105,8 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			lcmConfig: map[string]string{
 				"KEEP_INGRESS": "true",
 			},
-			adminSecret: &unitinputs.RookCephMonSecret,
-			rgwSecret:   &unitinputs.OpenstackRgwCredsSecret,
-			expected:    &unitinputs.OpenstackSecretGenerated,
+			rgwSecret: &unitinputs.OpenstackRgwCredsSecret,
+			expected:  &unitinputs.OpenstackSecretGenerated,
 		},
 		{
 			name:    "generate openstack shared secret with cephfs - success",
@@ -117,9 +114,8 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			lcmConfig: map[string]string{
 				"KEEP_INGRESS": "true",
 			},
-			adminSecret: &unitinputs.RookCephMonSecret,
-			rgwSecret:   &unitinputs.OpenstackRgwCredsSecret,
-			expected:    &unitinputs.OpenstackSecretGeneratedCephFS,
+			rgwSecret: &unitinputs.OpenstackRgwCredsSecret,
+			expected:  &unitinputs.OpenstackSecretGeneratedCephFS,
 		},
 		{
 			name: "generate openstack shared secret with ingress and cert by ref - failed",
@@ -133,7 +129,6 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 				"KEEP_INGRESS": "true",
 			},
 			secretError: errors.New("failed to get secret"),
-			adminSecret: &unitinputs.RookCephMonSecret,
 			rgwSecret:   &unitinputs.OpenstackRgwCredsSecret,
 			expected: func() *corev1.Secret {
 				secret := unitinputs.OpenstackSecretGenerated.DeepCopy()
@@ -152,7 +147,6 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			lcmConfig: map[string]string{
 				"KEEP_INGRESS": "true",
 			},
-			adminSecret:   &unitinputs.RookCephMonSecret,
 			rgwSecret:     &unitinputs.OpenstackRgwCredsSecret,
 			ingressSecret: unitinputs.IngressRuleSecret.DeepCopy(),
 			expected: func() *corev1.Secret {
@@ -171,7 +165,6 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			lcmConfig: map[string]string{
 				"KEEP_INGRESS": "true",
 			},
-			adminSecret:   &unitinputs.RookCephMonSecret,
 			rgwSecret:     &unitinputs.OpenstackRgwCredsSecret,
 			ingressSecret: unitinputs.IngressRuleSecret.DeepCopy(),
 			expected: func() *corev1.Secret {
@@ -199,8 +192,7 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			lcmConfig: map[string]string{
 				"KEEP_INGRESS": "true",
 			},
-			adminSecret: &unitinputs.RookCephMonSecret,
-			rgwSecret:   &unitinputs.OpenstackRgwCredsSecret,
+			rgwSecret: &unitinputs.OpenstackRgwCredsSecret,
 			expected: func() *corev1.Secret {
 				secret := unitinputs.OpenstackSecretGenerated.DeepCopy()
 				secret.Data["nova"] = []byte(`{"client_name":"client.novaN9y4kl7t4vTb","client_id":"novaN9y4kl7t4vTb","key":"nova-key","pools":["vms-hdd:vms:hdd","images-hdd:images:hdd","volumes-hdd:volumes:hdd","volumes-2-hdd:volumes:hdd","volumes-backend-1-hdd:volumes:hdd"]}`)
@@ -219,7 +211,6 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 				object.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCasted)
 				return object
 			}(),
-			adminSecret: &unitinputs.RookCephMonSecret,
 			rgwSecret: func() *corev1.Secret {
 				secret := unitinputs.OpenstackRgwCredsSecret.DeepCopy()
 				delete(secret.Data, "tls_crt")
@@ -234,10 +225,9 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			}(),
 		},
 		{
-			name:        "generate openstack shared secret no ingress - success",
-			cephDpl:     &unitinputs.CephDeployMoskWithoutIngress,
-			adminSecret: &unitinputs.RookCephMonSecret,
-			rgwSecret:   &unitinputs.OpenstackRgwCredsSecret,
+			name:      "generate openstack shared secret no ingress - success",
+			cephDpl:   &unitinputs.CephDeployMoskWithoutIngress,
+			rgwSecret: &unitinputs.OpenstackRgwCredsSecret,
 			expected: func() *corev1.Secret {
 				secret := unitinputs.OpenstackSecretGenerated.DeepCopy()
 				delete(secret.Data, "rgw_external_custom_cacert")
@@ -246,10 +236,9 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 			}(),
 		},
 		{
-			name:        "generate openstack shared secret with httproute - success",
-			cephDpl:     &unitinputs.CephDeployMoskWithHTTPRoute,
-			adminSecret: &unitinputs.RookCephMonSecret,
-			rgwSecret:   &unitinputs.OpenstackRgwCredsSecret,
+			name:      "generate openstack shared secret with httproute - success",
+			cephDpl:   &unitinputs.CephDeployMoskWithHTTPRoute,
+			rgwSecret: &unitinputs.OpenstackRgwCredsSecret,
 			expected: func() *corev1.Secret {
 				secret := unitinputs.OpenstackSecretGenerated.DeepCopy()
 				delete(secret.Data, "rgw_external_custom_cacert")
@@ -268,7 +257,6 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 				object.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCasted)
 				return object
 			}(),
-			adminSecret: &unitinputs.RookCephMonSecret,
 			expected: func() *corev1.Secret {
 				expected := unitinputs.OpenstackSecretGenerated.DeepCopy()
 				expected.Data["rgw_external"] = []byte("http://172.168.0.15:80")
@@ -288,7 +276,6 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 				object.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCasted)
 				return object
 			}(),
-			adminSecret: &unitinputs.RookCephMonSecret,
 			expected: func() *corev1.Secret {
 				expected := unitinputs.OpenstackSecretGenerated.DeepCopy()
 				delete(expected.Data, "rgw_internal")
@@ -308,7 +295,6 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 				object.Spec.ObjectStorage.Rgws[0].Spec.Raw = unitinputs.ConvertStructToRaw(rgwCasted)
 				return object
 			}(),
-			adminSecret: &unitinputs.RookCephMonSecret,
 			expected: func() *corev1.Secret {
 				expected := unitinputs.OpenstackSecretGenerated.DeepCopy()
 				delete(expected.Data, "rgw_internal")
@@ -325,7 +311,6 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 				object.Spec.Cluster = *unitinputs.CephDeployExternal.Spec.Cluster.DeepCopy()
 				return object
 			}(),
-			adminSecret: &unitinputs.RookCephMonSecret,
 			expected: func() *corev1.Secret {
 				expected := unitinputs.OpenstackSecretGenerated.DeepCopy()
 				delete(expected.Data, "rgw_internal")
@@ -343,8 +328,7 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 				object.Spec.ObjectStorage = nil
 				return object
 			}(),
-			adminSecret: &unitinputs.RookCephMonSecret,
-			expected:    &unitinputs.CephKeysOpenstackSecretBase,
+			expected: &unitinputs.CephKeysOpenstackSecretBase,
 		},
 	}
 	for _, test := range tests {
@@ -360,7 +344,6 @@ func TestGenerateOpenstackSecret(t *testing.T) {
 					"glance": {Name: "client.glanceo1sdvEEqDxxo", ID: "glanceo1sdvEEqDxxo", Keyring: "glance-key"},
 				},
 				monMap:           &unitinputs.RookCephMonEndpoints,
-				adminSecret:      test.adminSecret,
 				rgwSecret:        test.rgwSecret,
 				rgwInternalCert:  &unitinputs.RgwSSLCertSecret,
 				rgwMetricsSecret: test.rgwMetrics,
@@ -564,19 +547,6 @@ func TestEnsureOpenstackSecret(t *testing.T) {
 				"configmaps":     unitinputs.ConfigMapListEmpty,
 			},
 			expectedError: "failed to get ceph monitor endpoints: failed to get rook-ceph/rook-ceph-mon-endpoints configmap: configmaps \"rook-ceph-mon-endpoints\" not found",
-		},
-		{
-			name:    "generate openstack secret - get admin secret error",
-			cephDpl: &unitinputs.CephDeployMosk,
-			inputResources: map[string]runtime.Object{
-				"cephblockpools": &unitinputs.OpenstackCephBlockPoolsListReady,
-				"cephclients":    &unitinputs.CephClientListOpenstackReady,
-				"configmaps": &corev1.ConfigMapList{
-					Items: []corev1.ConfigMap{unitinputs.RookCephMonEndpoints},
-				},
-				"secrets": &unitinputs.SecretsListEmpty,
-			},
-			expectedError: "failed to get ceph admin secret: failed to get rook-ceph/rook-ceph-mon admin secret: secrets \"rook-ceph-mon\" not found",
 		},
 		{
 			name:    "generate openstack secret - failed to get rgw info, secret created",

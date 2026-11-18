@@ -38,7 +38,6 @@ import (
 type openstackSecretData struct {
 	clientsInfo      map[string]OpenstackClientInfo
 	monMap           *v1.ConfigMap
-	adminSecret      *v1.Secret
 	rgwSecret        *v1.Secret
 	rgwInternalCert  *v1.Secret
 	rgwMetricsSecret *v1.Secret
@@ -94,15 +93,9 @@ func (c *cephDeploymentConfig) ensureOpenstackSecret() (bool, error) {
 	if err != nil {
 		return false, errors.Wrap(err, "failed to get ceph monitor endpoints")
 	}
-	// TODO: Is it still needed for Openstack?
-	adminSecret, err := c.getAdminSecret()
-	if err != nil {
-		return false, errors.Wrap(err, "failed to get ceph admin secret")
-	}
 	openstackSecretData := openstackSecretData{
 		clientsInfo: clientsInfo,
 		monMap:      monMap,
-		adminSecret: adminSecret,
 	}
 
 	if c.cdConfig.cephDpl.Spec.ObjectStorage != nil {
@@ -275,15 +268,6 @@ func (c *cephDeploymentConfig) getMonMapConfigmap() (*v1.ConfigMap, error) {
 	return monMap, nil
 }
 
-func (c *cephDeploymentConfig) getAdminSecret() (*v1.Secret, error) {
-	adminSecret, err := c.api.Kubeclientset.CoreV1().Secrets(c.lcmConfig.RookNamespace).Get(c.context, adminSecretName, metav1.GetOptions{})
-	if err != nil {
-		c.log.Error().Err(err).Msg("")
-		return nil, errors.Wrapf(err, "failed to get %s/%s admin secret", c.lcmConfig.RookNamespace, adminSecretName)
-	}
-	return adminSecret, nil
-}
-
 func (c *cephDeploymentConfig) getRgwExternalEndpoint(cephDplRGW cephv1.GatewaySpec) string {
 	if len(cephDplRGW.ExternalRgwEndpoints) > 0 {
 		rgwEndpoint := cephDplRGW.ExternalRgwEndpoints[0]
@@ -364,13 +348,6 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 	novaSecret, _ := json.Marshal(nova)
 	cinderSecret, _ := json.Marshal(cinder)
 
-	var clientAdminSecret []byte
-	if c.cdConfig.clusterSpec.External.Enable {
-		// external cluster is connected with admin key
-		clientAdminSecret = secretData.adminSecret.Data["admin-secret"]
-	} else {
-		clientAdminSecret = secretData.adminSecret.Data["ceph-secret"]
-	}
 	secret := v1.Secret{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      openstackSharedSecret,
@@ -378,7 +355,6 @@ func (c *cephDeploymentConfig) generateOpenstackSecret(secretData openstackSecre
 			Labels:    baseResourceLabels,
 		},
 		Data: map[string][]byte{
-			"client.admin":  clientAdminSecret,
 			"glance":        glanceSecret,
 			"nova":          novaSecret,
 			"cinder":        cinderSecret,

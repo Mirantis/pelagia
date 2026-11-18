@@ -196,7 +196,6 @@ var CephKeysOpenstackSecretBase = corev1.Secret{
 		},
 	},
 	Data: map[string][]byte{
-		"client.admin":  []byte("AQAcpuJiITYXMhAAXaOoAqOKJ4mhNOAqxFb1Hw=="),
 		"glance":        []byte(`{"client_name":"client.glanceo1sdvEEqDxxo","client_id":"glanceo1sdvEEqDxxo","key":"glance-key","pools":["images-hdd:images:hdd"]}`),
 		"nova":          []byte(`{"client_name":"client.novaN9y4kl7t4vTb","client_id":"novaN9y4kl7t4vTb","key":"nova-key","pools":["vms-hdd:vms:hdd","volumes-hdd:volumes:hdd","images-hdd:images:hdd"]}`),
 		"cinder":        []byte(`{"client_name":"client.cinderVMucF_ZXr9Yz","client_id":"cinderVMucF_ZXr9Yz","key":"cinder-key","pools":["volumes-hdd:volumes:hdd","images-hdd:images:hdd","backup-hdd:backup:hdd"]}`),
@@ -520,7 +519,6 @@ var OpenstackSecretGenerated = corev1.Secret{
 		},
 	},
 	Data: map[string][]byte{
-		"client.admin":               []byte("AQAcpuJiITYXMhAAXaOoAqOKJ4mhNOAqxFb1Hw=="),
 		"glance":                     []byte(`{"client_name":"client.glanceo1sdvEEqDxxo","client_id":"glanceo1sdvEEqDxxo","key":"glance-key","pools":["images-hdd:images:hdd"]}`),
 		"nova":                       []byte(`{"client_name":"client.novaN9y4kl7t4vTb","client_id":"novaN9y4kl7t4vTb","key":"nova-key","pools":["vms-hdd:vms:hdd","volumes-hdd:volumes:hdd","images-hdd:images:hdd"]}`),
 		"cinder":                     []byte(`{"client_name":"client.cinderVMucF_ZXr9Yz","client_id":"cinderVMucF_ZXr9Yz","key":"cinder-key","pools":["volumes-hdd:volumes:hdd","images-hdd:images:hdd","backup-hdd:backup:hdd"]}`),
