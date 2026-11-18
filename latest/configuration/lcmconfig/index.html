@@ -3632,6 +3632,12 @@ If the chart omits a parameter, the code default applies.</p>
 <td><code>lcmConfig.useIngress</code></td>
 </tr>
 <tr>
+<td>OSD_LCM_FULL_MODE</td>
+<td>Enable Pelagia LCM for both LVM-based and raw Ceph OSDs. If <code>false</code>, the disk daemon does not inspect raw devices, and Pelagia LCM covers only LVM-based Ceph OSDs, as before Pelagia 3.x. Disable for setups that allow only LVM-based Ceph OSDs.</td>
+<td><code>"true"</code></td>
+<td><code>lcmConfig.osdLcmModeFull</code></td>
+</tr>
+<tr>
 <td>DEPLOYMENT_CEPH_RELEASE</td>
 <td>Pin the Ceph release for the current setup. If empty, uses the latest available release for the current version.</td>
 <td><code>""</code></td>

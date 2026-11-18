@@ -3547,7 +3547,7 @@
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This page describes the upgrade to Pelagia 3.x, which is under development
-and not released yet. The instructions below apply only after Pelagia 3.0
+and not released yet. The instructions below apply only after Pelagia 3.x
 is published. Until then, do not use them on production environments.</p>
 </div>
 <p>This page describes upgrading Pelagia 2.x to 3.x.
@@ -3625,6 +3625,15 @@ requires the <code>volumesnapshotclasses.snapshot.storage.k8s.io</code> CRD, whi
 <p>Existing classes with the default names are kept. To manage the classes on your own, set the option to <code>false</code>. Pelagia then neither creates nor removes them.</p>
 <p>The <code>rook.rookConfig.volumeSnapshotsEnabled</code> option is deprecated and will be removed in a future release. Keep it
 until the upgrade is complete, and then remove it from your Helm values.</p>
+</li>
+<li>
+<p><strong>Pelagia LCM support for raw Ceph OSDs</strong></p>
+<p>Previously, Pelagia LCM supported only LVM-based Ceph OSDs. Now, it also supports
+Ceph OSDs deployed on raw devices, including Ceph OSD analysis in <code>CephDeploymentHealth</code>
+and Ceph OSD removal through <code>CephOsdRemoveTask</code>.</p>
+<p>The <code>lcmConfig.osdLcmModeFull</code> Helm option controls this behavior and is enabled
+by default. To limit Pelagia LCM to LVM-based Ceph OSDs, set the option to <code>false</code>.
+For details, see <a href="../../configuration/helm-values/">Helm chart values</a>.</p>
 </li>
 </ul>
 <h2 id="pre-upgrade-steps">Pre-upgrade steps<a class="headerlink" href="#pre-upgrade-steps" title="Permanent link">#</a></h2>
