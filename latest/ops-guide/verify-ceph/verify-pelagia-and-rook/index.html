@@ -3609,10 +3609,18 @@ and do not modify it manually.</p>
 <li>Enter all Ceph OSD pods in the <code>rook-ceph</code> namespace one by one:
     <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>-it<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>&lt;osd-pod-name&gt;<span class="w"> </span>--<span class="w"> </span>bash
 </code></pre></div></li>
-<li>Verify that the <code>ceph-volume</code> tool is available on all pods running on
-    the target node:
+<li>
+<p>Verify that the <code>ceph-volume</code> tool is available on all pods running on
+    the target node and that it lists the Ceph OSDs of the node:
     <div class="highlight"><pre><span></span><code>ceph-volume<span class="w"> </span>lvm<span class="w"> </span>list
-</code></pre></div></li>
+ceph-volume<span class="w"> </span>raw<span class="w"> </span>list
+</code></pre></div></p>
+<p>The <code>lvm list</code> command outputs LVM-based Ceph OSDs, such as several
+Ceph OSDs per device, encrypted Ceph OSDs, or Ceph OSDs with a metadata
+device. The <code>raw list</code> command outputs Ceph OSDs deployed in raw mode.
+If the node has no Ceph OSDs of one type, the corresponding command
+output is empty.</p>
+</li>
 </ol>
 </li>
 <li>
