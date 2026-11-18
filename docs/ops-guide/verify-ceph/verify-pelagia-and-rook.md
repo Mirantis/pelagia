@@ -93,10 +93,17 @@ Pelagia Controllers and Rook objects of a Ceph cluster.
         kubectl exec -it -n rook-ceph <osd-pod-name> -- bash
         ```
      3. Verify that the `ceph-volume` tool is available on all pods running on
-        the target node:
+        the target node and that it lists the Ceph OSDs of the node:
         ```bash
         ceph-volume lvm list
+        ceph-volume raw list
         ```
+
+        The `lvm list` command outputs LVM-based Ceph OSDs, such as several
+        Ceph OSDs per device, encrypted Ceph OSDs, or Ceph OSDs with a metadata
+        device. The `raw list` command outputs Ceph OSDs deployed in raw mode.
+        If the node has no Ceph OSDs of one type, the corresponding command
+        output is empty.
 
 6. Verify data access. Ceph volumes can be consumed directly by Kubernetes
    workloads and internally, for example, by OpenStack services. To verify the
