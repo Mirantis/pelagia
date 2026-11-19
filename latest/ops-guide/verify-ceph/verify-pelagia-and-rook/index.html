@@ -3619,7 +3619,7 @@ ceph-volume<span class="w"> </span>raw<span class="w"> </span>list
 Ceph OSDs per device, encrypted Ceph OSDs, or Ceph OSDs with a metadata
 device. The <code>raw list</code> command outputs Ceph OSDs deployed in raw mode.
 If the node has no Ceph OSDs of one type, the corresponding command
-output is empty.</p>
+returns <code>No valid Ceph lvm devices found</code> or <code>{}</code>, which is expected.</p>
 </li>
 </ol>
 </li>
