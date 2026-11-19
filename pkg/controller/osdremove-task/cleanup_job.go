@@ -90,6 +90,16 @@ echo "cleaning partition '${PARTITION}' on disk '${DEVICE_NAME}'..."
 PARTITION_TYPE=$(lsblk ${PARTITION} -o type -J -p | jq -r '.blockdevices[] | .type')
 if [[ "${PARTITION_TYPE}" != "lvm" || "${DESTROY}" != "true" ]]; then
     ceph-volume lvm zap ${PARTITION}
+    if [[ "${PARTITION_TYPE}" == "lvm" ]]; then
+        # w/a for upstream Ceph bug: https://tracker.ceph.com/issues/80148
+        # check only Ceph Tentacle 20.2.3+ where issue was introduced
+        # TODO: verify in Umbrella once supported
+        if ceph --version | grep -qE '\b20\.2\.([3-9]|[1-9][0-9]+)\b'; then
+            if udevadm info --query=property --name=${PARTITION} | grep -E 'DM_UDEV_DISABLE_DM_RULES_FLAG|DM_UDEV_DISABLE_SUBSYSTEM_RULES_FLAG|ID_FS_TYPE'; then
+                env -u DM_DISABLE_UDEV lvchange --refresh --config 'activation { udev_rules = 1 udev_sync = 0 }' ${PARTITION}
+            fi
+        fi
+    fi
     exit 0
 fi
 
