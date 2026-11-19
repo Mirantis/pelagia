@@ -103,7 +103,7 @@ Pelagia Controllers and Rook objects of a Ceph cluster.
         Ceph OSDs per device, encrypted Ceph OSDs, or Ceph OSDs with a metadata
         device. The `raw list` command outputs Ceph OSDs deployed in raw mode.
         If the node has no Ceph OSDs of one type, the corresponding command
-        output is empty.
+        returns `No valid Ceph lvm devices found` or `{}`, which is expected.
 
 6. Verify data access. Ceph volumes can be consumed directly by Kubernetes
    workloads and internally, for example, by OpenStack services. To verify the
