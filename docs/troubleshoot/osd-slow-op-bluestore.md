@@ -25,7 +25,11 @@ The issue occurs due to the following upstream Ceph issues:
 
 **To verify whether the cluster is affected:**
 
-1. Enter the `pelagia-ceph-tools` pod:
+1. Enter the `pelagia-ceph-toolbox` pod:
+   ```bash
+   kubectl -n rook-ceph exec -it deploy/pelagia-ceph-toolbox -- bash
+   ```
+
 2. Verify the Ceph cluster status:
 
    - Verify Ceph health:
@@ -69,7 +73,7 @@ The issue occurs due to the following upstream Ceph issues:
           osd.3 observed slow operation indications in BlueStore
      ```
 
-3. Exit the `pelagia-ceph-tools` pod.
+3. Exit the `pelagia-ceph-toolbox` pod.
 
 **To resolve the issue:**
 
@@ -80,10 +84,9 @@ kubectl -n pelagia edit cephdeployment
 
 ```yaml
 spec:
-  cephClusterSpec:
-    rookConfig:
-      osd|bluestore_slow_ops_warn_lifetime: "600"
-      osd|bluestore_slow_ops_warn_threshold: "10"
+  rookConfig:
+    osd|bluestore_slow_ops_warn_lifetime: "600"
+    osd|bluestore_slow_ops_warn_threshold: "10"
 ```
 
 Wait for up to five minutes for the change to apply and the alert to disappear
