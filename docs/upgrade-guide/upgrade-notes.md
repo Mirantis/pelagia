@@ -13,7 +13,7 @@ For Pelagia release notes, refer to [Pelagia Releases](https://github.com/Mirant
 
 * **Rook v1.20**
 
-    For upgrade details, see [Rook upgrade](https://rook.io/docs/rook/v1.20/Upgrade/rook-upgrade/).
+    For upgrade details, see [Rook documentation: Rook Upgrades](https://rook.io/docs/rook/v1.20/Upgrade/rook-upgrade/).
     In the scope of this change, Pelagia now manages Ceph CSI drivers and OperatorConfig through the new `spec.csi` field of `CephDeployment`. For details,
     see [CephDeployment resource](../custom-resources/cephdeployment.md).
 

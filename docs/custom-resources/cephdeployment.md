@@ -454,7 +454,7 @@ The `pools` parameters contain the Ceph block pool specification that represents
 
             A Kubernetes cluster only supports increase of storage size.
 
-- `spec` - Represents the Rook `CephBlockPool` specification. For details see, Rook specifications: [CephBlockPool CRD](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Block-Storage/ceph-block-pool-crd/#spec) and [CephBlockPool API](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/specification/#ceph.rook.io/v1.PoolSpec).
+- `spec` - Represents the Rook `CephBlockPool` specification. For details, see Rook specifications: [CephBlockPool CRD](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Block-Storage/ceph-block-pool-crd/#spec) and [CephBlockPool API](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/specification/#ceph.rook.io/v1.PoolSpec).
 
     !!! note
 
@@ -903,13 +903,13 @@ The `csi` section applies only if CSI resources management is enabled in Helm va
 - `operatorConfig` - Optional. Represents the CSI `OperatorConfig` specification:
 
     - `fullOverride` - Optional. Fully overrides the existing `OperatorConfig` resource with the provided spec. Otherwise, the spec is merged with the existing one.
-    - `spec` - Represents the CSI [OperatorConfig API specification](https://github.com/ceph/ceph-csi-operator/blob/v1.0.4/docs/design/operator.md#operatorconfig-crd).
+    - `spec` - Represents the CSI [OperatorConfig API specification](https://github.com/ceph/ceph-csi-operator/blob/{{ ceph_csi_operator_version }}/docs/design/operator.md#operatorconfig-crd).
 
 - `drivers` - Optional. Contains a list of CSI `Driver` resources.
 
     - `fullOverride` - Optional. Fully overrides the existing `Driver` resource with the provided spec. Otherwise, the spec is merged with the existing one.
     - `type` - Mandatory. Driver type. Allowed values: `nvmeof`, `rbd`, `cephfs`, or `nfs`.
-    - `spec` - Represents the CSI [Driver API specification](https://github.com/ceph/ceph-csi-operator/blob/v1.0.4/docs/design/operator.md#driver-crd).
+    - `spec` - Represents the CSI [Driver API specification](https://github.com/ceph/ceph-csi-operator/blob/{{ ceph_csi_operator_version }}/docs/design/operator.md#driver-crd).
 
 <a name="cephdeployment-status-fields"></a>
 ## Status fields

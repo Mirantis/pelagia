@@ -9,7 +9,7 @@ keywords: pelagia, pelagia-lcmconfig, configmap, pelagia configuration, lcm conf
 # ConfigMap pelagia-lcmconfig
 
 Pelagia controllers use a common configuration place that is the
-[`pelagia-lcmconfig` Configmap](https://github.com/Mirantis/pelagia/blob/main/charts/pelagia-ceph/templates/common.yaml)
+[`pelagia-lcmconfig` Configmap](https://github.com/Mirantis/pelagia/blob/{{ pelagia_branch }}/charts/pelagia-ceph/templates/common.yaml)
 object located in the same namespace as the Pelagia controllers. This Configmap is created by the Pelagia Helm chart.
 
 Some parameters are applied from Helm chart values when you upgrade the chart,
