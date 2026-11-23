@@ -475,7 +475,7 @@ The `pools` parameters contain the Ceph block pool specification that represents
 
             A Kubernetes cluster only supports increase of storage size.
 
-- `spec` - Represents the Rook `CephBlockPool` specification. For details see, Rook specifications: [CephBlockPool CRD](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Block-Storage/ceph-block-pool-crd/#spec) and [CephBlockPool API](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/specification/#ceph.rook.io/v1.PoolSpec).
+- `spec` - Represents the Rook `CephBlockPool` specification. For details, see Rook specifications: [CephBlockPool CRD](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/Block-Storage/ceph-block-pool-crd/#spec) and [CephBlockPool API](https://rook.io/docs/rook/{{ rook_doc_version }}/CRDs/specification/#ceph.rook.io/v1.PoolSpec).
 
     !!! note
 
