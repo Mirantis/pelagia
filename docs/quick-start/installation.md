@@ -47,7 +47,7 @@ NAME                                  READY   STATUS    RESTARTS   AGE
 rook-ceph-operator-8495877b67-m7lf5   1/1     Running   0          4m13s
 ```
 
-Currently, Pelagia Deployment Controller does not support integration with the existing Rook Ceph cluster, only Pelagia Lifecycle Management Controller does. To install Pelagia in the LCM-only mode, please refer to [LCM-only installation guide](./lcm-installation.md#lcm-installation-install-pelagia-in-the-lcm-only-mode).
+Currently, Pelagia Deployment Controller does not support integration with the existing Rook Ceph cluster, only Pelagia Lifecycle Management Controller does. To install Pelagia in the LCM-only mode, refer to [LCM-only installation guide](./lcm-installation.md#lcm-installation-install-pelagia-in-the-lcm-only-mode).
 
 ## Post-installation
 
