@@ -23,28 +23,27 @@ OSDs.
    ```
 
 3. In one of the following sections, specify parameters for Ceph OSD:
-
      - `nodes.<nodeName>.devices`
      - `nodes.<nodeName>.deviceFilter`
      - `nodes.<nodeName>.devicePathFilter`
 
      For description of parameters, see [Nodes parameters](../../../custom-resources/cephdeployment.md#cephdeployment-nodes-parameters).
 
-       Example configuration of the `nodes` section with the new node:
-       ```yaml
-       nodes:
-       - name: storage-worker-52
-         roles:
-         - mon
-         - mgr
-         devices:
-         - config: # existing item
-             deviceClass: hdd
-           fullpath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
-         - config: # new item
-             deviceClass: hdd
-           fullpath: /dev/disk/by-id/scsi-0ATA_HGST_HUS724040AL_PN1334PEHN1VBC
-       ```
+     Example configuration of the `nodes` section with the new node:
+     ```yaml
+     nodes:
+     - name: storage-worker-52
+       roles:
+       - mon
+       - mgr
+       devices:
+       - config: # existing item
+           deviceClass: hdd
+         fullpath: /dev/disk/by-id/scsi-SATA_HGST_HUS724040AL_PN1334PEHN18ZS
+       - config: # new item
+           deviceClass: hdd
+         fullpath: /dev/disk/by-id/scsi-0ATA_HGST_HUS724040AL_PN1334PEHN1VBC
+     ```
 
 4. Verify that the Ceph OSD on the specified node is successfully deployed. The
    `CephDeploymentHealth` CR `status.healthReport.cephDaemons.cephDaemons` section should not contain any issues.
