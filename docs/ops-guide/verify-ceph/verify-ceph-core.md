@@ -45,5 +45,5 @@ A healthy cluster returns the following output:
 HEALTH_OK
 ```
 
-If the output contains `HEALTH_WARN` or `HEALTH_ERR`, please see
-[Ceph Health Checks](https://docs.ceph.com/en/{{ ceph_doc_version }}/rados/operations/health-checks/).
+If the output contains `HEALTH_WARN` or `HEALTH_ERR`, see
+[Ceph documentation: Health Checks](https://docs.ceph.com/en/{{ ceph_doc_version }}/rados/operations/health-checks/).

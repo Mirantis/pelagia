@@ -164,8 +164,8 @@ other types of failure domains, migrate pools separately, and so on.
 
             We highly recommend moving one bucket at a time.
 
-            For more details, refer to official Ceph documentation:
-            [CRUHS Maps: Moving a bucket](https://docs.ceph.com/en/{{ ceph_doc_version }}/rados/operations/crush-map/#moving-a-bucket).
+            For more details, refer to
+            [Ceph documentation: Moving a bucket](https://docs.ceph.com/en/{{ ceph_doc_version }}/rados/operations/crush-map/#moving-a-bucket).
 
         Substitute the following parameters:
 
@@ -241,8 +241,8 @@ other types of failure domains, migrate pools separately, and so on.
                ceph osd crush rule create-replicated images-hdd-rack default rack hdd
                ```
 
-               For more details, refer to official Ceph documentation:
-               [CRUSH Maps: Creating a rule for a replicated pool](https://docs.ceph.com/en/{{ ceph_doc_version }}/rados/operations/crush-map/#creating-a-rule-for-a-replicated-pool).
+               For more details, refer to
+               [Ceph documentation: Creating a rule for a replicated pool](https://docs.ceph.com/en/{{ ceph_doc_version }}/rados/operations/crush-map/#creating-a-rule-for-a-replicated-pool).
 
           3. Apply a new crush rule to the Ceph pool:
              ```bash
