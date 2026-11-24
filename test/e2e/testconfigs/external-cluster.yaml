@@ -6,14 +6,18 @@ testSettings:
     config:
       externalClusterNamespace: ""
       externalClusterKubeconfigPath: "/tmp/kube.yml"
+      externalClusterKeepAfter: ""
       rbdPoolsForShare: kubernetes-hdd
       cephfsPoolsForShare: cephfs-store-cephfs-pool-1
+      rgwObjectStoreForShare: rgw-store
   - name: TestExternalCephClusterNonAdmin
     config:
       externalClusterNamespace: ""
       externalClusterKubeconfigPath: "/tmp/kube.yml"
+      externalClusterKeepAfter: ""
       rbdPoolsForShare: kubernetes-hdd
       cephfsPoolsForShare: cephfs-store-cephfs-pool-1
+      rgwObjectStoreForShare: rgw-store
 testCases:
 - TestExternalCephCluster
 - TestExternalCephClusterNonAdmin

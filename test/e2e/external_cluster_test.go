@@ -26,6 +26,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	bktv1alpha1 "github.com/kube-object-storage/lib-bucket-provisioner/pkg/apis/objectbucket.io/v1alpha1"
 	"github.com/pkg/errors"
 	cephv1 "github.com/rook/rook/pkg/apis/ceph.rook.io/v1"
 	appsv1 "k8s.io/api/apps/v1"
@@ -65,7 +66,26 @@ func prepareExternalPVC(cluster *f.ManagedConfig, storageClassName string, acces
 	return pvcName, nil
 }
 
-func prepareExternalTestDeployment(cluster *f.ManagedConfig, pvcName string, replicas int32) (string, error) {
+func prepareExternalOBC(cluster *f.ManagedConfig, storageClassName string) (string, error) {
+	obcName := fmt.Sprintf("test-external-bucket-%v", time.Now().Unix())
+	testObc := bktv1alpha1.ObjectBucketClaim{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      obcName,
+			Namespace: "default",
+		},
+		Spec: bktv1alpha1.ObjectBucketClaimSpec{
+			GenerateBucketName: "external-bucket",
+			StorageClassName:   storageClassName,
+		},
+	}
+	_, err := cluster.BucketClientSet.ObjectbucketV1alpha1().ObjectBucketClaims("default").Create(cluster.Context, &testObc, metav1.CreateOptions{})
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to create OBC %s/%s", "default", obcName)
+	}
+	return obcName, nil
+}
+
+func prepareExternalTestDeployment(cluster *f.ManagedConfig, claimType, refName, imageName string, replicas int32) (string, error) {
 	deployName := fmt.Sprintf("test-external-deployment-%v", time.Now().Unix())
 	testDeploy := appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -106,13 +126,7 @@ func prepareExternalTestDeployment(cluster *f.ManagedConfig, pvcName string, rep
 					Containers: []v1.Container{
 						{
 							Name:  "simple-container",
-							Image: cluster.LcmConfig.DeployParams.CephImage,
-							VolumeMounts: []v1.VolumeMount{
-								{
-									Name:      pvcName,
-									MountPath: "/mnt",
-								},
-							},
+							Image: imageName,
 							Command: []string{
 								"/bin/sh",
 								"-c",
@@ -120,20 +134,33 @@ func prepareExternalTestDeployment(cluster *f.ManagedConfig, pvcName string, rep
 							},
 						},
 					},
-					Volumes: []v1.Volume{
-						{
-							Name: pvcName,
-							VolumeSource: v1.VolumeSource{
-								PersistentVolumeClaim: &v1.PersistentVolumeClaimVolumeSource{
-									ClaimName: pvcName,
-									ReadOnly:  false,
-								},
-							},
-						},
-					},
 				},
 			},
 		},
+	}
+	if claimType == "pvc" {
+		testDeploy.Spec.Template.Spec.Containers[0].VolumeMounts = []v1.VolumeMount{
+			{
+				Name:      refName,
+				MountPath: "/mnt",
+			},
+		}
+		testDeploy.Spec.Template.Spec.Volumes = []v1.Volume{
+			{
+				Name: refName,
+				VolumeSource: v1.VolumeSource{
+					PersistentVolumeClaim: &v1.PersistentVolumeClaimVolumeSource{
+						ClaimName: refName,
+						ReadOnly:  false,
+					},
+				},
+			},
+		}
+	} else {
+		testDeploy.Spec.Template.Spec.Containers[0].EnvFrom = []v1.EnvFromSource{
+			{ConfigMapRef: &v1.ConfigMapEnvSource{Name: refName}},
+			{SecretRef: &v1.SecretEnvSource{Name: refName}},
+		}
 	}
 	_, err := cluster.KubeClient.AppsV1().Deployments("default").Create(cluster.Context, &testDeploy, metav1.CreateOptions{})
 	if err != nil {
@@ -171,6 +198,7 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 		t.Log("### deployment namespace var for external cluster 'externalClusterNamespace' is not set, using same to master cluster")
 		externalClusterNamespace = f.TF.ManagedCluster.LcmNamespace
 	}
+	externalClusterKeepAfter := caseConfig["externalClusterKeepAfter"] != ""
 	externalCluster, err := f.NewManagedCluster(externalClusterNamespace, externalConfig)
 	if err != nil {
 		t.Fatalf("Cannot initialize external cluster clients: %v", err)
@@ -184,11 +212,13 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 	if cephfsPoolsForShareStr != "" {
 		cephfsPoolsForShare = strings.Split(cephfsPoolsForShareStr, ",")
 	}
-	if len(rbdPoolsForShare) == 0 && len(cephfsPoolsForShare) == 0 {
-		t.Fatal("At least one parameter cephfsPoolsForShare or rbdPoolsForShare should be non-empty")
+	rgwObjectStoreForShare := caseConfig["rgwObjectStoreForShare"]
+	if len(rbdPoolsForShare) == 0 && len(cephfsPoolsForShare) == 0 && rgwObjectStoreForShare == "" {
+		t.Fatal("At least one parameter cephfsPoolsForShare or rbdPoolsForShare or rgwObjectStoreForShare should be non-empty")
 	}
 
 	f.Step(t, "Check main cluster configuration")
+	connectionStringArgs := []string{"pelagia-connector"}
 	cd, err := f.TF.ManagedCluster.FindCephDeployment()
 	if err != nil {
 		t.Fatal(err)
@@ -215,6 +245,7 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 		if !poolFound {
 			t.Fatalf("Could not find RBD pool '%s' in source Ceph cluster, but required for testing", sharePool)
 		}
+		connectionStringArgs = append(connectionStringArgs, "--use-rbd")
 	}
 	cephFSSection := &cephlcmv1alpha1.CephSharedFilesystem{
 		Filesystems: []cephlcmv1alpha1.CephFilesystem{},
@@ -266,14 +297,56 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 				t.Fatalf("Could not find CephFS datapool '%s' in source Ceph cluster, but required for testing", shareCephFsPool)
 			}
 		}
+		connectionStringArgs = append(connectionStringArgs, "--use-cephfs")
 	}
-	// TODO (degorenko): add support for external RGW as well
-	connectionStringCmdTmp := "pelagia-connector --client-name %s --use-cephfs --use-rbd"
-	connectionStringCmd := fmt.Sprintf(connectionStringCmdTmp, "admin")
-	if !isAdmin {
+	rgwExternalSection := &cephlcmv1alpha1.CephObjectStorage{}
+	if rgwObjectStoreForShare != "" {
+		if cd.Spec.ObjectStorage == nil || len(cd.Spec.ObjectStorage.Rgws) == 0 {
+			t.Fatal("Could not find RGW ObjectStorage in source Ceph cluster, but required for testing")
+		}
+		endpoints, err := f.GetRgwPublicEndpoints(cd.Name, rgwObjectStoreForShare)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(endpoints) == 0 {
+			t.Fatal("failed to find public rgw endpoint in source Ceph cluster, which is required")
+		}
+		// TODO: currently using only plain http connection
+		v := strings.Split(endpoints[0], "://")
+		endpointWithPort := v[0]
+		if len(v) > 1 {
+			endpointWithPort = v[1]
+		}
+		conn := strings.Split(endpointWithPort, ":")
+		endpoint := conn[0]
+		externalRgw, err := cephlcmv1alpha1.DecodeStructToRaw(
+			cephv1.ObjectStoreSpec{
+				Gateway: cephv1.GatewaySpec{
+					Port:                 80,
+					ExternalRgwEndpoints: []cephv1.EndpointAddress{{IP: endpoint}},
+				},
+			},
+		)
+		if err != nil {
+			t.Fatal(err)
+		}
+		rgwExternalSection = &cephlcmv1alpha1.CephObjectStorage{
+			Rgws: []cephlcmv1alpha1.CephObjectStore{
+				{
+					Name: "external-rgw",
+					Spec: runtime.RawExtension{Raw: externalRgw},
+				},
+			},
+		}
+		connectionStringArgs = append(connectionStringArgs, "--use-rgw")
+	}
+
+	if isAdmin {
+		connectionStringArgs = append(connectionStringArgs, "--client-name admin")
+	} else {
 		f.Step(t, "Create non-admin user in source Ceph cluster")
 		testClientName := fmt.Sprintf("non-admin-client-%v", time.Now().Unix())
-		connectionStringCmd = fmt.Sprintf(connectionStringCmdTmp, testClientName)
+		connectionStringArgs = append(connectionStringArgs, fmt.Sprintf("--client-name %s", testClientName))
 		osdCaps := []string{}
 		for _, pool := range rbdPoolsForShare {
 			osdCaps = append(osdCaps, "profile rbd pool="+pool)
@@ -306,6 +379,7 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 	}
 
 	f.Step(t, "Prepare connection string for external")
+	connectionStringCmd := strings.Join(connectionStringArgs, " ")
 	connectionString, _, err := f.TF.ManagedCluster.RunCommand(connectionStringCmd, f.TF.ManagedCluster.LcmNamespace, "app=pelagia-deployment-controller")
 	if err != nil {
 		t.Fatalf("failed to generate connection string with error: %v", err)
@@ -349,6 +423,7 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 			},
 			Nodes:            []cephlcmv1alpha1.CephDeploymentNode{},
 			SharedFilesystem: cephFSSection,
+			ObjectStorage:    rgwExternalSection,
 		},
 	}
 
@@ -426,7 +501,7 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 				defer cleanupPvc(pvcName)
 
 				testDeployment := func(newData bool) error {
-					deployName, err := prepareExternalTestDeployment(externalCluster, pvcName, 1)
+					deployName, err := prepareExternalTestDeployment(externalCluster, "pvc", pvcName, externalCluster.LcmConfig.DeployParams.CephImage, 1)
 					if err != nil {
 						return errors.Wrapf(err, "testing '%s' storageclass: failed to prepare test deployment", rbdSc)
 					}
@@ -485,7 +560,7 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 				defer cleanupPvc(pvcName)
 
 				testDeployment := func(newData bool) error {
-					deployName, err := prepareExternalTestDeployment(externalCluster, pvcName, 2)
+					deployName, err := prepareExternalTestDeployment(externalCluster, "pvc", pvcName, externalCluster.LcmConfig.DeployParams.CephImage, 2)
 					if err != nil {
 						return errors.Wrapf(err, "testing '%s' storageclass: failed to prepare test deployment", cephFSSc)
 					}
@@ -550,13 +625,87 @@ func runExternalClusterTest(t *testing.T, isAdmin bool) {
 		}
 	}
 
+	if rgwObjectStoreForShare != "" {
+		f.Step(t, "Test RGW OBC for external cluster")
+
+		cleanupOBC := func(obcName string) {
+			t.Logf("Clean up test OBC default/%s", obcName)
+			err = externalCluster.BucketClientSet.ObjectbucketV1alpha1().ObjectBucketClaims("default").Delete(externalCluster.Context, obcName, metav1.DeleteOptions{})
+			if err != nil && !apierrors.IsNotFound(err) {
+				errMsg := fmt.Sprintf("failed to remove 'default/%s' test obc: %v", obcName, err)
+				t.Log(errMsg)
+				errMsgs = append(errMsgs, errMsg)
+			}
+		}
+
+		testDeployment := func() error {
+			t.Logf("creating testing external OBC for RGW %s", externalCephCluster.Spec.ObjectStorage.Rgws[0].Name)
+			storageClassName := fmt.Sprintf("%s-bucket", externalCephCluster.Spec.ObjectStorage.Rgws[0].Name)
+			obcName, err := prepareExternalOBC(externalCluster, storageClassName)
+			if err != nil {
+				return errors.Wrapf(err, "testing '%s' storageclass: failed to prepare test obc", storageClassName)
+			}
+			defer cleanupOBC(obcName)
+
+			t.Logf("creating testing deployment for OBC %s", obcName)
+			deployName, err := prepareExternalTestDeployment(externalCluster, "obc", obcName, f.TF.E2eImage, 1)
+			if err != nil {
+				return errors.Wrapf(err, "testing '%s' storageclass: failed to prepare test deployment", storageClassName)
+			}
+			defer cleanupDeployment(deployName)
+
+			err = externalCluster.WaitDeploymentReady(deployName, "default")
+			if err != nil {
+				return errors.Wrapf(err, "deployment 'default/%s' is not ready", deployName)
+			}
+			podLabel := fmt.Sprintf("app=%s", deployName)
+
+			deployPodList, err := externalCluster.ListPods("default", podLabel)
+			if err != nil {
+				return errors.Wrapf(err, "%s", fmt.Sprintf("testing '%s' storageclass: failed to find test deployment pods", storageClassName))
+			}
+			pod := deployPodList[0]
+			t.Logf("writing content to a bucket based on '%s' storageclass for 'default/%s' pod", storageClassName, pod.Name)
+			_, _, err = externalCluster.RunPodCommand(`sh -c "aws s3 cp /etc/hostname s3://$BUCKET_NAME/test.txt --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT"`, pod.Spec.Containers[0].Name, &pod)
+			if err != nil {
+				return errors.Wrapf(err, "testing '%s' storageclass: failed to write content to 'default/%s' pod", storageClassName, pod.Name)
+			}
+			t.Logf("checking content from PV based on '%s' storageclass from 'default/%s' pod", storageClassName, pod.Name)
+			_, _, err = externalCluster.RunPodCommand(`sh -c "aws s3 cp s3://$BUCKET_NAME/test.txt /tmp/test.txt --endpoint-url http://$BUCKET_HOST:$BUCKET_PORT"`, pod.Spec.Containers[0].Name, &pod)
+			if err != nil {
+				return errors.Wrapf(err, "testing '%s' storageclass: failed to get content from 'default/%s' pod", storageClassName, pod.Name)
+			}
+			stdoutTarget, _, err := externalCluster.RunPodCommand("md5sum -z --tag /tmp/test.txt", pod.Spec.Containers[0].Name, &pod)
+			if err != nil {
+				return errors.Wrapf(err, "testing '%s' storageclass: failed to get content from 'default/%s' pod", storageClassName, pod.Name)
+			}
+			stdoutSource, _, err := externalCluster.RunPodCommand("md5sum -z --tag /etc/hostname", pod.Spec.Containers[0].Name, &pod)
+			if err != nil {
+				return errors.Wrapf(err, "testing '%s' storageclass: failed to get content from 'default/%s' pod", storageClassName, pod.Name)
+			}
+			if len(stdoutSource) != len(stdoutTarget) {
+				return errors.Errorf("testing '%s' storageclass: could not find expected content from 'default/%s' pod: expected='%s', found='%s'",
+					storageClassName, pod.Name, stdoutSource, stdoutTarget)
+			}
+			return nil
+		}
+
+		err = testDeployment()
+		if err != nil {
+			t.Log(err)
+			errMsgs = append(errMsgs, err.Error())
+		}
+	}
+
+	if !externalClusterKeepAfter {
+		f.Step(t, "Remove external CephDeployment")
+		err = externalCluster.RemoveCephDeployment(externalCephCluster.Name)
+		if err != nil {
+			t.Fatalf("failed to remove external CephDeployment: %v", err)
+		}
+	}
 	if len(errMsgs) > 0 {
 		t.Fatalf("The following error(s) raised during StorageClass testing: %v", strings.Join(errMsgs, "; "))
-	}
-	f.Step(t, "Remove external CephDeployment")
-	err = externalCluster.RemoveCephDeployment(externalCephCluster.Name)
-	if err != nil {
-		t.Fatalf("failed to remove external CephDeployment: %v", err)
 	}
 	t.Logf("Test %s complete sucessfully", t.Name())
 }
