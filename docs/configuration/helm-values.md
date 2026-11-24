@@ -9,7 +9,7 @@ keywords: pelagia, helm chart, helm values, pelagia configuration, rook configur
 
 Pelagia Helm chart contains multiple options to configure the Pelagia setup and prepare an environment for deployment.
 
-For the complete list of available options, refer to [values.yaml](https://github.com/Mirantis/pelagia/blob/release-1.x/charts/pelagia-ceph/values.yaml).
+For the complete list of available options, refer to [Pelagia GitHub project: charts/pelagia-ceph/values.yaml](https://github.com/Mirantis/pelagia/blob/{{ pelagia_branch }}/charts/pelagia-ceph/values.yaml).
 
 ## Configuration options
 
@@ -53,7 +53,7 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `rookConfig.csiNfsEnabled` | Enable NFS support in Rook. | `false` |
 | `rookConfig.csiAddonsEnabled` | Enable CSI add-ons support in Rook. | `false` |
 | `rookConfig.volumeSnapshotsEnabled` | Enable volume snapshots classes support in Rook. | `false` |
-| `snapshot-controller.enabled` | Enable the `snapshot-controller` deployment. For available `snapshot-controller` options, see [values.yaml](https://github.com/Mirantis/pelagia/blob/main/charts/snapshot-controller/values.yaml). | `true` |
+| `snapshot-controller.enabled` | Enable the `snapshot-controller` deployment. For available `snapshot-controller` options, see [Pelagia GitHub project: charts/snapshot-controller/values.yaml](https://github.com/Mirantis/pelagia/blob/{{ pelagia_branch }}/charts/snapshot-controller/values.yaml). | `true` |
 
 <a id="helm-values-custom-images"></a>
 

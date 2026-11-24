@@ -22,12 +22,12 @@ To install Pelagia in automated LCM mode only, follow the [LCM-only installation
 
 ## Developer Resources
 
-* Contributing: [https://github.com/Mirantis/pelagia/pulls](https://github.com/Mirantis/pelagia/pulls)
-* Developer Guide: [https://mirantis.github.io/pelagia/latest/developer/](https://mirantis.github.io/pelagia/latest/developer/)
-* Reference Architecture: [https://mirantis.github.io/pelagia](https://mirantis.github.io/pelagia)
+* [Contributing](https://github.com/Mirantis/pelagia/pulls)
+* [Developer Guide](./developer.md)
+* [Reference Architecture](./architecture/overview.md)
 
 !!! info "See also"
 
-    * [Kubernetes operator](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/)
-    * [Rook](https://github.com/rook/rook)
-    * [Cluster API](https://github.com/kubernetes-sigs/cluster-api)
+    * [Kubernetes documentation: Operator pattern](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/)
+    * [Cluster API GitHub project](https://github.com/kubernetes-sigs/cluster-api)
+    * [Rook GitHub project](https://github.com/rook/rook)

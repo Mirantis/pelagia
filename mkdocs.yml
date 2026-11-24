@@ -72,7 +72,8 @@ plugins:
       css_dir: css
 
 hooks:
-  # Fails the build on hard-coded or 'latest' Rook and Ceph docs links
+  # Fails the build on hard-coded or 'latest' Rook and Ceph docs links,
+  # and on Pelagia and Ceph CSI Operator GitHub links that hard-code a branch or tag
   - build/scripts/check_docs_links.py
 
 extra:
@@ -81,6 +82,9 @@ extra:
     default: latest
   rook_doc_version: v1.18
   ceph_doc_version: squid
+  # Branch of the Pelagia GitHub project that these docs are built from:
+  # main on main, release-<N>.x on release branches
+  pelagia_branch: release-1.x
 
 # Report every broken internal link as a warning, so that `mkdocs build --strict` in Docs CI fails on it.
 validation:

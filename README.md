@@ -67,5 +67,5 @@ Have some questions? Use our
 
 # Report a Bug
 
-For filing bugs, suggesting improvements, or requesting new features, please
+For filing bugs, suggesting improvements, or requesting new features,
 open an [issue](https://github.com/Mirantis/pelagia/issues).
