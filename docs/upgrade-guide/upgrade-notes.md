@@ -7,7 +7,7 @@ For Pelagia release notes, refer to [Pelagia Releases](https://github.com/Mirant
 
 * The default Ceph release is set to [Ceph Tentacle](https://docs.ceph.com/en/latest/releases/tentacle/).
 
-* Rook is upgraded to v1.19. For upgrade details, see [Rook upgrade](https://rook.io/docs/rook/v1.19/Upgrade/rook-upgrade/).
+* Rook is upgraded to v1.19. For upgrade details, see [Rook documentation: Rook Upgrades](https://rook.io/docs/rook/v1.19/Upgrade/rook-upgrade/).
 
 * Pelagia now has Rook as a separate chart allowing the user to disable the Pelagia-based Rook setup and use a different Rook chart.
 

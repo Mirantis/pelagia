@@ -3,7 +3,7 @@
 Pelagia uses Makefile to build, test, and deploy the controller. This document provides a guide for developers
 with the most used Makefile targets.
 
-For the complete list of available instructions, refer to [Makefile](https://github.com/Mirantis/pelagia/blob/main/Makefile)
+For the complete list of available instructions, refer to [Pelagia GitHub project: Makefile](https://github.com/Mirantis/pelagia/blob/{{ pelagia_branch }}/Makefile).
 
 ## Code style
 
