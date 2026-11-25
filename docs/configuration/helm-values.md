@@ -24,7 +24,7 @@ The following table lists the most commonly configured Pelagia chart parameters 
 | `global.dockerBaseUrl` | Global address of Docker registry. | `"registry.mirantis.com"` |
 | `global.clusterRelease` | Release version of the Kubernetes cluster. | `""` |
 | `global.namespace` | Override for the chart release namespace. | `""` |
-| `productSetup` | Specifies the Kubernetes cluster setup. By default, designed for [MKE](https://docs.mirantis.com/mke/3.7/overview.html). Change it for other setups. | `"mke"` |
+| `productSetup` | Deprecated and will be removed in the following release due to the end of support for [Mirantis Kubernetes Engine](https://docs.mirantis.com/mke/3.7/overview.html) (MKE). Specifies the Kubernetes cluster setup. By default, designed for MKE. Change it for other setups. | `"mke"` |
 | `cephDeployment.enabled` | Enable the Pelagia deployment controller. | `true` |
 | `cephDeployment.netpolEnabled` | Enable creation of network policy. | `true` |
 | `cephDeployment.installSharedNamespace` | Install a namespace for the Openstack-Ceph communication. | `true` |
