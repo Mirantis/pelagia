@@ -39,6 +39,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/apiutil"
 
+	bucketclient "github.com/kube-object-storage/lib-bucket-provisioner/pkg/client/clientset/versioned"
+
 	cephlcmclient "github.com/Mirantis/pelagia/v3/pkg/client/clientset/versioned/typed/ceph.pelagia.lcm/v1alpha1"
 	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
 	lcmconfig "github.com/Mirantis/pelagia/v3/pkg/controller/config"
@@ -68,6 +70,7 @@ type ManagedConfig struct {
 	CephHealthClient        cephlcmclient.CephDeploymentHealthInterface
 	CephOsdRemoveTaskClient cephlcmclient.CephOsdRemoveTaskInterface
 	RookClientset           *rookclient.Clientset
+	BucketClientSet         *bucketclient.Clientset
 	KubeConfig              *rest.Config
 	LcmConfig               lcmconfig.LcmConfig
 	LcmNamespace            string
@@ -105,6 +108,10 @@ func NewManagedCluster(cephdeployNamespace string, config *rest.Config) (*Manage
 	managedCluster.RookClientset, err = rookclient.NewForConfig(config)
 	if err != nil {
 		return nil, errors.Wrap(err, "Cannot create rook clientset from kubeconfig")
+	}
+	managedCluster.BucketClientSet, err = bucketclient.NewForConfig(config)
+	if err != nil {
+		return nil, errors.Wrap(err, "Cannot create bucket clientset from kubeconfig")
 	}
 
 	cephDplClient, err := cephlcmclient.NewForConfig(managedCluster.KubeConfig)
