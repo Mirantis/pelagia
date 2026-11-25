@@ -425,12 +425,7 @@ func getFullKeyWithSection(section, key string) string {
 func (c *cephDeploymentConfig) getTargetConfigAndRuntime(rookConfigFromSpec map[string]string, baseConfig map[string]configOption) (map[string]map[string]string, map[string]string) {
 	finalCephConfigMap := map[string]map[string]string{}
 	runtimeParams := map[string]string{}
-	isParamForRuntime := func(section, key string) bool {
-		return lcmcommon.Contains(runtimeKeys, key) ||
-			strings.HasPrefix(key, "osd") ||
-			strings.HasPrefix(key, "clog") ||
-			strings.HasPrefix(section, "osd")
-	}
+
 	// fill with defaults first
 	for param, paramOpt := range baseConfig {
 		if paramOpt.availableTo != nil && !lcmcommon.CephVersionGreaterOrEqual(paramOpt.availableTo, c.cdConfig.currentCephVersion) {

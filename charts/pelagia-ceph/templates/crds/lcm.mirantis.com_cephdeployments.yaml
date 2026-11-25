@@ -295,6 +295,24 @@ spec:
                     required:
                     - rotation
                     type: object
+                  runtimeCephConfig:
+                    additionalProperties:
+                      additionalProperties:
+                        type: string
+                      type: object
+                    description: |-
+                      RuntimeCephConfig is a mapping of key-value mapping which contains ceph config keys with a specified values
+                      for required target, which will be set in ceph config runime db
+                    type: object
+                  staticCephConfig:
+                    additionalProperties:
+                      additionalProperties:
+                        type: string
+                      type: object
+                    description: |-
+                      StaticCephConfig is a mapping of key-value mapping which contains ceph config keys with a specified values
+                      for required target, which will be set in pod local ceph.conf file
+                    type: object
                 type: object
               ingressConfig:
                 description: |-
@@ -908,8 +926,10 @@ spec:
               rookConfig:
                 additionalProperties:
                   type: string
-                description: RookConfig is a key-value mapping which contains ceph
-                  config keys with a specified values
+                description: |-
+                  Deprecated parameter, use extraOpts.staticCephConfig instead for parameters,
+                  which should be set in local ceph.conf
+                  and cluster.cephConfig for parameters, which should be set at runtime config.
                 type: object
               sharedFilesystem:
                 description: SharedFilesystem enables such system as CephFS

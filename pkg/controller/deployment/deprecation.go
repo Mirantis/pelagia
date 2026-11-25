@@ -17,16 +17,29 @@ limitations under the License.
 package deployment
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v3/pkg/apis/ceph.pelagia.lcm/v1alpha1"
+	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
 )
 
 var (
 	msgTmpl    = "found deprecated field spec.%s, moving to spec.%s"
 	errMsgTmpl = "found deprecated field spec.%s, but conflicts with spec.%s. Keep correct and remove not needed fields manually"
 )
+
+func isParamForRuntime(section, key string) bool {
+	// use previously defined function to determine params is for runtime or for config file
+	// operator can do additional alignment manually if needed once migration completed
+	return lcmcommon.Contains(runtimeKeys, key) ||
+		strings.HasPrefix(key, "osd") ||
+		strings.HasPrefix(key, "clog") ||
+		strings.HasPrefix(section, "osd")
+}
 
 func (c *cephDeploymentConfig) isMigrationRequired() (bool, error) {
 	migrated := false
@@ -60,6 +73,74 @@ func (c *cephDeploymentConfig) isMigrationRequired() (bool, error) {
 			}
 		}
 	}
+
+	if len(c.cdConfig.cephDpl.Spec.RookConfig) > 0 {
+		// allow both fields (deprecated and new) be present at the same time
+		// but do not allow same options be present at the same time
+		newRuntimeConfig := map[string]map[string]string{}
+		newStaticConfig := map[string]map[string]string{}
+		if c.cdConfig.cephDpl.Spec.ExtraOpts != nil && len(c.cdConfig.cephDpl.Spec.ExtraOpts.RuntimeCephConfig) > 0 {
+			newRuntimeConfig = c.cdConfig.cephDpl.Spec.ExtraOpts.RuntimeCephConfig
+		}
+		if c.cdConfig.cephDpl.Spec.ExtraOpts != nil && len(c.cdConfig.cephDpl.Spec.ExtraOpts.StaticCephConfig) > 0 {
+			newStaticConfig = c.cdConfig.cephDpl.Spec.ExtraOpts.StaticCephConfig
+		}
+		conflict := false
+		for key, value := range c.cdConfig.cephDpl.Spec.RookConfig {
+			items := strings.Split(key, "|")
+			section := "global"
+			option := items[0]
+			if len(items) > 1 {
+				section = items[0]
+				option = items[1]
+			}
+			if isParamForRuntime(section, option) {
+				if _, ok := newRuntimeConfig[section]; ok {
+					if _, ok := newRuntimeConfig[section][option]; ok {
+						c.log.Error().Msgf(errMsgTmpl, fmt.Sprintf("rookConfig.%s", key), fmt.Sprintf("extraOpts.runtimeCephConfig.%s.%s", section, option))
+						specErrors++
+						conflict = true
+					} else {
+						newRuntimeConfig[section][option] = value
+					}
+				} else {
+					newRuntimeConfig[section] = map[string]string{option: value}
+				}
+			} else {
+				if _, ok := newStaticConfig[section]; ok {
+					if _, ok := newStaticConfig[section][option]; ok {
+						c.log.Error().Msgf(errMsgTmpl, fmt.Sprintf("rookConfig.%s", key), fmt.Sprintf("extraOpts.staticCephConfig.%s.%s", section, option))
+						specErrors++
+						conflict = true
+					} else {
+						newStaticConfig[section][option] = value
+					}
+				} else {
+					newStaticConfig[section] = map[string]string{option: value}
+				}
+			}
+		}
+		if !conflict {
+			c.cdConfig.cephDpl.Spec.RookConfig = nil
+			if len(newStaticConfig) > 0 {
+				c.log.Warn().Msgf(msgTmpl, "rookConfig", "extraOpts.staticCephConfig")
+				if c.cdConfig.cephDpl.Spec.ExtraOpts == nil {
+					c.cdConfig.cephDpl.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{}
+				}
+				c.cdConfig.cephDpl.Spec.ExtraOpts.StaticCephConfig = newStaticConfig
+				migrated = true
+			}
+			if len(newRuntimeConfig) > 0 {
+				c.log.Warn().Msgf(msgTmpl, "rookConfig", "extraOpts.runtimeCephConfig")
+				if c.cdConfig.cephDpl.Spec.ExtraOpts == nil {
+					c.cdConfig.cephDpl.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{}
+				}
+				c.cdConfig.cephDpl.Spec.ExtraOpts.RuntimeCephConfig = newRuntimeConfig
+				migrated = true
+			}
+		}
+	}
+
 	if specErrors > 0 {
 		return false, errors.New("failed to verify spec for deprecated fields")
 	}

@@ -60,6 +60,10 @@ var DeprecatedCephDeployment = func() cephlcmv1alpha1.CephDeployment {
 			RawExtension: runtime.RawExtension{Raw: []byte(`{"name": "nova", "caps": {"osd": "nova-caps"}}`)},
 		},
 	}
+	cdpl.Spec.RookConfig = map[string]string{
+		"static-some-opt":      "some-value",
+		"osd|runtime-some-opt": "some-value-2",
+	}
 	return *cdpl
 }()
 
