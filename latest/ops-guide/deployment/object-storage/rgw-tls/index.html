@@ -3734,6 +3734,8 @@ For API reference, see <a href="../../../../custom-resources/cephdeployment/#cep
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The <code>ingressConfig</code> section is deprecated. Use the <code>objectStorage.gatewayHTTPRoutes</code> section instead.</p>
+<p>The <code>ingressConfig</code> section takes effect only if <code>lcmConfig.useIngress</code> is set to <code>true</code> in the Helm chart values,
+which is <code>false</code> by default. For details, see <a href="../../../../configuration/helm-values/">Helm chart configuration</a>.</p>
 </div>
 <ul>
 <li><code>tlsConfig</code> - Defines TLS configuration for the Ceph Object Gateway public endpoint.</li>
@@ -3795,21 +3797,25 @@ public domain as your OpenStack endpoints.</p>
 <p><code>controllerClassName</code> defines the name of the custom Ingress Controller. Pelagia does not support deploying Ingress
 Controllers, so you must deploy the Ingress Controller before configuring the <code>ingressConfig</code> section in the
 <code>CephDeployment</code> CR.</p>
-<p>Due to the NGINX Ingress retirement, Pelagia integrated with Rockoon uses Envoy Proxy by default on newly deployed clusters. On existing clusters, disable ingress as described in <a href="../../../../upgrade-guide/upgrade-notes/#upgrade-notes-post-upgrade-steps">Upgrade notes</a>.</p>
+<p>Due to the NGINX Ingress retirement, Pelagia integrated with Rockoon uses Envoy Proxy by default on newly deployed clusters. On existing clusters, disable ingress as described in <a href="https://mirantis.github.io/pelagia/2.x/upgrade-guide/upgrade-notes/#post-upgrade-steps">Upgrade notes 1.x to 2.x: Post-upgrade steps</a>.</p>
 <h3 id="the-annotations-parameter">The <code>annotations</code> parameter<a class="headerlink" href="#the-annotations-parameter" title="Permanent link">#</a></h3>
 <p><code>annotations</code> parameter defines extra annotations for the ingress proxy that are a key-value mapping of strings
 to add or override ingress rule annotations. For details, see
 <a href="https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/">NGINX Ingress Controller: Annotations</a>.</p>
-<p>By default, the following annotations are set:</p>
+<p>If <code>controllerClassName</code> is not set or is set to <code>openstack-ingress-nginx</code>, the following annotations are set by default:</p>
 <ul>
 <li><code>nginx.ingress.kubernetes.io/rewrite-target</code> is set to <code>/</code>.</li>
-<li><code>nginx.ingress.kubernetes.io/upstream-vhost</code> is set to <code>&lt;spec.objectStorage.rgw.name&gt;.rook-ceph.svc</code>.</li>
+<li><code>nginx.ingress.kubernetes.io/proxy-body-size</code> is set to <code>0</code>.</li>
+<li><code>nginx.ingress.kubernetes.io/upstream-vhost</code> is set to the public hostname of the ObjectStore, <code>&lt;hostname&gt;.&lt;publicDomain&gt;</code>,
+  where <code>&lt;hostname&gt;</code> is <code>tlsConfig.hostname</code> if specified or the ObjectStore name otherwise. You cannot override this annotation.</li>
 </ul>
 <p>Optional annotations:</p>
 <ul>
 <li><code>nginx.ingress.kubernetes.io/proxy-request-buffering: "off"</code> that disables buffering for <code>ingress</code> to prevent the
   <em>413 (Request Entity Too Large)</em> error when uploading large files using <code>radosgw</code>.</li>
-<li><code>nginx.ingress.kubernetes.io/proxy-body-size: &lt;size&gt;</code> that increases the default uploading size limit to prevent the
+<li><code>nginx.ingress.kubernetes.io/proxy-body-size: &lt;size&gt;</code> that sets the maximum allowed size of the client request body.
+  For the default <code>openstack-ingress-nginx</code> class, Pelagia sets it to <code>0</code>, which disables the limit. For a custom
+  Ingress Controller class, NGINX applies its default limit of <code>1m</code>. In this case, increase the value to prevent the
   <em>413 (Request Entity Too Large)</em> error when uploading large files using <code>radosgw</code>. Set the value in MB (<code>m</code>) or KB
   (<code>k</code>). For example, <code>100m</code>.</li>
 </ul>
@@ -3858,7 +3864,7 @@ With the provided <code>HTTPRoute</code>, Ceph Object Gateway will use the SSL c
 <p>Configure the <code>objectStorage</code> section:</p>
 <ul>
 <li>In <code>gatewayHTTPRoutes</code>, create an <code>HTTPRoute</code> with the required parameters. For reference, see <a href="https://gateway-api.sigs.k8s.io/reference/api-types/httproute/">Gateway API documentation: HTTPRoute</a>.</li>
-<li>In <code>gatewayHTTPRoutes.name.spec.hostnames</code> and <code>objectStores.name.spec.hosting.dnsNames</code>, add a hostname to be used for the RGW public access, respecting the Gateway TLS configuration.</li>
+<li>In <code>gatewayHTTPRoutes[].spec.hostnames</code> and <code>objectStores[].spec.hosting.dnsNames</code>, add a hostname to be used for the RGW public access, respecting the Gateway TLS configuration.</li>
 </ul>
 <p>Only <code>spec.hostnames</code> is required, omitted fields fall back to Pelagia defaults. For details, see <a href="../../../../custom-resources/cephdeployment/#cephdeployment-httproute-parameters">CephDeployment API: HTTPRoute parameters</a>.</p>
 <p>For example:</p>
@@ -3919,8 +3925,11 @@ the name specified in <code>gatewayHTTPRoutes.spec.hostnames</code>.</p>
 <p>TLS configuration for Ceph Object Gateway using Ingress is deprecated. Use the Gateway API instead. For details, see <a href="#rgw-tls-configure-tls-for-object-gateway-using-the-gateway-api">Configure TLS for Ceph Object Gateway using the Gateway API</a>.</p>
 </div>
 <ol>
+<li>Ensure that Ingress support is enabled in Pelagia by setting <code>lcmConfig.useIngress: true</code> in the Helm chart values.
+The default value is <code>false</code>, in which case Pelagia ignores the <code>ingressConfig</code> section and does not create Ingress
+for Ceph Object Gateway. For details, see <a href="../../../../configuration/helm-values/">Helm chart configuration</a>.</li>
 <li>To generate an SSL certificate for internal usage, verify that the
-RADOS Gateway <code>spec.objectStorage.rgw.gateway.securePort</code> parameter is specified in the <code>CephDeployment</code> CR.
+RADOS Gateway <code>spec.objectStorage.objectStores[].spec.gateway.securePort</code> parameter is specified in the <code>CephDeployment</code> CR.
 For details, see <a href="../rgw/#rgw-enable-ceph-rgw-object-storage">Enable Ceph RGW Object Storage</a>.</li>
 <li>
 <p>Open the <code>CephDeployment</code> CR for editing:
@@ -3973,7 +3982,7 @@ For details, see <a href="../rgw/#rgw-enable-ceph-rgw-object-storage">Enable Cep
 </div>
 </li>
 <li>
-<p>In the <code>objectStorage.objectStores.name.spec.hosting.dnsNames</code> section, set the public domain name provided in <code>spec.ingressConfig.tlsConfig.publicDomain</code>:</p>
+<p>In the <code>objectStorage.objectStores[].spec.hosting.dnsNames</code> section, set the public domain name provided in <code>spec.ingressConfig.tlsConfig.publicDomain</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="nt">objectStorage</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">objectStores</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rgw-store</span>
@@ -4004,13 +4013,15 @@ For details, see <a href="../rgw/#rgw-enable-ceph-rgw-object-storage">Enable Cep
 <p>The internal endpoint for Ceph Object Gateway has the following format:
   <div class="highlight"><pre><span></span><code>https://&lt;internal-svc-name&gt;.rook-ceph.svc:&lt;rgw-secure-port&gt;/
 </code></pre></div></p>
-<p>where <code>&lt;rgw-secure-port&gt;</code> is <code>spec.objectStorage.rgw.gateway.securePort</code> specified
+<p>where <code>&lt;rgw-secure-port&gt;</code> is <code>spec.objectStorage.objectStores[].spec.gateway.securePort</code> specified
 in the <code>CephDeployment</code> CR.</p>
 </li>
 <li>
 <p>Obtain the internal endpoint TLS CA certificate:
-      <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>rgw-ssl-certificate<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{.data.cacert}"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d
+      <div class="highlight"><pre><span></span><code>kubectl<span class="w"> </span>-n<span class="w"> </span>rook-ceph<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>&lt;rgw-object-store-name&gt;-ssl-cert<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{.data.cacert}"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>base64<span class="w"> </span>-d
 </code></pre></div></p>
+<p>Substitute <code>&lt;rgw-object-store-name&gt;</code> with the ObjectStore name from the <code>objectStorage.objectStores</code> section.
+If <code>spec.gateway.sslCertificateRef</code> is set for the ObjectStore, use that secret name instead.</p>
 </li>
 </ol>
 </li>
