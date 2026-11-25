@@ -38,6 +38,9 @@ For API reference, see [CephDeployment API: HTTPRoute parameters](../../../custo
 
     The `ingressConfig` section is deprecated. Use the `objectStorage.gatewayHTTPRoutes` section instead.
 
+    The `ingressConfig` section takes effect only if `lcmConfig.useIngress` is set to `true` in the Helm chart values,
+    which is `false` by default. For details, see [Helm chart configuration](../../../configuration/helm-values.md).
+
 - `tlsConfig` - Defines TLS configuration for the Ceph Object Gateway public endpoint.
 - `controllerClassName` - Name of Ingress Controller class. The default value for Pelagia integrated Rockoon is `openstack-ingress-nginx`
 - `annotations` - Extra annotations for the ingress proxy.
@@ -95,7 +98,7 @@ For API reference, see [CephDeployment API: HTTPRoute parameters](../../../custo
 Controllers, so you must deploy the Ingress Controller before configuring the `ingressConfig` section in the
 `CephDeployment` CR.
 
-Due to the NGINX Ingress retirement, Pelagia integrated with Rockoon uses Envoy Proxy by default on newly deployed clusters. On existing clusters, disable ingress as described in [Upgrade notes](../../../upgrade-guide/upgrade-notes.md#upgrade-notes-post-upgrade-steps).
+Due to the NGINX Ingress retirement, Pelagia integrated with Rockoon uses Envoy Proxy by default on newly deployed clusters. On existing clusters, disable ingress as described in [Upgrade notes 1.x to 2.x: Post-upgrade steps](https://mirantis.github.io/pelagia/2.x/upgrade-guide/upgrade-notes/#post-upgrade-steps).
 
 ### The `annotations` parameter
 
@@ -103,16 +106,20 @@ Due to the NGINX Ingress retirement, Pelagia integrated with Rockoon uses Envoy 
 to add or override ingress rule annotations. For details, see
 [NGINX Ingress Controller: Annotations](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/).
 
-By default, the following annotations are set:
+If `controllerClassName` is not set or is set to `openstack-ingress-nginx`, the following annotations are set by default:
 
 - `nginx.ingress.kubernetes.io/rewrite-target` is set to `/`.
-- `nginx.ingress.kubernetes.io/upstream-vhost` is set to `<spec.objectStorage.rgw.name>.rook-ceph.svc`.
+- `nginx.ingress.kubernetes.io/proxy-body-size` is set to `0`.
+- `nginx.ingress.kubernetes.io/upstream-vhost` is set to the public hostname of the ObjectStore, `<hostname>.<publicDomain>`,
+  where `<hostname>` is `tlsConfig.hostname` if specified or the ObjectStore name otherwise. You cannot override this annotation.
 
 Optional annotations:
 
 - `nginx.ingress.kubernetes.io/proxy-request-buffering: "off"` that disables buffering for `ingress` to prevent the
   *413 (Request Entity Too Large)* error when uploading large files using `radosgw`.
-- `nginx.ingress.kubernetes.io/proxy-body-size: <size>` that increases the default uploading size limit to prevent the
+- `nginx.ingress.kubernetes.io/proxy-body-size: <size>` that sets the maximum allowed size of the client request body.
+  For the default `openstack-ingress-nginx` class, Pelagia sets it to `0`, which disables the limit. For a custom
+  Ingress Controller class, NGINX applies its default limit of `1m`. In this case, increase the value to prevent the
   *413 (Request Entity Too Large)* error when uploading large files using `radosgw`. Set the value in MB (`m`) or KB
   (`k`). For example, `100m`.
 
@@ -161,7 +168,7 @@ With the provided `HTTPRoute`, Ceph Object Gateway will use the SSL certificate 
 4. Configure the `objectStorage` section:
 
     - In `gatewayHTTPRoutes`, create an `HTTPRoute` with the required parameters. For reference, see [Gateway API documentation: HTTPRoute](https://gateway-api.sigs.k8s.io/reference/api-types/httproute/).
-    - In `gatewayHTTPRoutes.name.spec.hostnames` and `objectStores.name.spec.hosting.dnsNames`, add a hostname to be used for the RGW public access, respecting the Gateway TLS configuration.
+    - In `gatewayHTTPRoutes[].spec.hostnames` and `objectStores[].spec.hosting.dnsNames`, add a hostname to be used for the RGW public access, respecting the Gateway TLS configuration.
 
     Only `spec.hostnames` is required, omitted fields fall back to Pelagia defaults. For details, see [CephDeployment API: HTTPRoute parameters](../../../custom-resources/cephdeployment.md#cephdeployment-httproute-parameters).
 
@@ -230,10 +237,13 @@ With the provided `HTTPRoute`, Ceph Object Gateway will use the SSL certificate 
 
     TLS configuration for Ceph Object Gateway using Ingress is deprecated. Use the Gateway API instead. For details, see [Configure TLS for Ceph Object Gateway using the Gateway API](#rgw-tls-configure-tls-for-object-gateway-using-the-gateway-api).
 
-1. To generate an SSL certificate for internal usage, verify that the
-RADOS Gateway `spec.objectStorage.rgw.gateway.securePort` parameter is specified in the `CephDeployment` CR.
+1. Ensure that Ingress support is enabled in Pelagia by setting `lcmConfig.useIngress: true` in the Helm chart values.
+The default value is `false`, in which case Pelagia ignores the `ingressConfig` section and does not create Ingress
+for Ceph Object Gateway. For details, see [Helm chart configuration](../../../configuration/helm-values.md).
+2. To generate an SSL certificate for internal usage, verify that the
+RADOS Gateway `spec.objectStorage.objectStores[].spec.gateway.securePort` parameter is specified in the `CephDeployment` CR.
 For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-object-storage).
-2. Open the `CephDeployment` CR for editing:
+3. Open the `CephDeployment` CR for editing:
      ```bash
      kubectl -n pelagia edit cephdpl <name>
      ```
@@ -246,10 +256,10 @@ For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-o
      kubectl -n openstack-ceph-shared get secret openstack-rgw-creds -o jsonpath="{.data.ca_cert}" | base64 -d
      ```
 
-3. Specify the `ingressConfig` parameters as required.
-4. Save the changes and close the editor.
+4. Specify the `ingressConfig` parameters as required.
+5. Save the changes and close the editor.
 
-5. If you use the HTTP scheme instead of HTTPS for internal or public Ceph Object Gateway endpoints,
+6. If you use the HTTP scheme instead of HTTPS for internal or public Ceph Object Gateway endpoints,
    add custom annotations to the `ingressConfig.annotations` section of the `CephDeployment` CR:
      ```yaml
      spec:
@@ -271,7 +281,7 @@ For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-o
             "nginx.ingress.kubernetes.io/ssl-redirect": "false"
      ```
 
-6. In the `objectStorage.objectStores` section, set the `servedByIngress: true` parameter for the ObjectStore with public access through Ingress:
+7. In the `objectStorage.objectStores` section, set the `servedByIngress: true` parameter for the ObjectStore with public access through Ingress:
 
     ```yaml
     objectStorage:
@@ -286,7 +296,7 @@ For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-o
 
         Only one ObjectStore with public access through Ingress is supported.
 
-7. In the `objectStorage.objectStores.name.spec.hosting.dnsNames` section, set the public domain name provided in `spec.ingressConfig.tlsConfig.publicDomain`:
+8. In the `objectStorage.objectStores[].spec.hosting.dnsNames` section, set the public domain name provided in `spec.ingressConfig.tlsConfig.publicDomain`:
 
     ```yaml
     objectStorage:
@@ -300,7 +310,7 @@ For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-o
           ...
     ```
 
-8. Access the public Ceph Object Gateway endpoint:
+9. Access the public Ceph Object Gateway endpoint:
 
      1. Obtain the Ceph Object Gateway public endpoint:
           ```bash
@@ -323,13 +333,16 @@ For details, see [Enable Ceph RGW Object Storage](./rgw.md#rgw-enable-ceph-rgw-o
           https://<internal-svc-name>.rook-ceph.svc:<rgw-secure-port>/
           ```
 
-        where `<rgw-secure-port>` is `spec.objectStorage.rgw.gateway.securePort` specified
+        where `<rgw-secure-port>` is `spec.objectStorage.objectStores[].spec.gateway.securePort` specified
         in the `CephDeployment` CR.
 
      2. Obtain the internal endpoint TLS CA certificate:
           ```bash
-          kubectl -n rook-ceph get secret rgw-ssl-certificate -o jsonpath="{.data.cacert}" | base64 -d
+          kubectl -n rook-ceph get secret <rgw-object-store-name>-ssl-cert -o jsonpath="{.data.cacert}" | base64 -d
           ```
+
+        Substitute `<rgw-object-store-name>` with the ObjectStore name from the `objectStorage.objectStores` section.
+        If `spec.gateway.sslCertificateRef` is set for the ObjectStore, use that secret name instead.
 
 ## Verify TLS for Ceph Object Gateway
 
