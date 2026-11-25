@@ -57,6 +57,7 @@ plugins:
       # GitHub rate-limits link checks from CI runners. A 429 doesn't mean the link is broken.
       raise_error_excludes:
         429: ['https://github.com/*']
+        503: ['https://github.com/*']
   - macros:
       on_undefined: strict
   - mermaid2
