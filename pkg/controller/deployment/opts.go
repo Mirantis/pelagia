@@ -79,10 +79,8 @@ type deployConfig struct {
 }
 
 type updateTimestamps struct {
-	cephConfigMap    map[string]string
-	rgwSSLCert       map[string]string
-	rgwRuntimeParams string
-	osdRuntimeParams string
+	cephConfigMap map[string]string
+	rgwSSLCert    map[string]string
 }
 
 func unsetTimestampsVar() {

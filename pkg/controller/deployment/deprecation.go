@@ -24,7 +24,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	cephlcmv1alpha1 "github.com/Mirantis/pelagia/v3/pkg/apis/ceph.pelagia.lcm/v1alpha1"
-	lcmcommon "github.com/Mirantis/pelagia/v3/pkg/common"
 )
 
 var (
@@ -35,8 +34,7 @@ var (
 func isParamForRuntime(section, key string) bool {
 	// use previously defined function to determine params is for runtime or for config file
 	// operator can do additional alignment manually if needed once migration completed
-	return lcmcommon.Contains(runtimeKeys, key) ||
-		strings.HasPrefix(key, "osd") ||
+	return strings.HasPrefix(key, "osd") ||
 		strings.HasPrefix(key, "clog") ||
 		strings.HasPrefix(section, "osd")
 }
@@ -87,7 +85,7 @@ func (c *cephDeploymentConfig) isMigrationRequired() (bool, error) {
 		}
 		conflict := false
 		for key, value := range c.cdConfig.cephDpl.Spec.RookConfig {
-			items := strings.Split(key, "|")
+			items := strings.Split(key, sectionDelimiter)
 			section := "global"
 			option := items[0]
 			if len(items) > 1 {

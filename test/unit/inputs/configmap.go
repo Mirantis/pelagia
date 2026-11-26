@@ -124,8 +124,8 @@ var BaseRookConfigOverride = corev1.ConfigMap{
 		Namespace: "rook-ceph",
 		Name:      "rook-config-override",
 		Annotations: map[string]string{
-			"cephdeployment.lcm.mirantis.com/config-global-hash": "95b401f9fc7db148cf2cc3bbcbbe09f7722b2060acf714c142fdf07ee249f0bb",
-			"cephdeployment.lcm.mirantis.com/config-mon-hash":    "52235ccf3c9f953de0fc2b8e2928f8119e1be19c14a4cf300c55e8498ec81fa2",
+			"cephdeployment.lcm.mirantis.com/config-global-hash": "b6e2eff5c6df81944e8a54f26a29d01f1764a78786893c22f03acf87d5cf3256",
+			"cephdeployment.lcm.mirantis.com/config-osd-hash":    "47a029d48bd59af068bec7cfd8414ead97a6177f16a0dccc2457c22e549693d0",
 		},
 		Labels: map[string]string{
 			"app.kubernetes.io/created-by": "pelagia-deployment-controller",
@@ -137,16 +137,10 @@ var BaseRookConfigOverride = corev1.ConfigMap{
 		"config": `[global]
 cluster_network = 127.0.0.0/16
 public_network = 192.168.0.0/16
-mon_max_pg_per_osd = 300
-mon_target_pg_per_osd = 100
-
-[mon]
-mon_warn_on_insecure_global_id_reclaim = false
-mon_warn_on_insecure_global_id_reclaim_allowed = false
 
 [osd]
 osd_class_dir = /usr/lib64/rados-classes
 `,
-		"runtime": "osd|bdev_async_discard_threads = 1\nosd|bdev_enable_discard = true\n",
+		"runtime": "global|mon_max_pg_per_osd = 300\nglobal|mon_target_pg_per_osd = 100\nmon|mon_warn_on_insecure_global_id_reclaim = false\nmon|mon_warn_on_insecure_global_id_reclaim_allowed = false\nosd|bdev_async_discard_threads = 1\nosd|bdev_enable_discard = true\n",
 	},
 }

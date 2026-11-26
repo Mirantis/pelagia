@@ -731,23 +731,45 @@ var CephZoneGroupInfoHostnamesFromIngress = BuildCliOutput(CephZoneGroupInfoHost
 var CephZoneGroupInfoHostnamesFromConfig = BuildCliOutput(CephZoneGroupInfoHostnamesTmpl, "", map[string]string{"hostnames": `["rook-ceph-rgw-rgw-store.rook-ceph.svc","rgw-store.ms2.wxlsd.com"]`})
 
 var CephConfigSectionTmpl = `{"section": "{section}", "name": "{name}", "value": "{value}", "level": "advanced", "can_update_at_runtime": "{runtime_update}", "mask": ""}`
-var cephConfigDumpDefaultsStr = fmt.Sprintf("%s, %s, %s, %s",
+var cephConfigDumpDefaultsStr = fmt.Sprintf("%s, %s, %s, %s, %s, %s, %s, %s",
 	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "global", "name": "osd_pool_default_pg_autoscale_mode", "value": "on", "runtime_update": "true"}),
 	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "osd", "name": "bdev_async_discard_threads", "value": "1", "runtime_update": "true"}),
 	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "osd", "name": "bdev_enable_discard", "value": "true", "runtime_update": "true"}),
-	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "global", "name": "osd_scrub_auto_repair", "value": "true", "runtime_update": "true"}))
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "global", "name": "osd_scrub_auto_repair", "value": "true", "runtime_update": "true"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "global", "name": "mon_max_pg_per_osd", "value": "300", "runtime_update": "true"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "global", "name": "mon_target_pg_per_osd", "value": "100", "runtime_update": "true"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "mon", "name": "mon_warn_on_insecure_global_id_reclaim", "value": "false", "runtime_update": "true"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "mon", "name": "mon_warn_on_insecure_global_id_reclaim_allowed", "value": "false", "runtime_update": "true"}))
 
 var CephConfigDumpDefaults = fmt.Sprintf("[%s]", cephConfigDumpDefaultsStr)
 var CephConfigDumpOverride = fmt.Sprintf("[%s, %s, %s]",
 	cephConfigDumpDefaultsStr,
 	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "global", "name": "osd_max_backfills", "value": "32", "runtime_update": "true"}),
 	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "global", "name": "osd_recovery_max_active", "value": "16", "runtime_update": "true"}))
-var CephConfigDumpOverrideWithRgw = fmt.Sprintf("[%s, %s, %s, %s, %s]",
+var CephConfigDumpOverrideWithRgw = fmt.Sprintf("[%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s]",
 	cephConfigDumpDefaultsStr,
 	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "global", "name": "osd_max_backfills", "value": "64", "runtime_update": "true"}),
 	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "global", "name": "osd_recovery_max_active", "value": "16", "runtime_update": "true"}),
 	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_keystone_admin_password", "value": "AMTqaDveAp8sWlLtf0fcg6RVjFRXs7FR", "runtime_update": "false"}),
-	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_keystone_barbican_password", "value": "AMTqaDveAp8sWlLtf0fcg6RVjFRXs7FR", "runtime_update": "false"}))
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_keystone_barbican_password", "value": "AMTqaDveAp8sWlLtf0fcg6RVjFRXs7FR", "runtime_update": "false"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_bucket_quota_ttl", "value": "30"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_data_log_backing", "value": "omap"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_max_attr_name_len", "value": "64"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_max_attr_size", "value": "1024"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_max_attrs_num_in_req", "value": "32"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_thread_pool_size", "value": "256"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_trust_forwarded_https", "value": "true"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_user_quota_bucket_sync_interval", "value": "30"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_user_quota_sync_interval", "value": "30"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_enable_usage_log", "value": "true"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_enforce_swift_acls", "value": "true"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_s3_auth_use_keystone", "value": "true"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_swift_account_in_url", "value": "true"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_swift_versioning_enabled", "value": "true"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_usage_log_flush_threshold", "value": "1024"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_usage_log_tick_interval", "value": "30"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_usage_max_shards", "value": "32"}),
+	BuildCliOutput(CephConfigSectionTmpl, "", map[string]string{"section": "client.rgw.rgw.store.a", "name": "rgw_usage_max_user_shards", "value": "1"}))
 
 var CephVersionTemplate = `ceph version %s (stable)`
 

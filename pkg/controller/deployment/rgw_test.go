@@ -320,7 +320,6 @@ func TestEnsureRgwConsistence(t *testing.T) {
 
 func TestDeleteRgw(t *testing.T) {
 	resourceUpdateTimestamps = updateTimestamps{
-		rgwRuntimeParams: "some-time",
 		cephConfigMap: map[string]string{
 			"client.rgw.rgw.store.a": "some-time",
 		},

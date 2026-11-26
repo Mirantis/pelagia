@@ -243,9 +243,6 @@ func (c *cephDeploymentConfig) deleteRgw(rgwToRemove string) (bool, error) {
 			delete(resourceUpdateTimestamps.rgwSSLCert, rgw.Name)
 		}
 	}
-	if rgwToRemove == "" {
-		resourceUpdateTimestamps.rgwRuntimeParams = ""
-	}
 
 	if errMsg > 0 {
 		return false, errors.New("failed to cleanup rgw object store resources")

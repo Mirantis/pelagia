@@ -79,8 +79,8 @@ type CephDeploymentSpec struct {
 	// +optional
 	OldClients []CephOldClient `json:"clients,omitempty"`
 	// Deprecated parameter, use extraOpts.staticCephConfig instead for parameters,
-	// which should be set in local ceph.conf
-	// and cluster.cephConfig for parameters, which should be set at runtime config.
+	// which should be set in local ceph.conf and extraOpts.runtimeCephConfig for parameters,
+	// which should be set at runtime config.
 	// +optional
 	RookConfig map[string]string `json:"rookConfig,omitempty"`
 }

@@ -129,20 +129,28 @@ var BaseCephDeploymentMultus = func() cephlcmv1alpha1.CephDeployment {
 	return *cd
 }()
 
-var CephDeployRookConfigNoRuntimeNoOsd = func() cephlcmv1alpha1.CephDeployment {
+var CephDeployRookConfigNoRuntime = func() cephlcmv1alpha1.CephDeployment {
 	cd := BaseCephDeployment.DeepCopy()
-	cd.Spec.RookConfig = map[string]string{"mon-max-pg-per-osd": "400"}
+	cd.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{
+		StaticCephConfig: map[string]map[string]string{
+			"mon": {"mon-max-pg-per-osd": "400"},
+		},
+	}
 	return *cd
 }()
 
-var CephDeployRookConfigNoRuntimeOsdParams = func() cephlcmv1alpha1.CephDeployment {
+var CephDeployRookConfigRuntimeNoStatic = func() cephlcmv1alpha1.CephDeployment {
 	cd := BaseCephDeployment.DeepCopy()
-	cd.Spec.RookConfig = map[string]string{
-		"mon-max-pg-per-osd":       "400",
-		"osd_max_backfills":        "64",
-		"osd_recovery_max_active":  "16",
-		"osd_recovery_op_priority": "3",
-		"osd_recovery_sleep_hdd":   "0.000000",
+	cd.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{
+		RuntimeCephConfig: map[string]map[string]string{
+			"mon": {"mon-max-pg-per-osd": "400"},
+			"osd": {
+				"osd_max_backfills":        "64",
+				"osd_recovery_max_active":  "16",
+				"osd_recovery_op_priority": "3",
+				"osd_recovery_sleep_hdd":   "0.000000",
+			},
+		},
 	}
 	return *cd
 }()
@@ -398,25 +406,35 @@ var CephDeployMoskWithHTTPRoute = func() cephlcmv1alpha1.CephDeployment {
 	return *cd
 }()
 
-var CephDeployMoskWithoutIngressRookConfigOverride = func() cephlcmv1alpha1.CephDeployment {
+var CephDeployMoskWithoutIngressConfigOverride = func() cephlcmv1alpha1.CephDeployment {
 	cd := CephDeployMoskWithoutIngress.DeepCopy()
-	cd.Spec.RookConfig = map[string]string{
-		"cluster network":           "10.0.0.0/24",
-		"public network":            "172.16.0.0/24",
-		"rgw_trust_forwarded_https": "false",
-		"rgw keystone admin user":   "override-user",
+	cd.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{
+		RuntimeCephConfig: map[string]map[string]string{
+			"client.rgw.rgw.store.a": {"rgw_trust_forwarded_https": "false"},
+		},
+		StaticCephConfig: map[string]map[string]string{
+			"client.rgw.rgw.store.a": {"rgw keystone admin user": "override-user"},
+		},
 	}
 	return *cd
 }()
 
 var CephDeployMoskWithoutIngressRookConfigOverrideBarbican = func() cephlcmv1alpha1.CephDeployment {
 	cd := CephDeployMoskWithoutIngress.DeepCopy()
-	cd.Spec.RookConfig = map[string]string{
-		"mon_max_pg_per_osd":                  "400",
-		"rgw enforce swift acls":              "false",
-		"rgw_user_quota_bucket_sync_interval": "10",
-		"rgw_dns_name":                        "rgw-store.ms2.wxlsd.com",
-		"rgw keystone barbican user":          "override-user",
+	cd.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{
+		RuntimeCephConfig: map[string]map[string]string{
+			"global": {"mon_max_pg_per_osd": "400"},
+			"client.rgw.rgw.store.a": {
+				"rgw enforce swift acls":              "false",
+				"rgw_user_quota_bucket_sync_interval": "10",
+			},
+		},
+		StaticCephConfig: map[string]map[string]string{
+			"client.rgw.rgw.store.a": {
+				"rgw_dns_name":               "rgw-store.ms2.wxlsd.com",
+				"rgw keystone barbican user": "override-user",
+			},
+		},
 	}
 	return *cd
 }()

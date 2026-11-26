@@ -286,11 +286,11 @@ func TestEnsureCluster(t *testing.T) {
 	}
 	getClusterEnsure := getCluster(map[cephv1.KeyType]cephv1.Annotations{
 		cephv1.KeyMon: map[string]string{
-			"cephdeployment.lcm.mirantis.com/config-global-updated": "time-6",
+			"cephdeployment.lcm.mirantis.com/config-global-updated": "time-5",
 			"cephdeployment.lcm.mirantis.com/config-mon-updated":    "time-6",
 		},
 		cephv1.KeyMgr: {
-			"cephdeployment.lcm.mirantis.com/config-global-updated": "time-6",
+			"cephdeployment.lcm.mirantis.com/config-global-updated": "time-5",
 		},
 	})
 
@@ -329,6 +329,17 @@ func TestEnsureCluster(t *testing.T) {
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{unitinputs.CephClusterNotReady}},
 				"configmaps":   &v1.ConfigMapList{Items: []v1.ConfigMap{*unitinputs.BaseRookConfigOverride.DeepCopy()}},
 			},
+			expectedResources: map[string]runtime.Object{
+				"configmaps": &v1.ConfigMapList{Items: []v1.ConfigMap{
+					func() v1.ConfigMap {
+						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-generated"] = "time-2"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-osd-updated"] = "time-2"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-2"
+						return *cm
+					}(),
+				}},
+			},
 			expectedError: "failed to ensure cephcluster rook-ceph/cephcluster: ceph cluster rook-ceph/cephcluster is not ready to be updated: cluster healthy = true, cluster state = 'Created', cluster phase = 'Progressing'",
 		},
 		{
@@ -344,7 +355,7 @@ func TestEnsureCluster(t *testing.T) {
 					func() v1.ConfigMap {
 						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-generated"] = "time-3"
-						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-updated"] = "time-3"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-osd-updated"] = "time-3"
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-3"
 						return *cm
 					}(),
@@ -365,7 +376,6 @@ func TestEnsureCluster(t *testing.T) {
 						getCluster(map[cephv1.KeyType]cephv1.Annotations{
 							cephv1.KeyMon: map[string]string{
 								"cephdeployment.lcm.mirantis.com/config-global-updated": "time-4",
-								"cephdeployment.lcm.mirantis.com/config-mon-updated":    "time-4",
 							},
 							cephv1.KeyMgr: map[string]string{
 								"cephdeployment.lcm.mirantis.com/config-global-updated": "time-4",
@@ -377,7 +387,7 @@ func TestEnsureCluster(t *testing.T) {
 					func() v1.ConfigMap {
 						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-generated"] = "time-4"
-						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-updated"] = "time-4"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-osd-updated"] = "time-4"
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-4"
 						return *cm
 					}(),
@@ -399,7 +409,7 @@ func TestEnsureCluster(t *testing.T) {
 					func() v1.ConfigMap {
 						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-generated"] = "time-5"
-						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-updated"] = "time-5"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-osd-updated"] = "time-5"
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-5"
 						return *cm
 					}(),
@@ -408,17 +418,45 @@ func TestEnsureCluster(t *testing.T) {
 			expectedError: "failed to update cephcluster rook-ceph/cephcluster: failed to update cluster",
 		},
 		{
-			name:    "update cluster - restart required for services, annotations already set",
-			cephDpl: &unitinputs.CephDeployRookConfigNoRuntimeNoOsd,
+			name:    "update cluster - restart required for services, annotations set",
+			cephDpl: &unitinputs.CephDeployRookConfigNoRuntime,
 			inputResources: map[string]runtime.Object{
+				"cephclusters": &cephv1.CephClusterList{
+					Items: []cephv1.CephCluster{
+						getCluster(map[cephv1.KeyType]cephv1.Annotations{
+							cephv1.KeyMon: map[string]string{
+								"cephdeployment.lcm.mirantis.com/config-global-updated": "time-5",
+							},
+							cephv1.KeyMgr: map[string]string{
+								"cephdeployment.lcm.mirantis.com/config-global-updated": "time-5",
+							},
+						}),
+					},
+				},
+				"configmaps": &v1.ConfigMapList{Items: []v1.ConfigMap{
+					func() v1.ConfigMap {
+						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-generated"] = "time-5"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-osd-updated"] = "time-5"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-5"
+						return *cm
+					}(),
+					unitinputs.RookCephMonEndpoints,
+				}},
+			},
+			expectedResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{
 					Items: []cephv1.CephCluster{*getClusterEnsure.DeepCopy()},
 				},
 				"configmaps": &v1.ConfigMapList{Items: []v1.ConfigMap{
 					func() v1.ConfigMap {
 						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-generated"] = "time-6"
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-updated"] = "time-6"
-						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-6"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-hash"] = "e71a6754b81203c17d7e687f623fa2836883415c31e809dcd6a142d4b3ac6d95"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-osd-updated"] = "time-5"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-5"
+						cm.Data["config"] = "[global]\ncluster_network = 127.0.0.0/16\npublic_network = 192.168.0.0/16\n\n[mon]\nmon_max_pg_per_osd = 400\n\n[osd]\nosd_class_dir = /usr/lib64/rados-classes\n"
 						return *cm
 					}(),
 					unitinputs.RookCephMonEndpoints,
@@ -428,7 +466,7 @@ func TestEnsureCluster(t *testing.T) {
 		},
 		{
 			name:    "update cluster - no restart required for services, annotations already set",
-			cephDpl: &unitinputs.BaseCephDeployment,
+			cephDpl: &unitinputs.CephDeployRookConfigNoRuntime,
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{
 					Items: []cephv1.CephCluster{*getClusterEnsure.DeepCopy()},
@@ -438,7 +476,10 @@ func TestEnsureCluster(t *testing.T) {
 						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-generated"] = "time-6"
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-updated"] = "time-6"
-						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-6"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-hash"] = "e71a6754b81203c17d7e687f623fa2836883415c31e809dcd6a142d4b3ac6d95"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-osd-updated"] = "time-5"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-5"
+						cm.Data["config"] = "[global]\ncluster_network = 127.0.0.0/16\npublic_network = 192.168.0.0/16\n\n[mon]\nmon_max_pg_per_osd = 400\n\n[osd]\nosd_class_dir = /usr/lib64/rados-classes\n"
 						return *cm
 					}(),
 					unitinputs.RookCephMonEndpoints,
@@ -446,8 +487,8 @@ func TestEnsureCluster(t *testing.T) {
 			},
 		},
 		{
-			name:    "update cluster - ceph cluster not deployed, runtime params not set",
-			cephDpl: &unitinputs.BaseCephDeployment,
+			name:    "update cluster - ceph cluster not deployed, ceph params not set",
+			cephDpl: &unitinputs.CephDeployRookConfigNoRuntime,
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{
 					Items: []cephv1.CephCluster{*unitinputs.CephClusterGenerated.DeepCopy()},
@@ -455,9 +496,12 @@ func TestEnsureCluster(t *testing.T) {
 				"configmaps": &v1.ConfigMapList{Items: []v1.ConfigMap{
 					func() v1.ConfigMap {
 						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
-						cm.Annotations["cephdeployment.lcm.mirantis.com/config-generated"] = "time-6"
+						cm.Data["config"] = "[global]\ncluster_network = 127.0.0.0/16\npublic_network = 192.168.0.0/16\n\n[mon]\nmon_max_pg_per_osd = 400\n\n[osd]\nosd_class_dir = /usr/lib64/rados-classes\n"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-hash"] = "e71a6754b81203c17d7e687f623fa2836883415c31e809dcd6a142d4b3ac6d95"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-generated"] = "time-5"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-osd-updated"] = "time-5"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-5"
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-updated"] = "time-6"
-						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-6"
 						return *cm
 					}(),
 				}},
@@ -492,7 +536,7 @@ func TestEnsureCluster(t *testing.T) {
 					func() v1.ConfigMap {
 						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-generated"] = "time-6"
-						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-updated"] = "time-6"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-osd-updated"] = "time-6"
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-6"
 						return *cm
 					}(),
@@ -509,6 +553,12 @@ func TestEnsureCluster(t *testing.T) {
 						cl.Spec.Annotations[cephv1.KeyOSD] = map[string]string{
 							"cephdeployment.lcm.mirantis.com/restart-osd-reason":    "cephcluster unit test",
 							"cephdeployment.lcm.mirantis.com/restart-osd-requested": "time-9",
+						}
+						cl.Spec.Annotations[cephv1.KeyMon] = map[string]string{
+							"cephdeployment.lcm.mirantis.com/config-global-updated": "time-6",
+						}
+						cl.Spec.Annotations[cephv1.KeyMgr] = map[string]string{
+							"cephdeployment.lcm.mirantis.com/config-global-updated": "time-6",
 						}
 						return cl
 					}(),
@@ -537,6 +587,12 @@ func TestEnsureCluster(t *testing.T) {
 							"cephdeployment.lcm.mirantis.com/restart-osd-reason":    "cephcluster unit test",
 							"cephdeployment.lcm.mirantis.com/restart-osd-requested": "time-9",
 						}
+						cl.Spec.Annotations[cephv1.KeyMon] = map[string]string{
+							"cephdeployment.lcm.mirantis.com/config-global-updated": "time-6",
+						}
+						cl.Spec.Annotations[cephv1.KeyMgr] = map[string]string{
+							"cephdeployment.lcm.mirantis.com/config-global-updated": "time-6",
+						}
 						return cl
 					}(),
 				}},
@@ -544,7 +600,7 @@ func TestEnsureCluster(t *testing.T) {
 					func() v1.ConfigMap {
 						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-generated"] = "time-6"
-						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-updated"] = "time-6"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-osd-updated"] = "time-6"
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-6"
 						return *cm
 					}(),
@@ -566,6 +622,12 @@ func TestEnsureCluster(t *testing.T) {
 							"cephdeployment.lcm.mirantis.com/restart-osd-reason":    "cephcluster unit test",
 							"cephdeployment.lcm.mirantis.com/restart-osd-requested": "time-9",
 						}
+						cl.Spec.Annotations[cephv1.KeyMon] = map[string]string{
+							"cephdeployment.lcm.mirantis.com/config-global-updated": "time-6",
+						}
+						cl.Spec.Annotations[cephv1.KeyMgr] = map[string]string{
+							"cephdeployment.lcm.mirantis.com/config-global-updated": "time-6",
+						}
 						return cl
 					}(),
 				}},
@@ -573,7 +635,7 @@ func TestEnsureCluster(t *testing.T) {
 					func() v1.ConfigMap {
 						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-generated"] = "time-6"
-						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-updated"] = "time-6"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-osd-updated"] = "time-6"
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-6"
 						return *cm
 					}(),
@@ -624,6 +686,23 @@ func TestEnsureCluster(t *testing.T) {
 					Items: []v1.Secret{*unitinputs.RookCephMonSecretNonAdmin.DeepCopy(), unitinputs.ExternalConnectionSecretWithAdmin},
 				},
 			},
+			expectedResources: map[string]runtime.Object{
+				"configmaps": &v1.ConfigMapList{
+					Items: []v1.ConfigMap{
+						func() v1.ConfigMap {
+							cm := unitinputs.RookCephMonEndpointsExternal.DeepCopy()
+							cm.OwnerReferences = []metav1.OwnerReference{
+								{
+									APIVersion: "ceph.rook.io/v1",
+									Kind:       "CephCluster",
+									Name:       "cephcluster",
+								},
+							}
+							return *cm
+						}(),
+					},
+				},
+			},
 			updated: true,
 		},
 		{
@@ -662,7 +741,7 @@ func TestEnsureCluster(t *testing.T) {
 		},
 		{
 			name:    "update cluster postponed after rollout on aes256k",
-			cephDpl: &unitinputs.CephDeployRookConfigNoRuntimeNoOsd,
+			cephDpl: &unitinputs.BaseCephDeployment,
 			inputResources: map[string]runtime.Object{
 				"cephclusters": &cephv1.CephClusterList{
 					Items: []cephv1.CephCluster{
@@ -676,7 +755,8 @@ func TestEnsureCluster(t *testing.T) {
 				"configmaps": &v1.ConfigMapList{Items: []v1.ConfigMap{
 					func() v1.ConfigMap {
 						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
-						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-updated"] = "time-6"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-generated"] = "time-6"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-osd-updated"] = "time-6"
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-6"
 						return *cm
 					}(),
@@ -687,7 +767,7 @@ func TestEnsureCluster(t *testing.T) {
 		{
 			name: "update cluster update after rollout on aes256k",
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
-				cd := unitinputs.CephDeployRookConfigNoRuntimeNoOsd.DeepCopy()
+				cd := unitinputs.BaseCephDeployment.DeepCopy()
 				cd.Labels = map[string]string{aes256kApplied: "true"}
 				return cd
 			}(),
@@ -696,6 +776,8 @@ func TestEnsureCluster(t *testing.T) {
 					Items: []cephv1.CephCluster{
 						func() cephv1.CephCluster {
 							cl := *getClusterEnsure.DeepCopy()
+							cl.Spec.Annotations[cephv1.KeyMon] = map[string]string{"cephdeployment.lcm.mirantis.com/config-global-updated": "time-6"}
+							cl.Spec.Annotations[cephv1.KeyMgr] = map[string]string{"cephdeployment.lcm.mirantis.com/config-global-updated": "time-6"}
 							cl.Labels = map[string]string{aes256kApplied: "true"}
 							cl.Status = cephv1.ClusterStatus{
 								CephStatus: &cephv1.CephStatus{Health: "HEALTH_OK"},
@@ -712,7 +794,8 @@ func TestEnsureCluster(t *testing.T) {
 				"configmaps": &v1.ConfigMapList{Items: []v1.ConfigMap{
 					func() v1.ConfigMap {
 						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
-						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-updated"] = "time-6"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-generated"] = "time-6"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-osd-updated"] = "time-6"
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-6"
 						return *cm
 					}(),
@@ -723,8 +806,8 @@ func TestEnsureCluster(t *testing.T) {
 				"cephclusters": &cephv1.CephClusterList{Items: []cephv1.CephCluster{
 					func() cephv1.CephCluster {
 						cl := *getClusterEnsure.DeepCopy()
-						cl.Spec.Annotations[cephv1.KeyMon]["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-17"
-						cl.Spec.Annotations[cephv1.KeyMgr]["cephdeployment.lcm.mirantis.com/config-global-updated"] = "time-17"
+						cl.Spec.Annotations[cephv1.KeyMon] = map[string]string{"cephdeployment.lcm.mirantis.com/config-global-updated": "time-6"}
+						cl.Spec.Annotations[cephv1.KeyMgr] = map[string]string{"cephdeployment.lcm.mirantis.com/config-global-updated": "time-6"}
 						cl.Status = cephv1.ClusterStatus{
 							CephStatus: &cephv1.CephStatus{Health: "HEALTH_OK"},
 							CephVersion: &cephv1.ClusterVersion{
@@ -761,6 +844,7 @@ func TestEnsureCluster(t *testing.T) {
 			faketestclients.FakeReaction(c.api.Rookclientset, "update", res, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "get", []string{"configmaps", "secrets"}, test.inputResources, test.apiErrors)
 			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "create", []string{"configmaps", "secrets"}, test.inputResources, test.apiErrors)
+			faketestclients.FakeReaction(c.api.Kubeclientset.CoreV1(), "update", []string{"configmaps"}, test.inputResources, test.apiErrors)
 			test.expectedResources = faketestclients.PrepareExpectedResources(test.inputResources, test.expectedResources)
 
 			lcmcommon.RunPodCommandWithValidation = func(e lcmcommon.ExecConfig) (string, string, error) {
