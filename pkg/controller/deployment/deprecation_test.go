@@ -49,16 +49,59 @@ func TestEnsureDeprecatedFields(t *testing.T) {
 			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cdpl := unitinputs.DeprecatedCephDeployment.DeepCopy()
 				cdpl.Spec.Clients = migratedClients
+				cdpl.Spec.RookConfig = nil
 				return cdpl
 			}(),
 			expectedError: "failed to verify spec for deprecated fields",
 		},
 		{
-			name:    "transform ceph clients",
-			cephDpl: unitinputs.DeprecatedCephDeployment.DeepCopy(),
+			name: "transform ceph clients",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cdpl := unitinputs.DeprecatedCephDeployment.DeepCopy()
+				cdpl.Spec.RookConfig = nil
+				return cdpl
+			}(),
 			expectedCephDpl: func() *cephlcmv1alpha1.CephDeployment {
 				cdpl := unitinputs.BaseCephDeployment.DeepCopy()
 				cdpl.Spec.Clients = migratedClients
+				return cdpl
+			}(),
+			migrated: true,
+		},
+		{
+			name: "can't transform rookConfig",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cdpl := unitinputs.DeprecatedCephDeployment.DeepCopy()
+				cdpl.Spec.OldClients = nil
+				cdpl.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{
+					StaticCephConfig: map[string]map[string]string{
+						"global": {"static-some-opt": "another-value"},
+					},
+					RuntimeCephConfig: map[string]map[string]string{
+						"osd": {"runtime-some-opt": "another-value"},
+					},
+				}
+				return cdpl
+			}(),
+			expectedError: "failed to verify spec for deprecated fields",
+		},
+		{
+			name: "transform rookConfig",
+			cephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cdpl := unitinputs.DeprecatedCephDeployment.DeepCopy()
+				cdpl.Spec.OldClients = nil
+				return cdpl
+			}(),
+			expectedCephDpl: func() *cephlcmv1alpha1.CephDeployment {
+				cdpl := unitinputs.BaseCephDeployment.DeepCopy()
+				cdpl.Spec.ExtraOpts = &cephlcmv1alpha1.CephDeploymentExtraOpts{
+					StaticCephConfig: map[string]map[string]string{
+						"global": {"static-some-opt": "some-value"},
+					},
+					RuntimeCephConfig: map[string]map[string]string{
+						"osd": {"runtime-some-opt": "some-value-2"},
+					},
+				}
 				return cdpl
 			}(),
 			migrated: true,

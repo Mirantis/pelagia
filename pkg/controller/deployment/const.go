@@ -66,10 +66,8 @@ const (
 	monIPAnnotation = "network.rook.io/mon-ip"
 
 	// cephdeployment related annotations
-	cephConfigMapUpdateTimestampLabel            = "cephdeployment.lcm.mirantis.com/config-generated"
-	cephRuntimeRgwParametersUpdateTimestampLabel = "cephdeployment.lcm.mirantis.com/runtime-rgw-params-updated"
-	cephRuntimeOsdParametersUpdateTimestampLabel = "cephdeployment.lcm.mirantis.com/runtime-osd-params-updated"
-	sslCertGenerationTimestampLabel              = "cephdeployment.lcm.mirantis.com/ssl-cert-generated"
+	cephConfigMapUpdateTimestampLabel = "cephdeployment.lcm.mirantis.com/config-generated"
+	sslCertGenerationTimestampLabel   = "cephdeployment.lcm.mirantis.com/ssl-cert-generated"
 	// label for rgw default self-signed certs
 	selfSignedCertLabel = "cephdeployment.lcm.mirantis.com/self-signed-ssl-cert-for"
 	// labels identifying osd restart reason and timestamp

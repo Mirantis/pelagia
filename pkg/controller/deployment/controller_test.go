@@ -686,7 +686,7 @@ func TestReconcile(t *testing.T) {
 						cm := unitinputs.BaseRookConfigOverride.DeepCopy()
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-generated"] = "2021-08-15T14:30:45+04:00"
 						cm.Annotations["cephdeployment.lcm.mirantis.com/config-global-updated"] = "2021-08-15T14:30:45+04:00"
-						cm.Annotations["cephdeployment.lcm.mirantis.com/config-mon-updated"] = "2021-08-15T14:30:45+04:00"
+						cm.Annotations["cephdeployment.lcm.mirantis.com/config-osd-updated"] = "2021-08-15T14:30:45+04:00"
 						return *cm
 					}(),
 				}},
@@ -724,7 +724,6 @@ func TestReconcile(t *testing.T) {
 							cluster.Spec.Annotations = map[cephv1.KeyType]cephv1.Annotations{
 								cephv1.KeyMon: map[string]string{
 									"cephdeployment.lcm.mirantis.com/config-global-updated": "2021-08-15T14:30:45+04:00",
-									"cephdeployment.lcm.mirantis.com/config-mon-updated":    "2021-08-15T14:30:45+04:00",
 								},
 								cephv1.KeyMgr: map[string]string{
 									"cephdeployment.lcm.mirantis.com/config-global-updated": "2021-08-15T14:30:45+04:00",
@@ -1420,7 +1419,8 @@ func TestReconcile(t *testing.T) {
 				} else if e.Command == "ceph --version" {
 					return unitinputs.CephVersionLatest, "", nil
 				} else if strings.Contains(e.Command, "config dump") {
-					return unitinputs.CephConfigDumpDefaults, "", nil
+					dump := strings.Replace(unitinputs.CephConfigDumpOverrideWithRgw, "AMTqaDveAp8sWlLtf0fcg6RVjFRXs7FR", "auth-password", 1)
+					return dump, "", nil
 				} else if strings.Contains(e.Command, "ceph fs subvolumegroup -f json ls test-cephfs") {
 					return `[{"name":"csi"}]`, "", nil
 				} else if strings.HasPrefix(e.Command, "ceph mgr module ls") {
@@ -2555,30 +2555,7 @@ func TestApplyConfiguration(t *testing.T) {
 				} else if e.Command == "ceph config get osd bdev_async_discard_threads" {
 					return "true", "", nil
 				} else if e.Command == "ceph config dump --format json" {
-					dump := `[{
-    "section": "client.rgw.rgw.store.a",
-    "name": "rgw_keystone_admin_password",
-    "value": "auth-password",
-    "level": "advanced",
-    "can_update_at_runtime": false,
-    "mask": ""
-},
-{
-    "section": "osd",
-    "name": "bdev_async_discard_threads",
-    "value": "1",
-    "level": "advanced",
-    "can_update_at_runtime": true,
-    "mask": ""
-},
-{
-    "section": "osd",
-    "name": "bdev_enable_discard",
-    "value": "true",
-    "level": "advanced",
-    "can_update_at_runtime": true,
-    "mask": ""
-}]`
+					dump := strings.Replace(unitinputs.CephConfigDumpOverrideWithRgw, "AMTqaDveAp8sWlLtf0fcg6RVjFRXs7FR", "auth-password", 1)
 					return dump, "", nil
 				} else if strings.HasPrefix(e.Command, "ceph config set client.rgw.rgw.store.a rgw_keystone_admin_password") {
 					return "", "", nil

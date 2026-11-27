@@ -19,8 +19,8 @@ package deployment
 import (
 	"fmt"
 	"reflect"
+	"slices"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -32,13 +32,11 @@ import (
 )
 
 type configOption struct {
-	// put value only in config-override map, not in runtime
-	confFile bool
-	// do not allow to override value at all
 	static  bool
 	key     string
 	value   string
 	section string
+	secret  bool
 	// control backward compatiblity for ceph config options
 	availableFrom *lcmcommon.CephVersion
 	// more control backward compatibility for ceph config options
@@ -47,34 +45,61 @@ type configOption struct {
 
 const sectionDelimiter = "|"
 
-var exceptionParams = map[string]string{
-	// Since MKE 3.5.7 has pod-max-pids limit to 500, we need to decrease
-	// number of threads from default 512 to 256.
-	// https://mirantis.jira.com/browse/PRODX-30304
-	"rgw_thread_pool_size": "256",
+var defaultConfigFileOptions = []configOption{
+	// Pin osd_class_dir to /usr/lib64 due to incorrect way of libdir definition since Reef
+	// https://tracker.ceph.com/issues/57250 https://github.com/ceph/ceph/pull/47676
+	{key: "osd_class_dir", value: "/usr/lib64/rados-classes", section: "osd"},
 }
 
-var generalConfigOptions = []configOption{
+func defaultRgwKeystoneConfigFileOptions(rgwSectionName string, keystoneSecret map[string]string) []configOption {
+	return []configOption{
+		// TODO: to be removed, not needed anymore, v3 used by default
+		{key: "rgw_keystone_api_version", value: "3", section: rgwSectionName, static: true},
+		{key: "rgw_keystone_url", value: keystoneSecret["auth_url"], section: rgwSectionName},
+		{key: "rgw_keystone_admin_user", value: keystoneSecret["username"], section: rgwSectionName},
+		{key: "rgw_keystone_admin_domain", value: keystoneSecret["project_domain_name"], section: rgwSectionName},
+		{key: "rgw_keystone_admin_project", value: keystoneSecret["project_name"], section: rgwSectionName},
+	}
+}
+
+func defaultRgwBarbicanConfigFileOptions(rgwSectionName string, keystoneSecret map[string]string) []configOption {
+	return []configOption{
+		{key: "rgw_crypt_s3_kms_backend", value: "barbican", section: rgwSectionName},
+		{key: "rgw_barbican_url", value: keystoneSecret["barbican_url"], section: rgwSectionName},
+		{key: "rgw_keystone_barbican_user", value: keystoneSecret["username"], section: rgwSectionName},
+		{key: "rgw_keystone_barbican_domain", value: keystoneSecret["project_domain_name"], section: rgwSectionName},
+		{key: "rgw_keystone_barbican_project", value: keystoneSecret["project_name"], section: rgwSectionName},
+	}
+}
+
+func defaultRgwOpenstackConfigFileOptions(rgwSectionName string) []configOption {
+	return []configOption{
+		{key: "rgw_keystone_accepted_roles", value: "'_member_, Member, member, swiftoperator'", section: rgwSectionName},
+		{key: "rgw_keystone_accepted_admin_roles", value: "'admin, service'", section: rgwSectionName},
+		{key: "rgw_keystone_implicit_tenants", value: "true", section: rgwSectionName},
+	}
+}
+
+var defaultRuntimeOptions = []configOption{
+	// TODO: to be removed, already default
 	{key: "mon_target_pg_per_osd", value: "100", section: "global"},
 	{key: "mon_max_pg_per_osd", value: "300", section: "global"},
 	// Disable insecure global_id warning due to
 	// https://mirantis.jira.com/browse/PRODX-16964
+	// TODO: to be removed, not needed anymore, mostly was used to avoid CVE-2021-20288
+	// which is already fixed for Squid and Tentacle
+	// So avoid unneeded insecure option
 	{key: "mon_warn_on_insecure_global_id_reclaim", value: "false", section: "mon"},
 	{key: "mon_warn_on_insecure_global_id_reclaim_allowed", value: "false", section: "mon"},
-	// Pin osd_class_dir to /usr/lib64 due to incorrect way of libdir definition since Reef
-	// https://tracker.ceph.com/issues/57250 https://github.com/ceph/ceph/pull/47676
-	{key: "osd_class_dir", value: "/usr/lib64/rados-classes", section: "osd", confFile: true},
 	// discard is not enabled by default in Rook: https://github.com/rook/rook/issues/6964
 	// which may lead to high fragmentation rate and slow performance on long-live osds
 	{key: "bdev_enable_discard", value: "true", section: "osd"},
 	{key: "bdev_async_discard_threads", value: "1", section: "osd"},
 }
 
-// client.rgw section config opts
-func defaultRgwConfigOptions(rgwSectionName string) []configOption {
+func defaultRgwRuntimeOptions(rgwSectionName string) []configOption {
 	return []configOption{
-		// Due to https://github.com/rook/rook/issues/7573 we need to workaround
-		// rgw failure on updating to rook 1.6.x versions
+		// TODO: to be removed, not needed anymore
 		{key: "rgw_data_log_backing", value: "omap", section: rgwSectionName},
 		{key: "rgw_max_attr_name_len", value: "64", section: rgwSectionName},
 		{key: "rgw_max_attrs_num_in_req", value: "32", section: rgwSectionName},
@@ -86,41 +111,14 @@ func defaultRgwConfigOptions(rgwSectionName string) []configOption {
 		// Since MKE 3.5.7 has pod-max-pids limit to 500, we need to decrease
 		// number of threads from default 512 to 256.
 		// https://mirantis.jira.com/browse/PRODX-30304
-		{key: "rgw_thread_pool_size", value: exceptionParams["rgw_thread_pool_size"], section: rgwSectionName},
+		// TODO: will be removed in next release and can be overriden already if needed
+		{key: "rgw_thread_pool_size", value: "256", section: rgwSectionName},
 	}
 }
 
-// client.rgw section config opts
-func getDefaultRgwKeystoneConfig(rgwSectionName string, keystoneSecret map[string]string) []configOption {
-	return []configOption{
-		{key: "rgw_keystone_api_version", value: "3", section: rgwSectionName, static: true},
-		{key: "rgw_keystone_url", value: keystoneSecret["auth_url"], section: rgwSectionName},
-		{key: "rgw_keystone_admin_user", value: keystoneSecret["username"], section: rgwSectionName},
-		{key: "rgw_keystone_admin_password", value: keystoneSecret["password"], section: rgwSectionName},
-		{key: "rgw_keystone_admin_domain", value: keystoneSecret["project_domain_name"], section: rgwSectionName},
-		{key: "rgw_keystone_admin_project", value: keystoneSecret["project_name"], section: rgwSectionName},
-	}
-}
-
-// client.rgw section config opts
-func getDefaultRgwBarbicanConfig(rgwSectionName string, keystoneSecret map[string]string) []configOption {
-	return []configOption{
-		{key: "rgw_crypt_s3_kms_backend", value: "barbican", section: rgwSectionName, static: true},
-		{key: "rgw_barbican_url", value: keystoneSecret["barbican_url"], section: rgwSectionName},
-		{key: "rgw_keystone_barbican_user", value: keystoneSecret["username"], section: rgwSectionName},
-		{key: "rgw_keystone_barbican_password", value: keystoneSecret["password"], section: rgwSectionName},
-		{key: "rgw_keystone_barbican_domain", value: keystoneSecret["project_domain_name"], section: rgwSectionName},
-		{key: "rgw_keystone_barbican_project", value: keystoneSecret["project_name"], section: rgwSectionName},
-	}
-}
-
-// client.rgw section config opts
-func getDefaultRgwOpenStackConfig(rgwSectionName string) []configOption {
+func defaultRgwOpenstackRuntimeOptions(rgwSectionName string) []configOption {
 	return []configOption{
 		{key: "rgw_swift_account_in_url", value: "true", section: rgwSectionName},
-		{key: "rgw_keystone_accepted_roles", value: "'_member_, Member, member, swiftoperator'", section: rgwSectionName},
-		{key: "rgw_keystone_accepted_admin_roles", value: "'admin, service'", section: rgwSectionName},
-		{key: "rgw_keystone_implicit_tenants", value: "true", section: rgwSectionName},
 		{key: "rgw_swift_versioning_enabled", value: "true", section: rgwSectionName},
 		{key: "rgw_enforce_swift_acls", value: "true", section: rgwSectionName},
 		{key: "rgw_s3_auth_use_keystone", value: "true", section: rgwSectionName},
@@ -132,15 +130,17 @@ func getDefaultRgwOpenStackConfig(rgwSectionName string) []configOption {
 	}
 }
 
-// client.rgw section config opts
-var passwordKeys = []string{"rgw_keystone_admin_password", "rgw_keystone_barbican_password"}
-
-// since no more runtime keys, use same list
-var runtimeKeys = passwordKeys
+func rgwOpenstackRuntimePasswords(rgwSectionName, option, password string) configOption {
+	opt := "rgw_keystone_admin_password"
+	if option == "barbican" {
+		opt = "rgw_keystone_barbican_password"
+	}
+	return configOption{key: opt, value: password, section: rgwSectionName, secret: true}
+}
 
 func (c *cephDeploymentConfig) ensureCephConfig(cephClusterPresent bool) (bool, error) {
 	c.log.Debug().Msg("ensure ceph config")
-	cephOverrideConfig, runtimeConfig, configHashes, err := c.buildCephConfig()
+	cephOverrideConfig, runtimeOptions, configHashes, err := c.buildCephConfig()
 	if err != nil {
 		c.log.Error().Err(err).Msg("failed to build ceph config")
 		return false, errors.Wrap(err, "failed to prepare ceph config map")
@@ -159,13 +159,12 @@ func (c *cephDeploymentConfig) ensureCephConfig(cephClusterPresent bool) (bool, 
 			"config": cephOverrideConfig,
 			"runtime": func() string {
 				var runtimeString strings.Builder
-				for _, k := range lcmcommon.SortedMapKeys(runtimeConfig) {
-					_, key := getSectionAndKey(k)
-					if lcmcommon.Contains(passwordKeys, key) {
-						runtimeString.WriteString(fmt.Sprintf("%s = *\n", k))
-					} else {
-						runtimeString.WriteString(fmt.Sprintf("%s = %s\n", k, runtimeConfig[k]))
+				for _, runtimeOpt := range runtimeOptions {
+					value := runtimeOpt.value
+					if runtimeOpt.secret {
+						value = "*"
 					}
+					runtimeString.WriteString(fmt.Sprintf("%s%s%s = %s\n", runtimeOpt.section, sectionDelimiter, runtimeOpt.key, value))
 				}
 				return runtimeString.String()
 			}(),
@@ -199,13 +198,25 @@ func (c *cephDeploymentConfig) ensureCephConfig(cephClusterPresent bool) (bool, 
 		if newRookCm.Data["runtime"] != currentRookCm.Data["runtime"] {
 			curRuntime := strings.Split(currentRookCm.Data["runtime"], "\n")
 			for _, line := range curRuntime {
-				curKey := strings.TrimSpace(strings.Split(line, "=")[0])
-				if _, present := runtimeConfig[curKey]; !present {
-					runtimeConfig[curKey] = ""
+				if line == "" {
+					continue
+				}
+				curOpt := strings.TrimSpace(strings.Split(line, "=")[0])
+				opts := strings.Split(curOpt, sectionDelimiter)
+				curSec, curKey := opts[0], opts[1]
+				found := false
+				for _, runtimeOpt := range runtimeOptions {
+					if runtimeOpt.section == curSec && runtimeOpt.key == curKey {
+						found = true
+						break
+					}
+				}
+				if !found {
+					runtimeOptions = append(runtimeOptions, configOption{section: curSec, key: curKey})
 				}
 			}
 		}
-		stateChanged, err = c.updateRuntimeParameters(runtimeConfig)
+		stateChanged, err = c.updateRuntimeParameters(runtimeOptions)
 		if err != nil {
 			return false, err
 		}
@@ -237,21 +248,6 @@ func (c *cephDeploymentConfig) ensureCephConfig(cephClusterPresent bool) (bool, 
 			actualTimestamps[section] = newAnnotations[timestampLabel]
 		}
 	}
-	// control runtime parameters update to always have actual one
-	prevRgwRuntimeUpdate := currentRookCm.Annotations[cephRuntimeRgwParametersUpdateTimestampLabel]
-	if resourceUpdateTimestamps.rgwRuntimeParams == "" && prevRgwRuntimeUpdate != "" {
-		resourceUpdateTimestamps.rgwRuntimeParams = prevRgwRuntimeUpdate
-	}
-	if resourceUpdateTimestamps.rgwRuntimeParams != "" {
-		newAnnotations[cephRuntimeRgwParametersUpdateTimestampLabel] = resourceUpdateTimestamps.rgwRuntimeParams
-	}
-	prevOsdRuntimeUpdate := currentRookCm.Annotations[cephRuntimeOsdParametersUpdateTimestampLabel]
-	if resourceUpdateTimestamps.osdRuntimeParams == "" && prevOsdRuntimeUpdate != "" {
-		resourceUpdateTimestamps.osdRuntimeParams = prevOsdRuntimeUpdate
-	}
-	if resourceUpdateTimestamps.osdRuntimeParams != "" {
-		newAnnotations[cephRuntimeOsdParametersUpdateTimestampLabel] = resourceUpdateTimestamps.osdRuntimeParams
-	}
 	configMapUpdated := !reflect.DeepEqual(currentRookCm.Data, newRookCm.Data)
 	annotationsUpdated := !reflect.DeepEqual(currentRookCm.Annotations, newAnnotations)
 	labelsUpdated := lcmcommon.AlignBaseLabels(*c.log, "configmap", &currentRookCm.ObjectMeta, newRookCm.Labels)
@@ -278,7 +274,7 @@ func (c *cephDeploymentConfig) ensureCephConfig(cephClusterPresent bool) (bool, 
 	return stateChanged, nil
 }
 
-func (c *cephDeploymentConfig) updateRuntimeParameters(runtimeConfig map[string]string) (bool, error) {
+func (c *cephDeploymentConfig) updateRuntimeParameters(runtimeConfig []configOption) (bool, error) {
 	if len(runtimeConfig) == 0 {
 		return false, nil
 	}
@@ -286,72 +282,80 @@ func (c *cephDeploymentConfig) updateRuntimeParameters(runtimeConfig map[string]
 	if err != nil {
 		return false, err
 	}
-	runtimeUpdated := false
-	for sectionKey, value := range runtimeConfig {
-		curValue := ""
-		section, key := getSectionAndKey(sectionKey)
-		for _, configOption := range configDump {
-			if configOption.Name == key && configOption.Section == section {
-				curValue = configOption.Value
-				break
+	updated := false
+	for _, runtimeOpt := range runtimeConfig {
+		cmd := ""
+		if runtimeOpt.value == "" {
+			cmd = fmt.Sprintf("ceph config rm %s %s", runtimeOpt.section, runtimeOpt.key)
+			c.log.Info().Msgf("unsetting ceph config parameter '[%s] %s'", runtimeOpt.section, runtimeOpt.key)
+		} else {
+			curValue := ""
+			for _, configOption := range configDump {
+				if configOption.Name == runtimeOpt.key && configOption.Section == runtimeOpt.section {
+					curValue = configOption.Value
+					break
+				}
+			}
+			if curValue != runtimeOpt.value {
+				cmd = fmt.Sprintf("ceph config set %s %s %s", runtimeOpt.section, runtimeOpt.key, runtimeOpt.value)
+				if runtimeOpt.secret {
+					c.log.Info().Msgf("updating ceph config parameter '[%s] %s'", runtimeOpt.section, runtimeOpt.key)
+				} else if curValue == "" {
+					c.log.Info().Msgf("setting ceph config parameter '[%s] %s' to '%s'", runtimeOpt.section, runtimeOpt.key, runtimeOpt.value)
+				} else {
+					c.log.Info().Msgf("updating ceph config parameter '[%s] %s' from '%s' to '%s'", runtimeOpt.section, runtimeOpt.key, curValue, runtimeOpt.value)
+				}
 			}
 		}
-		if curValue != value {
-			cmd := ""
-			if value == "" {
-				cmd = fmt.Sprintf("ceph config rm %s %s", section, key)
-			} else {
-				cmd = fmt.Sprintf("ceph config set %s %s %s", section, key, value)
-			}
+		if cmd != "" {
 			_, err := lcmcommon.RunCephToolboxCLI(c.context, c.api.Kubeclientset, c.api.Config, c.lcmConfig.RookNamespace, cmd)
 			if err != nil {
-				errMsg := fmt.Sprintf("failed to update '%s' parameter", key)
+				errMsg := fmt.Sprintf("failed to update '[%s] %s' parameter", runtimeOpt.section, runtimeOpt.key)
 				c.log.Error().Err(err).Msg(errMsg)
 				return false, errors.Wrap(err, errMsg)
 			}
-			if value == "" {
-				c.log.Info().Msgf("unset ceph config parameter '[%s] %s'", section, key)
-			} else {
-				if !lcmcommon.Contains(passwordKeys, key) {
-					c.log.Info().Msgf("updated ceph config parameter '[%s] %s' from '%s' to '%s'", section, key, curValue, value)
-				} else {
-					c.log.Info().Msgf("updated ceph config parameter '[%s] %s'", section, key)
-				}
-			}
-			runtimeUpdated = true
-			if strings.HasPrefix(section, "client.rgw") {
-				resourceUpdateTimestamps.rgwRuntimeParams = lcmcommon.GetCurrentTimeString()
-			} else if strings.HasPrefix(section, "osd") || strings.HasPrefix(key, "osd") {
-				resourceUpdateTimestamps.osdRuntimeParams = lcmcommon.GetCurrentTimeString()
-			}
+			updated = true
 		}
 	}
-	return runtimeUpdated, nil
+	return updated, nil
 }
 
-func (c *cephDeploymentConfig) buildCephConfig() (string, map[string]string, map[string]string, error) {
-	baseCephConfig := map[string]configOption{}
-	mergeConfig := func(options []configOption) {
+func (c *cephDeploymentConfig) buildCephConfig() (string, []configOption, map[string]string, error) {
+	baseConfigFileOptions := []configOption{}
+	baseRuntimeOptions := []configOption{}
+	nonUpdatablePasswords := map[string]string{}
+
+	mergeDefaultConfig := func(config []configOption, options []configOption) []configOption {
 		for _, opt := range options {
-			baseCephConfig[getFullKeyWithSection(opt.section, opt.key)] = opt
+			if opt.availableTo != nil && !lcmcommon.CephVersionGreaterOrEqual(opt.availableTo, c.cdConfig.currentCephVersion) {
+				c.log.Info().Msgf("skipping default config parameter '%s' since already not available for current '%s %s' version", opt.key, c.cdConfig.currentCephVersion.Name, c.cdConfig.currentCephVersion.MajorVersion)
+				continue
+			}
+			if opt.availableFrom != nil && !lcmcommon.CephVersionGreaterOrEqual(c.cdConfig.currentCephVersion, opt.availableFrom) {
+				c.log.Info().Msgf("skipping default config parameter '%s' since not yet available for current '%s %s' version", opt.key, c.cdConfig.currentCephVersion.Name, c.cdConfig.currentCephVersion.MajorVersion)
+				continue
+			}
+			config = append(config, opt)
 		}
+		return config
 	}
-	if c.cdConfig.clusterSpec.Network.Provider == "" || c.cdConfig.clusterSpec.Network.Provider == "host" {
-		// will be catched on validation, but double check
-		if c.cdConfig.clusterSpec.Network.AddressRanges == nil {
-			return "", nil, nil, errors.New("network ranges for public and cluster are not provided")
-		}
-		// put network params and do not allow to override it through rook config
-		mergeConfig([]configOption{
-			{static: true, section: "global", key: "cluster_network", value: c.cdConfig.clusterSpec.Network.AddressRanges.Cluster.String()},
-			{static: true, section: "global", key: "public_network", value: c.cdConfig.clusterSpec.Network.AddressRanges.Public.String()},
-		})
+
+	baseConfigFileOptions = mergeDefaultConfig(baseConfigFileOptions, defaultConfigFileOptions)
+	baseRuntimeOptions = mergeDefaultConfig(baseRuntimeOptions, defaultRuntimeOptions)
+	// will be catched on validation, but double check
+	if c.cdConfig.clusterSpec.Network.AddressRanges == nil {
+		return "", nil, nil, errors.New("network ranges for public and cluster are not provided")
 	}
-	mergeConfig(generalConfigOptions)
+	// put network params and do not allow to override it through rook config
+	baseConfigFileOptions = mergeDefaultConfig(baseConfigFileOptions, []configOption{
+		{static: true, section: "global", key: "cluster_network", value: c.cdConfig.clusterSpec.Network.AddressRanges.Cluster.String()},
+		{static: true, section: "global", key: "public_network", value: c.cdConfig.clusterSpec.Network.AddressRanges.Public.String()},
+	})
+
 	if c.cdConfig.cephDpl.Spec.ObjectStorage != nil {
 		for _, rgwStore := range c.cdConfig.cephDpl.Spec.ObjectStorage.Rgws {
 			rgwSectionName := rgwConfigSectionName(rgwStore.Name)
-			mergeConfig(defaultRgwConfigOptions(rgwSectionName))
+			baseRuntimeOptions = mergeDefaultConfig(baseRuntimeOptions, defaultRgwRuntimeOptions(rgwSectionName))
 			// if rgw.hosting is set - ceph config parameter will be ignored, otherwise
 			// rgw dns name parameter has next priority (from higher to lower):
 			// 1. rook override config in spec if present
@@ -369,6 +373,9 @@ func (c *cephDeploymentConfig) buildCephConfig() (string, map[string]string, map
 					}
 				}
 				if rgwStore.UsedForOpenstack {
+					baseConfigFileOptions = mergeDefaultConfig(baseConfigFileOptions, defaultRgwOpenstackConfigFileOptions(rgwSectionName))
+					baseRuntimeOptions = mergeDefaultConfig(baseRuntimeOptions, defaultRgwOpenstackRuntimeOptions(rgwSectionName))
+					// TODO: add ability to set flag for non-rockoon setup as well
 					if err := checkOpenstackNamespaceSetForRgw(rgwStore.Name, c.lcmConfig.DeployParams.OpenstackCephSharedNamespace); err != nil {
 						return "", nil, nil, err
 					}
@@ -385,10 +392,19 @@ func (c *cephDeploymentConfig) buildCephConfig() (string, map[string]string, map
 						if domain, ok := secretConfig["public_domain"]; ok && ingressTLS == nil {
 							rgwDNSNameValues = append(rgwDNSNameValues, fmt.Sprintf("%s.%s", rgwStore.Name, domain))
 						}
-						mergeConfig(getDefaultRgwOpenStackConfig(rgwSectionName))
-						mergeConfig(getDefaultRgwKeystoneConfig(rgwSectionName, secretConfig))
+						baseConfigFileOptions = mergeDefaultConfig(baseConfigFileOptions, defaultRgwKeystoneConfigFileOptions(rgwSectionName, secretConfig))
+						keystonePassOption := rgwOpenstackRuntimePasswords(rgwSectionName, "keystone", secretConfig["password"])
+						nonUpdatablePasswords[rgwSectionName] += fmt.Sprintf("%s=%s\n", keystonePassOption.key, secretConfig["password"])
+						baseRuntimeOptions = mergeDefaultConfig(baseRuntimeOptions, []configOption{keystonePassOption})
 						if _, barbicanURLPresent := secretConfig["barbican_url"]; barbicanURLPresent {
-							mergeConfig(getDefaultRgwBarbicanConfig(rgwSectionName, secretConfig))
+							baseConfigFileOptions = mergeDefaultConfig(baseConfigFileOptions, defaultRgwBarbicanConfigFileOptions(rgwSectionName, secretConfig))
+							pass := secretConfig["password"]
+							if p, ok := secretConfig["barbican_password"]; ok {
+								pass = p
+							}
+							barbicanPassOption := rgwOpenstackRuntimePasswords(rgwSectionName, "barbican", pass)
+							nonUpdatablePasswords[rgwSectionName] += fmt.Sprintf("%s=%s\n", keystonePassOption.key, pass)
+							baseRuntimeOptions = mergeDefaultConfig(baseRuntimeOptions, []configOption{barbicanPassOption})
 						}
 					}
 				}
@@ -397,168 +413,142 @@ func (c *cephDeploymentConfig) buildCephConfig() (string, map[string]string, map
 			// if rgw hosting config is provided - use it. Otherwise override config value
 			if rgwCasted.Hosting == nil {
 				if rgwCasted.Gateway.SecurePort != int32(0) {
-					mergeConfig([]configOption{{key: "rgw_dns_name", value: strings.Join(rgwDNSNameValues, ","), section: rgwSectionName}})
+					baseConfigFileOptions = mergeDefaultConfig(baseConfigFileOptions, []configOption{{key: "rgw_dns_name", value: strings.Join(rgwDNSNameValues, ","), section: rgwSectionName}})
 				}
 			}
 		}
 	}
-	configMap, runtimeParams := c.getTargetConfigAndRuntime(c.cdConfig.cephDpl.Spec.RookConfig, baseCephConfig)
-	configOverrideString, hashes := getCephOverrideConfigStringAndHashes(configMap)
-	return configOverrideString, runtimeParams, hashes, nil
-}
 
-func getSectionAndKey(inputKey string) (string, string) {
-	configOpt := strings.Split(inputKey, sectionDelimiter)
-	keySection := ""
-	key := inputKey
-	if len(configOpt) > 1 {
-		keySection = configOpt[0]
-		key = configOpt[1]
+	getAssimilatedKey := func(rawKey string) string {
+		return strings.ReplaceAll(strings.ReplaceAll(rawKey, " ", "_"), "-", "_")
 	}
-	return keySection, key
-}
 
-func getFullKeyWithSection(section, key string) string {
-	return fmt.Sprintf("%s%s%s", section, sectionDelimiter, key)
-}
-
-func (c *cephDeploymentConfig) getTargetConfigAndRuntime(rookConfigFromSpec map[string]string, baseConfig map[string]configOption) (map[string]map[string]string, map[string]string) {
-	finalCephConfigMap := map[string]map[string]string{}
-	runtimeParams := map[string]string{}
-	isParamForRuntime := func(section, key string) bool {
-		return lcmcommon.Contains(runtimeKeys, key) ||
-			strings.HasPrefix(key, "osd") ||
-			strings.HasPrefix(key, "clog") ||
-			strings.HasPrefix(section, "osd")
-	}
-	// fill with defaults first
-	for param, paramOpt := range baseConfig {
-		if paramOpt.availableTo != nil && !lcmcommon.CephVersionGreaterOrEqual(paramOpt.availableTo, c.cdConfig.currentCephVersion) {
-			c.log.Info().Msgf("skipping default config parameter '%s' since already not available for current '%s %s' version", param, c.cdConfig.currentCephVersion.Name, c.cdConfig.currentCephVersion.MajorVersion)
-			continue
-		}
-		if paramOpt.availableFrom != nil && !lcmcommon.CephVersionGreaterOrEqual(c.cdConfig.currentCephVersion, paramOpt.availableFrom) {
-			c.log.Info().Msgf("skipping default config parameter '%s' since not yet available for current '%s %s' version", param, c.cdConfig.currentCephVersion.Name, c.cdConfig.currentCephVersion.MajorVersion)
-			continue
-		}
-		if !paramOpt.static && !paramOpt.confFile && isParamForRuntime(paramOpt.section, paramOpt.key) {
-			runtimeParams[param] = paramOpt.value
-			continue
-		}
-		if _, ok := finalCephConfigMap[paramOpt.section]; ok {
-			finalCephConfigMap[paramOpt.section][paramOpt.key] = paramOpt.value
-		} else {
-			finalCephConfigMap[paramOpt.section] = map[string]string{paramOpt.key: paramOpt.value}
-		}
-	}
-	// check overrides
-	for param, value := range rookConfigFromSpec {
-		keySection, rawKey := getSectionAndKey(param)
-		noSpaceHyphenKey := strings.ReplaceAll(strings.ReplaceAll(rawKey, " ", "_"), "-", "_")
-		// if no section specified in rookConfig - probably it is global
-		// but give an attempt to find along default params
-		if keySection == "" {
-			keySection = "global"
-			for _, opt := range baseConfig {
-				if opt.key == noSpaceHyphenKey {
-					keySection = opt.section
-					break
+	cephConfigFileOptions := map[string]map[string]string{}
+	cephRuntimeOptions := []configOption{}
+	if c.cdConfig.cephDpl.Spec.ExtraOpts != nil {
+		if len(c.cdConfig.cephDpl.Spec.ExtraOpts.RuntimeCephConfig) > 0 {
+			for section, opts := range c.cdConfig.cephDpl.Spec.ExtraOpts.RuntimeCephConfig {
+				for key, opt := range opts {
+					cephOpt := configOption{section: section, key: getAssimilatedKey(key), value: opt}
+					cephRuntimeOptions = append(cephRuntimeOptions, cephOpt)
 				}
 			}
-			c.log.Warn().Msgf("parameter from rookConfig '%s' has no section specified, setting section '%s' by default", param, keySection)
 		}
-		// check that values are not allowed to be changed - not changed
-		// since we already filled with defaults - just skip
-		if baseOpt, ok := baseConfig[getFullKeyWithSection(keySection, noSpaceHyphenKey)]; ok {
-			if baseOpt.section == keySection && baseOpt.static {
+		if len(c.cdConfig.cephDpl.Spec.ExtraOpts.StaticCephConfig) > 0 {
+			for section, opts := range c.cdConfig.cephDpl.Spec.ExtraOpts.StaticCephConfig {
+				cephConfigFileOptions[section] = map[string]string{}
+				for key, opt := range opts {
+					cephConfigFileOptions[section][getAssimilatedKey(key)] = opt
+				}
+			}
+		}
+	}
+	for _, baseOpt := range baseConfigFileOptions {
+		if curOpts, ok := cephConfigFileOptions[baseOpt.section]; ok {
+			_, ok := curOpts[baseOpt.key]
+			if ok && !baseOpt.static {
+				// if overwritten from config and not static - allow it and keep
 				continue
 			}
-		}
-		// check keys from rookConfig which are exceptions
-		if exceptionDefaultValue, ok := exceptionParams[noSpaceHyphenKey]; ok {
-			// rgw_thread_pool_size can't be more than 256
-			if noSpaceHyphenKey == "rgw_thread_pool_size" {
-				size, err := strconv.Atoi(value)
-				if err != nil {
-					c.log.Warn().Msgf("rookConfig '%s' value expects quoted integer format, setting value to a default \"%s\": %v", param, exceptionDefaultValue, err)
-					value = exceptionDefaultValue
-				} else if size > 256 {
-					c.log.Warn().Msgf("rookConfig '%s' value is higher than 256 which is restricted since MKE 3.5.7. Decreasing '%s' to default '%s'", param, value, exceptionDefaultValue)
-					value = exceptionDefaultValue
-				}
+			if ok && baseOpt.static {
+				c.log.Warn().Msgf("detected option '[%s]%s' override in spec.extraOpts.staticCephConfig field, which is not designed to be overwritten", baseOpt.section, baseOpt.key)
 			}
-		}
-		if isParamForRuntime(keySection, noSpaceHyphenKey) {
-			runtimeParams[getFullKeyWithSection(keySection, noSpaceHyphenKey)] = value
-			continue
-		}
-		if _, ok := finalCephConfigMap[keySection]; ok {
-			finalCephConfigMap[keySection][noSpaceHyphenKey] = value
+			cephConfigFileOptions[baseOpt.section][baseOpt.key] = baseOpt.value
 		} else {
-			finalCephConfigMap[keySection] = map[string]string{noSpaceHyphenKey: value}
+			cephConfigFileOptions[baseOpt.section] = map[string]string{baseOpt.key: baseOpt.value}
 		}
 	}
-	return finalCephConfigMap, runtimeParams
-}
+	for _, baseOpt := range baseRuntimeOptions {
+		add := true
+		for _, runtimeOpt := range cephRuntimeOptions {
+			if runtimeOpt.section == baseOpt.section && runtimeOpt.key == baseOpt.key {
+				add = false
+				break
+			}
+		}
+		if add {
+			cephRuntimeOptions = append(cephRuntimeOptions, baseOpt)
+		}
+	}
+	// Sort node lexicographically to reduce number of reconcile
+	sort.Slice(cephRuntimeOptions, func(i, j int) bool {
+		t1 := fmt.Sprintf("%s%s", cephRuntimeOptions[i].section, cephRuntimeOptions[i].key)
+		t2 := fmt.Sprintf("%s%s", cephRuntimeOptions[j].section, cephRuntimeOptions[j].key)
+		return t1 < t2
+	})
 
-func getCephOverrideConfigStringAndHashes(cephConfigMap map[string]map[string]string) (string, map[string]string) {
+	orderdedSections := getOrderedConfigSections(cephConfigFileOptions)
+	confFileHashes := map[string]string{}
 	var rookOverrideConfig strings.Builder
-	reorderKeys := func(keys, priorityKeys []string) []string {
-		newKeys := make([]string, 0, len(keys))
-		for _, priorityKey := range priorityKeys {
-			realIdx := -1
-			for idx, key := range keys {
-				if key == priorityKey {
-					realIdx = idx
-					break
-				}
-			}
-			if realIdx == -1 {
-				continue
-			}
-			newKeys = append(newKeys, priorityKey)
-			keys = append(keys[:realIdx], keys[realIdx+1:]...)
+	for secIdx, section := range orderdedSections {
+		if len(cephConfigFileOptions[section]) == 0 {
+			continue
 		}
-		newKeys = append(newKeys, keys...)
-		return newKeys
-	}
-
-	hashes := map[string]string{}
-	// put cluster/public network params at the top of config always
-	sections := make([]string, 0, len(cephConfigMap))
-	for k := range cephConfigMap {
-		sections = append(sections, k)
-	}
-	sort.Strings(sections)
-	for _, section := range reorderKeys(sections, []string{"global", "mon", "mgr"}) {
-		sectionOpts := cephConfigMap[section]
-		sectionKeys := lcmcommon.SortedMapKeys(sectionOpts)
-		if section == "global" {
-			sectionKeys = reorderKeys(sectionKeys, []string{"cluster_network", "public_network"})
-		} else {
+		if secIdx != 0 {
 			rookOverrideConfig.WriteString("\n")
 		}
 		rookOverrideConfig.WriteString(fmt.Sprintf("[%s]\n", section))
-		for _, key := range sectionKeys {
-			s := fmt.Sprintf("%s = %s\n", key, sectionOpts[key])
-			// since we have mon,mgr,mds,rgw daemons controlled by our reconcile
-			// support restart only for those daemons + global restart
-			if section == "global" {
-				hashes["global"] += s
-			} else if strings.HasPrefix(section, "mon") {
-				hashes["mon"] += s
-			} else if strings.HasPrefix(section, "mgr") {
-				hashes["mgr"] += s
-			} else if strings.HasPrefix(section, "mds") {
-				hashes[section] += s
-			} else if strings.HasPrefix(section, "client.rgw") {
-				hashes[section] += s
+		orderedOpts := []string{}
+		for k := range cephConfigFileOptions[section] {
+			orderedOpts = append(orderedOpts, k)
+		}
+		sort.Strings(orderedOpts)
+		for _, orderedOpt := range orderedOpts {
+			s := fmt.Sprintf("%s = %s\n", orderedOpt, cephConfigFileOptions[section][orderedOpt])
+			// do not save hashes for direct daemons since it is not used anyway for restart
+			if !strings.HasPrefix(section, "mon.") && !strings.HasPrefix(section, "mgr.") && !strings.HasPrefix(section, "osd.") {
+				confFileHashes[section] += s
 			}
 			rookOverrideConfig.WriteString(s)
 		}
+		if passwords, ok := nonUpdatablePasswords[section]; ok {
+			confFileHashes[section] += passwords
+		}
+		confFileHashes[section] = lcmcommon.GetStringSha256(confFileHashes[section])
 	}
-	for k, s := range hashes {
-		hashes[k] = lcmcommon.GetStringSha256(s)
+	return rookOverrideConfig.String(), cephRuntimeOptions, confFileHashes, nil
+}
+
+func getOrderedConfigSections(cephConfigFileOptions map[string]map[string]string) []string {
+	orderdedSections := []struct {
+		name        string
+		subsections []string
+	}{
+		{name: "global"},
+		{name: "mon"},
+		{name: "mgr"},
+		{name: "osd"},
+		{name: "mds"},
 	}
-	return rookOverrideConfig.String(), hashes
+	targetOrderedSections := []string{}
+	for configSection := range cephConfigFileOptions {
+		found := false
+		for idx, sectionItem := range orderdedSections {
+			if configSection == sectionItem.name {
+				found = true
+				break
+			}
+			if strings.HasPrefix(configSection, sectionItem.name) {
+				if len(sectionItem.subsections) == 0 {
+					orderdedSections[idx].subsections = []string{configSection}
+				} else {
+					orderdedSections[idx].subsections = append(orderdedSections[idx].subsections, configSection)
+				}
+				found = true
+				break
+			}
+		}
+		if !found {
+			targetOrderedSections = append(targetOrderedSections, configSection)
+		}
+	}
+	sort.Strings(targetOrderedSections)
+	startIdx := 0
+	for _, section := range orderdedSections {
+		sort.Strings(section.subsections)
+		toInsert := append([]string{section.name}, section.subsections...)
+		targetOrderedSections = slices.Insert(targetOrderedSections, startIdx, toInsert...)
+		startIdx += len(toInsert)
+	}
+	return targetOrderedSections
 }

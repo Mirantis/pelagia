@@ -63,9 +63,6 @@ type CephDeploymentSpec struct {
 	// RBDMirror allows to configure RBD mirroring between two Ceph Clusters
 	// +optional
 	RBDMirror *CephRBDMirrorSpec `json:"rbdMirror,omitempty"`
-	// RookConfig is a key-value mapping which contains ceph config keys with a specified values
-	// +optional
-	RookConfig map[string]string `json:"rookConfig,omitempty"`
 	// SharedFilesystem enables such system as CephFS
 	// +optional
 	SharedFilesystem *CephSharedFilesystem `json:"sharedFilesystem,omitempty"`
@@ -81,6 +78,11 @@ type CephDeploymentSpec struct {
 	// Deprecated parameter, use cephxClients instead
 	// +optional
 	OldClients []CephOldClient `json:"clients,omitempty"`
+	// Deprecated parameter, use extraOpts.staticCephConfig instead for parameters,
+	// which should be set in local ceph.conf and extraOpts.runtimeCephConfig for parameters,
+	// which should be set at runtime config.
+	// +optional
+	RookConfig map[string]string `json:"rookConfig,omitempty"`
 }
 
 // CephCluster represents cluster specification
@@ -159,6 +161,14 @@ type CephDeploymentExtraOpts struct {
 	// RotateOsClients allows rotating Openstack clients created by default.
 	// +optional
 	RotateOsClients *RotateOsClients `json:"rotateOsClients,omitempty"`
+	// StaticCephConfig is a mapping of key-value mapping which contains ceph config keys with a specified values
+	// for required target, which will be set in pod local ceph.conf file
+	// +optional
+	StaticCephConfig map[string]map[string]string `json:"staticCephConfig,omitempty"`
+	// RuntimeCephConfig is a mapping of key-value mapping which contains ceph config keys with a specified values
+	// for required target, which will be set in ceph config runime db
+	// +optional
+	RuntimeCephConfig map[string]map[string]string `json:"runtimeCephConfig,omitempty"`
 }
 
 // RotateOsClients stands for rotation of Openstack clients for Rockoon
