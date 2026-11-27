@@ -6,7 +6,7 @@ keywords: pelagia, pelagia-lcmconfig, configmap, pelagia configuration, lcm conf
 
 <a id="lcmconfig-configmap-pelagia-lcmconfig"></a>
 
-# ConfigMap pelagia-lcmconfig
+# *ConfigMap* *pelagia-lcmconfig*
 
 Pelagia controllers use a common configuration place that is the
 [`pelagia-lcmconfig` Configmap](https://github.com/Mirantis/pelagia/blob/{{ pelagia_branch }}/charts/pelagia-ceph/templates/common.yaml)

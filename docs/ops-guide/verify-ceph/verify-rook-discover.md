@@ -5,7 +5,7 @@ keywords: pelagia, verify rook discover, rook-discover, local-device configmap, 
 
 <a id="verify-rook-discover-verify-rook-discover"></a>
 
-# Verify rook-discover
+# Verify *rook-discover*
 
 To ensure that `rook-discover` is running properly, verify if the
 `local-device` configmap has been created for each Ceph node specified

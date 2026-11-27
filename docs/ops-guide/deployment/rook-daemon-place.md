@@ -23,7 +23,7 @@ The procedures in this section describe how to specify the placement of
 Where `<rookNamespace>` is the Rook namespace. For example, in the default `rook-ceph`
 namespace, the CephFS CSI controller plugin is named `rook-ceph.cephfs.csi.ceph.com-ctrlplugin`.
 
-## Specify rook-ceph-operator placement
+## Specify *rook-ceph-operator* placement
 
 Use the following Pelagia Helm chart values to specify `rook-ceph-operator` placement:
 
@@ -90,7 +90,7 @@ kubectl -n <rookNamespace> get deploy <rookNamespace>.rbd.csi.ceph.com-ctrlplugi
 kubectl -n <rookNamespace> get deploy <rookNamespace>.cephfs.csi.ceph.com-ctrlplugin -o yaml
 ```
 
-## Specify rook-discover placement
+## Specify *rook-discover* placement
 
 Use the following Pelagia Helm chart values to specify `rook-discover` placement:
 

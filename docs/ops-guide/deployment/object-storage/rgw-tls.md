@@ -17,7 +17,7 @@ Once you enable Ceph Object Gateway (`radosgw`) as described in [Enable Ceph RGW
 
 This section describes how to specify a custom public endpoint for the Ceph Object Storage.
 
-## Gateway HTTPRoute parameters
+## Gateway *HTTPRoute* parameters
 
 With Pelagia supporting the Gateway API, you can use `CephDeployment` to configure the `HTTPRoute` specification for Ceph Object Storage.
 For configuration details, see [Configure Gateway API HTTPRoute](./rgw-tls.md#rgw-tls-configure-tls-for-object-gateway-using-the-gateway-api).
@@ -49,7 +49,7 @@ For API reference, see [CephDeployment API: HTTPRoute parameters](../../../custo
 
     The related ObjectStore defined in the `objectStorage.objectStores` section must contain the `servedByIngress: true` parameter. Only one ObjectStore with public access through Ingress is supported.
 
-### The `tlsConfig` section parameters
+### The *tlsConfig* section parameters
 
 - `tlsSecretRefName` - Secret name with TLS certs in Rook Ceph namespace, for example, `rook-ceph`.
   Allows avoiding exposure of certs directly in `spec`. Must contain the following format:
@@ -92,7 +92,7 @@ For API reference, see [CephDeployment API: HTTPRoute parameters](../../../custo
 - `hostname` - Custom name to override the Ceph Object Storage name for public access. Public RGW endpoint has the
   `https://<hostname>.<publicDomain>` format.
 
-### The `controllerClassName` parameter
+### The *controllerClassName* parameter
 
 `controllerClassName` defines the name of the custom Ingress Controller. Pelagia does not support deploying Ingress
 Controllers, so you must deploy the Ingress Controller before configuring the `ingressConfig` section in the
@@ -100,7 +100,7 @@ Controllers, so you must deploy the Ingress Controller before configuring the `i
 
 Due to the NGINX Ingress retirement, Pelagia integrated with Rockoon uses Envoy Proxy by default on newly deployed clusters. On existing clusters, disable ingress as described in [Upgrade notes 1.x to 2.x: Post-upgrade steps](https://mirantis.github.io/pelagia/2.x/upgrade-guide/upgrade-notes/#post-upgrade-steps).
 
-### The `annotations` parameter
+### The *annotations* parameter
 
 `annotations` parameter defines extra annotations for the ingress proxy that are a key-value mapping of strings
 to add or override ingress rule annotations. For details, see
