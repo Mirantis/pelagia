@@ -7,7 +7,7 @@ keywords: pelagia, ceph, cephosdremovetask, ceph osd removal, pg rebalance, ceph
 
 <a id="cephosdremovetask-timeout-cephosdremovetask-failure-with-a-timeout-during-rebalance"></a>
 
-# CephOsdRemoveTask failure with a timeout during rebalance
+# *CephOsdRemoveTask* failure with a timeout during rebalance
 
 Ceph OSD removal procedure includes the Ceph OSD `out` action that starts
 the Ceph PGs rebalancing process. The total time for rebalancing depends on a

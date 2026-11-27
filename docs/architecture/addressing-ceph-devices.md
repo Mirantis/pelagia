@@ -15,7 +15,7 @@ This format is reliable and unaffected by the disk controller actions, for examp
 
 This section explains each method in detail.
 
-## The `by-id` identifier
+## The *by-id* identifier
 
 The storage device `/dev/disk/by-id` format mostly bases on a disk serial
 number, which is unique for each disk. A `by-id` symlink is created by the
@@ -90,7 +90,7 @@ spec:
           size: 3
 ```
 
-## The `name` identifier
+## The *name* identifier
 
 The storage device `name` format cannot be considered
 persistent because the sequence in which block devices are added during boot
@@ -98,7 +98,7 @@ is semi-arbitrary. This means that block device names, for example, `nvme0n1`
 and `sdc`, are assigned to physical disks during discovery, which may vary
 inconsistently from the previous node state.
 
-## The `by-path` identifier
+## The *by-path* identifier
 
 The storage device `by-path` format is supported, but we recommend using `by-id` symlinks instead of `by-path`
 symlinks due to `by-id` symlinks directly refer to the disk serial number.

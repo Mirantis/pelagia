@@ -154,7 +154,7 @@ For all supported parameters of Ceph clients, refer to [CephxClients parameters]
 
 <a id="move-default-clients-to-spec"></a>
 
-## Manage the default OpenStack clients using the CephDeployment spec
+## Manage the default OpenStack clients using the *CephDeployment* spec
 
 To take full control of the `CephClient` resources that Pelagia creates
 automatically, define them in the `CephDeployment` spec. The following example

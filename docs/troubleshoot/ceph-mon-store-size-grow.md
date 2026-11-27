@@ -5,7 +5,7 @@ keywords: pelagia, ceph, ceph monitor store, store.db size, mon disk low, ceph m
 
 <a id="ceph-mon-store-size-grow-ceph-monitors-storedb-size-rapidly-growing"></a>
 
-# Ceph Monitors store.db size rapidly growing
+# Ceph Monitors *store.db* size rapidly growing
 
 The `MON_DISK_LOW` Ceph Cluster health message indicates that the
 `store.db` size of the Ceph Monitor is rapidly growing and the `compaction`

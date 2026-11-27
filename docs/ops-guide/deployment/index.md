@@ -7,6 +7,6 @@ keywords: pelagia, cephdeployment, ceph operations, ceph configuration,
 
 <a id="index-cephdeployment-operations"></a>
 
-# CephDeployment operations
+# *CephDeployment* operations
 
 This section describes operations with `CephDeployment` custom resources.

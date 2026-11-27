@@ -19,7 +19,7 @@ regulates access for the bucket user.
 The procedure uses the `s3cmd` command-line tool.
 
 <a name="bucket-policy-s3-configure-s3cmd-command-line-tool"></a>
-## Configure `s3cmd` command-line tool
+## Configure *s3cmd* command-line tool
 
 !!! note
 

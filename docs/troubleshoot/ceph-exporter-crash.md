@@ -6,7 +6,7 @@ keywords: pelagia, ceph, ceph exporter crash, ceph crash list, rook ceph exporte
 
 <a id="ceph-exporter-crash-the-ceph-exporter-pods-are-present-in-the-ceph-crash-list"></a>
 
-# The ceph-exporter pods are present in the Ceph crash list
+# The *ceph-exporter* pods are present in the Ceph crash list
 
 After a cluster update, the `ceph-exporter` pods may be present in
 the **ceph crash ls** or **ceph health detail** list while
